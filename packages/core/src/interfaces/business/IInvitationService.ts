@@ -20,6 +20,8 @@ import {
   HexString32,
   Signature,
   TokenId,
+  MarketplaceListing,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -75,6 +77,17 @@ export interface IInvitationService {
     | PersistenceError
   >;
 
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError>;
+
   getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
 
   getConsentContractCID(
@@ -127,6 +140,19 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+  >;
+
+  getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getListingsTotal(): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 }
 

@@ -59,12 +59,12 @@ export class CoinbaseWalletProvider implements IWalletProvider {
       return errAsync("Should call connect() first.");
     }
     const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) =>
-      console.log(e),
-    ).map((signature) => {
-      // below method can be used to disconnect but it requires reload
-      // this._provider.close();
-      return Signature(signature);
-    });
+    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {}).map(
+      (signature) => {
+        // below method can be used to disconnect but it requires reload
+        // this._provider.close();
+        return Signature(signature);
+      },
+    );
   }
 }

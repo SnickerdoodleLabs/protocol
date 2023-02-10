@@ -20,7 +20,6 @@ import {
   IDataWalletBackup,
   InitializationVector,
   IpfsCID,
-  ISnickerdoodleCore,
   LazyReward,
   MetatransactionSignatureRequest,
   PageInvitation,
@@ -41,6 +40,8 @@ import {
   MinimalForwarderContractError,
   PersistenceError,
   UninitializedError,
+  EVMContractAddress,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -48,10 +49,9 @@ import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 
+import { Environment, TestHarnessMocks } from "@test-harness/mocks";
 import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
-
-import { Environment, TestHarnessMocks } from "@test-harness/mocks";
 
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
@@ -288,7 +288,7 @@ export class DataWalletProfile {
         const demographic = JSON.parse(content);
 
         return ResultAsync.combine([
-          this.core.setAge(demographic.age ?? null),
+          this.core.setBirthday(demographic.birthday ?? null),
           this.core.setGender(demographic.gender ?? null),
           this.core.setLocation(demographic.location ?? null),
           // TODO: add more
@@ -331,14 +331,17 @@ export class DataWalletProfile {
               EVMAccountAddress(evmT.from),
               evmT.value ? BigNumberString(evmT.value) : null,
               evmT.gasPrice ? BigNumberString(evmT.gasPrice) : null,
-              evmT.gasOffered ? BigNumberString(evmT.gasOffered) : null,
-              evmT.feesPaid ? BigNumberString(evmT.feesPaid) : null,
+              evmT.contractAddress
+                ? EVMContractAddress(evmT.contractAddress)
+                : null,
+              evmT.input ?? null,
+              evmT.methodId ?? null,
+              evmT.functionName ?? null,
               evmT.events,
-              evmT.valueQuote,
             ),
         );
 
-        return this.core.addEVMTransactions(evmTransactions);
+        return this.core.addTransactions(evmTransactions);
       })
       .map(() =>
         console.log(`loaded evm transactions from ${evmTransactionsPath}`),
@@ -411,6 +414,7 @@ export class DataWalletProfile {
             hash: backupJson.hash,
             timestamp: UnixTimestamp(backupJson.timestamp),
             signature: backupJson.signature,
+            priority: EBackupPriority.NORMAL,
           },
           blob: new AESEncryptedString(
             EncryptedString(backupJson.blob.data),

@@ -1,13 +1,26 @@
 import { EventEmitter } from "events";
 
-import { EarnedReward, IEVMNFT, LinkedAccount } from "@objects/businessObjects";
+import { ResultAsync } from "neverthrow";
+
+import {
+  EarnedReward,
+  LinkedAccount,
+  TokenAddress,
+  TokenBalance,
+  TokenInfo,
+  TokenMarketData,
+  WalletNFT,
+  SiteVisit,
+  MarketplaceListing,
+} from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
+import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
 import {
   AccountAddress,
   Age,
   BigNumberString,
+  ChainId,
   CountryCode,
   DataWalletAddress,
   EmailAddressString,
@@ -19,9 +32,8 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
+  URLString,
 } from "@objects/primitives";
-import { ResultAsync } from "neverthrow";
-import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
@@ -40,7 +52,6 @@ export interface ISdlDataWallet extends EventEmitter {
   getUnlockMessage: (
     languageCode?: LanguageCode,
   ) => ResultAsync<string, JsonRpcError>;
-  setAge(age: Age): ResultAsync<void, JsonRpcError>;
   getAge(): ResultAsync<Age | null, JsonRpcError>;
   setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError>;
   getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
@@ -55,8 +66,21 @@ export interface ISdlDataWallet extends EventEmitter {
   setLocation(location: CountryCode): ResultAsync<void, JsonRpcError>;
   getLocation(): ResultAsync<CountryCode | null, JsonRpcError>;
   getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError>;
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
+  ): ResultAsync<number, JsonRpcError>;
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], JsonRpcError>;
+
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, JsonRpcError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
   closeTab(): ResultAsync<void, JsonRpcError>;
   getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;
   getAcceptedInvitationsCID(): ResultAsync<
@@ -112,6 +136,30 @@ export interface ISdlDataWallet extends EventEmitter {
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, JsonRpcError>;
-  
+
   getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
+
+  getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
+
+  getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
+
+  getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, JsonRpcError>;
+
+  getListingsTotal(): ResultAsync<number, JsonRpcError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, JsonRpcError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, JsonRpcError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, JsonRpcError>;
 }

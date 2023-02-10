@@ -1,4 +1,4 @@
-import campaignIcon from "@extension-onboarding/assets/icons/campaign.svg";
+import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
@@ -6,6 +6,7 @@ import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleL
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
+  FAQ_URL,
   PRIVACY_POLICY_URL,
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
@@ -30,33 +31,39 @@ export interface IRoute {
 
 export const routes: IRoute[] = [
   {
-    icon: portfolioIcon,
-    title: "My Portfolio",
-    path: EPaths.HOME,
+    icon: rewardsIcon,
+    title: "Rewards Marketplace",
+    path: EPaths.MY_REWARDS,
     subroutes: null,
   },
   {
-    icon: rewardsIcon,
-    title: "Rewards",
-    path: null,
-    subroutes: [{ title: "My Rewards", path: EPaths.MY_REWARDS }],
-  },
-  {
-    icon: campaignIcon,
-    title: "Campaigns",
+    icon: portfolioIcon,
+    title: "My Data Dashboard",
     path: null,
     subroutes: [
-      { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
-      { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
+      { path: EPaths.TOKENS, title: "Tokens" },
+      { path: EPaths.NFTS, title: "NFTs" },
+      { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
+      { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
   },
+  // {
+  //   icon: campaignIcon,
+  //   title: "Campaigns",
+  //   path: null,
+  //   subroutes: [
+  //     { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
+  //     { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
+  //   ],
+  // },
   {
     icon: settingsIcon,
     title: "Settings",
     path: null,
     subroutes: [
-      { title: "Web 3 Info", path: EPaths.WEB3_SETTINGS },
-      { title: "Web 2 Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
+      { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Campaigns", path: EPaths.CAMPAIGN_SETTINGS },
       { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
@@ -81,7 +88,7 @@ const Sidebar = () => {
       )}
       <Box display="flex" flexDirection="column" className={classes.container}>
         <Box mt={4.5}>
-          <img src={snickerDoodleLogo} />
+          <img src={sdlLogoSafe} />
         </Box>
         <Box
           onClick={() => {
@@ -97,6 +104,7 @@ const Sidebar = () => {
           color="#F2F4F7"
           alignItems="center"
           justifyContent="center"
+          id="sb-link-account"
         >
           <Box display="flex" mr={1}>
             <AddIcon className={classes.linkAccountButtonIcon} />
@@ -122,6 +130,7 @@ const Sidebar = () => {
                 flexDirection="column"
               >
                 <Box
+                  id={`sb-${index}`}
                   onClick={() => {
                     if (route.path) {
                       navigate(route.path);
@@ -136,9 +145,9 @@ const Sidebar = () => {
                   {...(isActive && { bgcolor: "#DAD8E9" })}
                   className={classes.routeWrapper}
                 >
-                  <Box display="flex" mr={1.5}>
+                  {/* <Box display="flex" mr={1.5}>
                     <img className={classes.mainRouteIcon} src={route.icon} />
-                  </Box>
+                  </Box> */}
                   <Typography
                     className={clsx(classes.mainRouteText, {
                       [classes.textActive]: isActive,
@@ -164,15 +173,16 @@ const Sidebar = () => {
                       display="flex"
                       flexDirection="column"
                     >
-                      {subroutes.map((subroute, index) => {
+                      {subroutes.map((subroute, subrouteIndex) => {
                         return (
                           <Box
                             className={classes.routeWrapper}
-                            key={index}
+                            key={`${index}-${subrouteIndex}`}
                             onClick={() => {
                               navigate(subroute.path);
+                              setLastClickedIndex(index);
                             }}
-                            mb={index === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 3}
                           >
                             <Typography
                               className={clsx(classes.subrouteText, {
@@ -192,14 +202,24 @@ const Sidebar = () => {
             );
           })}
         </Box>
-        <Box alignSelf="flex-start" marginTop="auto" mb={3.5} display="flex">
+        <Box alignSelf="flex-start" marginTop="auto" mb={2} display="flex">
           <Typography
             onClick={() => {
               window.open(ZENDEKS_URL, "_blank");
             }}
             className={classes.link}
           >
-            Contact with Us
+            Contact Us
+          </Typography>
+        </Box>
+        <Box mb={2} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(FAQ_URL, "_blank");
+            }}
+          >
+            FAQ
           </Typography>
         </Box>
         <Box pb={2.5} width="100%" justifyContent="flex-start">

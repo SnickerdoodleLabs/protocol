@@ -8,10 +8,13 @@ import {
   BackupIndex,
   BackupIndexEntry,
   CeramicStreamID,
+  DataWalletBackupID,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
   PersistenceError,
+  AjaxError,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -34,8 +37,6 @@ export class CeramicCloudStorage implements ICloudStorage {
   private _dataStore?: DIDDataStore<ModelTypes>;
   private _dataModel?: DataModel<ModelTypes>;
 
-  private _restored: Set<string> = new Set();
-
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
     null;
@@ -50,19 +51,28 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
+  pollByPriority(
+    restored: Set<DataWalletBackupID>,
+    priority: EBackupPriority,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return okAsync([]);
+  }
+
   public clear(): ResultAsync<void, PersistenceError> {
-    return this._init().andThen(({ store, client }) => {
-      return this._getBackupIndex().andThen((entries) => {
-        return ResultUtils.combine(
-          entries.map((entry) => {
-            return ResultAsync.fromPromise(
-              client.pin.rm(StreamID.fromString(entry.id)),
-              (e) => new PersistenceError("Error pinning stream", e),
-            );
-          }),
-        ).andThen(() => this._putBackupIndex([]));
-      });
-    });
+    return this._init()
+      .andThen(({ store, client }) => {
+        return this._getBackupIndex().andThen((entries) => {
+          return ResultUtils.combine(
+            entries.map((entry) => {
+              return ResultAsync.fromPromise(
+                client.pin.rm(StreamID.fromString(entry.id)),
+                (e) => new PersistenceError("Error pinning stream", e),
+              );
+            }),
+          ).andThen(() => this._putBackupIndex([]));
+        });
+      })
+      .mapErr((e) => new PersistenceError("error clearing ceramic", e));
   }
 
   protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
@@ -158,38 +168,39 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError> {
-    return this._init().andThen(({ store, model, client }) => {
-      return ResultAsync.fromPromise(
-        model.createTile("DataWalletBackup", backup),
-        (e) => new PersistenceError("error creating backup tile", e),
-      ).andThen((doc) => {
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
+    return this._init()
+      .andThen(({ store, model, client }) => {
         return ResultAsync.fromPromise(
-          client.pin.add(doc.id, true),
-          (e) => new PersistenceError("unable to pin backup tile", e),
-        ).andThen(() => {
-          // only index if pin was successful
-          const id = doc.id.toUrl();
-          return this._getBackupIndex().andThen((backups) => {
-            const index = [
-              ...backups,
-              { id: id, timestamp: backup.header.timestamp },
-            ];
+          model.createTile("DataWalletBackup", backup),
+          (e) => new PersistenceError("error creating backup tile", e),
+        ).andThen((doc) => {
+          return ResultAsync.fromPromise(
+            client.pin.add(doc.id, true),
+            (e) => new PersistenceError("unable to pin backup tile", e),
+          ).andThen(() => {
+            // only index if pin was successful
+            const id = doc.id.toUrl();
+            return this._getBackupIndex().andThen((backups) => {
+              const index = [
+                ...backups,
+                { id: id, timestamp: backup.header.timestamp },
+              ];
 
-            return this._putBackupIndex(index).map((_) => {
-              console.debug("CloudStorage", `Backup placed: ${id}`);
-              this._restored.add(id);
-              return CeramicStreamID(id);
+              return this._putBackupIndex(index).map((_) => {
+                console.debug("CloudStorage", `Backup placed: ${id}`);
+                return DataWalletBackupID(id);
+              });
             });
           });
         });
-      });
-    });
+      })
+      .mapErr((e) => new PersistenceError("error putting backup", e));
   }
 
   private _putBackupIndex(
     backups: BackupIndexEntry[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     const payload = {
       backups: backups,
     };
@@ -212,17 +223,16 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
-  public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  public pollBackups(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._getBackupIndex().andThen((backups) => {
-      const recent = backups.map((record) => record.id);
-      const found = [...recent].filter((x) => !this._restored.has(x));
+      const recent = backups.map((record) => DataWalletBackupID(record.id));
+      const found = [...recent].filter((x) => !restored.has(x));
       // console.debug("CloudStorage", `${found.length} new backups found`);
       return ResultUtils.combine(
         found.map((backupID) => this._getBackup(backupID)),
-      ).map((fetched) => {
-        this._restored = new Set(recent);
-        return fetched;
-      });
+      );
     });
   }
 

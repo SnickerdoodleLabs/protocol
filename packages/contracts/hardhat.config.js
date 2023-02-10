@@ -8,8 +8,6 @@ require("solidity-coverage");
 //require('hardhat-docgen');
 require("solidity-docgen");
 require("./tasks/general.js");
-require("./tasks/ipfs.js");
-require("./tasks/queries.js");
 require("./tasks/consent.js");
 require("./tasks/crumbs.js");
 require("./tasks/utils.js");
@@ -31,9 +29,6 @@ const key = process.env.ETH_PRIVATE_KEY;
 // if no private key is found in .env, use the public known mnemonic
 const accounts = key ? [key] : { mnemonic };
 
-// we want to use a different chain id locally vs remotely
-const chainid = process.env.NETWORK === "local" ? 31338 : 31337;
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -52,7 +47,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      chainId: chainid,
+      chainId: 31337,
       mining: {
         auto: true,
         interval: 5000,
@@ -60,7 +55,7 @@ module.exports = {
     },
     local: {
       accounts: accounts,
-      chainId: 31338,
+      chainId: 31337,
       url: "http://127.0.0.1:8569",
       gas: 6000000,
       gasPrice: 8000000000,
@@ -133,6 +128,24 @@ module.exports = {
       // fantom mainnet
       accounts: accounts,
       chainId: 250,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
+    gnosis: {
+      // gnosis mainnet
+      accounts: accounts,
+      chainId: 100,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
+    binance: {
+      // binance mainnet - BNB
+      accounts: accounts,
+      chainId: 56,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
+    moonbeam: {
+      // moonbeam mainnet - GLMR
+      accounts: accounts,
+      chainId: 1284,
       url: urlOverride || "http://127.0.0.1:8549",
     },
   },

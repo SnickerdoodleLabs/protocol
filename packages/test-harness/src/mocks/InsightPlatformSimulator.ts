@@ -1,5 +1,14 @@
 import * as fs from "fs";
 
+import {
+  GetSignedUrlConfig,
+  Storage,
+  Bucket,
+  GetSignedUrlResponse,
+  GetFilesResponse,
+  File,
+  GetFilesCallback,
+} from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -23,12 +32,17 @@ import {
   EarnedReward,
   MinimalForwarderContractError,
   EligibleReward,
+  SHA256Hash,
+  AdSignature,
+  InvalidSignatureError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  clearCloudBackupsTypes,
+  signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
@@ -236,6 +250,59 @@ export class InsightPlatformSimulator {
         });
     });
 
+    this.app.post("/clearAllBackups", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.walletAddress,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          clearCloudBackupsTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          const storage = new Storage({
+            keyFilename: "../test-harness/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+          storage.bucket("ceramic-replacement-bucket").deleteFiles();
+          res.send(undefined);
+        });
+    });
+
+    this.app.post("/getSignedUrl", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.fileName,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          signedUrlTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          const storage = new Storage({
+            keyFilename: "../test-harness/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+          const writeOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "write",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+          const writeUrl = await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(req.body.fileName)
+            .getSignedUrl(writeOptions);
+
+          res.send(URLString(writeUrl[0]));
+        });
+    });
+
     this.app.post("/metatransaction", (req, res) => {
       // Gather all the parameters
       const accountAddress = EVMAccountAddress(req.body.accountAddress);
@@ -404,5 +471,30 @@ export class InsightPlatformSimulator {
             });
           });
       });
+  }
+
+  public verifyAdSignature(
+    contentHash: SHA256Hash,
+    adSignature: AdSignature,
+  ): ResultAsync<void, InvalidSignatureError> {
+    return this.cryptoUtils.verifyEVMSignature(
+      contentHash, adSignature.signature as Signature
+    ).andThen((optInAddressFromSignature) => {
+      if(!this.compareEVMAddresses(optInAddressFromSignature, adSignature.consentContractAddress)) {
+        return errAsync(
+          new InvalidSignatureError(
+            `Given signature seems to be signed by ${optInAddressFromSignature} ` +
+            `instead of ${adSignature.consentContractAddress}`,
+          )
+        );
+      }
+      return okAsync(undefined);
+    })
+  }
+
+  private compareEVMAddresses(
+    accAddr: EVMAccountAddress, contrAddr: EVMContractAddress
+  ): boolean { 
+    return accAddr.toString().toLowerCase() == contrAddr.toString().toLowerCase(); 
   }
 }

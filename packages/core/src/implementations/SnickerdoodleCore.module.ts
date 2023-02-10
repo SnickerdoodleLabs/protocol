@@ -13,7 +13,7 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CovalentEVMTransactionRepository,
+  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -25,8 +25,8 @@ import {
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
@@ -57,6 +57,7 @@ import {
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
+  AdService,
   BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
@@ -70,11 +71,13 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
   DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
+  MarketplaceRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
@@ -98,6 +101,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMonitoringService,
@@ -124,6 +129,8 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAdContentRepository,
+  IAdRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
@@ -132,6 +139,8 @@ import {
   IDNSRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  IMarketplaceRepository,
+  IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
@@ -156,6 +165,7 @@ import {
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
+
 export const snickerdoodleCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -179,6 +189,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
+      .inSingletonScope();
+    bind<IAdService>(IAdServiceType)
+      .to(AdService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
@@ -210,11 +223,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);
+    bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
+      MarketplaceRepository,
+    );
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
-      .inSingletonScope();
-    bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
@@ -229,6 +242,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IBackupManagerProvider>(IBackupManagerProviderType)
       .to(BackupManagerProvider)
+      .inSingletonScope();
+    bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
+      .to(CoinGeckoTokenPriceRepository)
       .inSingletonScope();
 
     // Utilities
@@ -276,6 +292,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+
+    bind<IAdContentRepository>(IAdRepositoryType)
+      .to(AdContentRepository)
       .inSingletonScope();
 
     bind<ISDQLParserFactory>(ISDQLParserFactoryType)

@@ -2,8 +2,8 @@ import { IDataWalletProfileRepository } from "@extension-onboarding/services/int
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { convertToSafePromise } from "@extension-onboarding/utils/ResultUtils";
-import { Age, Gender, UnixTimestamp } from "@snickerdoodlelabs/objects";
-import { ok, okAsync, ResultAsync } from "neverthrow";
+import { UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 declare const window: IWindowWithSdlDataWallet;
@@ -19,7 +19,8 @@ export class DataWalletProfileRepository
       window.sdlDataWallet.getBirthday(),
       window.sdlDataWallet.getLocation(),
       window.sdlDataWallet.getGender(),
-    ]).map(([_, birthday, country_code, gender]) => {
+      window.sdlDataWallet.getAge(),
+    ]).map(([_, birthday, country_code, gender, age]) => {
       return new PII(
         null,
         null,
@@ -29,6 +30,7 @@ export class DataWalletProfileRepository
         null,
         null,
         gender,
+        age,
       );
     });
   }
@@ -69,14 +71,6 @@ export class DataWalletProfileRepository
             await convertToSafePromise(
               window.sdlDataWallet.setBirthday(
                 (+new Date(date_of_birth) / 1000) as UnixTimestamp,
-              ),
-            ),
-            await convertToSafePromise(
-              window.sdlDataWallet.setAge(
-                Age(
-                  new Date().getFullYear() -
-                    new Date(date_of_birth).getFullYear(),
-                ),
               ),
             ),
           ]

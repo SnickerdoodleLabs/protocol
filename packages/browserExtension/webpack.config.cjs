@@ -70,6 +70,9 @@ var options = {
     path: path.resolve(__dirname, "build"),
     clean: true,
     publicPath: process.env.ASSET_PATH,
+    ...(env.NODE_ENV === "development"
+      ? { chunkFilename: "chunk.[name].bundle.js" }
+      : {}),
   },
   module: {
     rules: [
@@ -164,18 +167,22 @@ var options = {
         process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       ),
       __CERAMIC_NODE_URL__: JSON.stringify(process.env.__CERAMIC_NODE_URL__),
-      __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(process.env.__REQUEST_FOR_DATA_EVENT_FREQ__),
+      __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
+        process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
+      ),
       __CONTROL_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__CONTROL_CHAIN_PROVIDER_URL__,
       ),
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
+      __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),
       __COOKIE_LIFETIME__: JSON.stringify(
         process.env.__COOKIE_LIFETIME__ || "1",
       ),
+      __DOMAIN_FILTER__ : JSON.stringify(process.env.__DOMAIN_FILTER__)
     }),
     new CopyWebpackPlugin({
       patterns: [

@@ -46,11 +46,153 @@ describe("ConsentFactory", () => {
     // deploy the Consent factory contract before each test
     // the Consent factory also deploys the UpgradeableBeacon contract
     ConsentFactory = await ethers.getContractFactory("ConsentFactory");
-    consentFactory = await ConsentFactory.deploy(
-      trustedForwarder.address,
-      consentImpAddress,
+    consentFactory = await upgrades.deployProxy(
+      ConsentFactory,
+      [
+        trustedForwarder.address,
+        consentImpAddress
+      ]
     );
     await consentFactory.deployed();
+  });
+
+  describe("addListing", function () {
+
+    it("test marketplace listings functionality", async function () {
+      const slot2 = 2;
+      const slot3 = 3; 
+      const slot4 = 4; 
+      const slot5 = 5; // this will be our invalid slot param
+
+      const cid2 = "a";
+      const cid3 = "b";
+      const cid4 = "c";
+
+      await consentFactory
+        .connect(owner)
+        .newListingHead(slot2, cid2).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        // first initialize a head listing
+        await consentFactory
+        .connect(owner)
+        .newListingHead(slot4, cid4).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        // ensure head rules are followed, i.e. a new head must be in a slot higher than previous
+        await expect(
+          consentFactory
+            .connect(owner)
+            .newListingHead(slot3, cid3),
+        ).to.revertedWith("ConsentFactory: The new head must be greater than old head");
+
+        // When adding a listing behind the head, make sure slot ordering is correct
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot4, slot3, slot2, cid3),
+        ).to.revertedWith("ConsentFactory: _upstream must be greater than _newSlot");
+
+        // add a tail listing behind the head
+        await consentFactory
+        .connect(owner)
+        .insertListing(slot2, slot3, slot4, cid3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot3, slot2, slot4, cid2),
+        ).to.revertedWith("ConsentFactory: _newSlot must be greater than _downstream");
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot2, slot3, slot4, cid3),
+        ).to.revertedWith("ConsentFactory: _upstream listing points to different _downstream listing");
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot2, slot3, slot5, cid3),
+        ).to.revertedWith("ConsentFactory: invalid upstream slot");
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsTotal(),
+        ).to.eq(3);
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsHead()
+        ).to.eq(slot4);
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .getListings(slot5, 3),
+        ).to.revertedWith("ConsentFactory: invalid slot");
+
+        const finalSlot = ethers.BigNumber.from(1);
+        expect(
+         await consentFactory
+            .connect(owner)
+            .getListings(slot4, 3),
+        ).to.eql([[cid4, cid3, cid2], finalSlot]);
+
+        // try removing a tail listing by specifying its upstream partner
+        await consentFactory
+        .connect(owner)
+        .removeListingTail(slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsTotal(),
+        ).to.eq(2);
+
+        // try removing the head listing
+        await consentFactory
+        .connect(owner)
+        .removeHeadListing().then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsTotal(),
+        ).to.eq(1);
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsHead(),
+        ).to.eq(3);
+
+        expect(
+         await consentFactory
+            .connect(owner)
+            .getListings(slot3, 1),
+        ).to.eql([[cid3], finalSlot]);
+    });
   });
 
   describe("createConsent", function () {

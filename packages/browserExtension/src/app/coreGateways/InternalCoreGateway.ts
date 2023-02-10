@@ -3,8 +3,8 @@ import {
   EVMAccountAddress,
   FamilyName,
   GivenName,
-  IEVMBalance,
-  IEVMNFT,
+  WalletNFT,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -19,16 +19,20 @@ export class InternalCoreGateway {
     this._handler = new CoreHandler(rpcEngine);
   }
 
+  public updateRpcEngine(rpcEngine: JsonRpcEngine) {
+    this._handler.updateRpcEngine(rpcEngine);
+  }
+
   public getState(): ResultAsync<IInternalState, JsonRpcError> {
     return this._handler.call(EInternalActions.GET_STATE);
   }
   public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
     return this._handler.call(EInternalActions.GET_ACCOUNTS);
   }
-  public getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EInternalActions.GET_ACCOUNT_BALANCES);
   }
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
     return this._handler.call(EInternalActions.GET_ACCOUNT_NFTS);
   }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {

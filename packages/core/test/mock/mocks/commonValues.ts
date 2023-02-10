@@ -10,6 +10,7 @@ import {
   SDQLString,
   EVMAccountAddress,
   ControlChainInformation,
+  ECurrencyCode,
 } from "@snickerdoodlelabs/objects";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
@@ -58,7 +59,10 @@ export const modelAliases = {
   tiles: {},
 };
 
-export const defaultInsightPlatformBaseUrl = URLString("http://localhost:3000/v0");
+export const defaultInsightPlatformBaseUrl = URLString(
+  "http://localhost:3000/v0",
+);
+export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
@@ -67,6 +71,7 @@ export const testCoreConfig = new CoreConfig(
   controlChainInformation,
   URLString("http://ipfstest.com/whatever"),
   defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl
+  defaultGoogleCloudBucket, // defaultGoogleCloudBucket
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT
@@ -74,11 +79,17 @@ export const testCoreConfig = new CoreConfig(
   100000, // backupChunkSizeTarget
   "covalent api key",
   "moralis api key",
+  "nftScan api key",
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
-  "USD",
-  5000
+  ECurrencyCode.USD,
+  new Map(),
+  100, // etherscan tx batch size
+  5000,
+  { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
+  10000,
+  "(localhost|chrome:\/\/)"
 );
 
 // #endregion

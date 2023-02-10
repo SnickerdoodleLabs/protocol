@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/common-utils",
-  "version": "0.0.15",
+  "version": "0.0.18",
   "description": "Common utils classes used in snickerdoodlelabs projects",
   "license": "MIT",
   "repository": {
@@ -18,6 +18,7 @@
     "Crypto"
   ],
   "main": "dist/index.js",
+  "module": "./dist/index.js",
   "files": [
     "dist",
     "!dist/test",
@@ -38,7 +39,6 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
   "type": "module",
-  "module": "./dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/objects": "workspace:^",

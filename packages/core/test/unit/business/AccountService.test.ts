@@ -14,6 +14,7 @@ import {
   BlockchainProviderError,
   CeramicStreamID,
   ChainId,
+  DataWalletBackupID,
   EChain,
   EncryptedString,
   EVMAccountAddress,
@@ -82,7 +83,7 @@ const solanaDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress2"),
   solanaDerivedPrivateKey,
 );
-const evmChain = EChain.LocalDoodle;
+const evmChain = EChain.DevDoodle;
 const solanaChain = EChain.Solana;
 const languageCode = LanguageCode("en");
 const unlockMessage = "Login to your Snickerdoodle data wallet"; // Needs to match result of getUnlockMessage(en)
@@ -119,7 +120,7 @@ const solanaBurnCrumbMetatransactionSignature = Signature(
   "solanaBurnCrumbMetatransactionSignature",
 );
 
-const ceramicStream = CeramicStreamID("ceramicStream");
+const dataWalletBackupID = DataWalletBackupID("dataWalletBackup");
 
 class AccountServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -426,8 +427,8 @@ class AccountServiceMocks {
     td.when(
       this.dataWalletPersistence.removeAccount(solanaAccountAddress),
     ).thenReturn(okAsync(undefined));
-    td.when(this.dataWalletPersistence.postBackup()).thenReturn(
-      okAsync(ceramicStream),
+    td.when(this.dataWalletPersistence.postBackups()).thenReturn(
+      okAsync([dataWalletBackupID]),
     );
 
     // ContractFactory --------------------------------------------------

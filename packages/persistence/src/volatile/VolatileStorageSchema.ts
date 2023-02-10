@@ -35,4 +35,29 @@ export const volatileStorageSchema = [
   new VolatileTableIndex(ELocalStorageKey.EARNED_REWARDS, "queryCID", false, [
     ["type", false],
   ]),
+  new VolatileTableIndex(ELocalStorageKey.ELIGIBLE_ADS, ["queryCID", "key"], false, [
+    ["type", false],
+  ]),
+  new VolatileTableIndex(ELocalStorageKey.AD_SIGNATURES, ["queryCID", "adKey"], false, [
+    ["type", false],
+  ]),
+  new VolatileTableIndex(
+    ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS,
+    "receivingAddress",
+    false,
+    [["receivingAddress", false]],
+  ),
+  new VolatileTableIndex(ELocalStorageKey.RECEIVING_ADDRESSES, "contractAddress", false),
+  new VolatileTableIndex(
+    ELocalStorageKey.COIN_INFO,
+    ["chain", "address"],
+    false,
+  ),
+  new VolatileTableIndex(
+    ELocalStorageKey.RESTORED_BACKUPS,
+    "id",
+    false,
+    undefined,
+    true,
+  ),
 ];

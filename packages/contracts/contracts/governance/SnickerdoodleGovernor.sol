@@ -10,8 +10,8 @@ import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelo
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @title Consent 
-/// @author Sean Sing
-/// @notice Snickerdoodle Protocol's DAO Contract 
+/// @author Snickerdoodle Labs
+/// @notice Synamint Protocol DAO Governance Contract 
 /// @dev Snickerdoodle (SDL) adopts OpenZeppelin's (OZ) Governor Library
 /// @dev The contract was produced using OZ's Contracts Wizard with the Timelock extension
 /// @dev The contract adopts OZ's proxy upgrade pattern  

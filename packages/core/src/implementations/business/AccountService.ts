@@ -17,7 +17,7 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
-  IChainTransaction,
+  ChainTransaction,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
@@ -25,13 +25,13 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   ExternallyOwnedAccount,
   ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  IEVMNFT,
+  TokenBalance,
+  WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
   LanguageCode,
@@ -45,8 +45,11 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
-  CeramicStreamID,
   EarnedReward,
+  TokenAddress,
+  UnixTimestamp,
+  DataWalletBackupID,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -91,6 +94,18 @@ export class AccountService implements IAccountService {
     @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError> {
+    return this.dataWalletPersistence.getTokenPrice(
+      chainId,
+      address,
+      timestamp,
+    );
+  }
 
   public getUnlockMessage(
     languageCode: LanguageCode,
@@ -350,7 +365,7 @@ export class AccountService implements IAccountService {
           })
           .andThen(() => {
             // We need to post a backup immediately upon adding an account, so that we don't lose access
-            return this.dataWalletPersistence.postBackup();
+            return this.dataWalletPersistence.postBackups();
           })
           .map(() => {
             // Notify the outside world of what we did
@@ -453,7 +468,7 @@ export class AccountService implements IAccountService {
                 })
                 .andThen(() => {
                   // We need to post a backup immediately upon adding an account, so that we don't lose access
-                  return this.dataWalletPersistence.postBackup();
+                  return this.dataWalletPersistence.postBackups();
                 })
                 .map(() => {
                   // Notify the outside world of what we did
@@ -523,11 +538,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccounts();
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     return this.dataWalletPersistence.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
   }
 
@@ -542,20 +557,16 @@ export class AccountService implements IAccountService {
   }
 
   public getTranactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this.dataWalletPersistence.getEVMTransactions(filter);
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
+    return this.dataWalletPersistence.getTransactions(filter);
   }
 
-  // public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
-  //   return this.dataWalletPersistence.getTransactionsArray();
-  // }
-
-  public getTransactionsArray(): ResultAsync<
-    IChainTransaction[],
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionsArray();
+    return this.dataWalletPersistence.getTransactionValueByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<
@@ -564,23 +575,28 @@ export class AccountService implements IAccountService {
   > {
     return this.dataWalletPersistence.getSiteVisitsMap();
   }
+
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addSiteVisits(siteVisits);
+    return this.filterInvalidDomains(siteVisits).andThen((validSiteVisits) => {
+      return this.dataWalletPersistence.addSiteVisits(validSiteVisits);
+    });
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.dataWalletPersistence.getSiteVisits();
   }
 
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEVMTransactions(transactions);
+    return this.dataWalletPersistence.addTransactions(transactions);
   }
 
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
-    return this.dataWalletPersistence.postBackup();
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.dataWalletPersistence
+      .postBackups()
+      .mapErr((e) => new PersistenceError("error posting backups", e));
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -740,6 +756,16 @@ export class AccountService implements IAccountService {
               );
             });
         });
+    });
+  }
+
+  protected filterInvalidDomains(
+    domains: SiteVisit[],
+  ): ResultAsync<SiteVisit[], never> {
+    return this.configProvider.getConfig().map(({ domainFilter }) => {
+      const invalidDomains = new RegExp(domainFilter);
+      console.log(invalidDomains);
+      return domains.filter(({ url }) => !invalidDomains.test(url));
     });
   }
 

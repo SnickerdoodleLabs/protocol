@@ -1,6 +1,5 @@
 export enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
-  AGE = "SD_Age",
   SITE_VISITS = "SD_SiteVisits",
   TRANSACTIONS = "SD_Transactions",
   FIRST_NAME = "SD_GivenName",
@@ -19,4 +18,10 @@ export enum ELocalStorageKey {
   LATEST_BLOCK = "SD_LatestBlock",
   EARNED_REWARDS = "SD_EarnedRewards",
   ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
+  COIN_INFO = "SD_CoinInfo",
+  RESTORED_BACKUPS = "SD_RestoredBackups",
+  ELIGIBLE_ADS = "SD_EligibleAds",
+  AD_SIGNATURES = "SD_AdSignatures",
+  DEFAULT_RECEIVING_ADDRESS = "SD_DefaultReceivingAddress",
+  RECEIVING_ADDRESSES = "SD_ReceivingAddresses"
 }
