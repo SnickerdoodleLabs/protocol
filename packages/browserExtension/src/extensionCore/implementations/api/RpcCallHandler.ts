@@ -496,7 +496,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
-      
+        console.log("pageInvitations", pageInvitations);
         const pageInvitation = pageInvitations.find((value) => {
           const incomingUrl = value.url.replace(/^https?:\/\//, "");
           const incomingUrlInfo = parse(incomingUrl);
