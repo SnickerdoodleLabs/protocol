@@ -17,8 +17,8 @@ export abstract class VersionedObjectMigrator<T> {
       const func = funcs.get(version);
       if (func != null) {
         data = func(data, version);
-        version += 1;
       }
+      version += 1;
     }
 
     return this.factory(data);

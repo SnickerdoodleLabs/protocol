@@ -249,7 +249,7 @@ export class BackupManager implements IBackupManager {
                             const obj = migrator.getCurrent(
                               value.value as unknown as Record<string, unknown>,
                               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                              value.version!,
+                              value.version || 0,
                             );
 
                             return this.volatileStorage

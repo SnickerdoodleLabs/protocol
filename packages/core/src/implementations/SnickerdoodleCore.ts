@@ -163,8 +163,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(NullCloudStorage)
-        // .to(GoogleCloudStorage)
+        // .to(NullCloudStorage)
+        .to(GoogleCloudStorage)
         .inSingletonScope();
     }
 

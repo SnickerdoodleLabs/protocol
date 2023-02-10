@@ -216,11 +216,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.resolveInitRestore!();
           }, config.restoreTimeoutMS);
+
           this._pollHighPriorityBackups().map(() => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.resolveInitRestore!();
             clearTimeout(timeout);
-
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.pollBackups().map(() => this.resolveFullRestore!());
           });
