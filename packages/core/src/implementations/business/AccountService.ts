@@ -764,7 +764,7 @@ export class AccountService implements IAccountService {
   ): ResultAsync<SiteVisit[], never> {
     return this.configProvider.getConfig().map(({ domainFilter }) => {
       const invalidDomains = new RegExp(domainFilter);
-      console.log(invalidDomains);
+  
       return domains.filter(({ url }) => !invalidDomains.test(url));
     });
   }
