@@ -20,6 +20,7 @@ export class ExtensionConfig {
     public nftScanApiKey?: string,
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
-    public domainFilter?: string
+    public domainFilter?: string,
+    public defaultGoogleCloudBucket?: string,
   ) {}
 }
