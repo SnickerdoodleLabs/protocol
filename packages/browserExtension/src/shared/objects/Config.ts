@@ -22,5 +22,6 @@ export class ExtensionConfig {
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
+    public defaultGoogleCloudBucket?: string,
   ) {}
 }

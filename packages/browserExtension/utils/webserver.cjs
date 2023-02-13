@@ -16,7 +16,7 @@ process.env.__POAP_API_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
 process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
 process.env.__DOMAIN_FILTER__ = "(localhost|chrome:\/\/)";
-
+process.env.__GOOGLE_CLOUD_BUCKET__ = "ceramic-replacement-bucket";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
