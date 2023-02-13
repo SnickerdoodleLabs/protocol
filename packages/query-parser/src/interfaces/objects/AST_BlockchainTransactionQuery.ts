@@ -1,4 +1,9 @@
-import { EVMChainCode, ISDQLQueryClause, SDQL_Name } from "@snickerdoodlelabs/objects";
+import {
+  EVMChainCode,
+  ISDQLQueryClause,
+  ISDQLQueryReturnEnum,
+  SDQL_Name,
+} from "@snickerdoodlelabs/objects";
 
 import { AST_Contract } from "@query-parser/interfaces/objects/AST_Contract.js";
 import { AST_Web3Query } from "@query-parser/interfaces/objects/AST_Web3Query.js";
@@ -9,23 +14,22 @@ export class AST_BlockchainTransactionQuery extends AST_Web3Query {
    */
   constructor(
     name: SDQL_Name,
-    readonly returnType:
-      | "string"
-      | "boolean"
-      | "integer"
-      | "number"
-      | "array"
-      | "object",
-    readonly type : "blockchain_transactions",
-    public readonly schema : ISDQLQueryClause,
+    readonly returnType: Exclude<
+      ISDQLQueryReturnEnum,
+      ISDQLQueryReturnEnum.ENUM | ISDQLQueryReturnEnum.LIST
+    >,
+    readonly type: "blockchain_transactions",
+    public readonly schema: ISDQLQueryClause,
     readonly chain: EVMChainCode,
     readonly contract: AST_Contract,
-
   ) {
-    super(name, returnType, type , schema);
+    super(name, returnType, type, schema);
   }
 
-  static fromSchema(name: SDQL_Name, schema: any): AST_BlockchainTransactionQuery {
+  static fromSchema(
+    name: SDQL_Name,
+    schema: any,
+  ): AST_BlockchainTransactionQuery {
     // 1. make contract
     const contract = AST_Contract.fromSchema(schema.contract);
 
@@ -38,5 +42,4 @@ export class AST_BlockchainTransactionQuery extends AST_Web3Query {
       contract,
     );
   }
- 
 }

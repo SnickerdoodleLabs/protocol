@@ -13,7 +13,9 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/query/IBlockchainTransactionQueryEvaluator";
 
 @injectable()
-export class BlockchainTransactionQueryEvaluator implements IBlockchainTransactionQueryEvaluator {
+export class BlockchainTransactionQueryEvaluator
+  implements IBlockchainTransactionQueryEvaluator
+{
   constructor(
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
@@ -93,11 +95,6 @@ export class BlockchainTransactionQueryEvaluator implements IBlockchainTransacti
         });
     }
 
- 
     return okAsync(SDQL_Return(false));
   }
-
- 
-
-
 }

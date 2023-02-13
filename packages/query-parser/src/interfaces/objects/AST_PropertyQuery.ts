@@ -1,4 +1,8 @@
-import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
+import {
+  ISDQLQueryReturnEnum,
+  SDQL_Name,
+  SDQL_OperatorName,
+} from "@snickerdoodlelabs/objects";
 
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
@@ -17,15 +21,7 @@ export class AST_PropertyQuery extends AST_Query {
 
   constructor(
     readonly name: SDQL_Name,
-    readonly returnType:
-      | "string"
-      | "boolean"
-      | "integer"
-      | "number"
-      | "list"
-      | "enum"
-      | "object"
-      | "array",
+    readonly returnType: ISDQLQueryReturnEnum,
     readonly property: string,
     readonly conditions: Array<Condition>,
     // for reading gender

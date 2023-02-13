@@ -7,7 +7,7 @@ export const query1 = {
   business: "Shrapnel",
   queries: {
     q1: {
-      name:"blockchain_transactions",
+      name: "blockchain_transactions",
       return: "boolean",
       chain: "AVAX",
       contract: {
@@ -22,7 +22,6 @@ export const query1 = {
         },
       },
     },
-
     q2: {
       name: "age",
       return: "integer",
@@ -100,17 +99,40 @@ export const query1 = {
               type: "string",
               pattern: "^0x[a-fA-F0-9]{40}$",
             },
-            ticker : {
-              type : "string"
+            ticker: {
+              type: "string",
             },
             amount: {
               type: "number",
             },
-            decimals : {
-              type : "number",
+            decimals: {
+              type: "number",
             },
           },
-          required: ["chain", "tokenId" , "tokenAddress", "amount" ,"decimals","ticker" ],
+          required: [
+            "chain",
+            "tokenId",
+            "tokenAddress",
+            "amount",
+            "decimals",
+            "ticker",
+          ],
+        },
+      },
+    },
+    q10: {
+      name: "network",
+      return: "boolean",
+      chain: "AVAX",
+      contract: {
+        networkid: "43114",
+        address: "0x9366d30feba284e62900f6295bc28c9906f33172",
+        function: "Transfer",
+        direction: "from",
+        token: "ERC20",
+        timestampRange: {
+          start: 13001519,
+          end: 14910334,
         },
       },
     },
@@ -148,9 +170,13 @@ export const query1 = {
       name: "query_response",
       query: "q8",
     },
-    r9 : {
-      name : "query_response",
-      query : "q9"
+    r9: {
+      name: "query_response",
+      query: "q9",
+    },
+    r10: {
+      name: "query_response",
+      query: "q10",
     },
     url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
@@ -210,9 +236,18 @@ export const query1 = {
     },
   },
   logic: {
-    returns: ["$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8" , "$r9"],
+    returns: [
+      "$r1",
+      "$r2",
+      "$r3",
+      "$r4",
+      "$r5",
+      "$r6",
+      "$r7",
+      "$r8",
+      "$r9",
+      "$r10",
+    ],
     compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
 };
-
-

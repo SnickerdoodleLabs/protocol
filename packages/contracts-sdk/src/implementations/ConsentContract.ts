@@ -570,7 +570,6 @@ export class ConsentContract implements IConsentContract {
     tokenId: TokenId,
   ): ResultAsync<ConsentToken, ConsentContractError> {
     // Get the agreement flags of the user's current consent token
-    console.log("getting");
     return ResultUtils.combine([
       this.ownerOf(tokenId),
       this.agreementFlags(tokenId),

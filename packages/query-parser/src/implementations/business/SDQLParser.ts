@@ -123,7 +123,7 @@ export class SDQLParser {
               this.logicAds,
               this.returnPermissions,
               this.compensationPermissions,
-              this.adPermissions
+              this.adPermissions,
             ),
           ),
         );
@@ -246,7 +246,6 @@ export class SDQLParser {
       const adsSchema = this.schema.getAdsSchema();
 
       for (const key in adsSchema) {
-
         const adKey = SDQL_Name(key); //'a1'
         const singleAdSchema = adsSchema[key] as ISDQLAd;
         const ad = new AST_Ad(
@@ -257,7 +256,7 @@ export class SDQLParser {
           singleAdSchema.displayType,
           singleAdSchema.weight,
           singleAdSchema.expiry,
-          singleAdSchema.keywords
+          singleAdSchema.keywords,
         );
 
         this.ads.set(adKey, ad);
@@ -265,7 +264,6 @@ export class SDQLParser {
       }
 
       return okAsync(undefined);
-
     } catch (err) {
       if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
@@ -284,7 +282,7 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery 
+        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery
       >();
       for (const qName in querySchema) {
         // console.log(`parsing query ${qName}`);
@@ -294,14 +292,17 @@ export class SDQLParser {
 
         const web3QueryType = AST_Web3Query.checkWeb3Query(schema.name);
 
-        if(web3QueryType){
-          queries.push(AST_Web3Query.fromSchema(queryName, schema, web3QueryType));
-        } else if(schemaName === "balance"){
-          queries.push(this.queryObjectFactory.toBalanceQuery(queryName, schema));
-        } else{
+        if (web3QueryType) {
+          queries.push(
+            AST_Web3Query.fromSchema(queryName, schema, web3QueryType),
+          );
+        } else if (schemaName === "balance") {
+          queries.push(
+            this.queryObjectFactory.toBalanceQuery(queryName, schema),
+          );
+        } else {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
-        
       }
 
       // return okAsync(queries
@@ -447,9 +448,7 @@ export class SDQLParser {
       );
 
       if (logicSchema.ads) {
-        this.logicAds = this.parseLogicExpressions(
-          logicSchema.ads,
-        );
+        this.logicAds = this.parseLogicExpressions(logicSchema.ads);
       }
 
       return okAsync(undefined);
@@ -497,14 +496,11 @@ export class SDQLParser {
       );
 
       if (logicSchema["ads"]) {
-        this.adPermissions = this.parseLogicPermissions(
-          logicSchema["ads"],
-        );
+        this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);
       }
 
       return okAsync(undefined);
     } catch (err) {
-      console.log("maybe  ? ")
       return errAsync(err as MissingWalletDataTypeError);
     }
   }
@@ -520,28 +516,24 @@ export class SDQLParser {
     return permMap;
   }
 
-  public parseAdDependencies(
-    compensationExpression: string,
-  ): AST_Ad[] {
-    const adDependencies = this.exprParser!.getAdDependencies(compensationExpression);
-    return Array.from(
-      new Set(adDependencies)
+  public parseAdDependencies(compensationExpression: string): AST_Ad[] {
+    const adDependencies = this.exprParser!.getAdDependencies(
+      compensationExpression,
     );
+    return Array.from(new Set(adDependencies));
   }
 
-  public parseQueryDependencies(
-    compensationExpression: string,
-  ): AST_Query[] {
-    const queryDependencies = this.exprParser!.getQueryDependencies(compensationExpression);
-    return Array.from(
-      new Set(queryDependencies)
+  public parseQueryDependencies(compensationExpression: string): AST_Query[] {
+    const queryDependencies = this.exprParser!.getQueryDependencies(
+      compensationExpression,
     );
+    return Array.from(new Set(queryDependencies));
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
     return DataPermissions.createWithPermissions(
       queries.map((query) => {
-        console.log(this.getQueryPermissionFlag(query))
+        console.log(this.getQueryPermissionFlag(query));
         return this.getQueryPermissionFlag(query);
       }),
     );
@@ -559,24 +551,18 @@ export class SDQLParser {
 
     return this.queriesToDataPermission(queries);
   }
-  
+
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
-  
-    switch (query.constructor) {
-      case AST_Web3Query:
-        // @ts-ignore ,  we know from the constructor that this is a web3 query
-        const web3Query = query as AST_Web3Query
-        return AST_Web3Query.getPermission( web3Query.type);
-      case AST_BalanceQuery:
-        return EWalletDataType.AccountBalances;
-      case AST_PropertyQuery:
-        return this.getPropertyQueryPermissionFlag(query);
-     
-      default:
-        const err = new MissingWalletDataTypeError(query.constructor.name);
-        console.error(err);
-        throw err;
+    if (query instanceof AST_Web3Query) {
+      return AST_Web3Query.getPermission(query.type);
+    } else if (query instanceof AST_BalanceQuery) {
+      return EWalletDataType.AccountBalances;
+    } else if (query instanceof AST_PropertyQuery) {
+      return this.getPropertyQueryPermissionFlag(query);
     }
+    const err = new MissingWalletDataTypeError(query.constructor.name);
+    console.error(err);
+    throw err;
   }
 
   private getPropertyQueryPermissionFlag(query: AST_Query) {
@@ -603,7 +589,6 @@ export class SDQLParser {
       case "chain_transactions":
         return EWalletDataType.EVMTransactions;
       default:
-
         const err = new MissingWalletDataTypeError(propQuery.property);
         console.error(err);
         throw err;

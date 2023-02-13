@@ -14,6 +14,7 @@ import {
   TickerSymbol,
   BigNumberString,
   EChainTechnology,
+  ISDQLQueryReturnEnum,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -125,7 +126,7 @@ describe("BalanceQueryEvaluator", () => {
   test("3 EVMBalances, Different Contract Addresses", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       null, // * - for all, use null
       [],
     );
@@ -184,7 +185,7 @@ describe("BalanceQueryEvaluator", () => {
   test("3 EVMBalances, Same Contract Addresses", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       null, // * - for all, use null
       [],
     );
@@ -239,7 +240,7 @@ describe("BalanceQueryEvaluator", () => {
   test("2 EVMBalances, Different Contract Addresses", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       null, // * - for all, use null
       [],
     );
@@ -288,7 +289,7 @@ describe("BalanceQueryEvaluator", () => {
   test("2 EVMBalances, Same Contract Addresses", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       null, // * - for all, use null
       [],
     );
@@ -332,7 +333,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Only Accept ChainId(1) EVMBalances", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1), // * - for all, use null
       [],
     );
@@ -375,7 +376,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Only Accept ChainId(1) EVMBalances - Same ContractAddresses", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       [],
     );
@@ -444,7 +445,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) && (20 <= Balance < 30) - ALL VALUES", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       conditionsGEandL,
     );
@@ -505,7 +506,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       conditionsGEandL,
     );
@@ -558,7 +559,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       conditionsGEandL,
     );
@@ -611,7 +612,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       conditionsGEandL,
     );
@@ -664,7 +665,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       conditionsGEandL,
     );
@@ -717,7 +718,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1),
       conditionsGEandL,
     );
@@ -770,7 +771,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (20 < Balance <= 30)", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1), // * - for all, use null
       conditionsGandLE,
     );
@@ -858,7 +859,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (Balance == 29) - one occurence", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1), // * - for all, use null
       conditionsE,
     );
@@ -956,7 +957,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 1) & (Balance == 29) - multiple occurences", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(1), // * - for all, use null
       conditionsE,
     );
@@ -1018,7 +1019,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(Chain ID: 0) - should return no values", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       ChainId(0), // * - for all, use null
       conditionsE,
     );

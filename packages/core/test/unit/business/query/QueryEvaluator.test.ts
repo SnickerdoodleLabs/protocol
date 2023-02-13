@@ -20,6 +20,7 @@ import {
   EChainTechnology,
   EChain,
   TransactionPaymentCounter,
+  ISDQLQueryReturnEnum,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -65,7 +66,8 @@ const conditionsGEandL = [
 class QueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-  public blockchainTransactionQuery = td.object<IBlockchainTransactionQueryEvaluator>();
+  public blockchainTransactionQuery =
+    td.object<IBlockchainTransactionQueryEvaluator>();
   public profileService = td.object<IProfileService>();
 
   public URLmap = new Map<URLString, number>([
@@ -244,7 +246,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age is 25 >= 20, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsGE,
       [],
@@ -260,7 +262,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age is 25 >= 25, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsGE2,
       [],
@@ -275,7 +277,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age 25 >= 30, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsGE3,
       [],
@@ -293,7 +295,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
   test("EvalPropertyQuery: when age is 25 <= 20, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsLE,
       [],
@@ -308,7 +310,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
   test("EvalPropertyQuery: when age is 25 <= 25, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsLE2,
       [],
@@ -323,7 +325,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
   test("EvalPropertyQuery: when age 25 <= 30, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsLE3,
       [],
@@ -341,7 +343,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
   test("EvalPropertyQuery: when age is 25 > 24, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsG,
       [],
@@ -357,7 +359,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
   test("EvalPropertyQuery: when age is 25 > 25, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsG2,
       [],
@@ -373,7 +375,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
   test("EvalPropertyQuery: when age is 25 > 26, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsG3,
       [],
@@ -391,7 +393,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
   test("EvalPropertyQuery: when age is 25 < 24, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsL,
       [],
@@ -407,7 +409,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
   test("EvalPropertyQuery: when age is 25 < 25, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsL2,
       [],
@@ -423,7 +425,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
   test("EvalPropertyQuery: when age is 25 < 26, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsL3,
       [],
@@ -441,7 +443,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age is 25 >= 20, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsGE,
       [],
@@ -457,7 +459,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age is 25 >= 25, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsGE2,
       [],
@@ -472,7 +474,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age 25 >= 30, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsGE3,
       [],
@@ -490,7 +492,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
   test("EvalPropertyQuery: when age is 25 <= 20, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsLE,
       [],
@@ -505,7 +507,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
   test("EvalPropertyQuery: when age is 25 <= 25, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsLE2,
       [],
@@ -520,7 +522,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
   test("EvalPropertyQuery: when age 25 <= 30, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsLE3,
       [],
@@ -538,7 +540,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
   test("EvalPropertyQuery: when age is 25 > 24, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsG,
       [],
@@ -554,7 +556,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
   test("EvalPropertyQuery: when age is 25 > 25, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsG2,
       [],
@@ -570,7 +572,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
   test("EvalPropertyQuery: when age is 25 > 26, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsG3,
       [],
@@ -588,7 +590,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
   test("EvalPropertyQuery: when age is 25 < 24, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsL,
       [],
@@ -604,7 +606,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
   test("EvalPropertyQuery: when age is 25 < 25, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsL2,
       [],
@@ -620,7 +622,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
   test("EvalPropertyQuery: when age is 25 < 26, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsL3,
       [],
@@ -639,7 +641,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
   test("EvalPropertyQuery: when age is 25 == 25, returns true", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsE,
       [],
@@ -654,7 +656,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
   test("EvalPropertyQuery: when age is 25 == 26, returns false", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "boolean",
+      ISDQLQueryReturnEnum.BOOLEAN,
       "age",
       conditionsE2,
       [],
@@ -676,7 +678,7 @@ describe("QueryEvaluator checking location condition in", () => {
             [62, 85, 57, 45])
         const propertyQuery = new AST_PropertyQuery(
             SDQL_Name("q1"),
-            "boolean",
+            ISDQLQueryReturnEnum.BOOLEAN,
             "location",
             [conditionsIn],
             []
@@ -694,7 +696,7 @@ describe("QueryEvaluator checking location condition in", () => {
             [62, 85, 45])
         const propertyQuery = new AST_PropertyQuery(
             SDQL_Name("q1"),
-            "boolean",
+            ISDQLQueryReturnEnum.BOOLEAN,
             "location",
             [conditionsIn2],
             []
@@ -714,7 +716,7 @@ describe("QueryEvaluator return integer values", () => {
   test("EvalPropertyQuery: return age", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "integer",
+      ISDQLQueryReturnEnum.INTEGER,
       "age",
       [],
       [],
@@ -746,7 +748,7 @@ describe("QueryEvaluator return integer values", () => {
   test("EvalPropertyQuery: return gender as male", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "enum",
+      ISDQLQueryReturnEnum.ENUM,
       "gender",
       [],
       ["male", "female", "non-binary", "unknown"],
@@ -764,7 +766,7 @@ describe("Return URLs Map", () => {
   test("EvalPropertyQuery: return URLs count", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "object",
+      ISDQLQueryReturnEnum.OBJECT,
       "url_visited_count",
       [],
       [],
@@ -784,7 +786,7 @@ describe("Return Chain Transaction Flow", () => {
   test("EvalPropertyQuery: return chain_transactions", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "array",
+      ISDQLQueryReturnEnum.ARRAY,
       "chain_transactions",
       [],
       [],

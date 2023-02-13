@@ -1,17 +1,9 @@
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
+import { ISDQLQueryReturnEnum, SDQL_Name } from "@snickerdoodlelabs/objects";
 
 export abstract class AST_Query {
   constructor(
     readonly name: SDQL_Name,
-    readonly returnType:
-      | "string"
-      | "boolean"
-      | "integer"
-      | "number"
-      | "list"
-      | "array"
-      | "object"
-      | "enum",
+    readonly returnType: ISDQLQueryReturnEnum,
   ) {
     // super(name);
   }

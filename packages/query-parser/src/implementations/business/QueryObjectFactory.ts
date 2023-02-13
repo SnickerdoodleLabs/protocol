@@ -21,7 +21,7 @@ import {
 
 @injectable()
 export class QueryObjectFactory implements IQueryObjectFactory {
-  toNftQuery(name: SDQL_Name, schema: any): AST_NftQuery {
+  public toNftQuery(name: SDQL_Name, schema: any): AST_NftQuery {
     throw new Error("toNftQuery is not implemented");
   }
   public parseConditions(schema: any): Array<Condition> {
@@ -51,7 +51,10 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     return conditions;
   }
 
-  public toBlockchainTransactionQuery(name: SDQL_Name, schema: any): AST_BlockchainTransactionQuery {
+  public toBlockchainTransactionQuery(
+    name: SDQL_Name,
+    schema: any,
+  ): AST_BlockchainTransactionQuery {
     throw new Error("toBlockchainTransactionQuery is not implemented");
   }
   public toPropertyQuery(name: SDQL_Name, schema: any): AST_PropertyQuery {

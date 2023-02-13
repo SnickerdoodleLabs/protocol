@@ -35,23 +35,26 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return:
-    | "string"
-    | "boolean"
-    | "integer"
-    | "number"
-    | "list"
-    | "array"
-    | "object"
-    | "enum";
+  return: ISDQLQueryReturnEnum;
   chain?: string;
-  networkid ?:  string | string[];
-  address ?:  string | string[];
-  timestampRange?: ISDQLTimestampRange, 
+  networkid?: string | string[];
+  address?: string | string[];
+  timestampRange?: ISDQLTimestampRange;
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
   object_schema?: ISDQLObjectSchema;
+}
+
+export enum ISDQLQueryReturnEnum {
+  STRING = "string",
+  BOOLEAN = "boolean",
+  INTEGER = "integer",
+  NUMBER = "number",
+  LIST = "list",
+  ARRAY = "array",
+  OBJECT = "object",
+  ENUM = "enum",
 }
 
 export interface ISDQLObjectSchema {
