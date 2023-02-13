@@ -146,24 +146,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
     /* SIFT CONTRACT WHITELISTING */ 
     /* Adding Contract to Whitelist, using their address as key */
-    // function verifyContractAddress(address tokenContract) external {
-    //     // check if the url has already been verified on the contract
-    //     // if it has a token id mapped to it, it has been verified 
-    //     require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
-
-    //     tokenContractMetadata memory whitelistEntry = _createWhitelistData(1, "", "", "", "VERIFIED");
-    //     addContractToWhitelist(tokenContract, whitelistEntry);
-    // }
-
-    // function reportContractAddress(address tokenContract) external {
-    //     // check if the url has already been verified on the contract
-    //     // if it has a token id mapped to it, it has been verified 
-    //     require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
-
-    //     tokenContractMetadata memory whitelistEntry = _createWhitelistData(1, "", "", "", "MALICIOUS");
-    //     addContractToWhitelist(tokenContract, whitelistEntry);
-    // }
-
     /// @notice Checks the status of a tokenContract 
     /// @param ID users ID
     /// @param ticker - ticker symbol
