@@ -80,6 +80,7 @@ export const testCoreConfig = new CoreConfig(
   "covalent api key",
   "moralis api key",
   "nftScan api key",
+  "poap api key",
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL

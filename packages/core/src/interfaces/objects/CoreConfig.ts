@@ -29,6 +29,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public covalentApiKey: string,
     public moralisApiKey: string,
     public nftScanApiKey: string,
+    public poapApiKey: string,
     public dnsServerAddress: URLString,
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,

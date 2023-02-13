@@ -74,6 +74,7 @@ export class ExtensionCore {
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       nftScanApiKey: config.nftScanApiKey,
+      poapApiKey: config.poapApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
