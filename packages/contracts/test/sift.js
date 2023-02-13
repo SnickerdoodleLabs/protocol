@@ -144,13 +144,54 @@ describe("Sift", () => {
   });
 
   /* Checking Whitelist data functions */
-  // describe("createWhitelistData", function () {
-  //   it("Returns true that EIP165 interface is supported", async function () {
-  //     expect(
-  //       await sift
-  //         .connect(owner)
-  //         .createWhitelistData(1, "", "", "", "VERIFIED"),
-  //     ).to.eq(true);
+  describe("Token Whitelist Operations", function () {
+    it("createWhitelistData operates correctly", async function () {
+      const returnVal = await sift
+        .connect(owner)
+        .createWhitelistData(1, "", "", "", "VERIFIED");
+
+      // expect(returnVal).to.typeOf("struct");
+      expect(returnVal.ID).to.eq(1);
+      expect(returnVal.ticker).to.eq("");
+      expect(returnVal.chainId).to.eq("");
+      expect(returnVal.metadata).to.eq("");
+      expect(returnVal.status).to.eq("VERIFIED");
+    });
+  });
+
+  describe("Token Whitelist Operations", function () {
+    it("Account Found, Added, then Removed from WhiteList", async function () {
+      // const connectOwner = ;
+      whiteListEntry = await sift
+        .connect(owner)
+        .createWhitelistData("1", "", "", "", "VERIFIED");
+      console.log("whiteListEntry: ", whiteListEntry);
+
+      // const goodAddress = new EVMAccountAddress("good address");
+      const addedEntry = await sift
+        .connect(owner)
+        .addContractToWhitelist("goodAddress", whiteListEntry);
+      console.log("addedEntry: ", addedEntry);
+      // expect(addedEntry.whiteListCount).to.eq(1);
+
+      // console.log("whiteListCount: ", addedEntry.whiteListCount);
+
+      // const removedEntry = await connectOwner.removeContractToWhitelist(
+      //   EVMAccountAddress("good address"),
+      // );
+
+      // expect(addedEntry.whiteListCount).to.eq(0);
+    });
+  });
+
+  // describe("Account Not Found", function () {
+  //   it("Account not found", async function () {
+  //     const returnVal = await sift
+  //       .connect(owner)
+  //       .checkContract("sample address");
+
+  //     console.log("Account not found: ", returnVal);
+  //     expect(returnVal).throws();
   //   });
   // });
 });

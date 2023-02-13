@@ -197,7 +197,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
     /// @param tokenAddress users token address
     /// @param tokenContract token address
-    function addContractToWhitelist(address tokenAddress, tokenContractMetadata memory tokenContract) internal onlyRole(VERIFIER_ROLE) {
+    function addContractToWhitelist(address tokenAddress, tokenContractMetadata memory tokenContract) external {
         // get the url's token using its hashed value
         addressToContractMetadata[tokenAddress] = tokenContract;
         whiteListCount++;
