@@ -102,7 +102,6 @@ export class EtherscanIndexer
         }),
       );
 
-      console.log("getBalancesForAccount Url call: ", url);
       return this.ajaxUtils
         .get<IEtherscanTokenBalanceResponse>(url)
         .andThen((response) => {

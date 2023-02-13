@@ -47,7 +47,6 @@ export class PoapRepository implements IEVMNftRepository {
         );
       })
       .map((result) => {
-        console.log("result: ", result);
         return this.getPages(chainId, result);
       })
       .mapErr(
@@ -92,7 +91,6 @@ export class PoapRepository implements IEVMNftRepository {
           "X-API-Key": config.poapApiKey,
         },
       };
-      console.log("result: ", result);
       return result;
     });
   }
