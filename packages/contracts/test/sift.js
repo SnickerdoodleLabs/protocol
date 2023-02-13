@@ -143,55 +143,60 @@ describe("Sift", () => {
     });
   });
 
-  /* Checking Whitelist data functions */
-  describe("Token Whitelist Operations", function () {
-    it("createWhitelistData operates correctly", async function () {
-      const returnVal = await sift
-        .connect(owner)
-        .createWhitelistData(1, "", "", "", "VERIFIED");
-
-      // expect(returnVal).to.typeOf("struct");
-      expect(returnVal.ID).to.eq(1);
-      expect(returnVal.ticker).to.eq("");
-      expect(returnVal.chainId).to.eq("");
-      expect(returnVal.metadata).to.eq("");
-      expect(returnVal.status).to.eq("VERIFIED");
-    });
-  });
-
-  describe("Token Whitelist Operations", function () {
-    it("Account Found, Added, then Removed from WhiteList", async function () {
-      // const connectOwner = ;
-      whiteListEntry = await sift
-        .connect(owner)
-        .createWhitelistData("1", "", "", "", "VERIFIED");
-      console.log("whiteListEntry: ", whiteListEntry);
-
+  describe("Token Whitelist Operations: ", function () {
+    it("Adding A Contract", async function () {
       // const goodAddress = new EVMAccountAddress("good address");
-      const addedEntry = await sift
+      let CONTRACT_ADDRESS = '0x36dF9998570395e214B4b4156e3918a856E3Af40';
+      await sift
         .connect(owner)
-        .addContractToWhitelist("goodAddress", whiteListEntry);
-      console.log("addedEntry: ", addedEntry);
-      // expect(addedEntry.whiteListCount).to.eq(1);
+        .addContractToWhitelist(CONTRACT_ADDRESS, "", "", "", "VERIFIED");
 
-      // console.log("whiteListCount: ", addedEntry.whiteListCount);
-
-      // const removedEntry = await connectOwner.removeContractToWhitelist(
-      //   EVMAccountAddress("good address"),
-      // );
-
-      // expect(addedEntry.whiteListCount).to.eq(0);
+      expect(await sift
+        .connect(owner)
+        .returnWhiteListCount()).to.eq(1);
     });
+
+    it("Checking for Contract - Succeed", async function () {
+      // const goodAddress = new EVMAccountAddress("good address");
+      let CONTRACT_ADDRESS = '0x36dF9998570395e214B4b4156e3918a856E3Af40';
+      await sift
+      .connect(owner)
+      .addContractToWhitelist(CONTRACT_ADDRESS, "", "", "", "VERIFIED");
+
+      const returned = await sift
+        .connect(owner)
+        .checkContract(CONTRACT_ADDRESS);
+
+      console.log("returned: ", returned);
+    });
+
+    it("Change Status To Verified", async function () {
+      let CONTRACT_ADDRESS = '0x36dF9998570395e214B4b4156e3918a856E3Af40';
+
+      // Add the Contract
+      await sift.connect(owner).addContractToWhitelist(CONTRACT_ADDRESS, "", "", "", "MALICIOUS");
+
+      // Update the Status
+      await sift.connect(owner).setStatusToVerified(CONTRACT_ADDRESS);
+
+      // Check for new status
+      const whiteListEntry = await sift.connect(owner).checkContract(CONTRACT_ADDRESS);
+      expect(whiteListEntry["status"]).to.eq("VERIFIED");
+    });
+
+    it("Change Status to Malicious", async function () {
+      let CONTRACT_ADDRESS = '0x36dF9998570395e214B4b4156e3918a856E3Af40';
+
+      // Add the Contract
+      await sift.connect(owner).addContractToWhitelist(CONTRACT_ADDRESS, "", "", "", "VERIFIED");
+
+      // Update the Status
+      await sift.connect(owner).setStatusToMalicious(CONTRACT_ADDRESS);
+
+      // Check for new status
+      const whiteListEntry = await sift.connect(owner).checkContract(CONTRACT_ADDRESS);
+      expect(whiteListEntry["status"]).to.eq("MALICIOUS")
+    });
+
   });
-
-  // describe("Account Not Found", function () {
-  //   it("Account not found", async function () {
-  //     const returnVal = await sift
-  //       .connect(owner)
-  //       .checkContract("sample address");
-
-  //     console.log("Account not found: ", returnVal);
-  //     expect(returnVal).throws();
-  //   });
-  // });
 });
