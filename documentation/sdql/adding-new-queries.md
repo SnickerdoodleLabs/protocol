@@ -6,7 +6,8 @@
 ## 1. Parsing the query
 First step in the implementation is parsing the query and building the AST (Abstract Syntax Tree). This is done by the **Query Parser package**.
 
-3. Parsing the new query requires an interface (we call them blocks) to be defined that resembles the query structure which will be a part of [**ISDQLQueryObject**](/packages/objects/src/interfaces/ISDQLQueryObject.ts). The [**SDQLParser**](/packages/query-parser/src/implementations/business/SDQLParser.ts) converts a query schema into AST. So, we need to define an AST element for the new query. For most of the web2 data, we have an abstraction layer called "**AST_PropertyQuery**". Maybe, you may not need to new AST elements. If you define an new element it must extend from **AST_Query**.
+1. Parsing the new query requires an interface (we call them blocks) to be defined that resembles the query structure which will be a part of [**ISDQLQueryObject**](/packages/objects/src/interfaces/ISDQLQueryObject.ts). The [**SDQLParser**](/packages/query-parser/src/implementations/business/SDQLParser.ts) converts a query schema into AST. So, we need to define an AST element for the new query. 
+
 
 ```mermaid
 erDiagram
@@ -71,13 +72,22 @@ erDiagram
         string[] returns
         string[] ads
         string[] compensations
-        
+
     }
 
 
 ```
 
-4. You need to update the **SDQLParser** to convert the query block into the corresponding AST element. You can also write validations here. 
+### Creating the AST element
+
+
+If your query does not fits them, extend from one of the folllowing interfaces. If it has no overlapping with the interfaces, the new AST element must extend from **AST_Query**.
+
+**AST_PropertyQuery** - Web2 components, including age, gender, most popular sites, etc.
+
+**AST_Web3Query** - Web3 components, including transactions, account nfts, digital currency assets, etc.
+
+2. You need to update the **SDQLParser** to convert the query block into the corresponding AST element. You can also write validations here. 
 
     ### Get the permission flag for the query
     Each query have a data permission flag. With the flag the end-user can restrict the execution of a specific type of queries. 
@@ -86,18 +96,18 @@ erDiagram
     2. Define a getter for the data type in DataPermissions.
     3. Update the getQueryPermissionFlag of SDQLParser.
 
-5. Once this is done, write tests and check if the parser can correctly build the AST.
+3. Once this is done, write tests and check if the parser can correctly build the AST.
 
 
 
 ## 2. Evaluating the query
 Once we have the AST for a query, we can execute the logic expressions. The evaluators are in the **core package** (*packages/core/src/.../business/utilities/query*). You need to update the QueryEvaluator which wraps all the query-type specific evaluators. 
 
-6. If you have a non-property query, update the **eval** method of the QueryEvaluator that calls the evaluator.
-7. If you have a property query, update evalPropertyQuery.
+1. If you have a non-property query, update the **eval** method of the QueryEvaluator that calls the evaluator.
+2. If you have a property query, update evalPropertyQuery.
 
 ## 3 Publishing the query-parser package to npm repository
-8. The parser package is used by the insight platform as a third party npm package. We need to publish it to our company repository.
+1. The parser package is used by the insight platform as a third party npm package. We need to publish it to our company repository.
 
 # An example - The Pet Query
 Suppose we want to support a new query that collects the animal pets that an user may have. 
@@ -116,9 +126,9 @@ In [EXAMPLES.md](./EXAMPLES.md)
     }
 ```
 In [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json), we do not need to update anything as we are not defining any structures (The return structure is an object array).
-
-3. As this is a web2 data type and matches our abstractions, we can reuse the **ISDQLQueryClause** and **AST_PropertyQuery**. No need to define anything new.
-4. Now we need to update the SDQLParser so that it can correctly parse the query. This query is too simple to write a validator for. But we need to set up data permissions
+### 1. Parsing the query
+1. As this is a web2 data type and matches our abstractions, we can reuse the **ISDQLQueryClause** and **AST_PropertyQuery**. No need to define anything new.
+2. Now we need to update the SDQLParser so that it can correctly parse the query. This query is too simple to write a validator for. But we need to set up data permissions
 
 ```typescript
 // 1. Define EDataWalletType
@@ -153,10 +163,12 @@ private getPropertyQueryPermissionFlag(query: AST_Query) {
 }
 
 ```
-5. Now we should be able to unit test it and expect a property query object with name "q99" and property "pet". In our property query evaluator all we have to do is write the pet handler.
+3. Now we should be able to unit test it and expect a property query object with name "q99" and property "pet". In our property query evaluator all we have to do is write the pet handler.
 
-6. Skip
-7. Updating property query evaluator in QueryEvaluator
+### 2. Evaluating the query
+
+    1. Skipped as this is a property query
+    2. Updating property query evaluator in QueryEvaluator
 
 ```typescript
 public evalPropertyQuery(
@@ -173,6 +185,10 @@ public evalPropertyQuery(
     }
 }
 ```
+
+
+### 3 Publishing the query-parser package to npm repository
+In this last step, we build the query-parser package and publish it to the npm repository. This step requires repository authentication and we skip it for our pet example.
 
 
 
