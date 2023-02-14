@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// S// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -34,27 +34,16 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @dev Total supply of Sift tokens
     uint256 public totalSupply;
 
-    /// @dev creating public strings, cleaning up hardcoded responses. 
-    string verified = "VERIFIED";
-    string not_verified = "NOT VERIFIED";
-    string malicious = "MALICIOUS";
-
     /// @dev Order struct
     struct entityStruct {
         string metadata; /// this can be JSON i.e. a string
-        uint256 status;	 /// i.e. Verified, not_verified, malicious	
+        uint256 status;	 /// i.e. Verified: 0, not_verified: 1, malicious: 2	
     }
 
     //@dev initialized whiteListCount
     uint256 public whiteListCount;
 
-    mapping(uint256 => entityStruct) public tokenIDtoEntity
-
-    /*// @dev mapping of hashed url to tokenId 
-    mapping(address => uint256) public bytesToContract;
-
-    /// @dev mapping of addressToContractMetadata
-    mapping(address => tokenContractMetadata) public addressToContractMetadata;*/
+    mapping(uint256 => entityStruct) public tokenIDtoEntity;
 
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
@@ -83,11 +72,10 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @param label human-readable object label
     /// @param owner Address receiving the url's NFT 
     /// @param metadata stringified JSON object with useful keyvalue pairs
-    function verifyURL(string memory label, address owner, string memory metadata) external {
+    function verifyEntity(string memory label, address owner, string memory metadata) external {
         // check if the url has already been verified on the contract
         // if it has a token id mapped to it, it has been verified 
         require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: URL already verified");
-
 
         // mint token id and append to the token URI "VERIFIED"
         _safeMintAndRegister(owner, 1, label, metadata);
@@ -96,25 +84,39 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @notice Marks a url as malicious 
     /// @dev Mints an NFT with the 'MALICIOUS' tokenURI
     /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
-    /// @param url Site URL
+    /// @param label human-readable object label
     /// @param owner Address receiving the url's NFT  
-    function maliciousURL(string memory url, address owner) external {
+    /// @param metadata stringified JSON object with useful keyvalue pairs
+    function maliciousEntity(string memory label, address owner, string memory metadata) external {
         // mint token id and append to the token URI "MALICIOUS"
-        _safeMintAndRegister(owner, "MALICIOUS", url);
+        _safeMintAndRegister(owner, 2, label, metadata);
     }
 
     /// @notice Checks the status of a url 
-    /// @param url Site URL
+    /// @dev Returns status of entities
+    /// @param labels human-readable object labels
     /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
-    function checkEntities(string memory [] labels) external view returns(entityStruct memory result) {
+    function checkEntities(string[] memory labels) external view returns(entityStruct[] memory result) {
         // get the url's token using its hashed value
-        uint256 tokenId = urlToTokenId[keccak256(abi.encodePacked(url))];
+        entityStruct[] memory returnedValues = new entityStruct[](labels.length);
 
-        // if token's id is 0, it has not been verified yet
-        if (tokenId == 0) return not_verified;
+        for (uint i = 0; i < labels.length; i++) {
+            uint256 tokenId = labelToTokenId[keccak256(abi.encodePacked(labels[i]))];
 
-        // else, return token's URI
-        return tokenURI(tokenId);
+            // if token's id is 0, it has not been verified yet
+            if (tokenId == 0) { 
+                returnedValues[i] = entityStruct("", 0);
+            }
+            else
+            {
+                // else, return token's entityStruct
+                returnedValues[i] = tokenIDtoEntity[tokenId];
+            } 
+
+            i++;
+        }
+
+        return returnedValues;
     }
 
     /// @notice Sets the Sift tokens base URI
@@ -125,16 +127,17 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
     /// @notice Internal function to carry out token minting and mapping updates
     /// @param to Address receiving the token
-    /// @param uri Token uri containing status
-    /// @param url Site URL
-    function _safeMintAndRegister(address to, uint256 verifiedstatus, string memory label, string memory metadata) internal onlyRole(VERIFIER_ROLE) {
+    /// @param verifiedStatus Status passed from the token
+    /// @param label Status passed from the token
+    /// @param metadata Token's metadata
+    function _safeMintAndRegister(address to, uint256 verifiedStatus, string memory label, string memory metadata) internal onlyRole(VERIFIER_ROLE) {
         // ensure that tokenIds start from 1 so that 0 can be kept as tokens that are not verified yet
         uint256 tokenId = _tokenIdCounter.current() + 1;
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
 
         // register hashed url to token mapping
-        urlToTokenId[keccak256(abi.encodePacked(label))] = tokenId;
+        labelToTokenId[keccak256(abi.encodePacked(label))] = tokenId;
 
         /// set the metadata
         tokenIDtoEntity[tokenId] = entityStruct(metadata, verifiedStatus);
@@ -143,63 +146,9 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         totalSupply++;
     }
 
-
-    /* SIFT CONTRACT WHITELISTING */ 
-    /* Adding Contract to Whitelist, using their address as key */
-    /// @notice Checks the status of a tokenContract 
-    /// @param tokenAddress users tokenAddress
-    /// @param ticker - ticker symbol
-    /// @param chainId - chainId
-    /// @param metadata - metadata
-    /// @param status - "VERIFIED" or "MALICIOUS"
-    function addContractToWhitelist(address tokenAddress, string memory ticker, string memory chainId, string memory metadata, string memory status) external {
-        // get the url's token using its hashed value
-        // tokenContractMetadata memory newWhitelistEntry = checkContract(tokenAddress);
-        tokenContractMetadata memory newWhitelistEntry;
-        newWhitelistEntry.tokenAddress = tokenAddress;
-        newWhitelistEntry.ticker = ticker;
-        newWhitelistEntry.chainId = chainId;
-        newWhitelistEntry.metadata = metadata;
-        newWhitelistEntry.status = status;
-
-        uint256 tokenId = _whiteListCounter.current() + 1;
-        _whiteListCounter.increment();
-
-        bytesToContract[tokenAddress] = tokenId;
-        addressToContractMetadata[tokenAddress] = newWhitelistEntry;
-        whiteListCount++;
-    }
-
     function returnWhiteListCount() external view returns(uint256 Val) {
         return whiteListCount;
     }
-
-    /// @param tokenAddress users token address
-    function setStatusToMalicious(address tokenAddress) external {
-        tokenContractMetadata memory metadata = addressToContractMetadata[tokenAddress];
-        metadata.status = "MALICIOUS";
-        addressToContractMetadata[tokenAddress] = metadata;
-    }
-
-    /// @param tokenAddress users token address
-    function setStatusToVerified(address tokenAddress) external {
-        tokenContractMetadata memory metadata = addressToContractMetadata[tokenAddress];
-        metadata.status = "VERIFIED";
-        addressToContractMetadata[tokenAddress] = metadata;
-    }
-
-    /// @notice Checks the status of a tokenContract 
-    /// @param tokenAddress users token address
-    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
-    function checkContract(address tokenAddress) external view returns(tokenContractMetadata memory result) {
-        // get the url's token using its hashed value
-        uint256 tokenId = bytesToContract[tokenAddress];
-
-        require( tokenId > 0, "Sift error: Contract address's metadata doesnt exist");
-
-        return addressToContractMetadata[tokenAddress];
-    }
-
 
     /* OVERRIDES */ 
 
