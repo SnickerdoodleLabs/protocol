@@ -6,7 +6,77 @@
 ## 1. Parsing the query
 First step in the implementation is parsing the query and building the AST (Abstract Syntax Tree). This is done by the **Query Parser package**.
 
-3. Parsing the new query requires an interface (we call them blocks) to be defined that resembles the query structure which will be a part of **ISDQLQueryObject**. The **SDQLParser** converts a query schema into AST. So, we need to define an AST element for the new query. For most of the web2 data, we have an abstraction layer called "**AST_PropertyQuery**". Maybe, you may not need to new AST elements. If you define an new element it must extend from **AST_Query**.
+3. Parsing the new query requires an interface (we call them blocks) to be defined that resembles the query structure which will be a part of [**ISDQLQueryObject**](/packages/objects/src/interfaces/ISDQLQueryObject.ts). The [**SDQLParser**](/packages/query-parser/src/implementations/business/SDQLParser.ts) converts a query schema into AST. So, we need to define an AST element for the new query. For most of the web2 data, we have an abstraction layer called "**AST_PropertyQuery**". Maybe, you may not need to new AST elements. If you define an new element it must extend from **AST_Query**.
+
+```mermaid
+erDiagram
+    ISDQLQueryObject ||--|{ ISDQLQueryClause : array
+    ISDQLQueryObject ||--|{ ISDQLReturnProperties : array
+    ISDQLQueryObject ||--|| ISDQLAdsBlock : "optional one"
+    ISDQLQueryObject ||--|| ISDQLCompensationBlock : "one"
+    ISDQLQueryObject ||--|| ISDQLLogicObjects : "one"
+    ISDQLQueryClause {
+        
+        string name
+        string return
+        string chain "optional"
+        
+    }
+    ISDQLQueryClause |o--|| ISDQLQueryContract : "web3 query"
+
+    ISDQLQueryClause |o--|| ISDQLQueryConditions: array
+
+    ISDQLReturnProperties {
+        
+        string name
+        string message "optional"
+        string query "optional"
+    }
+
+    ISDQLAdsBlock ||--|{ ISDQLAd : "array"
+    ISDQLAd {
+        
+        string name
+        string text
+        date expiry     
+        
+    }
+
+    ISDQLAd ||--|| AdContent : "one"
+    ISDQLCompensationBlock {
+        ISDQLCompensationParameters parameters
+        
+    }
+
+    ISDQLCompensationBlock ||--o{ ISDQLCompensations : "dictionary"
+    ISDQLCompensations {
+        string name
+        IpfsCID image
+        string description
+        ChainId chainId
+        ISDQLCallback callback
+        CompensationId[] alternatives
+        
+    }
+
+    ISDQLCompensations ||--|| ISDQLCallback : "one"
+
+    ISDQLCallback {
+        string[] parameters
+        Record data
+    }
+
+    ISDQLLogicObjects {
+        
+        string[] returns
+        string[] ads
+        string[] compensations
+        
+    }
+
+
+```
+
 4. You need to update the **SDQLParser** to convert the query block into the corresponding AST element. You can also write validations here. 
 
     ### Get the permission flag for the query
