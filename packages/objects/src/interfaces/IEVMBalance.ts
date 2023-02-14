@@ -11,6 +11,6 @@ export interface IEVMBalance {
   chainId: ChainId;
   accountAddress: EVMAccountAddress;
   balance: BigNumberString; // TODO replace with a BigNumber type (please don't)
-  contractAddress: EVMContractAddress;
+  tokenAddress: EVMContractAddress;
   quoteBalance: number;
 }
