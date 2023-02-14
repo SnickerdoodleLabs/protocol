@@ -25,8 +25,8 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
     CountersUpgradeable.Counter private _whiteListCounter;
 
-    /// @dev mapping of hashed url to tokenId 
-    mapping(bytes32 => uint256) public urlToTokenId;
+    /// @dev mapping of hashed label to tokenId (i.e. a URL, Ticker, )
+    mapping(bytes32 => uint256) public labelToTokenId;
 
     /// @dev Base uri of Sift
     string public baseURI;
@@ -40,22 +40,21 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     string malicious = "MALICIOUS";
 
     /// @dev Order struct
-    struct tokenContractMetadata {
-        address tokenAddress;
-        string ticker;
-        string chainId;
-        string metadata;
-        string status;		
+    struct entityStruct {
+        string metadata; /// this can be JSON i.e. a string
+        uint256 status;	 /// i.e. Verified, not_verified, malicious	
     }
 
     //@dev initialized whiteListCount
     uint256 public whiteListCount;
 
-    /// @dev mapping of hashed url to tokenId 
+    mapping(uint256 => entityStruct) public tokenIDtoEntity
+
+    /*// @dev mapping of hashed url to tokenId 
     mapping(address => uint256) public bytesToContract;
 
     /// @dev mapping of addressToContractMetadata
-    mapping(address => tokenContractMetadata) public addressToContractMetadata;
+    mapping(address => tokenContractMetadata) public addressToContractMetadata;*/
 
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
@@ -81,15 +80,17 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @notice Verifies a url
     /// @dev Mints an NFT with the 'VERIFIED' tokenURI
     /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
-    /// @param url Site URL
-    /// @param owner Address receiving the url's NFT   
-    function verifyURL(string memory url, address owner) external {
+    /// @param label human-readable object label
+    /// @param owner Address receiving the url's NFT 
+    /// @param metadata stringified JSON object with useful keyvalue pairs
+    function verifyURL(string memory label, address owner, string memory metadata) external {
         // check if the url has already been verified on the contract
         // if it has a token id mapped to it, it has been verified 
-        require(urlToTokenId[keccak256(abi.encodePacked(url))] == 0, "Consent: URL already verified");
+        require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: URL already verified");
+
 
         // mint token id and append to the token URI "VERIFIED"
-        _safeMintAndRegister(owner, "VERIFIED", url);
+        _safeMintAndRegister(owner, 1, label, metadata);
     }
 
     /// @notice Marks a url as malicious 
@@ -105,7 +106,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @notice Checks the status of a url 
     /// @param url Site URL
     /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
-    function checkURL(string memory url) external view returns(string memory result) {
+    function checkEntities(string memory [] labels) external view returns(entityStruct memory result) {
         // get the url's token using its hashed value
         uint256 tokenId = urlToTokenId[keccak256(abi.encodePacked(url))];
 
@@ -126,15 +127,17 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @param to Address receiving the token
     /// @param uri Token uri containing status
     /// @param url Site URL
-    function _safeMintAndRegister(address to, string memory uri, string memory url) internal onlyRole(VERIFIER_ROLE) {
+    function _safeMintAndRegister(address to, uint256 verifiedstatus, string memory label, string memory metadata) internal onlyRole(VERIFIER_ROLE) {
         // ensure that tokenIds start from 1 so that 0 can be kept as tokens that are not verified yet
         uint256 tokenId = _tokenIdCounter.current() + 1;
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
 
         // register hashed url to token mapping
-        urlToTokenId[keccak256(abi.encodePacked(url))] = tokenId;
+        urlToTokenId[keccak256(abi.encodePacked(label))] = tokenId;
+
+        /// set the metadata
+        tokenIDtoEntity[tokenId] = entityStruct(metadata, verifiedStatus);
 
         /// increase total supply count
         totalSupply++;
