@@ -85,7 +85,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 80001,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "100",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -93,7 +93,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "100",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -101,7 +101,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "5906596049814560",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -109,7 +109,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "14338174027714340563",
             contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -117,7 +117,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "100",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -125,7 +125,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "100",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -175,7 +175,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 80001,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -183,7 +183,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -191,7 +191,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "5906596049814560",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -199,7 +199,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "14338174027714340563",
             contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -207,7 +207,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -215,7 +215,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -252,7 +252,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 80001,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -260,7 +260,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -268,7 +268,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -276,7 +276,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -284,7 +284,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -292,7 +292,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -321,7 +321,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 80001,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -329,7 +329,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -337,7 +337,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "5906596049814560",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -345,7 +345,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "14338174027714340563",
             contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -353,7 +353,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -361,7 +361,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -400,7 +400,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 80001,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "150",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -408,7 +408,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "1",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -416,7 +416,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "501",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -424,7 +424,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "499",
             contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -432,7 +432,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "0",
             contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -440,7 +440,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
-            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            accountAddress: "",
             balance: "20",
             contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
