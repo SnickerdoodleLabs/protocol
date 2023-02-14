@@ -18,6 +18,7 @@ import {
   ConsentFactoryContractError,
   IpfsCID,
   HexString32,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -72,6 +73,17 @@ export interface IInvitationService {
     | ConsentError
     | PersistenceError
   >;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError>;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError>;
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError>;
 
   getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
 

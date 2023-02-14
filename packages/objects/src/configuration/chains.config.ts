@@ -10,6 +10,7 @@ import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { AccountIndexingError } from "@objects/errors";
 import {
   ChainId,
+  CoinGeckoAssetPlatformID,
   EVMContractAddress,
   ProviderUrl,
   URLString,
@@ -195,6 +196,8 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
+      undefined,
+      CoinGeckoAssetPlatformID("solana"), // coing gecko chain slug
     ),
   ],
   [
@@ -225,7 +228,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [],
       10000, // average block mining time
-      EIndexer.Gnosis,
+      EIndexer.Binance,
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
       "https://api.bscscan.com/api",

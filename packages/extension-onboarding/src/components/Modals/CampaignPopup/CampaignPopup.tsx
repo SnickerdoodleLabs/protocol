@@ -1,26 +1,35 @@
-import { Box, Button, Dialog, IconButton, Typography } from "@material-ui/core";
+import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
+import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
+import AccountsCard from "@extension-onboarding/components/AccountsCard";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
+import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import {
+  Box,
+  Button,
+  Collapse,
+  Dialog,
+  IconButton,
+  Typography,
+} from "@material-ui/core";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import {
+  AccountAddress,
   BigNumberString,
   EInvitationStatus,
   EVMContractAddress,
   EWalletDataType,
   IOpenSeaMetadata,
   Signature,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import React, { useEffect, useState, FC, useCallback } from "react";
-
-import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
-import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 declare const window: IWindowWithSdlDataWallet;
 const CampaignPopup: FC = () => {
@@ -31,10 +40,28 @@ const CampaignPopup: FC = () => {
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
   const { invitationInfo, setInvitationInfo } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
+  const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
+  const [expandAccounts, setExpandAccounts] = useState<boolean>(false);
+
+  const getRecievingAccount = (contractAddress: EVMContractAddress) => {
+    window.sdlDataWallet
+      .getReceivingAddress(contractAddress)
+      .map(setReceivingAccount);
+  };
+
+  const setReceivingAccountForConsent = (accountAddress) => {
+    setExpandAccounts(false);
+    window.sdlDataWallet
+      .setReceivingAddress(invitationInfo.consentAddress!, accountAddress)
+      .map(() => {
+        getRecievingAccount(invitationInfo.consentAddress!);
+      });
+  };
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
       getInvitationData();
+      getRecievingAccount(invitationInfo.consentAddress);
     }
   }, [JSON.stringify(invitationInfo)]);
 
@@ -235,16 +262,12 @@ const CampaignPopup: FC = () => {
 
   return (
     <>
-      <Dialog onClose={handleClose} open={true}>
-        <Box width={548} height={497}>
-          <Box height={270} style={{ backgroundImage: `url(${RewardBG})` }}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="baseline"
-            >
+      <Dialog open={true} className={classes.container}>
+        <Box width={548}>
+          <Box style={{ backgroundImage: `url(${RewardBG})` }}>
+            <Box display="flex" justifyContent="space-between">
               <Box pt={3} pl={4}>
-                <img width="auto" height={18} src={SDLogo} />
+                <img width="auto" height={26.66} src={SDLogo} />
               </Box>
               <Box>
                 <IconButton
@@ -252,7 +275,6 @@ const CampaignPopup: FC = () => {
                   disableRipple
                   disableTouchRipple
                   aria-label="close"
-                  //   className={modalClasses.closeButton}
                   onClick={handleClose}
                 >
                   <CloseIcon />
@@ -263,7 +285,7 @@ const CampaignPopup: FC = () => {
               display="flex"
               alignItems="center"
               justifyContent="center"
-              mt={2}
+              mt={0.25}
             >
               <Box>
                 <img width="auto" height={145} src={invitationMeta.image} />
@@ -274,6 +296,7 @@ const CampaignPopup: FC = () => {
               alignItems="center"
               justifyContent="center"
               pt={1}
+              pb={2}
             >
               <Box
                 style={{
@@ -308,13 +331,16 @@ const CampaignPopup: FC = () => {
                   color: "#222137",
                 }}
               >
-                Join to Cohort!
+                {invitationMeta.title || "Join the Cohort!"}
               </Typography>
             </Box>
             <Box mb={2}>
               <Typography className={classes.subtitle}>
-                Connect your wallet with the Snickerdoodle Data Wallet to claim
-                NFTs and other rewards!
+                {
+                  invitationMeta.description 
+                  || 
+                  "Connect your wallet with the Snickerdoodle Data Wallet to claim NFTs and other rewards!"
+                }
               </Typography>
             </Box>
             <Box
@@ -359,12 +385,73 @@ const CampaignPopup: FC = () => {
               </Box>
             </Box>
           </Box>
-          <Box px={7} my={3} textAlign="center">
+          <Box px={7} mt={3} mb={15}>
             <Typography className={classes.footerText}>
               By accepting this Reward you are giving permission for the use of
               your profile and wallet activity to generate market trends. All
               information is anonymous and no insights are linked back to you.
             </Typography>
+          </Box>
+          <Box
+            className={classes.accountSectionContainer}
+            {...(expandAccounts && {
+              boxShadow: "0px -12px 49px -8px rgba(0,0,0,0.32)",
+            })}
+          >
+            <Box
+              onClick={() => {
+                setExpandAccounts(!expandAccounts);
+              }}
+              style={{ cursor: "pointer" }}
+            >
+              <Box
+                bgcolor="#FEF6E7"
+                py={1}
+                px={5}
+                display="flex"
+                alignItems="center"
+              >
+                <Typography className={classes.accountInfoText}>
+                  Your current receiving account
+                </Typography>
+                {receivingAccount && (
+                  <>
+                    <AccountIdentIcon
+                      accountAddress={receivingAccount}
+                      size={17}
+                    />
+                    <Typography className={classes.account}>
+                      {receivingAccount.slice(0, 5)} ................
+                      {receivingAccount.slice(-4)}
+                    </Typography>
+                  </>
+                )}
+              </Box>
+              <Box py={1} px={5} display="flex" flexDirection="column">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="flex-end"
+                >
+                  <Typography className={classes.changeRecievingAccountText}>
+                    Change Receiving Account
+                  </Typography>
+                  {expandAccounts ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                </Box>
+                <Typography className={classes.changeAccountDescription}>
+                  Select the account where you would like to receive your
+                  reward.
+                </Typography>
+              </Box>
+            </Box>
+            <Box>
+              <Collapse in={expandAccounts}>
+                <AccountsCard
+                  receivingAddress={receivingAccount}
+                  onSelect={setReceivingAccountForConsent}
+                />
+              </Collapse>
+            </Box>
           </Box>
         </Box>
       </Dialog>

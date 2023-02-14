@@ -107,6 +107,23 @@ export class DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     });
   }
 
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, unknown> {
+    return coreGateway.setDefaultReceivingAddress(receivingAddress);
+  }
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, unknown> {
+    return coreGateway.setReceivingAddress(contractAddress, receivingAddress);
+  }
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress | undefined,
+  ): ResultAsync<AccountAddress, unknown> {
+    return coreGateway.getReceivingAddress(contractAddress);
+  }
+
   public getMarketplaceListings(
     count?: number | undefined,
     headAt?: number | undefined,

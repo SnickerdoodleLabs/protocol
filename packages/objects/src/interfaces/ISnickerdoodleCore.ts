@@ -476,7 +476,9 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
-  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+  onAdDisplayed(
+    eligibleAd: EligibleAd,
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
@@ -486,6 +488,22 @@ export interface ISnickerdoodleCore {
   isDataWalletAddressInitialized(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<boolean, UnauthorizedError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<AccountAddress, PersistenceError>;
 
   /** Google User Information */
   getAge(

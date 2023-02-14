@@ -94,20 +94,17 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-
-import { Container } from "inversify";
-
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
 } from "@core/interfaces/api/index.js";
-
-import { ResultAsync } from "neverthrow";
-
 import {
   IAccountService,
   IAccountServiceType,
@@ -126,9 +123,6 @@ import {
   ISiftContractService,
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -827,7 +821,44 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
-  public getEarnedRewards(
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.setDefaultReceivingAddress(receivingAddress);
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.setReceivingAddress(
+      contractAddress,
+      receivingAddress,
+    );
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<AccountAddress, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getReceivingAddress(contractAddress);
+  }
+
+  getEarnedRewards(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<EarnedReward[], PersistenceError> {
     const accountService =
@@ -843,22 +874,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
-  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+  public getEligibleAds(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<EligibleAd[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
     return persistence.getEligibleAds();
   }
 
-  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+  public getAdSignatures(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<AdSignature[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
     return persistence.getAdSignatures();
   }
 
-  onAdDisplayed(
+  public onAdDisplayed(
     eligibleAd: EligibleAd,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
     const adService = this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.onAdDisplayed(eligibleAd);

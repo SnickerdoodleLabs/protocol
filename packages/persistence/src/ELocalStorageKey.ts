@@ -23,4 +23,6 @@ export enum ELocalStorageKey {
   DOMAIN_PERMISSIONS = "SD_DomainPermissions",
   ELIGIBLE_ADS = "SD_EligibleAds",
   AD_SIGNATURES = "SD_AdSignatures",
+  DEFAULT_RECEIVING_ADDRESS = "SD_DefaultReceivingAddress",
+  RECEIVING_ADDRESSES = "SD_ReceivingAddresses"
 }
