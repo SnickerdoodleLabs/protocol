@@ -165,7 +165,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
-      this.persistenceRepo,
+      this.persistenceRepo
     );
   }
 }
@@ -295,6 +295,13 @@ describe("processRewardsPreview tests", () => {
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
         ),
       ),
     );
@@ -302,7 +309,11 @@ describe("processRewardsPreview tests", () => {
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
     td.when(
-      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(sdqlQuery, td.matchers.anything()),
+      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+        sdqlQuery,
+        td.matchers.anything(),
+        td.matchers.anything()
+      ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryCID),
@@ -329,6 +340,7 @@ describe("processRewardsPreview tests", () => {
           return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
             query,
             new DataPermissions(allPermissions),
+            consentContractAddress
           );
         })
         .andThen((rewardsPreviews) => {

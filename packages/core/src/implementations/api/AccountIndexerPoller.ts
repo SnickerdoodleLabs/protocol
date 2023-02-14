@@ -39,7 +39,7 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.dataWalletBackupIntervalMS);
 
-      this.persistence.waitForRestore().map(() => {
+      this.persistence.waitForFullRestore().map(() => {
         setInterval(() => {
           this.monitoringService.pollTransactions().mapErr((e) => {
             this.logUtils.error(e);

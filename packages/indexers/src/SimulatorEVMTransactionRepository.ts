@@ -1,19 +1,19 @@
 import {
-  AccountBalanceError,
   AccountIndexingError,
-  AccountNFTError,
   AjaxError,
   BigNumberString,
   ChainId,
+  EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
+  EVMNFT,
   EVMTransaction,
+  EVMTransactionHash,
   IEVMAccountBalanceRepository,
-  IEVMBalance,
-  IEVMNFT,
   IEVMNftRepository,
   IEVMTransactionRepository,
   TickerSymbol,
+  TokenBalance,
   TokenUri,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -28,22 +28,21 @@ export class SimulatorEVMTransactionRepository
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMNFT[], AjaxError | AccountNFTError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
-    const result: IEVMNFT[] = [];
+    const result: EVMNFT[] = [];
     for (let i = 0; i < num; i++) {
-      const item: IEVMNFT = {
-        contract: EVMContractAddress("EVMContractAddress#" + i),
-        tokenId: BigNumberString(`${Math.floor(Math.random() * 1000)}`),
-        contractType: "erc721",
-        owner: accountAddress,
-        metadata: "metadata",
-        amount: BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        name: "Fake Token #" + i,
-        ticker: TickerSymbol((Math.random() + 1).toString(36).substring(5)),
-        chain: chainId,
-        tokenUri: TokenUri("tokenURI"),
-      };
+      const item = new EVMNFT(
+        EVMContractAddress("EVMContractAddress#" + i),
+        BigNumberString(`${Math.floor(Math.random() * 1000)}`),
+        "erc721",
+        accountAddress,
+        TokenUri("tokenURI"),
+        { raw: "metadata" },
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        "Fake Token #" + i,
+        chainId,
+      );
       result.push(item);
     }
     return okAsync(result);
@@ -52,23 +51,24 @@ export class SimulatorEVMTransactionRepository
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMBalance[], AjaxError | AccountBalanceError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
-    const result: IEVMBalance[] = [];
+    const result: TokenBalance[] = [];
     for (let i = 0; i < num; i++) {
-      const item: IEVMBalance = {
-        ticker: TickerSymbol((Math.random() + 1).toString(36).substring(5)),
-        chainId: chainId,
-        accountAddress: accountAddress,
-        balance: BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        contractAddress: EVMContractAddress(
+      const item = new TokenBalance(
+        EChainTechnology.EVM,
+        TickerSymbol((Math.random() + 1).toString(36).substring(5)),
+        chainId,
+        EVMContractAddress(
           Math.floor(Math.random() * 4) +
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
               Math.floor(Math.random() * 4),
             ),
         ),
-        quoteBalance: Math.random() * 1000,
-      };
+        accountAddress,
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        18,
+      );
       result.push(item);
     }
     return okAsync(result);
@@ -94,7 +94,7 @@ export class SimulatorEVMTransactionRepository
             );
       const item = new EVMTransaction(
         chainId,
-        "hash",
+        EVMTransactionHash("hash"),
         UnixTimestamp(timestamp.getTime() / 1000),
         null,
         accountAddress,
@@ -104,7 +104,8 @@ export class SimulatorEVMTransactionRepository
         null,
         null,
         null,
-        Math.random() * 1000,
+        null,
+        null,
       );
     }
     return okAsync(result);

@@ -3,9 +3,11 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  ECurrencyCode,
   EChain,
   IConfigOverrides,
   URLString,
+  ProviderUrl,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
@@ -49,7 +51,7 @@ export class ConfigProvider
   protected config: CoreConfig;
 
   public constructor() {
-    const controlChainId = ChainId(31338);
+    const controlChainId = ChainId(31337);
     const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
@@ -67,7 +69,7 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(EChain.LocalDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
+      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
@@ -80,11 +82,35 @@ export class ConfigProvider
       50, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
+      "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
-      "USD", // quoteCurrency
+      ECurrencyCode.USD, // quoteCurrency
+      new Map([
+        [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+        [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+        [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+        [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+        [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
+        [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
+        [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
+      ]), // etherscan api key
+      100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
+      {
+        solana:
+          "https://solana-mainnet.g.alchemy.com/v2/jTt7xNc-M5Tl3myKDWgsKULpB3tR7uDB",
+        solanaTestnet:
+          "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+        polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
+        polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
+      },
+      10000,
+      "(localhost|chrome://)",
     );
   }
 
@@ -96,6 +122,9 @@ export class ConfigProvider
     // Change the control chain, have to have new control chain info
     this.config.controlChainId =
       overrides.controlChainId ?? this.config.controlChainId;
+    this.config.defaultGoogleCloudBucket =
+      overrides.defaultGoogleCloudBucket ??
+      this.config.defaultGoogleCloudBucket;
 
     const controlChainInformation = chainConfig.get(this.config.controlChainId);
 
@@ -116,12 +145,10 @@ export class ConfigProvider
     // The whole point of making a different chainID for dev and local was to avoid this,
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
-    if (
-      overrides.controlChainProviderURL != null &&
-      this.config.controlChainId == EChain.DevDoodle
-    ) {
+    if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.controlChainInformation.providerUrls = [
-        overrides.controlChainProviderURL,
+        overrides.controlChainProviderURL ||
+          ProviderUrl("http://127.0.0.1:8545"),
       ];
     }
 
@@ -146,6 +173,9 @@ export class ConfigProvider
       overrides.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =
       overrides.moralisApiKey ?? this.config.moralisApiKey;
+    this.config.nftScanApiKey =
+      overrides.nftScanApiKey ?? this.config.nftScanApiKey;
+    this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -156,8 +186,11 @@ export class ConfigProvider
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
     this.config.requestForDataCheckingFrequency =
-      overrides.requestForDataCheckingFrequency ?? this.config.requestForDataCheckingFrequency;
+      overrides.requestForDataCheckingFrequency ??
+      this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
+    this.config.domainFilter =
+      overrides.domainFilter ?? this.config.domainFilter;
   }
 }

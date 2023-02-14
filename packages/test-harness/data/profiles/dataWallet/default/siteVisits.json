@@ -8,5 +8,21 @@
         "url": "www.facebook.com",
         "startTime": 200,
         "endTime": 500
+    },
+    {
+        "url": "http://localhost:9000",
+        "startTime": 200,
+        "endTime": 500
+    },
+    {
+        "url": "https://github.com/",
+        "startTime": 200,
+        "endTime": 500
+    },
+    {
+        "url": "chrome://extensions/",
+        "startTime": 200,
+        "endTime": 500
     }
+
 ]

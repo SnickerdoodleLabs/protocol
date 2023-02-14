@@ -7,6 +7,9 @@ import {
   IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
+  UnixTimestamp,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -26,6 +29,10 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import {
+  IProfileService,
+  IProfileServiceType,
+} from "@core/interfaces/business/IProfileService.js";
+import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
@@ -44,6 +51,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected balanceQueryEvaluator: IBalanceQueryEvaluator,
     @inject(INetworkQueryEvaluatorType)
     protected networkQueryEvaluator: INetworkQueryEvaluator,
+    @inject(IProfileServiceType)
+    protected profileService: IProfileService,
   ) {}
 
   protected age: Age = Age(0);
@@ -52,7 +61,6 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-
     if (query instanceof AST_NetworkQuery) {
       return this.networkQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
@@ -71,10 +79,14 @@ export class QueryEvaluator implements IQueryEvaluator {
   public evalPropertyQuery(
     q: AST_PropertyQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
+    console.log(" evalPropertyQuery  ");
+
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
-        return this.dataWalletPersistence.getAge().andThen((age) => {
+        return this.profileService.getAge().andThen((age) => {
+          console.log(" getBirthday  ", age);
+
           switch (q.returnType) {
             case "boolean":
               for (const condition of q.conditions) {
@@ -88,7 +100,6 @@ export class QueryEvaluator implements IQueryEvaluator {
               return okAsync(result);
           }
         });
-        return okAsync(result);
       case "location":
         return this.dataWalletPersistence.getLocation().andThen((location) => {
           switch (q.returnType) {
@@ -129,9 +140,11 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence.getTransactionsArray().andThen((transactionArray) => {
-          return okAsync(SDQL_Return(transactionArray));
-        });
+        return this.dataWalletPersistence
+          .getTransactionValueByChain()
+          .andThen((transactionArray) => {
+            return okAsync(SDQL_Return(transactionArray));
+          });
       default:
         return okAsync(result);
     }

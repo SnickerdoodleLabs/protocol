@@ -21,34 +21,42 @@ import {
   EVMPrivateKey,
   EVMAccountAddress,
   EVMContractAddress,
-  EVMTransaction,
   ChainId,
-  IEVMBalance,
-  IEVMNFT,
-  EVMTransactionFilter,
   BlockNumber,
   IAccountBalances,
   IAccountBalancesType,
   IAccountNFTs,
   IAccountNFTsType,
-  AccountNFTError,
   AjaxError,
   EIndexer,
-  AccountBalanceError,
   IDataWalletBackup,
-  BigNumberString,
   LinkedAccount,
-  EChainTechnology,
   getChainInfoByChain,
-  IChainTransaction,
   ChainTransaction,
   EarnedReward,
   Invitation,
   Signature,
   TokenId,
   chainConfig,
+  TokenBalance,
+  WalletNFT,
+  AccountIndexingError,
+  isAccountValidForChain,
+  AccountAddress,
+  SolanaAccountAddress,
+  ITokenPriceRepositoryType,
+  ITokenPriceRepository,
+  TokenAddress,
+  TransactionFilter,
+  PortfolioUpdate,
   DataWalletBackupID,
   JSONString,
+  EVMTransaction,
+  TransactionPaymentCounter,
+  getChainInfoByChainId,
+  EligibleAd,
+  AdSignature,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -61,32 +69,46 @@ import {
   IVolatileStorage,
   IVolatileCursor,
   IVolatileStorageType,
+  PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { parse } from "tldts";
 
 import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 
+import { parse } from "tldts";
+
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
-  private restorePromise: Promise<void>;
-  private resolveRestore: (() => void) | null = null;
+  private initRestorePromise: Promise<void>;
+  private resolveInitRestore: (() => void) | null = null;
 
-  private _balances?: ResultAsync<IEVMBalance[], PersistenceError>;
-  private _lastBalanceUpdate = 0;
+  private fullRestorePromise: Promise<void>;
+  private resolveFullRestore: (() => void) | null = null;
 
-  private _nfts?: ResultAsync<IEVMNFT[], PersistenceError>;
-  private _lastNftUpdate = 0;
+  private _balanceCache?: ResultAsync<
+    PortfolioCache<
+      TokenBalance[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
+    never
+  >;
+  private _nftCache?: ResultAsync<
+    PortfolioCache<
+      WalletNFT[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
+    never
+  >;
 
   public constructor(
     @inject(IAccountNFTsType)
@@ -102,14 +124,53 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
     });
-    this.restorePromise = new Promise<void>((resolve) => {
-      this.resolveRestore = resolve;
+    this.initRestorePromise = new Promise<void>((resolve) => {
+      this.resolveInitRestore = resolve;
     });
+    this.fullRestorePromise = new Promise<void>((resolve) => {
+      this.resolveFullRestore = resolve;
+    });
+
+    // reset portfolio cache on account addition and removal
+    this.contextProvider.getContext().map((context) => {
+      context.publicEvents.onAccountAdded.subscribe((account) =>
+        this._clearPortfolioCaches(account),
+      );
+      context.publicEvents.onAccountRemoved.subscribe((account) =>
+        this._clearPortfolioCaches(account),
+      );
+    });
+  }
+
+  public waitForInitialRestore(): ResultAsync<EVMPrivateKey, never> {
+    return ResultUtils.combine<EVMPrivateKey, void, never, never>([
+      ResultAsync.fromSafePromise(this.unlockPromise),
+      ResultAsync.fromSafePromise(this.initRestorePromise),
+    ]).map(([key]) => key);
+  }
+
+  public waitForFullRestore(): ResultAsync<EVMPrivateKey, never> {
+    return ResultUtils.combine<EVMPrivateKey, void, never, never>([
+      this.waitForInitialRestore(),
+      ResultAsync.fromSafePromise(this.fullRestorePromise),
+    ]).map(([key]) => key);
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError> {
+    return this.tokenPriceRepo
+      .getTokenPrice(chainId, address, timestamp)
+      .mapErr((e) => new PersistenceError("unable to fetch token price", e));
   }
 
   private _checkAndRetrieveValue<T>(
@@ -125,13 +186,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return ResultAsync.fromSafePromise(this.unlockPromise);
   }
 
-  public waitForRestore(): ResultAsync<EVMPrivateKey, never> {
-    return ResultUtils.combine<EVMPrivateKey, void, never, never>([
-      ResultAsync.fromSafePromise(this.unlockPromise),
-      ResultAsync.fromSafePromise(this.restorePromise),
-    ]).map(([key]) => key);
-  }
-
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
@@ -142,17 +196,29 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.cloudStorage.unlock(derivedKey),
       this.backupManagerProvider.unlock(derivedKey),
     ])
-      .andThen(() => {
-        return this.pollBackups();
-      })
       .map(() => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.resolveRestore!();
-      }).mapErr((e) => new PersistenceError("error unlocking data wallet", e));
+        this.configProvider.getConfig().map((config) => {
+          // set the backup restore to timeout as to not block unlocks
+          const timeout = setTimeout(() => {
+            this.logUtils.error("Backup restore timed out");
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.resolveInitRestore!();
+          }, config.restoreTimeoutMS);
+          this._pollHighPriorityBackups().map(() => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.resolveInitRestore!();
+            clearTimeout(timeout);
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.pollBackups().map(() => this.resolveFullRestore!());
+          });
+        });
+      })
+      .mapErr((e) => new PersistenceError("error unlocking data wallet", e));
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.waitForRestore().andThen((store) => {
+    return this.waitForInitialRestore().andThen((store) => {
       return this.volatileStorage.getAll<LinkedAccount>(
         ELocalStorageKey.ACCOUNT,
       );
@@ -160,7 +226,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this._checkAndRetrieveValue<JSONString>(
           ELocalStorageKey.ACCEPTED_INVITATIONS,
@@ -178,7 +244,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAcceptedInvitations(
     invitations: Invitation[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return ResultUtils.combine([
           this.backupManagerProvider.getBackupManager(),
@@ -201,6 +267,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.updateField(
           ELocalStorageKey.ACCEPTED_INVITATIONS,
           JSONString(JSON.stringify(allInvitations)),
+          EBackupPriority.HIGH,
         );
       });
   }
@@ -208,7 +275,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public removeAcceptedInvitationsByContractAddress(
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return ResultUtils.combine([
           this.backupManagerProvider.getBackupManager(),
@@ -228,6 +295,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.updateField(
           ELocalStorageKey.ACCEPTED_INVITATIONS,
           JSONString(JSON.stringify(invitations)),
+          EBackupPriority.HIGH,
         );
       });
   }
@@ -245,6 +313,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 return backupManager.addRecord(
                   ELocalStorageKey.EARNED_REWARDS,
                   reward,
+                  EBackupPriority.NORMAL,
                 );
               }),
             ).map(() => undefined);
@@ -261,18 +330,82 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  public saveEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              ads.map((ad) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.ELIGIBLE_ADS,
+                  ad,
+                  EBackupPriority.NORMAL,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<EligibleAd>(
+        ELocalStorageKey.ELIGIBLE_ADS,
+      );
+    });
+  }
+
+  public saveAdSignatures(
+    adSigList: AdSignature[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              adSigList.map((adSig) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.AD_SIGNATURES,
+                  adSig,
+                  EBackupPriority.NORMAL,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<AdSignature>(
+        ELocalStorageKey.AD_SIGNATURES,
+      );
+    });
+  }
+
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.backupManagerProvider
         .getBackupManager()
         .andThen((backupManager) => {
-          return backupManager.addRecord(ELocalStorageKey.CLICKS, click);
+          return backupManager.addRecord(
+            ELocalStorageKey.CLICKS,
+            click,
+            EBackupPriority.NORMAL,
+          );
         });
     });
   }
 
   public getClicks(): ResultAsync<ClickData[], PersistenceError> {
-    return this.waitForRestore().andThen(() => {
+    return this.waitForFullRestore().andThen(() => {
       return this.volatileStorage.getAll<ClickData>(ELocalStorageKey.CLICKS);
     });
   }
@@ -280,7 +413,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.storageUtils
         .read<EVMContractAddress[]>(ELocalStorageKey.REJECTED_COHORTS)
         .andThen((saved) => {
@@ -290,6 +423,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               return backupManager.updateField(
                 ELocalStorageKey.REJECTED_COHORTS,
                 [...(saved ?? []), ...consentContractAddresses],
+                EBackupPriority.NORMAL,
               );
             });
         });
@@ -300,7 +434,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     EVMContractAddress[],
     PersistenceError
   > {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue<EVMContractAddress[]>(
         ELocalStorageKey.REJECTED_COHORTS,
         [],
@@ -311,7 +445,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.backupManagerProvider
         .getBackupManager()
         .andThen((backupManager) => {
@@ -322,6 +456,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               return backupManager.addRecord(
                 ELocalStorageKey.SITE_VISITS,
                 visit,
+                EBackupPriority.NORMAL,
               );
             }),
           ).map(() => {});
@@ -330,7 +465,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.volatileStorage.getAll<SiteVisit>(
         ELocalStorageKey.SITE_VISITS,
       );
@@ -340,19 +475,23 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.addRecord(ELocalStorageKey.ACCOUNT, linkedAccount);
+        return backupManager.addRecord(
+          ELocalStorageKey.ACCOUNT,
+          linkedAccount,
+          EBackupPriority.HIGH,
+        );
       });
   }
 
   public removeAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.storageUtils.read<EVMAccountAddress[]>(
           ELocalStorageKey.ACCOUNT,
@@ -371,55 +510,74 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               saved.splice(index, 1);
             }
 
-            return backupManager.updateField(ELocalStorageKey.ACCOUNT, saved);
+            return backupManager.updateField(
+              ELocalStorageKey.ACCOUNT,
+              saved,
+              EBackupPriority.HIGH,
+            );
           });
       });
   }
 
-  public setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
-      .andThen(() => {
-        return this.backupManagerProvider.getBackupManager();
-      })
-      .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.AGE, age);
-      });
-  }
-
   public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForRestore().andThen(() => {
-      return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
+    return this.getBirthday().map((birthdayEpoch) => {
+      if (birthdayEpoch == null) {
+        return null;
+      }
+
+      let ageYear =
+        new Date(Date.now()).getFullYear() -
+        new Date(birthdayEpoch * 1000).getFullYear();
+      const ageMonth =
+        new Date(Date.now()).getMonth() -
+        new Date(birthdayEpoch * 1000).getMonth();
+      const dateBirthday = new Date(birthdayEpoch * 1000).getDate();
+      const dateToday = new Date(Date.now()).getDate();
+
+      if (ageMonth < 0 || (ageMonth == 0 && dateToday < dateBirthday)) {
+        ageYear = ageYear - 1;
+      }
+
+      return Age(ageYear);
     });
   }
 
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForFullRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.FIRST_NAME, name);
+        return backupManager.updateField(
+          ELocalStorageKey.FIRST_NAME,
+          name,
+          EBackupPriority.NORMAL,
+        );
       });
   }
 
   public getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.FIRST_NAME, null);
     });
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForFullRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.LAST_NAME, name);
+        return backupManager.updateField(
+          ELocalStorageKey.LAST_NAME,
+          name,
+          EBackupPriority.NORMAL,
+        );
       });
   }
 
   public getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.LAST_NAME, null);
     });
   }
@@ -427,33 +585,41 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.BIRTHDAY, birthday);
+        return backupManager.updateField(
+          ELocalStorageKey.BIRTHDAY,
+          birthday,
+          EBackupPriority.HIGH,
+        );
       });
   }
 
   public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });
   }
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.GENDER, gender);
+        return backupManager.updateField(
+          ELocalStorageKey.GENDER,
+          gender,
+          EBackupPriority.HIGH,
+        );
       });
   }
 
   public getGender(): ResultAsync<Gender | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.GENDER, null);
     });
   }
@@ -461,17 +627,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForFullRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.EMAIL, email);
+        return backupManager.updateField(
+          ELocalStorageKey.EMAIL,
+          email,
+          EBackupPriority.NORMAL,
+        );
       });
   }
 
   public getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.EMAIL, null);
     });
   }
@@ -479,64 +649,109 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
       .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.LOCATION, location);
+        return backupManager.updateField(
+          ELocalStorageKey.LOCATION,
+          location,
+          EBackupPriority.HIGH,
+        );
       });
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION, null);
     });
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForRestore(),
-      this.configProvider.getConfig(),
-    ]).andThen(([key, config]) => {
-      const currTime = new Date().getTime();
-      if (
-        this._balances != undefined &&
-        currTime - this._lastBalanceUpdate <
-          config.accountBalancePollingIntervalMS
-      ) {
-        return this._balances;
-      }
-      this._balances = this.pollBalances().mapErr(
-        (e) => new PersistenceError(`${e.name}: ${e.message}`),
-      );
-      this._lastBalanceUpdate = currTime;
-      return this._balances;
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForInitialRestore().andThen(([key]) => {
+      return this.backupManagerProvider.getBackupManager()
+        .andThen((backupManager) => {
+          return backupManager.updateField(
+            ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS,
+            !receivingAddress ? "" as AccountAddress : receivingAddress,
+            EBackupPriority.NORMAL,
+          );
+        });
     });
   }
 
-  private pollBalances(): ResultAsync<
-    IEVMBalance[],
-    PersistenceError | AccountBalanceError | AjaxError
+  public getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null, 
+    PersistenceError
   > {
+    return this.waitForInitialRestore().andThen(([key]) => {
+      return this._checkAndRetrieveValue(
+        ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS, 
+        null
+      ).map((val) => val == "" ? null : val)
+    });
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForFullRestore().andThen(([key]) => {
+      return this.backupManagerProvider.getBackupManager()
+        .andThen((backupManager) => {
+
+          if (receivingAddress && receivingAddress != "") {
+            return backupManager.addRecord(
+              ELocalStorageKey.RECEIVING_ADDRESSES,
+              {
+                contractAddress: contractAddress,
+                receivingAddress: receivingAddress
+              },
+              EBackupPriority.NORMAL,
+            );
+          }
+
+          return this.volatileStorage.removeObject(
+            ELocalStorageKey.RECEIVING_ADDRESSES,
+            contractAddress.toString()
+          );
+        });
+    });
+  }
+
+  public getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError> {
+    return this.waitForFullRestore().andThen(([key]) => {
+      return this.volatileStorage.getObject<ReceivingAccountEntry>(
+        ELocalStorageKey.RECEIVING_ADDRESSES, 
+        contractAddress.toString()
+      ).map((entry) => !entry ? null : entry.receivingAddress);
+    });
+  }
+
+  public getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+    filterEmpty = true,
+  ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.getAccounts(),
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
-
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          (accounts ?? linkedAccounts).map((linkedAccount) => {
             return ResultUtils.combine(
-              config.supportedChains.map((chainId) => {
-                return this.getLatestBalances(
+              (chains ?? config.supportedChains).map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
+                return this.getCachedBalances(
                   chainId,
                   linkedAccount.sourceAccountAddress as EVMAccountAddress,
                 );
@@ -546,87 +761,160 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         );
       })
       .map((balancesArr) => {
-        return balancesArr.flat(2);
+        return balancesArr.flat(2).filter((x) => {
+          return !filterEmpty || x.balance != "0";
+        });
+      })
+      .mapErr((e) => new PersistenceError("error aggregating balances", e));
+  }
+
+  private getCachedBalances(
+    chainId: ChainId,
+    accountAddress: AccountAddress,
+  ): ResultAsync<
+    TokenBalance[],
+    PersistenceError | AccountIndexingError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this._getBalanceCache(),
+      this.contextProvider.getContext(),
+    ]).andThen(([cache, context]) => {
+      return cache.get(chainId, accountAddress).andThen((cacheResult) => {
+        if (cacheResult != null) {
+          return okAsync(cacheResult);
+        }
+        const fetch = this.getLatestBalances(chainId, accountAddress).map(
+          (result) => {
+            context.publicEvents.onTokenBalanceUpdate.next(
+              new PortfolioUpdate(
+                accountAddress,
+                chainId,
+                new Date().getTime(),
+                result,
+              ),
+            );
+            return result;
+          },
+        );
+        return cache
+          .set(chainId, accountAddress, new Date().getTime(), fetch)
+          .andThen(() => fetch);
       });
+    });
   }
 
   private getLatestBalances(
     chainId: ChainId,
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
   ): ResultAsync<
-    IEVMBalance[],
-    PersistenceError | AccountBalanceError | AjaxError
+    TokenBalance[],
+    PersistenceError | AccountIndexingError | AjaxError
   > {
     return ResultUtils.combine([
-      this.accountBalances.getEVMBalanceRepository(),
-      this.accountBalances.getSimulatorEVMBalanceRepository(),
-    ]).andThen(([evmRepo, simulatorRepo]) => {
-      const chainInfo = chainConfig.get(chainId);
-      if (chainInfo == null) {
-        return errAsync(
-          new AccountBalanceError(
-            `No available chain info for chain ${chainId}`,
-          ),
-        );
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getBalancesForAccount(chainId, accountAddress);
-        case EIndexer.Simulator:
-          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
-        default:
-          return errAsync(
-            new AccountBalanceError(
-              `No available balance repository for chain ${chainId}`,
-            ),
-          );
-      }
-    });
-  }
-
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForRestore(),
       this.configProvider.getConfig(),
-    ]).andThen(([key, config]) => {
-      const currTime = new Date().getTime();
-      if (
-        this._nfts != undefined &&
-        currTime - this._lastNftUpdate < config.accountNFTPollingIntervalMS
-      ) {
-        return this._nfts;
-      }
-      this._nfts = this.pollNFTs().mapErr(
-        (e) => new PersistenceError("error fetching NFTs", e),
-      );
-      this._lastNftUpdate = currTime;
-      return this._nfts;
-    });
+      this.accountBalances.getEVMBalanceRepository(),
+      this.accountBalances.getSolanaBalanceRepository(),
+      this.accountBalances.getSimulatorEVMBalanceRepository(),
+      this.accountBalances.getEthereumBalanceRepository(),
+      this.accountBalances.getPolygonBalanceRepository(),
+      this.accountBalances.getEtherscanBalanceRepository(),
+    ])
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          maticRepo,
+          etherscanBalanceRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          if (chainInfo == null) {
+            return errAsync(
+              new AccountIndexingError(
+                `No available chain info for chain ${chainId}`,
+              ),
+            );
+          }
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Binance:
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available balance repository for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
+      .orElse((e) => {
+        this.logUtils.error(
+          "error fetching balances",
+          chainId,
+          accountAddress,
+          e,
+        );
+        return okAsync([]);
+      });
   }
 
-  private pollNFTs(): ResultAsync<
-    IEVMNFT[],
-    PersistenceError | AjaxError | AccountNFTError
-  > {
+  public getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], PersistenceError> {
     return ResultUtils.combine([
       this.getAccounts(),
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          (accounts ?? linkedAccounts).map((linkedAccount) => {
             return ResultUtils.combine(
-              config.supportedChains.map((chainId) => {
-                return this.getLatestNFTs(
+              (chains ?? config.supportedChains).map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
+                return this.getCachedNFTs(
                   chainId,
-                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                  linkedAccount.sourceAccountAddress,
                 );
               }),
             );
@@ -635,41 +923,136 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .map((nftArr) => {
         return nftArr.flat(2);
+      })
+      .mapErr((e) => new PersistenceError("error aggregating nfts", e));
+  }
+
+  private getCachedNFTs(
+    chainId: ChainId,
+    accountAddress: AccountAddress,
+  ): ResultAsync<
+    WalletNFT[],
+    PersistenceError | AjaxError | AccountIndexingError
+  > {
+    return ResultUtils.combine([
+      this._getNftCache(),
+      this.contextProvider.getContext(),
+    ]).andThen(([cache, context]) => {
+      return cache.get(chainId, accountAddress).andThen((cacheResult) => {
+        if (cacheResult != null) {
+          return okAsync(cacheResult);
+        }
+        const fetch = this.getLatestNFTs(chainId, accountAddress).map(
+          (result) => {
+            context.publicEvents.onNftBalanceUpdate.next(
+              new PortfolioUpdate(
+                accountAddress,
+                chainId,
+                new Date().getTime(),
+                result,
+              ),
+            );
+            return result;
+          },
+        );
+        return cache
+          .set(chainId, accountAddress, new Date().getTime(), fetch)
+          .andThen(() => fetch);
       });
+    });
   }
 
   private getLatestNFTs(
     chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
+    accountAddress: AccountAddress,
+  ): ResultAsync<
+    WalletNFT[],
+    PersistenceError | AccountIndexingError | AjaxError
+  > {
     return ResultUtils.combine([
+      this.configProvider.getConfig(),
       this.accountNFTs.getEVMNftRepository(),
+      this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
-    ]).andThen(([evmRepo, simulatorRepo]) => {
-      const chainInfo = chainConfig.get(chainId);
-      if (chainInfo == null) {
-        return errAsync(
-          new AccountNFTError(`No available chain info for chain ${chainId}`),
-        );
-      }
+      this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getEtherscanNftRepository(),
+      this.accountNFTs.getNftScanRepository(),
+      this.accountNFTs.getPoapRepository(),
+    ])
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          etherscanMRepo,
+          nftScanRepo,
+          poapRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          if (chainInfo == null) {
+            return errAsync(
+              new AccountIndexingError(
+                `No available chain info for chain ${chainId}`,
+              ),
+            );
+          }
 
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getTokensForAccount(chainId, accountAddress);
-        case EIndexer.Simulator:
-          return simulatorRepo.getTokensForAccount(chainId, accountAddress);
-        default:
-          return errAsync(
-            new AccountNFTError(
-              `No available token repository for chain ${chainId}`,
-            ),
-          );
-      }
-    });
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return poapRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Binance:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return nftScanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available chain info for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
+      .orElse((e) => {
+        this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
+        return okAsync([]);
+      });
   }
 
-  public getTransactionsArray(): ResultAsync<
-    IChainTransaction[],
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
     PersistenceError
   > {
     return this.getAccounts().andThen((accounts) => {
@@ -682,174 +1065,157 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 "to",
                 account.sourceAccountAddress,
               )
-              .andThen((cursor) => cursor.allValues().map((evm) => evm!)),
+              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
             this.volatileStorage
               .getCursor<EVMTransaction>(
                 ELocalStorageKey.TRANSACTIONS,
                 "from",
                 account.sourceAccountAddress,
               )
-              .andThen((cursor) => cursor.allValues().map((evm) => evm!)),
+              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
           ]).andThen(([toTransactions, fromTransactions]) => {
             return this.pushTransaction(toTransactions, fromTransactions, []);
           });
         }),
-      ).andThen(([transactionsArray]) => {
-        return this.compoundTransaction(transactionsArray);
+      ).andThen((transactionsArray) => {
+        return this.compoundTransaction(transactionsArray.flat(1));
       });
     });
   }
 
   protected pushTransaction(
-    incomingTransaction: EVMTransaction[],
-    outgoingTransaction: EVMTransaction[],
-    chainTransaction: IChainTransaction[],
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
-    for (let i = 0; i < incomingTransaction.length; i++) {
-      let valueQuote = incomingTransaction[i].valueQuote;
-      if (valueQuote == null || valueQuote == undefined) {
-        valueQuote = 0;
-      }
-      chainTransaction.push(
-        new ChainTransaction(
-          incomingTransaction[i].chainId,
-          BigNumberString("1"),
-          BigNumberString(
-            BigNumber.from(BigInt(Math.round(valueQuote))).toString(),
-          ),
-          BigNumberString("0"),
-          BigNumberString("0"),
+    incomingTransactions: EVMTransaction[],
+    outgoingTransactions: EVMTransaction[],
+    counters: TransactionPaymentCounter[],
+  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+    incomingTransactions.forEach((tx) => {
+      counters.push(
+        new TransactionPaymentCounter(
+          tx.chainId,
+          this._getTxValue(tx),
+          1,
+          0,
+          0,
         ),
-        // {
-        //   "chainId": incomingTransaction[i].chainId,
-        //   "incomingCount": BigNumberString("1"),
-        //   "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
-        //   "outgoingCount": BigNumberString("0"),
-        //   "outgoingValue": BigNumberString("0")
-        // }
       );
-    }
-    for (let i = 0; i < outgoingTransaction.length; i++) {
-      let valueQuote = outgoingTransaction[i].valueQuote;
-      if (valueQuote == null || valueQuote == undefined) {
-        valueQuote = 0;
-      }
-      chainTransaction.push({
-        chainId: outgoingTransaction[i].chainId,
-        incomingCount: BigNumberString("0"),
-        incomingValue: BigNumberString("0"),
-        outgoingCount: BigNumberString("1"),
-        outgoingValue: BigNumberString(
-          BigNumber.from(BigInt(Math.round(valueQuote))).toString(),
+    });
+    outgoingTransactions.forEach((tx) => {
+      counters.push(
+        new TransactionPaymentCounter(
+          tx.chainId,
+          0,
+          0,
+          this._getTxValue(tx),
+          1,
         ),
-      });
-    }
+      );
+    });
+    return okAsync(counters);
+  }
 
-    return okAsync(chainTransaction);
+  protected _getTxValue(tx: EVMTransaction): number {
+    const decimals = getChainInfoByChainId(tx.chainId).nativeCurrency.decimals;
+    return Number.parseFloat(
+      ethers.utils.formatUnits(tx.value || "0", decimals).toString(),
+    );
   }
 
   protected compoundTransaction(
-    chainTransaction: IChainTransaction[],
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
-    const flowMap = new Map<ChainId, IChainTransaction>();
+    chainTransaction: TransactionPaymentCounter[],
+  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+    const flowMap = new Map<ChainId, TransactionPaymentCounter>();
     chainTransaction.forEach((obj) => {
-      const getObject = flowMap.get(obj.chainId)!;
-      if (flowMap.has(obj.chainId)) {
-        flowMap.set(obj.chainId, {
-          chainId: obj.chainId,
-          outgoingValue: BigNumberString(
-            BigNumber.from(obj.outgoingValue.toString())
-              .add(getObject.outgoingValue.toString())
-              .toString(),
-          ),
-          outgoingCount: BigNumberString(
-            BigNumber.from(obj.outgoingCount.toString())
-              .add(getObject.outgoingCount.toString())
-              .toString(),
-          ),
-          incomingValue: BigNumberString(
-            BigNumber.from(obj.incomingValue.toString())
-              .add(getObject.incomingValue.toString())
-              .toString(),
-          ),
-          incomingCount: BigNumberString(
-            BigNumber.from(obj.incomingCount.toString())
-              .add(getObject.incomingCount.toString())
-              .toString(),
-          ),
-        });
+      const getObject = flowMap.get(obj.chainId);
+      if (getObject == null) {
+        flowMap.set(obj.chainId, obj);
       } else {
-        flowMap.set(obj.chainId, {
-          chainId: obj.chainId,
-          outgoingValue: BigNumberString(
-            BigNumber.from(obj.outgoingValue.toString()).toString(),
+        flowMap.set(
+          obj.chainId,
+          new TransactionPaymentCounter(
+            obj.chainId,
+            obj.incomingValue + getObject.incomingValue,
+            obj.incomingCount + getObject.incomingCount,
+            obj.outgoingValue + getObject.outgoingValue,
+            obj.outgoingCount + getObject.outgoingCount,
           ),
-          outgoingCount: BigNumberString(
-            BigNumber.from(obj.outgoingCount.toString()).toString(),
-          ),
-          incomingValue: BigNumberString(
-            BigNumber.from(obj.incomingValue.toString()).toString(),
-          ),
-          incomingCount: BigNumberString(
-            BigNumber.from(obj.incomingCount.toString()).toString(),
-          ),
-        });
+        );
       }
     });
 
-    const outputFlow: IChainTransaction[] = [];
-    flowMap.forEach((element, key) => {
-      outputFlow.push(element);
-    });
-
-    return okAsync(outputFlow);
+    return this.tokenPriceRepo
+      .getMarketDataForTokens(
+        [...flowMap.keys()].map((chain) => {
+          return { chain: chain, address: null };
+        }),
+      )
+      .map((marketDataMap) => {
+        const retVal: TransactionPaymentCounter[] = [];
+        flowMap.forEach((counter, chainId) => {
+          const marketData = marketDataMap.get(`${chainId}-${null}`);
+          if (marketData != null) {
+            counter.incomingValue *= marketData.currentPrice;
+            counter.outgoingValue *= marketData.currentPrice;
+            retVal.push(counter);
+          } else {
+            counter.incomingValue = 0;
+            counter.outgoingValue = 0;
+            retVal.push(counter);
+          }
+        });
+        return retVal;
+      })
+      .mapErr((e) => new PersistenceError("error compounding transactions", e));
   }
 
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     if (transactions.length == 0) {
       return okAsync(undefined);
     }
 
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.backupManagerProvider
         .getBackupManager()
         .andThen((backupManager) => {
           return ResultUtils.combine(
             transactions.map((tx) => {
-              return backupManager.addRecord(ELocalStorageKey.TRANSACTIONS, tx);
+              return backupManager.addRecord(
+                ELocalStorageKey.TRANSACTIONS,
+                tx,
+                EBackupPriority.NORMAL,
+              );
             }),
           ).andThen(() => okAsync(undefined));
         });
     });
   }
 
-  public getEVMTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this.waitForRestore().andThen(() => {
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.volatileStorage
-        .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS)
-        .map((transactions) => {
+        .getAll<ChainTransaction>(ELocalStorageKey.TRANSACTIONS)
+        .andThen((transactions) => {
           if (filter == undefined) {
-            return transactions;
+            return okAsync(transactions);
           }
 
-          return transactions.filter((value) => filter.matches(value));
+          return okAsync(transactions.filter((value) => filter.matches(value)));
         });
     });
   }
 
   public getLatestTransactionForAccount(
     chainId: ChainId,
-    address: EVMAccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError> {
-    return this.waitForRestore().andThen(() => {
-      const filter = new EVMTransactionFilter([chainId], [address]);
-
+    address: AccountAddress,
+  ): ResultAsync<ChainTransaction | null, PersistenceError> {
+    // TODO: add multikey support to cursor function
+    return this.waitForFullRestore().andThen(([key]) => {
+      const filter = new TransactionFilter([chainId], [address]);
       return this.volatileStorage
-        .getCursor<EVMTransaction>(
+        .getCursor<ChainTransaction>(
           ELocalStorageKey.TRANSACTIONS,
           "timestamp",
           undefined,
@@ -860,9 +1226,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private _getNextMatchingTx(
-    cursor: IVolatileCursor<EVMTransaction>,
-    filter: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction | null, PersistenceError> {
+    cursor: IVolatileCursor<ChainTransaction>,
+    filter: TransactionFilter,
+  ): ResultAsync<ChainTransaction | null, PersistenceError> {
     return cursor.nextValue().andThen((val) => {
       if (!val || filter.matches(val)) {
         return okAsync(val);
@@ -876,7 +1242,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     Map<URLString, number>,
     PersistenceError
   > {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.getSiteVisits().andThen((siteVisits) => {
         const result = new Map<URLString, number>();
         siteVisits.forEach((siteVisit, _i, _arr) => {
@@ -895,7 +1261,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    return this.waitForRestore()
+    return this.waitForFullRestore()
       .andThen(() => {
         const chains = Array.from(chainConfig.keys());
         return ResultUtils.combine(
@@ -922,14 +1288,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForFullRestore().andThen(([key]) => {
       return this.backupManagerProvider
         .getBackupManager()
         .andThen((backupManager) => {
-          return backupManager.addRecord(ELocalStorageKey.LATEST_BLOCK, {
-            contract: contractAddress,
-            block: blockNumber,
-          });
+          return backupManager.addRecord(
+            ELocalStorageKey.LATEST_BLOCK,
+            {
+              contract: contractAddress,
+              block: blockNumber,
+            },
+            EBackupPriority.NORMAL,
+          );
         });
     });
   }
@@ -937,7 +1307,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getLatestBlockNumber(
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError> {
-    return this.waitForRestore().andThen(() => {
+    return this.waitForFullRestore().andThen(() => {
       return this.volatileStorage
         .getObject<LatestBlockEntry>(
           ELocalStorageKey.LATEST_BLOCK,
@@ -968,6 +1338,26 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  private _pollHighPriorityBackups(): ResultAsync<void, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.getRestored();
+      })
+      .andThen((restored) => {
+        return this.cloudStorage
+          .pollByPriority(restored, EBackupPriority.HIGH)
+          .andThen((backups) => {
+            return ResultUtils.combine(
+              backups.map((backup) => {
+                return this.restoreBackup(backup);
+              }),
+            );
+          });
+      })
+      .map(() => undefined);
+  }
+
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
@@ -994,10 +1384,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  > {
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -1017,10 +1404,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   // rename this. its bad.
   public returnProperTransactions(): ResultAsync<
-    IChainTransaction[],
+    ChainTransaction[],
     PersistenceError
   > {
-    const chainlist: IChainTransaction[] = [];
+    const chainlist: ChainTransaction[] = [];
     return okAsync(chainlist);
   }
 
@@ -1028,6 +1415,69 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorage.clear().mapErr((error) => {
       return new PersistenceError((error as Error).message, error);
     });
+  }
+
+  private _clearPortfolioCaches(
+    account: LinkedAccount,
+  ): ResultAsync<void, never> {
+    return ResultUtils.combine([this._getBalanceCache(), this._getNftCache()])
+      .andThen(([balanceCache, nftCache]) => {
+        const results = new Array<ResultAsync<void, never>>();
+        chainConfig.forEach((_, chainId) => {
+          if (isAccountValidForChain(chainId, account)) {
+            results.push(
+              balanceCache.clear(chainId, account.sourceAccountAddress),
+            );
+            results.push(nftCache.clear(chainId, account.sourceAccountAddress));
+          }
+        });
+        return ResultUtils.combine(results);
+      })
+      .map(() => undefined);
+  }
+
+  private _getBalanceCache(): ResultAsync<
+    PortfolioCache<
+      TokenBalance[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
+    never
+  > {
+    if (this._balanceCache) {
+      return this._balanceCache;
+    }
+
+    this._balanceCache = this.configProvider.getConfig().andThen((config) => {
+      return okAsync(
+        new PortfolioCache<
+          TokenBalance[],
+          PersistenceError | AccountIndexingError | AjaxError
+        >(config.accountBalancePollingIntervalMS),
+      );
+    });
+    return this._balanceCache;
+  }
+
+  private _getNftCache(): ResultAsync<
+    PortfolioCache<
+      WalletNFT[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
+    never
+  > {
+    if (this._nftCache) {
+      return this._nftCache;
+    }
+
+    this._nftCache = this.configProvider.getConfig().andThen((config) => {
+      return okAsync(
+        new PortfolioCache<
+          WalletNFT[],
+          PersistenceError | AccountIndexingError | AjaxError
+        >(config.accountNFTPollingIntervalMS),
+      );
+    });
+    return this._nftCache;
   }
 }
 
@@ -1061,4 +1511,9 @@ class InvitationForStorage {
 interface LatestBlockEntry {
   contract: EVMContractAddress;
   block: BlockNumber;
+}
+
+interface ReceivingAccountEntry {
+  contractAddress: EVMContractAddress;
+  receivingAddress: AccountAddress;
 }

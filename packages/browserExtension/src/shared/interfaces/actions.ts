@@ -17,6 +17,8 @@ import {
   EChain,
   EWalletDataType,
   AccountAddress,
+  ChainId,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -44,9 +46,6 @@ export interface IGetUnlockMessageParams {
   languageCode: LanguageCode;
 }
 
-export interface ISetAgeParams {
-  age: Age;
-}
 export interface ISetGivenNameParams {
   givenName: GivenName;
 }
@@ -109,6 +108,7 @@ export interface IGetInvitationMetadataByCIDParams {
 }
 
 export interface IInvitationDomainWithUUID {
+  consentAddress: EVMContractAddress;
   domain: DomainName;
   title: string;
   description: string;
@@ -132,4 +132,37 @@ export interface ICheckInvitationStatusParams {
   consentAddress: EVMContractAddress;
   signature?: Signature | undefined;
   tokenId?: BigNumberString | undefined;
+}
+
+export interface IGetTokenPriceParams {
+  chainId: ChainId;
+  address: TokenAddress | null;
+  timestamp?: UnixTimestamp;
+}
+
+export interface IGetTokenMarketDataParams {
+  ids: string[];
+}
+
+export interface IGetTokenInfoParams {
+  chainId: ChainId;
+  contractAddress: TokenAddress | null;
+}
+
+export interface IGetMarketplaceListingsParams {
+  count?: number;
+  headAt?: number;
+}
+
+export interface ISetDefaultReceivingAddressParams {
+  receivingAddress: AccountAddress | null;
+}
+
+export interface ISetReceivingAddressParams {
+  contractAddress: EVMContractAddress;
+  receivingAddress: AccountAddress | null;
+}
+
+export interface IGetReceivingAddressParams {
+  contractAddress?: EVMContractAddress;
 }

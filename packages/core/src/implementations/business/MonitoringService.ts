@@ -17,8 +17,11 @@ import {
   IAccountBalances,
   IAccountNFTsType,
   IAccountNFTs,
-  getChainInfoByChain,
-  EChainTechnology,
+  AccountAddress,
+  ChainTransaction,
+  SolanaAccountAddress,
+  isAccountValidForChain,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -55,23 +58,20 @@ export class MonitoringService implements IMonitoringService {
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
-
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
                 return this.persistence
                   .getLatestTransactionForAccount(
                     chainId,
-                    linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                    linkedAccount.sourceAccountAddress,
                   )
                   .andThen((tx) => {
                     // TODO: Determine cold start timestamp
@@ -81,10 +81,18 @@ export class MonitoringService implements IMonitoringService {
                     }
 
                     return this.getLatestTransactions(
-                      linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                      linkedAccount.sourceAccountAddress,
                       startTime,
                       chainId,
-                    );
+                    ).orElse((e) => {
+                      this.logUtils.error(
+                        "error fetching transactions",
+                        chainId,
+                        linkedAccount.sourceAccountAddress,
+                        e,
+                      );
+                      return okAsync([]);
+                    });
                   });
               }),
             );
@@ -93,7 +101,7 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.persistence.addEVMTransactions(transactions); // let's not call if empty?
+        return this.persistence.addTransactions(transactions); // let's not call if empty?
       });
   }
 
@@ -104,43 +112,83 @@ export class MonitoringService implements IMonitoringService {
   }
 
   protected getLatestTransactions(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
     chainId: ChainId,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<ChainTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.accountIndexing.getEVMTransactionRepository(),
+      this.accountIndexing.getSolanaTransactionRepository(),
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
-      // Get the chain info for the transaction
-      const chainInfo = config.chainInformation.get(chainId);
-
-      if (chainInfo == null) {
-        this.logUtils.error(`No available chain info for chain ${chainId}`);
-        return okAsync([]);
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getEVMTransactions(
-            chainId,
-            accountAddress,
-            new Date(timestamp * 1000),
-          );
-        case EIndexer.Simulator:
-          return simulatorRepo.getEVMTransactions(
-            chainId,
-            accountAddress,
-            new Date(timestamp * 1000),
-          );
-        default:
-          this.logUtils.error(
-            `No available indexer repository for chain ${chainId}`,
-          );
+      this.accountIndexing.getEthereumTransactionRepository(),
+      this.accountIndexing.getPolygonTransactionRepository(),
+    ]).andThen(
+      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo]) => {
+        // Get the chain info for the transaction
+        const chainInfo = config.chainInformation.get(chainId);
+        if (chainInfo == null) {
+          this.logUtils.error(`No available chain info for chain ${chainId}`);
           return okAsync([]);
-      }
-    });
+        }
+
+        switch (chainInfo.indexer) {
+          case EIndexer.EVM:
+            return evmRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Simulator:
+            return simulatorRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Solana:
+            return solRepo.getSolanaTransactions(
+              chainId,
+              accountAddress as SolanaAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Ethereum:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Polygon:
+            return maticRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Gnosis:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Binance:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Moonbeam:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          default:
+            this.logUtils.error(
+              `No available indexer repository for chain ${chainId}`,
+            );
+            return okAsync([]);
+        }
+      },
+    );
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {

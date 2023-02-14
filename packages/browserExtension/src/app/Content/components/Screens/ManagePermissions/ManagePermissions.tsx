@@ -3,7 +3,12 @@ import BasicModal from "@app/Content/components/Modals/BasicModal";
 import { useStyles } from "@app/Content/components/Screens/ManagePermissions/ManagePermissions.style";
 import Switch from "@app/Content/components/Switch";
 import { ExternalCoreGateway } from "@app/coreGateways";
-import { Box, FormControlLabel, Typography } from "@material-ui/core";
+import {
+  Box,
+  FormControlLabel,
+  Typography,
+  CircularProgress,
+} from "@material-ui/core";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState, FC } from "react";
 
@@ -52,6 +57,7 @@ const ManagePermissions: FC<IManagePermissionsProps> = ({
 }: IManagePermissionsProps) => {
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
   const classes = useStyles();
+  const [isClicked, setIsClicked] = useState(false);
   useEffect(() => {
     coreGateway.getDefaultPermissions().map((permissions) => {
       setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
@@ -121,8 +127,13 @@ const ManagePermissions: FC<IManagePermissionsProps> = ({
             <Box mt={4} display="flex">
               <Box marginLeft="auto">
                 <Button
+                  {...(isClicked && {
+                    startIcon: <CircularProgress size={15} />,
+                    disabled: true,
+                  })}
                   buttonType="primary"
                   onClick={() => {
+                    setIsClicked(true);
                     onSaveClick(permissionForm);
                   }}
                 >

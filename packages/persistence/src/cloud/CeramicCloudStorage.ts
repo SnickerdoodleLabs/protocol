@@ -14,6 +14,7 @@ import {
   ModelTypes,
   PersistenceError,
   AjaxError,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -50,19 +51,28 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
-  public clear(): ResultAsync<void, PersistenceError | AjaxError> {
-    return this._init().andThen(({ store, client }) => {
-      return this._getBackupIndex().andThen((entries) => {
-        return ResultUtils.combine(
-          entries.map((entry) => {
-            return ResultAsync.fromPromise(
-              client.pin.rm(StreamID.fromString(entry.id)),
-              (e) => new PersistenceError("Error pinning stream", e),
-            );
-          }),
-        ).andThen(() => this._putBackupIndex([]));
-      });
-    });
+  pollByPriority(
+    restored: Set<DataWalletBackupID>,
+    priority: EBackupPriority,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return okAsync([]);
+  }
+
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._init()
+      .andThen(({ store, client }) => {
+        return this._getBackupIndex().andThen((entries) => {
+          return ResultUtils.combine(
+            entries.map((entry) => {
+              return ResultAsync.fromPromise(
+                client.pin.rm(StreamID.fromString(entry.id)),
+                (e) => new PersistenceError("Error pinning stream", e),
+              );
+            }),
+          ).andThen(() => this._putBackupIndex([]));
+        });
+      })
+      .mapErr((e) => new PersistenceError("error clearing ceramic", e));
   }
 
   protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {

@@ -3,6 +3,8 @@ import { ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 
+export type VolatileKey = (string | number)[] | (string | number);
+
 export interface IVolatileStorage {
   persist(): ResultAsync<boolean, PersistenceError>;
   clearObjectStore(name: string): ResultAsync<void, PersistenceError>;
@@ -10,7 +12,7 @@ export interface IVolatileStorage {
   removeObject(name: string, key: string): ResultAsync<void, PersistenceError>;
   getObject<T>(
     name: string,
-    key: string,
+    key: VolatileKey,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T>(
     name: string,

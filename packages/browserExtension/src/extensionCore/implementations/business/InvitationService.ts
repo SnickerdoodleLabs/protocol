@@ -24,6 +24,8 @@ import {
   IpfsCID,
   HexString32,
   EWalletDataType,
+  MarketplaceListing,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -37,6 +39,17 @@ export class InvitationService implements IInvitationService {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this.invitationRepository.getMarketplaceListings(count, headAt);
+  }
+
+  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationRepository.getListingsTotal();
+  }
 
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
@@ -107,6 +120,30 @@ export class InvitationService implements IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.leaveCohort(consentContractAddress);
+  }
+
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationRepository.setDefaultReceivingAddress(
+      receivingAddress,
+    );
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationRepository.setReceivingAddress(
+      contractAddress,
+      receivingAddress,
+    );
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
+    return this.invitationRepository.getReceivingAddress(contractAddress);
   }
 
   protected getDataPermissions(

@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import {
   IDataWalletPersistence,
-  IEVMBalance,
+  TokenBalance,
   Age,
   ChainId,
   EVMAccountAddress,
@@ -13,7 +13,8 @@ import {
   URLString,
   TickerSymbol,
   BigNumberString,
-  IChainTransaction,
+  EChainTechnology,
+  IEVMBalance,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -54,7 +55,6 @@ class BalanceQueryEvaluatorMocks {
   ]);
 
   public constructor() {
-    this.dataWalletPersistence.setAge(Age(25));
     td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.dataWalletPersistence.getGender()).thenReturn(
       okAsync(Gender("male")),
@@ -87,7 +87,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 80001,
             accountAddress: "",
             balance: "100",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -95,7 +95,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43113,
             accountAddress: "",
             balance: "100",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
           {
@@ -103,7 +103,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "5906596049814560",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
           },
           {
@@ -111,7 +111,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "14338174027714340563",
-            contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
           },
           {
@@ -119,7 +119,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 137,
             accountAddress: "",
             balance: "100",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -127,7 +127,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43114,
             accountAddress: "",
             balance: "100",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
         ),
@@ -136,6 +136,7 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
+    console.log("result: ", result);
     expect(result["value"].length).toEqual(6);
 
     expect(result["value"][0].ticker).toEqual("MATIC");
@@ -145,12 +146,12 @@ describe("BalanceQueryEvaluator", () => {
     expect(result["value"][4].ticker).toEqual("MATIC");
     expect(result["value"][5].ticker).toEqual("AVAX");
 
-    expect(result["value"][0].networkId).toEqual(80001);
-    expect(result["value"][1].networkId).toEqual(43113);
-    expect(result["value"][2].networkId).toEqual(1);
-    expect(result["value"][3].networkId).toEqual(1);
-    expect(result["value"][4].networkId).toEqual(137);
-    expect(result["value"][5].networkId).toEqual(43114);
+    expect(result["value"][0].chainId).toEqual(80001);
+    expect(result["value"][1].chainId).toEqual(43113);
+    expect(result["value"][2].chainId).toEqual(1);
+    expect(result["value"][3].chainId).toEqual(1);
+    expect(result["value"][4].chainId).toEqual(137);
+    expect(result["value"][5].chainId).toEqual(43114);
 
     expect(result["value"][0].balance).toEqual("100");
     expect(result["value"][1].balance).toEqual("100");
@@ -177,7 +178,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 80001,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -185,7 +186,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43113,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
           {
@@ -193,7 +194,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "5906596049814560",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
           },
           {
@@ -201,7 +202,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "14338174027714340563",
-            contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
           },
           {
@@ -209,7 +210,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 137,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -217,7 +218,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43114,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
         ),
@@ -226,12 +227,14 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
+    console.log("result: ", result);
+
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
     expect(result["value"][1].ticker).toEqual("MATIC");
 
-    expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][1].networkId).toEqual(1);
+    expect(result["value"][0].chainId).toEqual(1);
+    expect(result["value"][1].chainId).toEqual(1);
 
     expect(result["value"][0].balance).toEqual("5906596049814560");
     expect(result["value"][1].balance).toEqual("14338174027714340563");
@@ -254,7 +257,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 80001,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -262,7 +265,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43113,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
           {
@@ -270,7 +273,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
           },
           {
@@ -278,7 +281,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
           },
           {
@@ -286,7 +289,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 137,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -294,7 +297,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43114,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
         ),
@@ -323,7 +326,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 80001,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -331,7 +334,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43113,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
           {
@@ -339,7 +342,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "5906596049814560",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
           },
           {
@@ -347,7 +350,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "14338174027714340563",
-            contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
           },
           {
@@ -355,7 +358,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 137,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -363,7 +366,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43114,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
         ),
@@ -372,12 +375,14 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
+    console.log("result: ", result);
+
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
     expect(result["value"][1].ticker).toEqual("MATIC");
 
-    expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][1].networkId).toEqual(1);
+    expect(result["value"][0].chainId).toEqual(1);
+    expect(result["value"][1].chainId).toEqual(1);
 
     expect(result["value"][0].balance).toEqual("5906596049814560");
     expect(result["value"][1].balance).toEqual("14338174027714340563");
@@ -402,7 +407,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 80001,
             accountAddress: "",
             balance: "150",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -410,7 +415,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43113,
             accountAddress: "",
             balance: "1",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
           {
@@ -418,7 +423,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "501",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
           },
           {
@@ -426,7 +431,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 1,
             accountAddress: "",
             balance: "499",
-            contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
           },
           {
@@ -434,7 +439,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 137,
             accountAddress: "",
             balance: "0",
-            contractAddress: "0x0000000000000000000000000000000000001010",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
@@ -442,7 +447,7 @@ describe("BalanceQueryEvaluator", () => {
             chainId: 43114,
             accountAddress: "",
             balance: "20",
-            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
         ),
@@ -450,16 +455,18 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const result = await repo.eval(balanceQuery);
+    console.log("result: ", result);
+
     expect(result["value"].length).toEqual(4);
     expect(result["value"][0].ticker).toEqual("MATIC");
     expect(result["value"][1].ticker).toEqual("AVAX");
     expect(result["value"][2].ticker).toEqual("MATIC");
     expect(result["value"][3].ticker).toEqual("AVAX");
 
-    expect(result["value"][0].networkId).toEqual(80001);
-    expect(result["value"][1].networkId).toEqual(43113);
-    expect(result["value"][2].networkId).toEqual(1);
-    expect(result["value"][3].networkId).toEqual(43114);
+    expect(result["value"][0].chainId).toEqual(80001);
+    expect(result["value"][1].chainId).toEqual(43113);
+    expect(result["value"][2].chainId).toEqual(1);
+    expect(result["value"][3].chainId).toEqual(43114);
 
     expect(result["value"][0].balance).toEqual("150");
     expect(result["value"][1].balance).toEqual("1");

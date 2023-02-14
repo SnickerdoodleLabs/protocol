@@ -83,7 +83,7 @@ const solanaDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress2"),
   solanaDerivedPrivateKey,
 );
-const evmChain = EChain.LocalDoodle;
+const evmChain = EChain.DevDoodle;
 const solanaChain = EChain.Solana;
 const languageCode = LanguageCode("en");
 const unlockMessage = "Login to your Snickerdoodle data wallet"; // Needs to match result of getUnlockMessage(en)
