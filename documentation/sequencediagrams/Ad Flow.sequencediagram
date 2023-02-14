@@ -7,39 +7,56 @@ participant Data Wallet
 participant Integrator
 participant Ad Surface
 participant Ad Agent
-participant Inight Platform Registry
+participant Verifier
+participant Insight Platform Registry
 participant Integrator Registry
 participant Surface Registry
-participant Ad Registry
+participant Ad Agent Registry
 participant Payment Token Registry
 participant DAO
 
 expandable+ Brand-Ad Agent Negotiation
 Brand->Ad Agent:[L3] Brand asks for I impressions
+activate Ad Agent
 Brand<-Ad Agent:[L3] Payment Terms\nTotal amount, token type
+deactivate Ad Agent
 Brand->Payment Token Registry: [L1] Verify valid payment token
 Brand->Ad Agent: [L3] Accept Terms
+activate Ad Agent
 note over Ad Agent:Calculate Tickets and Merkle Root
 Ad Agent->Brand:[L3] Merkle Root
+deactivate Ad Agent
 end
 
 expandable+ Brand Creates and Posts Offer
 note over Brand:Create Synamint Offer\nAds and Data request
 Brand->Insight Platform:[L2] Submit Offer Text
 activate Insight Platform
-Insight Platform->Consent Contract:getProtocolFee(flags)
+Insight Platform->Consent Contract:getProtocolFee(flags, paymentToken?)
 activate Consent Contract
+note over Insight Platform,Consent Contract:If we support multiple payment tokens, how do we determine the protocol fee? \nI think the PaymentToken Registry may need a conversion, \nor we link into another defi pool
+Consent Contract->Payment Token Registry:Validate payment token type\nGet conversion price
+activate Payment Token Registry
+Consent Contract<-Payment Token Registry:Conversion Price
+deactivate Payment Token Registry
+note over Consent Contract:Calculate Protocol Fee\nBased on the flags and the payment token\nAmount and type of data queried,\n# of ads and # of impressions are factors
 Insight Platform<-Consent Contract:Protocol Fee
 deactivate Consent Contract
 Insight Platform->Consent Contract:[L1] requestForData()\nIPFS CID\nMerkle Root\nOffer Detail Flags\nAd Escrow Amount\n# of Tickets\nExpiration Date\nProtocol Fee\nAd Agent Id
 activate Consent Contract
 deactivate Insight Platform
 Consent Contract->Payment Token Registry: Verify Ad Escrow is valid payment type
+note over Consent Contract:Recalculate protocol fee\nNow calculate the exact split\nLook at the consent contract opt-in tokens\nand the integrator Ids, and determine how much\nto send to each Integrator and the DAO
+loop For each Integrator
+note over Consent Contract:Get total count of opt-in tokens for integrator, X\nX/Total Opt Ins * Integrator Split = Protocol Fee
+Consent Contract->Integrator:$Money$
+end
+Consent Contract->DAO:$Money$
 note over Consent Contract:Store details and emit RequestForData
 deactivate Consent Contract
 end
 
-expandable+ Offer Processing
+expandable− Offer Processing
 activate Data Wallet
 note over Data Wallet: Receives RequestForData
 
@@ -51,68 +68,109 @@ note over Data Wallet:If Details of IPFS Offer don't match on-chain flags,\nDO N
 note over Data Wallet:Parse out Elibible Ads\nAdd to priority list
 deactivate Data Wallet
 activate Integrator
-Integrator->Ad Surface: Encounter Ad Surface
-Data Wallet<-Integrator:getEligibleAds(Ad Surface Id)
+note over Integrator,Ad Surface: Encounter Ad Surface
+Integrator->Ad Surface:getSurfaceId()
+activate Ad Surface
+Integrator<-Ad Surface:Surface Id
+deactivate Ad Surface
+Data Wallet<-Integrator:getEligibleAds(Surface Id)
 activate Data Wallet
-Data Wallet->Surface Registry: Get Surface Details
+Data Wallet->Surface Registry:Get Surface Details
+activate Surface Registry
 Data Wallet<-Surface Registry: Surface size, type, and Ad Agent Id
-note over Data Wallet: Check if any eligible ads fit the surface, and match the Ad Agent Id for the request
+deactivate Surface Registry
+note over Data Wallet:If Ad Surface not in registry\nDO NOT PROCESS
+Data Wallet->Ad Agent Registry:Verify Ad Agent active
+activate Ad Agent Registry
+Data Wallet<-Ad Agent Registry: Ad Agent Token
+deactivate Ad Agent Registry
+note over Data Wallet:If Ad Agent not in registry\nDO NOT PROCESS
+note over Data Wallet:Check if any eligible ads fit the surface, \nand match the Ad Agent Id for the request\nAd Priority based on DW preferences,\nexpiration date, and Marketplace rank
 Data Wallet->Integrator:EligibleAd
 deactivate Data Wallet
-Integrator->Ad Surface:OfferID for EligibleAd
+Integrator->Ad Surface:OfferID (CID) for EligibleAd
 activate Ad Surface
 Ad Surface->Ad Agent:OfferId
 activate Ad Agent
+note over Ad Agent:Validate that we are the agent for this offer\nShould only need the OfferId;\nIf the DW wants to show the same Ad multiple times,\nthat's kind of on the DW I think.\nCan refuse to pull a ticket for invalid context.\nThis allows live filtering
 note over Ad Agent:Pull a Ticket\nLock up the ticket for a certain amount of time
 Ad Surface<-Ad Agent:Ticket\nNonce + ? details
 deactivate Ad Agent
-Integrator<-Ad Surface:Ticket and Surface Id
+Integrator<-Ad Surface:Ticket
 deactivate Ad Surface
-Data Wallet<-Integrator:Ticket and Surface Id
+Data Wallet<-Integrator:Ticket
 activate Data Wallet
-note over Data Wallet:Pull Content from IPFS and calculate hash\nCreate and sign an Impression Token JWT\nClaims include verified data (ZKPs?),\nContent Hash, Consent Contract Token Id,\nSurface Id, Integrator Id\nSign with Derived Key for Consent Contract opt in
+note over Data Wallet:Pull Content from IPFS and calculate hash\nCreate and sign an Impression Token JWT\nClaims include verified data (ZKPs?),\nContent Hash, Consent Contract Token Id,\nSurface Id, Integrator Id\nContext Info\nSign with Derived Key for Consent Contract opt in
 Data Wallet->Integrator:Content and Impression Token
 deactivate Data Wallet
 Integrator->Ad Surface:Content and Impression Token
 activate Ad Surface
 Ad Surface->Ad Agent:Impression Token
 activate Ad Agent
-note over Ad Agent:Verify Impression Token details
+Ad Agent->Integrator Registry:Verify Integrator
+activate Integrator Registry
+Ad Agent<-Integrator Registry:Integrator Token
+deactivate Integrator Registry
+note over Ad Agent:If Integrator not in registry\nDO NOT PROCESS
+note over Ad Agent:Verify Impression Token details\nThis includes context
 note over Ad Agent:Sign Impression Token to create Surface Token
 Ad Surface<-Ad Agent:Surface Token
 deactivate Ad Agent
 note over Ad Surface:Display the Ad
 Integrator<-Ad Surface:Surface Token
 deactivate Ad Surface
-Data Wallet<-Integrator:adSurfaceToken()
+Data Wallet<-Integrator:addSurfaceToken(Surface Token)
+deactivate Integrator
 end
 
 expandable+ Remunerations- DW Side
 activate Data Wallet
-note over Data Wallet: Collected all SurfaceTokens for Offer
+note over Data Wallet:Collected "all" Surface Tokens for Offer
 note over Data Wallet: Process Data Request into Insights
 Data Wallet->Insight Platform: Insights and Surface Tokens
 activate Insight Platform
-note over Insight Platform:Verify Surface Tokens and Insights
+note over Insight Platform:Verify Surface Tokens and Insights\n
 note over Insight Platform:Mint EligibleRewards
 Insight Platform->Data Wallet:Rewards
-deactivate Insight Platform
 deactivate Data Wallet
+note over Insight Platform:Store Surface tokens for cross-referencing
+deactivate Insight Platform
 end
 
-expandable- Remunerations- Ad Agent Side
+expandable− Remunerations- Ad Agent Side
 activate Ad Agent
 note over Ad Agent:Collected some valuable number of Impression Tokens
 Ad Agent->Insight Platform:Impression Tokens
 activate Insight Platform
+Insight Platform->Ad Agent Registry:Verify Ad Agent Active
+activate Ad Agent Registry
+Insight Platform<-Ad Agent Registry:Ad Agent Token
+deactivate Ad Agent Registry
+note over Insight Platform:If Ad Agent not in registry,\nDO NOT PROCESS
+loop For Each Impression Token
+Insight Platform->Surface Registry:Check valid surface
+activate Surface Registry
+Insight Platform<-Surface Registry:Ad surface details
+deactivate Surface Registry
+note over Insight Platform:If Ad Surface not in registry,\nDO NOT PROCESS
+end
 note over Insight Platform:Parse and verify Impression Tokens\nPair Impression Tokens with Surface Tokens\nFigure payment split owed to Ad Agent and Integrators,\nbased on tokens\nSubmit Payment Transaction
 Insight Platform->Consent Contract:Payment Release
 activate Consent Contract
 deactivate Insight Platform
-Consent Contract->Integrator:Money
-Consent Contract->Ad Agent:Money
+loop For Each Integrator
+Consent Contract->Integrator:$Money$
+end
+loop For Each Verifier
+Consent Contract->Verifier:$Money$
+end
+Consent Contract->Ad Agent:$Money$
+Consent Contract->DAO:$Money$
+note over Consent Contract:Update Merkle Root
 deactivate Consent Contract
 note over Ad Agent:Hold money for payment to Ad Surfaces
-Ad Surface<-Ad Agent:Money
+loop For each Ad Surface
+Ad Surface<-Ad Agent:$Money$
+end
 deactivate Ad Agent
 end
