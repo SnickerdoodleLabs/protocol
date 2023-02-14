@@ -1,6 +1,5 @@
 import { EventEmitter } from "events";
 
-import { UpdatableEventEmitterWrapper } from "@app/utils/index.js";
 import {
   AccountAddress,
   Age,
@@ -38,20 +37,17 @@ import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
 
 import { ExternalCoreGateway } from "@app/coreGateways/index.js";
-
-import LocalMessageStream from "post-message-stream";
-
+import { UpdatableEventEmitterWrapper } from "@app/utils/index.js";
 import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   PORT_NOTIFICATION,
 } from "@shared/constants/ports.js";
-
-import pump from "pump";
-
 import { TNotification } from "@shared/types/notification.js";
 
 export class DataWalletProxy extends EventEmitter implements ISdlDataWallet {
@@ -110,18 +106,21 @@ export class DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, unknown> {
-    return coreGateway.setDefaultReceivingAddress(receivingAddress);
+    return this.coreGateway.setDefaultReceivingAddress(receivingAddress);
   }
   public setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, unknown> {
-    return coreGateway.setReceivingAddress(contractAddress, receivingAddress);
+    return this.coreGateway.setReceivingAddress(
+      contractAddress,
+      receivingAddress,
+    );
   }
   public getReceivingAddress(
     contractAddress?: EVMContractAddress | undefined,
   ): ResultAsync<AccountAddress, unknown> {
-    return coreGateway.getReceivingAddress(contractAddress);
+    return this.coreGateway.getReceivingAddress(contractAddress);
   }
 
   public getMarketplaceListings(
