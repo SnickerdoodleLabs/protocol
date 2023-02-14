@@ -45,15 +45,12 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         return okAsync(networkBalances);
       })
       .andThen((balanceArray) => {
-        // console.log("line 55 balanceArray", balanceArray);
         return this.evalConditions(query, balanceArray);
       })
       .andThen((balanceArray) => {
-        // console.log("line 59 balanceArray", balanceArray);
         return this.combineContractValues(query, balanceArray);
       })
       .andThen((balanceArray) => {
-        // console.log("line 63 balanceArray", balanceArray);
         return okAsync(SDQL_Return(balanceArray));
       });
   }

@@ -7,7 +7,6 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
-  BlockNumber,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
@@ -25,8 +24,10 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 
+const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
+
 @injectable()
-export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
+export class PoapRepository implements IEVMNftRepository {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -39,7 +40,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return this.generateQueryConfig(accountAddress)
       .andThen((requestConfig) => {
-        return this.ajaxUtils.get<INftScanResponse>(
+        return this.ajaxUtils.get<IPoapResponse[]>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(requestConfig.url!),
           requestConfig,
@@ -53,43 +54,41 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
       );
   }
 
-  private getPages(chainId: ChainId, response: INftScanResponse): EVMNFT[] {
-    const items: EVMNFT[] = response.data.content.map((token) => {
+  private getPages(chainId: ChainId, response: IPoapResponse[]): EVMNFT[] {
+    const items: EVMNFT[] = response.map((token) => {
+      console.log("Poap token: ", token);
       return new EVMNFT(
-        EVMContractAddress(token.contract_address),
-        BigNumberString(token.token_id),
-        token.erc_type,
+        EVMContractAddress(poapContractAddress),
+        BigNumberString(token.tokenId),
+        "erc-721",
         EVMAccountAddress(token.owner),
-        TokenUri(token.token_uri),
-        { raw: token.metadata_json },
-        BigNumberString(token.amount),
-        token.name,
+        TokenUri(token.event.image_url),
+        { raw: JSON.stringify(token.event) },
+        BigNumberString(token.event.supply),
+        token.event.name,
         chainId,
-        undefined,
-        UnixTimestamp(Number(token.own_timestamp))
       );
     });
-
+    console.log("POAP items: ", items);
     return items;
   }
 
   private generateQueryConfig(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
-    const url = urlJoinP("https://moonbeamapi.nftscan.com", [
-      "api",
-      "v2",
-      "account",
-      "own",
-      accountAddress.toString() + "?erc_type=erc721",
+    const url = urlJoinP("https://api.poap.tech", [
+      "actions",
+      "scan",
+      accountAddress.toString(),
     ]);
+    console.log("POAP url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.nftScanApiKey,
+          "X-API-Key": config.poapApiKey,
         },
       };
       return result;
@@ -97,38 +96,24 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   }
 }
 
-interface INftScanResponse {
-  code: number;
-  data: {
-    content: {
-      amount: string;
-      attributes: string[];
-      content_type: string;
-      content_uri: string;
-      contract_address: string;
-      contract_name: string;
-      contract_token_id: string;
-      erc_type: string;
-      external_link: string;
-      image_uri: string;
-      latest_trade_price: string;
-      latest_trade_symbol: string;
-      latest_trade_timestamp: UnixTimestamp;
-      metadata_json: string;
-      mint_price: string;
-      mint_timestamp: UnixTimestamp;
-      mint_transaction_hash: string;
-      minter: string;
-      name: string;
-      nftscan_id: string;
-      nftscan_uri: string;
-      own_timestamp: string;
-      owner: string;
-      rarity_rank: string;
-      rarity_score: string;
-      token_id: string;
-      token_uri: string;
-    }[];
+interface IPoapResponse {
+  event: {
+    id: string;
+    fancy_id: string;
+    name: string;
+    event_url: string;
+    image_url: string;
+    country: string;
+    city: string;
+    description: string;
+    year: string;
+    start_date: string;
+    end_date: string;
+    expiry_date: string;
+    supply: string;
   };
-  msg: number;
+  tokenId: string;
+  owner: EVMAccountAddress;
+  chain: string;
+  created: string;
 }
