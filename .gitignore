@@ -61,3 +61,6 @@ packages/test-harness/data/insight/*
 # Don't checkin the ceramic stuff
 .ceramic/logs/*
 .ceramic/statestore/*
+
+# mobile
+packages/mobile/ios/Pods

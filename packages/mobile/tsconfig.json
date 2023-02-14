@@ -1,19 +1,22 @@
 // prettier-ignore
 {
-  "extends":  "@tsconfig/react-native/tsconfig.json",    /* Recommended React Native TSConfig base */
+  "extends":  "@tsconfig/react-native/tsconfig.json", 
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig.json to read more about this file */
-
-    /* Completeness */
-    "skipLibCheck": true,                         /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true,                       
     "composite": false,
     "declaration": false,
     "declarationMap": false,
-    "baseUrl": "./src/",
+    "rootDir": "./src",
     "outDir": "./dist",
     "module": "ES2022",
+    "noImplicitAny":false,
+    "experimentalDecorators": true,
     "paths":{
-      "@assets/*":["./assets/*"]
+      "@assets/*":["./packages/mobile/assets/*"],
+      "@mobile/*": [
+        "./packages/mobile/src/*"
+      ],
+
     }
 },
 "references": [

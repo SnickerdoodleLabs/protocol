@@ -18,8 +18,8 @@ import {
   useWalletConnect,
   withWalletConnect,
 } from "@walletconnect/react-native-dapp";
-import { MoralisAPI } from "../mobileCore/implementations/api/MoralisAPI";
-import { MobileCore } from "../mobileCore/MobileCore";
+import { MoralisAPI } from "../services/implementations/api/MoralisAPI";
+import { MobileCore } from "../services/Gateway";
 import { ethers } from "ethers";
 import { ChainId } from "@snickerdoodlelabs/objects";
 import { TokenItem } from "../components/TokenItem";

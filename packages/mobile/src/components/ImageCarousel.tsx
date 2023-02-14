@@ -1,17 +1,17 @@
-import {View, Image, Dimensions, StyleSheet, Animated} from 'react-native';
-import React from 'react';
-import {RouteProp, useRoute} from '@react-navigation/native';
-import {ParamList} from '../screens/ForgotPassword';
+import { View, Image, Dimensions, StyleSheet, Animated } from "react-native";
+import React from "react";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { ParamList } from "../screens/ForgotPassword";
 
 const ImageCarousel = () => {
-  const route = useRoute<RouteProp<ParamList, 'Params'>>();
+  const route = useRoute<RouteProp<ParamList, "Params">>();
   const myNFTs = route.params?.NFTs;
   const scrollX = React.useRef(new Animated.Value(0)).current;
-  const {width, height} = Dimensions.get('screen');
+  const { width, height } = Dimensions.get("screen");
   const imageW = width * 0.8;
   const imageH = height * 0.5;
   return (
-    <View style={{flex: 1, backgroundColor: '#000'}}>
+    <View style={{ flex: 1, backgroundColor: "#000" }}>
       <View style={StyleSheet.absoluteFillObject}>
         {myNFTs.map((item, index) => {
           const inputRange = [
@@ -26,8 +26,8 @@ const ImageCarousel = () => {
           return (
             <Animated.Image
               key={`image-${index}`}
-              source={{uri: item}}
-              style={[StyleSheet.absoluteFillObject, {opacity}]}
+              source={{ uri: item }}
+              style={[StyleSheet.absoluteFillObject, { opacity }]}
               blurRadius={50}
             />
           );
@@ -36,27 +36,28 @@ const ImageCarousel = () => {
       <Animated.FlatList
         data={myNFTs}
         onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {x: scrollX}}}],
-          {useNativeDriver: true},
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: true },
         )}
         keyExtractor={(_, index) => index.toString()}
         horizontal
         pagingEnabled
-        renderItem={({item}) => {
+        renderItem={({ item }) => {
           return (
             <View
               style={{
                 width,
-                justifyContent: 'center',
-                alignItems: 'center',
-                shadowColor: '#000',
+                justifyContent: "center",
+                alignItems: "center",
+                shadowColor: "#000",
                 shadowOpacity: 0.2,
                 shadowOffset: {
                   width: 0,
                   height: 0,
                 },
                 shadowRadius: 20,
-              }}>
+              }}
+            >
               <Image
                 source={{
                   uri: item,
@@ -64,7 +65,7 @@ const ImageCarousel = () => {
                 style={{
                   width: imageW,
                   height: imageH,
-                  resizeMode: 'cover',
+                  resizeMode: "cover",
                   borderRadius: 16,
                 }}
               />

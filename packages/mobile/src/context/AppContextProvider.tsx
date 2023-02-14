@@ -14,7 +14,7 @@ import {
 } from '@snickerdoodlelabs/objects';
 import {ResultAsync} from 'neverthrow';
 import * as React from 'react';
-import {MobileCore} from '../mobileCore/MobileCore';
+import {MobileCore} from '../services/Gateway';
 
 export const AppCtx = React.createContext<any | null>(null);
 

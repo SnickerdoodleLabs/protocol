@@ -12,7 +12,7 @@ import {ROUTES} from '../constants';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import {MotiView} from '@motify/components';
 import {Easing} from 'react-native-reanimated';
-import {MobileCore} from '../mobileCore/MobileCore';
+import {MobileCore} from '../services/Gateway';
 import {
   AccountAddress,
   EChain,

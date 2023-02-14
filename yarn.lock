@@ -7854,6 +7854,7 @@ __metadata:
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.3.0
     lottie-react-native: ^5.1.4
+    mapmoize: ^1.2.1
     metro-react-native-babel-preset: 0.72.3
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
@@ -7904,7 +7905,6 @@ __metadata:
     url: ^0.10.3
     url-join-ts: ^1.0.5
     util: ^0.10.4
-    zlib: ^1.0.5
   languageName: unknown
   linkType: soft
 
@@ -42720,12 +42720,5 @@ __metadata:
     property-expr: ^2.0.4
     toposort: ^2.0.2
   checksum: 43a16786b47cc910fed4891cebdd89df6d6e31702e9462e8f969c73eac88551ce750732608012201ea6b93802c8847cb0aa27b5d57370640f4ecf30f9f97d4b0
-  languageName: node
-  linkType: hard
-
-"zlib@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "zlib@npm:1.0.5"
-  checksum: 5ef5693a1deb70f65845424f5ecce1ee956e50320aa438126759fd28ec8a25ae876acb3b179b4f5050427e7e0dfcd9e45bdae23f055b2d732bc2fe1dbe4da169
   languageName: node
   linkType: hard
