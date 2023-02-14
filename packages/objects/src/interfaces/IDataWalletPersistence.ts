@@ -12,6 +12,8 @@ import {
   WalletNFT,
   TokenAddress,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
 import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
@@ -29,7 +31,6 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
-  CeramicStreamID,
   DataWalletBackupID,
 } from "@objects/primitives";
 
@@ -106,7 +107,6 @@ export interface IDataWalletPersistence {
   getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -131,6 +131,16 @@ export interface IDataWalletPersistence {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
+  saveEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError>;
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+
+  saveAdSignatures(
+    signatures: AdSignature[]
+  ): ResultAsync<void, PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected
@@ -170,6 +180,21 @@ export interface IDataWalletPersistence {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+  getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null, 
+    PersistenceError
+  >;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+  getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError>;
+
   getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
@@ -197,7 +222,8 @@ export interface IDataWalletPersistence {
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
-  waitForRestore(): ResultAsync<EVMPrivateKey, never>;
+  waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
+  waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
   restoreInProgress(): ResultAsync<boolean, never>;
 }
 

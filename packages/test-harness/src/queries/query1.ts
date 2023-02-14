@@ -24,10 +24,7 @@ export const query1 = {
     },
     q2: {
       name: "age",
-      return: "boolean",
-      conditions: {
-        ge: 15,
-      },
+      return: "integer",
     },
     q3: {
       name: "location",
@@ -83,12 +80,12 @@ export const query1 = {
   },
   returns: {
     r1: {
-      name: "callback",
-      message: "qualified",
+      name: "query_response",
+      query: "q1",
     },
     r2: {
-      name: "callback",
-      message: "not qualified",
+      name: "query_response",
+      query: "q2",
     },
     r3: {
       name: "query_response",
@@ -172,15 +169,7 @@ export const query1 = {
     },
   },
   logic: {
-    returns: [
-      "if($q1and$q2)then$r1else$r2",
-      "$r3",
-      "$r4",
-      "$r5",
-      "$r6",
-      "$r7",
-      "$r8",
-    ],
+    returns: ["$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8"],
     compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
 };

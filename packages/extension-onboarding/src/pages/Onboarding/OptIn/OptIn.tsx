@@ -1,9 +1,7 @@
 import optInBg from "@extension-onboarding/assets/images/opt-in-bg.svg";
-import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
 import Button from "@extension-onboarding/components/Button";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -22,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 
 declare const window: IWindowWithSdlDataWallet;
 const OptIn: FC = () => {
-  const navigate = useNavigate();
   const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
   const [acceptLoading, setAcceptLoading] = useState<boolean>(false);
   const classes = useStyles();
@@ -51,7 +48,8 @@ const OptIn: FC = () => {
 
   const navigateToNext = useCallback(() => {
     setLoadingStatus(false);
-    navigate(EPaths.ONBOARDING_BUILD_PROFILE, { replace: true });
+    sessionStorage.removeItem("appMode");
+    window.location.reload();
   }, []);
 
   const getInvitationData = useCallback(() => {
@@ -97,7 +95,8 @@ const OptIn: FC = () => {
       .acceptInvitation(null, consentContractAddress, tokenId, signature)
       .mapErr((e) => {
         setAlert({ severity: EAlertSeverity.ERROR, message: "Error" });
-        navigateToNext();
+        sessionStorage.removeItem("appMode");
+        window.location.reload();
       })
       .map(() => {
         setAcceptLoading(false);
@@ -147,17 +146,11 @@ const OptIn: FC = () => {
               </Box>
               <Button
                 onClick={() => {
-                  navigate(EPaths.ONBOARDING_BUILD_PROFILE, {
-                    replace: true,
-                    state: {
-                      campaignName: invitationMeta.rewardName,
-                      campaignImg: invitationMeta.image,
-                    },
-                  });
+                  navigateToNext();
                 }}
                 fullWidth
               >
-                Next
+                Go to Data Wallet
               </Button>
             </Box>
           </Box>

@@ -35,7 +35,6 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
-import Browser, { Tabs } from "webextension-polyfill";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -65,6 +64,8 @@ export class ExtensionCore {
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
+      nftScanApiKey: config.nftScanApiKey,
+      poapApiKey: config.poapApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
@@ -73,6 +74,8 @@ export class ExtensionCore {
       accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       dataWalletBackupIntervalMS: SIX_HOURS_MS,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
+      domainFilter: config.domainFilter,
+      defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

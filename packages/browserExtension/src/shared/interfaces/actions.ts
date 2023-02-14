@@ -46,9 +46,6 @@ export interface IGetUnlockMessageParams {
   languageCode: LanguageCode;
 }
 
-export interface ISetAgeParams {
-  age: Age;
-}
 export interface ISetGivenNameParams {
   givenName: GivenName;
 }
@@ -111,6 +108,7 @@ export interface IGetInvitationMetadataByCIDParams {
 }
 
 export interface IInvitationDomainWithUUID {
+  consentAddress: EVMContractAddress;
   domain: DomainName;
   title: string;
   description: string;
@@ -154,4 +152,17 @@ export interface IGetTokenInfoParams {
 export interface IGetMarketplaceListingsParams {
   count?: number;
   headAt?: number;
+}
+
+export interface ISetDefaultReceivingAddressParams {
+  receivingAddress: AccountAddress | null;
+}
+
+export interface ISetReceivingAddressParams {
+  contractAddress: EVMContractAddress;
+  receivingAddress: AccountAddress | null;
+}
+
+export interface IGetReceivingAddressParams {
+  contractAddress?: EVMContractAddress;
 }

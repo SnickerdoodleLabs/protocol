@@ -1,3 +1,5 @@
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   ChainInformation,
   ControlChainInformation,
@@ -8,11 +10,11 @@ import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { AccountIndexingError } from "@objects/errors";
 import {
   ChainId,
+  CoinGeckoAssetPlatformID,
   EVMContractAddress,
   ProviderUrl,
   URLString,
 } from "@objects/primitives";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 const getExplorerUrl = function (this: ChainInformation, txHash: string) {
   return this.explorerURL + txHash;
@@ -136,7 +138,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api.polygonscan.com/"),
     ),
   ],
-
   [
     ChainId(EChain.Avalanche),
     new ChainInformation(
@@ -159,7 +160,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api.snowtrace.io/"),
     ),
   ],
-
   [
     ChainId(EChain.Fuji),
     new ControlChainInformation(
@@ -175,7 +175,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Testnet,
       "https://testnet.snowtrace.io/block/",
       EVMContractAddress("0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77"), // Consent Contract Factory
-      EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
+      EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
       URLString("https://api.snowtrace.io/"),
@@ -196,6 +196,62 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
+      undefined,
+      CoinGeckoAssetPlatformID("solana"), // coing gecko chain slug
+    ),
+  ],
+  [
+    ChainId(EChain.Gnosis),
+    new ChainInformation(
+      "Gnosis",
+      ChainId(EChain.Gnosis),
+      EChain.Gnosis,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Gnosis,
+      new NativeCurrencyInformation("xDAI", 18, "xDAI", "xdai"),
+      EChainType.Mainnet,
+      "https://gnosisscan.io/",
+      getExplorerUrl,
+      URLString("https://api.gnosisscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Binance),
+    new ChainInformation(
+      "Binance",
+      ChainId(EChain.Binance),
+      EChain.Binance,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Binance,
+      new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
+      EChainType.Mainnet,
+      "https://api.bscscan.com/api",
+      getExplorerUrl,
+      URLString("https://api.bscscan.com/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Moonbeam),
+    new ChainInformation(
+      "Moonbeam",
+      ChainId(EChain.Moonbeam),
+      EChain.Moonbeam,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Moonbeam,
+      new NativeCurrencyInformation("GLMR", 18, "GLMR", "moonbeam"),
+      EChainType.Mainnet,
+      "https://api-moonbeam.moonscan.io/api",
+      getExplorerUrl,
+      URLString("https://api-moonbeam.moonscan.io/"),
     ),
   ],
 ]);
