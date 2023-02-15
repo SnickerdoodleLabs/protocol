@@ -24,13 +24,10 @@ export class ERC721RewardContract implements IERC721RewardContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress | null, // null to account for deploying a new contract
+    public contractAddress: EVMContractAddress,
   ) {
-    // Ether's contract object cannot take a null value, so if contractAddress was null, set a zero address value
     this.contract = new ethers.Contract(
-      contractAddress == null
-        ? EVMContractAddress(ethers.constants.AddressZero)
-        : (contractAddress as EVMContractAddress),
+      contractAddress,
       ContractsAbis.ERC721Reward.abi,
       providerOrSigner,
     );
@@ -43,47 +40,6 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public getContractAddress(): EVMContractAddress {
     return this.contractAddress as EVMContractAddress;
-  }
-
-  // function to deploy a new ERC721 reward contract
-  public deployNewReward(
-    name: string,
-    symbol: string,
-    baseURI: BaseURI,
-  ): ResultAsync<EVMContractAddress, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contractFactory.deploy(symbol, name, {
-        gasLimit: "5000000", //required to help overcome deployment gas estimation on ethers
-      }),
-      (e) => {
-        return new ERC721RewardContractError(
-          "Failed to deploy contract",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).andThen((contract) => {
-      return ResultAsync.fromPromise(contract.deployTransaction.wait(), (e) => {
-        return new ERC721RewardContractError(
-          "Failed to wait() for contract deployment",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      }).andThen((receipt) => {
-        return ResultAsync.fromPromise(
-          this.contract.setBaseURI(baseURI),
-          (e) => {
-            return new ERC721RewardContractError(
-              "Failed to wait() for contract deployment",
-              (e as IBlockchainError).reason,
-              e,
-            );
-          },
-        ).andThen(() => {
-          return okAsync(EVMContractAddress(receipt.contractAddress));
-        });
-      });
-    });
   }
 
   public getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError> {

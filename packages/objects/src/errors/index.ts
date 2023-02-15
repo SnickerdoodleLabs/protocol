@@ -26,3 +26,4 @@ export * from "@objects/errors/ParserTypeNotImplementedError";
 export * from "@objects/errors/ServerRewardError";
 export * from "@objects/errors/SiftContractError";
 export * from "@objects/errors/ERC721RewardContractError";
+export * from "@objects/errors/RewardsFactoryError";

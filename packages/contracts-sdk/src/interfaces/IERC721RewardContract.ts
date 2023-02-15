@@ -13,12 +13,6 @@ import { ResultAsync } from "neverthrow";
 export interface IERC721RewardContract {
   getContractAddress(): EVMContractAddress;
 
-  deployNewReward(
-    name: string,
-    symbol: string,
-    baseURI: BaseURI,
-  ): ResultAsync<EVMContractAddress, ERC721RewardContractError>;
-
   getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;
 
   getDefaultAdminRoleMembers(): ResultAsync<
