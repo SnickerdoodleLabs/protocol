@@ -1,4 +1,4 @@
-import {SnickerdoodleCore} from '@snickerdoodlelabs/core';
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   AccountAddress,
   BigNumberString,
@@ -25,18 +25,20 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
-} from '@snickerdoodlelabs/objects';
-import {Container} from 'inversify';
-import {ResultAsync} from 'neverthrow';
-import {MobileStorageUtils} from './implementations/utils/MobileStorageUtils';
-import { MemoryVolatileStorage } from '@snickerdoodlelabs/persistence';
-import { coreConfig } from './implementations/utils/Config';
+} from "@snickerdoodlelabs/objects";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { MobileStorageUtils } from "./implementations/utils/MobileStorageUtils";
+import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
+import { mobileCoreModule } from "./Gateway.module";
+import { coreConfig } from "./interfaces/objects/Config";
 
 export class MobileCore {
   protected iocContainer: Container;
   protected core: ISnickerdoodleCore;
   constructor() {
     this.iocContainer = new Container();
+    this.iocContainer.load(...[mobileCoreModule]);
 
     this.core = new SnickerdoodleCore(
       coreConfig,
@@ -53,10 +55,10 @@ export class MobileCore {
     languageCode: LanguageCode,
     chain: EChain,
   ) {
-    console.log('accountAddress', accountAddress);
-    console.log('signature', signature);
-    console.log('languageCode', languageCode);
-    console.log('chain', chain);
+    console.log("accountAddress", accountAddress);
+    console.log("signature", signature);
+    console.log("languageCode", languageCode);
+    console.log("chain", chain);
     this.core.unlock(accountAddress, signature, languageCode, chain);
   }
 
@@ -100,7 +102,7 @@ export class MobileCore {
     tokenId?: BigNumberString,
   ): ResultAsync<EInvitationStatus, Error> {
     const invitation = new Invitation(
-      '' as DomainName,
+      "" as DomainName,
       consentAddress,
       TokenId(BigInt(281474976710655)),
       signature ?? null,
@@ -114,7 +116,7 @@ export class MobileCore {
     return this.core.getInvitationMetadataByCID(ipfsCID);
   }
   public getUnlockMessage(): ResultAsync<string, UnsupportedLanguageError> {
-    return this.core.getUnlockMessage('en' as LanguageCode);
+    return this.core.getUnlockMessage("en" as LanguageCode);
   }
 
   public acceptInvitation(

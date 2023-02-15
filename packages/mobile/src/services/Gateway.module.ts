@@ -60,7 +60,7 @@ import {
   IConfigProviderType,
 } from "./interfaces/utils/IConfigProvider";
 
-export const extensionCoreModule = new ContainerModule(
+export const mobileCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
     _unbind: interfaces.Unbind,
