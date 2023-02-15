@@ -262,10 +262,14 @@ const CampaignPopup: FC = () => {
 
   return (
     <>
-      <Dialog open={true} className={classes.container}>
-        <Box width={548}>
-          <Box style={{ backgroundImage: `url(${RewardBG})` }}>
-            <Box display="flex" justifyContent="space-between">
+      <Dialog onClose={handleClose} open={true}>
+        <Box width={548} minHeight={497}>
+          <Box height={270} style={{ backgroundImage: `url(${RewardBG})` }}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="baseline"
+            >
               <Box pt={3} pl={4}>
                 <img width="auto" height={26.66} src={SDLogo} />
               </Box>
@@ -336,11 +340,7 @@ const CampaignPopup: FC = () => {
             </Box>
             <Box mb={2}>
               <Typography className={classes.subtitle}>
-                {
-                  invitationMeta.description 
-                  || 
-                  "Connect your wallet with the Snickerdoodle Data Wallet to claim NFTs and other rewards!"
-                }
+                {invitationMeta.description}
               </Typography>
             </Box>
             <Box

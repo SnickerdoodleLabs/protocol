@@ -152,7 +152,6 @@ export class EtherscanIndexer
               apikey: apiKey,
             }),
           );
-          console.log("getBalancesForAccount 2 Url call: ", url);
 
           return this.ajaxUtils
             .get<IEtherscanNativeBalanceResponse>(url)
@@ -192,11 +191,9 @@ export class EtherscanIndexer
           return okAsync([]);
         }
 
-        console.log("Etherscan Url call: ", url);
         return this.ajaxUtils
           .get<IEtherscanTransactionResponse>(url)
           .andThen((response) => {
-            console.log("Etherscan response: ", response);
             if (
               response.status != "1" ||
               response.message == "No transactions found"
@@ -215,7 +212,6 @@ export class EtherscanIndexer
 
             const txs = response.result.map((tx) => {
               // etherscan uses "" instead of null
-              console.log("Mapping Etherscan Transaction: ", tx);
               return new EVMTransaction(
                 chain,
                 EVMTransactionHash(tx.hash),
@@ -268,7 +264,6 @@ export class EtherscanIndexer
         }),
       );
 
-      console.log("blockNumber Url call: ", url);
       return this.ajaxUtils
         .get<IEtherscanBlockNumberResponse>(url)
         .andThen((resp) => {
