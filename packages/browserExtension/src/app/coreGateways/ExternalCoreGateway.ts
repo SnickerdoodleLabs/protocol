@@ -46,7 +46,6 @@ import {
   IInvitationDomainWithUUID,
   ILeaveCohortParams,
   IRejectInvitationParams,
-  ISetAgeParams,
   ISetBirthdayParams,
   ISetEmailParams,
   ISetFamilyNameParams,
@@ -67,6 +66,9 @@ import {
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
   IGetMarketplaceListingsParams,
+  ISetDefaultReceivingAddressParams,
+  ISetReceivingAddressParams,
+  IGetReceivingAddressParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -293,11 +295,6 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 
-  public setAge(age: Age): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(EExternalActions.SET_AGE, {
-      age,
-    } as ISetAgeParams);
-  }
   public setFamilyName(
     familyName: FamilyName,
   ): ResultAsync<void, JsonRpcError> {
@@ -419,5 +416,31 @@ export class ExternalCoreGateway {
 
   public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
     return this._handler.call(EExternalActions.GET_LISTING_TOTAL);
+  }
+
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.SET_DEFAULT_RECEIVING_ACCOUNT, {
+      receivingAddress,
+    } as ISetDefaultReceivingAddressParams);
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.SET_RECEIVING_ACCOUNT, {
+      contractAddress,
+      receivingAddress,
+    } as ISetReceivingAddressParams);
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_RECEIVING_ACCOUNT, {
+      contractAddress,
+    } as IGetReceivingAddressParams);
   }
 }

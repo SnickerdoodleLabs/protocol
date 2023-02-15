@@ -18,6 +18,8 @@ import {
   TokenInfo,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -59,8 +61,8 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
-  TokenId,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -350,12 +352,16 @@ export interface ISnickerdoodleCore {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
+  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
+
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -375,6 +381,19 @@ export interface ISnickerdoodleCore {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError>;
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;

@@ -19,6 +19,8 @@ import {
   ChainId,
   ISDQLCompensations,
   TransactionPaymentCounter,
+  QueryFilteredByPermissions,
+  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -43,6 +45,12 @@ import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+
+import { AdContentRepository } from "@core/implementations/data";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
+
+import { SnickerdoodleCore } from "@core/index";
+
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -77,9 +85,15 @@ class QueryParsingMocks {
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
 
+  public adContentRepository: AdContentRepository;
+
+  public snickerDoodleCore: SnickerdoodleCore;
+
+
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
+    this.snickerDoodleCore = new SnickerdoodleCore();
     this.queryFactories = new QueryFactories(
       this.queryObjectFactory,
       this.queryWrapperFactory,
@@ -88,7 +102,6 @@ class QueryParsingMocks {
     td.when(this.persistenceRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
     );
-    td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(country));
 
     td.when(this.persistenceRepo.getSiteVisitsMap()).thenReturn(
@@ -105,49 +118,56 @@ class QueryParsingMocks {
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
+    const expectedCompensationsMap = new Map<CompensationId, ISDQLCompensations>();
+    expectedCompensationsMap.set(CompensationId('c1'), {
+        description:
+          "Only the chainId is compared, so this can be random.",
+        chainId: ChainId(1),
+      } as ISDQLCompensations).set(CompensationId('c2'), {
+        description:
+          "Only the chainId is compared, so this can be random.",
+        chainId: ChainId(1),
+      } as ISDQLCompensations).set(CompensationId('c3'), {
+        description:
+          "Only the chainId is compared, so this can be random.",
+        chainId: ChainId(1),
+      } as ISDQLCompensations,);
+
+
     td.when(
-      this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
+      this.queryUtils.filterQueryByPermissions(
         sdqlQuery4.query,
         new DataPermissions(allPermissions),
       ),
     ).thenReturn(
-      okAsync([
-        ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
-        new Map(
-          Object.entries({
-            c1: {
-              description:
-                "Only the chainId is compared, so this can be random.",
-              chainId: ChainId(1),
-            } as ISDQLCompensations,
-            c2: {
-              description:
-                "Only the chainId is compared, so this can be random.",
-              chainId: ChainId(1),
-            } as ISDQLCompensations,
-            c4: {
-              description:
-                "Only the chainId is compared, so this can be random.",
-              chainId: ChainId(1),
-            } as ISDQLCompensations,
-          }),
-        ),
-      ]),
+      okAsync(
+        new QueryFilteredByPermissions(
+          ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"].map(QueryIdentifier),
+          expectedCompensationsMap,
+          new Map()
+        )
+      ),
     );
 
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
+      this.snickerDoodleCore,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
+    this.adContentRepository = new AdContentRepository(
+        new AjaxUtilsMock(), new ConfigProviderMock()
+    );
   }
 
   public factory() {
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
+      this.persistenceRepo,
       this.queryUtils,
+      this.adContentRepository,
     );
   }
 

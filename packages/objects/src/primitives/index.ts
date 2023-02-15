@@ -7,6 +7,7 @@ export * from "@objects/primitives/BaseURI";
 export * from "@objects/primitives/BigNumberString";
 export * from "@objects/primitives/BlockNumber";
 export * from "@objects/primitives/ChainId";
+export * from "@objects/primitives/CoinGeckoAssetPlatformID";
 export * from "@objects/primitives/ConsentName";
 export * from "@objects/primitives/CountryCode";
 export * from "@objects/primitives/CryptoTokenSymbol";
@@ -16,6 +17,7 @@ export * from "@objects/primitives/DataWalletBackupID";
 export * from "@objects/primitives/DomainName";
 export * from "@objects/primitives/EmailAddressString";
 export * from "@objects/primitives/EncryptedString";
+export * from "@objects/primitives/EAdDisplayType";
 
 export * from "@objects/primitives/EVMChainCode";
 export * from "@objects/primitives/EVMAccountAddress";
@@ -64,6 +66,7 @@ export * from "@objects/primitives/Web2Credential";
 export * from "@objects/primitives/RewardFunctionParam";
 export * from "@objects/primitives/TransactionReceipt";
 export * from "@objects/primitives/CompensationId";
+export * from "@objects/primitives/AdKey";
 
 export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";

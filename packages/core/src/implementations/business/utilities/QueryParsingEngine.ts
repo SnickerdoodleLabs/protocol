@@ -12,10 +12,15 @@ import {
   ExpectedReward,
   ERewardType,
   IDynamicRewardParameter,
-  ParserError,
-  DuplicateIdInSchema,
-  MissingTokenConstructorError,
   ISDQLCompensations,
+  CompensationId,
+  AdKey,
+  ISDQLAd,
+  EligibleAd,
+  EVMContractAddress,
+  PersistenceError,
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -33,6 +38,7 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
+import { IAdContentRepository, IAdRepositoryType } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -41,28 +47,39 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
     @inject(ISDQLQueryUtilsType)
-    protected queryUtils: ISDQLQueryUtils
+    protected queryUtils: ISDQLQueryUtils,
+    @inject(IAdRepositoryType)
+    protected adContentRepository: IAdContentRepository
   ) {}
 
   public getPermittedQueryIdsAndExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress
   ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
-    const schemaString = query.query;
+    const queryString = query.query;
     const cid: IpfsCID = query.cid;
 
-    return this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
-      schemaString, dataPermissions
-    ).andThen(([permittedQueryIds, expectedCompensationsMap]) => {
+    return this.queryUtils.filterQueryByPermissions(
+      queryString, dataPermissions
+    ).andThen((queryFilteredByPermissions) => {
 
-      const expectedRewardList = 
-        this.compensationsMapToExpectedRewards(expectedCompensationsMap);
+      return this.constructAndSaveEligibleAds(
+        queryFilteredByPermissions.eligibleAdsMap, cid, consentContractAddress
+      ).andThen(() => {
 
+        const expectedRewardList = this.constructExpectedRewards(
+          queryFilteredByPermissions.expectedCompensationsMap
+        );
+  
         return okAsync<[QueryIdentifier[], ExpectedReward[]]>(
-          [permittedQueryIds.map(QueryIdentifier), expectedRewardList]
+          [queryFilteredByPermissions.permittedQueryIds, expectedRewardList]
         );
       });
+    });
   }
 
   public handleQuery(
@@ -101,27 +118,69 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
-  protected compensationsMapToExpectedRewards(
-    iSDQLCompensationsMap: Map<string, ISDQLCompensations>
+  protected constructExpectedRewards(
+    iSDQLCompensationsMap: Map<CompensationId, ISDQLCompensations>
   ): ExpectedReward[] {
 
-      const listToReturn: ExpectedReward[] = [];
-      for (const currentSDQLCompensationsKey in iSDQLCompensationsMap) {
-        const currentSDQLCompensationsObject = 
-          iSDQLCompensationsMap[currentSDQLCompensationsKey];
+    const expectedRewardList: ExpectedReward[] = [];
+    for (const currentKeyAsString in iSDQLCompensationsMap) {
+      const currentSDQLCompensationsKey = CompensationId(currentKeyAsString);
+      const currentSDQLCompensationsObject: ISDQLCompensations = 
+        iSDQLCompensationsMap[currentSDQLCompensationsKey];
 
-        listToReturn.push( 
-          new ExpectedReward(
-            currentSDQLCompensationsKey,
-            currentSDQLCompensationsObject.description,
-            currentSDQLCompensationsObject.chainId,
-            JSON.stringify(currentSDQLCompensationsObject.callback),
-            ERewardType.Direct
-          )
-        );
-      }
+      expectedRewardList.push( 
+        new ExpectedReward(
+          currentSDQLCompensationsKey,
+          currentSDQLCompensationsObject.description,
+          currentSDQLCompensationsObject.chainId,
+          JSON.stringify(currentSDQLCompensationsObject.callback),
+          ERewardType.Direct
+        )
+      );
+    }
+    return expectedRewardList;
+  }
 
-      return listToReturn;
+  protected constructAndSaveEligibleAds(
+    eligibleAdsMap: Map<AdKey, ISDQLAd>,
+    queryCID: IpfsCID,
+    consentContractAddress: EVMContractAddress
+  ): ResultAsync<void, PersistenceError> {
+
+    const eligibleAdList = this.adsMapToEligibleAdObjects(
+      eligibleAdsMap, queryCID, consentContractAddress
+    );
+
+    return this.persistence.saveEligibleAds(eligibleAdList);
+  }
+
+  protected adsMapToEligibleAdObjects(
+    iSDQLAdsMap: Map<AdKey, ISDQLAd>,
+    queryCID: IpfsCID,
+    consentContractAddress: EVMContractAddress
+  ): EligibleAd[] {
+    const eligibleAdList: EligibleAd[] = [];
+    for (const currentKeyAsString in iSDQLAdsMap) {
+      const currentAdKey = AdKey(currentKeyAsString);
+      const currentSDQLAdObject: ISDQLAd = 
+        iSDQLAdsMap[AdKey(currentAdKey)];
+
+      eligibleAdList.push( 
+        new EligibleAd(
+          consentContractAddress,
+          queryCID,
+          currentAdKey,
+          currentSDQLAdObject.name,
+          currentSDQLAdObject.content,
+          currentSDQLAdObject.text,
+          currentSDQLAdObject.displayType,
+          currentSDQLAdObject.weight,
+          currentSDQLAdObject.expiry,
+          currentSDQLAdObject.keywords
+        )
+      );
+    }
+    return eligibleAdList;
   }
 
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {

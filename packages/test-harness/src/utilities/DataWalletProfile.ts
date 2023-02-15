@@ -41,6 +41,7 @@ import {
   PersistenceError,
   UninitializedError,
   EVMContractAddress,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -287,7 +288,7 @@ export class DataWalletProfile {
         const demographic = JSON.parse(content);
 
         return ResultAsync.combine([
-          this.core.setAge(demographic.age ?? null),
+          this.core.setBirthday(demographic.birthday ?? null),
           this.core.setGender(demographic.gender ?? null),
           this.core.setLocation(demographic.location ?? null),
           // TODO: add more
@@ -413,6 +414,7 @@ export class DataWalletProfile {
             hash: backupJson.hash,
             timestamp: UnixTimestamp(backupJson.timestamp),
             signature: backupJson.signature,
+            priority: EBackupPriority.NORMAL,
           },
           blob: new AESEncryptedString(
             EncryptedString(backupJson.blob.data),

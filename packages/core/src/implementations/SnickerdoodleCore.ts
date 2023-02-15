@@ -78,15 +78,17 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
+  SHA256Hash,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
   ICloudStorageType,
-  CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
   IndexedDBVolatileStorage,
-  NullCloudStorage,
   GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -95,7 +97,7 @@ import {
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
@@ -108,6 +110,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IProfileService,
@@ -654,11 +658,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
-    const profileService =
-      this.iocContainer.get<IProfileService>(IProfileServiceType);
-    return profileService.setAge(age);
-  }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
@@ -715,6 +714,38 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.setDefaultReceivingAddress(receivingAddress);
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.setReceivingAddress(contractAddress, receivingAddress);
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getReceivingAddress(contractAddress);
+  }
+
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -728,6 +759,30 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getEligibleAds();
+  }
+
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getAdSignatures();
+  }
+
+  onAdDisplayed(
+    eligibleAd: EligibleAd
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.onAdDisplayed(eligibleAd);
+  }
+
+  
+  
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {

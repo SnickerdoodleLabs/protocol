@@ -25,7 +25,6 @@ import {
   SiteVisit,
   UnixTimestamp,
   URLString,
-  UUID,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
@@ -99,6 +98,22 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, unknown> {
+    return coreGateway.setDefaultReceivingAddress(receivingAddress);
+  }
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, unknown> {
+    return coreGateway.setReceivingAddress(contractAddress, receivingAddress);
+  }
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress | undefined,
+  ): ResultAsync<AccountAddress, unknown> {
+    return coreGateway.getReceivingAddress(contractAddress);
   }
   public getMarketplaceListings(
     count?: number | undefined,
@@ -224,9 +239,6 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   }
   public setGivenName(givenName: GivenName) {
     return coreGateway.setGivenName(givenName);
-  }
-  public setAge(age: Age) {
-    return coreGateway.setAge(age);
   }
   public setBirthday(birthday: UnixTimestamp) {
     return coreGateway.setBirtday(birthday);

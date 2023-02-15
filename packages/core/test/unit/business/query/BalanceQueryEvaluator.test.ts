@@ -14,6 +14,7 @@ import {
   TickerSymbol,
   BigNumberString,
   EChainTechnology,
+  IEVMBalance,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -32,8 +33,8 @@ import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 const conditionsGEandL = [
-  new ConditionGE(SDQL_OperatorName("ge"), null, 20),
-  new ConditionL(SDQL_OperatorName("l"), null, 30),
+  new ConditionGE(SDQL_OperatorName("ge"), null, 0),
+  new ConditionL(SDQL_OperatorName("l"), null, 500),
 ];
 const conditionsGandLE = [
   new ConditionG(SDQL_OperatorName("g"), null, 20),
@@ -53,68 +54,13 @@ class BalanceQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public accountBalances = new Array<TokenBalance>(
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("Contract 1"),
-      EVMAccountAddress("GOOD1"),
-      BigNumberString("9"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("SOL"),
-      ChainId(2),
-      EVMContractAddress("Contract 2"),
-      EVMAccountAddress("GOOD2"),
-      BigNumberString("44"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("AVAX"),
-      ChainId(3),
-      EVMContractAddress("Contract 3"),
-      EVMAccountAddress("GOOD3"),
-      BigNumberString("117"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("BIT"),
-      ChainId(4),
-      EVMContractAddress("Contract 4"),
-      EVMAccountAddress("GOOD4"),
-      BigNumberString("903"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ADA"),
-      ChainId(5),
-      EVMContractAddress("Contract 10"),
-      EVMAccountAddress("GOOD5"),
-      BigNumberString("24"),
-      18,
-    ),
-  );
-
   public constructor() {
-    this.dataWalletPersistence.setAge(Age(25));
-    //this.dataWalletPersistence.setLocation(CountryCode("US"));
     td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-
     td.when(this.dataWalletPersistence.getGender()).thenReturn(
       okAsync(Gender("male")),
     );
-
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
-    );
-    td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(this.accountBalances),
     );
   }
 
@@ -124,7 +70,7 @@ class BalanceQueryEvaluatorMocks {
 }
 
 describe("BalanceQueryEvaluator", () => {
-  test("3 EVMBalances, Different Contract Addresses", async () => {
+  test("Sample data 1 - every chainId/contractAddress has a balance > 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       "array",
@@ -135,55 +81,87 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("15"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("SOL"),
-            ChainId(2),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(3),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("30"),
-            18,
-          ),
+        new Array<IEVMBalance | any>(
+          {
+            ticker: "MATIC",
+            chainId: 80001,
+            accountAddress: "",
+            balance: "100",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43113,
+            accountAddress: "",
+            balance: "100",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "ETH",
+            chainId: 1,
+            accountAddress: "",
+            balance: "5906596049814560",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 7.5055704,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 1,
+            accountAddress: "",
+            balance: "14338174027714340563",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 137,
+            accountAddress: "",
+            balance: "100",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43114,
+            accountAddress: "",
+            balance: "100",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
         ),
       ),
     );
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    console.log(result);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0]["networkId"]).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("15");
+    console.log("result: ", result);
+    expect(result["value"].length).toEqual(6);
 
-    expect(result["value"][1]["address"]).toEqual("Contract 2");
-    expect(result["value"][1].networkId).toEqual(2);
-    expect(result["value"][1]["balance"]).toEqual("25");
+    expect(result["value"][0].ticker).toEqual("MATIC");
+    expect(result["value"][1].ticker).toEqual("AVAX");
+    expect(result["value"][2].ticker).toEqual("ETH");
+    expect(result["value"][3].ticker).toEqual("MATIC");
+    expect(result["value"][4].ticker).toEqual("MATIC");
+    expect(result["value"][5].ticker).toEqual("AVAX");
 
-    expect(result["value"][2]["address"]).toEqual("Contract 3");
-    expect(result["value"][2].networkId).toEqual(3);
-    expect(result["value"][2]["balance"]).toEqual("30");
+    expect(result["value"][0].chainId).toEqual(80001);
+    expect(result["value"][1].chainId).toEqual(43113);
+    expect(result["value"][2].chainId).toEqual(1);
+    expect(result["value"][3].chainId).toEqual(1);
+    expect(result["value"][4].chainId).toEqual(137);
+    expect(result["value"][5].chainId).toEqual(43114);
+
+    expect(result["value"][0].balance).toEqual("100");
+    expect(result["value"][1].balance).toEqual("100");
+    expect(result["value"][2].balance).toEqual("5906596049814560");
+    expect(result["value"][3].balance).toEqual("14338174027714340563");
+    expect(result["value"][4].balance).toEqual("100");
+    expect(result["value"][5].balance).toEqual("100");
   });
 
-  test("3 EVMBalances, Same Contract Addresses", async () => {
+  test("Sample data 2 - some chainId/contractAddress has a balance = 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       "array",
@@ -194,100 +172,75 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("15"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("SOL"),
-            ChainId(2),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(3),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("30"),
-            18,
-          ),
+        new Array<IEVMBalance | any>(
+          {
+            ticker: "MATIC",
+            chainId: 80001,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43113,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "ETH",
+            chainId: 1,
+            accountAddress: "",
+            balance: "5906596049814560",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 7.5055704,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 1,
+            accountAddress: "",
+            balance: "14338174027714340563",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 137,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43114,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
         ),
       ),
     );
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("70");
+    console.log("result: ", result);
 
-    // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
-  });
-
-  test("2 EVMBalances, Different Contract Addresses", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      null, // * - for all, use null
-      [],
-    );
-
-    const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("SOL"),
-            ChainId(2),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("44"),
-            18,
-          ),
-        ),
-      ),
-    );
-    const repo = mocks.factory();
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("9");
+    expect(result["value"][1].ticker).toEqual("MATIC");
 
-    expect(result["value"][1].ticker).toEqual("SOL");
-    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][1].chainId).toEqual(2);
-    expect(result["value"][1].balance).toEqual("44");
+    expect(result["value"][0].chainId).toEqual(1);
+    expect(result["value"][1].chainId).toEqual(1);
+
+    expect(result["value"][0].balance).toEqual("5906596049814560");
+    expect(result["value"][1].balance).toEqual("14338174027714340563");
   });
 
-  test("2 EVMBalances, Same Contract Addresses", async () => {
+  test("All Zero Balances: return array of length 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       "array",
@@ -298,37 +251,62 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("SOL"),
-            ChainId(2),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("44"),
-            18,
-          ),
+        new Array<IEVMBalance | any>(
+          {
+            ticker: "MATIC",
+            chainId: 80001,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43113,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "ETH",
+            chainId: 1,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 7.5055704,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 1,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 137,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43114,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
         ),
       ),
     );
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("53");
+    expect(result["value"].length).toEqual(0);
   });
 
   test("Only Accept ChainId(1) EVMBalances", async () => {
@@ -342,773 +320,157 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("SOL"),
-            ChainId(2),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("44"),
-            18,
-          ),
+        new Array<IEVMBalance | any>(
+          {
+            ticker: "MATIC",
+            chainId: 80001,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43113,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "ETH",
+            chainId: 1,
+            accountAddress: "",
+            balance: "5906596049814560",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 7.5055704,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 1,
+            accountAddress: "",
+            balance: "14338174027714340563",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 137,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43114,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
         ),
       ),
     );
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
+    console.log("result: ", result);
+
+    expect(result["value"].length).toEqual(2);
+    expect(result["value"][0].ticker).toEqual("ETH");
+    expect(result["value"][1].ticker).toEqual("MATIC");
+
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("9");
-  });
-
-  test("Only Accept ChainId(1) EVMBalances - Same ContractAddresses", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      [],
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("SOL"),
-            ChainId(2),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("44"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(3),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("117"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("BIT"),
-            ChainId(4),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD4"),
-            BigNumberString("903"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ADA"),
-            ChainId(5),
-            EVMContractAddress("Contract 10"),
-            EVMAccountAddress("GOOD5"),
-            BigNumberString("24"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].balance).toEqual("50");
-  });
-
-  test("(Chain ID: 1) && (20 <= Balance < 30) - ALL VALUES", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      conditionsGEandL,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("23"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("27"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(3);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("23");
-
-    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
     expect(result["value"][1].chainId).toEqual(1);
-    expect(result["value"][1].balance).toEqual("25");
 
-    expect(result["value"][2].tokenAddress).toEqual("Contract 3");
+    expect(result["value"][0].balance).toEqual("5906596049814560");
+    expect(result["value"][1].balance).toEqual("14338174027714340563");
+  });
+
+  test("(20 <= Balance < 30) - ALL VALUES", async () => {
+    const balanceQuery = new AST_BalanceQuery(
+      SDQL_Name("q7"),
+      "array",
+      null,
+      conditionsGEandL,
+    );
+    // >= 20 and < 30
+    const mocks = new BalanceQueryEvaluatorMocks();
+    const repo = mocks.factory();
+
+    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+      okAsync(
+        new Array<IEVMBalance | any>(
+          {
+            ticker: "MATIC",
+            chainId: 80001,
+            accountAddress: "",
+            balance: "150",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43113,
+            accountAddress: "",
+            balance: "1",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "ETH",
+            chainId: 1,
+            accountAddress: "",
+            balance: "501",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 7.5055704,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 1,
+            accountAddress: "",
+            balance: "499",
+            tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 137,
+            accountAddress: "",
+            balance: "0",
+            tokenAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43114,
+            accountAddress: "",
+            balance: "20",
+            tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 0,
+          },
+        ),
+      ),
+    );
+
+    const result = await repo.eval(balanceQuery);
+    console.log("result: ", result);
+
+    expect(result["value"].length).toEqual(4);
+    expect(result["value"][0].ticker).toEqual("MATIC");
+    expect(result["value"][1].ticker).toEqual("AVAX");
+    expect(result["value"][2].ticker).toEqual("MATIC");
+    expect(result["value"][3].ticker).toEqual("AVAX");
+
+    expect(result["value"][0].chainId).toEqual(80001);
+    expect(result["value"][1].chainId).toEqual(43113);
     expect(result["value"][2].chainId).toEqual(1);
-    expect(result["value"][2].balance).toEqual("27");
-  });
+    expect(result["value"][3].chainId).toEqual(43114);
 
-  test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      conditionsGEandL,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("19"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("31"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("25");
-  });
-
-  test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      conditionsGEandL,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("23"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("27"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("75");
-  });
-
-  test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      conditionsGEandL,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("19"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("31"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("25");
-  });
-
-  test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      conditionsGEandL,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("23"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("27"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("75");
-  });
-
-  test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1),
-      conditionsGEandL,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("25"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("100"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("50");
-  });
-
-  test("(Chain ID: 1) & (20 < Balance <= 30)", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1), // * - for all, use null
-      conditionsGandLE,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("29"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("24"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("51"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("1002"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("23"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"].length).toEqual(3);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("29");
-
-    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][1].chainId).toEqual(1);
-    expect(result["value"][1].balance).toEqual("24");
-
-    expect(result["value"][2].tokenAddress).toEqual("Contract 3");
-    expect(result["value"][2].chainId).toEqual(1);
-    expect(result["value"][2].balance).toEqual("23");
-  });
-
-  test("(Chain ID: 1) & (Balance == 29) - one occurence", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1), // * - for all, use null
-      conditionsE,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("44"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("29"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("11"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("24"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("51"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 5"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("1002"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 5"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("23"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    // console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("29");
-  });
-
-  test("(Chain ID: 1) & (Balance == 29) - multiple occurences", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(1), // * - for all, use null
-      conditionsE,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("29"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("29"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 3"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("1000"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    console.log(result);
-    expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("58");
-  });
-
-  test("(Chain ID: 0) - should return no values", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-      SDQL_Name("q7"),
-      "array",
-      ChainId(0), // * - for all, use null
-      conditionsE,
-    );
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(
-        new Array<TokenBalance>(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 1"),
-            EVMAccountAddress("GOOD1"),
-            BigNumberString("9"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("44"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1),
-            EVMContractAddress("Contract 2"),
-            EVMAccountAddress("GOOD2"),
-            BigNumberString("29"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("11"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("24"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 4"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("51"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 5"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("1002"),
-            18,
-          ),
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("AVAX"),
-            ChainId(1),
-            EVMContractAddress("Contract 5"),
-            EVMAccountAddress("GOOD3"),
-            BigNumberString("23"),
-            18,
-          ),
-        ),
-      ),
-    );
-
-    const result = await repo.eval(balanceQuery);
-    // console.log(result);
-    expect(result["value"].length).toEqual(0);
+    expect(result["value"][0].balance).toEqual("150");
+    expect(result["value"][1].balance).toEqual("1");
+    expect(result["value"][2].balance).toEqual("499");
+    expect(result["value"][3].balance).toEqual("20");
   });
 });

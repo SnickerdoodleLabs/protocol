@@ -26,7 +26,9 @@ import {
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useEffect, useMemo, useState } from "react";
+
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
@@ -36,17 +38,16 @@ import {
   SolanaNFTItem,
   EVMNFTItem,
 } from "@extension-onboarding/components/NFTItem";
+import InfoCard from "@extension-onboarding/components/Portfolio/components/InfoCard";
+import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.style";
 import Switch from "@extension-onboarding/components/Switch";
+import TokenItem from "@extension-onboarding/components/TokenItem";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
-import InfoCard from "@extension-onboarding/components/Portfolio/components/InfoCard";
-import TokenItem from "@extension-onboarding/components/TokenItem";
-import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { ResultUtils } from "neverthrow-result-utils";
 import { IBalanceItem } from "@extension-onboarding/objects";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 

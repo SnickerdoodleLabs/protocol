@@ -368,55 +368,6 @@ export class PolygonIndexer
       });
   }
 
-  //   private _getTokenMetadata(
-  //     chain: ChainId,
-  //     address: EVMContractAddress,
-  //   ): ResultAsync<TokenMetadataResponse, AccountIndexingError> {
-  //     const cacheResult = this._metadataCache.get(`${address}-${chain}`);
-  //     if (cacheResult) {
-  //       return okAsync(cacheResult);
-  //     }
-
-  //     return this._getAlchemyClient(chain)
-  //       .andThen((alchemy) => {
-  //         return ResultAsync.fromPromise(
-  //           alchemy.core.getTokenMetadata(address),
-  //           (e) => new AccountIndexingError("error fetching token metadata", e),
-  //         );
-  //       })
-  //       .map((metadata) => {
-  //         this._metadataCache.set(`${address}-${chain}`, metadata);
-  //         return metadata;
-  //       });
-  //   }
-
-  //   private _getAlchemyClient(
-  //     chain: ChainId,
-  //   ): ResultAsync<Alchemy, AccountIndexingError> {
-  //     return this.configProvider.getConfig().andThen((config) => {
-  //       switch (chain) {
-  //         case ChainId(EChain.Polygon):
-  //           return okAsync(
-  //             new Alchemy({
-  //               apiKey: config.alchemyEndpoints.polygon,
-  //               network: Network.MATIC_MAINNET,
-  //             }),
-  //           );
-  //         case ChainId(EChain.Mumbai):
-  //           return okAsync(
-  //             new Alchemy({
-  //               apiKey: config.alchemyEndpoints.polygonMumbai,
-  //               network: Network.MATIC_MUMBAI,
-  //             }),
-  //           );
-  //         default:
-  //           return errAsync(
-  //             new AccountIndexingError("no alchemy app for chainId", chain),
-  //           );
-  //       }
-  //     });
-  //   }
-
   protected _getEtherscanApiKey(
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
