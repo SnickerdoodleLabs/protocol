@@ -18,7 +18,6 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress, // null to account for deploying a new contract
   ) {
     this.contractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC721Reward.abi,
