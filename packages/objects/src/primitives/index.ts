@@ -70,3 +70,7 @@ export * from "@objects/primitives/AdKey";
 
 export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";
+export * from "@objects/primitives/BearerAuthToken";
+export * from "@objects/primitives/SnowflakeID";
+export * from "@objects/primitives/Integer";
+export * from "@objects/primitives/Username";

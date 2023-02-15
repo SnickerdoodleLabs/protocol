@@ -40,3 +40,4 @@ export * from "@objects/businessObjects/TransactionFilter";
 export * from "@objects/businessObjects/TransactionPaymentCounter";
 export * from "@objects/businessObjects/WalletNFT";
 export * from "@objects/businessObjects/QueryFilteredByPermissions";
+export * from "@objects/businessObjects/discord";

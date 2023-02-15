@@ -9,6 +9,7 @@ import {
   URLString,
   ECurrencyCode,
   EChain,
+  DiscordConfig,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -45,5 +46,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     },
     public restoreTimeoutMS: number,
     public domainFilter: string,
+    public discordConfig: DiscordConfig,
   ) {}
 }

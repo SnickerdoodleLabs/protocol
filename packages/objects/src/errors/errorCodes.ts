@@ -24,6 +24,7 @@ const errorCodes = {
   MissingASTError: "ERR_MISSING_AST",
   ParserTypeNotImplementedError: "ERR_PARSER_TYPE_NOT_IMPLEMENTED",
   ServerRewardError: "ERR_SERVER_REWARD",
+  DiscordError: "ERR_DISCORD",
 };
 
 export default errorCodes;
