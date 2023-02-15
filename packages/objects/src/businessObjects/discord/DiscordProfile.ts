@@ -11,7 +11,7 @@ export class DiscordProfile {
     public displayName: string,
     public discriminator: string,
     public flags: Integer,
-    public bearerAuthToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
+    public authToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
     public authExpiry: UnixTimestamp,
   ) {}
 }

@@ -25,4 +25,5 @@ export * from "@objects/errors/MissingASTError";
 export * from "@objects/errors/ParserTypeNotImplementedError";
 export * from "@objects/errors/ServerRewardError";
 export * from "@objects/errors/SiftContractError";
+export * from "@objects/errors/OAuthError";
 export * from "@objects/errors/DiscordError";
