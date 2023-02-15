@@ -22,8 +22,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
 
     CountersUpgradeable.Counter private _tokenIdCounter;
 
-    CountersUpgradeable.Counter private _whiteListCounter;
-
     /// @dev mapping of hashed label to tokenId (i.e. a URL, Ticker, )
     mapping(bytes32 => uint256) public labelToTokenId;
 
@@ -38,9 +36,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
         string metadata; /// this can be JSON i.e. a string
         uint256 status;	 /// i.e. Verified: 0, not_verified: 1, malicious: 2	
     }
-
-    //@dev initialized whiteListCount
-    uint256 public whiteListCount;
 
     mapping(uint256 => entityStruct) public tokenIDtoEntity;
 
@@ -144,7 +139,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
     }
 
     function returnWhiteListCount() external view returns(uint256 Val) {
-        return whiteListCount;
+        return totalSupply;
     }
 
     /* OVERRIDES */ 
