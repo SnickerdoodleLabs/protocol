@@ -1,4 +1,4 @@
-// S// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -10,19 +10,19 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 /// @title Sift 
 /// @author Snickerdoodle Labs
 /// @notice Synamint Protocol Sift Contract
-/// @dev The Sift contract is a simple registry that tracks verified or malicious urls
-/// @dev If a url has been verified by the Snickerdoodle team, it is minted with a Sift ERC721 token with a 'VERIFIED' tokenURI
-/// @dev If a url has been identified as malicious, it is minted a 'MALICIOUS' tokenURI
-/// @dev SDL's data wallet browser extension will query the Sift contract with the url that its user is visiting
-/// @dev Each url that enters the registry is mapped to a token id that has the corresponding tokenURI describe above
-/// @dev If the url does not have a tokenId minted against it, the contract returns the 'NOT VERIFIED' status
+/// @dev The Sift contract is a simple registry that tracks verified or malicious entities
+/// @dev If an entity has been verified by the Snickerdoodle team, it is minted with a Sift ERC721 token with a 'VERIFIED' entity
+/// @dev If an entity has been identified as malicious, it is minted a 'MALICIOUS' entity
+/// @dev SDL's data wallet browser extension will query the Sift contract with the entity that its user is visiting
+/// @dev Each entity that enters the registry is mapped to a token id that has the corresponding entity describe above
+/// @dev If the entity does not have a tokenId minted against it, the contract returns the 'NOT VERIFIED' status
 
 contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, AccessControlEnumerableUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     CountersUpgradeable.Counter private _tokenIdCounter;
 
-    /// @dev mapping of hashed label to tokenId (i.e. a URL, Ticker, )
+    /// @dev mapping of hashed label to tokenId (i.e. a URL, Tokens, NFTs, Ad Agents, Ad Banners, etc.)
     mapping(bytes32 => uint256) public labelToTokenId;
 
     /// @dev Base uri of Sift
@@ -34,7 +34,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
     /// @dev Order struct
     struct entityStruct {
         string metadata; /// this can be JSON i.e. a string
-        uint256 status;	 /// i.e. Verified: 0, not_verified: 1, malicious: 2	
+        uint8 status;	 /// i.e. Verified: 0, not_verified: 1, malicious: 2	
     }
 
     mapping(uint256 => entityStruct) public tokenIDtoEntity;
@@ -59,42 +59,41 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
         setBaseURI(baseURI_);
     }
               
-    /// @notice Verifies a url
-    /// @dev Mints an NFT with the 'VERIFIED' tokenURI
+    /// @notice Verifies an entity
+    /// @dev Mints an NFT with the 'VERIFIED' entity
     /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
     /// @param label human-readable object label
-    /// @param owner Address receiving the url's NFT 
+    /// @param owner Address receiving the entity's NFT 
     /// @param metadata stringified JSON object with useful keyvalue pairs
     function verifyEntity(string memory label, address owner, string memory metadata) external {
-        // check if the url has already been verified on the contract
+        // check if the entity has already been verified on the contract
         // if it has a token id mapped to it, it has been verified 
-        require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: URL already verified");
+        require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: Entity already verified");
 
         // mint token with the associated label and metadata for a status of 1 (which means its safe)
         _safeMintAndRegister(owner, 1, label, metadata);
     }
 
-    /// @notice Marks a url as malicious 
-    /// @dev Mints an NFT with the 'MALICIOUS' tokenURI
+    /// @notice Marks an entity as malicious 
+    /// @dev Mints an NFT with the 'MALICIOUS' entity
     /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
     /// @param label human-readable object label
-    /// @param owner Address receiving the url's NFT  
+    /// @param owner Address receiving the entity's NFT  
     /// @param metadata stringified JSON object with useful keyvalue pairs
     function maliciousEntity(string memory label, address owner, string memory metadata) external {
-        // check if the url has already been verified on the contract
-        // if it has a token id mapped to it, it has been verified 
-        require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: URL already verified");
+        // Label does not correspond to a token
+        require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: Entity already verified");
         
         // mint token id and append to the token URI "MALICIOUS"
         _safeMintAndRegister(owner, 2, label, metadata);
     }
 
-    /// @notice Checks the status of a url 
+    /// @notice Checks the status of an entity 
     /// @dev Returns status of entities
     /// @param labels human-readable object labels
     /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
     function checkEntities(string[] memory labels) external view returns(entityStruct[] memory result) {
-        // get the url's token using its hashed value
+        // get the entity's token using its hashed value
         entityStruct[] memory returnedValues = new entityStruct[](labels.length);
 
         for (uint i = 0; i < labels.length; i++) {
@@ -126,13 +125,13 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
     /// @param verifiedStatus Status passed from the token
     /// @param label Status passed from the token
     /// @param metadata Token's metadata
-    function _safeMintAndRegister(address to, uint256 verifiedStatus, string memory label, string memory metadata) internal onlyRole(VERIFIER_ROLE) {
+    function _safeMintAndRegister(address to, uint8 verifiedStatus, string memory label, string memory metadata) internal onlyRole(VERIFIER_ROLE) {
         // ensure that tokenIds start from 1 so that 0 can be kept as tokens that are not verified yet
         uint256 tokenId = _tokenIdCounter.current() + 1;
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
 
-        // register hashed url to token mapping
+        // register hashed entity to token mapping
         labelToTokenId[keccak256(abi.encodePacked(label))] = tokenId;
 
         /// set the metadata
@@ -142,17 +141,12 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
         totalSupply++;
     }
 
-    function returnWhiteListCount() external view returns(uint256 Val) {
-        return totalSupply;
-    }
-
     /* OVERRIDES */ 
-
     /// @notice Override _baseURI to return the Sift tokens base URI
     function _baseURI() internal view virtual override returns (string memory baseURI_)  {
         return baseURI;
     }
-
+    
     // The following functions are overrides required by Solidity.
 
     function supportsInterface(bytes4 interfaceId)
