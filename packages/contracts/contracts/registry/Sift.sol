@@ -33,6 +33,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
 
     /// @dev Order struct
     struct entityStruct {
+        bytes32 label; /// this is your hashed label 
         string metadata; /// this can be JSON i.e. a string
         uint8 status;	 /// i.e. Verified: 0, not_verified: 1, malicious: 2	
     }
@@ -97,11 +98,12 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
         entityStruct[] memory returnedValues = new entityStruct[](labels.length);
 
         for (uint i = 0; i < labels.length; i++) {
-            uint256 tokenId = labelToTokenId[keccak256(abi.encodePacked(labels[i]))];
+            bytes32 encodedLabel = keccak256(abi.encodePacked(labels[i]));
+            uint256 tokenId = labelToTokenId[encodedLabel];
 
             // if token's id is 0, it has not been verified yet
             if (tokenId == 0) { 
-                returnedValues[i] = entityStruct("", 0);
+                returnedValues[i] = entityStruct(encodedLabel, "", 0);
             }
             else
             {
@@ -132,10 +134,11 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
         _safeMint(to, tokenId);
 
         // register hashed entity to token mapping
-        labelToTokenId[keccak256(abi.encodePacked(label))] = tokenId;
+        bytes32 encodedLabel = keccak256(abi.encodePacked(label));
+        labelToTokenId[encodedLabel] = tokenId;
 
         /// set the metadata
-        tokenIDtoEntity[tokenId] = entityStruct(metadata, verifiedStatus);
+        tokenIDtoEntity[tokenId] = entityStruct(encodedLabel, metadata, verifiedStatus);
 
         /// increase total supply count
         totalSupply++;
@@ -148,6 +151,22 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
     }
     
     // The following functions are overrides required by Solidity.
+    function _burn(uint256 tokenId)
+        internal
+        override(ERC721Upgradeable)
+    {
+        entityStruct memory entity = tokenIDtoEntity[tokenId];
+
+        // Zero out mapping to remove value, its better than delete call
+        delete labelToTokenId[entity.label];
+
+        // Zero out mapping to remove value, its better than delete call
+        delete tokenIDtoEntity[tokenId];
+
+        super._burn(tokenId);
+        /// decrease total supply count
+        totalSupply--;
+    }
 
     function supportsInterface(bytes4 interfaceId)
         public

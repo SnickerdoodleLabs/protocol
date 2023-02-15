@@ -67,7 +67,7 @@ describe("Sift", () => {
         sift
           .connect(owner)
           .verifyEntity("www.uniswap.com", owner.address, "website metadata"),
-      ).to.revertedWith("Consent: URL already verified");
+      ).to.revertedWith("Consent: Entity already verified");
     });
   });
 
@@ -154,7 +154,6 @@ describe("Sift", () => {
         "www.uniswop.com",
         "AVAX NFT",
       ]);
-      console.log("result: ", result);
       expect(result[0]["metadata"]).to.eq("good metadata");
       expect(result[0]["status"]).to.eq(1);
 
