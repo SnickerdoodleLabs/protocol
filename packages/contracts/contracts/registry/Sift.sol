@@ -70,7 +70,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
         // if it has a token id mapped to it, it has been verified 
         require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: URL already verified");
 
-        // mint token id and append to the token URI "VERIFIED"
+        // mint token with the associated label and metadata for a status of 1 (which means its safe)
         _safeMintAndRegister(owner, 1, label, metadata);
     }
 
@@ -81,6 +81,10 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
     /// @param owner Address receiving the url's NFT  
     /// @param metadata stringified JSON object with useful keyvalue pairs
     function maliciousEntity(string memory label, address owner, string memory metadata) external {
+        // check if the url has already been verified on the contract
+        // if it has a token id mapped to it, it has been verified 
+        require(labelToTokenId[keccak256(abi.encodePacked(label))] == 0, "Consent: URL already verified");
+        
         // mint token id and append to the token URI "MALICIOUS"
         _safeMintAndRegister(owner, 2, label, metadata);
     }
