@@ -14,6 +14,7 @@ export interface IConfigOverrides {
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
+  poapApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;

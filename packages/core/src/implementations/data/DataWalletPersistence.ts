@@ -977,6 +977,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getEthereumNftRepository(),
       this.accountNFTs.getEtherscanNftRepository(),
       this.accountNFTs.getNftScanRepository(),
+      this.accountNFTs.getPoapRepository(),
     ])
       .andThen(
         ([
@@ -987,6 +988,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           etherscanRepo,
           etherscanMRepo,
           nftScanRepo,
+          poapRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -1020,7 +1022,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return okAsync([]);
+              return poapRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Binance:
               return etherscanRepo.getTokensForAccount(
                 chainId,
