@@ -76,13 +76,12 @@ import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { parse } from "tldts";
 
 import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-
-import { parse } from "tldts";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
@@ -197,7 +196,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.unlock(derivedKey),
     ])
       .map(() => {
-        this.configProvider.getConfig().map((config) => {
+        ResultUtils.combine([
+          this.configProvider.getConfig(),
+          this.contextProvider.getContext(),
+        ]).map(([config, context]) => {
+          context.restoreInProgress = true;
+          this.contextProvider.setContext(context);
+          const timeoutCleared = false;
+
           // set the backup restore to timeout as to not block unlocks
           const timeout = setTimeout(() => {
             this.logUtils.error("Backup restore timed out");
@@ -669,14 +675,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForInitialRestore().andThen(([key]) => {
-      return this.backupManagerProvider.getBackupManager()
+      return this.backupManagerProvider
+        .getBackupManager()
         .andThen((backupManager) => {
           return backupManager.updateField(
             ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS,
-            !receivingAddress ? "" as AccountAddress : receivingAddress,
+            !receivingAddress ? ("" as AccountAddress) : receivingAddress,
             EBackupPriority.NORMAL,
           );
         });
@@ -684,31 +691,31 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress | null, 
+    AccountAddress | null,
     PersistenceError
   > {
     return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(
-        ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS, 
-        null
-      ).map((val) => val == "" ? null : val)
+        ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS,
+        null,
+      ).map((val) => (val == "" ? null : val));
     });
   }
 
   public setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForFullRestore().andThen(([key]) => {
-      return this.backupManagerProvider.getBackupManager()
+      return this.backupManagerProvider
+        .getBackupManager()
         .andThen((backupManager) => {
-
           if (receivingAddress && receivingAddress != "") {
             return backupManager.addRecord(
               ELocalStorageKey.RECEIVING_ADDRESSES,
               {
                 contractAddress: contractAddress,
-                receivingAddress: receivingAddress
+                receivingAddress: receivingAddress,
               },
               EBackupPriority.NORMAL,
             );
@@ -716,7 +723,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
           return this.volatileStorage.removeObject(
             ELocalStorageKey.RECEIVING_ADDRESSES,
-            contractAddress.toString()
+            contractAddress.toString(),
           );
         });
     });
@@ -726,10 +733,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<AccountAddress | null, PersistenceError> {
     return this.waitForFullRestore().andThen(([key]) => {
-      return this.volatileStorage.getObject<ReceivingAccountEntry>(
-        ELocalStorageKey.RECEIVING_ADDRESSES, 
-        contractAddress.toString()
-      ).map((entry) => !entry ? null : entry.receivingAddress);
+      return this.volatileStorage
+        .getObject<ReceivingAccountEntry>(
+          ELocalStorageKey.RECEIVING_ADDRESSES,
+          contractAddress.toString(),
+        )
+        .map((entry) => (!entry ? null : entry.receivingAddress));
     });
   }
 
@@ -1400,6 +1409,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
         });
       });
+  }
+
+  public restoreInProgress(): ResultAsync<boolean, never> {
+    return this.contextProvider
+      .getContext()
+      .map((context) => context.restoreInProgress);
   }
 
   // rename this. its bad.
