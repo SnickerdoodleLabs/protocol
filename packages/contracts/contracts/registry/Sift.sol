@@ -112,8 +112,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
                 // else, return token's entityStruct
                 returnedValues[i] = tokenIDtoEntity[tokenId];
             } 
-
-            i++;
         }
 
         return returnedValues;
