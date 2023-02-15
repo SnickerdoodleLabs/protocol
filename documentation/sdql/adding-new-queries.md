@@ -81,7 +81,7 @@ erDiagram
 ### Creating the AST element
 
 
-If your query does not fits them, extend from one of the folllowing interfaces. If it has no overlapping with the interfaces, the new AST element must extend from **AST_Query**.
+If your new query type fits one of the following interfaces, your new AST_* object must extend it. If it has no overlapping with the following interfaces, the new AST element must extend from **AST_Query**.
 
 **AST_PropertyQuery** - Web2 components, including age, gender, most popular sites, etc.
 
@@ -125,7 +125,7 @@ In [EXAMPLES.md](./EXAMPLES.md)
         }
     }
 ```
-In [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json), we do not need to update anything as we are not defining any structures (The return structure is an object array).
+In [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json), we do not need to update anything as we are not defining any new structures (The return structure is an object array).
 ### 1. Parsing the query
 1. As this is a web2 data type and matches our abstractions, we can reuse the **ISDQLQueryClause** and **AST_PropertyQuery**. No need to define anything new.
 2. Now we need to update the SDQLParser so that it can correctly parse the query. This query is too simple to write a validator for. But we need to set up data permissions
