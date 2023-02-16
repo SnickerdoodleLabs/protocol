@@ -19,7 +19,7 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     @inject(IRpcCallHandlerType) protected rpcCallHandler: IRpcCallHandler,
   ) {}
 
-  public createRrpcEngine(
+  public createRpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
     stream: any,

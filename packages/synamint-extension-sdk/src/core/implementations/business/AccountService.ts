@@ -13,8 +13,11 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
-import { IAccountRepository, IAccountRepositoryType } from "@synamint-extension-sdk/core/interfaces/data";
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
+import {
+  IAccountRepository,
+  IAccountRepositoryType,
+} from "@synamint-extension-sdk/core/interfaces/data";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class AccountService implements IAccountService {

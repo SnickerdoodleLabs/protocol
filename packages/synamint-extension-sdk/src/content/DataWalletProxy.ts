@@ -27,22 +27,21 @@ import {
   URLString,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   PORT_NOTIFICATION,
-} from "@synamint-extension-sdk/shared/constants/ports";
-import { TNotification } from "@synamint-extension-sdk/shared/types/notification";
+  TNotification,
+} from "@synamint-extension-sdk/shared";
+import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync } from "neverthrow";
-import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils/UpdatableEventEmitterWrapper";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
@@ -90,7 +89,7 @@ const initConnection = () => {
 
 initConnection();
 
-export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
+export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   constructor() {
     super();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -328,4 +327,4 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   }
 }
 
-export default new OnboardingProvider();
+export const DataWalletProxy = new _DataWalletProxy();

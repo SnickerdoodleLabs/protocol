@@ -11,7 +11,48 @@
     "!package.dev.json",
     "!package.umd.json"
   ],
+  "main": "dist/core/index.js",
+  "types": "dist/core/index.d.ts",
+  "exports": {
+    ".": "./dist/core/index.js",
+    "./core": "./dist/core/index.js",
+    "./gateways": "./dist/gateways/index.js",
+    "./content": "./dist/content/index.js",
+    "./port": "./dist/port/index.js",
+    "./shared": "./dist/shared/index.js",
+    "./extensionShared": "./dist/extensionShared/index.js",
+    "./injectables": "./dist/content/injectables/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "gateways": [
+        "./dist/gateways/index.d.ts"
+      ],
+      "core": [
+        "./dist/core/index.d.ts"
+      ],
+      "content": [
+        "./dist/content/index.d.ts"
+      ],
+      "extensionShared": [
+        "./dist/extensionShared/index.d.ts"
+      ],
+      "port": [
+        "./dist/port/index.d.ts"
+      ],
+      "shared": [
+        "./dist/shared/index.d.ts"
+      ],
+      "injectables": [
+        "./dist/content/injectables/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
+    "alias": "tsc-alias",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
     "prebuild": "node scripts/precompile",
     "clean:build": "npx rimraf build",
     "bundle:sdk": "yarn prebuild && npx webpack --config webpack.config.umd.js ",

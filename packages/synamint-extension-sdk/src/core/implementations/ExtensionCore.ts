@@ -6,10 +6,6 @@ import {
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
-import { Container } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
 import { extensionCoreModule } from "@synamint-extension-sdk/core/implementations/ExtensionCore.module";
 import {
   IBrowserTabListener,
@@ -23,18 +19,24 @@ import {
   IPortConnectionListener,
   IPortConnectionListenerType,
 } from "@synamint-extension-sdk/core/interfaces/api";
-import { IAccountService, IAccountServiceType } from "@synamint-extension-sdk/core/interfaces/business";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
   IErrorUtils,
   IErrorUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
+import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/shared/interfaces/configProvider";
-import { ExtensionUtils } from "@synamint-extension-sdk/shared/utils/ExtensionUtils";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import Browser, { Tabs } from "webextension-polyfill";
 
 export class ExtensionCore {

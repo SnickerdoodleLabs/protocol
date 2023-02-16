@@ -9,7 +9,7 @@ import {
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
-import { URL_PROTOCOLS } from "@synamint-extension-sdk/shared/constants/url";
+import { URL_PROTOCOLS } from "@synamint-extension-sdk/shared";
 import { inject, injectable } from "inversify";
 import { okAsync } from "neverthrow";
 import Browser, { Tabs } from "webextension-polyfill";

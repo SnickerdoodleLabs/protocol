@@ -12,7 +12,7 @@ import { ResultAsync } from "neverthrow";
 
 import { IPIIService } from "@synamint-extension-sdk/core/interfaces/business";
 import { IPIIRepository, IPIIRepositoryType } from "@synamint-extension-sdk/core/interfaces/data";
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class PIIService implements IPIIService {

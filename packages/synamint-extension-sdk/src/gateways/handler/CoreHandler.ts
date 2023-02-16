@@ -1,4 +1,4 @@
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@synamint-extension-sdk/shared/constants/rpcCall";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import { v4 } from "uuid";

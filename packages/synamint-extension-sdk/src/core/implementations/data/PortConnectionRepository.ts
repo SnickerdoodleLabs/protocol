@@ -1,4 +1,22 @@
 import { URLString } from "@snickerdoodlelabs/objects";
+import { IPortConnectionRepository } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IRpcEngineFactory,
+  IRpcEngineFactoryType,
+} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
+import {
+  EPortNames,
+  INTERNAL_PORTS,
+  CONTENT_SCRIPT_SUBSTREAM,
+  ONBOARDING_PROVIDER_SUBSTREAM,
+  EXTERNAL_PORTS,
+  IConfigProvider,
+  IConfigProviderType,
+} from "@synamint-extension-sdk/shared";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { inject, injectable } from "inversify";
@@ -6,24 +24,6 @@ import { errAsync, okAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
 import pump from "pump";
 import { Runtime } from "webextension-polyfill";
-
-import { IPortConnectionRepository } from "@synamint-extension-sdk/core/interfaces/data";
-import { IContextProvider, IContextProviderType } from "@synamint-extension-sdk/core/interfaces/utilities";
-import {
-  IRpcEngineFactory,
-  IRpcEngineFactoryType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
-import {
-  INTERNAL_PORTS,
-  CONTENT_SCRIPT_SUBSTREAM,
-  ONBOARDING_PROVIDER_SUBSTREAM,
-  EXTERNAL_PORTS,
-} from "@synamint-extension-sdk/shared/constants/ports";
-import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
 
 @injectable()
 export class PortConnectionRepository implements IPortConnectionRepository {
@@ -55,7 +55,7 @@ export class PortConnectionRepository implements IPortConnectionRepository {
 
   private _setupInternalConnection(remotePort: Runtime.Port) {
     const portStream = new PortStream(remotePort);
-    this.rpcEngineFactory.createRrpcEngine(
+    this.rpcEngineFactory.createRpcEngine(
       remotePort,
       remotePort.name as EPortNames,
       portStream,
@@ -74,14 +74,14 @@ export class PortConnectionRepository implements IPortConnectionRepository {
     // pipe port stream to multiplexer
     pump(portStream, portStreamMux, portStream);
     // create content script handler
-    this.rpcEngineFactory.createRrpcEngine(
+    this.rpcEngineFactory.createRpcEngine(
       remotePort,
       origin as URLString,
       portStreamMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
     );
     // create injected onboarding handler if orgins match
     if (origin === onboardingUrlOrigin) {
-      this.rpcEngineFactory.createRrpcEngine(
+      this.rpcEngineFactory.createRpcEngine(
         remotePort,
         origin as URLString,
         portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),

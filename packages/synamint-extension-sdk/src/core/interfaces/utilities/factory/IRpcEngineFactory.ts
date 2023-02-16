@@ -6,7 +6,7 @@ import { Runtime } from "webextension-polyfill";
 import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
 
 export interface IRpcEngineFactory {
-  createRrpcEngine(
+  createRpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
     stream: any,

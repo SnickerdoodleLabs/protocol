@@ -1,4 +1,4 @@
-import { ExtensionConfig } from "@synamint-extension-sdk/shared/objects/Config";
+import { ExtensionConfig } from "@synamint-extension-sdk/shared/objects/businessObjects/Config";
 
 export interface IConfigProvider {
   getConfig: () => ExtensionConfig;

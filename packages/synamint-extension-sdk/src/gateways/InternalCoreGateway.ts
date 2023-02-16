@@ -1,6 +1,3 @@
-import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
-import { EInternalActions } from "@synamint-extension-sdk/shared/enums";
-import { IInternalState } from "@synamint-extension-sdk/shared/interfaces/states";
 import {
   EmailAddressString,
   EVMAccountAddress,
@@ -9,6 +6,11 @@ import {
   WalletNFT,
   TokenBalance,
 } from "@snickerdoodlelabs/objects";
+import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
+import {
+  EInternalActions,
+  IInternalState,
+} from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 

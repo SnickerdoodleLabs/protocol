@@ -32,8 +32,9 @@ import {
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
-import { EExternalActions } from "@synamint-extension-sdk/shared/enums";
 import {
+  SnickerDoodleCoreError,
+  EExternalActions,
   IAcceptInvitationParams,
   IAddAccountParams,
   IGetInvitationMetadataByCIDParams,
@@ -65,10 +66,9 @@ import {
   ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
   IGetReceivingAddressParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions";
-import { IScamFilterPreferences } from "@synamint-extension-sdk/shared/interfaces/scamFilterPreferences";
-import { IExternalState } from "@synamint-extension-sdk/shared/interfaces/states";
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
+  IScamFilterPreferences,
+  IExternalState,
+} from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 

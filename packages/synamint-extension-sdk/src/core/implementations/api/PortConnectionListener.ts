@@ -8,7 +8,7 @@ import {
   IPortConnectionService,
   IPortConnectionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
-import { VersionUtils } from "@synamint-extension-sdk/shared/utils/VersionUtils";
+import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 
 @injectable()
 export class PortConnectionListener implements IPortConnectionListener {

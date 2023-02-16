@@ -105,7 +105,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/shared/interfaces/configProvider";
-import configProvider from "@synamint-extension-sdk/shared/utils/ConfigProvider";
+import { configProvider } from "@synamint-extension-sdk/shared/utils/ConfigProvider";
 import {
   IScamFilterService,
   IScamFilterServiceType,

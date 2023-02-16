@@ -12,7 +12,7 @@ import {
 import {
   ExtensionStorageError,
   SnickerDoodleCoreError,
-} from "@synamint-extension-sdk/shared/objects/errors";
+} from "@synamint-extension-sdk/shared";
 import {
   Invitation,
   DataPermissions,
@@ -22,7 +22,6 @@ import {
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
-  HexString32,
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,

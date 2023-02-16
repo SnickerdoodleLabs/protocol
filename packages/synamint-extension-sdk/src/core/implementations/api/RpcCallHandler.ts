@@ -65,13 +65,13 @@ import {
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@synamint-extension-sdk/shared/constants/rpcCall";
-import { DEFAULT_SUBDOMAIN } from "@synamint-extension-sdk/shared/constants/url";
+import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
+  DEFAULT_SUBDOMAIN,
+  DEFAULT_RPC_SUCCESS_RESULT,
   EExternalActions,
   EInternalActions,
-} from "@synamint-extension-sdk/shared/enums";
-import {
+  ExtensionStorageError,
   IUnlockParams,
   IGetUnlockMessageParams,
   IAddAccountParams,
@@ -102,15 +102,11 @@ import {
   IGetMarketplaceListingsParams,
   ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
+  IScamFilterPreferences,
   IGetReceivingAddressParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions";
-import { IScamFilterPreferences } from "@synamint-extension-sdk/shared/interfaces/scamFilterPreferences";
-import {
+  mapToObj,
   SnickerDoodleCoreError,
-  ExtensionStorageError,
-} from "@synamint-extension-sdk/shared/objects/errors";
-import { ExtensionUtils } from "@synamint-extension-sdk/shared/utils/ExtensionUtils";
-import { mapToObj } from "@synamint-extension-sdk/shared/utils/objectUtils";
+} from "@synamint-extension-sdk/shared";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,

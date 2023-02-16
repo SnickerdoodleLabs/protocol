@@ -1,10 +1,10 @@
 import { IExtensionListener } from "@synamint-extension-sdk/core/interfaces/api";
 import { BrowserUtils } from "@synamint-extension-sdk/enviroment/shared/utils";
+import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
-import { ExtensionUtils } from "@synamint-extension-sdk/shared/utils/ExtensionUtils";
+} from "@synamint-extension-sdk/shared";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { Action, Tabs } from "webextension-polyfill";

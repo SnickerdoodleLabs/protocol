@@ -11,17 +11,17 @@ import {
 } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
 import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
+import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
+  EPortNames,
+  IInvitationDomainWithUUID,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
-} from "@synamint-extension-sdk/shared/constants/ports";
-import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
-import { IInvitationDomainWithUUID } from "@synamint-extension-sdk/shared/interfaces/actions";
-import ConfigProvider from "@synamint-extension-sdk/shared/utils/ConfigProvider";
-import { VersionUtils } from "@synamint-extension-sdk/shared/utils/VersionUtils";
+  configProvider,
+} from "@synamint-extension-sdk/shared";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -57,7 +57,7 @@ const connect = () => {
   rpcEngine.push(streamMiddleware.middleware);
 
   if (
-    new URL(ConfigProvider.getConfig().onboardingUrl).origin ===
+    new URL(configProvider.getConfig().onboardingUrl).origin ===
     window.location.origin
   ) {
     const postMessageStream = new LocalMessageStream({
@@ -84,7 +84,7 @@ const connect = () => {
   if (!coreGateway) {
     coreGateway = new ExternalCoreGateway(rpcEngine);
     if (
-      new URL(ConfigProvider.getConfig().onboardingUrl).origin ===
+      new URL(configProvider.getConfig().onboardingUrl).origin ===
       window.location.origin
     ) {
       DataWalletProxyInjectionUtils.inject();
