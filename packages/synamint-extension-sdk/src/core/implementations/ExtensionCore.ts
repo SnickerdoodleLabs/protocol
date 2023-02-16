@@ -67,6 +67,8 @@ export class ExtensionCore {
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
+      nftScanApiKey: config.nftScanApiKey,
+      poapApiKey: config.poapApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
@@ -76,6 +78,7 @@ export class ExtensionCore {
       dataWalletBackupIntervalMS: SIX_HOURS_MS,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
+      defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

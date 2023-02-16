@@ -8,7 +8,7 @@ import { ExtensionConfig } from "@synamint-extension-sdk/shared/objects/business
 
 declare const __ONBOARDING_URL__: string;
 declare const __ACCOUNT_COOKIE_URL__: string;
-declare const __COOKIE_LIFETIME__: string;
+declare const __COOKIE_LIFETIME__: string; // year
 declare const __MANIFEST_VERSION__: EManifestVersion;
 declare const __PLATFORM__: EPlatform;
 declare const __CONTROL_CHAIN_ID__: string;
@@ -17,11 +17,14 @@ declare const __IPFS_FETCH_BASE_URL__: URLString;
 declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
+declare const __NFTSCAN_API_KEY__: string;
+declare const __POAP_API_KEY__: string;
 declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
 declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
+declare const __GOOGLE_CLOUD_BUCKET__: string;
 
 class ConfigProvider implements IConfigProvider {
   protected extensionConfig: ExtensionConfig;
@@ -52,9 +55,12 @@ class ConfigProvider implements IConfigProvider {
       __CONTROL_CHAIN_PROVIDER_URL__ ?? undefined,
       __COVALENT_API_KEY__ ?? undefined,
       __MORALIS_API_KEY__ ?? undefined,
+      __NFTSCAN_API_KEY__ ? undefined : __NFTSCAN_API_KEY__,
+      __POAP_API_KEY__ ? undefined : __POAP_API_KEY__,
       __DNS_SERVER_ADDRESS__ ? __DNS_SERVER_ADDRESS__ : undefined,
       Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__ ?? "4000"),
       __DOMAIN_FILTER__ ?? "(localhost|chrome://)",
+      __GOOGLE_CLOUD_BUCKET__ ? undefined : __GOOGLE_CLOUD_BUCKET__,
     );
   }
   public getConfig() {

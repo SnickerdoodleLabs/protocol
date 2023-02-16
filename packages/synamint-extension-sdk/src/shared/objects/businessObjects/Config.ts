@@ -1,7 +1,9 @@
 import { ChainId, ProviderUrl, URLString } from "@snickerdoodlelabs/objects";
 
-import { EManifestVersion, EPlatform } from "@synamint-extension-sdk/shared/enums/config";
-
+import {
+  EManifestVersion,
+  EPlatform,
+} from "@synamint-extension-sdk/shared/enums/config";
 export class ExtensionConfig {
   constructor(
     public onboardingUrl: string,
@@ -17,8 +19,11 @@ export class ExtensionConfig {
     public controlChainProviderUrl?: ProviderUrl,
     public covalentApiKey?: string,
     public moralisApiKey?: string,
+    public nftScanApiKey?: string,
+    public poapApiKey?: string,
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
-    public domainFilter?: string
+    public domainFilter?: string,
+    public defaultGoogleCloudBucket?: string,
   ) {}
 }
