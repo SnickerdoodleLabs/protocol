@@ -29,6 +29,7 @@
     "./extensionShared": "./dist/extensionShared/index.js",
     "./injectables": "./dist/content/injectables/index.js"
   },
+  "type": "module",
   "typesVersions": {
     "*": {
       "gateways": [

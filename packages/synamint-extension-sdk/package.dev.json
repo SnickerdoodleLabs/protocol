@@ -48,6 +48,7 @@
       ]
     }
   },
+  "type": "module",
   "scripts": {
     "alias": "tsc-alias",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
