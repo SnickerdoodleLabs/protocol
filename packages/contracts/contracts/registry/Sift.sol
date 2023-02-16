@@ -43,11 +43,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
 
-    /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
-    constructor(string memory baseURInew) {
-        initialize(baseURInew);
-    }
-
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
     function initialize(string memory baseURI_) initializer public {
