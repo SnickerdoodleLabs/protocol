@@ -8,63 +8,136 @@ import {
   WalletNFT,
   DataWalletAddress,
   EarnedReward,
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { inject } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
 import { IAccountRepository } from "../../interfaces/data/IAccountRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+} from "../../interfaces/utils/IAccountCookieUtils";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "../../interfaces/utils/IErrorUtils";
 
 export class AccountRepository implements IAccountRepository {
-  addAccount(
+  constructor(
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
+    @inject(IAccountCookieUtilsType)
+    protected accountCookie: IAccountCookieUtils,
+  ) {}
+  public addAccount(
     account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.core
+      .addAccount(account, signature, languageCode, chain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
-  unlock(
+  public unlock(
     account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
     calledWithCookie: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.core
+      .unlock(account, signature, languageCode, chain)
+      .mapErr((error) => {
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .andThen(() => {
+        if (calledWithCookie) {
+          return okAsync(undefined);
+        }
+        return this.accountCookie.writeAccountInfoToCookie(
+          account,
+          signature,
+          languageCode,
+          chain,
+        );
+      })
+      .orElse((error) => {
+        this.errorUtils.emit(error);
+        return okAsync(undefined);
+      });
   }
-  getUnlockMessage(
+  public getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.core.getUnlockMessage(languageCode).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
-  getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
+    return this.core.getAccounts().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
-  getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+
+  public getAccountBalances(): ResultAsync<
+    TokenBalance[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getAccountBalances().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
-  getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.getAccountNFTs().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
-  isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
-    throw new Error("Method not implemented.");
+  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+    return this.core.isDataWalletAddressInitialized();
   }
-  unlinkAccount(
+  public unlinkAccount(
     account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.core
+      .unlinkAccount(account, signature, languageCode, chain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
-  getDataWalletForAccount(
+  public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.core
+      .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
-  getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getEarnedRewards().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 }
