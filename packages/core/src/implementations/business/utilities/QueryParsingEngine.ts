@@ -28,11 +28,9 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
-
 import { BaseOf } from "ts-brand";
 
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 import {
   IQueryParsingEngine,
   IQueryRepository,

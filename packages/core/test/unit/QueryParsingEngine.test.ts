@@ -1,16 +1,6 @@
 import "reflect-metadata";
 
-import {
-  QueryEvaluator,
-  QueryParsingEngine,
-  QueryRepository,
-} from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
-
 import {
   Age,
   CountryCode,
@@ -30,9 +20,6 @@ import {
   QueryFilteredByPermissions,
   CompensationId,
 } from "@snickerdoodlelabs/objects";
-
-import { AdContentRepository } from "@core/implementations/data";
-
 import {
   avalanche1ExpiredSchemaStr,
   avalanche2SchemaStr,
@@ -43,27 +30,29 @@ import {
   SDQLQueryWrapperFactory,
   ISDQLQueryUtils,
 } from "@snickerdoodlelabs/query-parser";
-
-import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
-
 import { okAsync } from "neverthrow";
-
-import { QueryFactories } from "@core/implementations/utilities/factory";
-
 import * as td from "testdouble";
-
-import { SnickerdoodleCore } from "@core/index";
-
 import { BaseOf } from "ts-brand";
 
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
+import {
+  QueryEvaluator,
+  QueryParsingEngine,
+  QueryRepository,
+} from "@core/implementations/business";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+import { AdContentRepository } from "@core/implementations/data";
+import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { SnickerdoodleCore } from "@core/index";
 import {
   IBrowsingDataRepository,
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
-  IWeb2DataRepository,
+  IDemographicDataRepository,
 } from "@core/interfaces/data";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -88,7 +77,7 @@ class QueryParsingMocks {
   public networkQueryEvaluator = new NetworkQueryEvaluator(
     this.transactionRepo,
   );
-  public web2DataRepo = td.object<IWeb2DataRepository>();
+  public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
 
@@ -113,10 +102,10 @@ class QueryParsingMocks {
       this.queryWrapperFactory,
     );
 
-    td.when(this.web2DataRepo.getGender()).thenReturn(
+    td.when(this.demoDataRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
     );
-    td.when(this.web2DataRepo.getLocation()).thenReturn(okAsync(country));
+    td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
 
     td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
       okAsync(new Map()),
@@ -169,7 +158,7 @@ class QueryParsingMocks {
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
       this.snickerDoodleCore,
-      this.web2DataRepo,
+      this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
     );

@@ -37,9 +37,8 @@ import {
 } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
-  IDataWalletPersistence,
   ITransactionHistoryRepository,
-  IWeb2DataRepository,
+  IDemographicDataRepository,
 } from "@core/interfaces/data";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
@@ -69,7 +68,7 @@ class QueryEvaluatorMocks {
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
   public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
   public profileService = td.object<IProfileService>();
-  public web2DataRepo = td.object<IWeb2DataRepository>();
+  public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
 
@@ -211,10 +210,10 @@ class QueryEvaluatorMocks {
 
   public constructor() {
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
-    td.when(this.web2DataRepo.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.web2DataRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
 
-    td.when(this.web2DataRepo.getGender()).thenReturn(okAsync(Gender("male")));
+    td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
 
     td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
@@ -234,7 +233,7 @@ class QueryEvaluatorMocks {
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
       this.profileService,
-      this.web2DataRepo,
+      this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
     );

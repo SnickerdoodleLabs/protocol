@@ -1,40 +1,31 @@
 import "reflect-metadata";
 
-import { ProfileService } from "@core/implementations/business";
-
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-
-import {
-  NetworkQueryEvaluator,
-  QueryEvaluator,
-  QueryRepository,
-} from "@core/implementations/business/utilities";
-
 import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
-
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-
 import {
   IQueryObjectFactory,
   ISDQLQueryWrapperFactory,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
-
-import { QueryFactories } from "@core/implementations/utilities/factory";
-
 import { okAsync } from "neverthrow";
-
-import { IProfileService } from "@core/interfaces/business";
-
 import * as td from "testdouble";
 
+import { ProfileService } from "@core/implementations/business";
+import {
+  NetworkQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+} from "@core/implementations/business/utilities";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { IProfileService } from "@core/interfaces/business";
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   IBrowsingDataRepository,
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
-  IWeb2DataRepository,
+  IDemographicDataRepository,
 } from "@core/interfaces/data";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
@@ -45,7 +36,7 @@ import { IQueryFactories } from "@core/interfaces/utilities/factory";
 //     );
 
 export class ASTMocks {
-  public web2Repo = td.object<IWeb2DataRepository>();
+  public demoRepo = td.object<IDemographicDataRepository>();
   public browsingRepo = td.object<IBrowsingDataRepository>();
   public txRepo = td.object<ITransactionHistoryRepository>();
   public queryObjectFactory = td.object<IQueryObjectFactory>();
@@ -67,16 +58,16 @@ export class ASTMocks {
     );
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
     this.networkQueryEvaluator = new NetworkQueryEvaluator(this.txRepo);
-    this.profileService = new ProfileService(this.web2Repo);
+    this.profileService = new ProfileService(this.demoRepo);
 
-    td.when(this.web2Repo.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.web2Repo.getLocation()).thenReturn(okAsync(CountryCode("1")));
+    td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoRepo.getLocation()).thenReturn(okAsync(CountryCode("1")));
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
       this.profileService,
-      this.web2Repo,
+      this.demoRepo,
       this.browsingRepo,
       this.txRepo,
     );
