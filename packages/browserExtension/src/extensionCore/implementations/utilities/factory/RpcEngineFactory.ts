@@ -3,19 +3,13 @@ import endOfStream from "end-of-stream";
 import { inject, injectable } from "inversify";
 import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
 import { createEngineStream } from "json-rpc-middleware-stream";
-
-import { IRpcCallHandler, IRpcCallHandlerType } from "@interfaces/api";
-
-import { err, ok } from "neverthrow";
-
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
-
+import { err, okAsync, ok } from "neverthrow";
 import pump from "pump";
-
-import { IRpcEngineFactory } from "@interfaces/utilities/factory";
-
 import { Runtime } from "webextension-polyfill";
 
+import { IRpcCallHandler, IRpcCallHandlerType } from "@interfaces/api";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { IRpcEngineFactory } from "@interfaces/utilities/factory";
 import { EPortNames } from "@shared/enums/ports";
 
 @injectable()
@@ -25,10 +19,10 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     @inject(IRpcCallHandlerType) protected rpcCallHandler: IRpcCallHandler,
   ) {}
 
-  public createRrpcEngine(
+  public createRpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
-    stream: any,
+    stream: pump.Stream,
   ) {
     // create rpc handler engine
     const rpcEngine = new JsonRpcEngine();
@@ -43,8 +37,10 @@ export class RpcEngineFactory implements IRpcEngineFactory {
         );
       }),
     );
+
     // create rpc stream duplex
     const engineStream = createEngineStream({ engine: rpcEngine });
+
     // pipe incoming stream to engineStream
     pump(stream, engineStream, stream, (error) => {
       err(error);
@@ -61,6 +57,6 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     endOfStream(stream, () => {
       connectionId && appContext.removeConnection(origin, connectionId);
     });
-    return ok(rpcEngine);
+    return okAsync(rpcEngine);
   }
 }

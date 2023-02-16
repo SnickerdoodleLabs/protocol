@@ -14,6 +14,7 @@ export const dependedFlags = {
   [EWalletDataType.Age]: [EWalletDataType.Birthday],
   [EWalletDataType.Birthday]: [EWalletDataType.Age],
 };
+
 @injectable()
 export class DataPermissionsUtils implements IDataPermissionsUtils {
   public get defaultFlags(): ResultAsync<HexString32, ExtensionStorageError> {

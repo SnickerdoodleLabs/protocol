@@ -6,11 +6,11 @@ import {
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { extensionCoreModule } from "@implementations/ExtensionCore.module";
-
-import { Container } from "inversify";
-
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -23,13 +23,7 @@ import {
   IPortConnectionListener,
   IPortConnectionListenerType,
 } from "@interfaces/api";
-
-import { okAsync, ResultAsync } from "neverthrow";
-
 import { IAccountService, IAccountServiceType } from "@interfaces/business";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -40,9 +34,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
-
-import Browser, { Tabs } from "webextension-polyfill";
-
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 
 export class ExtensionCore {
@@ -74,6 +65,7 @@ export class ExtensionCore {
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       nftScanApiKey: config.nftScanApiKey,
+      poapApiKey: config.poapApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
@@ -83,6 +75,7 @@ export class ExtensionCore {
       dataWalletBackupIntervalMS: SIX_HOURS_MS,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
+      defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

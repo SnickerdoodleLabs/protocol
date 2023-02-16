@@ -177,6 +177,7 @@ class AccountServiceMocks {
         unlocked ? dataWalletKey : null,
         unlockInProgress,
         new PublicEvents(),
+        false,
       ),
     );
 

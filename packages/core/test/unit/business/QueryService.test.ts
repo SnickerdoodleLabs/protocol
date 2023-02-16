@@ -280,12 +280,14 @@ describe("processRewardsPreview tests", () => {
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
+          td.matchers.anything(),
         ),
       ),
     );
     td.when(mocks.configProvider.getConfig()).thenReturn(
       okAsync(
         new CoreConfig(
+          td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
