@@ -19,7 +19,7 @@ import {
   URLString,
   Version,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
@@ -290,11 +290,17 @@ export class SDQLParser {
         const schema = querySchema[qName];
         const schemaName = schema.name;
 
-        const web3QueryType = AST_Web3Query.checkWeb3Query(schema.name);
+        const web3QueryType = AST_Web3Query.getWeb3QueryTypeIfValidQueryType(
+          schema.name,
+        );
 
         if (web3QueryType) {
           queries.push(
-            AST_Web3Query.fromSchema(queryName, schema, web3QueryType),
+            this.queryObjectFactory.toWeb3Query(
+              queryName,
+              web3QueryType,
+              schema,
+            ),
           );
         } else if (schemaName === "balance") {
           queries.push(
@@ -533,7 +539,6 @@ export class SDQLParser {
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
     return DataPermissions.createWithPermissions(
       queries.map((query) => {
-        console.log(this.getQueryPermissionFlag(query));
         return this.getQueryPermissionFlag(query);
       }),
     );
@@ -553,45 +558,11 @@ export class SDQLParser {
   }
 
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
-    if (query instanceof AST_Web3Query) {
-      return AST_Web3Query.getPermission(query.type);
-    } else if (query instanceof AST_BalanceQuery) {
-      return EWalletDataType.AccountBalances;
-    } else if (query instanceof AST_PropertyQuery) {
-      return this.getPropertyQueryPermissionFlag(query);
-    }
-    const err = new MissingWalletDataTypeError(query.constructor.name);
-    console.error(err);
-    throw err;
-  }
-
-  private getPropertyQueryPermissionFlag(query: AST_Query) {
-    const propQuery = query as AST_PropertyQuery;
-    switch (propQuery.property) {
-      case "age":
-        return EWalletDataType.Age;
-      case "gender":
-        return EWalletDataType.Gender;
-      case "givenName":
-        return EWalletDataType.GivenName;
-      case "familyName":
-        return EWalletDataType.FamilyName;
-      case "birthday":
-        return EWalletDataType.Birthday;
-      case "email":
-        return EWalletDataType.Email;
-      case "location":
-        return EWalletDataType.Location;
-      case "browsing_history":
-        return EWalletDataType.SiteVisits;
-      case "url_visited_count":
-        return EWalletDataType.SiteVisits;
-      case "chain_transactions":
-        return EWalletDataType.EVMTransactions;
-      default:
-        const err = new MissingWalletDataTypeError(propQuery.property);
-        console.error(err);
-        throw err;
+    const result = query.getPermission();
+    if (result.isOk()) {
+      return result.value;
+    } else {
+      return -1;
     }
   }
   // #endregion

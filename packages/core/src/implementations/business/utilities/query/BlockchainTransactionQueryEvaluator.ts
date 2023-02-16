@@ -42,7 +42,7 @@ export class BlockchainTransactionQueryEvaluator
       return this.dataWalletPersistence
         .getTransactions(filter)
         .andThen((transactions) => {
-          // console.log("blockchain_transactions query Result: ", transactions)
+          // console.log("network query Result: ", transactions)
           if (transactions == null) {
             return okAsync(
               SDQL_Return({
@@ -74,7 +74,7 @@ export class BlockchainTransactionQueryEvaluator
       return this.dataWalletPersistence
         .getTransactions(filter)
         .andThen((transactions) => {
-          // console.log("blockchain_transactions Result: ", transactions);
+          // console.log("network Result: ", transactions);
           if (transactions == null) {
             return okAsync(SDQL_Return(false));
           }

@@ -78,7 +78,7 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `*`: all supported networks
 
 #### chain (required for blockchain transaction queries)
-This sub-keyword is used in conjunction with the `blockchain_transactions` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a blockchain transaction should be run against. The following *chains* are supported:
+This sub-keyword is used in conjunction with the `network` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a blockchain transaction should be run against. The following *chains* are supported:
 
 - `ETH`: the Ethereum network
 - `AVAX`: the Avalanche network

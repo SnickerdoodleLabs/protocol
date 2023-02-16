@@ -1,11 +1,14 @@
 import {
   ChainId,
-  ISDQLQueryReturnEnum,
+  EWalletDataType,
+  ESDQLQueryReturn,
   SDQL_Name,
+  MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
 
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
+import { ok, Result } from "neverthrow";
 
 export class AST_BalanceQuery extends AST_Query {
   /**
@@ -14,10 +17,14 @@ export class AST_BalanceQuery extends AST_Query {
    */
   constructor(
     name: SDQL_Name,
-    readonly returnType: ISDQLQueryReturnEnum.ARRAY,
+    readonly returnType: ESDQLQueryReturn.Array,
     readonly networkId: ChainId | null,
     readonly conditions: Array<Condition>,
   ) {
     super(name, returnType);
+  }
+
+  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
+    return ok(EWalletDataType.AccountBalances);
   }
 }

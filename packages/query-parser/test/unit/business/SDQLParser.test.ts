@@ -43,7 +43,7 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("Checking queries", () => {
-    test("q1 is a blockchain_transactions query on AVAX", () => {
+    test("q1 is a network query on AVAX", () => {
       const q1 = parser.context.get("q1") as AST_BlockchainTransactionQuery;
       // console.log(q1.contract);
       expect(q1 instanceof AST_BlockchainTransactionQuery).toBeTruthy();

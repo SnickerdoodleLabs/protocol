@@ -37,6 +37,7 @@ import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
 import {
+  NftQueryEvaluator,
   QueryEvaluator,
   QueryParsingEngine,
   QueryRepository,
@@ -50,7 +51,6 @@ import { AdContentRepository } from "@core/implementations/data";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 import { SnickerdoodleCore } from "@core/index";
-
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -73,9 +73,10 @@ class QueryParsingMocks {
   public balanceQueryEvaluator = new BalanceQueryEvaluator(
     this.persistenceRepo,
   );
-  public blockchainTransactionQuery = new BlockchainTransactionQueryEvaluator(
-    this.persistenceRepo,
-  );
+  public blockchainTransactionQueryEvaluator =
+    new BlockchainTransactionQueryEvaluator(this.persistenceRepo);
+
+  public nftQueryEvaluator = new NftQueryEvaluator(this.persistenceRepo);
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -88,7 +89,6 @@ class QueryParsingMocks {
   public adContentRepository: AdContentRepository;
 
   public snickerDoodleCore: SnickerdoodleCore;
-
 
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
@@ -118,21 +118,23 @@ class QueryParsingMocks {
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
-    const expectedCompensationsMap = new Map<CompensationId, ISDQLCompensations>();
-    expectedCompensationsMap.set(CompensationId('c1'), {
-        description:
-          "Only the chainId is compared, so this can be random.",
+    const expectedCompensationsMap = new Map<
+      CompensationId,
+      ISDQLCompensations
+    >();
+    expectedCompensationsMap
+      .set(CompensationId("c1"), {
+        description: "Only the chainId is compared, so this can be random.",
         chainId: ChainId(1),
-      } as ISDQLCompensations).set(CompensationId('c2'), {
-        description:
-          "Only the chainId is compared, so this can be random.",
+      } as ISDQLCompensations)
+      .set(CompensationId("c2"), {
+        description: "Only the chainId is compared, so this can be random.",
         chainId: ChainId(1),
-      } as ISDQLCompensations).set(CompensationId('c3'), {
-        description:
-          "Only the chainId is compared, so this can be random.",
+      } as ISDQLCompensations)
+      .set(CompensationId("c3"), {
+        description: "Only the chainId is compared, so this can be random.",
         chainId: ChainId(1),
-      } as ISDQLCompensations,);
-
+      } as ISDQLCompensations);
 
     td.when(
       this.queryUtils.filterQueryByPermissions(
@@ -144,20 +146,22 @@ class QueryParsingMocks {
         new QueryFilteredByPermissions(
           ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"].map(QueryIdentifier),
           expectedCompensationsMap,
-          new Map()
-        )
+          new Map(),
+        ),
       ),
     );
 
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
-      this.blockchainTransactionQuery,
+      this.blockchainTransactionQueryEvaluator,
+      this.nftQueryEvaluator,
       this.snickerDoodleCore,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
     this.adContentRepository = new AdContentRepository(
-        new AjaxUtilsMock(), new ConfigProviderMock()
+      new AjaxUtilsMock(),
+      new ConfigProviderMock(),
     );
   }
 
@@ -270,7 +274,7 @@ describe("Testing order of results", () => {
         console.log("Rewards: ", rewards);
 
         expect(insights).toEqual([
-          "not qualified", // as blockchain_transactions is false
+          "not qualified", // as network is false
           country,
           "female",
           "{}",

@@ -13,6 +13,7 @@ import {
   ISO8601DateString,
 } from "@objects/primitives";
 import { AdContent } from "@objects/businessObjects";
+import { ESDQLQueryReturn } from "@objects/enum";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -35,7 +36,7 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return: ISDQLQueryReturnEnum;
+  return: ESDQLQueryReturn;
   chain?: string;
   networkid?: string | string[];
   address?: string | string[];
@@ -44,17 +45,6 @@ export interface ISDQLQueryClause {
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
   object_schema?: ISDQLObjectSchema;
-}
-
-export enum ISDQLQueryReturnEnum {
-  STRING = "string",
-  BOOLEAN = "boolean",
-  INTEGER = "integer",
-  NUMBER = "number",
-  LIST = "list",
-  ARRAY = "array",
-  OBJECT = "object",
-  ENUM = "enum",
 }
 
 export interface ISDQLObjectSchema {

@@ -11,7 +11,7 @@ export const avalanche2SchemaStr = JSON.stringify(
    business: "Shrapnel",
    queries: {
      q1: {
-       name:"blockchain_transactions",
+       name:"network",
        return: "boolean",
        chain: "AVAX",
        contract: {

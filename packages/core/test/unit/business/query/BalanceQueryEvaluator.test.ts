@@ -15,7 +15,7 @@ import {
   BigNumberString,
   EChainTechnology,
   IEVMBalance,
-  ISDQLQueryReturnEnum,
+  ESDQLQueryReturn,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -74,7 +74,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Sample data 1 - every chainId/contractAddress has a balance > 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      ISDQLQueryReturnEnum.ARRAY,
+      ESDQLQueryReturn.Array,
       null, // * - for all, use null
       [],
     );
@@ -165,7 +165,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Sample data 2 - some chainId/contractAddress has a balance = 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      ISDQLQueryReturnEnum.ARRAY,
+      ESDQLQueryReturn.Array,
       null, // * - for all, use null
       [],
     );
@@ -244,7 +244,7 @@ describe("BalanceQueryEvaluator", () => {
   test("All Zero Balances: return array of length 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      ISDQLQueryReturnEnum.ARRAY,
+      ESDQLQueryReturn.Array,
       null, // * - for all, use null
       [],
     );
@@ -313,7 +313,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Only Accept ChainId(1) EVMBalances", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      ISDQLQueryReturnEnum.ARRAY,
+      ESDQLQueryReturn.Array,
       ChainId(1), // * - for all, use null
       [],
     );
@@ -392,7 +392,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(20 <= Balance < 30) - ALL VALUES", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      ISDQLQueryReturnEnum.ARRAY,
+      ESDQLQueryReturn.Array,
       null,
       conditionsGEandL,
     );

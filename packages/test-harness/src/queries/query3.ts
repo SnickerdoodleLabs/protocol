@@ -51,7 +51,7 @@ export const query3 = {
       },
     },
     q2: {
-      name:"blockchain_transactions",
+      name:"network",
       return: "boolean",
       chain: "AVAX",
       contract: {

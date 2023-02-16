@@ -2,21 +2,24 @@ import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-    Age,
-    CountryCode, IDataWalletPersistence, IpfsCID
+  Age,
+  CountryCode,
+  IDataWalletPersistence,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
-    IQueryObjectFactory,
-    ISDQLQueryWrapperFactory,
-    SDQLQueryWrapperFactory
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
-    BlockchainTransactionQueryEvaluator,
-    QueryEvaluator,
-    QueryRepository
+  BlockchainTransactionQueryEvaluator,
+  NftQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
 } from "@core/implementations/business/utilities";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
@@ -42,6 +45,7 @@ export class ASTMocks {
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
   public blockchainTransactionEvaluator: IBlockchainTransactionQueryEvaluator;
+  public nftQueryEvaluator: NftQueryEvaluator;
   public profileService: IProfileService;
 
   public constructor() {
@@ -53,9 +57,9 @@ export class ASTMocks {
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(
       this.persistenceRepo,
     );
-    this.blockchainTransactionEvaluator = new BlockchainTransactionQueryEvaluator(
-      this.persistenceRepo,
-    );
+    this.blockchainTransactionEvaluator =
+      new BlockchainTransactionQueryEvaluator(this.persistenceRepo);
+    this.nftQueryEvaluator = new NftQueryEvaluator(this.persistenceRepo);
     this.profileService = new ProfileService(this.persistenceRepo);
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
@@ -67,7 +71,8 @@ export class ASTMocks {
       this.persistenceRepo,
       this.balanceQueryEvaluator,
       this.blockchainTransactionEvaluator,
-      this.profileService
+      this.nftQueryEvaluator,
+      this.profileService,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
@@ -80,5 +85,3 @@ export class ASTMocks {
     );
   }
 }
-
-

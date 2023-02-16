@@ -70,7 +70,6 @@ import {
   QueryRepository,
   QueryService,
   SiftContractService,
-  Web3QueryEvaluator,
 } from "@core/implementations/business/index.js";
 import {
   AdContentRepository,
@@ -123,9 +122,7 @@ import {
   IConsentTokenUtilsType,
   IBlockchainTransactionQueryEvaluator,
   IBlockchainTransactionQueryEvaluatorType,
-  IWeb3QueryEvaluator,
-  IWeb3QueryEvaluatorType,
-  INftQueryEvaluator, 
+  INftQueryEvaluator,
   INftQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
@@ -195,9 +192,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
       .inSingletonScope();
-    bind<IAdService>(IAdServiceType)
-      .to(AdService)
-      .inSingletonScope();
+    bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
@@ -283,18 +278,16 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
-    bind<IBlockchainTransactionQueryEvaluator>(IBlockchainTransactionQueryEvaluatorType)
+    bind<IBlockchainTransactionQueryEvaluator>(
+      IBlockchainTransactionQueryEvaluatorType,
+    )
       .to(BlockchainTransactionQueryEvaluator)
       .inSingletonScope();
 
     bind<INftQueryEvaluator>(INftQueryEvaluatorType)
       .to(NftQueryEvaluator)
       .inSingletonScope();
-  
-   bind<IWeb3QueryEvaluator>(IWeb3QueryEvaluatorType)
-      .to(Web3QueryEvaluator)
-      .inSingletonScope();
-    
+
     bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
       .inSingletonScope();

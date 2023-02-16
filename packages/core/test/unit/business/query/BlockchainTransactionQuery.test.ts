@@ -23,7 +23,7 @@ import {
   ChainTransaction,
   EChainTechnology,
   EVMTransactionHash,
-  ISDQLQueryReturnEnum,
+  ESDQLQueryReturn,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BlockchainTransactionQuery,
@@ -112,9 +112,9 @@ describe("QueryEvaluator: ", () => {
 
     const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
-      ISDQLQueryReturnEnum.BOOLEAN,
-      "blockchain_transactions",
-      { name: "q1", return: ISDQLQueryReturnEnum.BOOLEAN },
+      ESDQLQueryReturn.Boolean,
+      "network",
+      { name: "q1", return: ESDQLQueryReturn.Boolean },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -126,8 +126,7 @@ describe("QueryEvaluator: ", () => {
       ),
     );
     const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
-      .address as EVMAccountAddress;
+    const address = blockchainTransactionQuery.contract.address;
     const hash = "";
     const startTime = blockchainTransactionQuery.contract.timestampRange.start;
     const endTime = blockchainTransactionQuery.contract.timestampRange.end;
@@ -175,9 +174,9 @@ describe("QueryEvaluator: ", () => {
 
     const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
-      ISDQLQueryReturnEnum.BOOLEAN,
-      "blockchain_transactions",
-      { name: "q1", return: ISDQLQueryReturnEnum.BOOLEAN },
+      ESDQLQueryReturn.Boolean,
+      "network",
+      { name: "q1", return: ESDQLQueryReturn.Boolean },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -234,9 +233,9 @@ describe("QueryEvaluator: ", () => {
     const repo = mocks.factory();
     const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
-      ISDQLQueryReturnEnum.BOOLEAN,
-      "blockchain_transactions",
-      { name: "q1", return: ISDQLQueryReturnEnum.BOOLEAN },
+      ESDQLQueryReturn.Boolean,
+      "network",
+      { name: "q1", return: ESDQLQueryReturn.Boolean },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -281,9 +280,9 @@ describe("Blockchain Transaction Query Testing: ", () => {
 
     const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
-      ISDQLQueryReturnEnum.BOOLEAN,
-      "blockchain_transactions",
-      { name: "q1", return: ISDQLQueryReturnEnum.BOOLEAN },
+      ESDQLQueryReturn.Boolean,
+      "network",
+      { name: "q1", return: ESDQLQueryReturn.Boolean },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -323,9 +322,9 @@ describe("Blockchain Transaction Query Testing: ", () => {
 
     const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
-      ISDQLQueryReturnEnum.ARRAY,
-      "blockchain_transactions",
-      { name: "q1", return: ISDQLQueryReturnEnum.BOOLEAN },
+      ESDQLQueryReturn.Array,
+      "network",
+      { name: "q1", return: ESDQLQueryReturn.Boolean },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),

@@ -21,6 +21,8 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
+  AST_BlockchainTransactionQuery,
+  AST_NftQuery,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -35,7 +37,13 @@ import {
 } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
 
 import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
-import { IWeb3QueryEvaluatorType, IWeb3QueryEvaluator } from "@core/interfaces/business/utilities/query/IWeb3QueryEvaluator.js";
+
+import {
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -44,8 +52,10 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IBalanceQueryEvaluatorType)
     protected balanceQueryEvaluator: IBalanceQueryEvaluator,
-    @inject(IWeb3QueryEvaluatorType)
-    protected web3QueryEvaluator: IWeb3QueryEvaluator,
+    @inject(IBlockchainTransactionQueryEvaluatorType)
+    protected blockchainTransactionQueryEvaluator: IBlockchainTransactionQueryEvaluator,
+    @inject(INftQueryEvaluatorType)
+    protected nftQueryEvaluator: INftQueryEvaluator,
     @inject(IProfileServiceType)
     protected profileService: IProfileService,
   ) {}
@@ -56,14 +66,15 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    
-    if (query instanceof AST_Web3Query) {
-      return this.web3QueryEvaluator.eval(query);
+    if (query instanceof AST_BlockchainTransactionQuery) {
+      return this.blockchainTransactionQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
       return this.balanceQueryEvaluator.eval(query);
+    } else if (query instanceof AST_NftQuery) {
+      return this.nftQueryEvaluator.eval(query);
     } else if (query instanceof AST_PropertyQuery) {
       return this.evalPropertyQuery(query);
-    } 
+    }
 
     return errAsync(
       new PersistenceError(
@@ -73,8 +84,8 @@ export class QueryEvaluator implements IQueryEvaluator {
   }
 
   public evalPropertyQuery(
-    q: AST_PropertyQuery 
-  ): ResultAsync<SDQL_Return  , PersistenceError> {
+    q: AST_PropertyQuery,
+  ): ResultAsync<SDQL_Return, PersistenceError> {
     console.log(" evalPropertyQuery  ");
 
     let result = SDQL_Return(true);
@@ -144,7 +155,6 @@ export class QueryEvaluator implements IQueryEvaluator {
       default:
         return okAsync(result);
     }
-    
   }
 
   public evalPropertyConditon(
