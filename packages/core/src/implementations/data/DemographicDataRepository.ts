@@ -16,11 +16,11 @@ import { ResultAsync } from "neverthrow";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IWeb2DataRepository,
+  IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
-export class Web2DataRepository implements IWeb2DataRepository {
+export class DemographicDataRepository implements IDemographicDataRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,

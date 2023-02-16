@@ -13,54 +13,54 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { IProfileService } from "@core/interfaces/business/index.js";
 import {
-  IWeb2DataRepository,
-  IWeb2DataRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class ProfileService implements IProfileService {
   constructor(
-    @inject(IWeb2DataRepositoryType)
-    protected web2DataRepo: IWeb2DataRepository,
+    @inject(IDemographicDataRepositoryType)
+    protected demographicDataRepo: IDemographicDataRepository,
   ) {}
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.web2DataRepo.setGivenName(name);
+    return this.demographicDataRepo.setGivenName(name);
   }
   getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
-    return this.web2DataRepo.getGivenName();
+    return this.demographicDataRepo.getGivenName();
   }
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.web2DataRepo.setFamilyName(name);
+    return this.demographicDataRepo.setFamilyName(name);
   }
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
-    return this.web2DataRepo.getFamilyName();
+    return this.demographicDataRepo.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
-    return this.web2DataRepo.setBirthday(birthday);
+    return this.demographicDataRepo.setBirthday(birthday);
   }
   getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
-    return this.web2DataRepo.getBirthday();
+    return this.demographicDataRepo.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.web2DataRepo.setGender(gender);
+    return this.demographicDataRepo.setGender(gender);
   }
   getGender(): ResultAsync<Gender | null, PersistenceError> {
-    return this.web2DataRepo.getGender();
+    return this.demographicDataRepo.getGender();
   }
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
-    return this.web2DataRepo.setEmail(email);
+    return this.demographicDataRepo.setEmail(email);
   }
   getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
-    return this.web2DataRepo.getEmail();
+    return this.demographicDataRepo.getEmail();
   }
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
-    return this.web2DataRepo.setLocation(location);
+    return this.demographicDataRepo.setLocation(location);
   }
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.web2DataRepo.getLocation();
+    return this.demographicDataRepo.getLocation();
   }
   getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.web2DataRepo.getAge();
+    return this.demographicDataRepo.getAge();
   }
 }

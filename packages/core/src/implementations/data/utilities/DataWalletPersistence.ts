@@ -135,9 +135,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
-      this.waitForUnlock(),
       this.backupManagerProvider.getBackupManager(),
-    ]).andThen(([_key, backupManager]) => {
+      this.waitForUnlock(),
+    ]).andThen(([backupManager]) => {
       return backupManager.addRecord(tableName, value);
     });
   }
@@ -252,22 +252,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.getRestored();
       })
       .andThen((restored) => {
-        return this.cloudStorage
-          .pollBackups(restored)
-          .andThen((backups) => {
-            return ResultUtils.combine(
-              backups.map((backup) => {
-                return this.restoreBackup(backup);
-              }),
-            );
-          })
-          .andThen(() => {
-            return this.postBackups().map(() => undefined);
-          })
-          .orElse((e) => {
-            this.logUtils.error("error loading backups", e);
-            return okAsync(undefined);
-          });
+        return this.cloudStorage.pollBackups(restored);
+      })
+      .andThen((backups) => {
+        return ResultUtils.combine(
+          backups.map((backup) => {
+            return this.restoreBackup(backup);
+          }),
+        );
+      })
+      .andThen(() => {
+        return this.postBackups().map(() => undefined);
+      })
+      .orElse((e) => {
+        this.logUtils.error("error loading backups", e);
+        return okAsync(undefined);
       });
   }
 

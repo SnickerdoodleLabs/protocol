@@ -73,7 +73,7 @@ import {
   LinkedAccountRepository,
   PortfolioBalanceRepository,
   TransactionHistoryRepository,
-  Web2DataRepository,
+  DemographicDataRepository,
   AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
@@ -163,8 +163,8 @@ import {
   IPortfolioBalanceRepository,
   ITransactionHistoryRepositoryType,
   ITransactionHistoryRepository,
-  IWeb2DataRepositoryType,
-  IWeb2DataRepository,
+  IDemographicDataRepositoryType,
+  IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -276,8 +276,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
       .to(TransactionHistoryRepository)
       .inSingletonScope();
-    bind<IWeb2DataRepository>(IWeb2DataRepositoryType)
-      .to(Web2DataRepository)
+    bind<IDemographicDataRepository>(IDemographicDataRepositoryType)
+      .to(DemographicDataRepository)
       .inSingletonScope();
 
     // Utilities

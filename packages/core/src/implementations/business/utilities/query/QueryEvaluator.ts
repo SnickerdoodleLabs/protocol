@@ -41,8 +41,8 @@ import {
   IBrowsingDataRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
-  IWeb2DataRepository,
-  IWeb2DataRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
@@ -54,8 +54,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected networkQueryEvaluator: INetworkQueryEvaluator,
     @inject(IProfileServiceType)
     protected profileService: IProfileService,
-    @inject(IWeb2DataRepositoryType)
-    protected web2DataRepo: IWeb2DataRepository,
+    @inject(IDemographicDataRepositoryType)
+    protected demographicDataRepo: IDemographicDataRepository,
     @inject(IBrowsingDataRepositoryType)
     protected browsingDataRepo: IBrowsingDataRepository,
     @inject(ITransactionHistoryRepositoryType)
@@ -108,7 +108,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "location":
-        return this.web2DataRepo.getLocation().andThen((location) => {
+        return this.demographicDataRepo.getLocation().andThen((location) => {
           switch (q.returnType) {
             case "string":
               result = SDQL_Return(location);
@@ -127,7 +127,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "gender":
-        return this.web2DataRepo.getGender().andThen((gender) => {
+        return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
               for (const key of q.enum_keys) {

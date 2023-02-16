@@ -281,7 +281,7 @@ export class IndexedDB {
         return ResultAsync.fromPromise(
           promise,
           (e) => new PersistenceError("error getting object", e),
-        ).andThen((result) => okAsync(result as VolatileStorageMetadata<T>));
+        ).map((result) => result as VolatileStorageMetadata<T>);
       });
     });
   }
@@ -302,7 +302,7 @@ export class IndexedDB {
         if (index == undefined) {
           request = store.openCursor(query, direction);
         } else {
-          const indexObj: IDBIndex = store.index(this._getIndexName(index));
+          const indexObj = store.index(this._getIndexName(index));
           request = indexObj.openCursor(query, direction);
         }
 

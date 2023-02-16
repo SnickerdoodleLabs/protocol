@@ -10,7 +10,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IWeb2DataRepository {
+export interface IDemographicDataRepository {
   /** Google User Information */
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
@@ -33,4 +33,4 @@ export interface IWeb2DataRepository {
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 }
 
-export const IWeb2DataRepositoryType = Symbol.for("IWeb2DataRepository");
+export const IDemographicDataRepositoryType = Symbol.for("IWeb2DataRepository");

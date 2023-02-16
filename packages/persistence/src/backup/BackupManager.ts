@@ -41,8 +41,10 @@ export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
 
   private tableNames: string[];
-  private migrators: Map<string, VersionedObjectMigrator<VersionedObject>> =
-    new Map();
+  private migrators = new Map<
+    string,
+    VersionedObjectMigrator<VersionedObject>
+  >();
 
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
