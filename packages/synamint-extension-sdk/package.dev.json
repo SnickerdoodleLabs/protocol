@@ -48,10 +48,8 @@
       ]
     }
   },
-  "type": "module",
   "scripts": {
     "alias": "tsc-alias",
-    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "prebuild": "node scripts/precompile",
