@@ -13,7 +13,8 @@ export class ContextProvider implements IContextProvider {
       null, // dataWalletAddress
       null, // dataWalletKey
       false, // unlockInProgress
-      new PublicEvents(), // publicEvents
+      new PublicEvents(), // publicEvents,
+      false,
     );
   }
 

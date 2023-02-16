@@ -24,5 +24,6 @@ export class CoreContext {
     public dataWalletKey: EVMPrivateKey | null,
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
-  ) {}
+    public restoreInProgress: boolean,
+  ) { }
 }
