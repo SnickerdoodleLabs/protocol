@@ -7,4 +7,5 @@ export interface DiscordConfig {
   clientId: string;
   oauthBaseUrl: URLString;
   oauthRedirectUrl: URLString;
+  dataAPIUrl: URLString;
 }

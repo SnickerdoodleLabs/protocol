@@ -46,6 +46,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     },
     public restoreTimeoutMS: number,
     public domainFilter: string,
-    public discordConfig: DiscordConfig,
+    public discord: DiscordConfig,
   ) {}
 }
