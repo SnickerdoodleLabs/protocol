@@ -13,6 +13,7 @@ const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 
 const env = require("./utils/env.cjs");
+const { json } = require("express");
 
 const configFilePath = require.resolve("./tsconfig.json");
 
@@ -187,6 +188,15 @@ var options = {
         process.env.__COOKIE_LIFETIME__ || "1",
       ),
       __DOMAIN_FILTER__: JSON.stringify(process.env.__DOMAIN_FILTER__),
+      __PORTFOLIO_POLLING_INTERVAL__: json.stringify(
+        process.env.__PORTFOLIO_POLLING_INTERVAL__,
+      ),
+      __TRANSACTION_POLLING_INTERVAL__: json.stringify(
+        process.env.__TRANSACTION_POLLING_INTERVAL__,
+      ),
+      __BACKUP_POLLING_INTERVAL__: json.stringify(
+        process.env.__BACKUP_POLLING_INTERVAL__,
+      ),
     }),
     new CopyWebpackPlugin({
       patterns: [
