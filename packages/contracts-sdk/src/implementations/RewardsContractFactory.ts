@@ -34,7 +34,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
   ): ResultAsync<EVMContractAddress, RewardsFactoryError> {
     return ResultAsync.fromPromise(
       this.contractFactory.deploy(symbol, name, baseURI, {
-        gasLimit: "5000000", //required to help overcome deployment gas estimation on ethers
+        gasLimit: this.estimateGasToDeployContract(name, symbol, baseURI),
       }),
       (e) => {
         return new RewardsFactoryError(
@@ -53,6 +53,29 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       }).map((receipt) => {
         return EVMContractAddress(receipt.contractAddress);
       });
+    });
+  }
+
+  public estimateGasToDeployContract(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+  ): ResultAsync<string, RewardsFactoryError> {
+    return ResultAsync.fromPromise(
+      this.providerOrSigner.estimateGas(
+        this.contractFactory.getDeployTransaction(name, symbol, baseURI),
+      ),
+      (e) => {
+        return new RewardsFactoryError(
+          "Failed to wait() for contract deployment",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((estimatedGas) => {
+      // Increase estimated gas buffer by 20%
+      const bufferedEstimatedGas = estimatedGas.mul(120).div(100);
+      return bufferedEstimatedGas.toString();
     });
   }
 }
