@@ -1,30 +1,7 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  AccountAddress,
-  BigNumberString,
-  BlockchainProviderError,
-  ChainId,
-  CrumbsContractError,
-  DataPermissions,
-  DataWalletAddress,
-  DomainName,
-  EChain,
-  EInvitationStatus,
-  EVMContractAddress,
-  IConfigOverrides,
-  InvalidSignatureError,
-  Invitation,
-  IpfsCID,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
-  LanguageCode,
-  LinkedAccount,
-  PersistenceError,
-  Signature,
-  TokenId,
-  UninitializedError,
-  UnsupportedLanguageError,
-  URLString,
 } from "@snickerdoodlelabs/objects";
 import { Container, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -72,7 +49,7 @@ export class MobileCore {
     return this.iocContainer.get<IAccountService>(IAccountServiceType);
   }
   public getTokenPriceService() {
-    return this.iocContainer.get<ITokenPriceService>(IAccountServiceType);
+    return this.iocContainer.get<ITokenPriceService>(ITokenPriceServiceType);
   }
   public getPIIService() {
     return this.iocContainer.get<IPIIService>(IPIIServiceType);
