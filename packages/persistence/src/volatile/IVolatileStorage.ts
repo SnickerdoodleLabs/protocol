@@ -46,7 +46,7 @@ export interface IVolatileStorage {
   getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError>;
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError>;
 }
 
 export const IVolatileStorageType = Symbol.for("IVolatileStorage");

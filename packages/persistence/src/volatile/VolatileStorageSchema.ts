@@ -39,7 +39,7 @@ export const volatileStorageSchema = [
   ),
   new VolatileTableIndex(
     ERecordKey.SITE_VISITS,
-    "id",
+    VolatileTableIndex.DEFAULT_KEY,
     true,
     new SiteVisitMigrator(),
     [
@@ -50,7 +50,7 @@ export const volatileStorageSchema = [
   ),
   new VolatileTableIndex(
     ERecordKey.CLICKS,
-    "id",
+    VolatileTableIndex.DEFAULT_KEY,
     true,
     new ClickDataMigrator(),
     [
@@ -94,7 +94,7 @@ export const volatileStorageSchema = [
   ),
   new VolatileTableIndex(
     ERecordKey.RESTORED_BACKUPS,
-    "id",
+    VolatileTableIndex.DEFAULT_KEY,
     false,
     new RestoredBackupMigrator(),
     undefined,

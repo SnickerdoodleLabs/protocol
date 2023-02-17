@@ -27,7 +27,7 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   public getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this.indexedDB.getKey(tableName, obj);
   }
 

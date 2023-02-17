@@ -257,6 +257,19 @@ export class BackupManager implements IBackupManager {
                             return this.volatileStorage
                               .getKey(tableName, obj)
                               .andThen((key) => {
+                                if (key == null) {
+                                  return this.volatileStorage.putObject(
+                                    tableName,
+                                    new VolatileStorageMetadata(
+                                      value.priority,
+                                      obj,
+                                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                      value.version!,
+                                      value.timestamp,
+                                    ),
+                                  );
+                                }
+
                                 return this.volatileStorage
                                   .getObject(tableName, key)
                                   .andThen((found) => {
@@ -264,6 +277,7 @@ export class BackupManager implements IBackupManager {
                                       (found != null &&
                                         found.lastUpdate > value.timestamp) ||
                                       (this.deletionHistory.has(key) &&
+                                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                         this.deletionHistory.get(key)! >
                                           value.timestamp)
                                     ) {

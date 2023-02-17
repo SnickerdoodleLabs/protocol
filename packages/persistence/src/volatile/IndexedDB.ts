@@ -25,7 +25,7 @@ export class IndexedDB {
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
-      this._keyPaths[x.name] = x.keyPath;
+      this._keyPaths.set(x.name, x.keyPath);
     });
   }
 
@@ -384,11 +384,15 @@ export class IndexedDB {
   public getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
+    }
+
+    if (keyPath == VolatileTableIndex.DEFAULT_KEY) {
+      return okAsync(null);
     }
 
     try {
