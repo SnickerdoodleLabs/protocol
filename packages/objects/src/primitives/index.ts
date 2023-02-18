@@ -18,6 +18,7 @@ export * from "@objects/primitives/DomainName";
 export * from "@objects/primitives/EmailAddressString";
 export * from "@objects/primitives/EncryptedString";
 export * from "@objects/primitives/EAdDisplayType";
+export * from "@objects/primitives/ReturnKey";
 
 export * from "@objects/primitives/EVMChainCode";
 export * from "@objects/primitives/EVMAccountAddress";
