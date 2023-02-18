@@ -10,9 +10,9 @@ export interface IScamFilterComponentProps {
 }
 
 export enum EScamFilterStatus {
-  VERIFIED = "VERIFIED",
-  MALICIOUS = "MALICIOUS",
-  NOT_VERIFIED = "NOT VERIFIED",
+  NOT_VERIFIED = 0,
+  VERIFIED = 1,
+  MALICIOUS = 2,
 }
 export interface IScamFilterPreferences {
   isScamFilterActive: boolean;

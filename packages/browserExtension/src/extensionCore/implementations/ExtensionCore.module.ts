@@ -9,8 +9,9 @@ import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-
 import { ContainerModule, interfaces } from "inversify";
+
+import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
 
 import {
   BrowserTabListener,
@@ -74,6 +75,10 @@ import {
   IUserSiteInteractionServiceType,
 } from "@interfaces/business";
 import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
+import {
   IAccountRepository,
   IAccountRepositoryType,
   IInvitationRepository,
@@ -87,6 +92,10 @@ import {
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
 } from "@interfaces/data";
+import {
+  IScamFilterRepository,
+  IScamFilterRepositoryType,
+} from "@interfaces/data/IScamFilterRepository";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -102,23 +111,14 @@ import {
   IRpcEngineFactoryType,
 } from "@interfaces/utilities/factory";
 import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
+import {
   IConfigProvider,
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import configProvider from "@shared/utils/ConfigProvider";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@interfaces/business/IScamFilterService";
-import {
-  IScamFilterRepository,
-  IScamFilterRepositoryType,
-} from "@interfaces/data/IScamFilterRepository";
-import {
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@interfaces/utilities/IScamFilterSettingsUtils";
-import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
 
 export const extensionCoreModule = new ContainerModule(
   (

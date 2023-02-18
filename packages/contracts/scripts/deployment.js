@@ -169,7 +169,7 @@ async function deploySift() {
   console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
 
   await sift
-    .verifyEntity("snickerdoodle.com", accounts[0].address)
+    .verifyEntity("snickerdoodle.com", accounts[0].address, "metadata: ")
     .then((txResponse) => {
       return txResponse.wait();
     })

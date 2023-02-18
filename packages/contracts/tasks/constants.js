@@ -195,7 +195,7 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x5FA9521bd3aCC51037F1aA2F8d91e464F5c39041";
+    return "0x352EC444f0D2C09ad72eE3735341b45e577FCAE8";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {

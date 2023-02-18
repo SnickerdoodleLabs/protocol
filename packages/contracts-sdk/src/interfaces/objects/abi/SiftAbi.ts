@@ -270,16 +270,16 @@ export default {
       inputs: [
         {
           internalType: "string",
-          name: "url",
+          name: "label",
           type: "string",
         },
       ],
-      name: "checkURL",
+      name: "checkEntity",
       outputs: [
         {
-          internalType: "string",
+          internalType: "struct",
           name: "result",
-          type: "string",
+          type: "struct",
         },
       ],
       stateMutability: "view",
@@ -449,7 +449,7 @@ export default {
       inputs: [
         {
           internalType: "string",
-          name: "url",
+          name: "label",
           type: "string",
         },
         {
@@ -457,8 +457,13 @@ export default {
           name: "owner",
           type: "address",
         },
+        {
+          internalType: "string",
+          name: "metadata",
+          type: "string",
+        },
       ],
-      name: "maliciousURL",
+      name: "maliciousEntity",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",
@@ -723,7 +728,7 @@ export default {
       inputs: [
         {
           internalType: "string",
-          name: "url",
+          name: "label",
           type: "string",
         },
         {
@@ -731,8 +736,13 @@ export default {
           name: "owner",
           type: "address",
         },
+        {
+          internalType: "string",
+          name: "metadata",
+          type: "string",
+        },
       ],
-      name: "verifyURL",
+      name: "verifyEntity",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",

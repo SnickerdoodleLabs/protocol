@@ -21,13 +21,13 @@ export class SiftContractService implements ISiftContractService {
     protected siftContractRepository: ISiftContractRepository,
   ) {}
 
-  verifyURL(
+  verifyEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.siftContractRepository.verifyURL(domain);
+    return this.siftContractRepository.verifyEntity(domain);
   }
 
   maliciousEntity(

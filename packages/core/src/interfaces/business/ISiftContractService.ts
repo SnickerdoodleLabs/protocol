@@ -9,7 +9,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ISiftContractService {
-  verifyURL(
+  verifyEntity(
     domain: DomainName,
   ): ResultAsync<
     void,

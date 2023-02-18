@@ -10,6 +10,7 @@ import {
   BlockNumber,
   DomainName,
   BaseURI,
+  SiftEntity,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -20,7 +21,7 @@ export interface ISiftContract {
    * Marks the domain tokenURI value as VERIFIED
    * @param domain Domain name to verify
    */
-  verifyURL(domain: DomainName): ResultAsync<void, SiftContractError>;
+  verifyEntity(domain: DomainName): ResultAsync<void, SiftContractError>;
 
   /**
    * Sets a URL as malicious
@@ -35,7 +36,7 @@ export interface ISiftContract {
    * eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED
    * @param domain Domain name to check
    */
-  checkEntity(domain: DomainName): ResultAsync<TokenUri, SiftContractError>;
+  checkEntity(domain: DomainName): ResultAsync<SiftEntity, SiftContractError>;
 
   /**
    * Sets a new base uri for the contract

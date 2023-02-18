@@ -30,6 +30,7 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  SiftEntity,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -363,7 +364,9 @@ export class ExternalCoreGateway {
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
   }
-  public checkEntity(domain: DomainName): ResultAsync<string, JsonRpcError> {
+  public checkEntity(
+    domain: DomainName,
+  ): ResultAsync<SiftEntity, JsonRpcError> {
     return this._handler.call(EExternalActions.CHECK_URL, {
       domain,
     } as ICheckURLParams);

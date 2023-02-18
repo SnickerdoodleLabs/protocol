@@ -74,11 +74,11 @@ task("maliciousEntity", "Sets a url as malicious on the Sift contract")
       });
   });
 
-task("checkEntities", "Checks a url on the Sift Contract")
-  .addParam("labels", "Domain to verify")
+task("checkEntity", "Checks a url on the Sift Contract")
+  .addParam("label", "Domain to verify")
   .setAction(async (taskArgs) => {
     const provider = await hre.ethers.provider;
-    const labels = taskArgs.labels;
+    const label = taskArgs.label;
 
     // attach the first signer account to the consent contract handle
     const siftContractHandle = new hre.ethers.Contract(
@@ -90,8 +90,8 @@ task("checkEntities", "Checks a url on the Sift Contract")
     // hardcoded array can be used when testing IP integration
     // labels = ["www.google.com", "www.facebook.com"];
 
-    await siftContractHandle.checkEntities([labels]).then((result) => {
-      console.log("Checked! Labels " + labels + " is " + result + ".");
+    await siftContractHandle.checkEntity(label).then((result) => {
+      console.log("Checked! Label " + label + " is " + result + ".");
     });
   });
 

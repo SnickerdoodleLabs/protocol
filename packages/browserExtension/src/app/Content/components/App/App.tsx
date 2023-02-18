@@ -122,10 +122,13 @@ const App = () => {
     ResultUtils.combine([
       coreGateway.getScamFilterSettings(),
       coreGateway.checkEntity(url as DomainName),
-    ]).andThen(([scamSettings, scamStatus]) => {
+    ]).andThen(([scamSettings, siftEntity]) => {
+      console.log("scamSettings: ", scamSettings);
+      console.log("siftEntity: ", siftEntity);
+
       if (scamSettings.isScamFilterActive) {
         if (scamSettings.showMessageEveryTime) {
-          setScamFilterStatus(scamStatus as EScamFilterStatus);
+          setScamFilterStatus(siftEntity.status as EScamFilterStatus);
         } else {
           const arr: ISafeURLHistory[] = [];
           Browser.storage.local.get("safeURLHistory").then((history) => {
@@ -134,16 +137,16 @@ const App = () => {
                 (value) => value.url === url,
               );
               if (!isVisited) {
-                setScamFilterStatus(scamStatus as EScamFilterStatus);
+                setScamFilterStatus(siftEntity.status as EScamFilterStatus);
 
-                if (scamStatus === EScamFilterStatus.VERIFIED) {
+                if (siftEntity.status === EScamFilterStatus.VERIFIED) {
                   Browser.storage.local.set({
                     safeURLHistory: [...history.safeURLHistory, { url }],
                   });
                 }
               }
             } else {
-              if (scamStatus === EScamFilterStatus.VERIFIED) {
+              if (siftEntity.status === EScamFilterStatus.VERIFIED) {
                 arr.push({
                   url,
                 });

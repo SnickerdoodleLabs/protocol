@@ -27,14 +27,14 @@ export class SiftContractRepository implements ISiftContractRepository {
     protected contractFactory: IContractFactory,
   ) {}
 
-  verifyURL(
+  verifyEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
-      return contract.verifyURL(domain);
+      return contract.verifyEntity(domain);
     });
   }
 
@@ -56,8 +56,9 @@ export class SiftContractRepository implements ISiftContractRepository {
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
-      return contract.checkEntity(domain).map((url) => {
-        return url.split("/").pop() as EScamFilterStatus;
+      return contract.checkEntity(domain).map((siftEntity) => {
+        console.log("siftEntity: ", siftEntity);
+        return siftEntity.status as EScamFilterStatus;
       });
     });
   }
