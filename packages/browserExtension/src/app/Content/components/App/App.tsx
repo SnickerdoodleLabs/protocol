@@ -1,3 +1,17 @@
+import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+import { parse } from "tldts";
+import Browser, { urlbar } from "webextension-polyfill";
+
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@app/Content/components/ScamFilterComponent";
@@ -18,19 +32,6 @@ import { EPortNames } from "@shared/enums/ports";
 import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 import { VersionUtils } from "@shared/utils/VersionUtils";
-import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, { useEffect, useMemo, useState } from "react";
-import { parse } from "tldts";
-import Browser, { urlbar } from "webextension-polyfill";
 
 interface ISafeURLHistory {
   url: string;
