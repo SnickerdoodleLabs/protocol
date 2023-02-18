@@ -27,7 +27,7 @@ export interface ISiftContract {
    * Marks the domain tokenURI value as MALICIOUS
    * @param domain Domain name to set as malicious
    */
-  maliciousURL(domain: DomainName): ResultAsync<void, SiftContractError>;
+  maliciousEntity(domain: DomainName): ResultAsync<void, SiftContractError>;
 
   /**
    * Checks a URL
@@ -35,7 +35,7 @@ export interface ISiftContract {
    * eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED
    * @param domain Domain name to check
    */
-  checkURL(domain: DomainName): ResultAsync<TokenUri, SiftContractError>;
+  checkEntity(domain: DomainName): ResultAsync<TokenUri, SiftContractError>;
 
   /**
    * Sets a new base uri for the contract

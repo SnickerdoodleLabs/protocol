@@ -3,6 +3,6 @@ import { DomainName, EScamFilterStatus } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IScamFilterRepository {
-  checkURL(domain: DomainName): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError>;
+  checkEntity(domain: DomainName): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError>;
 }
 export const IScamFilterRepositoryType = Symbol.for("IScamFilterRepository");

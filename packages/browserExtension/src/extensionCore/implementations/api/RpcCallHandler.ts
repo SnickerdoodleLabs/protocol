@@ -461,7 +461,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       }
       case EExternalActions.CHECK_URL: {
         const { domain } = params as ICheckURLParams;
-        return new AsyncRpcResponseSender(this.checkURL(domain), res).call();
+        return new AsyncRpcResponseSender(this.checkEntity(domain), res).call();
       }
       case EExternalActions.CLOSE_TAB: {
         sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
@@ -695,10 +695,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
     return this.invitationService.rejectInvitation(invitation);
   }
-  private checkURL(
+  private checkEntity(
     domain: DomainName,
   ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
-    return this.scamFilterService.checkURL(domain);
+    return this.scamFilterService.checkEntity(domain);
   }
 
   private unlock(

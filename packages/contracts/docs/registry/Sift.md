@@ -65,13 +65,13 @@ Initializes the contract
 
 _Uses the initializer modifier to to ensure the contract is only initialized once_
 
-### verifyURL
+### verifyEntity
 
 ```solidity
-function verifyURL(string url, address owner) external
+function verifyEntity(string label, address owner, string metadata) external
 ```
 
-Verifies a url
+Verifies an entity
 
 _Mints an NFT with the 'VERIFIED' tokenURI
 Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()_
@@ -81,10 +81,10 @@ Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegi
 | url | string | Site URL |
 | owner | address | Address receiving the url's NFT |
 
-### maliciousURL
+### maliciousEntity
 
 ```solidity
-function maliciousURL(string url, address owner) external
+function maliciousEntity(string url, address owner) external
 ```
 
 Marks a url as malicious
@@ -97,10 +97,10 @@ Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegi
 | url | string | Site URL |
 | owner | address | Address receiving the url's NFT |
 
-### checkURL
+### checkEntity
 
 ```solidity
-function checkURL(string url) external view returns (string result)
+function checkEntity(string url) external view returns (string result)
 ```
 
 Checks the status of a url

@@ -178,19 +178,19 @@ npx hardhat burnCrumb --crumbid 1 --accountnumber 0 --network dev
 We can verify urls on the Sift contract by running:
 
 ```
-npx hardhat verifyURL --url www.domain.com --owner 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --accountnumber 0 --network dev
+npx hardhat verifyEntity --url www.domain.com --owner 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --accountnumber 0 --network dev
 ```
 
 We can also mark urls on the Sift contract as malicious by running:
 
 ```
-npx hardhat maliciousURL --url www.baddomain.com --owner 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --accountnumber 0 --network dev
+npx hardhat maliciousEntity --url www.baddomain.com --owner 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --accountnumber 0 --network dev
 ```
 
 To check any url's status on the contract, run the following:
 
 ```
-npx hardhat checkURL --url www.domain.com --network dev
+npx hardhat checkEntity --url www.domain.com --network dev
 
 /*
 
@@ -200,7 +200,7 @@ Checked! URL www.domain.com is www.sift.com/VERIFIED.
 ```
 
 ```
-npx hardhat checkURL --url www.baddomain.com --network dev
+npx hardhat checkEntity --url www.baddomain.com --network dev
 
 */
 
@@ -210,7 +210,7 @@ Checked! URL www.baddomain.com is www.sift.com/MALICIOUS.
 ```
 
 ```
-npx hardhat checkURL --url www.new.com --network dev
+npx hardhat checkEntity --url www.new.com --network dev
 
 */
 

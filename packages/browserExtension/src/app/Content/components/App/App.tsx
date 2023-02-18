@@ -120,7 +120,7 @@ const App = () => {
 
     ResultUtils.combine([
       coreGateway.getScamFilterSettings(),
-      coreGateway.checkURL(url as DomainName),
+      coreGateway.checkEntity(url as DomainName),
     ]).andThen(([scamSettings, scamStatus]) => {
       if (scamSettings.isScamFilterActive) {
         if (scamSettings.showMessageEveryTime) {

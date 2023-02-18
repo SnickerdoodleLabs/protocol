@@ -86,29 +86,19 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721BurnableUpgradeable, Ac
 
     /// @notice Checks the status of an entity 
     /// @dev Returns status of entities
-    /// @param labels human-readable object labels
+    /// @param label human-readable object labels
     /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
-    function checkEntities(string[] memory labels) external view returns(entityStruct[] memory result) {
+    function checkEntity(string memory label) external view returns(entityStruct memory result) {
         // get the entity's token using its hashed value
-        entityStruct[] memory returnedValues = new entityStruct[](labels.length);
+        bytes32 encodedLabel = keccak256(abi.encodePacked(label));
+        uint256 tokenId = labelToTokenId[encodedLabel];
 
-        for (uint i = 0; i < labels.length; i++) {
-            bytes32 encodedLabel = keccak256(abi.encodePacked(labels[i]));
-            uint256 tokenId = labelToTokenId[encodedLabel];
-
-            // if token's id is 0, it has not been verified yet
-            if (tokenId == 0) { 
-                returnedValues[i] = entityStruct(encodedLabel, "", 0);
-            }
-            else
-            {
-                // else, return token's entityStruct
-                returnedValues[i] = tokenIDtoEntity[tokenId];
-            } 
-
+        // return unverified, empty-metadata entityStruct if tokenId not stored
+        if (tokenId == 0) { 
+            return entityStruct(encodedLabel, "", 0);
         }
 
-        return returnedValues;
+        return tokenIDtoEntity[tokenId];
     }
 
     /// @notice Sets the Sift tokens base URI

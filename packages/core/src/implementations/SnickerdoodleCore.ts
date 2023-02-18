@@ -586,7 +586,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     });
   }
 
-  public checkURL(
+  public checkEntity(
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
@@ -595,7 +595,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const siftService = this.iocContainer.get<ISiftContractService>(
       ISiftContractServiceType,
     );
-    return siftService.checkURL(domain);
+    return siftService.checkEntity(domain);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

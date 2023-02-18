@@ -16,14 +16,14 @@ export interface ISiftContractService {
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
-  maliciousURL(
+  maliciousEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
-  checkURL(
+  checkEntity(
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
