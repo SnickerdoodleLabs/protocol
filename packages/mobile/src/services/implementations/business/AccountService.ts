@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import {
   AccountAddress,
   Signature,
@@ -11,7 +10,7 @@ import {
   EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { IAccountService } from "../../interfaces/business/IAccountService";
 import {
   IAccountRepository,

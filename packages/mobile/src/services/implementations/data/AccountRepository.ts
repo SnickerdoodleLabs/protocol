@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import {
   AccountAddress,
   Signature,
@@ -12,7 +11,7 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { IAccountRepository } from "../../interfaces/data/IAccountRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
@@ -25,6 +24,7 @@ import {
   IErrorUtilsType,
 } from "../../interfaces/utils/IErrorUtils";
 
+@injectable()
 export class AccountRepository implements IAccountRepository {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,

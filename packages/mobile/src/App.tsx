@@ -10,7 +10,6 @@
 // Import the crypto getRandomValues shim (**BEFORE** the shims)
 import { Buffer } from "buffer";
 global.Buffer = Buffer;
-import "reflect-metadata";
 import "react-native-get-random-values";
 import "@ethersproject/shims";
 import { NavigationContainer } from "@react-navigation/native";

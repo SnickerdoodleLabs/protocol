@@ -1,8 +1,11 @@
-import "reflect-metadata";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
+  AccountAddress,
+  EChain,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
+  LanguageCode,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { Container, inject } from "inversify";
 import { ResultAsync } from "neverthrow";

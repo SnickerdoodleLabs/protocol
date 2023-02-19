@@ -1,18 +1,4 @@
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import {
-  AccountAddress,
-  BigNumberString,
-  DataPermissions,
-  EChain,
-  EVMContractAddress,
-  Invitation,
-  IpfsCID,
-  ISnickerdoodleCore,
-  LanguageCode,
-  Signature,
-  UnsupportedLanguageError,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import "reflect-metadata";
 import * as React from "react";
 import { MobileCore } from "../services/implementations/Gateway";
 
