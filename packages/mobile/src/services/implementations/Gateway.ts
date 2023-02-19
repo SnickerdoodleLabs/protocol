@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   ISnickerdoodleCore,

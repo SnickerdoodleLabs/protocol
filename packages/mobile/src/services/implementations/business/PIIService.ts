@@ -7,54 +7,80 @@ import {
   EmailAddressString,
   CountryCode,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { IPIIService } from "../../interfaces/business/IPIIService";
+import {
+  IPIIRepositoryType,
+  IPIIRepository,
+} from "../../interfaces/data/IPIIRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
 
+@injectable()
 export class PIIService implements IPIIService {
-  getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  constructor(
+    @inject(IPIIRepositoryType) protected piiRespository: IPIIRepository,
+  ) {}
+
+  public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
+    return this.piiRespository.getAge();
   }
-  setGivenName(name: GivenName): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public setGivenName(
+    name: GivenName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.piiRespository.setGivenName(name);
   }
-  getGivenName(): ResultAsync<GivenName | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getGivenName(): ResultAsync<GivenName | null, SnickerDoodleCoreError> {
+    return this.piiRespository.getGivenName();
   }
-  setFamilyName(name: FamilyName): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public setFamilyName(
+    name: FamilyName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.piiRespository.setFamilyName(name);
   }
-  getFamilyName(): ResultAsync<FamilyName | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getFamilyName(): ResultAsync<
+    FamilyName | null,
+    SnickerDoodleCoreError
+  > {
+    return this.piiRespository.getFamilyName();
   }
-  setBirthday(
+  public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.piiRespository.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getBirthday(): ResultAsync<
+    UnixTimestamp | null,
+    SnickerDoodleCoreError
+  > {
+    return this.piiRespository.getBirthday();
   }
-  setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.piiRespository.setGender(gender);
   }
-  getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
+    return this.piiRespository.getGender();
   }
-  setEmail(
+  public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.piiRespository.setEmail(email);
   }
-  getEmail(): ResultAsync<EmailAddressString | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getEmail(): ResultAsync<
+    EmailAddressString | null,
+    SnickerDoodleCoreError
+  > {
+    return this.piiRespository.getEmail();
   }
-  setLocation(
+  public setLocation(
     location: CountryCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.piiRespository.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode | null, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+  public getLocation(): ResultAsync<
+    CountryCode | null,
+    SnickerDoodleCoreError
+  > {
+    return this.piiRespository.getLocation();
   }
 }

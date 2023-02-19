@@ -8,14 +8,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import Browser from "webextension-polyfill";
 import { MobileCookieError } from "../../interfaces/objects/errors/MobileCookieError";
 import { IUnlockParams } from "../../interfaces/objects/params/IParams";
 import { IAccountCookieUtils } from "../../interfaces/utils/IAccountCookieUtils";
-import {
-  IConfigProviderType,
-  IConfigProvider,
-} from "../../interfaces/utils/IConfigProvider";
 import CookieManager, { Cookie, Cookies } from "@react-native-cookies/cookies";
 
 const MAXIMUM_ACCOUNT_COUNT = 15;
@@ -120,9 +115,6 @@ export class AccountCookieUtils implements IAccountCookieUtils {
     name: ECookieName,
     value: string,
   ): ResultAsync<void, MobileCookieError> {
-    if (!Browser.cookies) {
-      return errAsync(new MobileCookieError("Cookie Permissions not granted"));
-    }
     return ResultAsync.fromPromise(
       CookieManager.set("https://snickerdoodlelabs.io", {
         name,
@@ -135,9 +127,6 @@ export class AccountCookieUtils implements IAccountCookieUtils {
   }
 
   private _getCookie(name: ECookieName): ResultAsync<any, MobileCookieError> {
-    if (!Browser.cookies) {
-      return errAsync(new MobileCookieError("Cookie Permissions not granted"));
-    }
     return ResultAsync.fromPromise(
       CookieManager.get("https://snickerdoodlelabs.io").then((cookies) => {
         return cookies[name];

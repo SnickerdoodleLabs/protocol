@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   AxiosAjaxUtils,
   CryptoUtils,
@@ -78,18 +79,6 @@ export const mobileCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
-    // Business=
-    bind<IAccountService>(IAccountServiceType)
-      .to(AccountService)
-      .inSingletonScope();
-    bind<IInvitationService>(IInvitationServiceType)
-      .to(InvitationService)
-      .inSingletonScope();
-    bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
-    bind<ITokenPriceService>(ITokenPriceServiceType)
-      .to(TokenPriceService)
-      .inSingletonScope();
-
     // Data
     bind<IAccountRepository>(IAccountRepositoryType)
       .to(AccountRepository)
@@ -102,6 +91,18 @@ export const mobileCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(TokenPriceRepository)
+      .inSingletonScope();
+
+    // Business=
+    bind<IAccountService>(IAccountServiceType)
+      .to(AccountService)
+      .inSingletonScope();
+    bind<IInvitationService>(IInvitationServiceType)
+      .to(InvitationService)
+      .inSingletonScope();
+    bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
+    bind<ITokenPriceService>(ITokenPriceServiceType)
+      .to(TokenPriceService)
       .inSingletonScope();
 
     // Utilities

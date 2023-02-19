@@ -14,7 +14,7 @@ import {
   MarketplaceListing,
   DataPermissions,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { IInvitationService } from "../../interfaces/business/IInvitationService";
 import {
@@ -27,7 +27,7 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "../../interfaces/utils/IDataPermissionsUtils";
-
+@injectable()
 export class InvitationService implements IInvitationService {
   constructor(
     @inject(IInvitationRepositoryType)

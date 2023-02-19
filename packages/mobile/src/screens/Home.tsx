@@ -6,39 +6,38 @@ import {
   StyleSheet,
   Image,
   Linking,
-} from 'react-native';
-import React, {memo, useEffect} from 'react';
-import {ROUTES} from '../constants';
-import {useWalletConnect} from '@walletconnect/react-native-dapp';
-import {MotiView} from '@motify/components';
-import {Easing} from 'react-native-reanimated';
-import {MobileCore} from '../services/Gateway';
+} from "react-native";
+import React, { memo, useEffect } from "react";
+import { ROUTES } from "../constants";
+import { useWalletConnect } from "@walletconnect/react-native-dapp";
+import { MotiView } from "@motify/components";
+import { Easing } from "react-native-reanimated";
+import { MobileCore } from "../services/implementations/Gateway";
 import {
   AccountAddress,
   EChain,
   LanguageCode,
   Signature,
-} from '@snickerdoodlelabs/objects';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {MemoryVolatileStorage} from '@snickerdoodlelabs/persistence';
-import {AppCtx} from '../context/AppContextProvider';
-import AppLoader from '../components/AnimatedLoaders/UnlockLoader';
-import {utils} from 'ethers';
+} from "@snickerdoodlelabs/objects";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
+import { AppCtx } from "../context/AppContextProvider";
+import AppLoader from "../components/AnimatedLoaders/UnlockLoader";
+import { utils } from "ethers";
 
 export default function Home(props: any) {
-  const {navigation} = props;
+  const { navigation } = props;
   const connector = useWalletConnect();
   const [accountAddress, setAccountAddress] = React.useState<string[]>();
   const [signature, setSignature] = React.useState();
-  const {mobileCore, initConnection, getUnlockMessage} =
-    React.useContext(AppCtx);
+  const { coreContext } = React.useContext(AppCtx);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleUnlock = async () => {
     if (connector.accounts[0]) {
       signApp();
     } else {
-      const {accounts, chainId} = await connector.connect();
+      const { accounts, chainId } = await connector.connect();
       setAccountAddress(accounts);
     }
   };
@@ -46,9 +45,9 @@ export default function Home(props: any) {
   const signApp = async () => {
     try {
       const result = await connector.signPersonalMessage([
-        'Login to your Snickerdoodle data wallet',
+        "Login to your Snickerdoodle data wallet",
       ]);
-      console.log('sign', result);
+      console.log("sign", result);
       setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
@@ -58,24 +57,25 @@ export default function Home(props: any) {
         }, 500);
       }, 4200);
     } catch (err) {
-      console.log('ERROR');
-      console.log({err});
+      console.log("ERROR");
+      console.log({ err });
     }
   };
 
   return (
     <>
-      <View style={{backgroundColor: '#222039', height: '100%'}}>
+      <View style={{ backgroundColor: "#222039", height: "100%" }}>
         <View>
           <SafeAreaView>
             <TouchableOpacity
               onPress={() => {
                 connector.killSession();
-              }}>
-              <View style={{paddingTop: 50}}>
+              }}
+            >
+              <View style={{ paddingTop: 50 }}>
                 <Image
-                  source={require('../assets/images/homeBG.png')}
-                  style={{height: 460, width: 'auto'}}
+                  source={require("../assets/images/homeBG.png")}
+                  style={{ height: 460, width: "auto" }}
                 />
               </View>
             </TouchableOpacity>
@@ -97,21 +97,33 @@ export default function Home(props: any) {
             </Text> */}
             <Text
               onPress={() => {
-                initConnection();
-              }}>
+                const sign =
+                  "0x91aa05467f4fa179ada6a8f537503a649f7ef2e1c0b63178b251b0afb37bbc5138c2df394c50f435721e991e17e44b33fb4c8ac5736bb4f2d58411b6a77998401b";
+                const acc = "0xbaa1b174fadca4a99cbea171048edef468c5508b";
+                coreContext
+                  ?.getAccountService()
+                  .unlock(
+                    acc as AccountAddress,
+                    sign as Signature,
+                    EChain.EthereumMainnet,
+                    "en" as LanguageCode,
+                  );
+              }}
+            >
               Test
             </Text>
-            <View style={{paddingTop: 100}}>
+            <View style={{ paddingTop: 100 }}>
               <View
-                style={[styles.walletConnectBtn, styles.walletConnectMainBtn]}>
-                {[...Array(3).keys()].map(index => {
+                style={[styles.walletConnectBtn, styles.walletConnectMainBtn]}
+              >
+                {[...Array(3).keys()].map((index) => {
                   return (
                     <MotiView
-                      from={{opacity: 0.7, scale: 1}}
+                      from={{ opacity: 0.7, scale: 1 }}
                       key={index}
-                      animate={{opacity: 0, scale: 1.5}}
+                      animate={{ opacity: 0, scale: 1.5 }}
                       transition={{
-                        type: 'timing',
+                        type: "timing",
                         duration: 2400,
                         easing: Easing.out(Easing.ease),
                         delay: index * 600,
@@ -127,16 +139,23 @@ export default function Home(props: any) {
                 })}
                 <TouchableOpacity
                   style={styles.walletConnectBtn}
-                  onPress={handleUnlock}>
+                  onPress={handleUnlock}
+                >
                   <View
                     style={{
-                      flexDirection: 'column',
-                      alignContent: 'center',
-                      justifyContent: 'center',
-                      alignSelf: 'center',
-                    }}>
+                      flexDirection: "column",
+                      alignContent: "center",
+                      justifyContent: "center",
+                      alignSelf: "center",
+                    }}
+                  >
                     <Text
-                      style={{color: 'white', fontSize: 20, fontWeight: '600'}}>
+                      style={{
+                        color: "white",
+                        fontSize: 20,
+                        fontWeight: "600",
+                      }}
+                    >
                       Connect Wallet
                     </Text>
                   </View>
@@ -153,43 +172,43 @@ export default function Home(props: any) {
 
 const styles = StyleSheet.create({
   walletConnectBtn: {
-    backgroundColor: 'orange',
+    backgroundColor: "orange",
     borderWidth: 0,
-    color: '#FFFFFF',
-    borderColor: '#8079B4',
+    color: "#FFFFFF",
+    borderColor: "#8079B4",
     width: 280,
     height: 65,
     borderRadius: 60,
-    alignItems: 'center',
+    alignItems: "center",
     /*     borderRadius: 30,
     marginLeft: 35,
     marginRight: 35,
     marginTop: 30,
     marginBottom: 30,
     paddingTop: 5, */
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "center",
+    alignSelf: "center",
   },
   walletConnectMainBtn: {
-    backgroundColor: 'orange',
+    backgroundColor: "orange",
     borderWidth: 0,
-    color: '#FFFFFF',
-    borderColor: '#8079B4',
+    color: "#FFFFFF",
+    borderColor: "#8079B4",
     width: 280,
     height: 65,
     borderRadius: 60,
-    alignItems: 'center',
+    alignItems: "center",
     /*     borderRadius: 30,
     marginLeft: 35,
     marginRight: 35,
     marginTop: 30,
     marginBottom: 30,
     paddingTop: 5, */
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "center",
+    alignSelf: "center",
   },
 });
