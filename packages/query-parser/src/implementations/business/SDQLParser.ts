@@ -537,11 +537,14 @@ export class SDQLParser {
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
-    return DataPermissions.createWithPermissions(
-      queries.map((query) => {
-        return this.getQueryPermissionFlag(query);
-      }),
-    );
+    const dataTypes = queries.reduce<EWalletDataType[]>((array, query) => {
+      const permission = this.getQueryPermissionFlag(query);
+      if (permission.isOk()) {
+        array.push(permission.value);
+      }
+      return array;
+    }, []);
+    return DataPermissions.createWithPermissions(dataTypes);
   }
 
   public queryIdsToDataPermissions(ids: string[]): DataPermissions {
@@ -557,13 +560,10 @@ export class SDQLParser {
     return this.queriesToDataPermission(queries);
   }
 
-  public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
-    const result = query.getPermission();
-    if (result.isOk()) {
-      return result.value;
-    } else {
-      return -1;
-    }
+  public getQueryPermissionFlag(
+    query: AST_Query,
+  ): Result<EWalletDataType, MissingWalletDataTypeError> {
+    return query.getPermission();
   }
   // #endregion
 }

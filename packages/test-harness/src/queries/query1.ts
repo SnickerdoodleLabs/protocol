@@ -7,7 +7,7 @@ export const query1 = {
   business: "Shrapnel",
   queries: {
     q1: {
-      name: "nani",
+      name: "network",
       return: "boolean",
       chain: "AVAX",
       contract: {

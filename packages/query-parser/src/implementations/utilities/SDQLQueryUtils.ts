@@ -380,7 +380,7 @@ export class SDQLQueryUtils {
     givenPermissions: DataPermissions,
   ): ResultAsync<SDQL_Name | null, never> {
     const flag = parser.getQueryPermissionFlag(query);
-    if (givenPermissions.getFlag(flag)) {
+    if (flag.isOk() && givenPermissions.getFlag(flag.value)) {
       return okAsync(query.name);
     }
     return okAsync(null);
