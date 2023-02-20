@@ -8,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
 export class RewardsContractFactory implements IRewardsContractFactory {
@@ -32,35 +32,42 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     symbol: string,
     baseURI: BaseURI,
   ): ResultAsync<EVMContractAddress, RewardsFactoryError> {
-    return ResultAsync.fromPromise(
-      this.contractFactory.deploy(symbol, name, baseURI, {
-        gasLimit: this.estimateGasToDeployContract(name, symbol, baseURI),
-      }),
-      (e) => {
-        return new RewardsFactoryError(
-          "Failed to deploy contract",
-          (e as IBlockchainError).reason,
-          e,
-        );
+    return this.estimateGasToDeployContract(name, symbol, baseURI).andThen(
+      (bufferedGasLimit) => {
+        return ResultAsync.fromPromise(
+          this.contractFactory.deploy(symbol, name, baseURI, {
+            gasLimit: bufferedGasLimit,
+          }),
+          (e) => {
+            return new RewardsFactoryError(
+              "Failed to deploy contract",
+              (e as IBlockchainError).reason,
+              e,
+            );
+          },
+        ).andThen((contract) => {
+          return ResultAsync.fromPromise(
+            contract.deployTransaction.wait(),
+            (e) => {
+              return new RewardsFactoryError(
+                "Failed to wait() for contract deployment",
+                (e as IBlockchainError).reason,
+                e,
+              );
+            },
+          ).map((receipt) => {
+            return EVMContractAddress(receipt.contractAddress);
+          });
+        });
       },
-    ).andThen((contract) => {
-      return ResultAsync.fromPromise(contract.deployTransaction.wait(), (e) => {
-        return new RewardsFactoryError(
-          "Failed to wait() for contract deployment",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      }).map((receipt) => {
-        return EVMContractAddress(receipt.contractAddress);
-      });
-    });
+    );
   }
 
   public estimateGasToDeployContract(
     name: string,
     symbol: string,
     baseURI: BaseURI,
-  ): ResultAsync<string, RewardsFactoryError> {
+  ): ResultAsync<ethers.BigNumber, RewardsFactoryError> {
     return ResultAsync.fromPromise(
       this.providerOrSigner.estimateGas(
         this.contractFactory.getDeployTransaction(name, symbol, baseURI),
@@ -74,8 +81,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       },
     ).map((estimatedGas) => {
       // Increase estimated gas buffer by 20%
-      const bufferedEstimatedGas = estimatedGas.mul(120).div(100);
-      return bufferedEstimatedGas.toString();
+      return estimatedGas.mul(120).div(100);
     });
   }
 }
