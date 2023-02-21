@@ -1,12 +1,13 @@
-import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import Home from '../screens/Home';
-import {COLORS, ROUTES} from '../constants';
-import ForgotPassword from '../screens/ForgotPassword';
-import Sign from '../screens/Sign';
-import BottomTabNavigator from './BottomTabNavigator';
-import ImageCarousel from '../components/ImageCarousel';
-import {Wallet} from '../screens';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import Home from "../screens/Home";
+import { COLORS, ROUTES } from "../constants";
+import ForgotPassword from "../screens/ForgotPassword";
+import Sign from "../screens/Sign";
+import BottomTabNavigator from "./BottomTabNavigator";
+import ImageCarousel from "../components/ImageCarousel";
+import { Wallet } from "../screens";
+import Onboarding from "../screens/Onboarding";
 
 const Stack = createStackNavigator();
 
@@ -21,7 +22,8 @@ function AuthNavigator() {
         headerBackTitleVisible: false,
         headerTintColor: 'white',
       }} */
-      initialRouteName={ROUTES.HOME}>
+      initialRouteName={ROUTES.ONBOARDING}
+    >
       <Stack.Screen
         name={ROUTES.HOME}
         component={Home}
@@ -40,12 +42,12 @@ function AuthNavigator() {
       <Stack.Screen
         name={ROUTES.SIGN}
         component={Sign}
-        options={({route}: any) => ({
+        options={({ route }: any) => ({
           headerStyle: {
             backgroundColor: COLORS.primary,
           },
           headerBackTitleVisible: false,
-          headerTintColor: 'white',
+          headerTintColor: "white",
         })}
       />
       <Stack.Screen
@@ -54,6 +56,7 @@ function AuthNavigator() {
         options={{
           headerBackTitleVisible: false,
           headerTransparent: true,
+          //@ts-ignore
           title: false,
         }}
       />
@@ -62,6 +65,16 @@ function AuthNavigator() {
         component={Wallet}
         options={{
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.ONBOARDING}
+        component={Onboarding}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: true,
+          //@ts-ignore
+          title: false,
         }}
       />
     </Stack.Navigator>
