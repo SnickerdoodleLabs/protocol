@@ -1,6 +1,10 @@
 import { Brand, make } from "ts-brand";
 
-import { TokenBalance, ChainTransaction } from "@objects/businessObjects";
+import {
+  TokenBalance,
+  ChainTransaction,
+  NftHoldings,
+} from "@objects/businessObjects";
 import { ChainId } from "@objects/primitives/ChainId";
 import { URLString } from "@objects/primitives/URLString";
 
@@ -17,6 +21,7 @@ export type SDQL_Return = Brand<
   | Map<ChainId, number>
   | TokenBalance[]
   | ChainTransaction[]
+  | NftHoldings
   | Object
   | null,
   "SDQL_Return"

@@ -117,179 +117,172 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
         "q7": {
             "name": "nft",
-            "return": "array",
+            "return": "object",
             "networkid": "*",
+            "timestampRange": {
+                "start": "*",
+                "end": "*",
+            },
             "address": "*",
-            "array_items": {
-                "object_schema": {
-                    "properties": {
-                        "networkid": {
-                            "type": "integer",
-                        },
-                        "tokenAddress": {
-                            "type": "string",
-                            "pattern": "^0x[a-fA-F0-9]{40}$",
-                        },
-                        "ticker": {
-                            "type": "string"
-                        },
-                        "balance": {
-                            "type": "number",
-                        },
-                        "decimals": {
-                            "type": "number",
+            "object_schema": {
+                "properties": {
+                    "type": {
+                        "chain": {
+                            "tokenAddress": {
+                                "amount": {
+                                    "type": "number",
+                                },
+                            },
                         },
                     },
-                    "required": [
-                        "networkid",
-                        "tokenAddress",
-                        "balance",
-                        "decimals",
-                        "ticker"
-                    ],
                 },
+                "required": [
+                    "chain",
+                    "tokenAddress",
+                    "amount",
+                    "type"
+                ],
             },
-        }
-    },
-    "returns": {
-        "r1": {
-            "name": "callback",
-            "message": "qualified"
         },
-        "r2": {
-            "name": "callback",
-            "message": "not qualified"
+        "returns": {
+            "r1": {
+                "name": "callback",
+                "message": "qualified"
+            },
+            "r2": {
+                "name": "callback",
+                "message": "not qualified"
+            },
+            "r3": {
+                "name": "query_response",
+                "query": "q3"
+            },
+            "r4": {
+                "name": "query_response",
+                "query": "q4"
+            },
+            "r5": {
+                "name": "query_response",
+                "query": "q5"
+            },
+            "r6": {
+                "name": "query_response",
+                "query": "q6"
+            },
+            "r7": {
+                "name": "query_response",
+                "query": "q1"
+            },
+            "url": "https://418e-64-85-231-39.ngrok.io/insights"
         },
-        "r3": {
-            "name": "query_response",
-            "query": "q3"
-        },
-        "r4": {
-            "name": "query_response",
-            "query": "q4"
-        },
-        "r5": {
-            "name": "query_response",
-            "query": "q5"
-        },
-        "r6": {
-            "name": "query_response",
-            "query": "q6"
-        },
-        "r7": {
-            "name": "query_response",
-            "query": "q1"
-        },
-        "url": "https://418e-64-85-231-39.ngrok.io/insights"
-    },
-    "compensations": {
-        "parameters": {
-            "recipientAddress": {
+        "compensations": {
+            "parameters": {
+                "recipientAddress": {
                 type:...,
                 required: true
-            },
-            "productId": {
+                },
+                "productId": {
                 type: string,
                 required: true,
                 values: [urls
-                ]
-            },
-            "shippingAddress": {
+                    ]
+                },
+                "shippingAddress": {
                 type: string,
                 required: true,
+                },
             },
-        },
-        "c1": {
-            "description": "10% discount code for Starbucks",
-            "chainId": 1,
-            "callback": {
-                "parameters": [
-                    "recipientAddress"
-                ],
-                "data": {...an object to be forwarded with the api call
-                }
-            }
-        },
-        "c2": {
-            "description": "participate in the draw to win a CryptoPunk NFT",
-            "chainId": 1,
-            "callback": {
-                "parameters": [
-                    "recipientAddress",
-                    "productId"
-                ],
-                "data": {...an object to be forwarded with the api call
-                }
-            }
-        },
-        "c3": {
-            "description": "a free CrazyApesClub NFT",
-            "chainId": 1,
-            "callback": {
-                "parameters": [
-                    "recipientAddress",
-                    "shippingAddress"
-                ],
-                "data": {...an object to be forwarded with the api call
+            "c1": {
+                "description": "10% discount code for Starbucks",
+                "chainId": 1,
+                "callback": {
+                    "parameters": [
+                        "recipientAddress"
+                    ],
+                    "data": {...an object to be forwarded with the api call
+                    }
                 }
             },
-            "alternatives": [
-                "c4",
-                "c5"
+            "c2": {
+                "description": "participate in the draw to win a CryptoPunk NFT",
+                "chainId": 1,
+                "callback": {
+                    "parameters": [
+                        "recipientAddress",
+                        "productId"
+                    ],
+                    "data": {...an object to be forwarded with the api call
+                    }
+                }
+            },
+            "c3": {
+                "description": "a free CrazyApesClub NFT",
+                "chainId": 1,
+                "callback": {
+                    "parameters": [
+                        "recipientAddress",
+                        "shippingAddress"
+                    ],
+                    "data": {...an object to be forwarded with the api call
+                    }
+                },
+                "alternatives": [
+                    "c4",
+                    "c5"
+                ]
+            },
+            "c4": {
+                "description": "a free CrazyApesClub NFT on Avalanche",
+                "chainId": 43114,
+                "callback": {
+                    "parameters": [
+                        "recipientAddress",
+                        "shippingAddress"
+                    ],
+                    "data": {...an object to be forwarded with the api call
+                    }
+                },
+                "alternatives": [
+                    "c3",
+                    "c5"
+                ]
+            },
+            "c5": {
+                "description": "a free CrazyApesClub NFT on Solana",
+                "chainId": -1,
+                "callback": {
+                    "parameters": [
+                        "recipientAddress",
+                        "shippingAddress"
+                    ],
+                    "data": {...an object to be forwarded with the api call
+                    }
+                },
+                "alternatives": [
+                    "c3",
+                    "c4"
+                ]
+            },
+        },
+        "logic": {
+            "returns": [
+                "if$q2then$r1else$r2",
+                "$r3",
+                "$r4",
+                "$r5",
+                "$r6",
+                "$r7"
+            ],
+            "compensations": [
+                "if$q1then$c1",
+                "if$q2then$c2",
+                "if$q3then$c3",
+                "if$q4then$c2",
+                "if$q5then$c2",
+                "if$q6then$c2"
             ]
-        },
-        "c4": {
-            "description": "a free CrazyApesClub NFT on Avalanche",
-            "chainId": 43114,
-            "callback": {
-                "parameters": [
-                    "recipientAddress",
-                    "shippingAddress"
-                ],
-                "data": {...an object to be forwarded with the api call
-                }
-            },
-            "alternatives": [
-                "c3",
-                "c5"
-            ]
-        },
-        "c5": {
-            "description": "a free CrazyApesClub NFT on Solana",
-            "chainId": -1,
-            "callback": {
-                "parameters": [
-                    "recipientAddress",
-                    "shippingAddress"
-                ],
-                "data": {...an object to be forwarded with the api call
-                }
-            },
-            "alternatives": [
-                "c3",
-                "c4"
-            ]
-        },
-    },
-    "logic": {
-        "returns": [
-            "if$q2then$r1else$r2",
-            "$r3",
-            "$r4",
-            "$r5",
-            "$r6",
-            "$r7"
-        ],
-        "compensations": [
-            "if$q1then$c1",
-            "if$q2then$c2",
-            "if$q3then$c3",
-            "if$q4then$c2",
-            "if$q5then$c2",
-            "if$q6then$c2"
-        ]
+        }
     }
-}
 ```
 
 ## Target US-Based Users Who Received An Ethereum NFT And Visited Uniswap and Crabada

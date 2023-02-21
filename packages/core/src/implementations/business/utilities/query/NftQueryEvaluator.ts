@@ -11,6 +11,8 @@ import {
   EVMNFT,
   UnixTimestamp,
   ISDQLTimestampRange,
+  NftHoldings,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -30,7 +32,6 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     const address = query.schema.address;
     const timestampRange = query.schema.timestampRange;
 
-
     let chainIds: undefined | ChainId[];
 
     if (networkId && networkId !== "*") {
@@ -39,16 +40,62 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
         : [ChainId(Number(networkId))];
     }
 
-    return this.dataWalletPersistence.getAccountNFTs(chainIds).map((arr) => {
-      return SDQL_Return(
-        arr.reduce<WalletNFT[]>((array, nft) => {
-          if (this.validNft(nft, address, timestampRange)) {
-            array.push(nft);
-          }
-          return array;
-        }, []),
-      );
-    });
+    return this.dataWalletPersistence
+      .getAccountNFTs(chainIds)
+      .map((walletNfts) => {
+        return SDQL_Return(
+          this.getNftHoldings(walletNfts, address, timestampRange),
+        );
+      });
+  }
+
+  private getNftHoldings(
+    walletNfts: WalletNFT[],
+    address: string | string[] | undefined,
+    timestampRange: ISDQLTimestampRange | undefined,
+  ): NftHoldings {
+    const filteredNfts = this.filterNfts(walletNfts, address, timestampRange);
+    return this.groupWalletNftsToNftHoldings(filteredNfts);
+  }
+
+  private setIfNotExist<T, K extends keyof T>(object: T, key: K, value: T[K]) {
+    object[key] = object[key] ?? value;
+  }
+  private groupWalletNftsToNftHoldings(walletNfts: WalletNFT[]): NftHoldings {
+    return walletNfts.reduce<NftHoldings>((nftHoldings, nft) => {
+      const nftType = EChainTechnology[
+        nft.type
+      ] as keyof typeof EChainTechnology;
+      this.setIfNotExist(nftHoldings, nftType, {});
+
+      this.setIfNotExist(nftHoldings[nftType]!, nft.chain, {});
+
+      this.setIfNotExist(nftHoldings[nftType]![nft.chain], nft.token, {
+        amount: 0,
+      });
+
+      if (nft instanceof EVMNFT) {
+        nftHoldings[nftType]![nft.chain][nft.token].amount += Number(
+          nft.amount,
+        );
+      } else {
+        nftHoldings[nftType]![nft.chain][nft.token].amount++;
+      }
+      return nftHoldings;
+    }, {});
+  }
+
+  private filterNfts(
+    walletNfts: WalletNFT[],
+    address: string | string[] | undefined,
+    timestampRange: ISDQLTimestampRange | undefined,
+  ): WalletNFT[] {
+    return walletNfts.reduce<WalletNFT[]>((array, nft) => {
+      if (this.validNft(nft, address, timestampRange)) {
+        array.push(nft);
+      }
+      return array;
+    }, []);
   }
 
   private validNft(
@@ -110,5 +157,4 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
     return false;
   }
-
 }

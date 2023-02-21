@@ -3,7 +3,6 @@ import { EChainTechnology } from "@objects/enum";
 import {
   EVMContractAddress,
   EVMAccountAddress,
-  TickerSymbol,
   ChainId,
   TokenUri,
   BigNumberString,
@@ -23,7 +22,7 @@ export class EVMNFT extends WalletNFT {
     public name: string,
     public chain: ChainId,
     public blockNumber?: BlockNumber,
-    public lastOwnerTimeStamp ? : UnixTimestamp
+    public lastOwnerTimeStamp?: UnixTimestamp,
   ) {
     super(EChainTechnology.EVM, chain, owner, token);
   }

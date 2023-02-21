@@ -79,45 +79,26 @@ export const query1 = {
     },
     q9: {
       name: "nft",
-      return: "array",
+      return: "object",
       networkid: "*",
       timestampRange: {
         start: "*",
         end: "*",
       },
       address: "*",
-      array_items: {
-        object_schema: {
-          properties: {
+      object_schema: {
+        properties: {
+          type: {
             chain: {
-              type: "integer",
-            },
-            tokenId: {
-              type: "integer",
-            },
-            tokenAddress: {
-              type: "string",
-              pattern: "^0x[a-fA-F0-9]{40}$",
-            },
-            ticker: {
-              type: "string",
-            },
-            amount: {
-              type: "number",
-            },
-            decimals: {
-              type: "number",
+              tokenAddress: {
+                amount: {
+                  type: "number",
+                },
+              },
             },
           },
-          required: [
-            "chain",
-            "tokenId",
-            "tokenAddress",
-            "amount",
-            "decimals",
-            "ticker",
-          ],
         },
+        required: ["chain", "tokenAddress", "amount", "type"],
       },
     },
   },
