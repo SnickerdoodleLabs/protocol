@@ -15,10 +15,9 @@ import { DiscordService } from "../business/DiscordService";
 import {
   IConfigProvider,
   IConfigProviderType,
-  IOAuthProvider,
 } from "@core/interfaces/utilities/index.js";
 
-export class DiscordProvider implements IOAuthProvider {
+export class DiscordProvider {
   public constructor(
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,

@@ -8,10 +8,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IDiscordService {
-  isAuthTokenValid(authToken: BearerAuthToken): ResultAsync<void, OAuthError>;
-  refreshAuthToken(
-    refreshToken: BearerAuthToken,
-  ): ResultAsync<void, OAuthError>;
   getUserProfile(
     authToken: BearerAuthToken,
   ): ResultAsync<DiscordProfile, DiscordError>;

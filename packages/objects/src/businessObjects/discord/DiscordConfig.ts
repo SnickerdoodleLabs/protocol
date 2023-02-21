@@ -1,11 +1,6 @@
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { DiscordError } from "@objects/errors";
+import { OAuthConfig } from "@objects/businessObjects/OAuthConfig";
 import { URLString } from "@objects/primitives/URLString";
 
-export interface DiscordConfig {
-  clientId: string;
-  oauthBaseUrl: URLString;
-  oauthRedirectUrl: URLString;
+export interface DiscordConfig extends OAuthConfig {
   dataAPIUrl: URLString;
 }
