@@ -14,7 +14,7 @@ import {
   DiscordProfileAPIResponse,
   DiscordGuildProfileAPIResponse,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
@@ -24,6 +24,7 @@ import {
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider";
 
+@injectable()
 class DiscordRepository implements IDiscordRepository {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,

@@ -7,20 +7,24 @@ import {
   OAuthError,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IDiscordService } from "@core/interfaces/business/IDiscordService.js";
-import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
+import {
+  IDiscordRepository,
+  IDiscordRepositoryType,
+} from "@core/interfaces/data/IDiscordRepository";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider";
 
+@injectable()
 export class DiscordService implements IDiscordService {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    public repository: IDiscordRepository,
+    @inject(IDiscordRepositoryType) public repository: IDiscordRepository,
   ) {}
 
   protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
