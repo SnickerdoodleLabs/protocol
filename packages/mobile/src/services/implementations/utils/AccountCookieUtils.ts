@@ -119,7 +119,9 @@ export class AccountCookieUtils implements IAccountCookieUtils {
       CookieManager.set("https://snickerdoodlelabs.io", {
         name,
         value,
-        expires: `${this._generateExpirationDate()}`,
+        expires: `${
+          new Date(this._generateExpirationDate() * 1000).getTime() / 1000
+        }`,
         httpOnly: true,
       }),
       (e) => new MobileCookieError("Unable to set cookie", e),
