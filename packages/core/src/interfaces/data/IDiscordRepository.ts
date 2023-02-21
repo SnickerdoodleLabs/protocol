@@ -3,13 +3,10 @@ import {
   DiscordProfile,
   DiscordError,
   DiscordGuildProfile,
-  OAuthError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IOAuthService } from "@core/interfaces/utilities/IOAuthService";
-
-export interface IDiscordService extends IOAuthService {
+export interface IDiscordRepository {
   getUserProfile(
     authToken: BearerAuthToken,
   ): ResultAsync<DiscordProfile, DiscordError>;
@@ -19,4 +16,4 @@ export interface IDiscordService extends IOAuthService {
   ): ResultAsync<DiscordGuildProfile[], DiscordError>;
 }
 
-export const IDiscordServiceType = Symbol.for("IDiscordService");
+export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");

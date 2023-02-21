@@ -15,3 +15,11 @@ export class DiscordProfile {
     public authExpiry: UnixTimestamp,
   ) {}
 }
+
+export interface DiscordProfileAPIResponse {
+  id: SnowflakeID;
+  username: Username;
+  display_name: string;
+  discriminator: string;
+  flags: Integer;
+}
