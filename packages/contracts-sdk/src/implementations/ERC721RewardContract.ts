@@ -1,6 +1,6 @@
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import { IERC721RewardContract } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { RewardRoles } from "@contracts-sdk/interfaces/objects/RewardRoles.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -45,7 +45,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   public getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
-        RewardRoles.DEFAULT_ADMIN_ROLE,
+        ERewardRoles.DEFAULT_ADMIN_ROLE,
         0,
       ) as Promise<EVMAccountAddress>,
       (e) => {
@@ -66,7 +66,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        RewardRoles.DEFAULT_ADMIN_ROLE,
+        ERewardRoles.DEFAULT_ADMIN_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return new ERC721RewardContractError(
@@ -88,7 +88,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              RewardRoles.DEFAULT_ADMIN_ROLE,
+              ERewardRoles.DEFAULT_ADMIN_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -110,7 +110,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        RewardRoles.MINTER_ROLE,
+        ERewardRoles.MINTER_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return new ERC721RewardContractError(
@@ -132,7 +132,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              RewardRoles.MINTER_ROLE,
+              ERewardRoles.MINTER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
@@ -242,11 +242,11 @@ export class ERC721RewardContract implements IERC721RewardContract {
   }
 
   public hasRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
-      this.contract.hasRole(RewardRoles[role], address) as Promise<boolean>,
+      this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
       (e) => {
         return new ERC721RewardContractError(
           "Unable to call hasRole()",
@@ -258,12 +258,12 @@ export class ERC721RewardContract implements IERC721RewardContract {
   }
 
   public grantRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<void, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.grantRole(
-        RewardRoles[role],
+        ERewardRoles[role],
         address,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -287,12 +287,12 @@ export class ERC721RewardContract implements IERC721RewardContract {
   }
 
   public revokeRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<void, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.revokeRole(
-        RewardRoles[role],
+        ERewardRoles[role],
         address,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -316,12 +316,12 @@ export class ERC721RewardContract implements IERC721RewardContract {
   }
 
   public renounceRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<void, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.renounceRole(
-        RewardRoles[role],
+        ERewardRoles[role],
         address,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {

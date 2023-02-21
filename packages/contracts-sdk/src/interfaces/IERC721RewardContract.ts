@@ -1,4 +1,4 @@
-import { RewardRoles } from "@contracts-sdk/interfaces/objects";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
 import {
   ERC721RewardContractError,
   EVMAccountAddress,
@@ -66,7 +66,7 @@ export interface IERC721RewardContract {
    * @param address Address to use
    */
   hasRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<boolean, ERC721RewardContractError>;
 
@@ -76,7 +76,7 @@ export interface IERC721RewardContract {
    * @param address Address to use
    */
   grantRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<void, ERC721RewardContractError>;
 
@@ -86,7 +86,7 @@ export interface IERC721RewardContract {
    * @param address Address to use
    */
   revokeRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<void, ERC721RewardContractError>;
 
@@ -96,7 +96,7 @@ export interface IERC721RewardContract {
    * @param address Address to use
    */
   renounceRole(
-    role: keyof typeof RewardRoles,
+    role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<void, ERC721RewardContractError>;
 
