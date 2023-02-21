@@ -16,6 +16,8 @@ import { MobileCore } from "../services/implementations/Gateway";
 import {
   AccountAddress,
   EChain,
+  EVMContractAddress,
+  FamilyName,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
@@ -110,7 +112,32 @@ export default function Home(props: any) {
                   );
               }}
             >
-              Test
+              Test AccountService
+            </Text>
+
+            <Text
+              onPress={() => {
+                const sign =
+                  "0x91aa05467f4fa179ada6a8f537503a649f7ef2e1c0b63178b251b0afb37bbc5138c2df394c50f435721e991e17e44b33fb4c8ac5736bb4f2d58411b6a77998401b";
+                const acc = "0xbaa1b174fadca4a99cbea171048edef468c5508b";
+                console.log(coreContext?.getPIIService().getFamilyName());
+              }}
+            >
+              Test PII Service
+            </Text>
+            <Text
+              onPress={() => {
+                const sign =
+                  "0x91aa05467f4fa179ada6a8f537503a649f7ef2e1c0b63178b251b0afb37bbc5138c2df394c50f435721e991e17e44b33fb4c8ac5736bb4f2d58411b6a77998401b";
+                const acc = "0xbaa1b174fadca4a99cbea171048edef468c5508b";
+                coreContext
+                  ?.getInvitationService()
+                  .getConsentContractCID(
+                    "asdsadasdsadad" as EVMContractAddress,
+                  );
+              }}
+            >
+              Test Invitation Service
             </Text>
             <View style={{ paddingTop: 100 }}>
               <View
