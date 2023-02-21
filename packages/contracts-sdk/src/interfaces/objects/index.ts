@@ -3,4 +3,3 @@ export * from "@contracts-sdk/interfaces/objects/ContractOverrides";
 export * from "@contracts-sdk/interfaces/objects/IMinimalForwarderRequest";
 
 export * from "@contracts-sdk/interfaces/objects/abi";
-export * from "@contracts-sdk/interfaces/objects/enum";
