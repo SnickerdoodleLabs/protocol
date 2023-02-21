@@ -27,9 +27,17 @@ export const PRIVACY_POLICY_URL =
 
 export const ZENDEKS_URL =
   "https://data-wallet.zendesk.com/hc/en-us/requests/new";
+export const SURVEY_URL = "https://ndhg1975huo.typeform.com/to/lEcLm7e2";
 
 export const PRODUCT_VIDEO_URL =
   "https://drive.google.com/uc?export=download&id=1ohloSDHad0O8J2r-sqRIgS5xOtK8dedM";
 
 export const FAQ_URL =
   "https://data-wallet.zendesk.com/hc/en-us/sections/10560934964109-FAQ";
+
+export const TIKTOK_URL = "https://www.tiktok.com/@yosnickerdoodle/";
+export const YOUTUBE_URL = "https://www.youtube.com/channel/UC10ieFC8A/";
+export const TWITTER_URL = "https://twitter.com/YoSnickerdoodle/";
+export const INSTAGRAM_URL = "https://www.instagram.com/yosnickerdoodle/";
+export const LINKEDIN_URL = "https://www.linkedin.com/company/74126349/";
+export const FACEBOOK_URL = "https://www.facebook.com/yosnickerdoodle/";

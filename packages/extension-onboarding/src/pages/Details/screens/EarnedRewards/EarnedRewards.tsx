@@ -61,12 +61,31 @@ const EarnedRewards: FC = () => {
         <>
           <Grid container spacing={2}>
             {rewards?.length ? (
-              rewards?.map((reward, index) => {
+              Array.from(
+                rewards?.reduce((acc, reward) => {
+
+                  const selector = reward.name + reward.image + reward.description;
+                  if (acc.has(selector)) {
+                    const prev = acc.get(selector);
+                    prev!.count++;
+                    acc.set(selector, prev!);
+                  } else {
+                    acc.set(selector, {reward, count: 1});
+                  }
+
+                  return acc;
+                }, new Map<string, {reward: EarnedReward, count: number}>())
+              ).map(([selector, rewardToCount], index) => {
+
+                const reward = rewardToCount.reward;
+                const count = rewardToCount.count;
+
                 let rewardComponent;
                 if (reward.type === ERewardType.Direct) {
                   rewardComponent = (
                     <Grid item xs={3}>
                       <DirectRewardItem
+                        count={count}
                         key={index}
                         reward={reward as DirectReward}
                       />

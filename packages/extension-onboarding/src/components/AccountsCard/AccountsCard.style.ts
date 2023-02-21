@@ -2,9 +2,12 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   container: {
-    minHeight: 400,
     border: "1px solid #ECECEC",
     borderRadius: 12,
+  },
+  accountsContainer: {
+    maxHeight: 400,
+    overflow: "auto",
   },
   title: {
     fontFamily: "Space Grotesk, sans-serif",

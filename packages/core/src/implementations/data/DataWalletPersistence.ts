@@ -196,7 +196,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.unlock(derivedKey),
     ])
       .map(() => {
-        this.configProvider.getConfig().map((config) => {
+        ResultUtils.combine([
+          this.configProvider.getConfig(),
+          this.contextProvider.getContext(),
+        ]).map(([config, context]) => {
+          context.restoreInProgress = true;
+          this.contextProvider.setContext(context);
+          const timeoutCleared = false;
+
           // set the backup restore to timeout as to not block unlocks
           const timeout = setTimeout(() => {
             this.logUtils.error("Backup restore timed out");
@@ -523,7 +530,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       if (birthdayEpoch == null) {
         return null;
       }
-      
+
       let ageYear =
         new Date(Date.now()).getFullYear() -
         new Date(birthdayEpoch * 1000).getFullYear();
@@ -664,6 +671,74 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION, null);
+    });
+  }
+
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForInitialRestore().andThen(([key]) => {
+      return this.backupManagerProvider
+        .getBackupManager()
+        .andThen((backupManager) => {
+          return backupManager.updateField(
+            ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS,
+            !receivingAddress ? ("" as AccountAddress) : receivingAddress,
+            EBackupPriority.NORMAL,
+          );
+        });
+    });
+  }
+
+  public getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null,
+    PersistenceError
+  > {
+    return this.waitForInitialRestore().andThen(([key]) => {
+      return this._checkAndRetrieveValue(
+        ELocalStorageKey.DEFAULT_RECEIVING_ADDRESS,
+        null,
+      ).map((val) => (val == "" ? null : val));
+    });
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForFullRestore().andThen(([key]) => {
+      return this.backupManagerProvider
+        .getBackupManager()
+        .andThen((backupManager) => {
+          if (receivingAddress && receivingAddress != "") {
+            return backupManager.addRecord(
+              ELocalStorageKey.RECEIVING_ADDRESSES,
+              {
+                contractAddress: contractAddress,
+                receivingAddress: receivingAddress,
+              },
+              EBackupPriority.NORMAL,
+            );
+          }
+
+          return this.volatileStorage.removeObject(
+            ELocalStorageKey.RECEIVING_ADDRESSES,
+            contractAddress.toString(),
+          );
+        });
+    });
+  }
+
+  public getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError> {
+    return this.waitForFullRestore().andThen(([key]) => {
+      return this.volatileStorage
+        .getObject<ReceivingAccountEntry>(
+          ELocalStorageKey.RECEIVING_ADDRESSES,
+          contractAddress.toString(),
+        )
+        .map((entry) => (!entry ? null : entry.receivingAddress));
     });
   }
 
@@ -909,53 +984,76 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getEtherscanNftRepository(),
+      this.accountNFTs.getNftScanRepository(),
+      this.accountNFTs.getPoapRepository(),
     ])
-      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-        const chainInfo = config.chainInformation.get(chainId);
-        if (chainInfo == null) {
-          return errAsync(
-            new AccountIndexingError(
-              `No available chain info for chain ${chainId}`,
-            ),
-          );
-        }
-
-        switch (chainInfo.indexer) {
-          case EIndexer.EVM:
-          case EIndexer.Polygon:
-            return evmRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Simulator:
-            return simulatorRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Solana:
-            return solRepo.getTokensForAccount(
-              chainId,
-              accountAddress as SolanaAccountAddress,
-            );
-          case EIndexer.Ethereum:
-            return etherscanRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Gnosis:
-            return okAsync([]);
-          case EIndexer.Binance:
-            return okAsync([]);
-          case EIndexer.Moonbeam:
-            return okAsync([]);
-          default:
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          etherscanMRepo,
+          nftScanRepo,
+          poapRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          if (chainInfo == null) {
             return errAsync(
               new AccountIndexingError(
                 `No available chain info for chain ${chainId}`,
               ),
             );
-        }
-      })
+          }
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return poapRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Binance:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return nftScanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available chain info for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
       .orElse((e) => {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
@@ -1313,6 +1411,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public restoreInProgress(): ResultAsync<boolean, never> {
+    return this.contextProvider
+      .getContext()
+      .map((context) => context.restoreInProgress);
+  }
+
   // rename this. its bad.
   public returnProperTransactions(): ResultAsync<
     ChainTransaction[],
@@ -1422,4 +1526,9 @@ class InvitationForStorage {
 interface LatestBlockEntry {
   contract: EVMContractAddress;
   block: BlockNumber;
+}
+
+interface ReceivingAccountEntry {
+  contractAddress: EVMContractAddress;
+  receivingAddress: AccountAddress;
 }

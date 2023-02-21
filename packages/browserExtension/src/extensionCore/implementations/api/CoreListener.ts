@@ -1,7 +1,5 @@
 import {
   DataWalletAddress,
-  EarnedReward,
-  ERewardType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -11,14 +9,16 @@ import {
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
-import { query } from "express";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ResultAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
 
 import { BrowserUtils } from "@enviroment/shared/utils";
 import { ICoreListener } from "@interfaces/api";
+import {
+  IInvitationService,
+  IInvitationServiceType,
+} from "@interfaces/business";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -33,18 +33,20 @@ export class CoreListener implements ICoreListener {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IAccountCookieUtilsType)
     protected accountCookieUtils: IAccountCookieUtils,
+    @inject(IInvitationServiceType)
+    protected invitationService: IInvitationService,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    this.core.getEvents().map((events: ISnickerdoodleCoreEvents) => {
+    return this.core.getEvents().map((events: ISnickerdoodleCoreEvents) => {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
     });
-    return okAsync(undefined);
   }
-  private onInitialized(dataWalletAddress: DataWalletAddress) {
+
+  private onInitialized(dataWalletAddress: DataWalletAddress): void {
     // @TODO move it to right place
     BrowserUtils.browserAction.getPopup({}).then((popup) => {
       if (!popup) {
@@ -55,19 +57,19 @@ export class CoreListener implements ICoreListener {
     });
     this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
-    console.log("onInitialized", dataWalletAddress);
-    return okAsync(undefined);
-  }
-
-  private onAccountAdded(account: LinkedAccount) {
-    this.contextProvider.onAccountAdded(account);
-    console.log("onAccountAdded", account);
-    return okAsync(undefined);
-  }
-
-  private onQueryPosted(request: SDQLQueryRequest) {
     console.log(
-      `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+      `Extension: Initialized data wallet with address ${dataWalletAddress}`,
+    );
+  }
+
+  private onAccountAdded(account: LinkedAccount): void {
+    this.contextProvider.onAccountAdded(account);
+    console.log(`Extension: account ${account.sourceAccountAddress} added`);
+  }
+
+  private onQueryPosted(request: SDQLQueryRequest): void {
+    console.log(
+      `Extension: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
     );
     console.debug(request.query.query);
 
@@ -86,42 +88,46 @@ export class CoreListener implements ICoreListener {
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-    request.rewardsPreview.forEach((element) => {
-      if (request.dataWalletAddress !== null) {
-        parameters.push({
-          recipientAddress: {
-            type: "address",
-            value: RecipientAddressType(
-              request.accounts[0].sourceAccountAddress,
-            ),
-          },
-        } as IDynamicRewardParameter);
-      }
-    });
 
-    this.core
-      .processQuery(
-        request.consentContractAddress,
-        {
-          cid: request.query.cid,
-          query: getStringQuery(),
-        },
-        parameters as IDynamicRewardParameter[],
-      )
-      .map(() => {
-        console.log(
-          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-      })
-      .mapErr((e) => {
-        console.error(
-          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-        console.error(e);
+    this.invitationService
+      .getReceivingAddress(request.consentContractAddress)
+      .map((accountAddress) => {
+        request.rewardsPreview.forEach((element) => {
+          if (request.dataWalletAddress !== null) {
+            parameters.push({
+              recipientAddress: {
+                type: "address",
+                value: RecipientAddressType(accountAddress),
+              },
+            } as IDynamicRewardParameter);
+          }
+        });
+
+        this.core
+          .processQuery(
+            request.consentContractAddress,
+            {
+              cid: request.query.cid,
+              query: getStringQuery(),
+            },
+            parameters,
+          )
+          .map(() => {
+            console.log(
+              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+            );
+          })
+          .mapErr((e) => {
+            console.error(
+              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+            );
+            console.error(e);
+          });
       });
   }
 
-  private onAccountRemoved(account: LinkedAccount) {
+  private onAccountRemoved(account: LinkedAccount): void {
+    console.log(`Extension: account ${account.sourceAccountAddress} removed`);
     this.accountCookieUtils.removeAccountInfoFromCookie(
       account.sourceAccountAddress,
     );

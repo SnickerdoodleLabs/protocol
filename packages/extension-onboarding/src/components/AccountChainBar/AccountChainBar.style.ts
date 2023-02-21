@@ -77,7 +77,6 @@ export const useStyles = makeStyles((theme) => ({
 
   accountAddressText: {
     paddingLeft: "4px",
-    paddingTop: "7px",
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
     fontSize: "16px",

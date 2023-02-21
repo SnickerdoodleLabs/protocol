@@ -15,10 +15,21 @@ declare const __IPFS_FETCH_BASE_URL__: URLString;
 declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
+declare const __NFTSCAN_API_KEY__: string;
+declare const __POAP_API_KEY__: string;
 declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
 declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
+declare const __DOMAIN_FILTER__: string;
+declare const __GOOGLE_CLOUD_BUCKET__: string;
+declare const __PORTFOLIO_POLLING_INTERVAL__: string;
+declare const __TRANSACTION_POLLING_INTERVAL__: string;
+declare const __BACKUP_POLLING_INTERVAL__: string;
+
+const SIX_HOURS_MS = 21600000;
+const TWO_HOURS_MS = 7200000;
+const ONE_MINUTE_MS = 60000;
 
 class ConfigProvider implements IConfigProvider {
   protected extensionConfig: ExtensionConfig;
@@ -45,8 +56,21 @@ class ConfigProvider implements IConfigProvider {
         : __CONTROL_CHAIN_PROVIDER_URL__,
       __COVALENT_API_KEY__ === "" ? undefined : __COVALENT_API_KEY__,
       __MORALIS_API_KEY__ === "" ? undefined : __MORALIS_API_KEY__,
+      __NFTSCAN_API_KEY__ === "" ? undefined : __NFTSCAN_API_KEY__,
+      __POAP_API_KEY__ === "" ? undefined : __POAP_API_KEY__,
       __DNS_SERVER_ADDRESS__ === "" ? undefined : __DNS_SERVER_ADDRESS__,
       Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__),
+      __DOMAIN_FILTER__ === "" ? undefined : __DOMAIN_FILTER__,
+      __GOOGLE_CLOUD_BUCKET__ === "" ? undefined : __GOOGLE_CLOUD_BUCKET__,
+      __PORTFOLIO_POLLING_INTERVAL__ === ""
+        ? ONE_MINUTE_MS
+        : Number.parseInt(__PORTFOLIO_POLLING_INTERVAL__),
+      __TRANSACTION_POLLING_INTERVAL__ === ""
+        ? ONE_MINUTE_MS
+        : Number.parseInt(__TRANSACTION_POLLING_INTERVAL__),
+      __BACKUP_POLLING_INTERVAL__ === ""
+        ? ONE_MINUTE_MS
+        : Number.parseInt(__BACKUP_POLLING_INTERVAL__),
     );
   }
   public getConfig() {

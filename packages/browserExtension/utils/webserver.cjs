@@ -11,8 +11,15 @@ process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
+process.env.__NFTSCAN_API_KEY__ = "";
+process.env.__POAP_API_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
 process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
+process.env.__DOMAIN_FILTER__ = "(localhost|chrome:\/\/)";
+process.env.__GOOGLE_CLOUD_BUCKET__ = "ceramic-replacement-bucket";
+process.env.__PORTFOLIO_POLLING_INTERVAL__ = "";
+process.env.__TRANSACTION_POLLING_INTERVAL__ = "";
+process.env.__BACKUP_POLLING_INTERVAL__ = "";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
