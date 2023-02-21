@@ -16,6 +16,6 @@ Give a brief summary of what your change is and why it is required.
 - Are there any metrics (or indicators) that can prove or disprove the integrity of this change?
 - List them here...
 
-<> For minor fixes include the following
-<> ### Minor Change
-<> A 1-2 sentence summary on the change. If this requires more detail your change is likely not minor.
+<!---For minor fixes include the following --->
+<!---### Minor Change
+A 1-2 sentence summary on the change. If this requires more detail your change is likely not minor.-->
