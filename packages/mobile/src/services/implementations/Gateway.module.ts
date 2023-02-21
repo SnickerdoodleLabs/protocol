@@ -59,10 +59,7 @@ import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
 } from "../interfaces/utils/IAccountCookieUtils";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "../interfaces/utils/IConfigProvider";
+
 import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
@@ -82,12 +79,12 @@ export const mobileCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
-    bind<IInvitationService>(IInvitationServiceType)
-      .to(InvitationService)
-      .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
     bind<ITokenPriceService>(ITokenPriceServiceType)
       .to(TokenPriceService)
+      .inSingletonScope();
+    bind<IInvitationService>(IInvitationServiceType)
+      .to(InvitationService)
       .inSingletonScope();
 
     // Data
@@ -105,11 +102,6 @@ export const mobileCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Utilities
-    /*     bind<IConfigProvider>(IConfigProviderType).toConstantValue(ConfigProvider);
-    bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
-      .to(DataPermissionsUtils)
-      .inSingletonScope();
-    bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope(); */
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)

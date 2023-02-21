@@ -1,6 +1,4 @@
-export interface IAccountService{
-
-}import {
+import {
   AccountAddress,
   DataWalletAddress,
   EarnedReward,
@@ -13,8 +11,6 @@ export interface IAccountService{
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import { SnickerDoodleCoreError } from "../objects/errors/SnickerDoodleCoreError";
-
-
 
 export interface IAccountService {
   addAccount(

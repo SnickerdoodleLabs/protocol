@@ -1,25 +1,38 @@
 import {
-  IContextProviderType,
-  IContextProvider,
-} from "@snickerdoodlelabs/core/src/interfaces/utilities";
-import {
-  Invitation,
-  EInvitationStatus,
-  EWalletDataType,
+  AccountAddress,
+  Signature,
+  EChain,
+  LanguageCode,
+  LinkedAccount,
+  TokenBalance,
+  WalletNFT,
+  DataWalletAddress,
+  EarnedReward,
+  MarketplaceListing,
   EVMContractAddress,
+  IpfsCID,
+  EWalletDataType,
+  IOpenSeaMetadata,
   DomainName,
   PageInvitation,
-  IpfsCID,
-  IOpenSeaMetadata,
-  MarketplaceListing,
+  Invitation,
+  EInvitationStatus,
   DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { IInvitationService } from "../../interfaces/business/IInvitationService";
+import { IAccountService } from "../../interfaces/business/IAccountService";
 import {
-  IInvitationRepositoryType,
+  IInvitationService,
+  IInvitationServiceType,
+} from "../../interfaces/business/IInvitationService";
+import {
+  IAccountRepository,
+  IAccountRepositoryType,
+} from "../../interfaces/data/IAccountRepository";
+import {
   IInvitationRepository,
+  IInvitationRepositoryType,
 } from "../../interfaces/data/IInvitationRepository";
 import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
@@ -27,16 +40,15 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "../../interfaces/utils/IDataPermissionsUtils";
+
 @injectable()
 export class InvitationService implements IInvitationService {
   constructor(
     @inject(IInvitationRepositoryType)
     protected invitationRepository: IInvitationRepository,
-    @inject(IContextProviderType) protected contexProvider: IContextProvider,
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
-
   public getMarketplaceListings(
     count?: number | undefined,
     headAt?: number | undefined,

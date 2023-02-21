@@ -1,4 +1,6 @@
 import {
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
   Age,
   GivenName,
   FamilyName,
@@ -6,16 +8,19 @@ import {
   Gender,
   EmailAddressString,
   CountryCode,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
+import { IAccountRepository } from "../../interfaces/data/IAccountRepository";
 import { IPIIRepository } from "../../interfaces/data/IPIIRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
 import {
-  IErrorUtilsType,
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+} from "../../interfaces/utils/IAccountCookieUtils";
+import {
   IErrorUtils,
+  IErrorUtilsType,
 } from "../../interfaces/utils/IErrorUtils";
 
 @injectable()
@@ -24,6 +29,7 @@ export class PIIRepository implements IPIIRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
   public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.core.getAge().mapErr((error) => {
       this.errorUtils.emit(error);

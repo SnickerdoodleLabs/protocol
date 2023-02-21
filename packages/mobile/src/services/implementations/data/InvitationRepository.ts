@@ -12,7 +12,7 @@ import {
   ISnickerdoodleCore,
   DomainName,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { IInvitationRepository } from "../../interfaces/data/IInvitationRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
@@ -21,6 +21,7 @@ import {
   IErrorUtilsType,
 } from "../../interfaces/utils/IErrorUtils";
 
+@injectable()
 export class InvitationRepository implements IInvitationRepository {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
