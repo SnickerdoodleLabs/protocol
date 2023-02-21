@@ -5,62 +5,62 @@
  * @format
  */
 
-const path = require('path');
+const path = require("path");
 
 const extraNodeModules = {
-  '@snickerdoodlelabs/core': path.resolve(path.join(__dirname, '../core')),
-  '@snickerdoodlelabs/utils': path.resolve(path.join(__dirname, '../utils')),
-  '@snickerdoodlelabs/persistence': path.resolve(
-    path.join(__dirname, '../persistence'),
+  "@snickerdoodlelabs/core": path.resolve(path.join(__dirname, "../core")),
+  "@snickerdoodlelabs/utils": path.resolve(path.join(__dirname, "../utils")),
+  "@snickerdoodlelabs/persistence": path.resolve(
+    path.join(__dirname, "../persistence"),
   ),
-  '@snickerdoodlelabs/objects': path.resolve(
-    path.join(__dirname, '../objects'),
+  "@snickerdoodlelabs/objects": path.resolve(
+    path.join(__dirname, "../objects"),
   ),
-  '@snickerdoodlelabs/indexers': path.resolve(
-    path.join(__dirname, '../indexers'),
+  "@snickerdoodlelabs/indexers": path.resolve(
+    path.join(__dirname, "../indexers"),
   ),
-  '@snickerdoodlelabs/insight-platform-api': path.resolve(
-    path.join(__dirname, '../insight-platform-api'),
+  "@snickerdoodlelabs/insight-platform-api": path.resolve(
+    path.join(__dirname, "../insight-platform-api"),
   ),
-  '@snickerdoodlelabs/common-utils': path.resolve(
-    path.join(__dirname, '../common-utils'),
+  "@snickerdoodlelabs/common-utils": path.resolve(
+    path.join(__dirname, "../common-utils"),
   ),
-  '@snickerdoodlelabs/contracts': path.resolve(
-    path.join(__dirname, '../contracts'),
+  "@snickerdoodlelabs/contracts": path.resolve(
+    path.join(__dirname, "../contracts"),
   ),
-  '@snickerdoodlelabs/contracts-sdk': path.resolve(
-    path.join(__dirname, '../contracts-sdk'),
+  "@snickerdoodlelabs/contracts-sdk": path.resolve(
+    path.join(__dirname, "../contracts-sdk"),
   ),
-  '@snickerdoodlelabs/query-parser': path.resolve(
-    path.join(__dirname, '../query-parser'),
+  "@snickerdoodlelabs/query-parser": path.resolve(
+    path.join(__dirname, "../query-parser"),
   ),
-  '@snickerdoodlelabs/signature-verification': path.resolve(
-    path.join(__dirname, '../signatureVerification'),
+  "@snickerdoodlelabs/signature-verification": path.resolve(
+    path.join(__dirname, "../signatureVerification"),
   ),
-  stream: require.resolve('stream-browserify'),
-  crypto: require.resolve('react-native-crypto'),
-  argon2: require.resolve('react-native-argon2'),
+  stream: require.resolve("stream-browserify"),
+  crypto: require.resolve("react-native-crypto"),
+  argon2: require.resolve("react-native-argon2"),
+  zlib: require.resolve("browserify-zlib"),
 };
 
 const watchFolders = [
-  path.resolve(path.join(__dirname, '../core')),
-  path.resolve(path.join(__dirname, '../utils')),
-  path.resolve(path.join(__dirname, '../persistence')),
-  path.resolve(path.join(__dirname, '../objects')),
-  path.resolve(path.join(__dirname, '../indexers')),
-  path.resolve(path.join(__dirname, '../insight-platform-api')),
-  path.resolve(path.join(__dirname, '../common-utils')),
-  path.resolve(path.join(__dirname, '../contracts')),
-  path.resolve(path.join(__dirname, '../contracts-sdk')),
-  path.resolve(path.join(__dirname, '../query-parser')),
-  path.resolve(path.join(__dirname, '../signatureVerification')),
-  
+  path.resolve(path.join(__dirname, "../core")),
+  path.resolve(path.join(__dirname, "../utils")),
+  path.resolve(path.join(__dirname, "../persistence")),
+  path.resolve(path.join(__dirname, "../objects")),
+  path.resolve(path.join(__dirname, "../indexers")),
+  path.resolve(path.join(__dirname, "../insight-platform-api")),
+  path.resolve(path.join(__dirname, "../common-utils")),
+  path.resolve(path.join(__dirname, "../contracts")),
+  path.resolve(path.join(__dirname, "../contracts-sdk")),
+  path.resolve(path.join(__dirname, "../query-parser")),
+  path.resolve(path.join(__dirname, "../signatureVerification")),
 ];
 
-const nodeModulesPaths = [path.resolve(path.join(__dirname, './node_modules'))];
+const nodeModulesPaths = [path.resolve(path.join(__dirname, "./node_modules"))];
 module.exports = {
   resolver: {
-    extraNodeModules: require('node-libs-react-native'),
+    extraNodeModules: require("node-libs-react-native"),
   },
   transformer: {
     getTransformOptions: async () => ({
@@ -73,7 +73,7 @@ module.exports = {
       ios: {},
       android: {},
     },
-    assets: ['./src/assets/'],
+    assets: ["./src/assets/"],
   },
   resolver: {
     extraNodeModules,

@@ -1,6 +1,5 @@
 import "react-native-get-random-values";
 import "@ethersproject/shims";
-import "reflect-metadata";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ReactNative from "react-native";
 
@@ -37,4 +36,3 @@ require("@ethersproject/shims");
 require("ethers");
 require("zlib");
 require("@solana/web3.js");
-require("reflect-metadata");

@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import * as React from "react";
 import { MobileCore } from "../services/implementations/Gateway";
 
