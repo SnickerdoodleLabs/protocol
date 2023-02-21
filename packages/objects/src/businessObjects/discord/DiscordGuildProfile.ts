@@ -9,3 +9,10 @@ export class DiscordGuildProfile {
     public permissions: Integer,
   ) {}
 }
+
+export interface DiscordGuildProfileAPIResponse {
+  id: SnowflakeID;
+  name: string;
+  owner: boolean;
+  permissions: Integer;
+}
