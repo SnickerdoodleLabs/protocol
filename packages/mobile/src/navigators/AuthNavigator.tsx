@@ -8,6 +8,7 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import ImageCarousel from "../components/ImageCarousel";
 import { Wallet } from "../screens";
 import Onboarding from "../screens/Onboarding";
+ import Initial from "../screens/Initial";
 
 const Stack = createStackNavigator();
 
@@ -22,8 +23,15 @@ function AuthNavigator() {
         headerBackTitleVisible: false,
         headerTintColor: 'white',
       }} */
-      initialRouteName={ROUTES.ONBOARDING}
+      initialRouteName={ROUTES.INITIAL}
     >
+      <Stack.Screen
+        name={ROUTES.INITIAL}
+        component={Initial}
+        options={{
+          headerShown: false,
+        }}
+      /> 
       <Stack.Screen
         name={ROUTES.HOME}
         component={Home}

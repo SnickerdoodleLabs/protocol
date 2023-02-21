@@ -1,4 +1,5 @@
 export default {
+  INITIAL: "Initial",
   HOME: "Home",
   FORGOT: "Forgot",
   SIGN: "Sign",

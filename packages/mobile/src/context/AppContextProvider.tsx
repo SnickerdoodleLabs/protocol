@@ -1,112 +1,65 @@
+import { AccountAddress } from "@snickerdoodlelabs/objects";
 import * as React from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AppState, AppStateStatus } from "react-native";
+
 import { MobileCore } from "../services/implementations/Gateway";
 
 export interface IAppCtx {
   coreContext?: MobileCore;
+  appState?: AppStateStatus;
+  isUnlocked?: boolean;
+  setUnlockState?: (boolean) => void;
+  updateLinkedAccounts?: () => void;
 }
 
 export const AppCtx = React.createContext<IAppCtx>({});
 
-const AppContextProvider = ({ children }: any) => {
-  const [coreContext, setCoreContext] = React.useState<MobileCore>(
-    new MobileCore(),
-  );
+const AppContextProvider = ({ children }) => {
+  const coreContext = useMemo(() => new MobileCore(), []);
+  const [appState, setAppState] = useState<AppStateStatus>("active");
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
+  const [linkedAccounts, setLinkedAccounts] = useState<AccountAddress[]>([]);
 
-  /*   const initConnection = async () => {
-    try {
-      const sign =
-        "0x91aa05467f4fa179ada6a8f537503a649f7ef2e1c0b63178b251b0afb37bbc5138c2df394c50f435721e991e17e44b33fb4c8ac5736bb4f2d58411b6a77998401b";
-      const acc = "0xbaa1b174fadca4a99cbea171048edef468c5508b";
-      coreContext.unlock(
-        acc as AccountAddress,
-        sign as Signature,
-        "en" as LanguageCode,
-        EChain.EthereumMainnet,
-      );
-      console.log("Unlock Completed!");
-    } catch (err) {
-      console.log({ err });
-    }
-  };
-  const getAccounts = async () => {
-    try {
-      return coreContext.getAccounts();
-    } catch (err) {
-      console.log({ err });
+  useEffect(() => {
+    AppState.addEventListener("change", handleAppStateChange);
+    return () => {};
+  }, []);
+
+  const handleAppStateChange = (state: AppStateStatus) => {
+    if (["active", "background"].includes(state)) {
+      setAppState(state);
     }
   };
 
-  const getAccountBalances = async () => {
-    try {
-      return coreContext.getAccountBalances();
-    } catch (err) {
-      console.log({ err });
-    }
+  const setUnlockState = (state: boolean) => {
+    setIsUnlocked(state);
   };
 
-  const getAccountNFTs = async () => {
-    try {
-      return coreContext.getAccountNFTs();
-    } catch (err) {
-      console.log({ err });
-    }
+  const updateLinkedAccounts = () => {
+    coreContext
+      .getAccountService()
+      .getAccounts()
+      .map((accounts) => {
+        setLinkedAccounts(
+          Array.from(
+            new Set([
+              ...linkedAccounts,
+              ...accounts.map((account) => account.sourceAccountAddress),
+            ]),
+          ),
+        );
+      });
   };
-  const isDataWalletAddressInitialized = async () => {
-    try {
-      return coreContext.isDataWalletAddressInitialized();
-    } catch (err) {
-      console.log({ err });
-    }
-  };
-  const checkInvitationStatus = async (
-    consentAddress: EVMContractAddress,
-    signature?: Signature,
-    tokenId?: BigNumberString,
-  ) => {
-    try {
-      return coreContext.checkInvitationStatus(
-        consentAddress,
-        signature,
-        tokenId,
-      );
-    } catch (err) {
-      console.log({ err });
-    }
-  };
-
-  const getConsentContractCID = (consentAddress: EVMContractAddress) => {
-    return coreContext.getConsentContractCID(consentAddress);
-  };
-  const getInvitationMetadataByCID = (ipfsCID: IpfsCID) => {
-    return coreContext.getInvitationMetadataByCID(ipfsCID);
-  };
-  const getUnlockMessage = (): ResultAsync<
-    string,
-    UnsupportedLanguageError
-  > => {
-    return coreContext.getUnlockMessage();
-  };
-  const acceptInvitation = (
-    invitation: Invitation,
-    dataPermissions: DataPermissions | null,
-  ) => {
-    return coreContext.acceptInvitation(invitation, dataPermissions);
-  }; */
 
   return (
     <AppCtx.Provider
       value={{
         coreContext,
-        /* initConnection,
-        getAccounts,
-        getAccountBalances,
-        getAccountNFTs,
-        isDataWalletAddressInitialized,
-        checkInvitationStatus,
-        getConsentContractCID,
-        getInvitationMetadataByCID,
-        getUnlockMessage,
-        acceptInvitation, */
+        appState,
+        isUnlocked,
+        setUnlockState,
+        updateLinkedAccounts,
       }}
     >
       {children}
