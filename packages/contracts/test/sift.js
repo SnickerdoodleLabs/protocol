@@ -19,26 +19,28 @@ describe("Sift", () => {
     // deploy the Crumbs contract before each test
     Sift = await ethers.getContractFactory("Sift");
 
-    sift = await Sift.deploy("www.sift.com/");
+    sift = await Sift.deploy();
 
     await sift.deployed();
+
+    await sift.initialize("www.sift.com/");
   });
 
   describe("verifyEntity", function () {
     it("Allows address with VERIFIER_ROLE to verify a url.", async function () {
       // accounts 1 creates a crumb
-      await sift.connect(owner).verifyEntity();
-      // // check token balance of the account has 1
-      // const tokenCount = await sift.balanceOf(owner.address);
-      // expect(tokenCount).to.eq(1);
+      await sift.connect(owner).verifyEntity("www.uniswap.com", owner.address, "website metadata");
+      // check token balance of the account has 1
+      const tokenCount = await sift.balanceOf(owner.address);
+      expect(tokenCount).to.eq(1);
 
-      // // check token's uri
-      // const tokenURI = await sift.tokenURI(1);
-      // expect(tokenURI).to.eq("www.sift.com/1");
+      // check token's uri
+      const tokenURI = await sift.tokenURI(1);
+      expect(tokenURI).to.eq("www.sift.com/1");
 
-      // // check total supply
-      // const totalSupply = await sift.totalSupply();
-      // expect(totalSupply).to.eq(1);
+      // check total supply
+      const totalSupply = await sift.totalSupply();
+      expect(totalSupply).to.eq(1);
     });
 
     it("Does not allow address without VERIFIER_ROLE to verify a url.", async function () {
@@ -113,8 +115,8 @@ describe("Sift", () => {
 
       // check url
       const result = await sift.checkEntity("www.uniswap.com");
-      expect(result[0]["metadata"]).to.eq("website metadata");
-      expect(result[0]["status"]).to.eq(1);
+      expect(result.metadata).to.eq("website metadata");
+      expect(result.status).to.eq(1);
     });
 
     it("Returns the MALICIOUS URI for a verified URL", async function () {
@@ -125,14 +127,14 @@ describe("Sift", () => {
 
       // check url
       const result = await sift.checkEntity("www.uniswop.com");
-      expect(result[0]["metadata"]).to.eq("website metadata");
-      expect(result[0]["status"]).to.eq(2);
+      expect(result.metadata).to.eq("website metadata");
+      expect(result.status).to.eq(2);
     });
 
     it("Returns the NOT VERIFIED string for a URL that has not been registered", async function () {
       // check url
       const result = await sift.checkEntity("www.test.com");
-      expect(result[0]["status"]).to.eq(0);
+      expect(result.status).to.eq(0);
     });
   });
 

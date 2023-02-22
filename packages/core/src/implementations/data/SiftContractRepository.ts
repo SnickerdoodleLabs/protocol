@@ -58,7 +58,7 @@ export class SiftContractRepository implements ISiftContractRepository {
     return this.getSiftContract().andThen((contract) => {
       console.log("siftEntity: ", contract);
       return contract.checkEntity(domain).map((siftStatus) => {
-        console.log("siftEntity: ", siftEntity);
+        console.log("siftStatus: ", siftStatus);
         return siftStatus as EScamFilterStatus;
       });
     });
