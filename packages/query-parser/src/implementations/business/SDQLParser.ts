@@ -318,6 +318,10 @@ export class SDQLParser {
   > {
     try {
       const returnsSchema = this.schema.getReturnSchema();
+      if (!returnsSchema) {
+        return okAsync(undefined);
+      }
+
       const returns = new Array<AST_ReturnExpr>();
 
       for (const rName in returnsSchema) {
@@ -428,10 +432,14 @@ export class SDQLParser {
   > {
     try {
       const logicSchema = this.schema.getLogicSchema();
-      this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
+
       this.logicCompensations = this.parseLogicExpressions(
         logicSchema.compensations,
       );
+
+      if (logicSchema.returns) {
+        this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
+      }
 
       if (logicSchema.ads) {
         this.logicAds = this.parseLogicExpressions(logicSchema.ads);
@@ -473,13 +481,16 @@ export class SDQLParser {
   > {
     try {
       const logicSchema = this.schema.getLogicSchema();
-      this.returnPermissions = this.parseLogicPermissions(
-        logicSchema["returns"],
-      );
 
       this.compensationPermissions = this.parseLogicPermissions(
         logicSchema["compensations"],
       );
+
+      if (logicSchema["returns"]) {
+        this.returnPermissions = this.parseLogicPermissions(
+          logicSchema["returns"],
+        );
+      }
 
       if (logicSchema["ads"]) {
         this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);

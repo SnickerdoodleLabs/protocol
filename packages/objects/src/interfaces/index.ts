@@ -12,5 +12,6 @@ export * from "@objects/interfaces/ISDQLQueryObject";
 export * from "@objects/interfaces/ISnickerdoodleCore";
 export * from "@objects/interfaces/ISnickerdoodleCoreEvents";
 export * from "@objects/interfaces/ITokenPriceRepository";
+export * from "@objects/interfaces/IInsightObject";
 
 export * from "@objects/interfaces/chains";

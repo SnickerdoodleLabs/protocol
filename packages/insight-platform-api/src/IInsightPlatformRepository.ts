@@ -1,29 +1,19 @@
 import {
-  GetSignedUrlConfig,
-  Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  File,
-  GetFilesCallback,
-} from "@google-cloud/storage";
-import {
   AjaxError,
   BigNumberString,
-  DataWalletAddress,
+  EarnedReward,
   EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
-  InsightString,
+  IDynamicRewardParameter,
+  IInsights,
   IpfsCID,
+  QueryIdentifier,
   Signature,
   TokenId,
   URLString,
-  EarnedReward,
-  ExpectedReward,
-  QueryIdentifier,
-  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -52,7 +42,7 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    returns: InsightString[],
+    returns: IInsights,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,

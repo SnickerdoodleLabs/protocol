@@ -20,21 +20,13 @@ import {
   HexString32,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
-import {
-  dataWalletKey,
-  dataWalletAddress,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks";
-import {
-  ConfigProviderMock,
-  ContextProviderMock,
-} from "@core-tests/mock/utilities/index.js";
 import { QueryService } from "@core/implementations/business/index.js";
 import {
   IConsentTokenUtils,
@@ -49,16 +41,29 @@ import {
   IConfigProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
+import {
+  dataWalletKey,
+  dataWalletAddress,
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities/index.js";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
-const insights: InsightString[] = [
-  InsightString("Hello1"),
-  InsightString("Hello2"),
-];
-const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
+const insights = {
+  returns: {
+    "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
+    $r3: InsightString("Hello2"),
+  },
+} as IInsights;
+const insightsError = {
+  returns: {},
+} as IInsights;
 const rewards: EligibleReward[] = [];
 const tokenId = TokenId(BigInt(0));
 
@@ -165,7 +170,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
-      this.persistenceRepo
+      this.persistenceRepo,
     );
   }
 }
@@ -313,7 +318,7 @@ describe("processRewardsPreview tests", () => {
       mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
         sdqlQuery,
         td.matchers.anything(),
-        td.matchers.anything()
+        td.matchers.anything(),
       ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
@@ -341,7 +346,7 @@ describe("processRewardsPreview tests", () => {
           return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
             query,
             new DataPermissions(allPermissions),
-            consentContractAddress
+            consentContractAddress,
           );
         })
         .andThen((rewardsPreviews) => {

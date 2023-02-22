@@ -29,6 +29,7 @@ import {
   QueryIdentifier,
   ExpectedReward,
   EVMPrivateKey,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -277,7 +278,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 
