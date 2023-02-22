@@ -56,16 +56,16 @@ import {
   ITokenPriceRepositoryType,
 } from "../interfaces/data/ITokenPriceRepository";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
-} from "../interfaces/utils/IAccountCookieUtils";
+  IAccountStorageUtils,
+  IAccountStorageUtilsType,
+} from "../interfaces/utils/IAccountStorageUtils";
 
 import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "../interfaces/utils/IDataPermissionsUtils";
 import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
-import { AccountCookieUtils } from "./utils/AccountCookieUtils";
+import { AccountStorageUtils } from "./utils/AccountStorageUtils";
 import { DataPermissionsUtils } from "./utils/DataPermissionsUtils";
 import { ErrorUtils } from "./utils/ErrorUtils";
 export const mobileCoreModule = new ContainerModule(
@@ -108,7 +108,9 @@ export const mobileCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
-    bind<IAccountCookieUtils>(IAccountCookieUtilsType).to(AccountCookieUtils);
+    bind<IAccountStorageUtils>(IAccountStorageUtilsType).to(
+      AccountStorageUtils,
+    );
     bind<IDataPermissionsUtils>(IDataPermissionsUtilsType).to(
       DataPermissionsUtils,
     );

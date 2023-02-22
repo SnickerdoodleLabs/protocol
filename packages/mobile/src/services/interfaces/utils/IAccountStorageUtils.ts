@@ -9,27 +9,27 @@ import { ResultAsync } from "neverthrow";
 import { MobileCookieError } from "../objects/errors/MobileCookieError";
 import { IUnlockParams } from "../objects/params/IParams";
 
-export interface IAccountCookieUtils {
-  writeAccountInfoToCookie(
+export interface IAccountStorageUtils {
+  writeAccountInfoToStorage(
     accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<void, MobileCookieError>;
 
-  removeAccountInfoFromCookie(
+  removeAccountInfoStorage(
     accountAddress: AccountAddress,
   ): ResultAsync<void, MobileCookieError>;
 
-  readAccountInfoFromCookie(): ResultAsync<IUnlockParams[], MobileCookieError>;
-  writeDataWalletAddressToCookie(
+  readAccountInfoStorage(): ResultAsync<IUnlockParams[], MobileCookieError>;
+  writeDataWalletAddressToStorage(
     dataWalletAddress: DataWalletAddress,
   ): ResultAsync<void, MobileCookieError>;
-  readDataWalletAddressFromCookie(): ResultAsync<
+  readDataWalletAddressFromstorage(): ResultAsync<
     DataWalletAddress | null,
     MobileCookieError
   >;
-  removeDataWalletAddressFromCookie(): ResultAsync<void, MobileCookieError>;
+  removeDataWalletAddressFromstorage(): ResultAsync<void, MobileCookieError>;
 }
 
-export const IAccountCookieUtilsType = Symbol.for("IAccountCookieUtils");
+export const IAccountStorageUtilsType = Symbol.for("IAccountStorageUtils");

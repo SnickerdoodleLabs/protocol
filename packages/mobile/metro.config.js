@@ -38,7 +38,7 @@ const extraNodeModules = {
     path.join(__dirname, "../signatureVerification"),
   ),
   stream: require.resolve("stream-browserify"),
-  crypto: require.resolve("react-native-crypto"),
+  // crypto: require.resolve("react-native-crypto"),
   argon2: require.resolve("react-native-argon2"),
   zlib: require.resolve("browserify-zlib"),
 };

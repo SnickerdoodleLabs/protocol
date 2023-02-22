@@ -13,12 +13,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
 import { IAccountRepository } from "../../interfaces/data/IAccountRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
-} from "../../interfaces/utils/IAccountCookieUtils";
+  IAccountStorageUtils,
+  IAccountStorageUtilsType,
+} from "../../interfaces/utils/IAccountStorageUtils";
 import {
   IErrorUtils,
   IErrorUtilsType,
@@ -29,8 +30,8 @@ export class AccountRepository implements IAccountRepository {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
-    @inject(IAccountCookieUtilsType)
-    protected accountCookie: IAccountCookieUtils,
+    @inject(IAccountStorageUtilsType)
+    protected accountStorage: IAccountStorageUtils,
   ) {}
   public addAccount(
     account: AccountAddress,
@@ -61,7 +62,7 @@ export class AccountRepository implements IAccountRepository {
         if (calledWithCookie) {
           return okAsync(undefined);
         }
-        return this.accountCookie.writeAccountInfoToCookie(
+        return this.accountStorage.writeAccountInfoToStorage(
           account,
           signature,
           languageCode,

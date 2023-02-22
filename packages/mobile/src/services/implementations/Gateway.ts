@@ -1,11 +1,15 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   ISnickerdoodleCore,
+  ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { Container, inject } from "inversify";
 import { MobileStorageUtils } from "./utils/MobileStorageUtils";
-import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
+import {
+  MemoryVolatileStorage,
+  NullCloudStorage,
+} from "@snickerdoodlelabs/persistence";
 import { mobileCoreModule } from "./Gateway.module";
 import { coreConfig } from "../interfaces/objects/Config";
 import {
@@ -24,6 +28,12 @@ import {
   ITokenPriceServiceType,
   ITokenPriceService,
 } from "../interfaces/business/ITokenPriceService";
+import { ResultAsync } from "neverthrow";
+import {
+  IAccountStorageUtils,
+  IAccountStorageUtilsType,
+} from "../interfaces/utils/IAccountStorageUtils";
+import { IAccountRepositoryType } from "../interfaces/data/IAccountRepository";
 
 export class MobileCore {
   protected iocContainer: Container;
@@ -36,9 +46,13 @@ export class MobileCore {
       coreConfig,
       new MobileStorageUtils(),
       new MemoryVolatileStorage(),
-      undefined,
+      new NullCloudStorage(),
     );
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
+  }
+
+  public getCore() {
+    return this.core;
   }
 
   public getInvitationService() {
@@ -52,5 +66,13 @@ export class MobileCore {
   }
   public getPIIService() {
     return this.iocContainer.get<IPIIService>(IPIIServiceType);
+  }
+  public getAccountStorageUtils() {
+    return this.iocContainer.get<IAccountStorageUtils>(
+      IAccountStorageUtilsType,
+    );
+  }
+  public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
+    return this.core.getEvents();
   }
 }

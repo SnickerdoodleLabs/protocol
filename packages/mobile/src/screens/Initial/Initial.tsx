@@ -1,23 +1,128 @@
+import {
+  AccountAddress,
+  EChain,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
 import LottieView from "lottie-react-native";
-import React, { useEffect, useMemo } from "react";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Image, View, Dimensions } from "react-native";
 
 import LoadingLottie from "../../assets/lotties/loading.json";
+import { useAppContext } from "../../context/AppContextProvider";
 
 import { styles } from "./Initial.styles";
 
 // Make all neccassary checks here
 
+interface IUnlockParams {
+  accountAddress: AccountAddress;
+  signature: Signature;
+  chain: EChain;
+  languageCode: LanguageCode;
+}
+
+enum EUnlockState {
+  "IDLE",
+  "NO_ACCOUNT",
+  "COMPLETED",
+}
+
 const Initial = ({ navigation }) => {
+  const { coreContext, isUnlocked } = useAppContext();
+  const [unlockCompleted, setUnlockCompleted] = useState<EUnlockState>(
+    EUnlockState.IDLE,
+  );
   const allChecksCompleted: boolean = useMemo(() => {
-    return false;
+    return (
+      (unlockCompleted === EUnlockState.COMPLETED && isUnlocked) ||
+      unlockCompleted === EUnlockState.NO_ACCOUNT
+    );
+  }, [unlockCompleted, isUnlocked]);
+
+  useEffect(() => {
+    tryUnlock();
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      navigation.replace("Home");
-    }, 3000);
-  }, []);
+    if (allChecksCompleted) {
+      navigation.replace(isUnlocked ? "Wallet" : "Home");
+    }
+  }, [allChecksCompleted, isUnlocked]);
+
+  const tryUnlock = (): ResultAsync<void, Error> => {
+    const accountService = coreContext.getAccountService();
+    const accountStorageUtils = coreContext.getAccountStorageUtils();
+    return ResultUtils.combine([
+      accountStorageUtils.readAccountInfoStorage(),
+      accountStorageUtils.readDataWalletAddressFromstorage(),
+    ])
+      .andThen(([unlockParamsArr, dataWalletAddressOnCookie]) => {
+        console.log(
+          `Data wallet address on storage ${dataWalletAddressOnCookie}`,
+        );
+        if (unlockParamsArr?.length) {
+          const { accountAddress, signature, languageCode, chain } =
+            unlockParamsArr[0];
+          return accountService
+            .getDataWalletForAccount(
+              accountAddress,
+              signature,
+              languageCode,
+              chain ?? EChain.EthereumMainnet,
+            )
+            .andThen((dataWalletAddress) => {
+              console.log(
+                `Decrypted data wallet address for account ${accountAddress} ${dataWalletAddress}`,
+              );
+              if (
+                !dataWalletAddress ||
+                (dataWalletAddressOnCookie &&
+                  dataWalletAddressOnCookie != dataWalletAddress)
+              ) {
+                console.log(
+                  `Datawallet was not able to be unlocked with account address ${accountAddress}`,
+                );
+                return accountStorageUtils
+                  .removeAccountInfoStorage(accountAddress)
+                  .map(() => {
+                    console.log(`Account ${accountAddress} removed`);
+                    tryUnlock();
+                  });
+              }
+              return accountService
+                .unlock(
+                  accountAddress,
+                  signature,
+                  chain ?? EChain.EthereumMainnet,
+                  languageCode,
+                  true,
+                )
+                .map(() => {
+                  console.error("WAITING EVENT");
+                  setUnlockCompleted(EUnlockState.COMPLETED);
+                });
+            });
+        } else {
+          if (dataWalletAddressOnCookie) {
+            console.log(
+              `No account info found on cookie for auto unlock ${dataWalletAddressOnCookie} is removing`,
+            );
+            return accountStorageUtils
+              .removeDataWalletAddressFromstorage()
+              .andThen(() => {
+                return okAsync(setUnlockCompleted(EUnlockState.NO_ACCOUNT));
+              });
+          }
+          return okAsync(setUnlockCompleted(EUnlockState.NO_ACCOUNT));
+        }
+      })
+      .orElse((e) => {
+        return okAsync(setUnlockCompleted(EUnlockState.NO_ACCOUNT));
+      });
+  };
 
   return (
     <View
@@ -27,7 +132,7 @@ const Initial = ({ navigation }) => {
           display: "flex",
           width: "100%",
           height: "100%",
-          backgroundColor: "#222039",
+          backgroundColor: "#000",
         },
       ]}
     >

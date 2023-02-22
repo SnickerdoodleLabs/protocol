@@ -8,23 +8,20 @@
  * @format
  */
 // Import the crypto getRandomValues shim (**BEFORE** the shims)
-import { Buffer } from "buffer";
-global.Buffer = Buffer;
-import "react-native-get-random-values";
-import "@ethersproject/shims";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
+import WalletConnectProvider from "@walletconnect/react-native-dapp";
 import React, { useEffect } from "react";
 import { Platform, StyleSheet, useColorScheme, LogBox } from "react-native";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import Feather from "react-native-vector-icons/Feather";
-
-import { Colors } from "react-native/Libraries/NewAppScreen";
-import AuthNavigator from "./navigators/AuthNavigator";
-import WalletConnectProvider from "@walletconnect/react-native-dapp";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import BackgroundFetch from "react-native-background-fetch";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import Feather from "react-native-vector-icons/Feather";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+
 import AppContextProvider from "./context/AppContextProvider";
+import EventContextProvider from "./context/EventContextProvider";
+import AuthNavigator from "./navigators/AuthNavigator";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -48,6 +45,7 @@ const App = () => {
   return (
     <NavigationContainer linking={linking}>
       <AppContextProvider>
+        <EventContextProvider>{null}</EventContextProvider>
         <WalletConnectProvider
           bridge="https://bridge.walletconnect.org"
           clientMeta={{
@@ -64,6 +62,7 @@ const App = () => {
             asyncStorage: AsyncStorage,
           }}
         >
+          {/* <EventContextProvider>t</EventContextProvider> */}
           <AuthNavigator />
         </WalletConnectProvider>
       </AppContextProvider>

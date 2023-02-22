@@ -1,6 +1,7 @@
 /**
  * @format
  */
+import "./shim";
 require("node-libs-react-native/globals.js");
 import "reflect-metadata";
 import { AppRegistry } from "react-native";

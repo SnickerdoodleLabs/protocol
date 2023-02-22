@@ -15,10 +15,6 @@ import { IAccountRepository } from "../../interfaces/data/IAccountRepository";
 import { IPIIRepository } from "../../interfaces/data/IPIIRepository";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
-} from "../../interfaces/utils/IAccountCookieUtils";
-import {
   IErrorUtils,
   IErrorUtilsType,
 } from "../../interfaces/utils/IErrorUtils";
