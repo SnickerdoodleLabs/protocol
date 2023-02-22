@@ -52,28 +52,14 @@ export class ExprParser {
       ], // TODO everything up to a opening parenthesis
     );
 
-    this.precedence.set(TokenType.or, [
+    const conditions = [
       TokenType.and,
       TokenType.or,
       TokenType.gt,
       TokenType.lt,
       TokenType.eq,
-    ]);
-    this.precedence.set(TokenType.and, [
-      TokenType.and,
-      TokenType.or,
-      TokenType.gt,
-      TokenType.lt,
-      TokenType.eq,
-    ]);
-
-    this.precedence.set(TokenType.eq, [
-      TokenType.gt,
-      TokenType.lt,
-      TokenType.eq,
-    ]);
-    this.precedence.set(TokenType.lt, [TokenType.gt, TokenType.lt]);
-    this.precedence.set(TokenType.gt, [TokenType.gt, TokenType.lt]);
+    ];
+    conditions.forEach((cond) => this.precedence.set(cond, conditions));
 
     this.tokenToExpMap.set(TokenType.gt, this.createG);
     this.tokenToExpMap.set(TokenType.lt, this.createL);
