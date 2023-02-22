@@ -79,7 +79,6 @@ export class PoapRepository implements IEVMNftRepository {
       "scan",
       accountAddress.toString(),
     ]);
-    console.log("POAP url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
