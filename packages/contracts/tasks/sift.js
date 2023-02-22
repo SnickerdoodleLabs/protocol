@@ -80,6 +80,8 @@ task("checkEntity", "Checks a url on the Sift Contract")
     const provider = await hre.ethers.provider;
     const label = taskArgs.label;
 
+    console.log("Sift Contract Param: " + siftContract());
+
     // attach the first signer account to the consent contract handle
     const siftContractHandle = new hre.ethers.Contract(
       siftContract(),

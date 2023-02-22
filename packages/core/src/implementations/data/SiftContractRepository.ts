@@ -56,9 +56,10 @@ export class SiftContractRepository implements ISiftContractRepository {
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
-      return contract.checkEntity(domain).map((siftEntity) => {
+      console.log("siftEntity: ", contract);
+      return contract.checkEntity(domain).map((siftStatus) => {
         console.log("siftEntity: ", siftEntity);
-        return siftEntity.status as EScamFilterStatus;
+        return siftStatus as EScamFilterStatus;
       });
     });
   }

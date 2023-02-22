@@ -36,7 +36,7 @@ export interface ISiftContract {
    * eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED
    * @param domain Domain name to check
    */
-  checkEntity(domain: DomainName): ResultAsync<SiftEntity, SiftContractError>;
+  checkEntity(domain: DomainName): ResultAsync<string, SiftContractError>;
 
   /**
    * Sets a new base uri for the contract

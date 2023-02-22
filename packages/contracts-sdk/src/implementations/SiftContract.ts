@@ -42,22 +42,29 @@ export class SiftContract implements ISiftContract {
 
   public checkEntity(
     domain: DomainName,
-  ): ResultAsync<SiftEntity, SiftContractError> {
+  ): ResultAsync<string, SiftContractError> {
     // Returns the tokenURI or string
     // eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED'
-    return ResultAsync.fromPromise(
-      this.contract.checkEntity(domain) as Promise<SiftEntity>,
-      (e) => {
-        return new SiftContractError(
-          "Unable to call checkEntity()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    );
+    return this.contract
+      .checkEntity(domain)
+      .map((siftEntity) => {
+        if (siftEntity.status == 0) {
+          return "NOT VERIFIED";
+        }
+        if (siftEntity.status == 1) {
+          return "VERIFIED";
+        }
+        return "MALICIOUS";
+      })
+      .mapErr((error) => {
+        // return new SiftContractError("");
+        console.log("Error from Check Entity: ", error);
+      });
   }
 
-  public verifyEntity(domain: DomainName): ResultAsync<void, SiftContractError> {
+  public verifyEntity(
+    domain: DomainName,
+  ): ResultAsync<void, SiftContractError> {
     return ResultAsync.fromPromise(
       this.contract.verifyEntity(
         domain,
