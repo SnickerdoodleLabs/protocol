@@ -152,7 +152,7 @@ export class ExprParser {
               token.position,
               "No matching opening parenthesis for this",
             );
-            //console.log(e);
+            console.log(e);
             throw e;
           }
           break;
@@ -181,7 +181,7 @@ export class ExprParser {
 
     const precedence = this.precedence.get(token.type);
     if (precedence) {
-      //console.log("precedence", precedence);
+      // console.log("precedence", precedence);
       // let lastStackItem = stack[stack.length - 1];
       while (stack.length > 0) {
         // console.log("peeking", stack[stack.length - 1]);
@@ -264,23 +264,13 @@ export class ExprParser {
 
     let expList: Array<ParserContextDataTypes> = [];
 
-    console.log("batu: " + JSON.stringify(postFix));
-
     for (const token of postFix) {
-      console.log(
-        "NEW ITERATION. token: " +
-          JSON.stringify(token) +
-          " current expList: " +
-          JSON.stringify(expList),
-      );
       if (exprTypes.includes(token.type)) {
         const executable = this.getExecutableFromContext(token);
-        console.log("executable: " + JSON.stringify(executable));
         expList.push(executable);
       } else {
         // we have a operator type
         const newExp: any = this.createExp(expList, token);
-        console.log("newExp: " + JSON.stringify(newExp));
 
         if (!newExp) {
           const err = new ParserError(
