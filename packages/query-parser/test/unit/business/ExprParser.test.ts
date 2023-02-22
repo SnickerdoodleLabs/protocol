@@ -229,6 +229,33 @@ describe("Postfix expressions", () => {
     expect(postfixTokens).toEqual(expectedPostfixTokens);
   });
 
+  test("($q1and($q2==$q3)) -> $q1,$q2,q3,==,and", () => {
+    const tokens = new Tokenizer("($q1and($q2==$q3))").all();
+    expect(tokens).toEqual([
+      new Token(TokenType.parenthesisOpen, "(", 0),
+      new Token(TokenType.query, "$q1", 1),
+      new Token(TokenType.and, "and", 4),
+      new Token(TokenType.parenthesisOpen, "(", 7),
+      new Token(TokenType.query, "$q2", 8),
+      new Token(TokenType.eq, "==", 11),
+      new Token(TokenType.query, "$q3", 13),
+      new Token(TokenType.parenthesisClose, ")", 16),
+      new Token(TokenType.parenthesisClose, ")", 17),
+    ]);
+
+    const context: Map<string, any> = new Map();
+    const exprParser = new ExprParser(context);
+
+    const postfixTokens = exprParser.infixToPostFix(tokens);
+    expect(postfixTokens).toEqual([
+      new Token(TokenType.query, "$q1", 1),
+      new Token(TokenType.query, "$q2", 8),
+      new Token(TokenType.query, "$q3", 13),
+      new Token(TokenType.eq, "==", 11),
+      new Token(TokenType.and, "and", 4),
+    ]);
+  });
+
   test("if$q1and$q2then$r1 -> $q1, $q2, and, r1, if", () => {
     const tokenizer = new Tokenizer("if$q1and$q2then$r1");
     const tokens = tokenizer.all();
