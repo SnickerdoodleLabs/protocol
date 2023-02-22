@@ -11,7 +11,7 @@ import {
   TokenType,
 } from "@query-parser/implementations/business/Tokenizer.js";
 import {
-  ParserContextDataTypes,
+  AST_Ad,
   AST_ConditionExpr,
   AST_Expr,
   AST_Query,
@@ -19,8 +19,11 @@ import {
   Command,
   Command_IF,
   ConditionAnd,
+  ConditionE,
+  ConditionG,
+  ConditionL,
   ConditionOr,
-  AST_Ad,
+  ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
 
 export class ExprParser {
@@ -38,6 +41,9 @@ export class ExprParser {
     this.precedence.set(
       TokenType.parenthesisClose,
       [
+        TokenType.gt,
+        TokenType.lt,
+        TokenType.eq,
         TokenType.and,
         TokenType.or,
         TokenType.if,
@@ -45,9 +51,33 @@ export class ExprParser {
         TokenType.else,
       ], // TODO everything up to a opening parenthesis
     );
-    this.precedence.set(TokenType.and, [TokenType.and, TokenType.or]);
-    this.precedence.set(TokenType.or, [TokenType.and, TokenType.or]);
 
+    this.precedence.set(TokenType.or, [
+      TokenType.and,
+      TokenType.or,
+      TokenType.gt,
+      TokenType.lt,
+      TokenType.eq,
+    ]);
+    this.precedence.set(TokenType.and, [
+      TokenType.and,
+      TokenType.or,
+      TokenType.gt,
+      TokenType.lt,
+      TokenType.eq,
+    ]);
+
+    this.precedence.set(TokenType.eq, [
+      TokenType.gt,
+      TokenType.lt,
+      TokenType.eq,
+    ]);
+    this.precedence.set(TokenType.lt, [TokenType.gt, TokenType.lt]);
+    this.precedence.set(TokenType.gt, [TokenType.gt, TokenType.lt]);
+
+    this.tokenToExpMap.set(TokenType.gt, this.createG);
+    this.tokenToExpMap.set(TokenType.lt, this.createL);
+    this.tokenToExpMap.set(TokenType.eq, this.createE);
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
     this.tokenToExpMap.set(TokenType.if, this.createIf);
@@ -56,6 +86,7 @@ export class ExprParser {
       this.context.set("dependencies", new Map<string, Set<AST_Query>>());
     }
   }
+
   private getNextId(name: string) {
     this.id++;
     const nextId = `${name}${this.id}`;
@@ -78,7 +109,8 @@ export class ExprParser {
     const ast = this.buildAstFromPostfix(postFix);
     return ast;
   }
-  // #region infix to postfix
+
+  // #region infix to postfix, $q1and$q2 -> $q1$q2and
   infixToPostFix(infix: Token[]): Array<Token> {
     const stack: Array<Token> = [];
     const postFix: Array<Token> = [];
@@ -104,6 +136,9 @@ export class ExprParser {
           stack.push(token);
           break;
 
+        case TokenType.lt:
+        case TokenType.gt:
+        case TokenType.eq:
         case TokenType.and:
         case TokenType.or:
           // pop everything that has higher or equal precedence
@@ -131,7 +166,7 @@ export class ExprParser {
               token.position,
               "No matching opening parenthesis for this",
             );
-            console.log(e);
+            //console.log(e);
             throw e;
           }
           break;
@@ -160,7 +195,7 @@ export class ExprParser {
 
     const precedence = this.precedence.get(token.type);
     if (precedence) {
-      // console.log("precedence", precedence);
+      //console.log("precedence", precedence);
       // let lastStackItem = stack[stack.length - 1];
       while (stack.length > 0) {
         // console.log("peeking", stack[stack.length - 1]);
@@ -243,13 +278,23 @@ export class ExprParser {
 
     let expList: Array<ParserContextDataTypes> = [];
 
+    console.log("batu: " + JSON.stringify(postFix));
+
     for (const token of postFix) {
+      console.log(
+        "NEW ITERATION. token: " +
+          JSON.stringify(token) +
+          " current expList: " +
+          JSON.stringify(expList),
+      );
       if (exprTypes.includes(token.type)) {
         const executable = this.getExecutableFromContext(token);
+        console.log("executable: " + JSON.stringify(executable));
         expList.push(executable);
       } else {
         // we have a operator type
         const newExp: any = this.createExp(expList, token);
+        console.log("newExp: " + JSON.stringify(newExp));
 
         if (!newExp) {
           const err = new ParserError(
@@ -291,6 +336,9 @@ export class ExprParser {
       case TokenType.compensation:
         nameStr = token.val.substring(1);
         break;
+      case TokenType.number:
+      case TokenType.string:
+        return token.val;
       default:
         const err = new ParserError(
           token.position,
@@ -311,6 +359,36 @@ export class ExprParser {
     }
 
     return executable;
+  }
+
+  createG(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionG(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createL(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionL(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createE(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionE(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
   createAnd(expList: Array<any>, token: Token): AST_ConditionExpr {
