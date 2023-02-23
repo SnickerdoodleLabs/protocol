@@ -13,7 +13,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
 import React, { useEffect } from "react";
 import { Platform, StyleSheet, useColorScheme, LogBox } from "react-native";
-import BackgroundFetch from "react-native-background-fetch";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";

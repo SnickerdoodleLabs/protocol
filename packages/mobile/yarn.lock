@@ -4247,8 +4247,6 @@ __metadata:
     react: 18.1.0
     react-native: 0.70.6
     react-native-argon2: ^2.0.1
-    react-native-background-actions: ^2.6.7
-    react-native-background-fetch: ^4.1.5
     react-native-crypto: ^2.2.0
     react-native-gesture-handler: ^2.8.0
     react-native-get-random-values: ^1.8.0
@@ -4257,7 +4255,6 @@ __metadata:
     react-native-os: ^1.2.6
     react-native-paper: ^4.12.5
     react-native-qrcode-svg: 6.0.6
-    react-native-quick-base64: ^2.0.5
     react-native-quick-crypto: ^0.5.0
     react-native-randombytes: ^3.6.1
     react-native-reanimated: ^2.13.0
@@ -4288,6 +4285,7 @@ __metadata:
     url-join-ts: ^1.0.5
     util: ^0.10.4
     vm-browserify: 0.0.4
+    yarn: ^1.22.19
   languageName: unknown
   linkType: soft
 
@@ -18753,24 +18751,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-background-actions@npm:^2.6.7":
-  version: 2.6.7
-  resolution: "react-native-background-actions@npm:2.6.7"
-  dependencies:
-    eventemitter3: ^4.0.7
-  peerDependencies:
-    react-native: ">=0.47.0"
-  checksum: 69736b37185fe9fd3365190ff0505c93196fa917b5871d1d3dd2f5d81985d7abc09b8fd40658b8e6cc13be38300ac5eb902e01c65d9ee4e2d5f7e554a264e6e3
-  languageName: node
-  linkType: hard
-
-"react-native-background-fetch@npm:^4.1.5":
-  version: 4.1.5
-  resolution: "react-native-background-fetch@npm:4.1.5"
-  checksum: 5c83fd100359a1151df5904499ca05a613107edc055745c66db9c522431391dbf85ac860718adfe4f50fd78bdc8ca6f8ee010e54f0918e31f6776834a985a3bc
-  languageName: node
-  linkType: hard
-
 "react-native-codegen@npm:^0.70.6":
   version: 0.70.6
   resolution: "react-native-codegen@npm:0.70.6"
@@ -23294,6 +23274,16 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: b14afbb51e3251a204d81937c86a7e9d4bdbf9a2bcee38226c900d00f522969ab675703bee2a6f99f8e20103f608382936034e64d921b74df82b63c07c5e8f59
+  languageName: node
+  linkType: hard
+
+"yarn@npm:^1.22.19":
+  version: 1.22.19
+  resolution: "yarn@npm:1.22.19"
+  bin:
+    yarn: bin/yarn.js
+    yarnpkg: bin/yarn.js
+  checksum: b43d2cc5fee7e933beb12a8aee7dfceca9e9ef2dd17c5d04d15a12ab7bec5f5744ea34a07b86e013da7f291a18c4e1ad8f70e150f5ed2f4666e6723c7f0a8452
   languageName: node
   linkType: hard
 

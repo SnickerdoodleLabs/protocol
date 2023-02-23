@@ -2590,6 +2590,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@craftzdog/react-native-buffer@npm:^6.0.4":
+  version: 6.0.5
+  resolution: "@craftzdog/react-native-buffer@npm:6.0.5"
+  dependencies:
+    ieee754: ^1.2.1
+    react-native-quick-base64: ^2.0.5
+  checksum: 921b8bc7f84778e355e81e475792399276d611a346a7e51b6266a45cf4aa82194beb3a8106af796ed143d958c8476070c59e3720c0eec0a3c31e368fbb08b350
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -8520,9 +8530,11 @@ __metadata:
     react-native-os: ^1.2.6
     react-native-paper: ^4.12.5
     react-native-qrcode-svg: 6.0.6
+    react-native-quick-base64: ^2.0.5
+    react-native-quick-crypto: ^0.5.0
     react-native-randombytes: ^3.6.1
     react-native-reanimated: ^2.13.0
-    react-native-safe-area-context: ^4.4.1
+    react-native-safe-area-context: ^4.5
     react-native-screens: ^3.18.2
     react-native-svg: 9.6.4
     react-native-tcp: ^3.3.2
@@ -8548,6 +8560,7 @@ __metadata:
     url: ^0.10.3
     url-join-ts: ^1.0.5
     util: ^0.10.4
+    vm-browserify: 0.0.4
   languageName: unknown
   linkType: soft
 
@@ -9823,6 +9836,13 @@ __metadata:
   version: 12.20.55
   resolution: "@types/node@npm:12.20.55"
   checksum: e4f86785f4092706e0d3b0edff8dca5a13b45627e4b36700acd8dfe6ad53db71928c8dee914d4276c7fd3b6ccd829aa919811c9eb708a2c8e4c6eb3701178c37
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^17.0.31":
+  version: 17.0.45
+  resolution: "@types/node@npm:17.0.45"
+  checksum: aa04366b9103b7d6cfd6b2ef64182e0eaa7d4462c3f817618486ea0422984c51fc69fd0d436eae6c9e696ddfdbec9ccaa27a917f7c2e8c75c5d57827fe3d95e8
   languageName: node
   linkType: hard
 
@@ -24526,7 +24546,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"indexof@npm:~0.0.1":
+"indexof@npm:0.0.1, indexof@npm:~0.0.1":
   version: 0.0.1
   resolution: "indexof@npm:0.0.1"
   checksum: 0fb04e8b147b8585d981a6df1564f25bb3678d6fa74e33e5cecc1464b10f78e15e8ef6bb688f135fe5c2844a128fac8a7831cbe5adc81fdcf12681b093dfcc25
@@ -37099,6 +37119,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-quick-base64@npm:^2.0.2, react-native-quick-base64@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "react-native-quick-base64@npm:2.0.5"
+  dependencies:
+    base64-js: ^1.5.1
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 964599ad68d54dd741357850c72b4a5e08f247fa294590f18866896662107b734b6810703fdd972560cee8087095f14f06fc6ef69944c59c41dbbd885a7832bb
+  languageName: node
+  linkType: hard
+
+"react-native-quick-crypto@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "react-native-quick-crypto@npm:0.5.0"
+  dependencies:
+    "@craftzdog/react-native-buffer": ^6.0.4
+    "@types/node": ^17.0.31
+    crypto-browserify: ^3.12.0
+    events: ^3.3.0
+    react-native-quick-base64: ^2.0.2
+    stream-browserify: ^3.0.0
+    string_decoder: ^1.3.0
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: b9ddb2f83b0190d2831dd912dd425a5a873a89744fe02248ac7125c5afee1945a67df61c343295ab22267a4ec1f4a8e9d380a7ad5deee415d22d7437d4c554e7
+  languageName: node
+  linkType: hard
+
 "react-native-randombytes@npm:^3.5.1, react-native-randombytes@npm:^3.6.1":
   version: 3.6.1
   resolution: "react-native-randombytes@npm:3.6.1"
@@ -37128,13 +37178,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:^4.4.1":
-  version: 4.4.1
-  resolution: "react-native-safe-area-context@npm:4.4.1"
+"react-native-safe-area-context@npm:^4.5":
+  version: 4.5.0
+  resolution: "react-native-safe-area-context@npm:4.5.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: ef7c41ea59a34b114c6481fb130e66ef85e8d5b88acb46279131367761ca9fbf22cd310fe613f49b6c9b56dbd83e044be640f0532eda1d3856bf708e96335a35
+  checksum: 958df1d20492aa89c23d746f88409a3a3bd1b0d397c80310a4b0bbec9888cbbeb7579c9c92dad46841e2e6536491806206228ba009b7c8af970670aef8273a30
   languageName: node
   linkType: hard
 
@@ -43775,6 +43825,15 @@ __metadata:
   version: 2.0.4
   resolution: "vlq@npm:2.0.4"
   checksum: b2ed0d3a5423f34bba98a18250f8b13a96eebff9c8f9427fa9cd78065d31f35641f6fd659c5642253b79532000a37aec0582abac95d1ef4af2cd0c96a716f1b6
+  languageName: node
+  linkType: hard
+
+"vm-browserify@npm:0.0.4":
+  version: 0.0.4
+  resolution: "vm-browserify@npm:0.0.4"
+  dependencies:
+    indexof: 0.0.1
+  checksum: 96f216ab040452b4da801c3e759307f10782017e9e7eae8ebd5a93e61340ff46caa4b13839ece52b8947b8e8aca59a285f723b6b7b101d8e46131b804bcf195d
   languageName: node
   linkType: hard
 

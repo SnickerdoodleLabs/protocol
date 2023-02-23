@@ -8,6 +8,11 @@
 const path = require("path");
 
 const extraNodeModules = {
+  ...require("node-libs-react-native"),
+  stream: require.resolve("stream-browserify"),
+  crypto: require.resolve("react-native-quick-crypto"),
+  argon2: require.resolve("react-native-argon2"),
+  zlib: require.resolve("browserify-zlib"),
   "@snickerdoodlelabs/core": path.resolve(path.join(__dirname, "../core")),
   "@snickerdoodlelabs/utils": path.resolve(path.join(__dirname, "../utils")),
   "@snickerdoodlelabs/persistence": path.resolve(
@@ -37,10 +42,6 @@ const extraNodeModules = {
   "@snickerdoodlelabs/signature-verification": path.resolve(
     path.join(__dirname, "../signatureVerification"),
   ),
-  stream: require.resolve("stream-browserify"),
-  // crypto: require.resolve("react-native-crypto"),
-  argon2: require.resolve("react-native-argon2"),
-  zlib: require.resolve("browserify-zlib"),
 };
 
 const watchFolders = [
