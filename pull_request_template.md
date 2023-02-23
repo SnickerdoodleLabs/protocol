@@ -16,10 +16,11 @@ Give a brief summary of what your change is and why it is required.
 - Are there any metrics (or indicators) that can prove or disprove the integrity of this change?
 - List them here...
 
-<!---For minor fixes include the following --->
+<!---For minor fixes replace with the following --->
 <!---### Minor Change
 A 1-2 sentence summary on the change. If this requires more detail your change is likely not minor.-->
 
 ### Pre-Flight Checks
 - [ ] Has QA approved this change for dev?
 - [ ] Are all unit tests passing?
+- [ ] Have you added this description to this week's [release notes](https://drive.google.com/drive/folders/1ELnyVZHgISIlwDQXgy0mb-4qsn_1PRZr?usp=sharing)?
