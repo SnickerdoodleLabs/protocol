@@ -23,6 +23,8 @@ import {
   IDataWalletPersistence,
   ParserError,
   IInsights,
+  IInsightsReturns,
+  IInsightsQueries,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -125,13 +127,23 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   > {
     return this.buildAstAndEvaluator(sdqlParser, cid).andThen(
       ([ast, astEvaluator]) => {
-        if (
+        const containsReturns =
           this.containsReturns(sdqlParser) &&
-          this.containsReturnsLogic(sdqlParser)
-        ) {
-          return this.evalAllReturns(ast, astEvaluator, dataPermissions);
-        }
-        return this.evalAllQueries(sdqlParser, ast, dataPermissions);
+          this.containsReturnsLogic(sdqlParser);
+        return ResultUtils.combine([
+          this.evalAllReturns(
+            containsReturns,
+            ast,
+            astEvaluator,
+            dataPermissions,
+          ),
+          this.evalAllQueries(sdqlParser, ast, dataPermissions),
+        ]).map(([returns, queryAnswers]) => {
+          return {
+            queries: queryAnswers,
+            returns: returns,
+          };
+        });
       },
     );
   }
@@ -141,30 +153,35 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     ast: AST,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsights,
+    IInsightsQueries,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     return this.getPermittedQueries(sdqlParser, ast, dataPermissions).andThen(
       (queries) => {
         return ResultUtils.combine(this.evalQueries(queries)).map((result) => {
-          return { queries: Object.fromEntries(result) } as IInsights;
+          return Object.fromEntries(result) as IInsightsQueries;
         });
       },
     );
   }
 
   protected evalAllReturns(
+    containsReturns: boolean,
     ast: AST,
     astEvaluator: AST_Evaluator,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsights,
+    IInsightsReturns,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
+    if (!containsReturns) {
+      return okAsync({});
+    }
+
     return ResultUtils.combine(
       this.evalReturns(ast, dataPermissions, astEvaluator),
     ).map((result) => {
-      return { returns: Object.fromEntries(result) } as IInsights;
+      return Object.fromEntries(result) as IInsightsReturns;
     });
   }
 

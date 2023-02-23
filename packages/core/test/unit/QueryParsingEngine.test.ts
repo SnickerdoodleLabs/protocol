@@ -1,8 +1,11 @@
 import "reflect-metadata";
 
+import { jest } from "@jest/globals";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
+  ChainId,
+  CompensationId,
   CountryCode,
   DataPermissions,
   ERewardType,
@@ -11,26 +14,22 @@ import {
   HexString32,
   IDataWalletPersistence,
   IpfsCID,
+  ISDQLCompensations,
   QueryIdentifier,
   SDQLQuery,
   SDQLString,
-  ChainTransaction,
   SDQL_Return,
-  ChainId,
-  ISDQLCompensations,
   TransactionPaymentCounter,
-  QueryFilteredByPermissions,
-  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
   avalanche2SchemaStr,
   avalanche4SchemaStr,
   IQueryObjectFactory,
+  ISDQLQueryUtils,
   ISDQLQueryWrapperFactory,
   QueryObjectFactory,
   SDQLQueryWrapperFactory,
-  ISDQLQueryUtils,
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -89,30 +88,15 @@ class QueryParsingMocks {
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.snickerDoodleCore = new SnickerdoodleCore();
+    this.snickerDoodleCore = new SnickerdoodleCore(
+      undefined,
+      undefined,
+      td.object(),
+    );
     this.queryFactories = new QueryFactories(
       this.queryObjectFactory,
       this.queryWrapperFactory,
     );
-
-    td.when(this.persistenceRepo.getGender()).thenReturn(
-      okAsync(Gender("female")),
-    );
-    td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(country));
-
-    td.when(this.persistenceRepo.getSiteVisitsMap()).thenReturn(
-      okAsync(new Map()),
-    );
-
-    td.when(
-      this.persistenceRepo.getTransactions(td.matchers.anything()),
-    ).thenReturn(okAsync([]));
-
-    td.when(this.persistenceRepo.getTransactionValueByChain()).thenReturn(
-      okAsync(new Array<TransactionPaymentCounter>()),
-    );
-
-    td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
     const expectedCompensationsMap = new Map<
       CompensationId,
@@ -132,21 +116,6 @@ class QueryParsingMocks {
         chainId: ChainId(1),
       } as ISDQLCompensations);
 
-    td.when(
-      this.queryUtils.filterQueryByPermissions(
-        sdqlQuery4.query,
-        new DataPermissions(allPermissions),
-      ),
-    ).thenReturn(
-      okAsync(
-        new QueryFilteredByPermissions(
-          ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"].map(QueryIdentifier),
-          expectedCompensationsMap,
-          new Map(),
-        ),
-      ),
-    );
-
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
@@ -158,6 +127,30 @@ class QueryParsingMocks {
       new AjaxUtilsMock(),
       new ConfigProviderMock(),
     );
+
+    td.when(this.persistenceRepo.getGender()).thenReturn(
+      okAsync(Gender("female")),
+    );
+    // td.when(this.snickerDoodleCore.getAge()).thenReturn(okAsync(Age(10)));
+    td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(10)));
+    td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(country));
+    td.when(this.persistenceRepo.getSiteVisitsMap()).thenReturn(
+      okAsync(new Map()),
+    );
+    td.when(
+      this.persistenceRepo.getTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
+    td.when(this.persistenceRepo.getTransactionValueByChain()).thenReturn(
+      okAsync(new Array<TransactionPaymentCounter>()),
+    );
+    td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
+
+    td.when(
+      this.queryUtils.getPermittedQueryIds(
+        td.matchers.anything(),
+        new DataPermissions(allPermissions),
+      ),
+    ).thenReturn(okAsync([] as QueryIdentifier[]));
   }
 
   public factory() {
@@ -258,25 +251,20 @@ describe("single Tests", () => {
 
 describe("Testing order of results", () => {
   const mocks = new QueryParsingMocks();
-  test("No null insight with all permissions given", async () => {
-    const engine = mocks.factory();
+  const engine = mocks.factory();
 
+  test("No null insight with all permissions given", async () => {
     await engine
       .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
       .andThen(([insights, rewards]) => {
-        // console.log(insights);
         console.log("Insights: ", insights);
         console.log("Rewards: ", rewards);
-
-        expect(insights).toEqual({
-          returns: {
-            "if($q1and$q2)then$r1else$r2": "not qualified",
-            $r3: country,
-            $r4: "female",
-            $r5: "{}",
-          },
+        expect(insights.returns).toEqual({
+          "if($q1and$q2)then$r1else$r2": "not qualified",
+          $r3: country,
+          $r4: "female",
+          $r5: "{}",
         });
-
         return okAsync(insights);
       })
       .mapErr((e) => {

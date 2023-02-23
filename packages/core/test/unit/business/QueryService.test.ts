@@ -56,6 +56,7 @@ const queryCID = IpfsCID("Beep");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const insights = {
+  queries: {},
   returns: {
     "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
     $r3: InsightString("Hello2"),

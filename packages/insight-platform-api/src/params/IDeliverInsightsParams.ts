@@ -1,17 +1,16 @@
 import {
   EVMContractAddress,
   IDynamicRewardParameter,
-  InsightString,
+  IInsights,
   IpfsCID,
   Signature,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 
 export interface IDeliverInsightsParams {
   consentContractId: EVMContractAddress;
   tokenId: string;
   queryCID: IpfsCID;
-  returns: InsightString[];
+  returns: IInsights;
   rewardParameters: IDynamicRewardParameter[];
   signature: Signature;
 }
