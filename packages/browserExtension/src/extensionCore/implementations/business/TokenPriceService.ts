@@ -1,9 +1,3 @@
-import { ITokenPriceService } from "@interfaces/business";
-import {
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-} from "@interfaces/data";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   ChainId,
   TokenAddress,
@@ -13,6 +7,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { ITokenPriceService } from "@interfaces/business";
+import {
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+} from "@interfaces/data";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class TokenPriceService implements ITokenPriceService {

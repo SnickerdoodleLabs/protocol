@@ -3,8 +3,6 @@ import "reflect-metadata";
 import { IpfsCID, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
-import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
 import {
   ExprParser,
   QueryObjectFactory,
@@ -26,6 +24,8 @@ import {
   ParserContextDataTypes,
   SDQLQueryWrapper,
 } from "@query-parser/interfaces";
+import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
+import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
 
 class ExprParserMocks {
   public wrapperMocks = new SDQLQueryWrapperMocks();
