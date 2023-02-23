@@ -26,7 +26,6 @@ contract Consent is
     IConsent
 {
     /// @dev Interface for ConsentFactory
-    address consentFactoryAddress;
     IConsentFactory consentFactoryInstance;
 
     /// @dev an unsorted tag array which this consent contract stakes against
@@ -44,7 +43,7 @@ contract Consent is
     bytes32 public constant REQUESTER_ROLE = keccak256("REQUESTER_ROLE");
     bytes32 public constant STAKER_ROLE = keccak256("STAKER_ROLE");
 
-    /// @dev Base uri for logo of Consent tokens
+    /// @dev Base uri field used to hold marketplace listing content
     string public baseURI;
 
     /// @dev Total supply of Consent tokens
@@ -99,9 +98,8 @@ contract Consent is
         __ERC721Burnable_init();
 
         // set the consentFactoryAddress
-        consentFactoryAddress = _contractFactoryAddress;
-        consentFactoryInstance = IConsentFactory(consentFactoryAddress);
-        maxTags = consentFactoryInstance.maxTagsPerListing();
+        consentFactoryInstance = IConsentFactory(_contractFactoryAddress);
+        maxTags = consentFactoryInstance.maxTagsPerListing(); // it's assumed maxTags will only be increased in the future
 
         // set trusted forwarder for meta-txs
         trustedForwarder = _trustedForwarder;
@@ -109,8 +107,11 @@ contract Consent is
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
 
-        // set the initial maximum capacity
-        maxCapacity = 50;
+        // set the initial maximum capacity (we set to a relatively large number)
+        maxCapacity = 100000;
+
+        // set the base uri so the consent contract has content to display in the marketplace
+        baseURI = baseURI_;
 
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping
         super._grantRole(DEFAULT_ADMIN_ROLE, _consentOwner);
@@ -118,11 +119,6 @@ contract Consent is
         super._grantRole(SIGNER_ROLE, _consentOwner);
         super._grantRole(REQUESTER_ROLE, _consentOwner);
         super._grantRole(STAKER_ROLE, _consentOwner);
-
-        // required role grant to allow calling setBaseUri on initialization
-        // as msg.sender is the Consent's BeaconProxy contract
-        super._grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        baseURI = baseURI_;
     }
 
     /* CORE FUNCTIONS */
@@ -132,7 +128,7 @@ contract Consent is
         return tags.length;
     }
 
-    /// @notice Get the tag array
+    /// @notice Get the tag array (we assume the size of this array is small enough to return without windowing)
     function getTagArray() external view returns (Tag[] memory) {
         return tags;
     }

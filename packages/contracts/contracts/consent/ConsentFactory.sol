@@ -112,11 +112,11 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
 
-        // the new linked list entry must be between two existing entries
+        // the tag must not have been initialized previously 
         require(listingTotals[LLKey] == 0, "ConsentFactory: This tag is already initialized");
 
         // we use index 0 and 2^256-1 to be our boundary conditions so we don't have to use a dedicated storage variable for the head/tail listings
-        // infinity -> _newHead -> 0
+        // infinity <-> _newHead <-> 0
         listings[LLKey][type(uint256).max].next = _newHead; // not included in the totals
         listings[LLKey][_newHead] = Listing(type(uint256).max, 0, msg.sender, block.timestamp + listingDuration);
         listings[LLKey][0].previous = _newHead; // not included in the totals
@@ -124,11 +124,11 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         // increment the number of listings under this tag
         listingTotals[LLKey] += 1;
 
-        emit NewListing(msg.sender, tag, _newHead);
+        emit MarketplaceUpdate(address(0), msg.sender, tag, _newHead);
     }
 
     /// @notice Inserts a new listing into the doubly-linked Listings mapping
-    /// @dev _newSlot -> _existingSlot 
+    /// @dev _newSlot <-> _existingSlot 
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _newSlot New linked list entry that will point to the Listing at _existingSlot 
     /// @param _existingSlot Listing slot that will be pointed to by the new Listing at _newSlot  
@@ -149,11 +149,11 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
         listingTotals[LLKey] += 1; 
 
-        emit NewListing(msg.sender, tag, _newSlot);
+        emit MarketplaceUpdate(address(0), msg.sender, tag, _newSlot);
     }
 
     /// @notice Inserts a new listing into the doubly-linked Listings mapping
-    /// @dev _existingSlot -> _newSlot
+    /// @dev _existingSlot <-> _newSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _existingSlot Listing slot that will be pointed to by the new Listing at _newSlot  
     /// @param _newSlot New linked list entry that will point to the Listing at _existingSlot 
@@ -162,7 +162,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         require(_newSlot > 0, "ConsentFactory: _newSlot must be greater than 0");
         require(_existingSlot > _newSlot, "ConsentFactory: _existingSlot must be greater than _newSlot");
 
-        // The new listing must fit between _upstream and its current downstresam
+        // The new listing must fit between _upstream and its current downstream
         // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
         Listing memory existingListing = listings[LLKey][_existingSlot];
@@ -174,11 +174,10 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
         listingTotals[LLKey] += 1; 
 
-        emit NewListing(msg.sender, tag, _newSlot);
+        emit MarketplaceUpdate(address(0), msg.sender, tag, _newSlot);
     }
 
     /// @notice Replaces an existing listing that has expired (works for head and tail listings)
-    /// @dev _newSlot -> oldHeadSlot
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(string memory tag, uint256 _slot) external onlyConsentContract {
@@ -194,7 +193,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         // slide the new listing into the existing slot
         listings[LLKey][_slot] = Listing(oldListing.previous, oldListing.next, msg.sender, block.timestamp + listingDuration);
 
-        emit NewListing(msg.sender, tag, _slot);
+        emit MarketplaceUpdate(oldListing.consentContract, msg.sender, tag, _slot);
     }
 
     /// @notice removes a listing in the marketplace listing map
@@ -204,17 +203,19 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
         // grab the candidate head listing to be removed
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
-        Listing memory removedSlot = listings[LLKey][_removedSlot];
+        Listing memory removedListing = listings[LLKey][_removedSlot];
 
         // the caller must own the listing which is being removed
-        require(msg.sender == removedSlot.consentContract, "ConsentFactory: only listing owner can remove");
+        require(msg.sender == removedListing.consentContract, "ConsentFactory: only listing owner can remove");
 
-        listings[LLKey][removedSlot.previous].next = removedSlot.next;
+        listings[LLKey][removedListing.previous].next = removedListing.next;
         delete listings[LLKey][_removedSlot];
-        listings[LLKey][removedSlot.next].previous = removedSlot.previous;
+        listings[LLKey][removedListing.next].previous = removedListing.previous;
 
         // decrement the number of listings
         listingTotals[LLKey] -= 1;
+
+        emit MarketplaceUpdate(removedListing.consentContract, address(0), tag, _removedSlot);
     }
 
     /// @notice allows the DEFAULT_ADMINE_ROLE to remove a listing in the marketplace listing map
@@ -224,15 +225,17 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
         // grab the candidate head listing to be removed
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
-        Listing memory removedSlot = listings[LLKey][_removedSlot];
-        require(removedSlot.timeExpiring > 0, "ConsentFactory: this slot is not initialized");
+        Listing memory removedListing = listings[LLKey][_removedSlot];
+        require(removedListing.timeExpiring > 0, "ConsentFactory: this slot is not initialized");
 
-        listings[LLKey][removedSlot.previous].next = removedSlot.next;
+        listings[LLKey][removedListing.previous].next = removedListing.next;
         delete listings[LLKey][_removedSlot];
-        listings[LLKey][removedSlot.next].previous = removedSlot.previous;
+        listings[LLKey][removedListing.next].previous = removedListing.previous;
 
         // decrement the number of listings
         listingTotals[LLKey] -= 1;
+
+        emit MarketplaceUpdate(removedListing.consentContract, address(0), tag, _removedSlot);
     }
 
     /// @notice Returns a single entry of the listings structure

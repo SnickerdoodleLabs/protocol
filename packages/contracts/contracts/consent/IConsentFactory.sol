@@ -18,19 +18,21 @@ interface IConsentFactory {
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
 
-    /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
-    /// @param consentContract address of the target consent contract
-    /// @param tag the human-readable tag the listing was filed under
-    /// @param slot The slot (i.e. amount of stake) that the listing has posted to
-    event NewListing(address indexed consentContract, string tag, uint256 slot);
+    /// @notice Emitted when a new marketplace listing is created
+    /// @dev the full time-history of the marketplace can be reconstructed from this event
+    /// @param oldOccupant address of the previous occupant of the given slot
+    /// @param newOccupant address of the new occupant of the given slot
+    /// @param tag the human-readable tag associated with the update
+    /// @param slot The slot (i.e. amount of stake) associated with the update
+    event MarketplaceUpdate(address indexed oldOccupant, address indexed newOccupant, string tag, uint256 slot);
 
     /* External Functions */ 
 
-    function listingDuration() external returns (uint256);
+    function listingDuration() external view returns (uint256);
 
-    function maxTagsPerListing() external returns (uint256);
+    function maxTagsPerListing() external view returns (uint256);
 
-    function trustedForwarder() external returns (address);
+    function trustedForwarder() external view returns (address);
 
     function initializeTag(string memory tag, uint256 _newHead) external;
 
