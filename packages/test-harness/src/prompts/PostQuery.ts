@@ -43,7 +43,7 @@ export class PostQuery extends Prompt {
                 value: 3,
               },
               {
-                name: `Query 4 - Ads`,
+                name: `Query 4 - Ads with no return`,
                 value: 4,
               },
               new inquirer.Separator(),

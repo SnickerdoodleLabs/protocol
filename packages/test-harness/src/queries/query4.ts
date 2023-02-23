@@ -2,7 +2,7 @@ export const query4 = {
   version: 0.1,
   timestamp: "2023-02-01T15:33:08.421Z",
   expiry: "3022-09-13T19:19:42.000Z",
-  description: "Example query for 2 ads",
+  description: "Ad query with no returns",
   business: "Hentai Paradise",
   ads: {
     a3: {
