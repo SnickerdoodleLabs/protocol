@@ -28,6 +28,7 @@ import {
   getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -65,70 +66,95 @@ export class SolanaIndexer
       );
     }
 
-    const url = urlJoinP("https://public-api.solscan.io/account/tokens", [], {
-      account: accountAddress,
-    });
-    return this.ajaxUtils
-      .get<ISolscanBalanceResponse>(new URL(url))
-      .andThen((balances) => {
-        return ResultUtils.combine(
-          balances.map((balance) => {
-            return ResultUtils.combine([
-              this.tokenPriceRepo.getTokenInfo(chainId, balance.tokenAddress),
-              // disabling until we can stop the rate limit
-              // this.tokenPriceRepo.getTokenPrice(
-              //   chainId,
-              //   balance.tokenAddress,
-              //   new Date(),
-              // ),
-            ])
-              .andThen(([tokenInfo]) => {
-                if (tokenInfo == null) {
-                  return okAsync(undefined);
-                }
+    const url =
+      "https://solana-mainnet.g.alchemy.com/v2/Svoz_lR2LW8DLWIPeJvRkxhTHiiizi3D";
 
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.Solana,
-                    tokenInfo.symbol,
-                    chainId,
-                    tokenInfo.address,
-                    accountAddress,
-                    balance.tokenAmount.amount,
-                    balance.tokenAmount.decimals,
-                  ),
-                );
-              })
-              .orElse((e) => {
-                this.logUtils.error("error retrieving token info", e);
-                return okAsync(undefined);
-              });
-          }),
-        ).map((balances) => {
-          return balances.filter(
-            (balance) => balance != null,
-          ) as TokenBalance[];
-        });
+    console.log("Solana Url: ", url);
+
+    const backup = {
+      method: "getTokenAccountsByOwner",
+      jsonrpc: "2.0",
+      params: [
+        "Hqx7JKUrNMzZPfgapu3FK4xGFPzxdwJdYEJCeXkVBCbg",
+        {
+          mint: "0x41848d32f281383f214c69b7b248dc7c2e0a7374",
+        },
+        {
+          encoding: "jsonParsed",
+        },
+      ],
+    };
+
+    return this.ajaxUtils
+      .post<undefined>(new URL(url), JSON.stringify(backup), {
+        headers: {
+          "Content-Type": `application/json;`,
+        },
       })
-      .andThen((balances) => {
-        return this._getConnectionForChainId(chainId).andThen(([conn]) => {
-          return ResultAsync.fromPromise(
-            conn.getBalance(new PublicKey(accountAddress)),
-            (e) => new AccountIndexingError("error getting native balance"),
-          ).map((nativeBalanceValue) => {
-            const nativeBalance = new TokenBalance(
-              EChainTechnology.Solana,
-              TickerSymbol("SOL"),
-              chainId,
-              null,
-              accountAddress,
-              BigNumberString(nativeBalanceValue.toString()),
-              getChainInfoByChainId(chainId).nativeCurrency.decimals,
-            );
-            return [nativeBalance, ...balances];
-          });
-        });
+      .andThen((balance) => {
+        console.log("Mapped Solana Balances: ", balance);
+        return okAsync([]);
       });
+
+    // .andThen((balances) => {
+    //   return ResultUtils.combine(
+    //     balances.map((balance) => {
+    //       return ResultUtils.combine([
+    //         this.tokenPriceRepo.getTokenInfo(chainId, balance.tokenAddress),
+    //         // disabling until we can stop the rate limit
+    //         // this.tokenPriceRepo.getTokenPrice(
+    //         //   chainId,
+    //         //   balance.tokenAddress,
+    //         //   new Date(),
+    //         // ),
+    //       ])
+    //         .andThen(([tokenInfo]) => {
+    //           if (tokenInfo == null) {
+    //             return okAsync(undefined);
+    //           }
+
+    //           return okAsync(
+    //             new TokenBalance(
+    //               EChainTechnology.Solana,
+    //               tokenInfo.symbol,
+    //               chainId,
+    //               tokenInfo.address,
+    //               accountAddress,
+    //               balance.tokenAmount.amount,
+    //               balance.tokenAmount.decimals,
+    //             ),
+    //           );
+    //         })
+    //         .orElse((e) => {
+    //           this.logUtils.error("error retrieving token info", e);
+    //           return okAsync(undefined);
+    //         });
+    //     }),
+    //   ).map((balances) => {
+    //     return balances.filter(
+    //       (balance) => balance != null,
+    //     ) as TokenBalance[];
+    //   });
+    // })
+    // .andThen((balances) => {
+    //   return this._getConnectionForChainId(chainId).andThen(([conn]) => {
+    //     return ResultAsync.fromPromise(
+    //       conn.getBalance(new PublicKey(accountAddress)),
+    //       (e) => new AccountIndexingError("error getting native balance"),
+    //     ).map((nativeBalanceValue) => {
+    //       const nativeBalance = new TokenBalance(
+    //         EChainTechnology.Solana,
+    //         TickerSymbol("SOL"),
+    //         chainId,
+    //         null,
+    //         accountAddress,
+    //         BigNumberString(nativeBalanceValue.toString()),
+    //         getChainInfoByChainId(chainId).nativeCurrency.decimals,
+    //       );
+    //       return [nativeBalance, ...balances];
+    //     });
+    //   });
+    // });
   }
 
   public getTokensForAccount(
@@ -260,3 +286,33 @@ type ISolscanBalanceResponse = {
   rentEpoch: number;
   lamports: number;
 }[];
+
+type IAlchemyBalanceRequest = {
+  id: number;
+  jsonrpc: string;
+  result: {
+    context: {
+      slot: number;
+    };
+    value: {
+      amount: string;
+      decimals: number;
+      uiAmountString: string;
+    };
+  };
+};
+
+type IAlchemyBalanceResponse = {
+  id: number;
+  jsonrpc: string;
+  result: {
+    context: {
+      slot: number;
+    };
+    value: {
+      amount: string;
+      decimals: number;
+      uiAmountString: string;
+    };
+  };
+};

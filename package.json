@@ -189,5 +189,10 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4",
     "webpack-merge": "^5.8.0"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.73.2",
+    "alchemy-sdk": "^2.4.3",
+    "api": "^5.0.7"
   }
 }
