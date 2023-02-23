@@ -121,6 +121,7 @@ class DiscordRepository implements IDiscordRepository {
                 profile.name,
                 profile.owner,
                 profile.permissions,
+                profile.icon,
               );
             });
 
