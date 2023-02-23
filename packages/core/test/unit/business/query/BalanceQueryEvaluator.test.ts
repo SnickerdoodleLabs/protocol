@@ -1,9 +1,7 @@
 import "reflect-metadata";
 
 import {
-  IDataWalletPersistence,
   TokenBalance,
-  Age,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
@@ -14,8 +12,8 @@ import {
   TickerSymbol,
   BigNumberString,
   EChainTechnology,
-  IEVMBalance,
   ESDQLQueryReturn,
+  Age,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -32,6 +30,11 @@ import * as td from "testdouble";
 
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import {
+  IBrowsingDataRepository,
+  IDemographicDataRepository,
+  IPortfolioBalanceRepository,
+} from "@core/interfaces/data";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 0),
@@ -48,7 +51,9 @@ const conditionsE = [new ConditionE(SDQL_OperatorName("e"), null, 29)];
 const conditionsIn = [new ConditionIn(SDQL_OperatorName("e"), null, ["29"])];
 
 class BalanceQueryEvaluatorMocks {
-  public dataWalletPersistence = td.object<IDataWalletPersistence>();
+  public balanceRepo = td.object<IPortfolioBalanceRepository>();
+  public demoRepo = td.object<IDemographicDataRepository>();
+  public browsingRepo = td.object<IBrowsingDataRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
 
   public URLmap = new Map<URLString, number>([
@@ -56,17 +61,15 @@ class BalanceQueryEvaluatorMocks {
   ]);
 
   public constructor() {
-    td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.dataWalletPersistence.getGender()).thenReturn(
-      okAsync(Gender("male")),
-    );
-    td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
+    td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoRepo.getGender()).thenReturn(okAsync(Gender("male")));
+    td.when(this.browsingRepo.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
   }
 
   public factory() {
-    return new BalanceQueryEvaluator(this.dataWalletPersistence);
+    return new BalanceQueryEvaluator(this.balanceRepo);
   }
 }
 
@@ -80,9 +83,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -171,9 +174,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -250,9 +253,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -319,9 +322,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -400,9 +403,9 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,

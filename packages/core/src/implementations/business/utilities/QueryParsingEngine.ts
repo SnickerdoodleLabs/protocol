@@ -19,10 +19,12 @@ import {
   EligibleAd,
   EVMContractAddress,
   PersistenceError,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
-import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
+import {
+  AST,
+  ISDQLQueryUtils,
+  ISDQLQueryUtilsType,
+} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -35,10 +37,15 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IAdRepositoryType,
+} from "@core/interfaces/data/index.js";
+import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
-import { IAdContentRepository, IAdRepositoryType } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -47,39 +54,40 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
-    protected adContentRepository: IAdContentRepository
+    protected adContentRepository: IAdContentRepository,
+    @inject(IAdDataRepositoryType)
+    protected adDataRepository: IAdDataRepository,
   ) {}
 
   public getPermittedQueryIdsAndExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
     const queryString = query.query;
     const cid: IpfsCID = query.cid;
 
-    return this.queryUtils.filterQueryByPermissions(
-      queryString, dataPermissions
-    ).andThen((queryFilteredByPermissions) => {
+    return this.queryUtils
+      .filterQueryByPermissions(queryString, dataPermissions)
+      .andThen((queryFilteredByPermissions) => {
+        return this.constructAndSaveEligibleAds(
+          queryFilteredByPermissions.eligibleAdsMap,
+          cid,
+          consentContractAddress,
+        ).andThen(() => {
+          const expectedRewardList = this.constructExpectedRewards(
+            queryFilteredByPermissions.expectedCompensationsMap,
+          );
 
-      return this.constructAndSaveEligibleAds(
-        queryFilteredByPermissions.eligibleAdsMap, cid, consentContractAddress
-      ).andThen(() => {
-
-        const expectedRewardList = this.constructExpectedRewards(
-          queryFilteredByPermissions.expectedCompensationsMap
-        );
-  
-        return okAsync<[QueryIdentifier[], ExpectedReward[]]>(
-          [queryFilteredByPermissions.permittedQueryIds, expectedRewardList]
-        );
+          return okAsync<[QueryIdentifier[], ExpectedReward[]]>([
+            queryFilteredByPermissions.permittedQueryIds,
+            expectedRewardList,
+          ]);
+        });
       });
-    });
   }
 
   public handleQuery(
@@ -121,23 +129,22 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   }
 
   protected constructExpectedRewards(
-    iSDQLCompensationsMap: Map<CompensationId, ISDQLCompensations>
+    iSDQLCompensationsMap: Map<CompensationId, ISDQLCompensations>,
   ): ExpectedReward[] {
-
     const expectedRewardList: ExpectedReward[] = [];
     for (const currentKeyAsString in iSDQLCompensationsMap) {
       const currentSDQLCompensationsKey = CompensationId(currentKeyAsString);
-      const currentSDQLCompensationsObject: ISDQLCompensations = 
+      const currentSDQLCompensationsObject: ISDQLCompensations =
         iSDQLCompensationsMap[currentSDQLCompensationsKey];
 
-      expectedRewardList.push( 
+      expectedRewardList.push(
         new ExpectedReward(
           currentSDQLCompensationsKey,
           currentSDQLCompensationsObject.description,
           currentSDQLCompensationsObject.chainId,
           JSON.stringify(currentSDQLCompensationsObject.callback),
-          ERewardType.Direct
-        )
+          ERewardType.Direct,
+        ),
       );
     }
     return expectedRewardList;
@@ -146,28 +153,28 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   protected constructAndSaveEligibleAds(
     eligibleAdsMap: Map<AdKey, ISDQLAd>,
     queryCID: IpfsCID,
-    consentContractAddress: EVMContractAddress
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, PersistenceError> {
-
     const eligibleAdList = this.adsMapToEligibleAdObjects(
-      eligibleAdsMap, queryCID, consentContractAddress
+      eligibleAdsMap,
+      queryCID,
+      consentContractAddress,
     );
 
-    return this.persistence.saveEligibleAds(eligibleAdList);
+    return this.adDataRepository.saveEligibleAds(eligibleAdList);
   }
 
   protected adsMapToEligibleAdObjects(
     iSDQLAdsMap: Map<AdKey, ISDQLAd>,
     queryCID: IpfsCID,
-    consentContractAddress: EVMContractAddress
+    consentContractAddress: EVMContractAddress,
   ): EligibleAd[] {
     const eligibleAdList: EligibleAd[] = [];
     for (const currentKeyAsString in iSDQLAdsMap) {
       const currentAdKey = AdKey(currentKeyAsString);
-      const currentSDQLAdObject: ISDQLAd = 
-        iSDQLAdsMap[AdKey(currentAdKey)];
+      const currentSDQLAdObject: ISDQLAd = iSDQLAdsMap[AdKey(currentAdKey)];
 
-      eligibleAdList.push( 
+      eligibleAdList.push(
         new EligibleAd(
           consentContractAddress,
           queryCID,
@@ -178,8 +185,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           currentSDQLAdObject.displayType,
           currentSDQLAdObject.weight,
           currentSDQLAdObject.expiry,
-          currentSDQLAdObject.keywords
-        )
+          currentSDQLAdObject.keywords,
+        ),
       );
     }
     return eligibleAdList;

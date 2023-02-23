@@ -1,8 +1,4 @@
 import {
-  EVMAccountAddress,
-  TransactionFilter,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
   ChainId,
@@ -19,12 +15,16 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { INftQueryEvaluator } from "@core/interfaces/business/utilities/query/INftQueryEvaluator";
+import {
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
+} from "@core/interfaces/data";
 
 @injectable()
 export class NftQueryEvaluator implements INftQueryEvaluator {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IPortfolioBalanceRepositoryType)
+    protected portfolioBalanceRepository: IPortfolioBalanceRepository,
   ) {}
 
   public eval(query: AST_NftQuery): ResultAsync<SDQL_Return, PersistenceError> {
@@ -40,7 +40,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
         : [ChainId(Number(networkId))];
     }
 
-    return this.dataWalletPersistence
+    return this.portfolioBalanceRepository
       .getAccountNFTs(chainIds)
       .map((walletNfts) => {
         return SDQL_Return(

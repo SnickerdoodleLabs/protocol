@@ -13,7 +13,6 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -23,8 +22,6 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -72,6 +69,12 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdDataRepository,
+  BrowsingDataRepository,
+  LinkedAccountRepository,
+  PortfolioBalanceRepository,
+  TransactionHistoryRepository,
+  DemographicDataRepository,
   AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
@@ -82,6 +85,7 @@ import {
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
+  CoinGeckoTokenPriceRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -138,6 +142,8 @@ import {
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   IDNSRepository,
   IDNSRepositoryType,
   IInvitationRepository,
@@ -150,6 +156,18 @@ import {
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
   ISiftContractRepositoryType,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IBrowsingDataRepositoryType,
+  IBrowsingDataRepository,
+  ILinkedAccountRepositoryType,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepositoryType,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepositoryType,
+  ITransactionHistoryRepository,
+  IDemographicDataRepositoryType,
+  IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -245,6 +263,24 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(CoinGeckoTokenPriceRepository)
+      .inSingletonScope();
+    bind<IAdDataRepository>(IAdDataRepositoryType)
+      .to(AdDataRepository)
+      .inSingletonScope();
+    bind<IBrowsingDataRepository>(IBrowsingDataRepositoryType)
+      .to(BrowsingDataRepository)
+      .inSingletonScope();
+    bind<ILinkedAccountRepository>(ILinkedAccountRepositoryType)
+      .to(LinkedAccountRepository)
+      .inSingletonScope();
+    bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
+      .to(PortfolioBalanceRepository)
+      .inSingletonScope();
+    bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
+      .to(TransactionHistoryRepository)
+      .inSingletonScope();
+    bind<IDemographicDataRepository>(IDemographicDataRepositoryType)
+      .to(DemographicDataRepository)
       .inSingletonScope();
 
     // Utilities

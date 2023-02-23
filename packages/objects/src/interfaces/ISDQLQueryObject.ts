@@ -1,5 +1,6 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
+import { AdContent } from "@objects/businessObjects";
 import {
   AccountAddress,
   ChainId,
@@ -12,7 +13,6 @@ import {
   EAdDisplayType,
   ISO8601DateString,
 } from "@objects/primitives";
-import { AdContent } from "@objects/businessObjects";
 import { ESDQLQueryReturn } from "@objects/enum";
 
 export interface ISDQLQueryObject {

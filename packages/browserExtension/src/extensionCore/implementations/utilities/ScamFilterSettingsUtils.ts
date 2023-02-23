@@ -1,10 +1,11 @@
+import { injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import Browser from "webextension-polyfill";
+
 import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import { IScamFilterSettingsUtils } from "@interfaces/utilities/IScamFilterSettingsUtils";
 import { IScamFilterSettingsParams } from "@shared/interfaces/actions";
 import { ExtensionStorageError } from "@shared/objects/errors";
-import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import Browser from "webextension-polyfill";
 
 @injectable()
 export class ScamFilterSettingsUtils implements IScamFilterSettingsUtils {

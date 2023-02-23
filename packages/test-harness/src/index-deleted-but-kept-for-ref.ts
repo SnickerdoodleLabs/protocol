@@ -49,17 +49,26 @@ import {
   EVMTransactionHash,
   Invitation,
 } from "@snickerdoodlelabs/objects";
-import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
-import inquirer from "inquirer";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
+
+import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
+
 import { query1, query2 } from "@test-harness/queries/index.js";
+
+import { BigNumber } from "ethers";
+
 import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+
+import inquirer from "inquirer";
+
 import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
 
 // #region new prompt
 const promptFactory = new PromptFactory();

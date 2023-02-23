@@ -1,4 +1,4 @@
 export interface IScamFilterPreferences {
-    isScamFilterActive: boolean;
-    showMessageEveryTime: boolean;
+  isScamFilterActive: boolean;
+  showMessageEveryTime: boolean;
 }

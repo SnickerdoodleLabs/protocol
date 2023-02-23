@@ -1,4 +1,9 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import {
+  AdSignature,
+  EligibleAd,
+  SHA256Hash,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
@@ -8,7 +13,6 @@ import {
   BusinessProfile,
   DataWalletProfile,
 } from "@test-harness/utilities/index.js";
-import { AdSignature, EligibleAd, SHA256Hash } from "@snickerdoodlelabs/objects";
 
 const walletFolder = "data/profiles/dataWallet";
 

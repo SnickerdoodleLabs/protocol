@@ -1,8 +1,6 @@
 import {
   EVMAccountAddress,
   TransactionFilter,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
@@ -11,14 +9,18 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/query/IBlockchainTransactionQueryEvaluator";
+import {
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class BlockchainTransactionQueryEvaluator
   implements IBlockchainTransactionQueryEvaluator
 {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionHistoryRepo: ITransactionHistoryRepository,
   ) {}
 
   public eval(
@@ -39,7 +41,7 @@ export class BlockchainTransactionQueryEvaluator
     );
 
     if (query.returnType == "object") {
-      return this.dataWalletPersistence
+      return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
           // console.log("network query Result: ", transactions)
@@ -71,7 +73,7 @@ export class BlockchainTransactionQueryEvaluator
           );
         });
     } else if (query.returnType == "boolean") {
-      return this.dataWalletPersistence
+      return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
           // console.log("network Result: ", transactions);
@@ -87,7 +89,7 @@ export class BlockchainTransactionQueryEvaluator
     }
 
     if (query.name == "chain_transactions") {
-      return this.dataWalletPersistence
+      return this.transactionHistoryRepo
         .getTransactionValueByChain()
         .andThen((transactionsArray) => {
           // console.log("URL count: ", url_visited_count);

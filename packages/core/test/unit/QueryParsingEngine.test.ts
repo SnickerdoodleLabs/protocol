@@ -9,12 +9,10 @@ import {
   ExpectedReward,
   Gender,
   HexString32,
-  IDataWalletPersistence,
   IpfsCID,
   QueryIdentifier,
   SDQLQuery,
   SDQLString,
-  ChainTransaction,
   SDQL_Return,
   ChainId,
   ISDQLCompensations,
@@ -36,6 +34,7 @@ import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import {
   NftQueryEvaluator,
   QueryEvaluator,
@@ -44,13 +43,18 @@ import {
 } from "@core/implementations/business";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-
 import { AdContentRepository } from "@core/implementations/data";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
-
+import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
+import { QueryFactories } from "@core/implementations/utilities/factory";
 import { SnickerdoodleCore } from "@core/index";
+import {
+  IBrowsingDataRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+  IDemographicDataRepository,
+  IDataWalletPersistence,
+} from "@core/interfaces/data";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -70,13 +74,18 @@ const noPermissions = HexString32(
 
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
-  public balanceQueryEvaluator = new BalanceQueryEvaluator(
-    this.persistenceRepo,
-  );
-  public blockchainTransactionQueryEvaluator =
-    new BlockchainTransactionQueryEvaluator(this.persistenceRepo);
+  public transactionRepo = td.object<ITransactionHistoryRepository>();
+  public balanceRepo = td.object<IPortfolioBalanceRepository>();
+  public demoDataRepo = td.object<IDemographicDataRepository>();
+  public browsingDataRepo = td.object<IBrowsingDataRepository>();
+  public adDataRepo = td.object<AdDataRepository>();
 
-  public nftQueryEvaluator = new NftQueryEvaluator(this.persistenceRepo);
+  public blockchainTransactionQueryEvaluator =
+    new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+
+  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
+
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -99,24 +108,24 @@ class QueryParsingMocks {
       this.queryWrapperFactory,
     );
 
-    td.when(this.persistenceRepo.getGender()).thenReturn(
+    td.when(this.demoDataRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
     );
-    td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(country));
+    td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
 
-    td.when(this.persistenceRepo.getSiteVisitsMap()).thenReturn(
+    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
       okAsync(new Map()),
     );
 
     td.when(
-      this.persistenceRepo.getTransactions(td.matchers.anything()),
+      this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionValueByChain()).thenReturn(
+    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
       okAsync(new Array<TransactionPaymentCounter>()),
     );
 
-    td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
+    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
     const expectedCompensationsMap = new Map<
       CompensationId,
@@ -152,11 +161,13 @@ class QueryParsingMocks {
     );
 
     this.queryEvaluator = new QueryEvaluator(
-      this.persistenceRepo,
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
       this.nftQueryEvaluator,
       this.snickerDoodleCore,
+      this.demoDataRepo,
+      this.browsingDataRepo,
+      this.transactionRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
     this.adContentRepository = new AdContentRepository(
@@ -169,9 +180,9 @@ class QueryParsingMocks {
     return new QueryParsingEngine(
       this.queryFactories,
       this.queryRepository,
-      this.persistenceRepo,
       this.queryUtils,
       this.adContentRepository,
+      this.adDataRepo,
     );
   }
 

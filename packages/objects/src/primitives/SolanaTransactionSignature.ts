@@ -1,4 +1,3 @@
-
 import { Brand, make } from "ts-brand";
 
 // SolanaAccountAddress is Base58 encoded

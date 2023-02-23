@@ -27,5 +27,4 @@ export interface IQueryObjectFactory {
   toPropertyQuery(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery;
   toBalanceQuery(name: SDQL_Name, schema: ISDQLQueryClause): AST_BalanceQuery;
 }
-
 export const IQueryObjectFactoryType = Symbol.for("IQueryObjectFactory");
