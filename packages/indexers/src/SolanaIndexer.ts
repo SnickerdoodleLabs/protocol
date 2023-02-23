@@ -73,7 +73,7 @@ export class SolanaIndexer
           method: "getBalance",
           jsonrpc: "2.0",
           id: "1",
-          params: ["Hqx7JKUrNMzZPfgapu3FK4xGFPzxdwJdYEJCeXkVBCbg"],
+          params: [accountAddress],
         };
 
         return this.ajaxUtils.post<IAlchemyBalanceResponse>(
