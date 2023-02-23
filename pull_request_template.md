@@ -19,3 +19,7 @@ Give a brief summary of what your change is and why it is required.
 <!---For minor fixes include the following --->
 <!---### Minor Change
 A 1-2 sentence summary on the change. If this requires more detail your change is likely not minor.-->
+
+### Pre-Flight Checks
+- [ ] Has QA approved this change for dev?
+- [ ] Are all unit tests passing?
