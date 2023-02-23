@@ -352,7 +352,9 @@ export interface ISnickerdoodleCore {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
-  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+  onAdDisplayed(
+    eligibleAd: EligibleAd,
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
@@ -414,7 +416,7 @@ export interface ISnickerdoodleCore {
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError>;
+  ): ResultAsync<number, AccountIndexingError>;
 
   getTokenMarketData(
     ids: string[],

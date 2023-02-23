@@ -2,8 +2,6 @@ import {
   BigNumberString,
   ChainId,
   EvalNotImplementedError,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   TokenBalance,
   PersistenceError,
   SDQL_Return,
@@ -22,18 +20,22 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import {
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IPortfolioBalanceRepositoryType)
+    protected balanceRepo: IPortfolioBalanceRepository,
   ) {}
 
   public eval(
     query: AST_BalanceQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.dataWalletPersistence
+    return this.balanceRepo
       .getAccountBalances()
       .andThen((balances) => {
         if (query.networkId == null) {

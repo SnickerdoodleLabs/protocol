@@ -3,7 +3,7 @@ import endOfStream from "end-of-stream";
 import { inject, injectable } from "inversify";
 import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
 import { createEngineStream } from "json-rpc-middleware-stream";
-import { err, okAsync } from "neverthrow";
+import { err, okAsync, ok } from "neverthrow";
 import pump from "pump";
 import { Runtime } from "webextension-polyfill";
 

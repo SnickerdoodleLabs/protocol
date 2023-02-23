@@ -18,18 +18,14 @@ import {
   BlockchainProviderError,
   ChainId,
   ChainTransaction,
-  ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
   EChain,
   EVMAccountAddress,
   EVMPrivateKey,
-  EVMTransaction,
   TransactionFilter,
   ExternallyOwnedAccount,
   ICrumbContent,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   TokenBalance,
   WalletNFT,
   InvalidParametersError,
@@ -50,6 +46,9 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
+  ITokenPriceRepositoryType,
+  ITokenPriceRepository,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -62,8 +61,18 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
 import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -85,26 +94,32 @@ export class AccountService implements IAccountService {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(ICrumbsRepositoryType)
     protected crumbsRepo: ICrumbsRepository,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IDataWalletPersistenceType)
+    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionRepo: ITransactionHistoryRepository,
+    @inject(IBrowsingDataRepositoryType)
+    protected browsingDataRepo: IBrowsingDataRepository,
+    @inject(IPortfolioBalanceRepositoryType)
+    protected balanceRepo: IPortfolioBalanceRepository,
   ) {}
 
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError> {
-    return this.dataWalletPersistence.getTokenPrice(
-      chainId,
-      address,
-      timestamp,
-    );
+  ): ResultAsync<number, AccountIndexingError> {
+    return this.tokenPriceRepo.getTokenPrice(chainId, address, timestamp);
   }
 
   public getUnlockMessage(
@@ -233,7 +248,7 @@ export class AccountService implements IAccountService {
                 // for that wallet, when you call getAccounts() after unlocking you'll get a complete
                 // blank. This assures us that we have at LEAST the account that unlocked the wallet
                 // in our persistence.
-                return this.dataWalletPersistence.addAccount(
+                return this.accountRepo.addAccount(
                   new LinkedAccount(
                     chain,
                     accountAddress,
@@ -355,7 +370,7 @@ export class AccountService implements IAccountService {
           })
           .andThen(() => {
             // Add the account to the data wallet
-            return this.dataWalletPersistence.addAccount(
+            return this.accountRepo.addAccount(
               new LinkedAccount(
                 chain,
                 accountAddress,
@@ -404,7 +419,7 @@ export class AccountService implements IAccountService {
       languageCode,
       chain,
     ).andThen(() => {
-      return this.dataWalletPersistence
+      return this.accountRepo
         .getAccounts()
         .andThen((accounts) => {
           // Two things
@@ -462,9 +477,7 @@ export class AccountService implements IAccountService {
               return this.removeCrumb(derivedEVMAccount, crumbTokenId)
                 .andThen(() => {
                   // Add the account to the data wallet
-                  return this.dataWalletPersistence.removeAccount(
-                    accountAddress,
-                  );
+                  return this.accountRepo.removeAccount(accountAddress);
                 })
                 .andThen(() => {
                   // We need to post a backup immediately upon adding an account, so that we don't lose access
@@ -535,62 +548,62 @@ export class AccountService implements IAccountService {
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.dataWalletPersistence.getAccounts();
+    return this.accountRepo.getAccounts();
   }
 
   public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
-    return this.dataWalletPersistence.getAccountBalances();
+    return this.balanceRepo.getAccountBalances();
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.dataWalletPersistence.getAccountNFTs();
+    return this.balanceRepo.getAccountNFTs();
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
-    return this.dataWalletPersistence.getEarnedRewards();
+    return this.accountRepo.getEarnedRewards();
   }
 
   public addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEarnedRewards(rewards);
+    return this.accountRepo.addEarnedRewards(rewards);
   }
 
   public getTranactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError> {
-    return this.dataWalletPersistence.getTransactions(filter);
+    return this.transactionRepo.getTransactions(filter);
   }
 
   public getTransactionValueByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionValueByChain();
+    return this.transactionRepo.getTransactionValueByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<
     Map<URLString, number>,
     PersistenceError
   > {
-    return this.dataWalletPersistence.getSiteVisitsMap();
+    return this.browsingDataRepo.getSiteVisitsMap();
   }
 
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
     return this.filterInvalidDomains(siteVisits).andThen((validSiteVisits) => {
-      return this.dataWalletPersistence.addSiteVisits(validSiteVisits);
+      return this.browsingDataRepo.addSiteVisits(validSiteVisits);
     });
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this.dataWalletPersistence.getSiteVisits();
+    return this.browsingDataRepo.getSiteVisits();
   }
 
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addTransactions(transactions);
+    return this.transactionRepo.addTransactions(transactions);
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
