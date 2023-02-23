@@ -1,11 +1,13 @@
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ISDQLAdsBlock,
-  ISDQLCompensationBlock, ISDQLLogicObjects,
+  ISDQLCompensationBlock,
+  ISDQLLogicObjects,
   ISDQLQueryClause,
   ISDQLQueryObject,
   ISDQLReturnProperties,
-  ISO8601DateString, UnixTimestamp
+  ISO8601DateString,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLQueryWrapper {

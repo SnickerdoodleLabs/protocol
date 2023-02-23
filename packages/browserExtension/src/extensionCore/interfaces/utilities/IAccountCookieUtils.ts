@@ -1,5 +1,3 @@
-import { IUnlockParams } from "@shared/interfaces/actions";
-import { ExtensionCookieError } from "@shared/objects/errors";
 import {
   Signature,
   LanguageCode,
@@ -8,6 +6,9 @@ import {
   DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { IUnlockParams } from "@shared/interfaces/actions";
+import { ExtensionCookieError } from "@shared/objects/errors";
 
 export interface IAccountCookieUtils {
   writeAccountInfoToCookie(

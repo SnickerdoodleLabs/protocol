@@ -46,11 +46,14 @@ import {
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+
 import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -117,7 +120,7 @@ export class InsightPlatformSimulator {
         IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
         "10% discount code for Starbucks",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }", 
+        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
       eligibleRewards[1] = new EligibleReward(
@@ -126,7 +129,7 @@ export class InsightPlatformSimulator {
         IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
         "participate in the draw to win a CryptoPunk NFT",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }", 
+        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
       eligibleRewards[2] = new EligibleReward(
@@ -236,11 +239,11 @@ export class InsightPlatformSimulator {
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
           earnedRewards[0] = new EarnedReward(
-            queryCID, 
+            queryCID,
             "Sugar to your coffee",
             IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
             "dummy desc",
-            ERewardType.Direct
+            ERewardType.Direct,
           );
           res.send(earnedRewards);
         })
@@ -477,24 +480,32 @@ export class InsightPlatformSimulator {
     contentHash: SHA256Hash,
     adSignature: AdSignature,
   ): ResultAsync<void, InvalidSignatureError> {
-    return this.cryptoUtils.verifyEVMSignature(
-      contentHash, adSignature.signature as Signature
-    ).andThen((optInAddressFromSignature) => {
-      if(!this.compareEVMAddresses(optInAddressFromSignature, adSignature.consentContractAddress)) {
-        return errAsync(
-          new InvalidSignatureError(
-            `Given signature seems to be signed by ${optInAddressFromSignature} ` +
-            `instead of ${adSignature.consentContractAddress}`,
+    return this.cryptoUtils
+      .verifyEVMSignature(contentHash, adSignature.signature as Signature)
+      .andThen((optInAddressFromSignature) => {
+        if (
+          !this.compareEVMAddresses(
+            optInAddressFromSignature,
+            adSignature.consentContractAddress,
           )
-        );
-      }
-      return okAsync(undefined);
-    })
+        ) {
+          return errAsync(
+            new InvalidSignatureError(
+              `Given signature seems to be signed by ${optInAddressFromSignature} ` +
+                `instead of ${adSignature.consentContractAddress}`,
+            ),
+          );
+        }
+        return okAsync(undefined);
+      });
   }
 
   private compareEVMAddresses(
-    accAddr: EVMAccountAddress, contrAddr: EVMContractAddress
-  ): boolean { 
-    return accAddr.toString().toLowerCase() == contrAddr.toString().toLowerCase(); 
+    accAddr: EVMAccountAddress,
+    contrAddr: EVMContractAddress,
+  ): boolean {
+    return (
+      accAddr.toString().toLowerCase() == contrAddr.toString().toLowerCase()
+    );
   }
 }

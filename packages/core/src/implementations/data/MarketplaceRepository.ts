@@ -1,8 +1,3 @@
-import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
 import { IConsentFactoryContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -12,6 +7,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class MarketplaceRepository implements IMarketplaceRepository {

@@ -3,13 +3,8 @@ import {
   CountryCode,
   EvalNotImplementedError,
   Gender,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
-  UnixTimestamp,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -41,18 +36,30 @@ import {
   INetworkQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator.js";
 import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IBalanceQueryEvaluatorType)
     protected balanceQueryEvaluator: IBalanceQueryEvaluator,
     @inject(INetworkQueryEvaluatorType)
     protected networkQueryEvaluator: INetworkQueryEvaluator,
     @inject(IProfileServiceType)
     protected profileService: IProfileService,
+    @inject(IDemographicDataRepositoryType)
+    protected demographicDataRepo: IDemographicDataRepository,
+    @inject(IBrowsingDataRepositoryType)
+    protected browsingDataRepo: IBrowsingDataRepository,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionRepo: ITransactionHistoryRepository,
   ) {}
 
   protected age: Age = Age(0);
@@ -101,7 +108,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "location":
-        return this.dataWalletPersistence.getLocation().andThen((location) => {
+        return this.demographicDataRepo.getLocation().andThen((location) => {
           switch (q.returnType) {
             case "string":
               result = SDQL_Return(location);
@@ -120,7 +127,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "gender":
-        return this.dataWalletPersistence.getGender().andThen((gender) => {
+        return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
               for (const key of q.enum_keys) {
@@ -134,13 +141,13 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "url_visited_count":
-        return this.dataWalletPersistence
+        return this.browsingDataRepo
           .getSiteVisitsMap()
           .andThen((url_visited_count) => {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence
+        return this.transactionRepo
           .getTransactionValueByChain()
           .andThen((transactionArray) => {
             return okAsync(SDQL_Return(transactionArray));
