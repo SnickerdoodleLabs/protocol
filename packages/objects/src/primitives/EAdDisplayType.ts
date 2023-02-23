@@ -1,4 +1,4 @@
 export enum EAdDisplayType {
-    BANNER = "banner",
-    POPUP = "popup",
+  BANNER = "banner",
+  POPUP = "popup",
 }

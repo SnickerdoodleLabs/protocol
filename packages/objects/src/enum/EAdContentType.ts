@@ -1,4 +1,4 @@
 export enum EAdContentType {
-    IMAGE = "image",
-    VIDEO = "video",
+  IMAGE = "image",
+  VIDEO = "video",
 }

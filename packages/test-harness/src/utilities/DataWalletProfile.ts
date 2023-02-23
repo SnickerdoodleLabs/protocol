@@ -47,9 +47,11 @@ import { BigNumber } from "ethers";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 // import fs from "fs";
 import { ResultUtils } from "neverthrow-result-utils";
-import { Subscription } from "rxjs";
 
 import { Environment, TestHarnessMocks } from "@test-harness/mocks";
+
+import { Subscription } from "rxjs";
+
 import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 

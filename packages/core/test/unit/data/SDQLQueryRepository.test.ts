@@ -3,18 +3,18 @@ import { IpfsCID, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { testCoreConfig } from "@core-tests/mock/mocks/commonValues.js";
-import {
-  ContextProviderMock,
-  ConfigProviderMock,
-  AjaxUtilsMock,
-} from "@core-tests/mock/utilities";
 import { SDQLQueryRepository } from "@core/implementations/data/index.js";
 import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IConfigProvider,
 } from "@core/interfaces/utilities/index.js";
+import { testCoreConfig } from "@core-tests/mock/mocks/commonValues.js";
+import {
+  ContextProviderMock,
+  ConfigProviderMock,
+  AjaxUtilsMock,
+} from "@core-tests/mock/utilities";
 
 const sdqlContent = "Phoebe";
 // const sdqlContent2 = {a: "a", b: "b", c: "c"};

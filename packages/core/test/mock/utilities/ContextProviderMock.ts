@@ -5,9 +5,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
+import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 
 export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
