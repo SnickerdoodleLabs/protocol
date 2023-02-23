@@ -14,6 +14,8 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  DiscordProfile,
+  DiscordGuildProfile,
 } from "@objects/businessObjects";
 import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
@@ -132,13 +134,11 @@ export interface IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
-  saveEligibleAds(
-    ads: EligibleAd[],
-  ): ResultAsync<void, PersistenceError>;
+  saveEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError>;
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
 
   saveAdSignatures(
-    signatures: AdSignature[]
+    signatures: AdSignature[],
   ): ResultAsync<void, PersistenceError>;
   getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
@@ -181,15 +181,15 @@ export interface IDataWalletPersistence {
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
   getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress | null, 
+    AccountAddress | null,
     PersistenceError
   >;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
   getReceivingAddress(
     contractAddress: EVMContractAddress,
@@ -224,6 +224,23 @@ export interface IDataWalletPersistence {
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
+
+  // #region social data
+  upsertDiscordProfile(
+    discordProfile: DiscordProfile,
+  ): ResultAsync<void, PersistenceError>;
+
+  getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
+
+  upsertDiscordGuildProfiles(
+    discordGuildProfiles: DiscordGuildProfile[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getDiscordGuildProfiles(): ResultAsync<
+    DiscordGuildProfile[],
+    PersistenceError
+  >;
+  // #endregion
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
