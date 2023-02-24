@@ -40,32 +40,27 @@ export class ExprParser {
   protected tokenToExpMap: Map<TokenType, Function> = new Map();
 
   constructor(readonly context: Map<string, ParserContextDataTypes>) {
-    this.precedence.set(
-      TokenType.parenthesisClose,
-      [
-        TokenType.gt,
-        TokenType.gte,
-        TokenType.lt,
-        TokenType.lte,
-        TokenType.eq,
-        TokenType.and,
-        TokenType.or,
-        TokenType.if,
-        TokenType.then,
-        TokenType.else,
-      ], // TODO everything up to a opening parenthesis
-    );
-
-    const conditions = [
-      TokenType.and,
-      TokenType.or,
+    const logicOps = [TokenType.and, TokenType.or];
+    const compOps = [
       TokenType.gt,
       TokenType.gte,
       TokenType.lt,
       TokenType.lte,
       TokenType.eq,
     ];
-    conditions.forEach((cond) => this.precedence.set(cond, conditions));
+
+    this.precedence.set(TokenType.parenthesisClose, [
+      ...compOps,
+      ...logicOps,
+      TokenType.if,
+      TokenType.then,
+      TokenType.else,
+    ]); // TODO everything up to a opening parenthesis
+
+    logicOps.forEach((cond) =>
+      this.precedence.set(cond, [...compOps, ...logicOps]),
+    );
+    compOps.forEach((cond) => this.precedence.set(cond, compOps));
 
     this.tokenToExpMap.set(TokenType.gt, this.createG);
     this.tokenToExpMap.set(TokenType.gte, this.createGE);
