@@ -111,9 +111,7 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get Eligible Ads", value: "getEligibleAds" },
 
       new inquirer.Separator(),
-      { name: "dump backup", value: "dumpBackup" },
-      { name: "display backups from cloud", value: "displayBackupsFromCloud" },
-      { name: "restore backup", value: "restoreBackup" },
+      { name: "backup inspection", value: "displayBackupsFromCloud" },
       { name: "manual backup", value: "manualBackup" },
       { name: "clear cloud store", value: "clearCloudStore" },
     ];
@@ -311,12 +309,12 @@ export class CorePrompt extends DataWalletPrompt {
           console.log("Chunks");
           return this.core
             .returnBackups()
-            .andThen((dataWalletBackups) => {
+            .andThen((dataWalletBackupIDs) => {
               const backupChoices: IPrompt[] = [];
-              dataWalletBackups.forEach((backup) => {
+              dataWalletBackupIDs.forEach((backupID) => {
                 backupChoices[backupChoices.length] = {
-                  name: backup,
-                  value: backup,
+                  name: backupID,
+                  value: backupID,
                 };
               });
               return okAsync(backupChoices);
@@ -328,27 +326,15 @@ export class CorePrompt extends DataWalletPrompt {
                 message: "Please select a backup to restore:",
                 choices: backups,
               }).andThen((answers) => {
-                console.log("answers: ", answers);
-                console.log("answers.backupPrompt: ", answers.backupPrompt);
                 const backupSet = new Set<DataWalletBackupID>(
                   answers.backupPrompt,
                 );
-                
-                // console.log("backupSet: ", backupSet);
-                return this.core.pollBackups(backupSet);
-                // return this.cloudStorage.pollBackups(restored);
+                console.log("backupSet: ", backupSet);
+                return this.core.pollBackupsFromCloudStorage(backupSet);
               });
             })
-            .andThen((asdf) => {
-              return this.core.restoreBackup(answers.backupPrompt).andThen(() =>
-                // console.log("answers: ", answers);
-                okAsync(
-                  console.log(
-                    "restored backup",
-                    answers.backupPrompt.header.hash,
-                  ),
-                ),
-              );
+            .andThen((walletBackups) => {
+              return okAsync(console.log("walletBackups: ", walletBackups[0]));
             });
         case "restoreBackup":
           // const backup: IDataWalletBackup = {
@@ -382,6 +368,6 @@ export class CorePrompt extends DataWalletPrompt {
 }
 
 export interface IPrompt {
-  name: string;
-  value: string;
+  name: DataWalletBackupID;
+  value: DataWalletBackupID;
 }

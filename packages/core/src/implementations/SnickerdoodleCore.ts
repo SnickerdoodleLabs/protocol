@@ -819,6 +819,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.pollBackups();
   }
 
+  public pollBackupsFromCloudStorage(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    const cloudStorage =
+      this.iocContainer.get<ICloudStorage>(ICloudStorageType);
+    return cloudStorage.pollBackups(restored);
+  }
+
   public returnBackups(): ResultAsync<
     Set<DataWalletBackupID>,
     PersistenceError

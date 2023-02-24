@@ -410,6 +410,9 @@ export interface ISnickerdoodleCore {
   >;
 
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
+  pollBackupsFromCloudStorage(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   returnBackups(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;

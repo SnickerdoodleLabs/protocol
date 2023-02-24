@@ -1,4 +1,7 @@
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   FieldMap,
   TableMap,
@@ -102,6 +105,20 @@ export class BackupManager implements IBackupManager {
   }
 
   public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return this.volatileStorage
+      .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
+      .map((restored) => {
+        return restored.map((item) => item.data.id);
+      })
+      .map((restored) => {
+        return new Set(restored);
+      });
+  }
+
+  public restoreBackups(): ResultAsync<
+    Set<DataWalletBackupID>,
+    PersistenceError
+  > {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
