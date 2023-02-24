@@ -1,4 +1,4 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   FieldMap,
   TableMap,
@@ -23,7 +23,8 @@ import {
   EVMAccountAddress,
   RestoredBackupMigrator,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils } from "@snickerdoodlelabs/utils";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -31,9 +32,11 @@ import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
 import {
   IVolatileStorage,
+  IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
+@injectable()
 export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
   private tableUpdates: TableMap = {};
@@ -54,8 +57,11 @@ export class BackupManager implements IBackupManager {
   public constructor(
     protected privateKey: EVMPrivateKey,
     protected schema: VolatileTableIndex<VersionedObject>[],
+    @inject(IVolatileStorageType)
     protected volatileStorage: IVolatileStorage,
+    @inject(ICryptoUtilsType)
     protected cryptoUtils: ICryptoUtils,
+    @inject(IStorageUtilsType)
     protected storageUtils: IStorageUtils,
     public maxChunkSize: number,
   ) {
@@ -99,9 +105,11 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
+        console.log("Restored without filtering: ", restored);
         return restored.map((item) => item.data.id);
       })
       .map((restored) => {
+        console.log("Restored after filtering: ", restored);
         return new Set(restored);
       });
   }

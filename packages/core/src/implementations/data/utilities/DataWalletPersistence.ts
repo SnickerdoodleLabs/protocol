@@ -66,6 +66,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.getRestored();
+      });
+  }
+
   public getField<T>(
     key: EFieldKey,
     priority?: EBackupPriority,

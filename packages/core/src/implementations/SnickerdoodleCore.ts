@@ -87,6 +87,9 @@ import {
   IndexedDBVolatileStorage,
   GoogleCloudStorage,
   NullCloudStorage,
+  IBackupManager,
+  IBackupManagerType,
+  BackupManager,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -807,6 +810,23 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IDataWalletPersistenceType,
     );
     return persistence.postBackups();
+  }
+
+  public pollBackups(): ResultAsync<void, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.pollBackups();
+  }
+
+  public returnBackups(): ResultAsync<
+    Set<DataWalletBackupID>,
+    PersistenceError
+  > {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getRestored();
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

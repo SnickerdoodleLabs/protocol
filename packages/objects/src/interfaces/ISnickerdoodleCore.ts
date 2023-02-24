@@ -385,12 +385,12 @@ export interface ISnickerdoodleCore {
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
 
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
 
   getReceivingAddress(
@@ -410,6 +410,8 @@ export interface ISnickerdoodleCore {
   >;
 
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
+  returnBackups(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 
   getTokenPrice(

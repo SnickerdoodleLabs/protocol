@@ -1,10 +1,8 @@
-import { Environment } from "@test-harness/mocks/Environment.js";
-import { AddAccount } from "@test-harness/prompts/AddAccount.js";
-
 import {
   BigNumberString,
   ChainId,
   CountryCode,
+  DataWalletBackupID,
   EarnedReward,
   ERewardType,
   EVMAccountAddress,
@@ -16,15 +14,15 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
-
-import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
-
+import { GoogleCloudStorage } from "@snickerdoodlelabs/persistence";
 import inquirer from "inquirer";
-
-import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
-
 import { okAsync, ResultAsync } from "neverthrow";
 
+import { Environment } from "@test-harness/mocks/Environment.js";
+import { AddAccount } from "@test-harness/prompts/AddAccount.js";
+import { BackupPrompt } from "@test-harness/prompts/BackupPrompt.js";
+import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
+import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
@@ -39,8 +37,8 @@ export class CorePrompt extends DataWalletPrompt {
   private removeAccount: RemoveAccount;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
-
   private selectProfile: SelectProfile;
+  private backupPrompt: BackupPrompt;
 
   public constructor(public env: Environment) {
     super(env);
@@ -52,6 +50,7 @@ export class CorePrompt extends DataWalletPrompt {
     this.optInCampaign = new OptInCampaign(this.env);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
+    this.backupPrompt = new BackupPrompt(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -89,7 +88,10 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
       { name: "Get SiteVisits Array", value: "getSiteVisits" },
 
-      { name: "Get Default Receiving Address", value: "getDefaultReceivingAddress" },
+      {
+        name: "Get Default Receiving Address",
+        value: "getDefaultReceivingAddress",
+      },
 
       new inquirer.Separator(),
       {
@@ -110,6 +112,7 @@ export class CorePrompt extends DataWalletPrompt {
 
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
+      { name: "display backups from cloud", value: "displayBackupsFromCloud" },
       { name: "restore backup", value: "restoreBackup" },
       { name: "manual backup", value: "manualBackup" },
       { name: "clear cloud store", value: "clearCloudStore" },
@@ -162,10 +165,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.unlockCore.start();
         case "selectProfile":
           return this.selectProfile.start();
-
         case "addAccount":
           return this.addAccount.start();
-
         case "checkAccount":
           return this.checkAccount.start();
         case "removeAccount":
@@ -208,8 +209,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getReceivingAddress().map(console.log);
         case "addEVMTransaction - Query's Network":
           /*
-                Important!  Must use different hash values for transaction values!
-              */
+            Important!  Must use different hash values for transaction values!
+          */
           transactions[0] = new EVMTransaction(
             ChainId(43113),
             EVMTransactionHash("firstHash"),
@@ -270,9 +271,6 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
           );
-
-          // {chainId\":43113,
-          // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
           console.log(
             `adding ${transactions.length} transactions for chain 43113`,
           );
@@ -308,6 +306,50 @@ export class CorePrompt extends DataWalletPrompt {
             UnixTimestamp(1000),
           );
           return this.core.addSiteVisits(sites).map(console.log);
+        case "displayBackupsFromCloud":
+          console.log("Backup source: Google");
+          console.log("Chunks");
+          return this.core
+            .returnBackups()
+            .andThen((dataWalletBackups) => {
+              const backupChoices: IPrompt[] = [];
+              dataWalletBackups.forEach((backup) => {
+                backupChoices[backupChoices.length] = {
+                  name: backup,
+                  value: backup,
+                };
+              });
+              return okAsync(backupChoices);
+            })
+            .andThen((backups) => {
+              return inquiryWrapper({
+                type: "list",
+                name: "backupPrompt",
+                message: "Please select a backup to restore:",
+                choices: backups,
+              }).andThen((answers) => {
+                console.log("answers: ", answers);
+                console.log("answers.backupPrompt: ", answers.backupPrompt);
+                const backupSet = new Set<DataWalletBackupID>(
+                  answers.backupPrompt,
+                );
+                
+                // console.log("backupSet: ", backupSet);
+                return this.core.pollBackups(backupSet);
+                // return this.cloudStorage.pollBackups(restored);
+              });
+            })
+            .andThen((asdf) => {
+              return this.core.restoreBackup(answers.backupPrompt).andThen(() =>
+                // console.log("answers: ", answers);
+                okAsync(
+                  console.log(
+                    "restored backup",
+                    answers.backupPrompt.header.hash,
+                  ),
+                ),
+              );
+            });
         case "restoreBackup":
           // const backup: IDataWalletBackup = {
           //   header: {
@@ -337,4 +379,9 @@ export class CorePrompt extends DataWalletPrompt {
       return okAsync(undefined);
     });
   }
+}
+
+export interface IPrompt {
+  name: string;
+  value: string;
 }
