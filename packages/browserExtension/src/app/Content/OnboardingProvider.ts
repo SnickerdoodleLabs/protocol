@@ -29,11 +29,17 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { ResultAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
 
 import { ExternalCoreGateway } from "@app/coreGateways";
+
+import LocalMessageStream from "post-message-stream";
+
+import { UpdatableEventEmitterWrapper } from "@app/utils/UpdatableEventEmitterWrapper";
+
+import pump from "pump";
+
 import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -41,8 +47,6 @@ import {
   PORT_NOTIFICATION,
 } from "@shared/constants/ports";
 import { TNotification } from "@shared/types/notification";
-import { ResultAsync } from "neverthrow";
-import { UpdatableEventEmitterWrapper } from "@app/utils/UpdatableEventEmitterWrapper";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;

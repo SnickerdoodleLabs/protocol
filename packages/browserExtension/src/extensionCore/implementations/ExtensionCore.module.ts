@@ -1,18 +1,4 @@
 import {
-  AxiosAjaxUtils,
-  CryptoUtils,
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-  TimeUtils,
-  ITimeUtils,
-  ITimeUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-
-import { ContainerModule, interfaces } from "inversify";
-
-import {
   BrowserTabListener,
   CoreListener,
   ErrorListener,
@@ -73,6 +59,26 @@ import {
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@interfaces/business";
+
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+  TimeUtils,
+  ITimeUtils,
+  ITimeUtilsType,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
+
+import { ContainerModule, interfaces } from "inversify";
+
 import {
   IAccountRepository,
   IAccountRepositoryType,
@@ -88,6 +94,10 @@ import {
   IUserSiteInteractionRepositoryType,
 } from "@interfaces/data";
 import {
+  IScamFilterRepository,
+  IScamFilterRepositoryType,
+} from "@interfaces/data/IScamFilterRepository";
+import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
   IContextProvider,
@@ -102,23 +112,17 @@ import {
   IRpcEngineFactoryType,
 } from "@interfaces/utilities/factory";
 import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@shared/interfaces/configProvider";
-import configProvider from "@shared/utils/ConfigProvider";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@interfaces/business/IScamFilterService";
-import {
-  IScamFilterRepository,
-  IScamFilterRepositoryType,
-} from "@interfaces/data/IScamFilterRepository";
-import {
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
 } from "@interfaces/utilities/IScamFilterSettingsUtils";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
+
 import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
+
+import configProvider from "@shared/utils/ConfigProvider";
 
 export const extensionCoreModule = new ContainerModule(
   (

@@ -1,10 +1,11 @@
-import { ExtensionStorageError } from "@shared/objects/errors";
 import {
   DataPermissions,
   EWalletDataType,
   HexString32,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { ExtensionStorageError } from "@shared/objects/errors";
 
 export interface IDataPermissionsUtils {
   defaultFlags: ResultAsync<HexString32, ExtensionStorageError>;

@@ -12,16 +12,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-
 export interface IQueryParsingEngine {
   getPermittedQueryIdsAndExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress
-  ): ResultAsync<
-    [QueryIdentifier[], ExpectedReward[]],
-    EvaluationError
-  >;
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError>;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,

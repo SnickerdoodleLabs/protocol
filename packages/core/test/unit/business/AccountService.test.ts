@@ -1,11 +1,27 @@
 import "reflect-metadata";
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
+
+import { AccountService } from "@core/implementations/business/index.js";
+
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
 } from "@snickerdoodlelabs/contracts-sdk";
+
+import { IAccountService } from "@core/interfaces/business/index.js";
+
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import {
+  IBrowsingDataRepository,
+  ICrumbsRepository,
+  IDataWalletPersistence,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+} from "@core/interfaces/data/index.js";
+
 import {
   AESEncryptedString,
   AESKey,
@@ -23,9 +39,9 @@ import {
   ExternallyOwnedAccount,
   HexString,
   ICrumbContent,
-  IDataWalletPersistence,
   InitializationVector,
   InvalidSignatureError,
+  ITokenPriceRepository,
   LanguageCode,
   LinkedAccount,
   MinimalForwarderContractError,
@@ -36,11 +52,20 @@ import {
   TokenUri,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
+
+import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
+
 import { errAsync, okAsync } from "neverthrow";
+
+import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+
 import * as td from "testdouble";
 
 import {
@@ -52,12 +77,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { AccountService } from "@core/implementations/business/index.js";
-import { IAccountService } from "@core/interfaces/business/index.js";
-import { ICrumbsRepository } from "@core/interfaces/data/index.js";
-import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 
 const crumbsContractAddress = EVMContractAddress("crumbsContractAddress");
 const metatransactionValue = BigNumberString("0");
@@ -132,6 +151,11 @@ class AccountServiceMocks {
   public cryptoUtils: ICryptoUtils;
   public contractFactory: IContractFactory;
   public logUtils: ILogUtils;
+  public accountRepo: ILinkedAccountRepository;
+  public tokenPriceRepo: ITokenPriceRepository;
+  public transactionRepo: ITransactionHistoryRepository;
+  public balanceRepo: IPortfolioBalanceRepository;
+  public browsingDataRepo: IBrowsingDataRepository;
 
   public minimalForwarderContract: IMinimalForwarderContract;
   public crumbsContract: ICrumbsContract;
@@ -140,6 +164,11 @@ class AccountServiceMocks {
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.crumbsRepo = td.object<ICrumbsRepository>();
     this.dataWalletPersistence = td.object<IDataWalletPersistence>();
+    this.accountRepo = td.object<ILinkedAccountRepository>();
+    this.tokenPriceRepo = td.object<ITokenPriceRepository>();
+    this.transactionRepo = td.object<ITransactionHistoryRepository>();
+    this.balanceRepo = td.object<IPortfolioBalanceRepository>();
+    this.browsingDataRepo = td.object<IBrowsingDataRepository>();
 
     // Setup the context an locked, none in progress
     this.contextProvider = new ContextProviderMock(
@@ -391,7 +420,7 @@ class AccountServiceMocks {
       okAsync(undefined),
     );
     td.when(
-      this.dataWalletPersistence.addAccount(
+      this.accountRepo.addAccount(
         td.matchers.contains({
           sourceChain: evmChain,
           sourceAccountAddress: evmAccountAddress,
@@ -400,7 +429,7 @@ class AccountServiceMocks {
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
-      this.dataWalletPersistence.addAccount(
+      this.accountRepo.addAccount(
         td.matchers.contains({
           sourceChain: solanaChain,
           sourceAccountAddress: solanaAccountAddress,
@@ -408,7 +437,7 @@ class AccountServiceMocks {
         }),
       ),
     ).thenReturn(okAsync(undefined));
-    td.when(this.dataWalletPersistence.getAccounts()).thenReturn(
+    td.when(this.accountRepo.getAccounts()).thenReturn(
       okAsync([
         new LinkedAccount(
           evmChain,
@@ -422,12 +451,12 @@ class AccountServiceMocks {
         ),
       ]),
     );
-    td.when(
-      this.dataWalletPersistence.removeAccount(evmAccountAddress),
-    ).thenReturn(okAsync(undefined));
-    td.when(
-      this.dataWalletPersistence.removeAccount(solanaAccountAddress),
-    ).thenReturn(okAsync(undefined));
+    td.when(this.accountRepo.removeAccount(evmAccountAddress)).thenReturn(
+      okAsync(undefined),
+    );
+    td.when(this.accountRepo.removeAccount(solanaAccountAddress)).thenReturn(
+      okAsync(undefined),
+    );
     td.when(this.dataWalletPersistence.postBackups()).thenReturn(
       okAsync([dataWalletBackupID]),
     );
@@ -516,13 +545,18 @@ class AccountServiceMocks {
     return new AccountService(
       this.insightPlatformRepo,
       this.crumbsRepo,
-      this.dataWalletPersistence,
       this.contextProvider,
       this.configProvider,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contractFactory,
       this.logUtils,
+      this.dataWalletPersistence,
+      this.tokenPriceRepo,
+      this.accountRepo,
+      this.transactionRepo,
+      this.browsingDataRepo,
+      this.balanceRepo,
     );
   }
 }
@@ -848,7 +882,7 @@ describe("AccountService unlock() tests", () => {
     ).thenReturn(okAsync(null));
 
     td.when(
-      mocks.dataWalletPersistence.addAccount(
+      mocks.accountRepo.addAccount(
         td.matchers.contains({
           sourceChain: evmChain,
           sourceAccountAddress: evmAccountAddress,
@@ -1465,7 +1499,7 @@ describe("AccountService addAccount() tests", () => {
     ).thenReturn(okAsync(null));
 
     td.when(
-      mocks.dataWalletPersistence.addAccount(
+      mocks.accountRepo.addAccount(
         td.matchers.contains({
           sourceChain: evmChain,
           sourceAccountAddress: evmAccountAddress,

@@ -12,9 +12,8 @@ import {
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import {
   IIndexerConfigProvider,

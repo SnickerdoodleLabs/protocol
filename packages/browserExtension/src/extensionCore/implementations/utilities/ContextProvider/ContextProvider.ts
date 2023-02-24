@@ -4,13 +4,19 @@ import {
   LinkedAccount,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { Subject } from "rxjs";
-import { v4 } from "uuid";
 
 import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
+
+import { inject, injectable } from "inversify";
+
 import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
+
+import { Subject } from "rxjs";
+
 import { IContextProvider } from "@interfaces/utilities";
+
+import { v4 } from "uuid";
+
 import {
   IConfigProvider,
   IConfigProviderType,

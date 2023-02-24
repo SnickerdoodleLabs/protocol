@@ -19,8 +19,6 @@ import {
   EligibleAd,
   EVMContractAddress,
   PersistenceError,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -40,6 +38,8 @@ import {
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
@@ -54,12 +54,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
     protected adContentRepository: IAdContentRepository,
+    @inject(IAdDataRepositoryType)
+    protected adDataRepository: IAdDataRepository,
   ) {}
 
   public getPermittedQueryIdsAndExpectedRewards(
@@ -159,7 +159,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       consentContractAddress,
     );
 
-    return this.persistence.saveEligibleAds(eligibleAdList);
+    return this.adDataRepository.saveEligibleAds(eligibleAdList);
   }
 
   protected adsMapToEligibleAdObjects(
