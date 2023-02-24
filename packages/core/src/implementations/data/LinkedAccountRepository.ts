@@ -49,7 +49,9 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       )
       .map((raw) => {
         const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
+          raw != null && raw.length != 0
+            ? JSON.stringify(raw)
+            : JSONString("[]"),
         ) as InvitationForStorage[];
 
         return storedInvitations.map((storedInvitation) => {
