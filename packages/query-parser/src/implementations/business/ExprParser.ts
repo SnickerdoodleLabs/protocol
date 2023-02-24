@@ -21,7 +21,9 @@ import {
   ConditionAnd,
   ConditionE,
   ConditionG,
+  ConditionGE,
   ConditionL,
+  ConditionLE,
   ConditionOr,
   ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
@@ -42,7 +44,9 @@ export class ExprParser {
       TokenType.parenthesisClose,
       [
         TokenType.gt,
+        TokenType.gte,
         TokenType.lt,
+        TokenType.lte,
         TokenType.eq,
         TokenType.and,
         TokenType.or,
@@ -56,13 +60,17 @@ export class ExprParser {
       TokenType.and,
       TokenType.or,
       TokenType.gt,
+      TokenType.gte,
       TokenType.lt,
+      TokenType.lte,
       TokenType.eq,
     ];
     conditions.forEach((cond) => this.precedence.set(cond, conditions));
 
     this.tokenToExpMap.set(TokenType.gt, this.createG);
+    this.tokenToExpMap.set(TokenType.gte, this.createGE);
     this.tokenToExpMap.set(TokenType.lt, this.createL);
+    this.tokenToExpMap.set(TokenType.lte, this.createLE);
     this.tokenToExpMap.set(TokenType.eq, this.createE);
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
@@ -123,7 +131,9 @@ export class ExprParser {
           break;
 
         case TokenType.lt:
+        case TokenType.lte:
         case TokenType.gt:
+        case TokenType.gte:
         case TokenType.eq:
         case TokenType.and:
         case TokenType.or:
@@ -347,9 +357,29 @@ export class ExprParser {
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
+  createGE(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionGE(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
   createL(expList: Array<any>, token: Token): AST_ConditionExpr {
     const id = this.getNextId(token.val);
     const condition = new ConditionL(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createLE(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionLE(
       SDQL_OperatorName(id),
       expList[0],
       expList[1],
