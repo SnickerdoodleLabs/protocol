@@ -9,21 +9,27 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ECreatedRewardType } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class RewardsContractFactory implements IRewardsContractFactory {
   protected contractFactory: ethers.ContractFactory;
+  protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
+    protected rewardType: ECreatedRewardType
   ) {
+
+    // Set the correct contract factory based on rewardTypeToDeploy
     this.contractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC721Reward.abi,
       ContractsAbis.ERC721Reward.bytecode,
       providerOrSigner as ethers.Wallet,
     );
+    this.rewardTypeToDeploy = rewardType;
   }
 
   // function to deploy a new ERC721 reward contract
@@ -32,7 +38,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     symbol: string,
     baseURI: BaseURI,
   ): ResultAsync<EVMContractAddress, RewardsFactoryError> {
-    return this.estimateGasToDeployContract(name, symbol, baseURI).andThen(
+    return this.estimateGasToDeployERC721Contract(name, symbol, baseURI).andThen(
       (bufferedGasLimit) => {
         return ResultAsync.fromPromise(
           this.contractFactory.deploy(symbol, name, baseURI, {
@@ -63,7 +69,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     );
   }
 
-  public estimateGasToDeployContract(
+  public estimateGasToDeployERC721Contract(
     name: string,
     symbol: string,
     baseURI: BaseURI,
