@@ -22,6 +22,7 @@ import {
   ConditionAnd,
   ConditionG,
   ConditionL,
+  ConditionLE,
   ConditionOr,
   ParserContextDataTypes,
 } from "@query-parser/interfaces";
@@ -363,6 +364,40 @@ describe("Postfix expressions", () => {
     ]);
   });
 
+  test("if($q1>=30)and($q2<=35)then$a1 -> $q1 30 > $q2 35 < and $a1 if", () => {
+    const tokens = new Tokenizer("if($q1>=30)and($q1<=35)then$a1").all();
+    expect(tokens).toEqual([
+      new Token(TokenType.if, "if", 0),
+      new Token(TokenType.parenthesisOpen, "(", 2),
+      new Token(TokenType.query, "$q1", 3),
+      new Token(TokenType.gte, ">=", 6),
+      new Token(TokenType.number, 30, 8),
+      new Token(TokenType.parenthesisClose, ")", 10),
+      new Token(TokenType.and, "and", 11),
+      new Token(TokenType.parenthesisOpen, "(", 14),
+      new Token(TokenType.query, "$q1", 15),
+      new Token(TokenType.lte, "<=", 18),
+      new Token(TokenType.number, 35, 20),
+      new Token(TokenType.parenthesisClose, ")", 22),
+      new Token(TokenType.then, "then", 23),
+      new Token(TokenType.ad, "$a1", 27),
+    ]);
+
+    const context: Map<string, any> = new Map();
+    const postfixTokens = new ExprParser(context).infixToPostFix(tokens);
+    expect(postfixTokens).toEqual([
+      new Token(TokenType.query, "$q1", 3),
+      new Token(TokenType.number, 30, 8),
+      new Token(TokenType.gte, ">=", 6),
+      new Token(TokenType.query, "$q1", 15),
+      new Token(TokenType.number, 35, 20),
+      new Token(TokenType.lte, "<=", 18),
+      new Token(TokenType.and, "and", 11),
+      new Token(TokenType.ad, "$a1", 27),
+      new Token(TokenType.if, "if", 0),
+    ]);
+  });
+
   test("if($q1>30)==($q2<35)then$a1 -> $q1 30 > $q2 35 < == $a1 if", () => {
     const tokens = new Tokenizer("if($q1>30)==($q1<35)then$a1").all();
     expect(tokens).toEqual([
@@ -459,6 +494,19 @@ describe("Postfix to AST", () => {
     ])) as AST_ConditionExpr;
     expect(expr.source.constructor).toBe(ConditionG);
     const g = expr.source as ConditionG;
+    expect(g.lval).toEqual(mocks.context!.get("q1"));
+    expect(g.rval).toEqual(10);
+  });
+  test("$q1 10 <= to ast", async () => {
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const expr = (await parser.buildAstFromPostfix([
+      new Token(TokenType.query, "$q1", 0),
+      new Token(TokenType.number, 10, 5),
+      new Token(TokenType.lte, "<=", 3),
+    ])) as AST_ConditionExpr;
+    expect(expr.source.constructor).toBe(ConditionLE);
+    const g = expr.source as ConditionLE;
     expect(g.lval).toEqual(mocks.context!.get("q1"));
     expect(g.rval).toEqual(10);
   });
