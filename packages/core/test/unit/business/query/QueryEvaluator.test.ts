@@ -41,7 +41,7 @@ import {
   IBrowsingDataRepository,
   ITransactionHistoryRepository,
   IDemographicDataRepository,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];

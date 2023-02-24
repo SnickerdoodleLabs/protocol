@@ -27,7 +27,7 @@ import {
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
   IDemographicDataRepository,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 // const ast = new AST(

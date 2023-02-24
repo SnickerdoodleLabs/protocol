@@ -53,7 +53,7 @@ import {
   ITransactionHistoryRepository,
   IDemographicDataRepository,
   IDataWalletPersistence,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 const queryCID = IpfsCID("Beep");

@@ -34,7 +34,7 @@ import {
   IBrowsingDataRepository,
   IDemographicDataRepository,
   IPortfolioBalanceRepository,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 0),

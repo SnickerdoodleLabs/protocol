@@ -33,7 +33,7 @@ import * as td from "testdouble";
 
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
-import { ITransactionHistoryRepository } from "@core/interfaces/data";
+import { ITransactionHistoryRepository } from "@core/interfaces/data/index.js";
 
 class blockchainTransactionQueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();

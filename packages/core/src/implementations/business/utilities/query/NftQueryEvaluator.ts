@@ -18,7 +18,7 @@ import { INftQueryEvaluator } from "@core/interfaces/business/utilities/query/IN
 import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class NftQueryEvaluator implements INftQueryEvaluator {
@@ -70,16 +70,18 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
       this.setIfNotExist(nftHoldings[nftType]!, nft.chain, {});
 
-      this.setIfNotExist(nftHoldings[nftType]![nft.chain], nft.token, {
+      const tokenIdentifier = `${nft.name}<#>${nft.token}` as const;
+
+      this.setIfNotExist(nftHoldings[nftType]![nft.chain], tokenIdentifier, {
         amount: 0,
       });
 
       if (nft instanceof EVMNFT) {
-        nftHoldings[nftType]![nft.chain][nft.token].amount += Number(
+        nftHoldings[nftType]![nft.chain][tokenIdentifier].amount += Number(
           nft.amount,
         );
       } else {
-        nftHoldings[nftType]![nft.chain][nft.token].amount++;
+        nftHoldings[nftType]![nft.chain][tokenIdentifier].amount++;
       }
       return nftHoldings;
     }, {});

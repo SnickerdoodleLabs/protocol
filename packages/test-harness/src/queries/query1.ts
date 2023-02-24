@@ -86,20 +86,6 @@ export const query1 = {
         end: "*",
       },
       address: "*",
-      object_schema: {
-        properties: {
-          type: {
-            chain: {
-              tokenAddress: {
-                amount: {
-                  type: "number",
-                },
-              },
-            },
-          },
-        },
-        required: ["chain", "tokenAddress", "amount", "type"],
-      },
     },
   },
   returns: {

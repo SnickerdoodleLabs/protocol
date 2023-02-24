@@ -24,6 +24,6 @@ export class EVMNFT extends WalletNFT {
     public blockNumber?: BlockNumber,
     public lastOwnerTimeStamp?: UnixTimestamp,
   ) {
-    super(EChainTechnology.EVM, chain, owner, token);
+    super(EChainTechnology.EVM, chain, owner, token, name);
   }
 }
