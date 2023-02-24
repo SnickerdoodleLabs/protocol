@@ -51,24 +51,24 @@ class ConfigProvider implements IConfigProvider {
       __IPFS_FETCH_BASE_URL__,
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       __CERAMIC_NODE_URL__,
-      __CONTROL_CHAIN_PROVIDER_URL__ === ""
+      __CONTROL_CHAIN_PROVIDER_URL__ == null
         ? undefined
         : __CONTROL_CHAIN_PROVIDER_URL__,
-      __COVALENT_API_KEY__ === "" ? undefined : __COVALENT_API_KEY__,
-      __MORALIS_API_KEY__ === "" ? undefined : __MORALIS_API_KEY__,
-      __NFTSCAN_API_KEY__ === "" ? undefined : __NFTSCAN_API_KEY__,
-      __POAP_API_KEY__ === "" ? undefined : __POAP_API_KEY__,
-      __DNS_SERVER_ADDRESS__ === "" ? undefined : __DNS_SERVER_ADDRESS__,
+      __COVALENT_API_KEY__ == null ? undefined : __COVALENT_API_KEY__,
+      __MORALIS_API_KEY__ == null ? undefined : __MORALIS_API_KEY__,
+      __NFTSCAN_API_KEY__ == null ? undefined : __NFTSCAN_API_KEY__,
+      __POAP_API_KEY__ == null ? undefined : __POAP_API_KEY__,
+      __DNS_SERVER_ADDRESS__ == null ? undefined : __DNS_SERVER_ADDRESS__,
       Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__),
-      __DOMAIN_FILTER__ === "" ? undefined : __DOMAIN_FILTER__,
-      __GOOGLE_CLOUD_BUCKET__ === "" ? undefined : __GOOGLE_CLOUD_BUCKET__,
-      __PORTFOLIO_POLLING_INTERVAL__ === ""
+      __DOMAIN_FILTER__ == null ? undefined : __DOMAIN_FILTER__,
+      __GOOGLE_CLOUD_BUCKET__ == null ? undefined : __GOOGLE_CLOUD_BUCKET__,
+      __PORTFOLIO_POLLING_INTERVAL__ == null
         ? ONE_MINUTE_MS
         : Number.parseInt(__PORTFOLIO_POLLING_INTERVAL__),
-      __TRANSACTION_POLLING_INTERVAL__ === ""
+      __TRANSACTION_POLLING_INTERVAL__ == null
         ? ONE_MINUTE_MS
         : Number.parseInt(__TRANSACTION_POLLING_INTERVAL__),
-      __BACKUP_POLLING_INTERVAL__ === ""
+      __BACKUP_POLLING_INTERVAL__ == null
         ? ONE_MINUTE_MS
         : Number.parseInt(__BACKUP_POLLING_INTERVAL__),
     );
