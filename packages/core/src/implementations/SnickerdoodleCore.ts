@@ -4,6 +4,10 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
   DefaultAccountNFTs,
@@ -78,6 +82,10 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  AESKey,
+  AESEncryptedString,
+  HexString,
+  EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -810,6 +818,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IDataWalletPersistenceType,
     );
     return persistence.postBackups();
+  }
+  public deriveAESKeyFromEVMPrivateKey(
+    evmKey: EVMPrivateKey,
+  ): ResultAsync<AESKey, never> {
+    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
+    return cryptoUtils.deriveAESKeyFromEVMPrivateKey(evmKey);
+  }
+
+  public deriveAESKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<AESKey, never> {
+    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
+    return cryptoUtils.deriveAESKeyFromSignature(signature, salt);
+  }
+  public decryptAESEncryptedString(
+    encrypted: AESEncryptedString,
+    encryptionKey: AESKey,
+  ): ResultAsync<string, never> {
+    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
+    return cryptoUtils.decryptAESEncryptedString(encrypted, encryptionKey);
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {

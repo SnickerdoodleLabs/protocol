@@ -1,4 +1,5 @@
 import {
+  AccountAddress,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -9,18 +10,21 @@ import {
   EVMTransaction,
   EVMTransactionHash,
   Gender,
+  HexString,
   IpfsCID,
+  Signature,
   SiteVisit,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { GoogleCloudStorage } from "@snickerdoodlelabs/persistence";
+import { ethers } from "ethers";
+import { base58 } from "ethers/lib/utils.js";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
-import { BackupPrompt } from "@test-harness/prompts/BackupPrompt.js";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
@@ -38,7 +42,6 @@ export class CorePrompt extends DataWalletPrompt {
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
-  private backupPrompt: BackupPrompt;
 
   public constructor(public env: Environment) {
     super(env);
@@ -50,7 +53,6 @@ export class CorePrompt extends DataWalletPrompt {
     this.optInCampaign = new OptInCampaign(this.env);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
-    this.backupPrompt = new BackupPrompt(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -305,46 +307,71 @@ export class CorePrompt extends DataWalletPrompt {
           );
           return this.core.addSiteVisits(sites).map(console.log);
         case "displayBackupsFromCloud":
-          console.log("Backup source: Google");
-          console.log("Chunks");
-          return this.core
-            .returnBackups()
-            .andThen((dataWalletBackupIDs) => {
-              const backupChoices: IPrompt[] = [];
-              dataWalletBackupIDs.forEach((backupID) => {
-                backupChoices[backupChoices.length] = {
-                  name: backupID,
-                  value: backupID,
-                };
-              });
-              return okAsync(backupChoices);
-            })
-            .andThen((backups) => {
-              return inquiryWrapper({
-                type: "list",
-                name: "backupPrompt",
-                message: "Please select a backup to restore:",
-                choices: backups,
-              }).andThen((answers) => {
-                console.log("Backup: ", answers.backupPrompt);
-                const backupSet = new Set<DataWalletBackupID>();
-                backupSet.add(answers.backupPrompt);
-                return this.core.pollBackupsFromCloudStorage(backupSet);
-              });
-            })
-            .andThen((walletBackups) => {
-              const confirmedBackup = walletBackups[0];
-              console.log("confirmedBackup: ", confirmedBackup);
-              console.log("Priority: ", confirmedBackup.header.priority);
-              console.log("Timestamp: ", confirmedBackup.header.timestamp);
-              // console.log("Data: ", confirmedBackup.blob.data);
-              // console.log("Hash: ", confirmedBackup.header.hash);
-              return this.core
-                .restoreBackup(confirmedBackup)
-                .andThen((backup) => {
-                  return okAsync(console.log("Backup restored"));
+          // console.log("Backup source: Google");
+          // console.log("Chunks");
+          return (
+            this.core
+              .returnBackups()
+              .andThen((dataWalletBackupIDs) => {
+                const backupChoices: IPrompt[] = [];
+                dataWalletBackupIDs.forEach((backupID) => {
+                  backupChoices[backupChoices.length] = {
+                    name: backupID,
+                    value: backupID,
+                  };
                 });
-            });
+                return okAsync(backupChoices);
+              })
+              .andThen((backups) => {
+                return inquiryWrapper({
+                  type: "list",
+                  name: "backupPrompt",
+                  message: "Please select a backup to restore:",
+                  choices: backups,
+                }).andThen((answers) => {
+                  // console.log("Backup: ", answers.backupPrompt);
+                  const backupSet = new Set<DataWalletBackupID>();
+                  backupSet.add(answers.backupPrompt);
+                  this.core.pollBackups();
+                  return this.core.pollBackupsFromCloudStorage(backupSet);
+                });
+              })
+              /*
+                export interface IDataWalletBackupHeader {
+                  hash: string;
+                  timestamp: UnixTimestamp;
+                  signature: string;
+                  priority: EBackupPriority;
+                }
+            */
+              .andThen((walletBackups) => {
+                const confirmedBackup = walletBackups[0];
+                // console.log("confirmedBackup: ", confirmedBackup);
+                console.log("Priority: ", confirmedBackup.header.priority);
+                console.log("Timestamp: ", confirmedBackup.header.timestamp);
+                console.log(
+                  "this.profile.accountAddress: ",
+                  this.profile.accountAddress,
+                );
+                return ResultUtils.combine([
+                  this.core.deriveAESKeyFromSignature(
+                    Signature(confirmedBackup.header.signature),
+                    this.accountAddressToHex(
+                      EVMAccountAddress(this.profile.accountAddress),
+                    ),
+                  ),
+                ]).andThen(([encryptionKey]) => {
+                  return this.core
+                    .decryptAESEncryptedString(
+                      confirmedBackup.blob,
+                      encryptionKey,
+                    )
+                    .andThen((backup) => {
+                      return okAsync(console.log("Backup restored: ", backup));
+                    });
+                });
+              })
+          );
         case "manualBackup":
           return this.core.postBackups().map(console.log);
         case "clearCloudStore":
@@ -352,6 +379,23 @@ export class CorePrompt extends DataWalletPrompt {
       }
       return okAsync(undefined);
     });
+  }
+
+  protected accountAddressToHex(accountAddress: AccountAddress): HexString {
+    if (ethers.utils.isHexString(accountAddress)) {
+      return HexString(accountAddress);
+    }
+
+    // Doesn't decode as base58, maybe it's just missing the 0x
+    const prefixedHex = `0x${accountAddress}`;
+    if (ethers.utils.isHexString(prefixedHex)) {
+      return HexString(prefixedHex);
+    }
+    // If it's not a hex string, it should be a base58 encoded account address
+    // Decode to an array
+    const arr = base58.decode(accountAddress);
+    const buffer = Buffer.from(arr);
+    return HexString(`0x${buffer.toString("hex")}`);
   }
 }
 

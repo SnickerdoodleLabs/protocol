@@ -66,8 +66,8 @@ export class DataWalletProfile {
 
   private _destroyed = false;
 
+  public accountAddress = "";
   private coreSubscriptions = new Array<Subscription>();
-
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
@@ -158,6 +158,7 @@ export class DataWalletProfile {
   > {
     return this.getSignatureForAccount(wallet)
       .andThen((signature) => {
+        this.accountAddress = wallet.accountAddress;
         return this.core.unlock(
           wallet.accountAddress,
           signature,
@@ -168,7 +169,6 @@ export class DataWalletProfile {
       .andThen(() => {
         this._unlocked = true;
         console.log(`Unlocked account ${wallet.accountAddress}!`);
-
         return this.loadFromPathAfterUnlocked().map(() => {
           console.log(`Loaded complete profile for newly unlocked wallet`);
         });

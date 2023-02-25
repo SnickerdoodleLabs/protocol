@@ -28,10 +28,9 @@ import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import nacl from "tweetnacl";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
-
-import nacl from "tweetnacl";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
@@ -167,6 +166,8 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress {
     const wallet = new ethers.Wallet(privateKey);
+    // console.log("wallet.address: ", wallet.address);
+    // console.log("privateKey: ", privateKey);
 
     return EVMAccountAddress(wallet.address);
   }
@@ -178,6 +179,9 @@ export class CryptoUtils implements ICryptoUtils {
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
+    // console.log("EVM ADDRESS RETURNING address: ", address);
+    // console.log("EVM ADDRESS RETURNING message: ", message);
+    // console.log("EVM ADDRESS RETURNING signature: ", signature);
 
     return okAsync(address);
   }
@@ -213,6 +217,8 @@ export class CryptoUtils implements ICryptoUtils {
     secret: string,
     encryptionKey: AESKey,
   ): ResultAsync<AESEncryptedString, never> {
+    // console.log("encryptionKey: ", encryptionKey);
+    // console.log("secret: ", secret);
     return this.getNonce(16).map((nonce) => {
       const iv = InitializationVector(nonce);
       try {
@@ -242,15 +248,31 @@ export class CryptoUtils implements ICryptoUtils {
   ): ResultAsync<string, never> {
     try {
       // The decipher function
+      // console.log("encrypted: ", encrypted);
+      // console.log("encryptionKey: ", encryptionKey);
+      // console.log("this.cipherAlgorithm: ", this.cipherAlgorithm);
+      // console.log(
+      //   "Buffer.from(encryptionKey, 'base64'): ",
+      //   Buffer.from(encryptionKey, "base64"),
+      // );
+      // console.log(
+      //   "encrypted.initializationVector: ",
+      //   encrypted.initializationVector,
+      // );
+
       const decipher = Crypto.createDecipheriv(
         this.cipherAlgorithm,
         Buffer.from(encryptionKey, "base64"),
         encrypted.initializationVector,
       );
 
+      // console.log("decipher: ", decipher);
+
       // decrypt the message
       let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
+      // console.log("decryptedData: ", decryptedData);
       decryptedData += decipher.final("utf8");
+      // console.log("decryptedData: ", decryptedData);
       return okAsync(decryptedData);
     } catch (e) {
       // This is not ideal error handling, but is better than nothing. At least

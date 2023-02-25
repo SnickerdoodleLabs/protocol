@@ -20,6 +20,7 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  AESEncryptedString,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -47,6 +48,7 @@ import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
+  AESKey,
   Age,
   ChainId,
   CountryCode,
@@ -55,9 +57,11 @@ import {
   DomainName,
   EmailAddressString,
   EVMContractAddress,
+  EVMPrivateKey,
   FamilyName,
   Gender,
   GivenName,
+  HexString,
   HexString32,
   IpfsCID,
   LanguageCode,
@@ -408,6 +412,20 @@ export interface ISnickerdoodleCore {
     TransactionPaymentCounter[],
     PersistenceError
   >;
+
+  decryptAESEncryptedString(
+    encrypted: AESEncryptedString,
+    encryptionKey: AESKey,
+  ): ResultAsync<string, never>;
+
+  deriveAESKeyFromEVMPrivateKey(
+    evmKey: EVMPrivateKey,
+  ): ResultAsync<AESKey, never>;
+
+  deriveAESKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<AESKey, never>;
 
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   pollBackupsFromCloudStorage(

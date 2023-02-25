@@ -10248,8 +10248,8 @@ __metadata:
   linkType: hard
 
 "aws-sdk@npm:^2.1049.0":
-  version: 2.1322.0
-  resolution: "aws-sdk@npm:2.1322.0"
+  version: 2.1323.0
+  resolution: "aws-sdk@npm:2.1323.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -10261,7 +10261,7 @@ __metadata:
     util: ^0.12.4
     uuid: 8.0.0
     xml2js: 0.4.19
-  checksum: a85f5af8b580adc551a15a57b58c9fd99fb07d728db34df31c37a3d543f5ae95e0dde88e221aadb0641af8dbc2c24cc7ebf5d20b8545e78d00b8fb92cc02545d
+  checksum: 2c4c7687d35f148571bcc48c258966e121b780c2d9b0b8cb81fe3089863f67d8d63e6b4ebd395d298e659c818eb4d3389d3d13c6592b5edd471f605182bd8aa3
   languageName: node
   linkType: hard
 
@@ -15570,9 +15570,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.284":
-  version: 1.4.310
-  resolution: "electron-to-chromium@npm:1.4.310"
-  checksum: f7d070b36c2cf8e085a2aaca85a92f451657d39cd9e1e779f9e37e40c65039abd10807836e017b0ce813e0bb2e9f125a6401181f80182acd0b265734c857266a
+  version: 1.4.311
+  resolution: "electron-to-chromium@npm:1.4.311"
+  checksum: 663fde5d90293d19c05b0dc65996e1ba6f3ee89d6365de3503de6a96c21439e18ea579fdd7d718e260708aa871ef333de934a4024d54fd109959ac0bca9d1400
   languageName: node
   linkType: hard
 

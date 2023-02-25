@@ -369,9 +369,13 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    console.log("this.privateKey: ", this.privateKey);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
+        console.log("Unpack blob");
+        console.log("blob: ", blob);
+        console.log("aesKey: ", aesKey);
         return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
       })
       .map((unencrypted) => {
