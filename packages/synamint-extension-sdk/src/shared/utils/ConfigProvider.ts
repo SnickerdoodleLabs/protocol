@@ -25,6 +25,13 @@ declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
 declare const __GOOGLE_CLOUD_BUCKET__: string;
+declare const __PORTFOLIO_POLLING_INTERVAL__: string;
+declare const __TRANSACTION_POLLING_INTERVAL__: string;
+declare const __BACKUP_POLLING_INTERVAL__: string;
+
+const SIX_HOURS_MS = 21600000;
+const TWO_HOURS_MS = 7200000;
+const ONE_MINUTE_MS = 60000;
 
 class ConfigProvider implements IConfigProvider {
   protected extensionConfig: ExtensionConfig;
@@ -61,6 +68,15 @@ class ConfigProvider implements IConfigProvider {
       Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__ ?? "4000"),
       __DOMAIN_FILTER__ ?? "(localhost|chrome://)",
       __GOOGLE_CLOUD_BUCKET__ ? undefined : __GOOGLE_CLOUD_BUCKET__,
+      __PORTFOLIO_POLLING_INTERVAL__
+        ? Number.parseInt(__PORTFOLIO_POLLING_INTERVAL__)
+        : ONE_MINUTE_MS,
+      __TRANSACTION_POLLING_INTERVAL__
+        ? Number.parseInt(__TRANSACTION_POLLING_INTERVAL__)
+        : ONE_MINUTE_MS,
+      __BACKUP_POLLING_INTERVAL__
+        ? Number.parseInt(__BACKUP_POLLING_INTERVAL__)
+        : ONE_MINUTE_MS,
     );
   }
   public getConfig() {

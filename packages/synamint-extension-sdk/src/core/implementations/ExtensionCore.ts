@@ -72,10 +72,10 @@ export class ExtensionCore {
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
-      accountBalancePollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
-      accountIndexingPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
-      accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
-      dataWalletBackupIntervalMS: SIX_HOURS_MS,
+      accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,
+      accountIndexingPollingIntervalMS: config.transactionPollingIntervalMS,
+      accountNFTPollingIntervalMS: config.portfolioPollingIntervalMS,
+      dataWalletBackupIntervalMS: config.backupPollingIntervalMS,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
