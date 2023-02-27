@@ -8,6 +8,7 @@ import {
   VolatileStorageKey,
   VersionedObject,
   VolatileStorageMetadata,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -71,7 +72,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError> {
     return this.waitForPriority(priority).andThen(() => {
-      return this.storageUtils.read<T>(key);
+      return this.storageUtils.read<JSONString>(key).map((raw) => {
+        if (raw == null) {
+          return null;
+        }
+        return JSON.parse(raw) as T;
+      });
     });
   }
 
