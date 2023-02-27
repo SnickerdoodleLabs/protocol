@@ -68,8 +68,6 @@ export interface ICryptoUtils {
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never>;
 
-  getKey(): AESKey;
-
   encryptString(
     secret: string,
     encryptionKey: AESKey,

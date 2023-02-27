@@ -40,12 +40,12 @@ import {
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
+@injectable()
 export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
   private tableUpdates: TableMap = {};
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
-  private encryptionKey: AESKey = AESKey("");
 
   private tableNames: string[];
   private migrators = new Map<
@@ -77,8 +77,35 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public getKey(): AESKey {
-    return this.encryptionKey;
+  // I think you just need 2 functions within the backup manager to get a list of available chunks
+  public accessBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    return okAsync(this.chunkQueue);
+  }
+
+  // and to fetch a specific chunk and decrypt it.
+  public fetchAndDecryptChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this.cryptoUtils
+      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
+      .andThen((aesKey) => {
+        const fetchedBackup = this.chunkQueue.find(
+          (element) => element == backup,
+        );
+        if (fetchedBackup == undefined) {
+          return errAsync(
+            new PersistenceError("invalid backup chunk detected"),
+          );
+        }
+
+        return this.cryptoUtils.decryptAESEncryptedString(
+          fetchedBackup.blob,
+          aesKey,
+        );
+      });
   }
 
   public deleteRecord(
@@ -105,6 +132,17 @@ export class BackupManager implements IBackupManager {
       .removeObject(tableName, key)
       .andThen(() => this._checkSize());
   }
+
+  // public retrieveBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  //   return this.volatileStorage
+  //     .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
+  //     .map((restored) => {
+  //       return restored.map((item) => item.);
+  //     })
+  //     .map((asdf) => {
+  //       return okAsync(asdf);
+  //     });
+  // }
 
   public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
     return this.volatileStorage
@@ -372,7 +410,6 @@ export class BackupManager implements IBackupManager {
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        this.encryptionKey = aesKey;
         return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
       })
       .map((unencrypted) => {

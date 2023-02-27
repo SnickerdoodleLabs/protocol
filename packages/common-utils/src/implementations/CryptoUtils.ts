@@ -35,13 +35,7 @@ import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
-  protected aesKey = AESKey("");
-
   constructor() {}
-
-  public getKey(): AESKey {
-    return this.aesKey;
-  }
 
   public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
     const baseString = Base64String(
@@ -136,7 +130,6 @@ export class CryptoUtils implements ICryptoUtils {
         32,
         "sha256",
       );
-      this.aesKey = AESKey(keyBuffer.toString("base64"));
       return AESKey(keyBuffer.toString("base64"));
     });
   }

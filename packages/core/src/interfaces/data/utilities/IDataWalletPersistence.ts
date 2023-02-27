@@ -91,6 +91,11 @@ export interface IDataWalletPersistence {
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
+
+  accessBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  fetchAndDecryptChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

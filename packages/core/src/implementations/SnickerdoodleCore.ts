@@ -821,17 +821,24 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.postBackups();
   }
 
-  public getKey(): AESKey {
-    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
-    return cryptoUtils.getKey();
+  public accessBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.accessBackupChunks();
   }
 
-  public decryptAESEncryptedString(
-    encrypted: AESEncryptedString,
-    encryptionKey: AESKey,
-  ): ResultAsync<string, never> {
-    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
-    return cryptoUtils.decryptAESEncryptedString(encrypted, encryptionKey);
+  // and to fetch a specific chunk and decrypt it.
+  public fetchAndDecryptChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.fetchAndDecryptChunk(backup);
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {

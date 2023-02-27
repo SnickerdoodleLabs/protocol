@@ -278,6 +278,29 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  // I think you just need 2 functions within the backup manager to get a list of available chunks
+  public accessBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.accessBackupChunks();
+      });
+  }
+
+  // and to fetch a specific chunk and decrypt it.
+  public fetchAndDecryptChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.fetchAndDecryptChunk(backup);
+      });
+  }
+
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()

@@ -29,7 +29,10 @@ export interface IBackupManager {
   restore(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
-  getKey(): AESKey;
+  accessBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  fetchAndDecryptChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError>;
 }
 
 export const IBackupManagerType = Symbol.for("IBackupManager");

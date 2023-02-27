@@ -350,6 +350,10 @@ export interface ISnickerdoodleCore {
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  accessBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  fetchAndDecryptChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
   addEarnedRewards(
@@ -412,13 +416,6 @@ export interface ISnickerdoodleCore {
     TransactionPaymentCounter[],
     PersistenceError
   >;
-
-  getKey(): AESKey;
-
-  decryptAESEncryptedString(
-    encrypted: AESEncryptedString,
-    encryptionKey: AESKey,
-  ): ResultAsync<string, never>;
 
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   pollBackupsFromCloudStorage(

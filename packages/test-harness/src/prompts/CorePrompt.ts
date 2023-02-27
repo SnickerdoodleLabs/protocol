@@ -15,6 +15,7 @@ import {
   FieldMap,
   Gender,
   HexString,
+  IDataWalletBackup,
   InitializationVector,
   IpfsCID,
   Signature,
@@ -119,8 +120,10 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get Eligible Ads", value: "getEligibleAds" },
 
       new inquirer.Separator(),
+      { name: "simulate backup", value: "simulateBackup" },
       { name: "backup inspection", value: "displayBackupsFromCloud" },
       { name: "manual backup", value: "manualBackup" },
+      { name: "display chunks", value: "displayChunks" },
       { name: "clear cloud store", value: "clearCloudStore" },
     ];
 
@@ -313,44 +316,35 @@ export class CorePrompt extends DataWalletPrompt {
           );
           return this.core.addSiteVisits(sites).map(console.log);
         case "displayBackupsFromCloud":
+          // Set your maxChunkSize in your coreconfig to 0 or 1 in order to display chunks
           console.log("Backup source: Google");
           console.log("Chunks");
           return this.core
-            .returnBackups()
-            .andThen((dataWalletBackupIDs) => {
+            .accessBackupChunks()
+            .andThen((chunks) => {
               const backupChoices: IPrompt[] = [];
-              dataWalletBackupIDs.forEach((backupID) => {
+              console.log("chunks: ", chunks);
+              chunks.forEach((chunk) => {
                 backupChoices[backupChoices.length] = {
-                  name: backupID,
-                  value: backupID,
+                  name: chunk.header.hash,
+                  value: chunk,
+                  position: backupChoices.length,
                 };
               });
-              return okAsync(backupChoices);
-            })
-            .andThen((backups) => {
               return inquiryWrapper({
                 type: "list",
                 name: "backupPrompt",
                 message: "Please select a backup to restore:",
-                choices: backups,
-              }).andThen((answers) => {
-                const backupSet = new Set<DataWalletBackupID>();
-                backupSet.add(answers.backupPrompt);
-                this.core.pollBackups();
-                return this.core.pollBackupsFromCloudStorage(backupSet);
+                choices: backupChoices,
               });
             })
-            .andThen((walletBackups) => {
-              const confirmedBackup = walletBackups[0];
+            .andThen((selection) => {
               return this.core
-                .decryptAESEncryptedString(
-                  confirmedBackup.blob,
-                  this.core.getKey(),
-                )
+                .fetchAndDecryptChunk(selection.backupPrompt)
                 .andThen((val) => {
                   return okAsync(
                     console.log(
-                      "Did it work: ",
+                      "Decrypted Backup info includes: ",
                       JSON.parse(val) as DecryptedData,
                     ),
                   );
@@ -358,6 +352,8 @@ export class CorePrompt extends DataWalletPrompt {
             });
         case "manualBackup":
           return this.core.postBackups().map(console.log);
+        case "displayChunks":
+          return this.core.accessBackupChunks().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
       }
@@ -367,8 +363,9 @@ export class CorePrompt extends DataWalletPrompt {
 }
 
 export interface IPrompt {
-  name: DataWalletBackupID;
-  value: DataWalletBackupID;
+  name: string;
+  value: IDataWalletBackup;
+  position: number;
 }
 
 export interface DecryptedData {
