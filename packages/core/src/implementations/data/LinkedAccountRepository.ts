@@ -43,14 +43,13 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
     return this.persistence
-      .getField<JSONString>(
+      .getField<JSONString | InvitationForStorage[]>(
         EFieldKey.ACCEPTED_INVITATIONS,
         EBackupPriority.HIGH,
       )
       .map((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
-        ) as InvitationForStorage[];
+        const storedInvitations: InvitationForStorage[] =
+          raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
 
         return storedInvitations.map((storedInvitation) => {
           return InvitationForStorage.toInvitation(storedInvitation);
@@ -62,14 +61,13 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     invitations: Invitation[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<JSONString>(
+      .getField<JSONString | InvitationForStorage[]>(
         EFieldKey.ACCEPTED_INVITATIONS,
         EBackupPriority.HIGH,
       )
       .andThen((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
-        ) as InvitationForStorage[];
+        const storedInvitations: InvitationForStorage[] =
+          raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
 
         const allInvitations = storedInvitations.concat(
           invitations.map((invitation) => {
@@ -89,14 +87,13 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<JSONString>(
+      .getField<JSONString | InvitationForStorage[]>(
         EFieldKey.ACCEPTED_INVITATIONS,
         EBackupPriority.HIGH,
       )
       .andThen((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
-        ) as InvitationForStorage[];
+        const storedInvitations: InvitationForStorage[] =
+          raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
 
         const invitations = storedInvitations.filter((optIn) => {
           return !addressesToRemove.includes(optIn.consentContractAddress);
