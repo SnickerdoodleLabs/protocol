@@ -181,10 +181,6 @@ export class CryptoUtils implements ICryptoUtils {
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
-    console.log("EVM ADDRESS RETURNING address: ", address);
-    console.log("EVM ADDRESS RETURNING message: ", message);
-    console.log("EVM ADDRESS RETURNING signature: ", signature);
-
     return okAsync(address);
   }
 
@@ -219,8 +215,6 @@ export class CryptoUtils implements ICryptoUtils {
     secret: string,
     encryptionKey: AESKey,
   ): ResultAsync<AESEncryptedString, never> {
-    console.log("encryptionKey: ", encryptionKey);
-    console.log("secret: ", secret);
     return this.getNonce(16).map((nonce) => {
       const iv = InitializationVector(nonce);
       try {
@@ -256,9 +250,7 @@ export class CryptoUtils implements ICryptoUtils {
       );
       // decrypt the message
       let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
-      // console.log("decryptedData: ", decryptedData);
       decryptedData += decipher.final("utf8");
-      // console.log("decryptedData: ", decryptedData);
       return okAsync(decryptedData);
     } catch (e) {
       // This is not ideal error handling, but is better than nothing. At least
@@ -267,14 +259,6 @@ export class CryptoUtils implements ICryptoUtils {
       console.error(e);
       return okAsync("THIS IS AN ERROR");
     }
-  }
-
-  public generateKeyPair(): ResultAsync<void, never> {
-    const { publicKey, privateKey } = Crypto.generateKeyPairSync("rsa", {
-      // The standard secure default length for RSA keys is 2048 bits
-      modulusLength: 2048,
-    });
-    return okAsync(undefined);
   }
 
   public getSignature(

@@ -420,15 +420,6 @@ export interface ISnickerdoodleCore {
     encryptionKey: AESKey,
   ): ResultAsync<string, never>;
 
-  deriveAESKeyFromEVMPrivateKey(
-    evmKey: EVMPrivateKey,
-  ): ResultAsync<AESKey, never>;
-
-  deriveAESKeyFromSignature(
-    signature: Signature,
-    salt: HexString,
-  ): ResultAsync<AESKey, never>;
-
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   pollBackupsFromCloudStorage(
     restored: Set<DataWalletBackupID>,

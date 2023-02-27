@@ -820,26 +820,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
     return persistence.postBackups();
   }
-  public deriveAESKeyFromEVMPrivateKey(
-    evmKey: EVMPrivateKey,
-  ): ResultAsync<AESKey, never> {
-    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
-    console.log("Public deriveAESKeyFromEVMPrivateKey function: ", evmKey);
-    return cryptoUtils.deriveAESKeyFromEVMPrivateKey(evmKey);
-  }
 
   public getKey(): AESKey {
     const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
     return cryptoUtils.getKey();
   }
 
-  public deriveAESKeyFromSignature(
-    signature: Signature,
-    salt: HexString,
-  ): ResultAsync<AESKey, never> {
-    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
-    return cryptoUtils.deriveAESKeyFromSignature(signature, salt);
-  }
   public decryptAESEncryptedString(
     encrypted: AESEncryptedString,
     encryptionKey: AESKey,

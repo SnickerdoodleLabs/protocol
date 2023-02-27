@@ -40,7 +40,6 @@ import {
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
-@injectable()
 export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
   private tableUpdates: TableMap = {};
@@ -62,11 +61,8 @@ export class BackupManager implements IBackupManager {
   public constructor(
     protected privateKey: EVMPrivateKey,
     protected schema: VolatileTableIndex<VersionedObject>[],
-    @inject(IVolatileStorageType)
     protected volatileStorage: IVolatileStorage,
-    @inject(ICryptoUtilsType)
     protected cryptoUtils: ICryptoUtils,
-    @inject(IStorageUtilsType)
     protected storageUtils: IStorageUtils,
     public maxChunkSize: number,
   ) {
@@ -128,11 +124,9 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
-        console.log("Restored without filtering: ", restored);
         return restored.map((item) => item.data.id);
       })
       .map((restored) => {
-        console.log("Restored after filtering: ", restored);
         return new Set(restored);
       });
   }
@@ -375,13 +369,9 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString,
   ): ResultAsync<BackupBlob, PersistenceError> {
-    console.log("this.privateKey: ", this.privateKey);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        console.log("Unpack blob");
-        console.log("blob: ", blob);
-        console.log("aesKey: ", aesKey);
         this.encryptionKey = aesKey;
         return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
       })
@@ -423,7 +413,6 @@ export class BackupManager implements IBackupManager {
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        console.log("_generateBlob aesKey: ", aesKey);
         return ResultUtils.combine([
           this.cryptoUtils.encryptString(JSON.stringify(blob), aesKey),
           this._getBlobPriority(blob),

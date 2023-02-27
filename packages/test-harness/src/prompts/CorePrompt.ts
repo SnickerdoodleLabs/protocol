@@ -364,23 +364,6 @@ export class CorePrompt extends DataWalletPrompt {
       return okAsync(undefined);
     });
   }
-
-  protected accountAddressToHex(accountAddress: AccountAddress): HexString {
-    if (ethers.utils.isHexString(accountAddress)) {
-      return HexString(accountAddress);
-    }
-
-    // Doesn't decode as base58, maybe it's just missing the 0x
-    const prefixedHex = `0x${accountAddress}`;
-    if (ethers.utils.isHexString(prefixedHex)) {
-      return HexString(prefixedHex);
-    }
-    // If it's not a hex string, it should be a base58 encoded account address
-    // Decode to an array
-    const arr = base58.decode(accountAddress);
-    const buffer = Buffer.from(arr);
-    return HexString(`0x${buffer.toString("hex")}`);
-  }
 }
 
 export interface IPrompt {
