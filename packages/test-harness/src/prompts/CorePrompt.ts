@@ -24,8 +24,7 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
-import { base58 } from "ethers/lib/utils.js";
+import { BackupChoice } from "@snickerdoodlelabs/persistence";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -321,14 +320,14 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core
             .listBackupChunks()
             .andThen((chunks) => {
-              const backupChoices: IPrompt[] = [];
               console.log("chunks: ", chunks);
-              chunks.forEach((chunk) => {
-                backupChoices[backupChoices.length] = {
-                  name: chunk.header.hash,
-                  value: chunk,
-                  position: backupChoices.length,
-                };
+              let backupChoices: BackupChoice[] = [];
+              backupChoices = chunks.map((chunk) => {
+                return new BackupChoice(
+                  chunk.header.hash,
+                  chunk,
+                  backupChoices.length,
+                );
               });
               return inquiryWrapper({
                 type: "list",
@@ -338,13 +337,14 @@ export class CorePrompt extends DataWalletPrompt {
               });
             })
             .andThen((selection) => {
+              console.log("selection.backupPrompt: ");
               return this.core
                 .fetchBackupChunk(selection.backupPrompt)
                 .andThen((val) => {
                   return okAsync(
                     console.log(
                       "Decrypted Backup info includes: ",
-                      JSON.parse(val) as DecryptedData,
+                      JSON.parse(val),
                     ),
                   );
                 });
@@ -359,15 +359,4 @@ export class CorePrompt extends DataWalletPrompt {
       return okAsync(undefined);
     });
   }
-}
-
-export interface IPrompt {
-  name: string;
-  value: IDataWalletBackup;
-  position: number;
-}
-
-export interface DecryptedData {
-  fields: FieldMap;
-  records: TableMap;
 }

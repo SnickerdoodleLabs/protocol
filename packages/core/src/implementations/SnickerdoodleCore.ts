@@ -4,10 +4,6 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
   DefaultAccountNFTs,
@@ -82,10 +78,6 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
-  AESKey,
-  AESEncryptedString,
-  HexString,
-  EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -94,11 +86,6 @@ import {
   IVolatileStorageType,
   IndexedDBVolatileStorage,
   GoogleCloudStorage,
-  NullCloudStorage,
-  IBackupManager,
-  IBackupManagerType,
-  BackupManager,
-  IBackupManagerProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,

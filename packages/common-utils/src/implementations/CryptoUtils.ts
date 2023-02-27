@@ -119,6 +119,7 @@ export class CryptoUtils implements ICryptoUtils {
   public deriveAESKeyFromEVMPrivateKey(
     evmKey: EVMPrivateKey,
   ): ResultAsync<AESKey, never> {
+    // We can generate salt by signing a message
     return this.signMessage("PhoebeIsCute", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
       const sourceEntropy = this.hexStringToBuffer(evmKey);
@@ -236,6 +237,7 @@ export class CryptoUtils implements ICryptoUtils {
     encryptionKey: AESKey,
   ): ResultAsync<string, never> {
     try {
+      // The decipher function
       const decipher = Crypto.createDecipheriv(
         this.cipherAlgorithm,
         Buffer.from(encryptionKey, "base64"),
