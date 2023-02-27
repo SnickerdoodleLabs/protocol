@@ -321,13 +321,8 @@ export class CorePrompt extends DataWalletPrompt {
             .listBackupChunks()
             .andThen((chunks) => {
               console.log("chunks: ", chunks);
-              let backupChoices: BackupChoice[] = [];
-              backupChoices = chunks.map((chunk) => {
-                return new BackupChoice(
-                  chunk.header.hash,
-                  chunk,
-                  backupChoices.length,
-                );
+              const backupChoices = chunks.map((chunk) => {
+                return new BackupChoice(chunk.header.hash, chunk);
               });
               return inquiryWrapper({
                 type: "list",
