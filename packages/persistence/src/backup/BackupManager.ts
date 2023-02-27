@@ -76,7 +76,6 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  // I think you just need 2 functions within the backup manager to get a list of available chunks
   public accessBackupChunks(): ResultAsync<
     IDataWalletBackup[],
     PersistenceError
@@ -84,7 +83,6 @@ export class BackupManager implements IBackupManager {
     return okAsync(this.chunkQueue);
   }
 
-  // and to fetch a specific chunk and decrypt it.
   public fetchAndDecryptChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
