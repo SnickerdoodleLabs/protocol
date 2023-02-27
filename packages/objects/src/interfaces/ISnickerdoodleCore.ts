@@ -350,8 +350,8 @@ export interface ISnickerdoodleCore {
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  accessBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  fetchAndDecryptChunk(
+  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 

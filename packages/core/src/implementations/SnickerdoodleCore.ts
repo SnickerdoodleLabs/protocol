@@ -821,24 +821,24 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.postBackups();
   }
 
-  public accessBackupChunks(): ResultAsync<
+  public listBackupChunks(): ResultAsync<
     IDataWalletBackup[],
     PersistenceError
   > {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.accessBackupChunks();
+    return persistence.listBackupChunks();
   }
 
   // and to fetch a specific chunk and decrypt it.
-  public fetchAndDecryptChunk(
+  public fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.fetchAndDecryptChunk(backup);
+    return persistence.fetchBackupChunk(backup);
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

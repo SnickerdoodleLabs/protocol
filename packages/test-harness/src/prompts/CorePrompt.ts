@@ -319,7 +319,7 @@ export class CorePrompt extends DataWalletPrompt {
           console.log("Backup source: Google");
           console.log("Chunks");
           return this.core
-            .accessBackupChunks()
+            .listBackupChunks()
             .andThen((chunks) => {
               const backupChoices: IPrompt[] = [];
               console.log("chunks: ", chunks);
@@ -339,7 +339,7 @@ export class CorePrompt extends DataWalletPrompt {
             })
             .andThen((selection) => {
               return this.core
-                .fetchAndDecryptChunk(selection.backupPrompt)
+                .fetchBackupChunk(selection.backupPrompt)
                 .andThen((val) => {
                   return okAsync(
                     console.log(
@@ -352,7 +352,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "manualBackup":
           return this.core.postBackups().map(console.log);
         case "displayChunks":
-          return this.core.accessBackupChunks().map(console.log);
+          return this.core.listBackupChunks().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
       }

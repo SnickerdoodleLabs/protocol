@@ -76,14 +76,14 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public accessBackupChunks(): ResultAsync<
+  public listBackupChunks(): ResultAsync<
     IDataWalletBackup[],
     PersistenceError
   > {
     return okAsync(this.chunkQueue);
   }
 
-  public fetchAndDecryptChunk(
+  public fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     return this.cryptoUtils

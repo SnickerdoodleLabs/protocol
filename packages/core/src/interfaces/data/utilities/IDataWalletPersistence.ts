@@ -91,8 +91,8 @@ export interface IDataWalletPersistence {
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
 
-  accessBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  fetchAndDecryptChunk(
+  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 }
