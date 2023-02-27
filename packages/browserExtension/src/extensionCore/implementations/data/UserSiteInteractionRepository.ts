@@ -1,6 +1,3 @@
-import { IUserSiteInteractionRepository } from "@interfaces/data";
-import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -9,6 +6,10 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { IUserSiteInteractionRepository } from "@interfaces/data";
+import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class UserSiteInteractionRepository

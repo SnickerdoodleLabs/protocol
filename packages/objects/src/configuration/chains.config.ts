@@ -148,7 +148,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [
         ProviderUrl(
-          "https://avalanche-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
+          "https://avalanche-mainnet.infura.io/v3/a8ae124ed6aa44bb97a7166cda30f1bc",
         ),
       ],
       4000,
@@ -168,7 +168,11 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Fuji,
       EChainTechnology.EVM,
       true,
-      [ProviderUrl("https://fuji.snickerdoodle.dev/rpc")],
+      [
+        ProviderUrl(
+          "https://avalanche-fuji.infura.io/v3/a8ae124ed6aa44bb97a7166cda30f1bc",
+        ),
+      ],
       4000,
       EIndexer.EVM,
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),

@@ -84,7 +84,10 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
       { name: "Get SiteVisits Array", value: "getSiteVisits" },
 
-      { name: "Get Default Receiving Address", value: "getDefaultReceivingAddress" },
+      {
+        name: "Get Default Receiving Address",
+        value: "getDefaultReceivingAddress",
+      },
 
       new inquirer.Separator(),
       {
@@ -174,7 +177,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "setGender":
           console.log("Gender is set to male");
           return this.core.setGender(Gender("male"));
-        case "getAge":
+        case "getGender":
           return this.core.getGender().map(console.log);
         case "setLocation":
           console.log("Location Country Code is US");

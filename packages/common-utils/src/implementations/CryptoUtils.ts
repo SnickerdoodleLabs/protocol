@@ -28,9 +28,10 @@ import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import nacl from "tweetnacl";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
+
+import nacl from "tweetnacl";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {

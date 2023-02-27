@@ -71,3 +71,5 @@ export * from "@objects/primitives/AdKey";
 
 export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";
+
+export * from "@objects/primitives/VolatileStorageKey";

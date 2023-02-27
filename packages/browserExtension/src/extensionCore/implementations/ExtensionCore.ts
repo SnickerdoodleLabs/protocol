@@ -7,7 +7,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { extensionCoreModule } from "@implementations/ExtensionCore.module";

@@ -1,6 +1,7 @@
+import { DataWalletAddress, UUID } from "@snickerdoodlelabs/objects";
+
 import { ENotificationTypes } from "@shared/enums/notification";
 import { BaseNotification } from "@shared/objects/notifications/BaseNotification";
-import { DataWalletAddress, UUID } from "@snickerdoodlelabs/objects";
 
 export class AccountInitializedNotification extends BaseNotification {
   constructor(

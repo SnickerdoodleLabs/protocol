@@ -74,6 +74,26 @@ import {
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@interfaces/business";
+
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+  TimeUtils,
+  ITimeUtils,
+  ITimeUtilsType,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
+
+import { ContainerModule, interfaces } from "inversify";
+
 import {
   IScamFilterService,
   IScamFilterServiceType,
@@ -118,6 +138,10 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
+import configProvider from "@shared/utils/ConfigProvider";
+
+import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
+
 import configProvider from "@shared/utils/ConfigProvider";
 
 export const extensionCoreModule = new ContainerModule(

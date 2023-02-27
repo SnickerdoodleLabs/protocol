@@ -1,6 +1,7 @@
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IUserSiteInteractionService {
   addSiteVisits(

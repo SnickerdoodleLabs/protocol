@@ -1,12 +1,13 @@
 import { DomainName, EScamFilterStatus } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
+
+import { IScamFilterService } from "@interfaces/business/IScamFilterService";
 import {
   IScamFilterRepository,
   IScamFilterRepositoryType,
 } from "@interfaces/data/IScamFilterRepository";
-import { IScamFilterService } from "@interfaces/business/IScamFilterService";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class ScamFilterService implements IScamFilterService {
