@@ -59,8 +59,6 @@ import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
   private _unlocked = false;
-  private _signature = "";
-  private _aesKey = AESKey("");
   private defaultPathInfo = {
     name: "default",
     path: "data/profiles/dataWallet/default",
@@ -69,16 +67,11 @@ export class DataWalletProfile {
 
   private _destroyed = false;
 
-  public accountAddress = "";
   private coreSubscriptions = new Array<Subscription>();
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
     this.core = this.createCore(mocks);
-  }
-
-  public get getKey(): AESKey {
-    return this._aesKey;
   }
 
   public get name(): string {
@@ -87,10 +80,6 @@ export class DataWalletProfile {
 
   public get unlocked(): boolean {
     return this._unlocked;
-  }
-
-  public get signature(): string {
-    return this._signature;
   }
 
   public destroy(): void {
@@ -169,8 +158,6 @@ export class DataWalletProfile {
   > {
     return this.getSignatureForAccount(wallet)
       .andThen((signature) => {
-        this._signature = signature;
-        this.accountAddress = wallet.accountAddress;
         return this.core.unlock(
           wallet.accountAddress,
           signature,

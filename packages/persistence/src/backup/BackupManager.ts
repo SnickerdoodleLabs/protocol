@@ -40,7 +40,6 @@ import {
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
-@injectable()
 export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
   private tableUpdates: TableMap = {};
@@ -133,32 +132,7 @@ export class BackupManager implements IBackupManager {
       .andThen(() => this._checkSize());
   }
 
-  // public retrieveBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
-  //   return this.volatileStorage
-  //     .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
-  //     .map((restored) => {
-  //       return restored.map((item) => item.);
-  //     })
-  //     .map((asdf) => {
-  //       return okAsync(asdf);
-  //     });
-  // }
-
   public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
-    return this.volatileStorage
-      .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
-      .map((restored) => {
-        return restored.map((item) => item.data.id);
-      })
-      .map((restored) => {
-        return new Set(restored);
-      });
-  }
-
-  public restoreBackups(): ResultAsync<
-    Set<DataWalletBackupID>,
-    PersistenceError
-  > {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {

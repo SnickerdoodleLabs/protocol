@@ -84,7 +84,6 @@ export interface IDataWalletPersistence {
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods
-  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
