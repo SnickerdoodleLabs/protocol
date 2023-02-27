@@ -17,7 +17,7 @@ export interface IRewardsContractFactory {
     name: string,
     symbol: string,
     baseURI: BaseURI,
-  ): ResultAsync<ethers.BigNumber, RewardsFactoryError>
+  ): ResultAsync<ethers.BigNumber, RewardsFactoryError>;
 }
 
 export const IRewardsContractFactoryType = Symbol.for(
