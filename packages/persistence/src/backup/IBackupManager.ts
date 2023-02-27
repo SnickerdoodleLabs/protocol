@@ -1,4 +1,5 @@
 import {
+  AESKey,
   DataWalletBackupID,
   IDataWalletBackup,
   PersistenceError,
@@ -28,6 +29,7 @@ export interface IBackupManager {
   restore(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+  getKey(): AESKey;
 }
 
 export const IBackupManagerType = Symbol.for("IBackupManager");

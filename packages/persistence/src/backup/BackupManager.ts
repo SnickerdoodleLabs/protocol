@@ -25,6 +25,7 @@ import {
   Signature,
   EVMAccountAddress,
   RestoredBackupMigrator,
+  AESKey,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -45,6 +46,7 @@ export class BackupManager implements IBackupManager {
   private tableUpdates: TableMap = {};
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
+  private encryptionKey: AESKey = AESKey("");
 
   private tableNames: string[];
   private migrators = new Map<
@@ -77,6 +79,10 @@ export class BackupManager implements IBackupManager {
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
     this.clear();
+  }
+
+  public getKey(): AESKey {
+    return this.encryptionKey;
   }
 
   public deleteRecord(
@@ -376,6 +382,7 @@ export class BackupManager implements IBackupManager {
         console.log("Unpack blob");
         console.log("blob: ", blob);
         console.log("aesKey: ", aesKey);
+        this.encryptionKey = aesKey;
         return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
       })
       .map((unencrypted) => {
@@ -416,6 +423,7 @@ export class BackupManager implements IBackupManager {
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
+        console.log("_generateBlob aesKey: ", aesKey);
         return ResultUtils.combine([
           this.cryptoUtils.encryptString(JSON.stringify(blob), aesKey),
           this._getBlobPriority(blob),

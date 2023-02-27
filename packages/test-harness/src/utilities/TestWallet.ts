@@ -25,8 +25,8 @@ export class TestWallet {
   public accountAddress: AccountAddress;
   public constructor(
     public chain: EChain,
-    protected privateKey: EVMPrivateKey | SolanaPrivateKey,
-    protected cryptoUtils: ICryptoUtils,
+    public privateKey: EVMPrivateKey | SolanaPrivateKey,
+    public cryptoUtils: ICryptoUtils,
   ) {
     const chainInfo = getChainInfoByChain(chain);
 

@@ -1,19 +1,25 @@
 import {
   AccountAddress,
+  AESEncryptedString,
+  AESKey,
   BigNumberString,
   ChainId,
   CountryCode,
   DataWalletBackupID,
   EarnedReward,
+  EncryptedString,
   ERewardType,
   EVMAccountAddress,
   EVMTransaction,
   EVMTransactionHash,
+  FieldMap,
   Gender,
   HexString,
+  InitializationVector,
   IpfsCID,
   Signature,
   SiteVisit,
+  TableMap,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -307,71 +313,49 @@ export class CorePrompt extends DataWalletPrompt {
           );
           return this.core.addSiteVisits(sites).map(console.log);
         case "displayBackupsFromCloud":
-          // console.log("Backup source: Google");
-          // console.log("Chunks");
-          return (
-            this.core
-              .returnBackups()
-              .andThen((dataWalletBackupIDs) => {
-                const backupChoices: IPrompt[] = [];
-                dataWalletBackupIDs.forEach((backupID) => {
-                  backupChoices[backupChoices.length] = {
-                    name: backupID,
-                    value: backupID,
-                  };
-                });
-                return okAsync(backupChoices);
-              })
-              .andThen((backups) => {
-                return inquiryWrapper({
-                  type: "list",
-                  name: "backupPrompt",
-                  message: "Please select a backup to restore:",
-                  choices: backups,
-                }).andThen((answers) => {
-                  // console.log("Backup: ", answers.backupPrompt);
-                  const backupSet = new Set<DataWalletBackupID>();
-                  backupSet.add(answers.backupPrompt);
-                  this.core.pollBackups();
-                  return this.core.pollBackupsFromCloudStorage(backupSet);
-                });
-              })
-              /*
-                export interface IDataWalletBackupHeader {
-                  hash: string;
-                  timestamp: UnixTimestamp;
-                  signature: string;
-                  priority: EBackupPriority;
-                }
-            */
-              .andThen((walletBackups) => {
-                const confirmedBackup = walletBackups[0];
-                // console.log("confirmedBackup: ", confirmedBackup);
-                console.log("Priority: ", confirmedBackup.header.priority);
-                console.log("Timestamp: ", confirmedBackup.header.timestamp);
-                console.log(
-                  "this.profile.accountAddress: ",
-                  this.profile.accountAddress,
-                );
-                return ResultUtils.combine([
-                  this.core.deriveAESKeyFromSignature(
-                    Signature(confirmedBackup.header.signature),
-                    this.accountAddressToHex(
-                      EVMAccountAddress(this.profile.accountAddress),
+          console.log("Backup source: Google");
+          console.log("Chunks");
+          return this.core
+            .returnBackups()
+            .andThen((dataWalletBackupIDs) => {
+              const backupChoices: IPrompt[] = [];
+              dataWalletBackupIDs.forEach((backupID) => {
+                backupChoices[backupChoices.length] = {
+                  name: backupID,
+                  value: backupID,
+                };
+              });
+              return okAsync(backupChoices);
+            })
+            .andThen((backups) => {
+              return inquiryWrapper({
+                type: "list",
+                name: "backupPrompt",
+                message: "Please select a backup to restore:",
+                choices: backups,
+              }).andThen((answers) => {
+                const backupSet = new Set<DataWalletBackupID>();
+                backupSet.add(answers.backupPrompt);
+                this.core.pollBackups();
+                return this.core.pollBackupsFromCloudStorage(backupSet);
+              });
+            })
+            .andThen((walletBackups) => {
+              const confirmedBackup = walletBackups[0];
+              return this.core
+                .decryptAESEncryptedString(
+                  confirmedBackup.blob,
+                  this.core.getKey(),
+                )
+                .andThen((val) => {
+                  return okAsync(
+                    console.log(
+                      "Did it work: ",
+                      JSON.parse(val) as DecryptedData,
                     ),
-                  ),
-                ]).andThen(([encryptionKey]) => {
-                  return this.core
-                    .decryptAESEncryptedString(
-                      confirmedBackup.blob,
-                      encryptionKey,
-                    )
-                    .andThen((backup) => {
-                      return okAsync(console.log("Backup restored: ", backup));
-                    });
+                  );
                 });
-              })
-          );
+            });
         case "manualBackup":
           return this.core.postBackups().map(console.log);
         case "clearCloudStore":
@@ -402,4 +386,9 @@ export class CorePrompt extends DataWalletPrompt {
 export interface IPrompt {
   name: DataWalletBackupID;
   value: DataWalletBackupID;
+}
+
+export interface DecryptedData {
+  fields: FieldMap;
+  records: TableMap;
 }

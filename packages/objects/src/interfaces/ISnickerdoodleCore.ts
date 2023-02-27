@@ -413,6 +413,8 @@ export interface ISnickerdoodleCore {
     PersistenceError
   >;
 
+  getKey(): AESKey;
+
   decryptAESEncryptedString(
     encrypted: AESEncryptedString,
     encryptionKey: AESKey,

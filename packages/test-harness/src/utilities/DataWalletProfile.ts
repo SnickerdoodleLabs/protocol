@@ -42,22 +42,25 @@ import {
   UninitializedError,
   EVMContractAddress,
   EBackupPriority,
+  AESKey,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
+import { injectable } from "inversify";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 // import fs from "fs";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { Environment, TestHarnessMocks } from "@test-harness/mocks";
-
 import { Subscription } from "rxjs";
 
+import { Environment, TestHarnessMocks } from "@test-harness/mocks";
 import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
+@injectable()
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
   private _unlocked = false;
+  private _signature = "";
+  private _aesKey = AESKey("");
   private defaultPathInfo = {
     name: "default",
     path: "data/profiles/dataWallet/default",
@@ -74,12 +77,20 @@ export class DataWalletProfile {
     this.core = this.createCore(mocks);
   }
 
+  public get getKey(): AESKey {
+    return this._aesKey;
+  }
+
   public get name(): string {
     return this._profilePathInfo.name;
   }
 
   public get unlocked(): boolean {
     return this._unlocked;
+  }
+
+  public get signature(): string {
+    return this._signature;
   }
 
   public destroy(): void {
@@ -158,6 +169,7 @@ export class DataWalletProfile {
   > {
     return this.getSignatureForAccount(wallet)
       .andThen((signature) => {
+        this._signature = signature;
         this.accountAddress = wallet.accountAddress;
         return this.core.unlock(
           wallet.accountAddress,

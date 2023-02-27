@@ -98,6 +98,7 @@ import {
   IBackupManager,
   IBackupManagerType,
   BackupManager,
+  IBackupManagerProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -823,7 +824,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     evmKey: EVMPrivateKey,
   ): ResultAsync<AESKey, never> {
     const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
+    console.log("Public deriveAESKeyFromEVMPrivateKey function: ", evmKey);
     return cryptoUtils.deriveAESKeyFromEVMPrivateKey(evmKey);
+  }
+
+  public getKey(): AESKey {
+    const cryptoUtils = this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
+    return cryptoUtils.getKey();
   }
 
   public deriveAESKeyFromSignature(

@@ -35,8 +35,13 @@ import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
+  protected aesKey = AESKey("");
 
   constructor() {}
+
+  public getKey(): AESKey {
+    return this.aesKey;
+  }
 
   public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
     const baseString = Base64String(
@@ -120,7 +125,6 @@ export class CryptoUtils implements ICryptoUtils {
   public deriveAESKeyFromEVMPrivateKey(
     evmKey: EVMPrivateKey,
   ): ResultAsync<AESKey, never> {
-    // We can generate salt by signing a message
     return this.signMessage("PhoebeIsCute", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
       const sourceEntropy = this.hexStringToBuffer(evmKey);
@@ -132,6 +136,7 @@ export class CryptoUtils implements ICryptoUtils {
         32,
         "sha256",
       );
+      this.aesKey = AESKey(keyBuffer.toString("base64"));
       return AESKey(keyBuffer.toString("base64"));
     });
   }
@@ -166,9 +171,6 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress {
     const wallet = new ethers.Wallet(privateKey);
-    // console.log("wallet.address: ", wallet.address);
-    // console.log("privateKey: ", privateKey);
-
     return EVMAccountAddress(wallet.address);
   }
 
@@ -179,9 +181,9 @@ export class CryptoUtils implements ICryptoUtils {
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
-    // console.log("EVM ADDRESS RETURNING address: ", address);
-    // console.log("EVM ADDRESS RETURNING message: ", message);
-    // console.log("EVM ADDRESS RETURNING signature: ", signature);
+    console.log("EVM ADDRESS RETURNING address: ", address);
+    console.log("EVM ADDRESS RETURNING message: ", message);
+    console.log("EVM ADDRESS RETURNING signature: ", signature);
 
     return okAsync(address);
   }
@@ -217,8 +219,8 @@ export class CryptoUtils implements ICryptoUtils {
     secret: string,
     encryptionKey: AESKey,
   ): ResultAsync<AESEncryptedString, never> {
-    // console.log("encryptionKey: ", encryptionKey);
-    // console.log("secret: ", secret);
+    console.log("encryptionKey: ", encryptionKey);
+    console.log("secret: ", secret);
     return this.getNonce(16).map((nonce) => {
       const iv = InitializationVector(nonce);
       try {
@@ -247,27 +249,11 @@ export class CryptoUtils implements ICryptoUtils {
     encryptionKey: AESKey,
   ): ResultAsync<string, never> {
     try {
-      // The decipher function
-      // console.log("encrypted: ", encrypted);
-      // console.log("encryptionKey: ", encryptionKey);
-      // console.log("this.cipherAlgorithm: ", this.cipherAlgorithm);
-      // console.log(
-      //   "Buffer.from(encryptionKey, 'base64'): ",
-      //   Buffer.from(encryptionKey, "base64"),
-      // );
-      // console.log(
-      //   "encrypted.initializationVector: ",
-      //   encrypted.initializationVector,
-      // );
-
       const decipher = Crypto.createDecipheriv(
         this.cipherAlgorithm,
         Buffer.from(encryptionKey, "base64"),
         encrypted.initializationVector,
       );
-
-      // console.log("decipher: ", decipher);
-
       // decrypt the message
       let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
       // console.log("decryptedData: ", decryptedData);
@@ -283,16 +269,13 @@ export class CryptoUtils implements ICryptoUtils {
     }
   }
 
-  // public generateKeyPair(): ResultAsync<void, never> {
-  // 	const { publicKey, privateKey } = Crypto.generateKeyPairSync("rsa", {
-  // 		// The standard secure default length for RSA keys is 2048 bits
-  // 		modulusLength: 2048,
-  // 	});
-
-  // 	console.log(publicKey);
-
-  // 	return okAsync(undefined);
-  // }
+  public generateKeyPair(): ResultAsync<void, never> {
+    const { publicKey, privateKey } = Crypto.generateKeyPairSync("rsa", {
+      // The standard secure default length for RSA keys is 2048 bits
+      modulusLength: 2048,
+    });
+    return okAsync(undefined);
+  }
 
   public getSignature(
     owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
