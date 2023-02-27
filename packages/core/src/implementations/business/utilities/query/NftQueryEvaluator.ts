@@ -70,18 +70,17 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
       this.setIfNotExist(nftHoldings[nftType]!, nft.chain, {});
 
-      const tokenIdentifier = `${nft.name}<#>${nft.token}` as const;
-
-      this.setIfNotExist(nftHoldings[nftType]![nft.chain], tokenIdentifier, {
+      this.setIfNotExist(nftHoldings[nftType]![nft.chain], nft.token, {
         amount: 0,
+        name: nft.name,
       });
 
       if (nft instanceof EVMNFT) {
-        nftHoldings[nftType]![nft.chain][tokenIdentifier].amount += Number(
+        nftHoldings[nftType]![nft.chain][nft.token].amount += Number(
           nft.amount,
         );
       } else {
-        nftHoldings[nftType]![nft.chain][tokenIdentifier].amount++;
+        nftHoldings[nftType]![nft.chain][nft.token].amount++;
       }
       return nftHoldings;
     }, {});

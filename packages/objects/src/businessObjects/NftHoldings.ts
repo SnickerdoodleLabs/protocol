@@ -5,9 +5,9 @@ import { ChainId } from "@objects/primitives";
 export type NftHoldings = {
   [type in keyof typeof EChainTechnology]?: {
     [chain: ChainId]: {
-      //tokenName<#>tokenAddress
-      [tokenIdentifier: `${string}<#>${TokenAddress}`]: {
+      [tokenIdentifier: TokenAddress]: {
         amount: number;
+        name: string;
       };
     };
   };
