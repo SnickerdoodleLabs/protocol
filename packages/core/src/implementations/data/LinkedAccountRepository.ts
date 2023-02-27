@@ -42,74 +42,78 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   }
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
-    return this.persistence
-      .getField<JSONString>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
-      .map((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null && raw.length != 0
-            ? JSON.stringify(raw)
-            : JSONString("[]"),
-        ) as InvitationForStorage[];
+    return (
+      this.persistence
+        //TODO check the return type 
+        .getField<JSONString | InvitationForStorage[]>(
+          EFieldKey.ACCEPTED_INVITATIONS,
+          EBackupPriority.HIGH,
+        )
+        .map((raw) => {
+          const storedInvitations: InvitationForStorage[] =
+            raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
 
-        return storedInvitations.map((storedInvitation) => {
-          return InvitationForStorage.toInvitation(storedInvitation);
-        });
-      });
+          return storedInvitations.map((storedInvitation) => {
+            return InvitationForStorage.toInvitation(storedInvitation);
+          });
+        })
+    );
   }
 
   public addAcceptedInvitations(
     invitations: Invitation[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<JSONString>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
-      .andThen((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
-        ) as InvitationForStorage[];
-
-        const allInvitations = storedInvitations.concat(
-          invitations.map((invitation) => {
-            return InvitationForStorage.fromInvitation(invitation);
-          }),
-        );
-
-        return this.persistence.updateField(
+    return (
+      this.persistence
+        //TODO check the return type 
+        .getField<JSONString | InvitationForStorage[]>(
           EFieldKey.ACCEPTED_INVITATIONS,
-          allInvitations,
           EBackupPriority.HIGH,
-        );
-      });
+        )
+        .andThen((raw) => {
+          const storedInvitations: InvitationForStorage[] =
+            raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
+
+          const allInvitations = storedInvitations.concat(
+            invitations.map((invitation) => {
+              return InvitationForStorage.fromInvitation(invitation);
+            }),
+          );
+
+          return this.persistence.updateField(
+            EFieldKey.ACCEPTED_INVITATIONS,
+            allInvitations,
+            EBackupPriority.HIGH,
+          );
+        })
+    );
   }
 
   public removeAcceptedInvitationsByContractAddress(
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<JSONString>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
-      .andThen((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
-        ) as InvitationForStorage[];
-
-        const invitations = storedInvitations.filter((optIn) => {
-          return !addressesToRemove.includes(optIn.consentContractAddress);
-        });
-
-        return this.persistence.updateField(
+    return (
+      this.persistence
+        //TODO check the return type 
+        .getField<JSONString | InvitationForStorage[]>(
           EFieldKey.ACCEPTED_INVITATIONS,
-          invitations,
           EBackupPriority.HIGH,
-        );
-      });
+        )
+        .andThen((raw) => {
+          const storedInvitations: InvitationForStorage[] =
+            raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
+
+          const invitations = storedInvitations.filter((optIn) => {
+            return !addressesToRemove.includes(optIn.consentContractAddress);
+          });
+
+          return this.persistence.updateField(
+            EFieldKey.ACCEPTED_INVITATIONS,
+            invitations,
+            EBackupPriority.HIGH,
+          );
+        })
+    );
   }
 
   public addEarnedRewards(
