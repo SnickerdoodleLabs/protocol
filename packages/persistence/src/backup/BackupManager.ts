@@ -1,4 +1,7 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   FieldMap,
   TableMap,
@@ -22,8 +25,10 @@ import {
   Signature,
   EVMAccountAddress,
   RestoredBackupMigrator,
+  AESKey,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils } from "@snickerdoodlelabs/utils";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -31,6 +36,7 @@ import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
 import {
   IVolatileStorage,
+  IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
@@ -68,6 +74,35 @@ export class BackupManager implements IBackupManager {
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
     this.clear();
+  }
+
+  public listBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    return okAsync(this.chunkQueue);
+  }
+
+  public fetchBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this.cryptoUtils
+      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
+      .andThen((aesKey) => {
+        const fetchedBackup = this.chunkQueue.find(
+          (element) => element == backup,
+        );
+        if (fetchedBackup == undefined) {
+          return errAsync(
+            new PersistenceError("invalid backup chunk detected"),
+          );
+        }
+
+        return this.cryptoUtils.decryptAESEncryptedString(
+          fetchedBackup.blob,
+          aesKey,
+        );
+      });
   }
 
   public deleteRecord(
