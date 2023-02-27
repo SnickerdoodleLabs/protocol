@@ -203,15 +203,18 @@ export class BackupManager implements IBackupManager {
       this.numUpdates += 1;
     }
 
+    const serialized = JSON.stringify(value);
     const timestamp = Date.now();
     this.fieldUpdates[key] = new FieldDataUpdate(
       key,
-      value,
+      serialized,
       Date.now(),
       priority,
     );
     this._updateFieldHistory(key, timestamp);
-    return this.storageUtils.write(key, value).andThen(() => this._checkSize());
+    return this.storageUtils
+      .write(key, serialized)
+      .andThen(() => this._checkSize());
   }
 
   private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {

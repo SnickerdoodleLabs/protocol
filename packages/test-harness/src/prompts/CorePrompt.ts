@@ -188,7 +188,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "setGender":
           console.log("Gender is set to male");
           return this.core.setGender(Gender("male"));
-        case "getAge":
+        case "getGender":
           return this.core.getGender().map(console.log);
         case "setLocation":
           console.log("Location Country Code is US");
