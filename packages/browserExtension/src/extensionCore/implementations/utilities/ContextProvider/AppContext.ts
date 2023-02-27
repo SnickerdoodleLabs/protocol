@@ -15,8 +15,8 @@ import {
 } from "@interfaces/objects";
 import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import { EPortNames } from "@shared/enums/ports";
-import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 import { TNotification } from "@shared/types/notification";
+import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 
 export class AppContext {
   constructor(

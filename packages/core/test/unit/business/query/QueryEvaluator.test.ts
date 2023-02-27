@@ -11,14 +11,11 @@ import {
   URLString,
   TickerSymbol,
   BigNumberString,
-  IDataWalletPersistence,
   TokenBalance,
-  ChainTransaction,
   EVMTransaction,
   UnixTimestamp,
   EVMTransactionHash,
   EChainTechnology,
-  EChain,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -33,11 +30,16 @@ import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { IProfileService } from "@core/interfaces/business";
 import {
   IBalanceQueryEvaluator,
   INetworkQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
-import { IProfileService } from "@core/interfaces/business";
+import {
+  IBrowsingDataRepository,
+  ITransactionHistoryRepository,
+  IDemographicDataRepository,
+} from "@core/interfaces/data";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -63,10 +65,12 @@ const conditionsGEandL = [
 ];
 
 class QueryEvaluatorMocks {
-  public dataWalletPersistence = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
   public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
   public profileService = td.object<IProfileService>();
+  public demoDataRepo = td.object<IDemographicDataRepository>();
+  public browsingDataRepo = td.object<IBrowsingDataRepository>();
+  public transactionRepo = td.object<ITransactionHistoryRepository>();
 
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
@@ -206,32 +210,32 @@ class QueryEvaluatorMocks {
 
   public constructor() {
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
-    td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
 
-    td.when(this.dataWalletPersistence.getGender()).thenReturn(
-      okAsync(Gender("male")),
-    );
+    td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
 
-    td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
+    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
 
-    td.when(this.dataWalletPersistence.getTransactionValueByChain()).thenReturn(
+    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
       okAsync(this.transactionsFlow),
     );
 
-    td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(this.accountBalances),
-    );
+    // td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
+    //   okAsync(this.accountBalances),
+    // );
   }
 
   public factory() {
     return new QueryEvaluator(
-      this.dataWalletPersistence,
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
       this.profileService,
+      this.demoDataRepo,
+      this.browsingDataRepo,
+      this.transactionRepo,
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(

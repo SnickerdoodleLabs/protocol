@@ -7,7 +7,7 @@ export const query2 = {
   queries: {
     q1: {
       name: "url_visited_count",
-      return: "object"
+      return: "object",
     },
     q2: {
       name: "chain_transactions",
@@ -20,27 +20,27 @@ export const query2 = {
               type: "string",
             },
             incomingValue: {
-              type: "number"
+              type: "number",
             },
             incomingCount: {
-              type: "integer"
+              type: "integer",
             },
             outgoingValue: {
-              type: "number"
+              type: "number",
             },
             outgoingCount: {
-              type: "integer"
-            }
+              type: "integer",
+            },
           },
           required: [
-            "tickerSymbol", 
-            "incomingValue", 
+            "tickerSymbol",
+            "incomingValue",
             "incomingCount",
-            "outgoingValue", 
+            "outgoingValue",
             "outgoingCount",
           ],
-        }
-      }
+        },
+      },
     },
     q3: {
       name: "balance",
@@ -81,24 +81,20 @@ export const query2 = {
     url: "/////This should dynamically populate",
   },
   compensations: {
-      parameters: {
-        recipientAddress: {
-            type: "address",
-            required: true
-        },
-        productId: {
-            type: "string",
-            required: false,
-            values: [
-              "https://product1",
-              "https://product2",
-            ]
-        },
-        shippingAddress: {
-            type: "string",
-            required: false,
-        },
-
+    parameters: {
+      recipientAddress: {
+        type: "address",
+        required: true,
+      },
+      productId: {
+        type: "string",
+        required: false,
+        values: ["https://product1", "https://product2"],
+      },
+      shippingAddress: {
+        type: "string",
+        required: false,
+      },
     },
     c1: {
       name: "Sugar to your coffee",
@@ -106,13 +102,11 @@ export const query2 = {
       description: "10% discount code for Starbucks",
       chainId: 1,
       callback: {
-        parameters: [
-          "recipientAddress"
-        ],
+        parameters: ["recipientAddress"],
         data: {
           trackingId: "982JJDSLAcx",
-        }
-      }
+        },
+      },
     },
     c2: {
       name: "The CryptoPunk Draw",
@@ -120,15 +114,12 @@ export const query2 = {
       description: "participate in the draw to win a CryptoPunk NFT",
       chainId: 1,
       callback: {
-        parameters: [
-          "recipientAddress",
-          "productId"
-        ],
+        parameters: ["recipientAddress", "productId"],
         data: {
           trackingId: "982JJDSLAcx",
-        }
+        },
       },
-      alternatives: ["c3"]
+      alternatives: ["c3"],
     },
     c3: {
       name: "CrazyApesClub NFT distro",
@@ -136,19 +127,16 @@ export const query2 = {
       description: "a free CrazyApesClub NFT",
       chainId: 1,
       callback: {
-        parameters: [
-          "recipientAddress",
-          "productId"
-        ],
+        parameters: ["recipientAddress", "productId"],
         data: {
           trackingId: "982JJDSLAcx",
-        }
+        },
       },
-      alternatives: ["c2"]
+      alternatives: ["c2"],
     },
   },
   logic: {
     returns: ["$r1", "$r2", "$r3"],
     compensations: ["$c1", "$c2", "$c3"],
   },
-}
+};

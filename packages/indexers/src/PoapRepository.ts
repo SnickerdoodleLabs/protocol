@@ -56,7 +56,6 @@ export class PoapRepository implements IEVMNftRepository {
 
   private getPages(chainId: ChainId, response: IPoapResponse[]): EVMNFT[] {
     const items: EVMNFT[] = response.map((token) => {
-      console.log("Poap token: ", token);
       return new EVMNFT(
         EVMContractAddress(poapContractAddress),
         BigNumberString(token.tokenId),
@@ -69,7 +68,6 @@ export class PoapRepository implements IEVMNftRepository {
         chainId,
       );
     });
-    console.log("POAP items: ", items);
     return items;
   }
 
@@ -81,7 +79,6 @@ export class PoapRepository implements IEVMNftRepository {
       "scan",
       accountAddress.toString(),
     ]);
-    console.log("POAP url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",

@@ -74,3 +74,5 @@ export * from "@objects/primitives/BearerAuthToken";
 export * from "@objects/primitives/SnowflakeID";
 export * from "@objects/primitives/Integer";
 export * from "@objects/primitives/Username";
+
+export * from "@objects/primitives/VolatileStorageKey";

@@ -1,11 +1,11 @@
 import { Interface } from "ethers/lib/utils";
 
+import { ChainTransaction } from "@objects/businessObjects/ChainTransaction";
+import { EVMEvent } from "@objects/businessObjects/EVMEvent";
 import {
-  ChainTransaction,
-  EVMEvent,
   EVMFunctionParameter,
   EVMFunctionSignature,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/EVMFunctionSignature";
 import {
   ChainId,
   EVMAccountAddress,

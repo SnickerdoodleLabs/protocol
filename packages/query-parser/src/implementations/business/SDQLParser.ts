@@ -123,7 +123,7 @@ export class SDQLParser {
               this.logicAds,
               this.returnPermissions,
               this.compensationPermissions,
-              this.adPermissions
+              this.adPermissions,
             ),
           ),
         );
@@ -246,7 +246,6 @@ export class SDQLParser {
       const adsSchema = this.schema.getAdsSchema();
 
       for (const key in adsSchema) {
-
         const adKey = SDQL_Name(key); //'a1'
         const singleAdSchema = adsSchema[key] as ISDQLAd;
         const ad = new AST_Ad(
@@ -257,7 +256,7 @@ export class SDQLParser {
           singleAdSchema.displayType,
           singleAdSchema.weight,
           singleAdSchema.expiry,
-          singleAdSchema.keywords
+          singleAdSchema.keywords,
         );
 
         this.ads.set(adKey, ad);
@@ -265,7 +264,6 @@ export class SDQLParser {
       }
 
       return okAsync(undefined);
-
     } catch (err) {
       if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
@@ -451,9 +449,7 @@ export class SDQLParser {
       );
 
       if (logicSchema.ads) {
-        this.logicAds = this.parseLogicExpressions(
-          logicSchema.ads,
-        );
+        this.logicAds = this.parseLogicExpressions(logicSchema.ads);
       }
 
       return okAsync(undefined);
@@ -501,9 +497,7 @@ export class SDQLParser {
       );
 
       if (logicSchema["ads"]) {
-        this.adPermissions = this.parseLogicPermissions(
-          logicSchema["ads"],
-        );
+        this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);
       }
 
       return okAsync(undefined);
@@ -523,22 +517,18 @@ export class SDQLParser {
     return permMap;
   }
 
-  public parseAdDependencies(
-    compensationExpression: string,
-  ): AST_Ad[] {
-    const adDependencies = this.exprParser!.getAdDependencies(compensationExpression);
-    return Array.from(
-      new Set(adDependencies)
+  public parseAdDependencies(compensationExpression: string): AST_Ad[] {
+    const adDependencies = this.exprParser!.getAdDependencies(
+      compensationExpression,
     );
+    return Array.from(new Set(adDependencies));
   }
 
-  public parseQueryDependencies(
-    compensationExpression: string,
-  ): AST_Query[] {
-    const queryDependencies = this.exprParser!.getQueryDependencies(compensationExpression);
-    return Array.from(
-      new Set(queryDependencies)
+  public parseQueryDependencies(compensationExpression: string): AST_Query[] {
+    const queryDependencies = this.exprParser!.getQueryDependencies(
+      compensationExpression,
     );
+    return Array.from(new Set(queryDependencies));
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {

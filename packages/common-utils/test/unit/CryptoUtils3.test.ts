@@ -3,14 +3,10 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
-import {
-  EVMAccountAddress,
-  HexString,
-} from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress, HexString } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
-
 
 describe("CryptoUtils tests", () => {
   test("getSignature() Closed Loop", async () => {
