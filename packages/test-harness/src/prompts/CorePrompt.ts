@@ -24,7 +24,6 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { BackupChoice } from "@snickerdoodlelabs/persistence";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -353,5 +352,26 @@ export class CorePrompt extends DataWalletPrompt {
       }
       return okAsync(undefined);
     });
+  }
+}
+
+export class BackupChoice {
+  private backupName: string;
+  private backupValue: IDataWalletBackup;
+
+  public constructor(
+    protected ID: string,
+    protected dwBackup: IDataWalletBackup,
+  ) {
+    this.backupName = ID;
+    this.backupValue = dwBackup;
+  }
+
+  public get name() {
+    return this.backupName;
+  }
+
+  public get value() {
+    return this.backupValue;
   }
 }
