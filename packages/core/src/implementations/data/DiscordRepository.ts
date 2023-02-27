@@ -13,11 +13,16 @@ import {
   UnixTimestamp,
   DiscordProfileAPIResponse,
   DiscordGuildProfileAPIResponse,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
+import {
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
+} from "@core/interfaces/data";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IConfigProvider,
@@ -29,6 +34,8 @@ class DiscordRepository implements IDiscordRepository {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
   ) {}
 
   protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
@@ -81,7 +88,7 @@ class DiscordRepository implements IDiscordRepository {
     throw new Error("Method not implemented.");
   }
 
-  public getUserProfile(
+  public fetchUserProfile(
     authToken: BearerAuthToken,
   ): ResultAsync<DiscordProfile, DiscordError> {
     return this.getRequestConfig(authToken).andThen((reqConfig) => {
@@ -107,7 +114,7 @@ class DiscordRepository implements IDiscordRepository {
     });
   }
 
-  public getGuildProfiles(
+  public fetchGuildProfiles(
     authToken: BearerAuthToken,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
     return this.getRequestConfig(authToken).andThen((reqConfig) => {
@@ -132,5 +139,25 @@ class DiscordRepository implements IDiscordRepository {
           });
       });
     });
+  }
+
+  upsertDiscordProfile(
+    discordProfile: DiscordProfile,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  upsertDiscordGuildProfiles(
+    discordGuildProfiles: DiscordGuildProfile[],
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getDiscordGuildProfiles(): ResultAsync<
+    DiscordGuildProfile[],
+    PersistenceError
+  > {
+    throw new Error("Method not implemented.");
   }
 }

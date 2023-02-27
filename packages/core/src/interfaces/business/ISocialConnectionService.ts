@@ -1,21 +1,11 @@
 import {
-  BearerAuthToken,
   DiscordProfile,
-  DiscordError,
-  DiscordGuildProfile,
   PersistenceError,
+  DiscordGuildProfile,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IDiscordRepository {
-  fetchUserProfile(
-    authToken: BearerAuthToken,
-  ): ResultAsync<DiscordProfile, DiscordError>;
-
-  fetchGuildProfiles(
-    authToken: BearerAuthToken,
-  ): ResultAsync<DiscordGuildProfile[], DiscordError>;
-
+export interface ISocialConnectionService {
   upsertDiscordProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError>;
@@ -32,4 +22,6 @@ export interface IDiscordRepository {
   >;
 }
 
-export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");
+export const ISocialConnectionServiceType = Symbol.for(
+  "ISocialConnectionService",
+);
