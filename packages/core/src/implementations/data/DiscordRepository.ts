@@ -14,6 +14,8 @@ import {
   DiscordProfileAPIResponse,
   DiscordGuildProfileAPIResponse,
   PersistenceError,
+  EBackupPriority,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
@@ -28,6 +30,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 
 @injectable()
 class DiscordRepository implements IDiscordRepository {
@@ -144,16 +147,38 @@ class DiscordRepository implements IDiscordRepository {
   upsertDiscordProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
+    // TODO, we need to update existing profile.
+    return this.persistence.updateRecord(
+      ERecordKey.SOCIAL_ACCOUNT,
+      new VolatileStorageMetadata<DiscordProfile>(
+        EBackupPriority.NORMAL,
+        discordProfile,
+        DiscordProfile.CURRENT_VERSION,
+      ),
+    );
   }
+
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
+
+  // deleteDiscordProfile(
+  //   discordProfile: DiscordProfile,
+  // ): ResultAsync<void, PersistenceError> {
+  //   return this.persistence.deleteRecord(
+  //     ERecordKey.SOCIAL_ACCOUNT,
+  //     ??,
+  //     EBackupPriority.NORMAL
+  //   )
+  // }
+
   upsertDiscordGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
+
   getDiscordGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     PersistenceError

@@ -15,6 +15,8 @@ export enum ERecordKey {
   ELIGIBLE_ADS = "SD_EligibleAds",
   AD_SIGNATURES = "SD_AdSignatures",
   RECEIVING_ADDRESSES = "SD_ReceivingAddresses",
+  SOCIAL_ACCOUNT = "SD_SocialAccount",
+  SOCIAL_GROUP = "SD_SocialGroup",
 }
 
 export enum EFieldKey {
