@@ -59,77 +59,45 @@ export class SolanaIndexer
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    if (chainId != ChainId(EChain.Solana)) {
-      return errAsync(
-        new AccountIndexingError("invalid chain id for solana", chainId),
-      );
-    }
+    return this.configProvider
+    .getConfig()
+    .andThen((config) => {
+      if (chainId != ChainId(EChain.Solana)) {
+        return errAsync(
+          new AccountIndexingError("invalid chain id for solana", chainId),
+        );
+      }
 
-    const url = urlJoinP("https://public-api.solscan.io/account/tokens", [], {
-      account: accountAddress,
-    });
-    return this.ajaxUtils
-      .get<ISolscanBalanceResponse>(new URL(url))
-      .andThen((balances) => {
-        return ResultUtils.combine(
-          balances.map((balance) => {
-            return ResultUtils.combine([
-              this.tokenPriceRepo.getTokenInfo(chainId, balance.tokenAddress),
-              // disabling until we can stop the rate limit
-              // this.tokenPriceRepo.getTokenPrice(
-              //   chainId,
-              //   balance.tokenAddress,
-              //   new Date(),
-              // ),
-            ])
-              .andThen(([tokenInfo]) => {
-                if (tokenInfo == null) {
-                  return okAsync(undefined);
-                }
+      const nativeBalanceConfig = {
+        method: "getBalance",
+        jsonrpc: "2.0",
+        id: "1",
+        params: [accountAddress],
+      };
 
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.Solana,
-                    tokenInfo.symbol,
-                    chainId,
-                    tokenInfo.address,
-                    accountAddress,
-                    balance.tokenAmount.amount,
-                    balance.tokenAmount.decimals,
-                  ),
-                );
-              })
-              .orElse((e) => {
-                this.logUtils.error("error retrieving token info", e);
-                return okAsync(undefined);
-              });
-          }),
-        ).map((balances) => {
-          return balances.filter(
-            (balance) => balance != null,
-          ) as TokenBalance[];
-        });
+      return this.ajaxUtils.post<IAlchemyBalanceResponse>(
+          new URL(config.alchemyEndpoints.solana),
+          JSON.stringify(nativeBalanceConfig),
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        ).andThen((SolanaNativeBalance) => {
+        const nativeBalance = new TokenBalance(
+          EChainTechnology.Solana,
+          TickerSymbol("SOL"),
+          chainId,
+          null,
+          accountAddress,
+          BigNumberString(SolanaNativeBalance.result.value.toString()),
+          getChainInfoByChainId(chainId).nativeCurrency.decimals,
+        );
+
+        return okAsync([nativeBalance]);
       })
-      .andThen((balances) => {
-        return this._getConnectionForChainId(chainId).andThen(([conn]) => {
-          return ResultAsync.fromPromise(
-            conn.getBalance(new PublicKey(accountAddress)),
-            (e) => new AccountIndexingError("error getting native balance"),
-          ).map((nativeBalanceValue) => {
-            const nativeBalance = new TokenBalance(
-              EChainTechnology.Solana,
-              TickerSymbol("SOL"),
-              chainId,
-              null,
-              accountAddress,
-              BigNumberString(nativeBalanceValue.toString()),
-              getChainInfoByChainId(chainId).nativeCurrency.decimals,
-            );
-            return [nativeBalance, ...balances];
-          });
-        });
-      });
-  }
+  })
+};
 
   public getTokensForAccount(
     chainId: ChainId,
@@ -260,3 +228,18 @@ type ISolscanBalanceResponse = {
   rentEpoch: number;
   lamports: number;
 }[];
+
+type IAlchemyBalanceResponse = {
+  id: number;
+  jsonrpc: string;
+  result: {
+    context: {
+      slot: number;
+    };
+    value: {
+      amount: string;
+      decimals: number;
+      uiAmountString: string;
+    };
+  };
+};
