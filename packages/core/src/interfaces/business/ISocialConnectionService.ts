@@ -6,15 +6,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ISocialConnectionService {
-  upsertDiscordProfile(
-    discordProfile: DiscordProfile,
-  ): ResultAsync<void, PersistenceError>;
-
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
-
-  upsertDiscordGuildProfiles(
-    discordGuildProfiles: DiscordGuildProfile[],
-  ): ResultAsync<void, PersistenceError>;
 
   getDiscordGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],

@@ -64,6 +64,16 @@ export const defaultInsightPlatformBaseUrl = URLString(
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
+const discordConfig = {
+  clientId: "discord-client-id",
+  oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+  oauthRedirectUrl: URLString("spa-url"),
+  accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+  refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+  dataAPIUrl: URLString("https://discord.com/api"),
+  iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+};
+
 export const testCoreConfig = new CoreConfig(
   controlChainId,
   [], //TODO: supported chains
@@ -90,7 +100,8 @@ export const testCoreConfig = new CoreConfig(
   5000,
   { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
   10000,
-  "(localhost|chrome:\/\/)"
+  "(localhost|chrome:\/\/)",
+  discordConfig,
 );
 
 // #endregion

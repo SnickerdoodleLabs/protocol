@@ -47,11 +47,11 @@ export class DiscordProvider {
   //   return okAsync(url);
   // }
 
-  public createService(): ResultAsync<DiscordService, DiscordError> {
-    // return errAsync(new DiscordError("init"));
-    return this.configProvider.getConfig().andThen((config) => {
-      // return errAsync(new DiscordError("init"))
-      return okAsync(new DiscordService(config.discord));
-    });
-  }
+  // public createService(): ResultAsync<DiscordService, DiscordError> {
+  //   // return errAsync(new DiscordError("init"));
+  //   return this.configProvider.getConfig().andThen((config) => {
+  //     // return errAsync(new DiscordError("init"))
+  //     return okAsync(new DiscordService(config.discord));
+  //   });
+  // }
 }

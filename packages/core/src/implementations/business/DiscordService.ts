@@ -4,8 +4,6 @@ import {
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   OAuthError,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -18,6 +16,10 @@ import {
   IDiscordRepository,
   IDiscordRepositoryType,
 } from "@core/interfaces/data/IDiscordRepository";
+import {
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -76,8 +78,8 @@ export class DiscordService implements IDiscordService {
     // 2. Update profile if exists with the same id
     // 3. Update guilds
     return ResultUtils.combine([
-      this.repository.getUserProfile(authToken),
-      this.repository.getGuildProfiles(authToken),
+      this.repository.fetchUserProfile(authToken),
+      this.repository.fetchGuildProfiles(authToken),
     ]).andThen(([userProfile, guildProfiles]) => {
       return ResultUtils.combine([
         this.updateUserProfile(userProfile),
@@ -105,11 +107,12 @@ export class DiscordService implements IDiscordService {
   public updateUserProfile(
     userProfile: DiscordProfile,
   ): ResultAsync<void, DiscordError> {
-    return this.dataWalletPersistence
-      .upsertDiscordProfile(userProfile)
-      .orElse((e) => {
-        return errAsync(new DiscordError(e.message));
-      });
+    throw new Error("Method not implemented.");
+    // return this.dataWalletPersistence
+    //   .upsertDiscordProfile(userProfile)
+    //   .orElse((e) => {
+    //     return errAsync(new DiscordError(e.message));
+    //   });
   }
   public updateGuildProfiles(
     guildProfiles: DiscordGuildProfile[],

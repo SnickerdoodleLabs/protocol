@@ -18,19 +18,10 @@ export class SocialConnectionService implements ISocialConnectionService {
     protected discordRepo: IDiscordRepository,
   ) {}
 
-  upsertDiscordProfile(
-    discordProfile: DiscordProfile,
-  ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  upsertDiscordGuildProfiles(
-    discordGuildProfiles: DiscordGuildProfile[],
-  ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
+
   getDiscordGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     PersistenceError

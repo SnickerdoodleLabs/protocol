@@ -66,6 +66,16 @@ export class ConfigProvider
       );
     }
 
+    const discordConfig = {
+      clientId: "discord-client-id",
+      oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+      oauthRedirectUrl: URLString("spa-url"),
+      accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      dataAPIUrl: URLString("https://discord.com/api"),
+      iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+    };
+
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
@@ -111,6 +121,7 @@ export class ConfigProvider
       },
       10000,
       "(localhost|chrome://)",
+      discordConfig,
     );
   }
 
