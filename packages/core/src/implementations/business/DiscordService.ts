@@ -5,6 +5,7 @@ import {
   DiscordGuildProfile,
   DiscordProfile,
   OAuthError,
+  PersistenceError,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -29,9 +30,7 @@ import {
 export class DiscordService implements IDiscordService {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
-    @inject(IDiscordRepositoryType) public repository: IDiscordRepository,
+    @inject(IDiscordRepositoryType) public discordRepo: IDiscordRepository,
   ) {}
 
   protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
@@ -73,50 +72,67 @@ export class DiscordService implements IDiscordService {
 
   public initializeUser(
     authToken: BearerAuthToken,
-  ): ResultAsync<void, DiscordError> {
+  ): ResultAsync<void, DiscordError | PersistenceError> {
     // 1. Fetch profile
     // 2. Update profile if exists with the same id
     // 3. Update guilds
     return ResultUtils.combine([
-      this.repository.fetchUserProfile(authToken),
-      this.repository.fetchGuildProfiles(authToken),
+      this.discordRepo.fetchUserProfile(authToken),
+      this.discordRepo.fetchGuildProfiles(authToken),
     ]).andThen(([userProfile, guildProfiles]) => {
       return ResultUtils.combine([
-        this.updateUserProfile(userProfile),
-        this.updateGuildProfiles(guildProfiles),
+        this.discordRepo.upsertDiscordProfile(userProfile),
+        this.discordRepo.upsertDiscordGuildProfiles(guildProfiles),
       ]).andThen(() => {
         return okAsync(undefined);
       });
     });
+    // throw new Error("Method not implemented.");
   }
 
-  public getUserProfile(
-    authToken: BearerAuthToken,
-  ): ResultAsync<DiscordProfile, DiscordError> {
-    // return this.repository.getUserProfile(authToken);
-    throw new Error("Method not implemented.");
+  public getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
+    return this.discordRepo.getDiscordProfiles();
   }
 
-  public getGuildProfiles(
-    authToken: BearerAuthToken,
-  ): ResultAsync<DiscordGuildProfile[], DiscordError> {
-    // return this.repository.getGuildProfiles(authToken);
-    throw new Error("Method not implemented.");
+  public getGuildProfiles(): ResultAsync<
+    DiscordGuildProfile[],
+    PersistenceError
+  > {
+    return this.discordRepo.getDiscordGuildProfiles();
   }
 
-  public updateUserProfile(
-    userProfile: DiscordProfile,
-  ): ResultAsync<void, DiscordError> {
+  // public getUserProfile(
+  //   authToken: BearerAuthToken,
+  // ): ResultAsync<DiscordProfile, DiscordError> {
+  //   // return this.repository.getUserProfile(authToken);
+  //   throw new Error("Method not implemented.");
+  // }
+
+  // public getGuildProfiles(
+  //   authToken: BearerAuthToken,
+  // ): ResultAsync<DiscordGuildProfile[], DiscordError> {
+  //   // return this.repository.getGuildProfiles(authToken);
+  //   throw new Error("Method not implemented.");
+  // }
+
+  // public updateUserProfile(
+  //   userProfile: DiscordProfile,
+  // ): ResultAsync<void, DiscordError> {
+  //   throw new Error("Method not implemented.");
+  //   // return this.dataWalletPersistence
+  //   //   .upsertDiscordProfile(userProfile)
+  //   //   .orElse((e) => {
+  //   //     return errAsync(new DiscordError(e.message));
+  //   //   });
+  // }
+  // public updateGuildProfiles(
+  //   guildProfiles: DiscordGuildProfile[],
+  // ): ResultAsync<void, DiscordError> {
+  //   return okAsync(undefined);
+  // }
+
+  public poll(): ResultAsync<void, DiscordError | PersistenceError> {
+    // First we need to find the authkeys for discord
     throw new Error("Method not implemented.");
-    // return this.dataWalletPersistence
-    //   .upsertDiscordProfile(userProfile)
-    //   .orElse((e) => {
-    //     return errAsync(new DiscordError(e.message));
-    //   });
-  }
-  public updateGuildProfiles(
-    guildProfiles: DiscordGuildProfile[],
-  ): ResultAsync<void, DiscordError> {
-    return okAsync(undefined);
   }
 }

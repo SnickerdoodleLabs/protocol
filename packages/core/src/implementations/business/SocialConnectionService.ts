@@ -6,26 +6,27 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { ISocialConnectionService } from "@core/interfaces/business/index.js";
 import {
-  IDiscordRepository,
-  IDiscordRepositoryType,
-} from "@core/interfaces/data/index.js";
+  IDiscordService,
+  IDiscordServiceType,
+  ISocialConnectionService,
+} from "@core/interfaces/business/index.js";
+
 @injectable()
 export class SocialConnectionService implements ISocialConnectionService {
   constructor(
-    @inject(IDiscordRepositoryType)
-    protected discordRepo: IDiscordRepository,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
   ) {}
 
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    throw new Error("Method not implemented.");
+    return this.discordService.getUserProfiles();
   }
 
   getDiscordGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.discordService.getGuildProfiles();
   }
 }

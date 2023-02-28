@@ -72,6 +72,7 @@ const discordConfig = {
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),
   iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+  pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
 };
 
 export const testCoreConfig = new CoreConfig(
