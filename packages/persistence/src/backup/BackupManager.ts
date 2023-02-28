@@ -80,6 +80,13 @@ export class BackupManager implements IBackupManager {
     IDataWalletBackup[],
     PersistenceError
   > {
+    console.log("this.numUpdates: ", this.numUpdates);
+    console.log("this.maxChunkSize: ", this.maxChunkSize);
+    console.log("this.chunkQueue.length: ", this.chunkQueue.length);
+    this.chunkQueue.forEach(element => {
+      console.log("this.chunkQueue.length: ", element);
+
+    });
     return okAsync(this.chunkQueue);
   }
 
@@ -111,9 +118,12 @@ export class BackupManager implements IBackupManager {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
+    console.log("this.tableUpdates: ", this.tableUpdates);
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
       return this.volatileStorage.removeObject(tableName, key);
     }
+
+    console.log("after this.tableUpdates: ", this.tableUpdates);
 
     this.tableUpdates[tableName].push(
       new VolatileDataUpdate(
@@ -123,6 +133,8 @@ export class BackupManager implements IBackupManager {
         priority,
       ),
     );
+    console.log("after this.tableUpdates push: ", this.tableUpdates);
+
     this.deletionHistory.set(key, timestamp);
     this.numUpdates += 1;
     return this.volatileStorage
@@ -145,7 +157,11 @@ export class BackupManager implements IBackupManager {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
+    console.log("before this.tableUpdates clear(): ", this.tableUpdates);
+
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    console.log("after this.tableUpdates clear(): ", this.tableUpdates);
+
     return okAsync(undefined);
   }
 
@@ -175,9 +191,18 @@ export class BackupManager implements IBackupManager {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
+    console.log(
+      "before this.tableUpdates hasOwnProptery(): ",
+      this.tableUpdates,
+    );
+
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
       return this.volatileStorage.putObject<T>(tableName, value);
     }
+    console.log(
+      "after this.tableUpdates hasOwnProptery(): ",
+      this.tableUpdates,
+    );
 
     this.tableUpdates[tableName].push(
       new VolatileDataUpdate(
@@ -199,6 +224,8 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
+    console.log("before updateField: ", this.fieldUpdates);
+
     if (!(key in this.fieldUpdates)) {
       this.numUpdates += 1;
     }
@@ -211,6 +238,8 @@ export class BackupManager implements IBackupManager {
       Date.now(),
       priority,
     );
+    console.log("after updateField: ", this.fieldUpdates);
+
     this._updateFieldHistory(key, timestamp);
     return this.storageUtils
       .write(key, serialized)
@@ -261,14 +290,22 @@ export class BackupManager implements IBackupManager {
                     !(fieldName in this.fieldHistory) ||
                     update.timestamp > this.fieldHistory[fieldName]
                   ) {
+                    console.log("before fieldUpdates: ", this.fieldUpdates);
+
                     if (this.fieldUpdates.hasOwnProperty(fieldName)) {
                       if (update.timestamp > this.fieldUpdates[fieldName][1]) {
                         this.fieldHistory[fieldName] = update.timestamp;
                         delete this.fieldUpdates[fieldName];
+                        console.log(
+                          "after fieldUpdates 1: ",
+                          this.fieldUpdates,
+                        );
                         return this.storageUtils.write(fieldName, update.value);
                       }
                     } else {
                       this.fieldHistory[fieldName] = update.timestamp;
+                      console.log("after fieldUpdates 2: ", this.fieldUpdates);
+
                       return this.storageUtils.write(fieldName, update.value);
                     }
                   }
@@ -421,7 +458,10 @@ export class BackupManager implements IBackupManager {
     [AESEncryptedString, EBackupPriority],
     PersistenceError
   > {
+    console.log("before generateblob: ", this.fieldUpdates);
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
+    console.log("after generateblob: ", this.fieldUpdates);
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -467,9 +507,11 @@ export class BackupManager implements IBackupManager {
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {
+    console.log("this.fieldHistory: ", this.fieldHistory);
     if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
       this.fieldHistory[field] = timestamp;
     }
+    console.log("this.fieldHistory: ", this.fieldHistory);
   }
 
   private _addRestored(
