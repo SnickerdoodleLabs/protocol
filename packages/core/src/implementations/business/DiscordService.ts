@@ -135,4 +135,10 @@ export class DiscordService implements IDiscordService {
     // First we need to find the authkeys for discord
     throw new Error("Method not implemented.");
   }
+
+  public getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError> {
+    return this.discordRepo.getDiscordProfiles().map((uProfiles) => {
+      return uProfiles.map((uProfile) => uProfile.authToken);
+    });
+  }
 }

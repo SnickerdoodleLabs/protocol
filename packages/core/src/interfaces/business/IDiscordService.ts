@@ -23,6 +23,7 @@ export interface IDiscordService extends IOAuthService {
   // getGuildProfiles(
   //   authToken: BearerAuthToken,
   // ): ResultAsync<DiscordGuildProfile[], DiscordError>;
+  getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError>;
   poll(): ResultAsync<void, DiscordError | PersistenceError>;
 }
 

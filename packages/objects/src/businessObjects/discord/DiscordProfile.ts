@@ -11,7 +11,7 @@ export class DiscordProfile extends VersionedObject {
   public constructor(
     public id: SnowflakeID,
     public username: Username,
-    public displayName: string,
+    public displayName: string | null,
     public discriminator: string,
     public flags: Integer,
     public authToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
