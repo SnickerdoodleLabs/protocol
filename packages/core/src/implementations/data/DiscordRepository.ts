@@ -34,7 +34,7 @@ import {
 } from "@core/interfaces/utilities/IConfigProvider";
 
 @injectable()
-class DiscordRepository implements IDiscordRepository {
+export class DiscordRepository implements IDiscordRepository {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,

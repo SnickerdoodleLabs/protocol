@@ -16,11 +16,6 @@ import { IDiscordService } from "@core/interfaces/business";
 import { IDiscordRepository } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 import {
-  dataWalletAddress,
-  dataWalletKey,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/commonValues";
-import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";

@@ -28,7 +28,7 @@ export class DiscordProfile extends VersionedObject {
 export interface DiscordProfileAPIResponse {
   id: SnowflakeID;
   username: Username;
-  display_name: string;
+  display_name: string | null;
   discriminator: string;
   flags: Integer;
 }
