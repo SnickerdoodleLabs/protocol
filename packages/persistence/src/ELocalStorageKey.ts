@@ -15,6 +15,8 @@ export enum ERecordKey {
   ELIGIBLE_ADS = "SD_EligibleAds",
   AD_SIGNATURES = "SD_AdSignatures",
   RECEIVING_ADDRESSES = "SD_ReceivingAddresses",
+  ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
+  REJECTED_COHORTS = "SD_RejectedCohorts",
 }
 
 export enum EFieldKey {
@@ -25,9 +27,6 @@ export enum EFieldKey {
   EMAIL = "SD_Email",
   LOCATION = "SD_Location",
   DEFAULT_RECEIVING_ADDRESS = "SD_DefaultReceivingAddress",
-  // TODO: move these to records
-  ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
-  REJECTED_COHORTS = "SD_RejectedCohorts",
 }
 
 export type LocalStorageKey = EFieldKey | ERecordKey;

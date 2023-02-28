@@ -75,7 +75,7 @@ export interface IDataWalletPersistence {
     indexName?: string,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
-  getAllKeys<T extends VersionedObject>(
+  getAllKeys<T>(
     name: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,

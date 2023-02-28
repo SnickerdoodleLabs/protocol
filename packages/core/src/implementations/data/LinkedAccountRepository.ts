@@ -6,11 +6,13 @@ import {
   EBackupPriority,
   EVMContractAddress,
   Invitation,
+  InvitationForStorage,
   JSONString,
   LatestBlock,
   LinkedAccount,
   PersistenceError,
   ReceivingAccount,
+  RejectedCohort,
   Signature,
   TokenId,
   VolatileStorageMetadata,
@@ -43,71 +45,55 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
     return this.persistence
-      .getField<InvitationForStorage[]>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
-      .map((storedInvitations) => {
-        if (storedInvitations == null) {
-          return [];
-        }
-
-        return storedInvitations.map((storedInvitation) => {
-          return InvitationForStorage.toInvitation(storedInvitation);
-        });
+      .getAll<InvitationForStorage>(ERecordKey.ACCEPTED_INVITATIONS)
+      .map((invitations) => {
+        return invitations.map((invitation) =>
+          InvitationForStorage.toInvitation(invitation),
+        );
       });
   }
 
   public addAcceptedInvitations(
     invitations: Invitation[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
-      .andThen((storedInvitations) => {
-        if (storedInvitations == null) {
-          storedInvitations = [];
-        }
-
-        const allInvitations = storedInvitations.concat(
-          invitations.map((invitation) => {
-            return InvitationForStorage.fromInvitation(invitation);
-          }),
+    return ResultUtils.combine(
+      invitations.map((invitation) => {
+        return this.persistence.updateRecord(
+          ERecordKey.ACCEPTED_INVITATIONS,
+          new VolatileStorageMetadata<InvitationForStorage>(
+            EBackupPriority.HIGH,
+            InvitationForStorage.fromInvitation(invitation),
+            InvitationForStorage.CURRENT_VERSION,
+          ),
         );
-
-        return this.persistence.updateField(
-          EFieldKey.ACCEPTED_INVITATIONS,
-          allInvitations,
-          EBackupPriority.HIGH,
-        );
-      });
+      }),
+    ).map(() => undefined);
   }
 
   public removeAcceptedInvitationsByContractAddress(
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
-      .andThen((storedInvitations) => {
-        if (storedInvitations == null) {
-          storedInvitations = [];
-        }
-
-        const invitations = storedInvitations.filter((optIn) => {
-          return !addressesToRemove.includes(optIn.consentContractAddress);
-        });
-
-        return this.persistence.updateField(
-          EFieldKey.ACCEPTED_INVITATIONS,
-          invitations,
-          EBackupPriority.HIGH,
-        );
-      });
+    return ResultUtils.combine(
+      addressesToRemove.map((address) => {
+        return this.persistence
+          .getAll<InvitationForStorage>(
+            ERecordKey.ACCEPTED_INVITATIONS,
+            "consentContractAddress",
+            EBackupPriority.HIGH,
+          )
+          .andThen((invitations) => {
+            return ResultUtils.combine(
+              invitations.map((invitation) => {
+                return this.persistence.deleteRecord(
+                  ERecordKey.ACCEPTED_INVITATIONS,
+                  [invitation.consentContractAddress, invitation.tokenId],
+                  EBackupPriority.HIGH,
+                );
+              }),
+            );
+          });
+      }),
+    ).map(() => undefined);
   }
 
   public addEarnedRewards(
@@ -138,33 +124,27 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   public addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<EVMContractAddress[]>(
-        EFieldKey.REJECTED_COHORTS,
-        EBackupPriority.NORMAL,
-      )
-      .andThen((raw) => {
-        const saved = raw ?? [];
-        return this.persistence.updateField(
-          EFieldKey.REJECTED_COHORTS,
-          [...saved, ...consentContractAddresses],
-          EBackupPriority.NORMAL,
+    return ResultUtils.combine(
+      consentContractAddresses.map((consentContractAddress) => {
+        return this.persistence.updateRecord(
+          ERecordKey.REJECTED_COHORTS,
+          new VolatileStorageMetadata<RejectedCohort>(
+            EBackupPriority.NORMAL,
+            new RejectedCohort(consentContractAddress),
+            RejectedCohort.CURRENT_VERSION,
+          ),
         );
-      });
+      }),
+    ).map(() => undefined);
   }
 
   public getRejectedCohorts(): ResultAsync<
     EVMContractAddress[],
     PersistenceError
   > {
-    return this.persistence
-      .getField<EVMContractAddress[]>(
-        EFieldKey.REJECTED_COHORTS,
-        EBackupPriority.NORMAL,
-      )
-      .map((raw) => {
-        return raw ?? [];
-      });
+    return this.persistence.getAllKeys<EVMContractAddress>(
+      ERecordKey.REJECTED_COHORTS,
+    );
   }
 
   public setLatestBlockNumber(
@@ -271,32 +251,5 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
         contractAddress,
       )
       .map((entry) => (!entry ? null : entry.receivingAddress));
-  }
-}
-
-class InvitationForStorage {
-  public constructor(
-    public domain: DomainName,
-    public consentContractAddress: EVMContractAddress,
-    public tokenId: string,
-    public businessSignature: Signature | null,
-  ) {}
-
-  static toInvitation(src: InvitationForStorage): Invitation {
-    return new Invitation(
-      src.domain,
-      src.consentContractAddress,
-      TokenId(BigInt(src.tokenId)),
-      src.businessSignature,
-    );
-  }
-
-  static fromInvitation(src: Invitation): InvitationForStorage {
-    return new InvitationForStorage(
-      src.domain,
-      src.consentContractAddress,
-      src.tokenId.toString(),
-      src.businessSignature,
-    );
   }
 }
