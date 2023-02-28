@@ -15,8 +15,8 @@ export class DiscordGuildProfile extends VersionedObject {
     public name: string,
     public isOwner: boolean,
     public permissions: Integer,
-    public icon?: string,
-    public joinedAt?: UnixTimestamp,
+    public icon: string | null,
+    public joinedAt: UnixTimestamp | null,
   ) {
     super();
   }
@@ -29,7 +29,7 @@ export class DiscordGuildProfile extends VersionedObject {
 export interface DiscordGuildProfileAPIResponse {
   id: SnowflakeID;
   name: string;
-  icon?: string;
+  icon: string | null;
   owner: boolean;
   permissions: Integer;
 }

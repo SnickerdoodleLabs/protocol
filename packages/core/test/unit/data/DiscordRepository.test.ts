@@ -5,6 +5,7 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   BearerAuthToken,
+  DiscordGuildProfile,
   DiscordGuildProfileAPIResponse,
   DiscordProfile,
   DiscordProfileAPIResponse,
@@ -60,6 +61,30 @@ const discordProfileAPIResponse = {
   flags: Integer(0),
 };
 
+const discordGuildProfileAPIResponses = [
+  {
+    id: SnowflakeID("889939924655169616"),
+    name: "NFT Worlds",
+    icon: "88f2caecc154b4e2e1bcab67b7dbba7b",
+    owner: false,
+    permissions: Integer(0),
+  },
+  {
+    id: SnowflakeID("916563302065274891"),
+    name: "NFT Marketing Services | Growth • Management • Promotions • Marketing • Advertisements",
+    icon: "a_189c4f0d955bde1f1621fd4896fd2b4c",
+    owner: false,
+    permissions: Integer(99328),
+  },
+  {
+    id: SnowflakeID("1074837489417719840"),
+    name: "test-server1",
+    icon: null,
+    owner: true,
+    permissions: Integer(2147483647),
+  },
+];
+
 class DiscordRepositoryMock {
   public ajaxUtil: IAxiosAjaxUtils;
   public configProvider: IConfigProvider;
@@ -82,6 +107,27 @@ class DiscordRepositoryMock {
         td.matchers.anything(),
       ),
     ).thenReturn(okAsync(discordProfileAPIResponse));
+
+    td.when(
+      this.ajaxUtil.get<DiscordGuildProfileAPIResponse[]>(
+        td.matchers.contains("@me/guilds"),
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(discordGuildProfileAPIResponses));
+  }
+
+  public getGuildProfiles(): DiscordGuildProfile[] {
+    return discordGuildProfileAPIResponses.map(
+      (profile) =>
+        new DiscordGuildProfile(
+          profile.id,
+          profile.name,
+          profile.owner,
+          profile.permissions,
+          profile.icon,
+          null,
+        ),
+    );
   }
 
   public factory(): IDiscordRepository {
@@ -90,7 +136,7 @@ class DiscordRepositoryMock {
 }
 
 describe("DiscordRepository tests", () => {
-  test("getAuthTokens", async () => {
+  test("fetchUserProfile", async () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const service = mocks.factory();
@@ -104,5 +150,23 @@ describe("DiscordRepository tests", () => {
     expect(result.isOk()).toBeTruthy();
     const profile = result._unsafeUnwrap();
     expect(profile).toEqual(expectedProfile);
+  });
+
+  test("fetchGuildProfiles", async () => {
+    // Arrange
+    const mocks = new DiscordRepositoryMock();
+    const service = mocks.factory();
+    const expectedProfiles = mocks.getGuildProfiles();
+
+    // Act
+    const result = await service.fetchGuildProfiles(
+      discordProfiles[0].authToken,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isOk()).toBeTruthy();
+    const guildProfiles = result._unsafeUnwrap();
+    expect(guildProfiles).toEqual(expectedProfiles);
   });
 });

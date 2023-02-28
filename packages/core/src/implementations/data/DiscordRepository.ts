@@ -122,9 +122,9 @@ export class DiscordRepository implements IDiscordRepository {
     authToken: BearerAuthToken,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
     return this.getRequestConfig(authToken).andThen((reqConfig) => {
-      return this.meUrl().andThen((meUrl) => {
+      return this.meGuildUrl().andThen((meGuildUrl) => {
         return this.ajaxUtil
-          .get<DiscordGuildProfileAPIResponse[]>(new URL(meUrl), reqConfig)
+          .get<DiscordGuildProfileAPIResponse[]>(new URL(meGuildUrl), reqConfig)
           .andThen((response) => {
             const guildProfiles = response.map((profile) => {
               return new DiscordGuildProfile(
@@ -133,6 +133,7 @@ export class DiscordRepository implements IDiscordRepository {
                 profile.owner,
                 profile.permissions,
                 profile.icon,
+                null,
               );
             });
 
