@@ -17,8 +17,10 @@ import {
   EBackupPriority,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
 import {
@@ -30,7 +32,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 
 @injectable()
 class DiscordRepository implements IDiscordRepository {
@@ -160,7 +161,11 @@ class DiscordRepository implements IDiscordRepository {
   }
 
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    throw new Error("Method not implemented.");
+    return this.persistence.getAll<DiscordProfile>(
+      ERecordKey.SOCIAL_ACCOUNT,
+      undefined,
+      EBackupPriority.NORMAL,
+    );
   }
 
   // deleteDiscordProfile(
@@ -176,13 +181,35 @@ class DiscordRepository implements IDiscordRepository {
   upsertDiscordGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    return ResultUtils.combine(
+      discordGuildProfiles.map((dProfile) => {
+        return this.upsertDiscordGuildProfile(dProfile);
+      }),
+    ).map(() => undefined);
+  }
+
+  upsertDiscordGuildProfile(
+    discordGuildProfile: DiscordGuildProfile,
+  ): ResultAsync<void, PersistenceError> {
+    // TODO, we need to update existing profile.
+    return this.persistence.updateRecord(
+      ERecordKey.SOCIAL_GROUP,
+      new VolatileStorageMetadata<DiscordGuildProfile>(
+        EBackupPriority.NORMAL,
+        discordGuildProfile,
+        DiscordProfile.CURRENT_VERSION,
+      ),
+    );
   }
 
   getDiscordGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.persistence.getAll<DiscordGuildProfile>(
+      ERecordKey.SOCIAL_GROUP,
+      undefined,
+      EBackupPriority.NORMAL,
+    );
   }
 }
