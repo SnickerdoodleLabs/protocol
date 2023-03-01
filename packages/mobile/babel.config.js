@@ -8,12 +8,15 @@ module.exports = {
         root: ['./src'],
         extensions: ['.js', '.json'],
         alias: {
-          '@': './src',
+          '@snickerdoodlelabs/mobile': './src',
           types: './@types',
         },
       },
     ],
     'inline-dotenv',
-    'react-native-reanimated/plugin', // needs to be last
+    'react-native-reanimated/plugin', // needs to be last,
+    'babel-plugin-transform-typescript-metadata',
+    'babel-plugin-parameter-decorator',
+    ['@babel/plugin-proposal-decorators', { legacy: true }],
   ],
 };
