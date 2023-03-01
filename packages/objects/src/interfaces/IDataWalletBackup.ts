@@ -36,7 +36,7 @@ export class VolatileDataUpdate {
 export class FieldDataUpdate {
   public constructor(
     public key: string,
-    public value: object,
+    public value: string,
     public timestamp: number,
     public priority: EBackupPriority,
   ) {}

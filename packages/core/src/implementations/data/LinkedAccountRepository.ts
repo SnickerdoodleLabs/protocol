@@ -43,13 +43,14 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
     return this.persistence
-      .getField<JSONString | InvitationForStorage[]>(
+      .getField<InvitationForStorage[]>(
         EFieldKey.ACCEPTED_INVITATIONS,
         EBackupPriority.HIGH,
       )
-      .map((raw) => {
-        const storedInvitations: InvitationForStorage[] =
-          raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
+      .map((storedInvitations) => {
+        if (storedInvitations == null) {
+          return [];
+        }
 
         return storedInvitations.map((storedInvitation) => {
           return InvitationForStorage.toInvitation(storedInvitation);
@@ -61,13 +62,14 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     invitations: Invitation[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<JSONString | InvitationForStorage[]>(
+      .getField<InvitationForStorage[]>(
         EFieldKey.ACCEPTED_INVITATIONS,
         EBackupPriority.HIGH,
       )
-      .andThen((raw) => {
-        const storedInvitations: InvitationForStorage[] =
-          raw && typeof raw === "string" ? JSON.parse(raw) : raw ?? [];
+      .andThen((storedInvitations) => {
+        if (storedInvitations == null) {
+          storedInvitations = [];
+        }
 
         const allInvitations = storedInvitations.concat(
           invitations.map((invitation) => {
@@ -87,14 +89,14 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<JSONString>(
+      .getField<InvitationForStorage[]>(
         EFieldKey.ACCEPTED_INVITATIONS,
         EBackupPriority.HIGH,
       )
-      .andThen((raw) => {
-        const storedInvitations = JSON.parse(
-          raw != null ? raw : JSONString("[]"),
-        ) as InvitationForStorage[];
+      .andThen((storedInvitations) => {
+        if (storedInvitations == null) {
+          storedInvitations = [];
+        }
 
         const invitations = storedInvitations.filter((optIn) => {
           return !addressesToRemove.includes(optIn.consentContractAddress);
@@ -137,9 +139,12 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<JSONString>(EFieldKey.REJECTED_COHORTS, EBackupPriority.NORMAL)
+      .getField<EVMContractAddress[]>(
+        EFieldKey.REJECTED_COHORTS,
+        EBackupPriority.NORMAL,
+      )
       .andThen((raw) => {
-        const saved = JSON.parse(raw ?? "[]") as EVMContractAddress[];
+        const saved = raw ?? [];
         return this.persistence.updateField(
           EFieldKey.REJECTED_COHORTS,
           [...saved, ...consentContractAddresses],
@@ -153,9 +158,12 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     PersistenceError
   > {
     return this.persistence
-      .getField<JSONString>(EFieldKey.REJECTED_COHORTS, EBackupPriority.NORMAL)
+      .getField<EVMContractAddress[]>(
+        EFieldKey.REJECTED_COHORTS,
+        EBackupPriority.NORMAL,
+      )
       .map((raw) => {
-        return JSON.parse(raw ?? "[]") as EVMContractAddress[];
+        return raw ?? [];
       });
   }
 
