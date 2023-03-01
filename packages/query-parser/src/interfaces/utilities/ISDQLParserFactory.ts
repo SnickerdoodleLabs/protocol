@@ -1,6 +1,11 @@
-import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
-import { IpfsCID, QueryFormatError, SDQLString } from "@snickerdoodlelabs/objects";
+import {
+  IpfsCID,
+  QueryFormatError,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
 
 export interface ISDQLParserFactory {
   makeParser(
@@ -8,5 +13,5 @@ export interface ISDQLParserFactory {
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError>;
 }
-  
+
 export const ISDQLParserFactoryType = Symbol.for("ISDQLParserFactory");

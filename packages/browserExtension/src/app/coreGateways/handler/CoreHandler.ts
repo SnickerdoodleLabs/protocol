@@ -1,7 +1,8 @@
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import { v4 } from "uuid";
+
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 
 export default class CoreHandler {
   constructor(protected rpcEngine: JsonRpcEngine) {}

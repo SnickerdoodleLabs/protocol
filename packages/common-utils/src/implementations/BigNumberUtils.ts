@@ -1,6 +1,7 @@
-import { injectable } from "inversify";
 import { BigNumberString } from "@snickerdoodlelabs/objects";
 import { BigNumber, utils } from "ethers";
+import { injectable } from "inversify";
+
 import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()

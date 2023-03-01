@@ -1,32 +1,30 @@
-
-import { FileInputUtils } from "@test-harness/utilities/FileInputUtils.js";
 import * as td from "testdouble";
 
+import { FileInputUtils } from "@test-harness/utilities/FileInputUtils.js";
+
 describe("File IO tests", () => {
-    const dataWalletProfilesPath = "data/profiles/dataWallet"
-    test("we have more than one data wallet profile", async () => {
-        const fioUtils = new FileInputUtils();
+  const dataWalletProfilesPath = "data/profiles/dataWallet";
+  test("we have more than one data wallet profile", async () => {
+    const fioUtils = new FileInputUtils();
 
-        const dirsRes = await fioUtils.getSubDirNames(dataWalletProfilesPath);
-        expect(dirsRes.isOk()).toBeTruthy();
-        
-        const dirs = dirsRes._unsafeUnwrap();
-        expect(dirs.length).toBeGreaterThan(0);
+    const dirsRes = await fioUtils.getSubDirNames(dataWalletProfilesPath);
+    expect(dirsRes.isOk()).toBeTruthy();
 
-        console.log(dirs);
-        
-    })
+    const dirs = dirsRes._unsafeUnwrap();
+    expect(dirs.length).toBeGreaterThan(0);
 
-    test("we have more than one data wallet profile 2", async () => {
-        const fioUtils = new FileInputUtils();
+    console.log(dirs);
+  });
 
-        const dirsRes = await fioUtils.getSubDirPaths(dataWalletProfilesPath);
-        expect(dirsRes.isOk()).toBeTruthy();
-        
-        const dirs = dirsRes._unsafeUnwrap();
-        // expect(dirs.length).toBeGreaterThan(0);
+  test("we have more than one data wallet profile 2", async () => {
+    const fioUtils = new FileInputUtils();
 
-        console.log(dirs);
-        
-    })
-})
+    const dirsRes = await fioUtils.getSubDirPaths(dataWalletProfilesPath);
+    expect(dirsRes.isOk()).toBeTruthy();
+
+    const dirs = dirsRes._unsafeUnwrap();
+    // expect(dirs.length).toBeGreaterThan(0);
+
+    console.log(dirs);
+  });
+});

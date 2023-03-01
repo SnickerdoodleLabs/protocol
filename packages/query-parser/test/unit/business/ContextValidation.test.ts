@@ -1,12 +1,12 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  IpfsCID, MissingASTError,
-  QueryFormatError
+  IpfsCID,
+  MissingASTError,
+  QueryFormatError,
 } from "@snickerdoodlelabs/objects";
 import "reflect-metadata";
 
 import { SDQLQueryWrapperMocks } from "../../mocks";
-
 
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 

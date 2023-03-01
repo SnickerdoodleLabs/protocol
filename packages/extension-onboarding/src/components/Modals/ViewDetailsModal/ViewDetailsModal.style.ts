@@ -100,5 +100,5 @@ export const useStyles = makeStyles((theme) => ({
     backgroundColor: "#fff",
     paddingBottom: 80,
     overflowY: "auto",
-  }
+  },
 }));

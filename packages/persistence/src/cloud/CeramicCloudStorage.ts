@@ -16,18 +16,21 @@ import {
   AjaxError,
   EBackupPriority,
 } from "@snickerdoodlelabs/objects";
+
+import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
+
 import { DID } from "dids";
+
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@persistence/IPersistenceConfigProvider.js";
+
 import { inject, injectable } from "inversify";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
-import {
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@persistence/IPersistenceConfigProvider.js";
 
 @injectable()
 export class CeramicCloudStorage implements ICloudStorage {
