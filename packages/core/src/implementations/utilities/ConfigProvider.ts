@@ -103,7 +103,7 @@ export class ConfigProvider
       4000, // polling interval for consent contracts on control chain
       {
         solana:
-          "https://solana-mainnet.g.alchemy.com/v2/Svoz_lR2LW8DLWIPeJvRkxhTHiiizi3D",
+          "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
         solanaTestnet:
           "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
         polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",

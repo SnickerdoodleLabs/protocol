@@ -59,9 +59,7 @@ export class SolanaIndexer
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this.configProvider
-    .getConfig()
-    .andThen((config) => {
+    return this.configProvider.getConfig().andThen((config) => {
       if (chainId != ChainId(EChain.Solana)) {
         return errAsync(
           new AccountIndexingError("invalid chain id for solana", chainId),
@@ -75,7 +73,8 @@ export class SolanaIndexer
         params: [accountAddress],
       };
 
-      return this.ajaxUtils.post<IAlchemyBalanceResponse>(
+      return this.ajaxUtils
+        .post<IAlchemyBalanceResponse>(
           new URL(config.alchemyEndpoints.solana),
           JSON.stringify(nativeBalanceConfig),
           {
@@ -83,21 +82,22 @@ export class SolanaIndexer
               "Content-Type": `application/json;`,
             },
           },
-        ).andThen((SolanaNativeBalance) => {
-        const nativeBalance = new TokenBalance(
-          EChainTechnology.Solana,
-          TickerSymbol("SOL"),
-          chainId,
-          null,
-          accountAddress,
-          BigNumberString(SolanaNativeBalance.result.value.toString()),
-          getChainInfoByChainId(chainId).nativeCurrency.decimals,
-        );
+        )
+        .andThen((SolanaNativeBalance) => {
+          const nativeBalance = new TokenBalance(
+            EChainTechnology.Solana,
+            TickerSymbol("SOL"),
+            chainId,
+            null,
+            accountAddress,
+            BigNumberString(SolanaNativeBalance.result.value.toString()),
+            getChainInfoByChainId(chainId).nativeCurrency.decimals,
+          );
 
-        return okAsync([nativeBalance]);
-      })
-  })
-};
+          return okAsync([nativeBalance]);
+        });
+    });
+  }
 
   public getTokensForAccount(
     chainId: ChainId,
