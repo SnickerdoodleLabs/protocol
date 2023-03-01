@@ -19,23 +19,24 @@ describe("Sift", () => {
     // deploy the Crumbs contract before each test
     Sift = await ethers.getContractFactory("Sift");
 
-    sift = await Sift.deploy("www.sift.com/");
+    sift = await Sift.deploy();
 
     await sift.deployed();
+
+    await sift.initialize("www.sift.com/");
   });
 
-  describe("verifyURL", function () {
+  describe("verifyEntity", function () {
     it("Allows address with VERIFIER_ROLE to verify a url.", async function () {
       // accounts 1 creates a crumb
-      await sift.connect(owner).verifyURL("www.uniswap.com", owner.address);
-
+      await sift.connect(owner).verifyEntity("www.uniswap.com", owner.address, "website metadata");
       // check token balance of the account has 1
       const tokenCount = await sift.balanceOf(owner.address);
       expect(tokenCount).to.eq(1);
 
       // check token's uri
       const tokenURI = await sift.tokenURI(1);
-      expect(tokenURI).to.eq("www.sift.com/VERIFIED");
+      expect(tokenURI).to.eq("www.sift.com/1");
 
       // check total supply
       const totalSupply = await sift.totalSupply();
@@ -45,7 +46,9 @@ describe("Sift", () => {
     it("Does not allow address without VERIFIER_ROLE to verify a url.", async function () {
       // account 1 verifies a url
       await expect(
-        sift.connect(accounts[1]).verifyURL("www.uniswap.com", owner.address),
+        sift
+          .connect(accounts[1])
+          .verifyEntity("www.uniswap.com", owner.address, "website metadata"),
       ).to.revertedWith(
         `AccessControl: account ${accounts[1].address.toLowerCase()} is missing role ${verifierRoleBytes}`,
       );
@@ -53,20 +56,26 @@ describe("Sift", () => {
 
     it("Does not allow user to verify a url twice.", async function () {
       // account 1 verifies a url
-      await sift.connect(owner).verifyURL("www.uniswap.com", owner.address);
+      await sift
+        .connect(owner)
+        .verifyEntity("www.uniswap.com", owner.address, "website metadata");
 
       //account 1 tries to verify the same url
 
       await expect(
-        sift.connect(owner).verifyURL("www.uniswap.com", owner.address),
-      ).to.revertedWith("Consent: URL already verified");
+        sift
+          .connect(owner)
+          .verifyEntity("www.uniswap.com", owner.address, "website metadata"),
+      ).to.revertedWith("Consent: Entity already verified");
     });
   });
 
-  describe("maliciousURL", function () {
+  describe("maliciousEntity", function () {
     it("Allows address with VERIFIER_ROLE to register a url as malicious.", async function () {
       // accounts 1 creates a crumb
-      await sift.connect(owner).maliciousURL("www.uniswop.com", owner.address);
+      await sift
+        .connect(owner)
+        .maliciousEntity("www.uniswop.com", owner.address, "website metadata");
 
       // check token balance of the account has 1
       const tokenCount = await sift.balanceOf(owner.address);
@@ -74,7 +83,7 @@ describe("Sift", () => {
 
       // check token's uri
       const tokenURI = await sift.tokenURI(1);
-      expect(tokenURI).to.eq("www.sift.com/MALICIOUS");
+      expect(tokenURI).to.eq("www.sift.com/1");
 
       // check total supply
       const totalSupply = await sift.totalSupply();
@@ -86,36 +95,46 @@ describe("Sift", () => {
       await expect(
         sift
           .connect(accounts[1])
-          .maliciousURL("www.uniswpp.com", owner.address),
+          .maliciousEntity(
+            "www.uniswpp.com",
+            owner.address,
+            "website metadata",
+          ),
       ).to.revertedWith(
         `AccessControl: account ${accounts[1].address.toLowerCase()} is missing role ${verifierRoleBytes}`,
       );
     });
   });
 
-  describe("checkURL", function () {
+  describe("checkEntity", function () {
     it("Returns the VERIFIED URI for a verified URL", async function () {
       // accounts 1 creates a crumb
-      await sift.connect(owner).verifyURL("www.uniswap.com", owner.address);
+      await sift
+        .connect(owner)
+        .verifyEntity("www.uniswap.com", owner.address, "website metadata");
 
       // check url
-      const result = await sift.checkURL("www.uniswap.com");
-      expect(result).to.eq("www.sift.com/VERIFIED");
+      const result = await sift.checkEntity("www.uniswap.com");
+      expect(result.metadata).to.eq("website metadata");
+      expect(result.status).to.eq(1);
     });
 
     it("Returns the MALICIOUS URI for a verified URL", async function () {
       // accounts 1 creates a crumb
-      await sift.connect(owner).maliciousURL("www.uniswop.com", owner.address);
+      await sift
+        .connect(owner)
+        .maliciousEntity("www.uniswop.com", owner.address, "website metadata");
 
       // check url
-      const result = await sift.checkURL("www.uniswop.com");
-      expect(result).to.eq("www.sift.com/MALICIOUS");
+      const result = await sift.checkEntity("www.uniswop.com");
+      expect(result.metadata).to.eq("website metadata");
+      expect(result.status).to.eq(2);
     });
 
     it("Returns the NOT VERIFIED string for a URL that has not been registered", async function () {
       // check url
-      const result = await sift.checkURL("www.test.com");
-      expect(result).to.eq("NOT VERIFIED");
+      const result = await sift.checkEntity("www.test.com");
+      expect(result.status).to.eq(0);
     });
   });
 

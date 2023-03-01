@@ -9,21 +9,21 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ISiftContractService {
-  verifyURL(
+  verifyEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
-  maliciousURL(
+  maliciousEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
-  checkURL(
+  checkEntity(
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,

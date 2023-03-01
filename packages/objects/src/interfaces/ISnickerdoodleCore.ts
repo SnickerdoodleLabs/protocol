@@ -304,7 +304,7 @@ export interface ISnickerdoodleCore {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError>;
 
-  checkURL(
+  checkEntity(
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,

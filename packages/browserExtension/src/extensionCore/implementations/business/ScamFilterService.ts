@@ -16,9 +16,9 @@ export class ScamFilterService implements IScamFilterService {
     protected scamFilterRepository: IScamFilterRepository,
   ) {}
 
-  public checkURL(
+  public checkEntity(
     domain: DomainName,
   ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
-    return this.scamFilterRepository.checkURL(domain);
+    return this.scamFilterRepository.checkEntity(domain);
   }
 }

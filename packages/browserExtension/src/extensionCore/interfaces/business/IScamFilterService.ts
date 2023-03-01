@@ -4,7 +4,7 @@ import { ResultAsync } from "neverthrow";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IScamFilterService {
-  checkURL(
+  checkEntity(
     domain: DomainName,
   ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError>;
 }

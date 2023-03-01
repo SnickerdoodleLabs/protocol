@@ -27,37 +27,39 @@ export class SiftContractRepository implements ISiftContractRepository {
     protected contractFactory: IContractFactory,
   ) {}
 
-  verifyURL(
+  verifyEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
-      return contract.verifyURL(domain);
+      return contract.verifyEntity(domain);
     });
   }
 
-  maliciousURL(
+  maliciousEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
-      return contract.maliciousURL(domain);
+      return contract.maliciousEntity(domain);
     });
   }
 
-  checkURL(
+  checkEntity(
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
-      return contract.checkURL(domain).map((url) => {
-        return url.split("/").pop() as EScamFilterStatus;
+      console.log("siftEntity: ", contract);
+      return contract.checkEntity(domain).map((siftStatus) => {
+        console.log("siftStatus: ", siftStatus);
+        return siftStatus as EScamFilterStatus;
       });
     });
   }

@@ -8,6 +8,7 @@ import {
   HexString,
   BaseURI,
   DomainName,
+  SiftEntity,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -33,18 +34,22 @@ export class SiftContract implements ISiftContract {
       ContractsAbis.SiftAbi.abi,
       providerOrSigner,
     );
+    console.log("this.contract: ", this.contract);
+    console.log("contractAddress: ", contractAddress);
+    console.log("ContractsAbis.SiftAbi.abi: ", ContractsAbis.SiftAbi.abi);
+    console.log("providerOrSigner: ", providerOrSigner);
   }
 
-  public checkURL(
+  public checkEntity(
     domain: DomainName,
-  ): ResultAsync<TokenUri, SiftContractError> {
+  ): ResultAsync<string, SiftContractError> {
     // Returns the tokenURI or string
     // eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED'
     return ResultAsync.fromPromise(
-      this.contract.checkURL(domain) as Promise<TokenUri>,
+      this.contract.checkEntity(domain) as Promise<TokenUri>,
       (e) => {
         return new SiftContractError(
-          "Unable to call checkURL()",
+          "Unable to call checkEntity()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -52,15 +57,17 @@ export class SiftContract implements ISiftContract {
     );
   }
 
-  public verifyURL(domain: DomainName): ResultAsync<void, SiftContractError> {
+  public verifyEntity(
+    domain: DomainName,
+  ): ResultAsync<void, SiftContractError> {
     return ResultAsync.fromPromise(
-      this.contract.verifyURL(
+      this.contract.verifyEntity(
         domain,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         // No error handling needed, any reverts from function call should return the reason
         return new SiftContractError(
-          "Unable to call verifyURL()",
+          "Unable to call verifyEntity()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -69,7 +76,7 @@ export class SiftContract implements ISiftContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new SiftContractError(
-            "Wait for verifyURL() failed",
+            "Wait for verifyEntity() failed",
             "Unknown",
             e,
           );
@@ -78,17 +85,17 @@ export class SiftContract implements ISiftContract {
       .map(() => {});
   }
 
-  public maliciousURL(
+  public maliciousEntity(
     domain: DomainName,
   ): ResultAsync<void, SiftContractError> {
     return ResultAsync.fromPromise(
-      this.contract.maliciousURL(
+      this.contract.maliciousEntity(
         domain,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         // No error handling needed, any reverts from function call should return the reason
         return new SiftContractError(
-          "Unable to call maliciousURL()",
+          "Unable to call maliciousEntity()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -97,7 +104,7 @@ export class SiftContract implements ISiftContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new SiftContractError(
-            "Wait for maliciousURL() failed",
+            "Wait for maliciousEntity() failed",
             "Unknown",
             e,
           );

@@ -1,5 +1,5 @@
 export enum EScamFilterStatus {
+  NOT_VERIFIED = "NOT VERIFIED",
   VERIFIED = "VERIFIED",
   MALICIOUS = "MALICIOUS",
-  NOT_VERIFIED = "NOT VERIFIED",
 }

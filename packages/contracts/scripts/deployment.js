@@ -169,7 +169,7 @@ async function deploySift() {
   console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
 
   await sift
-    .verifyURL("snickerdoodle.com", accounts[0].address)
+    .verifyEntity("snickerdoodle.com", accounts[0].address, "metadata: ")
     .then((txResponse) => {
       return txResponse.wait();
     })
@@ -178,7 +178,7 @@ async function deploySift() {
     });
 
   await sift
-    .maliciousURL("webthree.love", accounts[0].address)
+    .maliciousEntity("webthree.love", accounts[0].address)
     .then((txResponse) => {
       return txResponse.wait();
     })

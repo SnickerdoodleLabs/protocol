@@ -18,10 +18,10 @@ export class ScamFilterRepository implements IScamFilterRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
-  public checkURL(
+  public checkEntity(
     domain: DomainName,
   ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
-    return this.core.checkURL(domain).mapErr((error) => {
+    return this.core.checkEntity(domain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

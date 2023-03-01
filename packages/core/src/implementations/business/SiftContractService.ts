@@ -21,30 +21,30 @@ export class SiftContractService implements ISiftContractService {
     protected siftContractRepository: ISiftContractRepository,
   ) {}
 
-  verifyURL(
+  verifyEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.siftContractRepository.verifyURL(domain);
+    return this.siftContractRepository.verifyEntity(domain);
   }
 
-  maliciousURL(
+  maliciousEntity(
     domain: DomainName,
   ): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.siftContractRepository.maliciousURL(domain);
+    return this.siftContractRepository.maliciousEntity(domain);
   }
 
-  checkURL(
+  checkEntity(
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.siftContractRepository.checkURL(domain);
+    return this.siftContractRepository.checkEntity(domain);
   }
 }

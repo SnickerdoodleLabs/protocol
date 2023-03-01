@@ -38,7 +38,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
       EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Crumbs Contract
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"), // Sift Contract
+      EVMContractAddress("0x352EC444f0D2C09ad72eE3735341b45e577FCAE8"), // Sift Contract
     ),
   ],
   [
@@ -181,7 +181,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77"), // Consent Contract Factory
       EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
+      EVMContractAddress("0x352EC444f0D2C09ad72eE3735341b45e577FCAE8"), // Sift Contract
       URLString("https://api.snowtrace.io/"),
     ),
   ],
