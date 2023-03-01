@@ -1,9 +1,8 @@
-import { EVMContractAddress } from "..";
-
 import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/VersionedObject";
+import { EVMContractAddress } from "@objects/primitives";
 
 export class RejectedCohort extends VersionedObject {
   public static CURRENT_VERSION = 1;
