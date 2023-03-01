@@ -229,7 +229,6 @@ class QueryParsingMocks {
       );
     }
 
-    // Return to later - Andrew
     return new ExpectedReward("", "", ChainId(0), "", ERewardType.Direct);
   }
 }

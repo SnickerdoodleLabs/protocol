@@ -28,15 +28,13 @@ import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import nacl from "tweetnacl";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
-
-import nacl from "tweetnacl";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
-
   constructor() {}
 
   public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
@@ -167,7 +165,6 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress {
     const wallet = new ethers.Wallet(privateKey);
-
     return EVMAccountAddress(wallet.address);
   }
 
@@ -178,7 +175,6 @@ export class CryptoUtils implements ICryptoUtils {
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
-
     return okAsync(address);
   }
 
@@ -247,7 +243,6 @@ export class CryptoUtils implements ICryptoUtils {
         Buffer.from(encryptionKey, "base64"),
         encrypted.initializationVector,
       );
-
       // decrypt the message
       let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
       decryptedData += decipher.final("utf8");
@@ -260,17 +255,6 @@ export class CryptoUtils implements ICryptoUtils {
       return okAsync("THIS IS AN ERROR");
     }
   }
-
-  // public generateKeyPair(): ResultAsync<void, never> {
-  // 	const { publicKey, privateKey } = Crypto.generateKeyPairSync("rsa", {
-  // 		// The standard secure default length for RSA keys is 2048 bits
-  // 		modulusLength: 2048,
-  // 	});
-
-  // 	console.log(publicKey);
-
-  // 	return okAsync(undefined);
-  // }
 
   public getSignature(
     owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
