@@ -131,6 +131,7 @@ export class AST_Evaluator {
     /**
      * It sends the query to the Query Repository
      */
+
     return this.queryRepository.get(this.cid, q);
   }
 
