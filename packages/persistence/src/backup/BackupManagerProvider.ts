@@ -10,6 +10,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BackupManager } from "@persistence/backup/BackupManager.js";
+import { ChunkManager } from "@persistence/backup/ChunkManager.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
 import {
@@ -65,6 +66,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.volatileStorage,
         this.cryptoUtils,
         this.storageUtils,
+        new ChunkManager(),
         config.backupChunkSizeTarget,
       );
     });

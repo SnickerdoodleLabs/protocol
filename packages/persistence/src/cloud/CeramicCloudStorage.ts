@@ -116,7 +116,9 @@ export class CeramicCloudStorage implements ICloudStorage {
     seed: Uint8Array,
   ): ResultAsync<DID, PersistenceError> {
     const provider = new Ed25519Provider(seed);
-    const did = new DID({ provider, resolver: getResolver() });
+    // const did = new DID({ provider, resolver: getResolver() });
+    const did = new DID({ provider });
+
     return ResultAsync.fromPromise(
       did.authenticate(),
       (e) => new PersistenceError("error authenticated ceramic DID", e),

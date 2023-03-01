@@ -32,6 +32,8 @@ import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IChunkManager } from "./IChunkManager";
+
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
 import {
@@ -63,6 +65,7 @@ export class BackupManager implements IBackupManager {
     protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
+    protected chunkManager: IChunkManager,
     public maxChunkSize: number,
   ) {
     this.tableNames = this.schema.map((x) => x.name);
@@ -76,133 +79,26 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    console.log("this.numUpdates: ", this.numUpdates);
-    console.log("this.maxChunkSize: ", this.maxChunkSize);
-    console.log("this.chunkQueue.length: ", this.chunkQueue.length);
-    this.chunkQueue.forEach(element => {
-      console.log("this.chunkQueue.length: ", element);
-
-    });
-    return okAsync(this.chunkQueue);
-  }
-
-  public fetchBackupChunk(
-    backup: IDataWalletBackup,
-  ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils
-      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-      .andThen((aesKey) => {
-        const fetchedBackup = this.chunkQueue.find(
-          (element) => element == backup,
-        );
-        if (fetchedBackup == undefined) {
-          return errAsync(
-            new PersistenceError("invalid backup chunk detected"),
-          );
-        }
-
-        return this.cryptoUtils.decryptAESEncryptedString(
-          fetchedBackup.blob,
-          aesKey,
-        );
-      });
-  }
-
-  public deleteRecord(
-    tableName: string,
-    key: VolatileStorageKey,
-    priority: EBackupPriority,
-    timestamp: number = Date.now(),
-  ): ResultAsync<void, PersistenceError> {
-    console.log("this.tableUpdates: ", this.tableUpdates);
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
-      return this.volatileStorage.removeObject(tableName, key);
-    }
-
-    console.log("after this.tableUpdates: ", this.tableUpdates);
-
-    this.tableUpdates[tableName].push(
-      new VolatileDataUpdate(
-        EDataUpdateOpCode.REMOVE,
-        key,
-        timestamp,
-        priority,
-      ),
-    );
-    console.log("after this.tableUpdates push: ", this.tableUpdates);
-
-    this.deletionHistory.set(key, timestamp);
-    this.numUpdates += 1;
-    return this.volatileStorage
-      .removeObject(tableName, key)
-      .andThen(() => this._checkSize());
-  }
-
-  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
-    return this.volatileStorage
-      .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
-      .map((restored) => {
-        return restored.map((item) => item.data.id);
-      })
-      .map((restored) => {
-        return new Set(restored);
-      });
-  }
-
+  /* Clean and repopulate with template data */
   public clear(): ResultAsync<void, never> {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
-    console.log("before this.tableUpdates clear(): ", this.tableUpdates);
-
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
-    console.log("after this.tableUpdates clear(): ", this.tableUpdates);
-
     return okAsync(undefined);
   }
 
-  public popBackup(): ResultAsync<
-    IDataWalletBackup | undefined,
-    PersistenceError
-  > {
-    if (this.chunkQueue.length == 0) {
-      if (this.numUpdates == 0) {
-        return okAsync(undefined);
-      }
-
-      return this.dump().andThen((backup) => {
-        return this._addRestored(backup).andThen(() => {
-          return this.clear().map(() => backup);
-        });
-      });
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const backup = this.chunkQueue.pop()!;
-    return this._addRestored(backup).map(() => backup);
-  }
-
+  /* Editing Volate Storage Metadata */
   public addRecord<T extends VersionedObject>(
     tableName: string,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
-    console.log(
-      "before this.tableUpdates hasOwnProptery(): ",
-      this.tableUpdates,
-    );
-
+    this.chunkManager.addChunk(tableName);
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      console.log("Added A record to volatile storage");
       return this.volatileStorage.putObject<T>(tableName, value);
     }
-    console.log(
-      "after this.tableUpdates hasOwnProptery(): ",
-      this.tableUpdates,
-    );
 
     this.tableUpdates[tableName].push(
       new VolatileDataUpdate(
@@ -216,6 +112,32 @@ export class BackupManager implements IBackupManager {
     this.numUpdates += 1;
     return this.volatileStorage
       .putObject(tableName, value)
+      .andThen(() => this._checkSize());
+  }
+
+  public deleteRecord(
+    tableName: string,
+    key: VolatileStorageKey,
+    priority: EBackupPriority,
+    timestamp: number = Date.now(),
+  ): ResultAsync<void, PersistenceError> {
+    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      return this.volatileStorage.removeObject(tableName, key);
+    }
+
+    this.tableUpdates[tableName].push(
+      new VolatileDataUpdate(
+        EDataUpdateOpCode.REMOVE,
+        key,
+        timestamp,
+        priority,
+      ),
+    );
+
+    this.deletionHistory.set(key, timestamp);
+    this.numUpdates += 1;
+    return this.volatileStorage
+      .removeObject(tableName, key)
       .andThen(() => this._checkSize());
   }
 
@@ -246,7 +168,89 @@ export class BackupManager implements IBackupManager {
       .andThen(() => this._checkSize());
   }
 
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return this.volatileStorage
+      .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
+      .map((restored) => {
+        return restored.map((item) => item.data.id);
+      })
+      .map((restored) => {
+        return new Set(restored);
+      });
+  }
+
+  public popBackup(): ResultAsync<
+    IDataWalletBackup | undefined,
+    PersistenceError
+  > {
+    console.log("Inside Pop Backup");
+    if (this.chunkQueue.length == 0) {
+      if (this.numUpdates == 0) {
+        return okAsync(undefined);
+      }
+
+      console.log("Hitting dump");
+      return this.dump().andThen((backup) => {
+        console.log("Hitting _addRestored");
+        return this._addRestored(backup).andThen(() => {
+          return this.clear().map(() => backup);
+        });
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const backup = this.chunkQueue.pop()!;
+    return this._addRestored(backup).map(() => backup);
+  }
+
+  public listBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    console.log("this.numUpdates: ", this.numUpdates);
+    console.log("this.maxChunkSize: ", this.maxChunkSize);
+    this.chunkQueue.forEach((element) => {
+      console.log("this.chunkQueue.length: ", element);
+    });
+    console.log("Old chunkQueue.length: ", this.chunkQueue.length);
+    console.log("New chunkQueue.length: ", this.chunkManager.size());
+
+    console.log("this.numUpdates: ", this.numUpdates);
+    console.log("this.maxChunkSize: ", this.maxChunkSize);
+    this.chunkQueue.forEach((element) => {
+      console.log("this.chunkQueue.length: ", element);
+    });
+    return this.chunkManager.displayChunks();
+  }
+
+  public fetchBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this.cryptoUtils
+      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
+      .andThen((aesKey) => {
+        // const fetchedBackup = backup;
+        // const fetchedBackup = this.chunkManager.fetchBackupChunk(backup);
+        const fetchedBackup = this.chunkQueue.find(
+          (element) => element == backup,
+        );
+        if (fetchedBackup == undefined) {
+          return errAsync(
+            new PersistenceError("invalid backup chunk detected"),
+          );
+        }
+
+        return this.cryptoUtils.decryptAESEncryptedString(
+          fetchedBackup.blob,
+          aesKey,
+        );
+      });
+  }
+
   private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
+    console.log(
+      "Generating Blob - Is this for Chunks or for an entire backup? ",
+    );
     return this._generateBlob().andThen(([blob, priority]) => {
       return this._getContentHash(blob).andThen((hash) => {
         const timestamp = new Date().getTime();
@@ -406,8 +410,10 @@ export class BackupManager implements IBackupManager {
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
+    console.log("Inside _checkSize()");
     if (this.numUpdates >= this.maxChunkSize) {
       return this.dump().andThen((backup) => {
+        this.chunkManager.addChunk(backup);
         this.chunkQueue.push(backup);
         return this.clear();
       });
@@ -459,6 +465,7 @@ export class BackupManager implements IBackupManager {
     PersistenceError
   > {
     console.log("before generateblob: ", this.fieldUpdates);
+    // this.chunkManager.generateblob
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
     console.log("after generateblob: ", this.fieldUpdates);
 

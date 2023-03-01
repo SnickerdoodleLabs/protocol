@@ -238,6 +238,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public restoreBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
+    console.log("Restore Backups: ", backup);
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {

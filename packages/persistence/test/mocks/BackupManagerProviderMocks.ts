@@ -3,7 +3,11 @@ import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { BackupManager, IBackupManager } from "@persistence/backup";
+import {
+  BackupManager,
+  ChunkManager,
+  IBackupManager,
+} from "@persistence/backup";
 import { FakeDBVolatileStorage, IVolatileStorage } from "@persistence/volatile";
 import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema";
 
@@ -53,6 +57,7 @@ export class BackupManagerProviderMocks {
           this.volatileStorage,
           this.cryptoUtils,
           this.storageUtils,
+          new ChunkManager(),
           100000,
         ),
     );

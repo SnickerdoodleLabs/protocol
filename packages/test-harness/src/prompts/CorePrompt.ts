@@ -118,7 +118,7 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get Eligible Ads", value: "getEligibleAds" },
 
       new inquirer.Separator(),
-      { name: "backup inspection", value: "displayChunks" },
+      { name: "backup inspection", value: "inspectBackup" },
       { name: "manual backup", value: "manualBackup" },
       { name: "display chunks", value: "displayChunks" },
       { name: "clear cloud store", value: "clearCloudStore" },
@@ -312,7 +312,7 @@ export class CorePrompt extends DataWalletPrompt {
             UnixTimestamp(1000),
           );
           return this.core.addSiteVisits(sites).map(console.log);
-        case "displayChunks":
+        case "inspectBackup":
           // Set your maxChunkSize in your coreconfig to 0 or 1 in order to display chunks
           console.log("Backup source: Google");
           console.log("Chunks");
