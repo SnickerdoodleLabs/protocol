@@ -86,14 +86,10 @@ export class QueryEvaluator implements IQueryEvaluator {
   public evalPropertyQuery(
     q: AST_PropertyQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    console.log(" evalPropertyQuery  ");
-
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
         return this.profileService.getAge().andThen((age) => {
-          console.log(" getBirthday  ", age);
-
           switch (q.returnType) {
             case "boolean":
               for (const condition of q.conditions) {
