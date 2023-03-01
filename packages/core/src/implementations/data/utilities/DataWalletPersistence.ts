@@ -276,6 +276,27 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public listBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.listBackupChunks();
+      });
+  }
+
+  public fetchBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.fetchBackupChunk(backup);
+      });
+  }
+
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
