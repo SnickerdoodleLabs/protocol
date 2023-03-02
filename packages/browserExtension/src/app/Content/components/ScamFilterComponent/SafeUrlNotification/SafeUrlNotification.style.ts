@@ -24,14 +24,14 @@ export const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontSize: "17px",
-    fontFamily: 'Shrikhand',
+    fontFamily: "Shrikhand",
     fontStyle: "italic",
     padding: "24px 24px 16px 24px",
     color: "#222137",
   },
   learnMore: {
     fontSize: "10px",
-    fontFamily: 'Space Grotesk',
+    fontFamily: "Space Grotesk",
     fontWeight: 500,
     textAlign: "right",
     padding: "0px 24px 16px 0px",
@@ -41,7 +41,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   dontShow: {
     fontSize: "10px",
-    fontFamily: 'Space Grotesk',
+    fontFamily: "Space Grotesk",
     fontWeight: 300,
     textAlign: "right",
     paddingRight: "24px",

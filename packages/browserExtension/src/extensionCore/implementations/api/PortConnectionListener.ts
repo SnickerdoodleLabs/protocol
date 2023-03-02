@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { okAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import Browser, { Runtime } from "webextension-polyfill";
 
 import { PortConnectionUtils } from "@enviroment/manifest3/utils";
@@ -17,7 +17,7 @@ export class PortConnectionListener implements IPortConnectionListener {
     protected portConnectionService: IPortConnectionService,
   ) {}
 
-  public initialize() {
+  public initialize(): ResultAsync<void, never> {
     Browser.runtime.onConnect.addListener((port) => {
       try {
         if (VersionUtils.isManifest3) {
@@ -38,7 +38,9 @@ export class PortConnectionListener implements IPortConnectionListener {
     return okAsync(undefined);
   }
 
-  private handlePortConnectionRequest(port: Runtime.Port) {
+  private handlePortConnectionRequest(
+    port: Runtime.Port,
+  ): ResultAsync<void, never> {
     return this.portConnectionService.connectRemote(port);
   }
 }

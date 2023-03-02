@@ -8,7 +8,6 @@ import {
 
 import { SDQLQueryWrapperMocks } from "../../mocks";
 
-
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
   AST,
@@ -136,40 +135,24 @@ describe("SDQLParser on avalanche", () => {
       );
       expect(c3.description).toBe("a free CrazyApesClub NFT");
 
-      expect(c1.callback).toEqual(
-        {
-          parameters: [
-            "recipientAddress"
-          ],
-          data: {
-            trackingId: "982JJDSLAcx",
-          }
-        }
-      )
-      expect(c2.callback).toEqual(
-        {
-          parameters: [
-            "recipientAddress",
-            "productId"
-          ],
-          data: {
-            trackingId: "982JJDSLAcx",
-          }
-        }
-      )
-      expect(c3.callback).toEqual(
-        {
-          parameters: [
-            "recipientAddress",
-            "productId"
-          ],
-          data: {
-            trackingId: "982JJDSLAcx",
-          }
-        }
-      )
-
-
+      expect(c1.callback).toEqual({
+        parameters: ["recipientAddress"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      });
+      expect(c2.callback).toEqual({
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      });
+      expect(c3.callback).toEqual({
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      });
     });
 
     test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", () => {
@@ -177,27 +160,22 @@ describe("SDQLParser on avalanche", () => {
       expect(parser.compensationParameters!.recipientAddress).toBeDefined();
       expect(parser.compensationParameters!.productId).toBeDefined();
       expect(parser.compensationParameters!.shippingAddress).toBeDefined();
-      expect(parser.compensationParameters!).toEqual(
-        {
-            recipientAddress: {
-                type: "address",
-                required: true
-            },
-            productId: {
-                type: "string",
-                required: false,
-                values: [
-                  "https://product1",
-                  "https://product2",
-                ]
-            },
-            shippingAddress: {
-                type: "string",
-                required: false,
-            },
-        }
-      );
-    })
+      expect(parser.compensationParameters!).toEqual({
+        recipientAddress: {
+          type: "address",
+          required: true,
+        },
+        productId: {
+          type: "string",
+          required: false,
+          values: ["https://product1", "https://product2"],
+        },
+        shippingAddress: {
+          type: "string",
+          required: false,
+        },
+      });
+    });
   });
 
   describe("Checking Logic return ASTs", () => {

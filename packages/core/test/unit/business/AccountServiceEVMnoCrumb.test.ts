@@ -1,16 +1,31 @@
 import "reflect-metadata";
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
+
+import { AccountService } from "@core/implementations/business/index.js";
+
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
 } from "@snickerdoodlelabs/contracts-sdk";
+
+import { IAccountService } from "@core/interfaces/business/index.js";
+
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import {
+  IBrowsingDataRepository,
+  ICrumbsRepository,
+  IDataWalletPersistence,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+} from "@core/interfaces/data/index.js";
+
 import {
   AESEncryptedString,
   AESKey,
   BigNumberString,
-  CeramicStreamID,
   DataWalletBackupID,
   EChain,
   EncryptedString,
@@ -20,8 +35,8 @@ import {
   ExternallyOwnedAccount,
   HexString,
   ICrumbContent,
-  IDataWalletPersistence,
   InitializationVector,
+  ITokenPriceRepository,
   LanguageCode,
   LinkedAccount,
   Signature,
@@ -29,11 +44,20 @@ import {
   TokenId,
   TokenUri,
 } from "@snickerdoodlelabs/objects";
+
+import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
+
 import { okAsync } from "neverthrow";
+
+import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+
 import * as td from "testdouble";
 
 import {
@@ -45,12 +69,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { AccountService } from "@core/implementations/business/index.js";
-import { IAccountService } from "@core/interfaces/business/index.js";
-import { ICrumbsRepository } from "@core/interfaces/data/index.js";
-import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 
 const crumbsContractAddress = EVMContractAddress("crumbsContractAddress");
 const metatransactionValue = BigNumberString("0");
@@ -120,6 +138,11 @@ class AccountServiceMocks {
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contractFactory: IContractFactory;
+  public tokenPriceRepo: ITokenPriceRepository;
+  public accountRepo: ILinkedAccountRepository;
+  public transactionRepo: ITransactionHistoryRepository;
+  public browsingDataRepo: IBrowsingDataRepository;
+  public balanceRepo: IPortfolioBalanceRepository;
 
   public minimalForwarderContract: IMinimalForwarderContract;
   public crumbsContract: ICrumbsContract;
@@ -130,6 +153,11 @@ class AccountServiceMocks {
     this.crumbsRepo = td.object<ICrumbsRepository>();
     this.dataWalletPersistence = td.object<IDataWalletPersistence>();
     this.logUtils = td.object<ILogUtils>();
+    this.tokenPriceRepo = td.object<ITokenPriceRepository>();
+    this.accountRepo = td.object<ILinkedAccountRepository>();
+    this.transactionRepo = td.object<ITransactionHistoryRepository>();
+    this.browsingDataRepo = td.object<IBrowsingDataRepository>();
+    this.balanceRepo = td.object<IPortfolioBalanceRepository>();
 
     // Setup the context an locked, none in progress
     this.contextProvider = new ContextProviderMock(
@@ -138,6 +166,7 @@ class AccountServiceMocks {
         unlocked ? dataWalletKey : null,
         unlockInProgress,
         new PublicEvents(),
+        false,
       ),
     );
 
@@ -379,7 +408,7 @@ class AccountServiceMocks {
       okAsync(undefined),
     );
     td.when(
-      this.dataWalletPersistence.addAccount(
+      this.accountRepo.addAccount(
         td.matchers.contains({
           sourceChain: evmChain,
           sourceAccountAddress: evmAccountAddress,
@@ -388,7 +417,7 @@ class AccountServiceMocks {
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
-      this.dataWalletPersistence.addAccount(
+      this.accountRepo.addAccount(
         td.matchers.contains({
           sourceChain: solanaChain,
           sourceAccountAddress: solanaAccountAddress,
@@ -396,7 +425,7 @@ class AccountServiceMocks {
         }),
       ),
     ).thenReturn(okAsync(undefined));
-    td.when(this.dataWalletPersistence.getAccounts()).thenReturn(
+    td.when(this.accountRepo.getAccounts()).thenReturn(
       okAsync([
         new LinkedAccount(
           evmChain,
@@ -410,12 +439,12 @@ class AccountServiceMocks {
         ),
       ]),
     );
-    td.when(
-      this.dataWalletPersistence.removeAccount(evmAccountAddress),
-    ).thenReturn(okAsync(undefined));
-    td.when(
-      this.dataWalletPersistence.removeAccount(solanaAccountAddress),
-    ).thenReturn(okAsync(undefined));
+    td.when(this.accountRepo.removeAccount(evmAccountAddress)).thenReturn(
+      okAsync(undefined),
+    );
+    td.when(this.accountRepo.removeAccount(solanaAccountAddress)).thenReturn(
+      okAsync(undefined),
+    );
     td.when(this.dataWalletPersistence.postBackups()).thenReturn(
       okAsync([dataWalletBackupID]),
     );
@@ -480,13 +509,18 @@ class AccountServiceMocks {
     return new AccountService(
       this.insightPlatformRepo,
       this.crumbsRepo,
-      this.dataWalletPersistence,
       this.contextProvider,
       this.configProvider,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contractFactory,
       this.logUtils,
+      this.dataWalletPersistence,
+      this.tokenPriceRepo,
+      this.accountRepo,
+      this.transactionRepo,
+      this.browsingDataRepo,
+      this.balanceRepo,
     );
   }
 }

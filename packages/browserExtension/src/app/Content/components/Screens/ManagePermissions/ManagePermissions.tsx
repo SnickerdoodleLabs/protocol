@@ -3,10 +3,14 @@ import BasicModal from "@app/Content/components/Modals/BasicModal";
 import { useStyles } from "@app/Content/components/Screens/ManagePermissions/ManagePermissions.style";
 import Switch from "@app/Content/components/Switch";
 import { ExternalCoreGateway } from "@app/coreGateways";
-import { Box, FormControlLabel, Typography } from "@material-ui/core";
+import {
+  Box,
+  FormControlLabel,
+  Typography,
+  CircularProgress,
+} from "@material-ui/core";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState, FC } from "react";
-import { CircularProgress } from "@material-ui/core";
 
 const PERMISSION_NAMES = {
   [EWalletDataType.Gender]: "Gender",
@@ -123,10 +127,10 @@ const ManagePermissions: FC<IManagePermissionsProps> = ({
             <Box mt={4} display="flex">
               <Box marginLeft="auto">
                 <Button
-                {...(isClicked && {
-                  startIcon: <CircularProgress size={15} />,
-                  disabled: true,
-                })}
+                  {...(isClicked && {
+                    startIcon: <CircularProgress size={15} />,
+                    disabled: true,
+                  })}
                   buttonType="primary"
                   onClick={() => {
                     setIsClicked(true);

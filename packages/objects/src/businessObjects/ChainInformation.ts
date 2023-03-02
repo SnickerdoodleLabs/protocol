@@ -4,6 +4,7 @@ import {
   EVMContractAddress,
   URLString,
   ProviderUrl,
+  CoinGeckoAssetPlatformID,
 } from "@objects/primitives";
 
 export class NativeCurrencyInformation {
@@ -30,6 +31,7 @@ export class ChainInformation {
     public explorerURL: string,
     public getExplorerURL: (txHash: string) => string,
     public etherscanEndpointURL?: URLString,
+    public coinGeckoSlug?: CoinGeckoAssetPlatformID, // this is the string id by which coin gecko uses for chains ("asset platforms")
   ) {}
 }
 
@@ -51,6 +53,7 @@ export class ControlChainInformation extends ChainInformation {
     public metatransactionForwarderAddress: EVMContractAddress,
     public siftContractAddress: EVMContractAddress,
     public etherscanEndpointURL?: URLString,
+    public coinGeckoSlug?: CoinGeckoAssetPlatformID,
   ) {
     super(
       name,
@@ -68,6 +71,7 @@ export class ControlChainInformation extends ChainInformation {
         return explorerURL + txHash;
       },
       etherscanEndpointURL ? URLString(etherscanEndpointURL) : undefined,
+      coinGeckoSlug,
     );
   }
 }

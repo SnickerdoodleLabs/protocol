@@ -22,8 +22,6 @@ import {
   SDQLQueryRequest,
   ConsentToken,
   ServerRewardError,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
   IDynamicRewardParameter,
   LinkedAccount,
   QueryIdentifier,
@@ -31,19 +29,25 @@ import {
   EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
+
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -78,8 +82,8 @@ export class QueryService implements IQueryService {
     protected configProvider: IConfigProvider,
     @inject(ICryptoUtilsType)
     protected cryptoUtils: ICryptoUtils,
-    @inject(IDataWalletPersistenceType)
-    protected persistenceRepo: IDataWalletPersistence,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
 
   public onQueryPosted(
@@ -95,31 +99,35 @@ export class QueryService implements IQueryService {
       this.getQueryByCID(queryCID),
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-      this.persistenceRepo.getAccounts(),
+      this.accountRepo.getAccounts(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([query, context, config, accounts, consentToken]) => {
       if (consentToken == null) {
         return errAsync(new EvaluationError(`Consent token not found!`));
       }
-      return this.dataWalletUtils.deriveOptInPrivateKey(
-        consentContractAddress, context.dataWalletKey!
-      ).andThen((optInKey) => {
-        return this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-          query, consentToken.dataPermissions, consentContractAddress
-        ).andThen(([permittedQueryIds, expectedRewards]) => {
-          return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-            consentToken,
-            optInKey,
-            consentContractAddress,
-            query,
-            accounts,
-            context,
-            config,
-            permittedQueryIds,
-            expectedRewards,
-          );
+      return this.dataWalletUtils
+        .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
+        .andThen((optInKey) => {
+          return this.queryParsingEngine
+            .getPermittedQueryIdsAndExpectedRewards(
+              query,
+              consentToken.dataPermissions,
+              consentContractAddress,
+            )
+            .andThen(([permittedQueryIds, expectedRewards]) => {
+              return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+                consentToken,
+                optInKey,
+                consentContractAddress,
+                query,
+                accounts,
+                context,
+                config,
+                permittedQueryIds,
+                expectedRewards,
+              );
+            });
         });
-      });
     });
   }
 
@@ -132,32 +140,36 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
-    expectedRewards: ExpectedReward[]
+    expectedRewards: ExpectedReward[],
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
-
-      return this.getEligibleRewardsFromInsightPlatform(
-        consentToken,
-        optInKey,
-        consentContractAddress,
-        query.cid,
-        config,
-        permittedQueryIds,
+    return this.getEligibleRewardsFromInsightPlatform(
+      consentToken,
+      optInKey,
+      consentContractAddress,
+      query.cid,
+      config,
+      permittedQueryIds,
+    ).andThen((eligibleRewards) => {
+      if (
+        !this.areExpectedAndEligibleRewardsEqual(
+          eligibleRewards,
+          expectedRewards,
+        )
       )
-      .andThen((eligibleRewards) => {
+        return errAsync(
+          new ServerRewardError(
+            "Insight Platform Rewards do not match Expected Rewards!",
+          ),
+        );
 
-          if (!this.areExpectedAndEligibleRewardsEqual(eligibleRewards, expectedRewards)) 
-            return errAsync( 
-              new ServerRewardError("Insight Platform Rewards do not match Expected Rewards!")
-            );
-
-          return this.publishSDQLQueryRequest(
-            consentContractAddress,
-            query,
-            eligibleRewards,
-            accounts,
-            context,
-          );
-      });
+      return this.publishSDQLQueryRequest(
+        consentContractAddress,
+        query,
+        eligibleRewards,
+        accounts,
+        context,
+      );
+    });
   }
 
   protected getEligibleRewardsFromInsightPlatform(
@@ -222,14 +234,16 @@ export class QueryService implements IQueryService {
     eligibleRewards: EligibleReward[],
     expectedRewards: ExpectedReward[],
   ): boolean {
-
     const expectedRewardKeysSet: Set<string> = new Set(
-      expectedRewards.map((expectedReward) => expectedReward.compensationKey)
+      expectedRewards.map((expectedReward) => expectedReward.compensationKey),
     );
 
-    return ( // Only comparing the keys is enough.
+    return (
+      // Only comparing the keys is enough.
       eligibleRewards.length == expectedRewards.length &&
-      eligibleRewards.every(elem => expectedRewardKeysSet.has(elem.compensationKey))
+      eligibleRewards.every((elem) =>
+        expectedRewardKeysSet.has(elem.compensationKey),
+      )
     );
   }
 
@@ -285,7 +299,7 @@ export class QueryService implements IQueryService {
               console.log("insight delivery api call done");
               console.log("Earned Rewards: ", earnedRewards);
               /* For Direct Rewards, add EarnedRewards to the wallet */
-              this.persistenceRepo.addEarnedRewards(earnedRewards);
+              this.accountRepo.addEarnedRewards(earnedRewards);
               /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
               /* Show Lazy Rewards in rewards tab? */
               /* Web2 rewards are also EarnedRewards, TBD */

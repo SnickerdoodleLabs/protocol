@@ -1,17 +1,33 @@
-import { ELocalStorageKey } from "@persistence/ELocalStorageKey.js";
+import {
+  AdSignatureMigrator,
+  ChainTransactionMigrator,
+  ClickDataMigrator,
+  EarnedRewardMigrator,
+  EligibleAdMigrator,
+  LatestBlockMigrator,
+  LinkedAccountMigrator,
+  ReceivingAccountMigrator,
+  RestoredBackupMigrator,
+  SiteVisitMigrator,
+  TokenInfoMigrator,
+} from "@snickerdoodlelabs/objects";
+
+import { ERecordKey } from "@persistence/ELocalStorageKey.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export const volatileStorageSchema = [
   new VolatileTableIndex(
-    ELocalStorageKey.ACCOUNT,
+    ERecordKey.ACCOUNT,
     "sourceAccountAddress",
     false,
+    new LinkedAccountMigrator(),
     [["sourceChain", false]],
   ),
   new VolatileTableIndex(
-    ELocalStorageKey.TRANSACTIONS,
+    ERecordKey.TRANSACTIONS,
     "hash",
     false,
+    new ChainTransactionMigrator(),
     [
       ["timestamp", false],
       ["chainId", false],
@@ -21,36 +37,73 @@ export const volatileStorageSchema = [
     ],
     false, // TODO: Re-enable backups of transactions!
   ),
-  new VolatileTableIndex(ELocalStorageKey.SITE_VISITS, "id", true, [
-    ["url", false],
-    ["startTime", false],
-    ["endTime", false],
-  ]),
-  new VolatileTableIndex(ELocalStorageKey.CLICKS, "id", true, [
-    ["url", false],
-    ["timestamp", false],
-    ["element", false],
-  ]),
-  new VolatileTableIndex(ELocalStorageKey.LATEST_BLOCK, "contract", false),
-  new VolatileTableIndex(ELocalStorageKey.EARNED_REWARDS, "queryCID", false, [
-    ["type", false],
-  ]),
-  new VolatileTableIndex(ELocalStorageKey.ELIGIBLE_ADS, ["queryCID", "key"], false, [
-    ["type", false],
-  ]),
-  new VolatileTableIndex(ELocalStorageKey.AD_SIGNATURES, ["queryCID", "adKey"], false, [
-    ["type", false],
-  ]),
   new VolatileTableIndex(
-    ELocalStorageKey.COIN_INFO,
-    ["chain", "address"],
-    false,
+    ERecordKey.SITE_VISITS,
+    VolatileTableIndex.DEFAULT_KEY,
+    true,
+    new SiteVisitMigrator(),
+    [
+      ["url", false],
+      ["startTime", false],
+      ["endTime", false],
+    ],
   ),
   new VolatileTableIndex(
-    ELocalStorageKey.RESTORED_BACKUPS,
-    "id",
+    ERecordKey.CLICKS,
+    VolatileTableIndex.DEFAULT_KEY,
+    true,
+    new ClickDataMigrator(),
+    [
+      ["url", false],
+      ["timestamp", false],
+      ["element", false],
+    ],
+  ),
+  new VolatileTableIndex(
+    ERecordKey.LATEST_BLOCK,
+    "contract",
     false,
+    new LatestBlockMigrator(),
+  ),
+  new VolatileTableIndex(
+    ERecordKey.EARNED_REWARDS,
+    "queryCID",
+    false,
+    new EarnedRewardMigrator(),
+    [["type", false]],
+  ),
+  new VolatileTableIndex(
+    ERecordKey.ELIGIBLE_ADS,
+    ["queryCID", "key"],
+    false,
+    new EligibleAdMigrator(),
+    [["type", false]],
+  ),
+  new VolatileTableIndex(
+    ERecordKey.AD_SIGNATURES,
+    ["queryCID", "adKey"],
+    false,
+    new AdSignatureMigrator(),
+    [["type", false]],
+  ),
+  new VolatileTableIndex(
+    ERecordKey.COIN_INFO,
+    ["chain", "address"],
+    false,
+    new TokenInfoMigrator(),
+  ),
+  new VolatileTableIndex(
+    ERecordKey.RESTORED_BACKUPS,
+    VolatileTableIndex.DEFAULT_KEY,
+    false,
+    new RestoredBackupMigrator(),
     undefined,
     true,
+  ),
+  new VolatileTableIndex(
+    ERecordKey.RECEIVING_ADDRESSES,
+    "contractAddress",
+    false,
+    new ReceivingAccountMigrator(),
   ),
 ];

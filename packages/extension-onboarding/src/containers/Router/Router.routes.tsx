@@ -1,32 +1,32 @@
+import React from "react";
+import { Route } from "react-router-dom";
+
 import Portfolio from "@extension-onboarding/components/Portfolio";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
+import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
 import OnboardingLayout from "@extension-onboarding/layouts/OnboardingLayout";
 import ProductTourLayout from "@extension-onboarding/layouts/ProductTourLayout";
+import BrowserActivity from "@extension-onboarding/pages/Details/screens/BrowserActivity";
 import CampaignSettings from "@extension-onboarding/pages/Details/screens/CampaignSettings";
+import DataDashboarPersonalInfo from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo";
 import DataPermissionsSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import EarnedRewards from "@extension-onboarding/pages/Details/screens/EarnedRewards";
 import MarketPlaceCampaigns from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns";
+import MarketPlaceCollection from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection";
+import RewardReview from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/RewardReview";
 import MarketplaceRewardsTemp from "@extension-onboarding/pages/Details/screens/MarketplaceRewardsTemp";
+import NFTDetails from "@extension-onboarding/pages/Details/screens/NFTDetails";
+import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
 import OnChainIfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
+import Rewards from "@extension-onboarding/pages/Details/screens/Rewards";
 import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
+import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-import ViewData from "@extension-onboarding/pages/Onboarding/ViewData";
-import BrowserActivity from "@extension-onboarding/pages/Details/screens/BrowserActivity";
-import React from "react";
-import { Route } from "react-router-dom";
-import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
-import Rewards from "@extension-onboarding/pages/Details/screens/Rewards";
-import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
-import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
-import DataDashboarPersonalInfo from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo";
-import MarketPlaceCollection from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection";
-import NFTDetails from "@extension-onboarding/pages/Details/screens/NFTDetails";
-import RewardReview from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/RewardReview";
 
 export const OnboardingRoutes = (
   <Route>

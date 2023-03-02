@@ -1,5 +1,6 @@
-import { EContentType, INFT } from "@extension-onboarding/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { EContentType, INFT } from "@extension-onboarding/objects";
 
 const emptytNft: INFT = {
   name: null,
