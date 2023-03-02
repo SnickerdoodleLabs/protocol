@@ -39,6 +39,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
 - `balance`: accesses the balance of the DW user per chain
+- `nft`: accesses the aggregated nft holdings data of the user
 
 #### return (required)
 The return sub-keyword specifies the object type that will be returned by a query. Supported types include:
