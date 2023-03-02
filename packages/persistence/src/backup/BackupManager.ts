@@ -32,8 +32,6 @@ import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IChunkManager } from "./IChunkManager";
-
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
 import {
@@ -65,7 +63,6 @@ export class BackupManager implements IBackupManager {
     protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
-    protected chunkManager: IChunkManager,
     public maxChunkSize: number,
   ) {
     this.tableNames = this.schema.map((x) => x.name);
@@ -79,40 +76,33 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  /* Clean and repopulate with template data */
-  public clear(): ResultAsync<void, never> {
-    this.tableUpdates = {};
-    this.fieldUpdates = {};
-    this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
-    return okAsync(undefined);
+  public listBackupChunks(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError
+  > {
+    return okAsync(this.chunkQueue);
   }
 
-  /* Editing Volate Storage Metadata */
-  public addRecord<T extends VersionedObject>(
-    tableName: string,
-    value: VolatileStorageMetadata<T>,
-  ): ResultAsync<void, PersistenceError> {
-    // this allows us to bypass transactions
-    this.chunkManager.addChunk(tableName);
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
-      console.log("Added A record to volatile storage");
-      return this.volatileStorage.putObject<T>(tableName, value);
-    }
+  public fetchBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this.cryptoUtils
+      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
+      .andThen((aesKey) => {
+        const fetchedBackup = this.chunkQueue.find(
+          (element) => element == backup,
+        );
+        if (fetchedBackup == undefined) {
+          return errAsync(
+            new PersistenceError("invalid backup chunk detected"),
+          );
+        }
 
-    this.tableUpdates[tableName].push(
-      new VolatileDataUpdate(
-        EDataUpdateOpCode.UPDATE,
-        value.data,
-        value.lastUpdate,
-        value.priority,
-        value.version,
-      ),
-    );
-    this.numUpdates += 1;
-    return this.volatileStorage
-      .putObject(tableName, value)
-      .andThen(() => this._checkSize());
+        return this.cryptoUtils.decryptAESEncryptedString(
+          fetchedBackup.blob,
+          aesKey,
+        );
+      });
   }
 
   public deleteRecord(
@@ -133,38 +123,10 @@ export class BackupManager implements IBackupManager {
         priority,
       ),
     );
-
     this.deletionHistory.set(key, timestamp);
     this.numUpdates += 1;
     return this.volatileStorage
       .removeObject(tableName, key)
-      .andThen(() => this._checkSize());
-  }
-
-  public updateField(
-    key: string,
-    value: object,
-    priority: EBackupPriority,
-  ): ResultAsync<void, PersistenceError> {
-    console.log("before updateField: ", this.fieldUpdates);
-
-    if (!(key in this.fieldUpdates)) {
-      this.numUpdates += 1;
-    }
-
-    const serialized = JSON.stringify(value);
-    const timestamp = Date.now();
-    this.fieldUpdates[key] = new FieldDataUpdate(
-      key,
-      serialized,
-      Date.now(),
-      priority,
-    );
-    console.log("after updateField: ", this.fieldUpdates);
-
-    this._updateFieldHistory(key, timestamp);
-    return this.storageUtils
-      .write(key, serialized)
       .andThen(() => this._checkSize());
   }
 
@@ -179,19 +141,24 @@ export class BackupManager implements IBackupManager {
       });
   }
 
+  public clear(): ResultAsync<void, never> {
+    this.tableUpdates = {};
+    this.fieldUpdates = {};
+    this.numUpdates = 0;
+    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    return okAsync(undefined);
+  }
+
   public popBackup(): ResultAsync<
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    console.log("Inside Pop Backup");
     if (this.chunkQueue.length == 0) {
       if (this.numUpdates == 0) {
         return okAsync(undefined);
       }
 
-      console.log("Hitting dump");
       return this.dump().andThen((backup) => {
-        console.log("Hitting _addRestored");
         return this._addRestored(backup).andThen(() => {
           return this.clear().map(() => backup);
         });
@@ -203,54 +170,54 @@ export class BackupManager implements IBackupManager {
     return this._addRestored(backup).map(() => backup);
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    console.log("this.numUpdates: ", this.numUpdates);
-    console.log("this.maxChunkSize: ", this.maxChunkSize);
-    this.chunkQueue.forEach((element) => {
-      console.log("this.chunkQueue.length: ", element);
-    });
-    console.log("Old chunkQueue.length: ", this.chunkQueue.length);
-    console.log("New chunkQueue.length: ", this.chunkManager.size());
+  public addRecord<T extends VersionedObject>(
+    tableName: string,
+    value: VolatileStorageMetadata<T>,
+  ): ResultAsync<void, PersistenceError> {
+    // this allows us to bypass transactions
+    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      return this.volatileStorage.putObject<T>(tableName, value);
+    }
 
-    console.log("this.numUpdates: ", this.numUpdates);
-    console.log("this.maxChunkSize: ", this.maxChunkSize);
-    this.chunkQueue.forEach((element) => {
-      console.log("this.chunkQueue.length: ", element);
-    });
-    return this.chunkManager.displayChunks();
+    this.tableUpdates[tableName].push(
+      new VolatileDataUpdate(
+        EDataUpdateOpCode.UPDATE,
+        value.data,
+        value.lastUpdate,
+        value.priority,
+        value.version,
+      ),
+    );
+    this.numUpdates += 1;
+    return this.volatileStorage
+      .putObject(tableName, value)
+      .andThen(() => this._checkSize());
   }
 
-  public fetchBackupChunk(
-    backup: IDataWalletBackup,
-  ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils
-      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-      .andThen((aesKey) => {
-        // const fetchedBackup = backup;
-        // const fetchedBackup = this.chunkManager.fetchBackupChunk(backup);
-        const fetchedBackup = this.chunkQueue.find(
-          (element) => element == backup,
-        );
-        if (fetchedBackup == undefined) {
-          return errAsync(
-            new PersistenceError("invalid backup chunk detected"),
-          );
-        }
+  public updateField(
+    key: string,
+    value: object,
+    priority: EBackupPriority,
+  ): ResultAsync<void, PersistenceError> {
+    if (!(key in this.fieldUpdates)) {
+      this.numUpdates += 1;
+    }
 
-        return this.cryptoUtils.decryptAESEncryptedString(
-          fetchedBackup.blob,
-          aesKey,
-        );
-      });
+    const serialized = JSON.stringify(value);
+    const timestamp = Date.now();
+    this.fieldUpdates[key] = new FieldDataUpdate(
+      key,
+      serialized,
+      Date.now(),
+      priority,
+    );
+    this._updateFieldHistory(key, timestamp);
+    return this.storageUtils
+      .write(key, serialized)
+      .andThen(() => this._checkSize());
   }
 
   private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
-    console.log(
-      "Generating Blob - Is this for Chunks or for an entire backup? ",
-    );
     return this._generateBlob().andThen(([blob, priority]) => {
       return this._getContentHash(blob).andThen((hash) => {
         const timestamp = new Date().getTime();
@@ -294,22 +261,14 @@ export class BackupManager implements IBackupManager {
                     !(fieldName in this.fieldHistory) ||
                     update.timestamp > this.fieldHistory[fieldName]
                   ) {
-                    console.log("before fieldUpdates: ", this.fieldUpdates);
-
                     if (this.fieldUpdates.hasOwnProperty(fieldName)) {
                       if (update.timestamp > this.fieldUpdates[fieldName][1]) {
                         this.fieldHistory[fieldName] = update.timestamp;
                         delete this.fieldUpdates[fieldName];
-                        console.log(
-                          "after fieldUpdates 1: ",
-                          this.fieldUpdates,
-                        );
                         return this.storageUtils.write(fieldName, update.value);
                       }
                     } else {
                       this.fieldHistory[fieldName] = update.timestamp;
-                      console.log("after fieldUpdates 2: ", this.fieldUpdates);
-
                       return this.storageUtils.write(fieldName, update.value);
                     }
                   }
@@ -410,10 +369,8 @@ export class BackupManager implements IBackupManager {
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
-    console.log("Inside _checkSize()");
     if (this.numUpdates >= this.maxChunkSize) {
       return this.dump().andThen((backup) => {
-        this.chunkManager.addChunk(backup);
         this.chunkQueue.push(backup);
         return this.clear();
       });
@@ -464,11 +421,7 @@ export class BackupManager implements IBackupManager {
     [AESEncryptedString, EBackupPriority],
     PersistenceError
   > {
-    console.log("before generateblob: ", this.fieldUpdates);
-    // this.chunkManager.generateblob
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
-    console.log("after generateblob: ", this.fieldUpdates);
-
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -514,11 +467,9 @@ export class BackupManager implements IBackupManager {
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {
-    console.log("this.fieldHistory: ", this.fieldHistory);
     if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
       this.fieldHistory[field] = timestamp;
     }
-    console.log("this.fieldHistory: ", this.fieldHistory);
   }
 
   private _addRestored(

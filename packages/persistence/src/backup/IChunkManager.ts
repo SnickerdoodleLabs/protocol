@@ -15,9 +15,10 @@ export interface IChunkManager {
   clear(): ResultAsync<void, never>;
   addChunk(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   removeChunk(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  fetchBackupChunk(): ResultAsync<void, PersistenceError>;
+  fetchBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<IDataWalletBackup, PersistenceError>;
   displayChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  updateChunk(priority: EBackupPriority): ResultAsync<void, PersistenceError>;
 }
 
 export const IChunkManagerType = Symbol.for("IChunkManager");

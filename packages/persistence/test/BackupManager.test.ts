@@ -14,8 +14,8 @@ import {
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 
-import { BackupManagerProviderMocks } from "@persistence-test/mocks";
 import { ERecordKey } from "@persistence/ELocalStorageKey";
+import { BackupManagerProviderMocks } from "@persistence-test/mocks";
 
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {

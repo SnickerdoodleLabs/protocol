@@ -66,7 +66,6 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.volatileStorage,
         this.cryptoUtils,
         this.storageUtils,
-        new ChunkManager(),
         config.backupChunkSizeTarget,
       );
     });

@@ -57,7 +57,6 @@ export class BackupManagerProviderMocks {
           this.volatileStorage,
           this.cryptoUtils,
           this.storageUtils,
-          new ChunkManager(),
           100000,
         ),
     );
