@@ -68,6 +68,7 @@ export class CeramicCloudStorage implements ICloudStorage {
           return ResultUtils.combine(
             entries.map((entry) => {
               return ResultAsync.fromPromise(
+                //@ts-ignore
                 client.pin.rm(StreamID.fromString(entry.id)),
                 (e) => new PersistenceError("Error pinning stream", e),
               );

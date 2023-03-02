@@ -1,4 +1,4 @@
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { PersistenceError, VersionedObject, VolatileStorageKey } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +8,9 @@ import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
   public constructor() {}
+  getKey(tableName: string, obj: VersionedObject): ResultAsync<VolatileStorageKey | null, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 
   public persist(): ResultAsync<boolean, PersistenceError> {
     console.log("persist");
@@ -55,7 +58,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     });
   }
 
-  public getCursor<T>(
+  public getCursor<T extends VersionedObject>(
     name: string,
     indexName?: string,
     query?: string | number,

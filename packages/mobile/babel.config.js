@@ -5,15 +5,5 @@ module.exports = {
     "babel-plugin-transform-typescript-metadata",
     "babel-plugin-parameter-decorator",
     ["@babel/plugin-proposal-decorators", { legacy: true }],
-    // [
-    //   "module-resolver",
-    //   {
-    //     alias: {
-    //       crypto: "react-native-quick-crypto",
-    //       stream: "stream-browserify",
-    //       buffer: "@craftzdog/react-native-buffer",
-    //     },
-    //   },
-    // ],
   ],
 };
