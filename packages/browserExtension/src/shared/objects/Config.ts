@@ -18,8 +18,13 @@ export class ExtensionConfig {
     public covalentApiKey?: string,
     public moralisApiKey?: string,
     public nftScanApiKey?: string,
+    public poapApiKey?: string,
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
-    public domainFilter?: string
+    public domainFilter?: string,
+    public defaultGoogleCloudBucket?: string,
+    public portfolioPollingIntervalMS?: number,
+    public transactionPollingIntervalMS?: number,
+    public backupPollingIntervalMS?: number,
   ) {}
 }

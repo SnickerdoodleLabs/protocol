@@ -14,6 +14,7 @@ export interface IConfigOverrides {
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
+  poapApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
@@ -22,4 +23,5 @@ export interface IConfigOverrides {
   controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
+  defaultGoogleCloudBucket?: string;
 }

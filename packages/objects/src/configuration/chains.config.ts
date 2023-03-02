@@ -131,7 +131,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       ],
       10000,
       EIndexer.Polygon,
-      new NativeCurrencyInformation("MATIC", 18, "MATIC"),
+      new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Mainnet,
       "https=//polygonscan.com/tx/",
       getExplorerUrl,
@@ -148,12 +148,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [
         ProviderUrl(
-          "https://avalanche-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
+          "https://avalanche-mainnet.infura.io/v3/a8ae124ed6aa44bb97a7166cda30f1bc",
         ),
       ],
       4000,
       EIndexer.EVM,
-      new NativeCurrencyInformation("AVAX", 18, "AVAX"),
+      new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Mainnet,
       "https=//snowtrace.io/block/",
       getExplorerUrl,
@@ -168,7 +168,11 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Fuji,
       EChainTechnology.EVM,
       true,
-      [ProviderUrl("https://fuji.snickerdoodle.dev/rpc")],
+      [
+        ProviderUrl(
+          "https://avalanche-fuji.infura.io/v3/a8ae124ed6aa44bb97a7166cda30f1bc",
+        ),
+      ],
       4000,
       EIndexer.EVM,
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),

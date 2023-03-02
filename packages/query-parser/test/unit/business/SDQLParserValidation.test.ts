@@ -3,8 +3,8 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { IpfsCID, QueryFormatError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 
-import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
+import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
 
 const cid = IpfsCID("0");
 const timeUtils = new TimeUtils();

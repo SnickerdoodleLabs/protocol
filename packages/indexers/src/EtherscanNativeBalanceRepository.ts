@@ -37,8 +37,6 @@ import {
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
 
-const poapAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
-
 export class EtherscanNativeBalanceRepository
   implements IEVMAccountBalanceRepository
 {
@@ -89,7 +87,7 @@ export class EtherscanNativeBalanceRepository
   ): ResultAsync<URLString, AccountIndexingError> {
     const chainInfo = chainConfig.get(chain);
     if (chainInfo == undefined) {
-      console.log("Error inside _getEtherscanApiKey");
+      this.logUtils.error("Error inside _getEtherscanApiKey");
       return errAsync(
         new AccountIndexingError("no etherscan api key for chain", chain),
       );
@@ -104,7 +102,7 @@ export class EtherscanNativeBalanceRepository
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (!config.etherscanApiKeys.has(chain)) {
-        console.log("Error inside _getEtherscanApiKey");
+        this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );

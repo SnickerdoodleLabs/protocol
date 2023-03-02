@@ -1,7 +1,8 @@
-import { INFTMetadataRepository } from "@extension-onboarding/services/interfaces/data/INFTMetadataRepository";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import { AjaxError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { INFTMetadataRepository } from "@extension-onboarding/services/interfaces/data/INFTMetadataRepository";
 
 export class NFTMetadataRepository implements INFTMetadataRepository {
   constructor(protected ajaxUtil: IAxiosAjaxUtils) {}

@@ -157,6 +157,9 @@ var options = {
       __MANIFEST_VERSION__: JSON.stringify(
         process.env.__MANIFEST_VERSION__ || "v3",
       ),
+      __GOOGLE_CLOUD_BUCKET__: JSON.stringify(
+        process.env.__GOOGLE_CLOUD_BUCKET__ || "ceramic-replacement-bucket",
+      ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
       __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
       __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
@@ -176,13 +179,23 @@ var options = {
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
+      __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),
       __COOKIE_LIFETIME__: JSON.stringify(
         process.env.__COOKIE_LIFETIME__ || "1",
       ),
-      __DOMAIN_FILTER__ : JSON.stringify(process.env.__DOMAIN_FILTER__)
+      __DOMAIN_FILTER__: JSON.stringify(process.env.__DOMAIN_FILTER__),
+      __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__PORTFOLIO_POLLING_INTERVAL__,
+      ),
+      __TRANSACTION_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__TRANSACTION_POLLING_INTERVAL__,
+      ),
+      __BACKUP_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__BACKUP_POLLING_INTERVAL__,
+      ),
     }),
     new CopyWebpackPlugin({
       patterns: [

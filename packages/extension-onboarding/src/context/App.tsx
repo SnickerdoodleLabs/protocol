@@ -1,17 +1,4 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import {
-  ALERT_MESSAGES,
-  EWalletProviderKeys,
-  LOCAL_STORAGE_SDL_INVITATION_KEY,
-} from "@extension-onboarding/constants";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  getProviderList,
-  IProvider,
-} from "@extension-onboarding/services/blockChainWalletProviders";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   AccountAddress,
   BigNumberString,
@@ -32,6 +19,21 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import {
+  ALERT_MESSAGES,
+  EWalletProviderKeys,
+  LOCAL_STORAGE_SDL_INVITATION_KEY,
+} from "@extension-onboarding/constants";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  getProviderList,
+  IProvider,
+} from "@extension-onboarding/services/blockChainWalletProviders";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
@@ -249,7 +251,7 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
-      const _accounts: ILinkedAccount[] = accounts.map(
+      const _accounts = accounts.map(
         (account) =>
           ({
             accountAddress: account.sourceAccountAddress,

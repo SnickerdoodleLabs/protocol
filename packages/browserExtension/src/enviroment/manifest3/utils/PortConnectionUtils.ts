@@ -9,16 +9,11 @@ export class PortConnectionUtils {
   static autoDisconnectWrapper(
     port: Runtime.Port,
     connectionHandler: (port: Runtime.Port) => ResultAsync<void, never>,
-  ) {
-    let _timer;
-    const deleteTimer = () => {
+  ): void {
+    const _timer = setTimeout(() => {
       clearTimeout(_timer);
-    };
-    const forceReconnect = () => {
-      deleteTimer();
       port.disconnect();
-    };
-    _timer = setTimeout(forceReconnect, 180000);
+    }, 180000);
     connectionHandler(port);
   }
 }

@@ -1,5 +1,6 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
+import { AdContent } from "@objects/businessObjects";
 import {
   AccountAddress,
   ChainId,
@@ -9,10 +10,9 @@ import {
   URLString,
   AdKey,
   UnixTimestamp,
-  EAdDisplayType, 
-  ISO8601DateString
+  EAdDisplayType,
+  ISO8601DateString,
 } from "@objects/primitives";
-import { AdContent } from "@objects/businessObjects";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -91,7 +91,7 @@ export interface ISDQLAdsBlock {
 
 export interface ISDQLAd {
   name: string;
-  content: AdContent,
+  content: AdContent;
   text: string | null;
   displayType: EAdDisplayType;
   weight: number;
@@ -100,9 +100,7 @@ export interface ISDQLAd {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]:
-    | ISDQLCompensationParameters
-    | ISDQLCompensations;
+  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 
