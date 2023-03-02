@@ -1,4 +1,9 @@
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VersionedObject,
+  VolatileStorageKey,
+  VolatileStorageMetadata,
+} from "@snickerdoodlelabs/objects";
 import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -20,6 +25,13 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     );
   }
 
+  public getKey(
+    tableName: string,
+    obj: VersionedObject,
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
+    return this.indexedDB.getKey(tableName, obj);
+  }
+
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     return this.indexedDB.initialize();
   }
@@ -32,11 +44,11 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB.clearObjectStore(name);
   }
 
-  public putObject<T>(
+  public putObject<T extends VersionedObject>(
     name: string,
-    obj: T,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    return this.indexedDB.putObject(name, obj);
+    return this.indexedDB.putObject<VolatileStorageMetadata<T>>(name, obj);
   }
 
   public removeObject(
@@ -46,28 +58,28 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB.removeObject(name, key);
   }
 
-  public getObject<T>(
+  public getObject<T extends VersionedObject>(
     name: string,
     key: string,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.indexedDB.getObject(name, key);
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
+    return this.indexedDB.getObject<T>(name, key);
   }
 
-  public getCursor<T>(
+  public getCursor<T extends VersionedObject>(
     name: string,
     indexName?: string,
     query?: string | number,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    return this.indexedDB.getCursor(name, indexName, query, direction, mode);
+    return this.indexedDB.getCursor<T>(name, indexName, query, direction, mode);
   }
 
-  public getAll<T>(
+  public getAll<T extends VersionedObject>(
     name: string,
     indexName?: string,
-  ): ResultAsync<T[], PersistenceError> {
-    return this.indexedDB.getAll(name, indexName);
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this.indexedDB.getAll<T>(name, indexName);
   }
 
   public getAllKeys<T>(

@@ -8,6 +8,7 @@ import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.styl
 import {
   FAQ_URL,
   PRIVACY_POLICY_URL,
+  SURVEY_URL,
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -205,9 +206,19 @@ const Sidebar = () => {
         <Box alignSelf="flex-start" marginTop="auto" mb={2} display="flex">
           <Typography
             onClick={() => {
-              window.open(ZENDEKS_URL, "_blank");
+              window.open(SURVEY_URL, "_blank");
             }}
             className={classes.link}
+          >
+            Survey
+          </Typography>
+        </Box>
+        <Box mb={2} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(ZENDEKS_URL, "_blank");
+            }}
           >
             Contact Us
           </Typography>

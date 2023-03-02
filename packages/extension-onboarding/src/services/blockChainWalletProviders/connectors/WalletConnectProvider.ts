@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Web3Provider } from "@ethersproject/providers";
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 
 export class WalletConnectProvider implements IWalletProvider {
   protected _web3Provider: Web3Provider | null = null;
