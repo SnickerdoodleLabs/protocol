@@ -22,6 +22,7 @@ import { Dimensions, Platform, Text } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { useAppContext } from "./AppContextProvider";
+import { useLayoutContext, ELoadingStatusType } from "./LayoutContext";
 
 export interface IAccountLinkingContext {
   onWCButtonClicked: () => ResultAsync<void, never>;
@@ -50,15 +51,10 @@ const AccountLinkingContextProvider = ({ children }) => {
   const [askForSignature, setAskForSignature] = useState<boolean>(false);
   const [credentials, setCredentials] =
     useState<ICredentials>(initialCredentials);
+  const { setLoadingStatus } = useLayoutContext();
 
   const wcConnector = useWalletConnect();
 
-  useEffect(() => {
-    AsyncStorage.getItem("SD_Accounts").then((a) =>
-      console.error("SIKTIRGIT", a),
-    );
-    AsyncStorage.getItem("dw-account-info").then((a) => console.log(a));
-  }, []);
   useEffect(() => {
     if (askForSignature) {
       setTimeout(sign, 500);
@@ -117,6 +113,10 @@ const AccountLinkingContextProvider = ({ children }) => {
   };
 
   const manageAccountCredentials = () => {
+    setLoadingStatus({
+      loading: true,
+      type: ELoadingStatusType.ADDING_ACCOUNT,
+    });
     const accountService = coreContext.getAccountService();
     if (!isUnlocked) {
       accountService.unlock(
@@ -139,25 +139,6 @@ const AccountLinkingContextProvider = ({ children }) => {
 
   return (
     <AccountLinkingContext.Provider value={{ onWCButtonClicked: onConnect }}>
-      <View
-        style={{
-          position: "absolute",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          zIndex: 9999,
-          display: "flex",
-          padding: 40,
-          backgroundColor: "red",
-          borderBottomLeftRadius: 20,
-          borderBottomRightRadius: 20,
-          minHeight: Dimensions.get("window").height * 0.25,
-          width: Dimensions.get("window").width,
-        }}
-      >
-        <Text>{isUnlocked ? "true" : "false"}</Text>
-        <Text>{JSON.stringify(linkedAccounts)}</Text>
-      </View>
       {askForSignature && (
         <View
           style={{

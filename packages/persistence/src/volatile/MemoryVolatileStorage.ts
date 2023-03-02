@@ -1,4 +1,8 @@
-import { PersistenceError, VersionedObject, VolatileStorageKey } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VersionedObject,
+  VolatileStorageKey,
+} from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,7 +12,10 @@ import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
   public constructor() {}
-  getKey(tableName: string, obj: VersionedObject): ResultAsync<VolatileStorageKey | null, PersistenceError> {
+  getKey(
+    tableName: string,
+    obj: VersionedObject,
+  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
@@ -27,8 +34,16 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     obj: T,
   ): ResultAsync<void, PersistenceError> {
     console.log("putObject");
-    AsyncStorage.setItem(name, JSON.stringify(obj));
-    return okAsync(undefined);
+    return this.getObject(name, "x")
+      .andThen((hey) => {
+        //@ts-ignore
+        const value = [...(hey ? hey : []), obj];
+        return ResultAsync.fromPromise(
+          AsyncStorage.setItem(name, JSON.stringify(value)),
+          (e) => e as PersistenceError,
+        );
+      })
+      .andThen(() => okAsync(undefined));
   }
 
   public removeObject(
@@ -53,7 +68,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
       if (result) {
         return okAsync(JSON.parse(result) as T);
       } else {
-        return okAsync(undefined as unknown as T);
+        return okAsync([] as unknown as T);
       }
     });
   }

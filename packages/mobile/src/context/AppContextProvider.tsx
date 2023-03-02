@@ -31,6 +31,10 @@ const AppContextProvider = ({ children }) => {
   const [linkedAccounts, setLinkedAccounts] = useState<AccountAddress[]>([]);
 
   useEffect(() => {
+    AsyncStorage.getAllKeys()
+      .then((keys) => AsyncStorage.multiRemove(keys))
+      .then(() => console.error("storage items deleted"));
+
     AppState.addEventListener("change", handleAppStateChange);
     return () => {};
   }, []);

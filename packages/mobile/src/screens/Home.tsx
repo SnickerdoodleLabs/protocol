@@ -11,6 +11,7 @@ import {
 import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import { utils } from "ethers";
+import { ResultAsync } from "neverthrow";
 import React, { memo, useEffect } from "react";
 import {
   View,
@@ -26,7 +27,9 @@ import { Easing } from "react-native-reanimated";
 import AppLoader from "../components/AnimatedLoaders/UnlockLoader";
 import { ROUTES } from "../constants";
 import { useAccountLinkingContext } from "../context/AccountLinkingContextProvider";
-import { AppCtx } from "../context/AppContextProvider";
+
+import { AppCtx, useAppContext } from "../context/AppContextProvider";
+import { useLayoutContext } from "../context/LayoutContext";
 import { MobileCore } from "../services/implementations/Gateway";
 
 export default function Home(props: any) {
@@ -34,10 +37,23 @@ export default function Home(props: any) {
   // const connector = useWalletConnect();
   const [accountAddress, setAccountAddress] = React.useState<string[]>();
   const [signature, setSignature] = React.useState();
-  const { coreContext } = React.useContext(AppCtx);
+  const { coreContext, isUnlocked } = React.useContext(AppCtx);
   const [isLoading, setIsLoading] = React.useState(false);
+  const { cancelLoading } = useLayoutContext();
 
   const { onWCButtonClicked } = useAccountLinkingContext();
+
+  useEffect(() => {
+    if (isUnlocked) {
+      ResultAsync.fromPromise(
+        AsyncStorage.getItem("onboarding-completed"),
+        (e) => e,
+      ).andThen((val) => {
+        cancelLoading();
+        navigation.replace(val ? "Onboarding" : "Onboarding");
+      });
+    }
+  }, [isUnlocked]);
 
   // const handleUnlock = async () => {
   //   if (connector.accounts[0]) {

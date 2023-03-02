@@ -19,6 +19,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
 import AccountLinkingContextProvider from "./context/AccountLinkingContextProvider";
+import LayoutContextProvider from "./context/LayoutContext";
 import AppContextProvider from "./context/AppContextProvider";
 import EventContextProvider from "./context/EventContextProvider";
 import AuthNavigator from "./navigators/AuthNavigator";
@@ -44,29 +45,31 @@ const App = () => {
 
   return (
     <NavigationContainer linking={linking}>
-      <AppContextProvider>
-        <EventContextProvider>{null}</EventContextProvider>
-        <WalletConnectProvider
-          bridge="https://bridge.walletconnect.org"
-          clientMeta={{
-            description: "Connect with WalletConnect",
-            url: "https://walletconnect.org",
-            icons: ["https://walletconnect.org/walletconnect-logo.png"],
-            name: "WalletConnect",
-          }}
-          redirectUrl={
-            Platform.OS === "web" ? "https:google.com" : "sdmobile://"
-          }
-          storageOptions={{
-            //@ts-ignore
-            asyncStorage: AsyncStorage,
-          }}
-        >
-          <AccountLinkingContextProvider>
-            <AuthNavigator />
-          </AccountLinkingContextProvider>
-        </WalletConnectProvider>
-      </AppContextProvider>
+      <LayoutContextProvider>
+        <AppContextProvider>
+          <EventContextProvider>{null}</EventContextProvider>
+          <WalletConnectProvider
+            bridge="https://bridge.walletconnect.org"
+            clientMeta={{
+              description: "Connect with WalletConnect",
+              url: "https://walletconnect.org",
+              icons: ["https://walletconnect.org/walletconnect-logo.png"],
+              name: "WalletConnect",
+            }}
+            redirectUrl={
+              Platform.OS === "web" ? "https:google.com" : "sdmobile://"
+            }
+            storageOptions={{
+              //@ts-ignore
+              asyncStorage: AsyncStorage,
+            }}
+          >
+            <AccountLinkingContextProvider>
+              <AuthNavigator />
+            </AccountLinkingContextProvider>
+          </WalletConnectProvider>
+        </AppContextProvider>
+      </LayoutContextProvider>
     </NavigationContainer>
   );
 };
