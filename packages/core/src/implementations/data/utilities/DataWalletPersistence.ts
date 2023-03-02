@@ -276,17 +276,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.listBackupChunks();
-      });
-  }
-
   public fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
@@ -295,6 +284,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .andThen((backupManager) => {
         return backupManager.fetchBackupChunk(backup);
       });
+  }
+
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.cloudStorage.fetchBackup(backupHeader);
+  }
+
+  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+    return this.cloudStorage.listBackupHeaders();
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {

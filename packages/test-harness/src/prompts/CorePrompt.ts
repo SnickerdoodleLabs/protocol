@@ -118,9 +118,8 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get Eligible Ads", value: "getEligibleAds" },
 
       new inquirer.Separator(),
-      { name: "backup inspection", value: "displayChunks" },
+      { name: "backup inspection", value: "backupInspection" },
       { name: "manual backup", value: "manualBackup" },
-      { name: "display chunks", value: "displayChunks" },
       { name: "clear cloud store", value: "clearCloudStore" },
     ];
 
@@ -312,16 +311,15 @@ export class CorePrompt extends DataWalletPrompt {
             UnixTimestamp(1000),
           );
           return this.core.addSiteVisits(sites).map(console.log);
-        case "displayChunks":
+        case "backupInspection":
           // Set your maxChunkSize in your coreconfig to 0 or 1 in order to display chunks
           console.log("Backup source: Google");
           console.log("Chunks");
           return this.core
-            .listBackupChunks()
+            .listBackupHeaders()
             .andThen((chunks) => {
-              console.log("chunks: ", chunks);
               const backupChoices = chunks.map((chunk) => {
-                return new BackupChoice(chunk.header.hash, chunk);
+                return new BackupChoice(chunk);
               });
               return inquiryWrapper({
                 type: "list",
@@ -331,22 +329,23 @@ export class CorePrompt extends DataWalletPrompt {
               });
             })
             .andThen((selection) => {
-              console.log("selection.backupPrompt: ");
               return this.core
-                .fetchBackupChunk(selection.backupPrompt)
-                .andThen((val) => {
-                  return okAsync(
-                    console.log(
-                      "Decrypted Backup info includes: ",
-                      JSON.parse(val),
-                    ),
-                  );
+                .fetchBackup(selection.backupPrompt)
+                .andThen((output) => {
+                  const backup = output[0];
+                  return this.core.fetchBackupChunk(backup).andThen((blob) => {
+                    const parsedBlob = JSON.parse(blob);
+                    return okAsync(
+                      console.log(
+                        "Decrypted Backup info includes: ",
+                        parsedBlob,
+                      ),
+                    );
+                  });
                 });
             });
         case "manualBackup":
           return this.core.postBackups().map(console.log);
-        case "displayChunks":
-          return this.core.listBackupChunks().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
       }
@@ -356,22 +355,19 @@ export class CorePrompt extends DataWalletPrompt {
 }
 
 export class BackupChoice {
-  private backupName: string;
-  private backupValue: IDataWalletBackup;
+  private fileName: string;
+  private backupHeader: string;
 
-  public constructor(
-    protected ID: string,
-    protected dwBackup: IDataWalletBackup,
-  ) {
-    this.backupName = ID;
-    this.backupValue = dwBackup;
+  public constructor(protected ID: string) {
+    this.fileName = ID;
+    this.backupHeader = ID.substring(ID.indexOf("/") + 1);
   }
 
   public get name() {
-    return this.backupName;
+    return this.backupHeader;
   }
 
   public get value() {
-    return this.backupValue;
+    return this.fileName;
   }
 }

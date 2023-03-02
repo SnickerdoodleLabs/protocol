@@ -184,6 +184,57 @@ export class GoogleCloudStorage implements ICloudStorage {
       .mapErr((e) => new PersistenceError("error fetching backups", e));
   }
 
+  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files.map((file) => {
+            return okAsync(file.name);
+          }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error fetching backups", e));
+  }
+
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files
+            .filter((file) => {
+              return file.name.includes(backupHeader);
+            })
+            .map((file) => {
+              return this.ajaxUtils.get<IDataWalletBackup>(
+                new URL(file.mediaLink as string),
+              );
+            }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error fetching backups", e));
+  }
+
+
   protected getWalletListing(): ResultAsync<
     IGoogleWalletBackupDirectory,
     PersistenceError | AjaxError

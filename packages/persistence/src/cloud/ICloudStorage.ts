@@ -24,6 +24,11 @@ export interface ICloudStorage {
 
   // this is the nuclear option
   clear(): ResultAsync<void, PersistenceError>;
+
+  listBackupHeaders(): ResultAsync<string[], PersistenceError>;
+  fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
 }
 
 export const ICloudStorageType = Symbol.for("ICloudStorage");
