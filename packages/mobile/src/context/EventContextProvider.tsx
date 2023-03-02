@@ -27,6 +27,7 @@ const EventContextProvider = ({ children }) => {
   }, []);
 
   const onInitialized = (address: DataWalletAddress) => {
+    console.error("INITIALIZED", address);
     setUnlockState(true);
     updateLinkedAccounts();
   };

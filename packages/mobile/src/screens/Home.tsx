@@ -1,3 +1,17 @@
+import { MotiView } from "@motify/components";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  AccountAddress,
+  EChain,
+  EVMContractAddress,
+  FamilyName,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
+import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
+import { useWalletConnect } from "@walletconnect/react-native-dapp";
+import { utils } from "ethers";
+import React, { memo, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,62 +21,52 @@ import {
   Image,
   Linking,
 } from "react-native";
-import React, { memo, useEffect } from "react";
-import { ROUTES } from "../constants";
-import { useWalletConnect } from "@walletconnect/react-native-dapp";
-import { MotiView } from "@motify/components";
 import { Easing } from "react-native-reanimated";
-import { MobileCore } from "../services/implementations/Gateway";
-import {
-  AccountAddress,
-  EChain,
-  EVMContractAddress,
-  FamilyName,
-  LanguageCode,
-  Signature,
-} from "@snickerdoodlelabs/objects";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { MemoryVolatileStorage } from "@snickerdoodlelabs/persistence";
-import { AppCtx } from "../context/AppContextProvider";
+
 import AppLoader from "../components/AnimatedLoaders/UnlockLoader";
-import { utils } from "ethers";
+import { ROUTES } from "../constants";
+import { useAccountLinkingContext } from "../context/AccountLinkingContextProvider";
+import { AppCtx } from "../context/AppContextProvider";
+import { MobileCore } from "../services/implementations/Gateway";
 
 export default function Home(props: any) {
   const { navigation } = props;
-  const connector = useWalletConnect();
+  // const connector = useWalletConnect();
   const [accountAddress, setAccountAddress] = React.useState<string[]>();
   const [signature, setSignature] = React.useState();
   const { coreContext } = React.useContext(AppCtx);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleUnlock = async () => {
-    if (connector.accounts[0]) {
-      signApp();
-    } else {
-      const { accounts, chainId } = await connector.connect();
-      setAccountAddress(accounts);
-    }
-  };
+  const { onWCButtonClicked } = useAccountLinkingContext();
 
-  const signApp = async () => {
-    try {
-      const result = await connector.signPersonalMessage([
-        "Login to your Snickerdoodle data wallet",
-      ]);
-      console.log("sign", result);
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        navigation.navigate(ROUTES.WALLET);
-        setTimeout(() => {
-          //  initConnection();
-        }, 500);
-      }, 4200);
-    } catch (err) {
-      console.log("ERROR");
-      console.log({ err });
-    }
-  };
+  // const handleUnlock = async () => {
+  //   if (connector.accounts[0]) {
+  //     signApp();
+  //   } else {
+  //     const { accounts, chainId } = await connector.connect();
+  //     setAccountAddress(accounts);
+  //   }
+  // };
+
+  // const signApp = async () => {
+  //   try {
+  //     const result = await connector.signPersonalMessage([
+  //       "Login to your Snickerdoodle data wallet",
+  //     ]);
+  //     console.log("sign", result);
+  //     setIsLoading(true);
+  //     setTimeout(() => {
+  //       setIsLoading(false);
+  //       navigation.navigate(ROUTES.WALLET);
+  //       setTimeout(() => {
+  //         //  initConnection();
+  //       }, 500);
+  //     }, 4200);
+  //   } catch (err) {
+  //     console.log("ERROR");
+  //     console.log({ err });
+  //   }
+  // };
 
   return (
     <>
@@ -70,9 +74,9 @@ export default function Home(props: any) {
         <View>
           <SafeAreaView>
             <TouchableOpacity
-              onPress={() => {
-                connector.killSession();
-              }}
+            // onPress={() => {
+            //   connector.killSession();
+            // }}
             >
               <View style={{ paddingTop: 50 }}>
                 <Image
@@ -97,6 +101,16 @@ export default function Home(props: any) {
               }}>
               Navigate
             </Text> */}
+            <Text
+              onPress={() => {
+                AsyncStorage.getAllKeys()
+                  .then((keys) => AsyncStorage.multiRemove(keys))
+                  .then(() => console.error("storage items deleted"));
+              }}
+            >
+              Delete all storage items
+            </Text>
+
             <Text
               onPress={() => {
                 const sign =
@@ -139,7 +153,7 @@ export default function Home(props: any) {
             >
               Test Invitation Service
             </Text>
-            <View style={{ paddingTop: 100 }}>
+            <View style={{}}>
               <View
                 style={[styles.walletConnectBtn, styles.walletConnectMainBtn]}
               >
@@ -166,7 +180,7 @@ export default function Home(props: any) {
                 })}
                 <TouchableOpacity
                   style={styles.walletConnectBtn}
-                  onPress={handleUnlock}
+                  onPress={onWCButtonClicked}
                 >
                   <View
                     style={{

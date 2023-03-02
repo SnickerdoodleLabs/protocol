@@ -18,15 +18,16 @@ import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
+import AccountLinkingContextProvider from "./context/AccountLinkingContextProvider";
 import AppContextProvider from "./context/AppContextProvider";
 import EventContextProvider from "./context/EventContextProvider";
 import AuthNavigator from "./navigators/AuthNavigator";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
-AntDesign.loadFont().then();
+// AntDesign.loadFont().then();
 Ionicons.loadFont().then();
-Feather.loadFont().then();
+// Feather.loadFont().then();
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -54,15 +55,16 @@ const App = () => {
             name: "WalletConnect",
           }}
           redirectUrl={
-            Platform.OS === "web" ? "https:google.com" : "app://SDMobile2://"
+            Platform.OS === "web" ? "https:google.com" : "sdmobile://"
           }
           storageOptions={{
             //@ts-ignore
             asyncStorage: AsyncStorage,
           }}
         >
-          {/* <EventContextProvider>t</EventContextProvider> */}
-          <AuthNavigator />
+          <AccountLinkingContextProvider>
+            <AuthNavigator />
+          </AccountLinkingContextProvider>
         </WalletConnectProvider>
       </AppContextProvider>
     </NavigationContainer>

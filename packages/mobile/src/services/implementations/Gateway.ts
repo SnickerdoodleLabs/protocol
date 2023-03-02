@@ -4,14 +4,13 @@ import {
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
-import { Container, inject } from "inversify";
-import { MobileStorageUtils } from "./utils/MobileStorageUtils";
 import {
   MemoryVolatileStorage,
   NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
-import { mobileCoreModule } from "./Gateway.module";
-import { coreConfig } from "../interfaces/objects/Config";
+import { Container, inject } from "inversify";
+import { ResultAsync } from "neverthrow";
+
 import {
   IAccountServiceType,
   IAccountService,
@@ -28,12 +27,15 @@ import {
   ITokenPriceServiceType,
   ITokenPriceService,
 } from "../interfaces/business/ITokenPriceService";
-import { ResultAsync } from "neverthrow";
+import { IAccountRepositoryType } from "../interfaces/data/IAccountRepository";
+import { coreConfig } from "../interfaces/objects/Config";
 import {
   IAccountStorageUtils,
   IAccountStorageUtilsType,
 } from "../interfaces/utils/IAccountStorageUtils";
-import { IAccountRepositoryType } from "../interfaces/data/IAccountRepository";
+
+import { mobileCoreModule } from "./Gateway.module";
+import { MobileStorageUtils } from "./utils/MobileStorageUtils";
 
 export class MobileCore {
   protected iocContainer: Container;
