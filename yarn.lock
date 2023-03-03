@@ -8968,6 +8968,7 @@ __metadata:
     "@glazed/datamodel": ^0.3.1
     "@glazed/did-datastore": ^0.3.2
     "@glazed/tile-loader": ^0.2.1
+    "@ipld/dag-cbor": ^9.0.0
     "@metaplex-foundation/js": ^0.17.12
     "@motify/components": ^0.18.0
     "@mui/icons-material": ^5.11.9

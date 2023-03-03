@@ -24,15 +24,7 @@ export default function Picker() {
   ]);
 
   return (
-    <View
-      style={{
-        backgroundColor: "#171717",
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 15,
-      }}
-    >
+    <View>
       <DropDownPicker
         open={open}
         value={value}

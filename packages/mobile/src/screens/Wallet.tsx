@@ -8,8 +8,10 @@ import {
   Dimensions,
   FlatList,
   Animated,
+  StatusBar,
+  Modal,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ROUTES } from "../constants";
@@ -25,27 +27,44 @@ import { AccountAddress, ChainId } from "@snickerdoodlelabs/objects";
 import { TokenItem } from "../components/TokenItem";
 import { useAppContext } from "../context/AppContextProvider";
 import Picker from "../components/Picker/Picker";
-
+import { useAccountLinkingContext } from "../context/AccountLinkingContextProvider";
+import BottomSheetModal from "react-native-bottom-sheet";
+import DropDownPicker, { ItemType } from "react-native-dropdown-picker";
 const Wallet = (props: any) => {
   const { navigation } = props;
   const connector = useWalletConnect();
   const [accountAddress, setAccountAddress] = React.useState(
     connector?.accounts?.[0],
   );
-  const linked = [
-    "0xA03febb9111Cd3098AE5f545BDC85823CEA11AD1" as AccountAddress,
-    "0xbAA1B174FadcA4a99Cbea171048EdEf468c5508B" as AccountAddress,
-  ];
+
   const [myNFTs, setMyNFTs] = React.useState<string[]>([]);
   const [myTokens, setMyTokens] = React.useState<any[]>([]);
   const [totalVal, setTotalVal] = React.useState<Number>(0);
   const { linkedAccounts } = useAppContext();
-  const [selectedAccount, setSelectedAccount] = React.useState(linked[0]);
+  const { onWCButtonClicked } = useAccountLinkingContext();
+  const [selectedAccount, setSelectedAccount] = React.useState(
+    linkedAccounts[0],
+  );
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [pickerLinkedAccounts, setPickerLinkedAccount] =
+    useState<ItemType<string>[]>();
+
   React.useEffect(() => {
     getAllNFTs();
     getTokens();
   }, [selectedAccount]);
 
+  useEffect(() => {
+    let accs = [];
+    linkedAccounts?.map((acc) => {
+      accs.push({ label: acc as string, value: acc as string });
+    });
+  }, [linkedAccounts]);
+
+  useEffect(() => {
+    console.log("totalVal", totalVal);
+  }, [totalVal]);
   const getAllNFTs = async () => {
     const temp: string[] = [];
     const api = new MoralisAPI();
@@ -71,13 +90,18 @@ const Wallet = (props: any) => {
     const api = new MoralisAPI();
     let a = [ChainId(1), ChainId(137), ChainId(43113), ChainId(80001)];
     let allTokens: any[] = [];
+    let total = 0;
 
     await a.map((res) => {
       api.getTokens(selectedAccount, ChainId(res)).then((token) => {
         allTokens.push(token);
+        token.map((tkn) => {
+          console.log("tkn", tkn.quote);
+          total += tkn.quote;
+        });
+        setTotalVal(total);
       });
     });
-    console.log("test2", allTokens);
     setMyTokens(allTokens);
   };
 
@@ -92,7 +116,7 @@ const Wallet = (props: any) => {
     let render: JSX.Element[] = [];
     myTokens.flat().map((res) => {
       render.push(
-        <ScrollView>
+        <ScrollView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
           <TokenItem key={res} token={res} />
         </ScrollView>,
       );
@@ -112,11 +136,10 @@ const Wallet = (props: any) => {
           marginTop: 40,
         }}
       >
-        <View>
+        <View style={{ width: "100%" }}>
           <View
             style={{
               flexDirection: "row",
-              flex: 1,
               flexWrap: "wrap",
               justifyContent: "space-between",
             }}
@@ -125,7 +148,7 @@ const Wallet = (props: any) => {
               <View style={{ paddingBottom: 10 }}>
                 <Image
                   key={data}
-                  style={{ width: 180, height: 180, borderRadius: 15 }}
+                  style={{ width: 170, height: 180, borderRadius: 15 }}
                   source={{
                     uri: data,
                   }}
@@ -213,6 +236,7 @@ const Wallet = (props: any) => {
           height: "40%",
           borderRadius: 2000,
           backgroundColor: "#212142",
+          zIndex: 999,
         }}
       >
         <LinearGradient
@@ -221,7 +245,7 @@ const Wallet = (props: any) => {
           colors={["#5A4CDC", "#6F45CF", "#AD5DD5"]}
           style={styles.linearGradient}
         >
-          <SafeAreaView style={{ marginTop: 80 }}>
+          <View style={{ marginTop: 80 }}>
             <View
               style={{
                 flexDirection: "row",
@@ -236,21 +260,40 @@ const Wallet = (props: any) => {
                 alignItems: "center",
               }}
             >
-              <Text
-                style={{
-                  color: "#C4A6F6",
-                  paddingTop: 20,
-                  fontSize: 20,
-                  fontWeight: "500",
-                }}
-              >
-                Wallet1
-              </Text>
+              <View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text
+                    style={{
+                      color: "#C4A6F6",
+                      paddingTop: 20,
+                      fontSize: 20,
+                      fontWeight: "500",
+                    }}
+                  >
+                    {selectedAccount?.slice(0, 3)}...
+                    {selectedAccount?.slice(38, 42)}
+                  </Text>
+                  <View style={{ paddingLeft: 10 }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setModalVisible(true);
+                      }}
+                    >
+                      <Icon
+                        name="sync"
+                        size={30}
+                        color="white"
+                        style={{ paddingRight: 5, paddingTop: 15 }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
 
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity onPress={onWCButtonClicked}>
                 <Icon
-                  name="grid-outline"
-                  size={25}
+                  name="ios-add-circle-outline"
+                  size={30}
                   color="white"
                   style={{ paddingRight: 5, paddingTop: 15 }}
                 />
@@ -275,7 +318,7 @@ const Wallet = (props: any) => {
                   fontWeight: "600",
                 }}
               >
-                $2473<Text style={{ fontSize: 30 }}>.14</Text>
+                ${`${totalVal}`}
               </Text>
             </View>
             <View>
@@ -285,16 +328,56 @@ const Wallet = (props: any) => {
                 setActiveTab={setActiveTab}
               />
             </View>
-          </SafeAreaView>
+          </View>
         </LinearGradient>
       </View>
-      <SafeAreaView style={{ backgroundColor: "#1C1C29", height: "100%" }}>
-        <ScrollView>
+      <View style={{ backgroundColor: "#1C1C29", height: "100%" }}>
+        <ScrollView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
           <View>
             {data[data.map((e) => e.title).indexOf(activeTab)].component}
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <View></View>
+              <View>
+                <TouchableOpacity
+                  onPress={() => {
+                    setModalVisible(false);
+                  }}
+                >
+                  <Icon
+                    name="close"
+                    size={30}
+                    color="black"
+                    style={{ paddingRight: 5, paddingBottom: 20 }}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <DropDownPicker
+              open={open}
+              value={selectedAccount}
+              items={pickerLinkedAccounts ?? []}
+              setOpen={setOpen}
+              setValue={setSelectedAccount}
+              theme="DARK"
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -317,6 +400,55 @@ var styles = StyleSheet.create({
     margin: 10,
     color: "#ffffff",
     backgroundColor: "transparent",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "grey",
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
 });
 export default Wallet;
