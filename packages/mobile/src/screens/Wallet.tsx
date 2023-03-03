@@ -21,8 +21,10 @@ import {
 import { MoralisAPI } from "../services/implementations/api/MoralisAPI";
 import { MobileCore } from "../services/implementations/Gateway";
 import { ethers } from "ethers";
-import { ChainId } from "@snickerdoodlelabs/objects";
+import { AccountAddress, ChainId } from "@snickerdoodlelabs/objects";
 import { TokenItem } from "../components/TokenItem";
+import { useAppContext } from "../context/AppContextProvider";
+import Picker from "../components/Picker/Picker";
 
 const Wallet = (props: any) => {
   const { navigation } = props;
@@ -30,32 +32,33 @@ const Wallet = (props: any) => {
   const [accountAddress, setAccountAddress] = React.useState(
     connector?.accounts?.[0],
   );
+  const linked = [
+    "0xA03febb9111Cd3098AE5f545BDC85823CEA11AD1" as AccountAddress,
+    "0xbAA1B174FadcA4a99Cbea171048EdEf468c5508B" as AccountAddress,
+  ];
   const [myNFTs, setMyNFTs] = React.useState<string[]>([]);
   const [myTokens, setMyTokens] = React.useState<any[]>([]);
   const [totalVal, setTotalVal] = React.useState<Number>(0);
-
+  const { linkedAccounts } = useAppContext();
+  const [selectedAccount, setSelectedAccount] = React.useState(linked[0]);
   React.useEffect(() => {
     getAllNFTs();
     getTokens();
-  }, [accountAddress]);
+  }, [selectedAccount]);
 
   const getAllNFTs = async () => {
     const temp: string[] = [];
     const api = new MoralisAPI();
     const chains = ["eth", "polygon"];
 
-    await api
-      .getAllNFTs("0xA03febb9111Cd3098AE5f545BDC85823CEA11AD1", "eth")
-      .then((res) => {
-        res.result.map((data: any) => {
-          let a = data.normalized_metadata.image;
-          if (a) {
-            temp.push(
-              a.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/"),
-            );
-          }
-        });
+    await api.getAllNFTs(selectedAccount, "eth").then((res) => {
+      res.result.map((data: any) => {
+        let a = data.normalized_metadata.image;
+        if (a) {
+          temp.push(a.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/"));
+        }
       });
+    });
 
     console.log("temp", temp);
     setMyNFTs(temp);
@@ -70,21 +73,19 @@ const Wallet = (props: any) => {
     let allTokens: any[] = [];
 
     await a.map((res) => {
-      api
-        .getTokens("0xA03febb9111Cd3098AE5f545BDC85823CEA11AD1", ChainId(res))
-        .then((token) => {
-          allTokens.push(token);
-        });
+      api.getTokens(selectedAccount, ChainId(res)).then((token) => {
+        allTokens.push(token);
+      });
     });
     console.log("test2", allTokens);
     setMyTokens(allTokens);
   };
 
   useEffect(() => {
-    myTokens.flat().map((tokenData)=>{
-      setTotalVal(totalVal+tokenData?.quote)
-    })
-    console.log('TotalVal',totalVal)
+    myTokens.flat().map((tokenData) => {
+      setTotalVal(totalVal + tokenData?.quote);
+    });
+    console.log("TotalVal", totalVal);
   }, [myTokens]);
 
   const Tokens = () => {
@@ -243,14 +244,10 @@ const Wallet = (props: any) => {
                   fontWeight: "500",
                 }}
               >
-                Wallet1 (USDT)
+                Wallet1
               </Text>
 
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate(ROUTES.SIGN);
-                }}
-              >
+              <TouchableOpacity onPress={() => {}}>
                 <Icon
                   name="grid-outline"
                   size={25}

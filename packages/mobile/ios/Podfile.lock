@@ -251,6 +251,8 @@ PODS:
     - React-Core
   - react-native-cookies (6.2.1):
     - React-Core
+  - react-native-date-picker (4.2.9):
+    - React-Core
   - react-native-get-random-values (1.8.0):
     - React-Core
   - react-native-quick-crypto (0.5.0):
@@ -421,6 +423,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-background-actions (from `../node_modules/react-native-background-actions`)
   - "react-native-cookies (from `../node_modules/@react-native-cookies/cookies`)"
+  - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -514,6 +517,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-background-actions"
   react-native-cookies:
     :path: "../node_modules/@react-native-cookies/cookies"
+  react-native-date-picker:
+    :path: "../node_modules/react-native-date-picker"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
   react-native-quick-crypto:
@@ -610,6 +615,7 @@ SPEC CHECKSUMS:
   React-logger: 1623c216abaa88974afce404dc8f479406bbc3a0
   react-native-background-actions: 2c251c986f23347f9c1722f05fd296938f60edb1
   react-native-cookies: f54fcded06bb0cda05c11d86788020b43528a26c
+  react-native-date-picker: c063a8967058c58a02d7d0e1d655f0453576fb0d
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-quick-crypto: a903ff39ac8fea78bb9d37cccc5cc0596afc9670
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
@@ -646,4 +652,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: dae52a81504ffae9a9ff5bdebca4f594a64d8c55
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.10.1

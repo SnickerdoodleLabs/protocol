@@ -7,4 +7,5 @@ export default {
   WALLET: "Wallet",
   IMAGE_CAROUSEL: "Image_Carousel",
   ONBOARDING: "Onboarding",
+  STARTER_TOUR: "Starter_Tour",
 };
