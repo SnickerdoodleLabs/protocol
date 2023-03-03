@@ -61,7 +61,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     return okAsync([]);
   }
 
-  public fetchBackup(
+  public fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return okAsync([]);
@@ -128,10 +128,6 @@ export class CeramicCloudStorage implements ICloudStorage {
       did.authenticate(),
       (e) => new PersistenceError("error authenticated ceramic DID", e),
     ).andThen((_) => okAsync(did));
-  }
-
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
-    return okAsync([]);
   }
 
   private _init(): ResultAsync<

@@ -21,6 +21,8 @@ import {
   EligibleAd,
   AdSignature,
   AESEncryptedString,
+  VolatileStorageMetadata,
+  RestoredBackup,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -347,6 +349,12 @@ export interface ISnickerdoodleCore {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+  >;
+
+  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+  restoreBackups(): ResultAsync<
+    VolatileStorageMetadata<RestoredBackup>[],
+    PersistenceError
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;

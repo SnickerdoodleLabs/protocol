@@ -79,6 +79,7 @@ export class BackupManager implements IBackupManager {
   public fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
+    console.log("backup: ", backup);
     return this._unpackBlob(backup.blob).andThen((backupBlob) => {
       return okAsync(JSON.stringify(backupBlob));
     });
@@ -113,11 +114,22 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
+        console.log("Restored Backups: ", restored);
         return restored.map((item) => item.data.id);
       })
       .map((restored) => {
+        console.log("Restored Backups IDs: ", restored);
         return new Set(restored);
       });
+  }
+
+  public restoreBackups(): ResultAsync<
+    VolatileStorageMetadata<RestoredBackup>[],
+    PersistenceError
+  > {
+    return this.volatileStorage.getAll<RestoredBackup>(
+      ERecordKey.RESTORED_BACKUPS,
+    );
   }
 
   public clear(): ResultAsync<void, never> {

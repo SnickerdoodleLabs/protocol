@@ -4,6 +4,7 @@ import {
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
+  RestoredBackup,
   VersionedObject,
   VolatileStorageKey,
   VolatileStorageMetadata,
@@ -94,8 +95,12 @@ export interface IDataWalletPersistence {
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
-  listBackupHeaders(): ResultAsync<string[], PersistenceError>;
-  fetchBackup(
+  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+  restoreBackups(): ResultAsync<
+    VolatileStorageMetadata<RestoredBackup>[],
+    PersistenceError
+  >;
+  fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError>;
 }

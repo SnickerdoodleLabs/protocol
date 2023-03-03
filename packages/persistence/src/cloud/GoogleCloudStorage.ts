@@ -184,28 +184,7 @@ export class GoogleCloudStorage implements ICloudStorage {
       .mapErr((e) => new PersistenceError("error fetching backups", e));
   }
 
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
-    return this.getWalletListing()
-      .andThen((backupsDirectory) => {
-        const files = backupsDirectory.items;
-        if (files == undefined) {
-          return okAsync([]);
-        }
-        if (files.length == 0) {
-          return okAsync([]);
-        }
-
-        // Now iterate only through the found hashes
-        return ResultUtils.combine(
-          files.map((file) => {
-            return okAsync(file.name);
-          }),
-        );
-      })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
-  }
-
-  public fetchBackup(
+  public fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this.getWalletListing()
@@ -219,6 +198,9 @@ export class GoogleCloudStorage implements ICloudStorage {
         }
 
         // Now iterate only through the found hashes
+        console.log("backupHeader: ", backupHeader);
+        console.log("files: ", files);
+
         return ResultUtils.combine(
           files
             .filter((file) => {
@@ -251,6 +233,7 @@ export class GoogleCloudStorage implements ICloudStorage {
         defaultGoogleCloudBucket +
         "/o?prefix=" +
         addr;
+      console.log("getWalletListing: ", dataWalletFolder);
       return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
         new URL(dataWalletFolder),
       );

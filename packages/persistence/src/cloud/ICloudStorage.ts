@@ -25,8 +25,7 @@ export interface ICloudStorage {
   // this is the nuclear option
   clear(): ResultAsync<void, PersistenceError>;
 
-  listBackupHeaders(): ResultAsync<string[], PersistenceError>;
-  fetchBackup(
+  fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError>;
 }

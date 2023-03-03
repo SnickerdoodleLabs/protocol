@@ -9,6 +9,7 @@ import {
   VersionedObject,
   VolatileStorageMetadata,
   JSONString,
+  RestoredBackup,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -276,6 +277,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.getRestored();
+      });
+  }
+
   public fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
@@ -286,14 +295,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public fetchBackup(
+  public fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    return this.cloudStorage.fetchBackup(backupHeader);
-  }
-
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
-    return this.cloudStorage.listBackupHeaders();
+    return this.cloudStorage.fetchBackups(backupHeader);
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
@@ -318,6 +323,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorage.clear().mapErr((error) => {
       return new PersistenceError((error as Error).message, error);
     });
+  }
+
+  public restoreBackups(): ResultAsync<
+    VolatileStorageMetadata<RestoredBackup>[],
+    PersistenceError
+  > {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.restoreBackups();
+      });
   }
 
   private _pollHighPriorityBackups(): ResultAsync<void, PersistenceError> {

@@ -78,6 +78,8 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  VolatileStorageMetadata,
+  RestoredBackup,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -801,13 +803,30 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public fetchBackup(
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getRestored();
+  }
+
+  public restoreBackups(): ResultAsync<
+    VolatileStorageMetadata<RestoredBackup>[],
+    PersistenceError
+  > {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.restoreBackups();
+  }
+
+  public fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.fetchBackup(backupHeader);
+    return persistence.fetchBackups(backupHeader);
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
@@ -831,13 +850,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
-  }
-
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
-    return persistence.listBackupHeaders();
   }
 
   public getTokenPrice(

@@ -49,13 +49,9 @@ export class NullCloudStorage implements ICloudStorage {
     return okAsync(undefined);
   }
 
-  public fetchBackup(
+  public fetchBackups(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    return okAsync([]);
-  }
-
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
     return okAsync([]);
   }
 }

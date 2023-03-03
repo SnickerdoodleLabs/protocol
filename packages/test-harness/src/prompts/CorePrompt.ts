@@ -18,11 +18,13 @@ import {
   IDataWalletBackup,
   InitializationVector,
   IpfsCID,
+  RestoredBackup,
   Signature,
   SiteVisit,
   TableMap,
   UnixTimestamp,
   URLString,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -316,11 +318,17 @@ export class CorePrompt extends DataWalletPrompt {
           console.log("Backup source: Google");
           console.log("Chunks");
           return this.core
-            .listBackupHeaders()
-            .andThen((chunks) => {
-              const backupChoices = chunks.map((chunk) => {
-                return new BackupChoice(chunk);
+            .restoreBackups()
+            .andThen((setBackups) => {
+              const backupChoices: BackupChoice[] = [];
+              setBackups.map((element) => {
+                console.log("element: ", element);
+                backupChoices[backupChoices.length] = new BackupChoice(element);
               });
+              // const backupChoices = chunks.map((chunk) => {
+              //   return new BackupChoice(chunk);
+              // });
+              console.log("backupChoices: ", backupChoices);
               return inquiryWrapper({
                 type: "list",
                 name: "backupPrompt",
@@ -329,11 +337,15 @@ export class CorePrompt extends DataWalletPrompt {
               });
             })
             .andThen((selection) => {
+              console.log("selection: ", selection);
+              console.log("selection.backupPrompt: ", selection.backupPrompt);
+
               return this.core
-                .fetchBackup(selection.backupPrompt)
+                .fetchBackups(selection.backupPrompt)
                 .andThen((output) => {
                   const backup = output[0];
                   return this.core.fetchBackupChunk(backup).andThen((blob) => {
+                    console.log("blob: ", blob);
                     const parsedBlob = JSON.parse(blob);
                     return okAsync(
                       console.log(
@@ -355,12 +367,14 @@ export class CorePrompt extends DataWalletPrompt {
 }
 
 export class BackupChoice {
-  private fileName: string;
+  private fileName: VolatileStorageMetadata<RestoredBackup>;
   private backupHeader: string;
+  private hash: string;
 
-  public constructor(protected ID: string) {
+  public constructor(protected ID: VolatileStorageMetadata<RestoredBackup>) {
     this.fileName = ID;
-    this.backupHeader = ID.substring(ID.indexOf("/") + 1);
+    this.hash = ID["data"]["id"];
+    this.backupHeader = ID["priority"] + "_" + ID["data"]["id"];
   }
 
   public get name() {
@@ -368,6 +382,6 @@ export class BackupChoice {
   }
 
   public get value() {
-    return this.fileName;
+    return this.hash;
   }
 }

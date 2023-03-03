@@ -3,6 +3,7 @@ import {
   DataWalletBackupID,
   IDataWalletBackup,
   PersistenceError,
+  RestoredBackup,
   VersionedObject,
   VolatileStorageKey,
   VolatileStorageMetadata,
@@ -32,6 +33,11 @@ export interface IBackupManager {
   fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
+
+  restoreBackups(): ResultAsync<
+    VolatileStorageMetadata<RestoredBackup>[],
+    PersistenceError
+  >;
 }
 
 export const IBackupManagerType = Symbol.for("IBackupManager");
