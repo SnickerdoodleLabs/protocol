@@ -9,6 +9,7 @@ import {
 import React, { useContext, useEffect, useState } from "react";
 
 import { useAppContext } from "./AppContextProvider";
+import { useLayoutContext } from "./LayoutContext";
 
 export interface IEventCtx {}
 
@@ -18,6 +19,7 @@ const EventContextProvider = ({ children }) => {
   const { coreContext, setUnlockState, updateLinkedAccounts } = useAppContext();
   const [appLevelNotifications, setAppLevelNotifications] = useState();
   const [infoLevelNotification, setInfoLevelNotification] = useState();
+  const { cancelLoading } = useLayoutContext();
   useEffect(() => {
     coreContext.getEvents().map((events) => {
       events.onInitialized.subscribe(onInitialized);
@@ -30,9 +32,11 @@ const EventContextProvider = ({ children }) => {
     console.error("INITIALIZED", address);
     setUnlockState(true);
     updateLinkedAccounts();
+    cancelLoading();
   };
   const onAccountAdded = (account: LinkedAccount) => {
     updateLinkedAccounts();
+    cancelLoading();
   };
 
   const onQueryPosted = (request: SDQLQueryRequest) => {

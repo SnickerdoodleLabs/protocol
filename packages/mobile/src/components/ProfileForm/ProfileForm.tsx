@@ -18,6 +18,7 @@ import Dropdown from "./Dropdown";
 import { MotiView } from "@motify/components";
 import { Easing } from "react-native-reanimated";
 import DatePicker from "react-native-date-picker";
+import { ROUTES } from "../../constants";
 
 export const ProfileForm = ({ navigation }) => {
   const [selected, setSelected] = React.useState(undefined);
@@ -108,7 +109,7 @@ export const ProfileForm = ({ navigation }) => {
             />
           </View>
 
-          <View style={{ width: "90%",paddingTop:30}}>
+          <View style={{ width: "90%", paddingTop: 30 }}>
             <Dropdown
               label="Select Gender"
               data={genderData}
@@ -117,7 +118,7 @@ export const ProfileForm = ({ navigation }) => {
               }}
             />
           </View>
-          <View style={{paddingTop:30}}>
+          <View style={{ paddingTop: 30 }}>
             <TouchableOpacity
               style={{
                 width: 310,
@@ -156,6 +157,14 @@ export const ProfileForm = ({ navigation }) => {
             />
           </View>
         </View>
+      </View>
+      <View style={{ paddingTop: 20 }}>
+        <Button
+          title="Finish"
+          onPress={() => {
+            navigation.replace(ROUTES.WALLET);
+          }}
+        />
       </View>
     </View>
   );

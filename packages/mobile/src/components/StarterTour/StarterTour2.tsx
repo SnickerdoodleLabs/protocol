@@ -24,22 +24,12 @@ import { useAccountLinkingContext } from "../../context/AccountLinkingContextPro
 import { ProfileForm } from "../ProfileForm/ProfileForm";
 import { useAppContext } from "../../context/AppContextProvider";
 
-export default function StarterTour(props: any) {
+export default function StarterTour2(props: any) {
   const { navigation } = props;
   const { width, height } = Dimensions.get("screen");
   const scrollX = React.useRef(new Animated.Value(0)).current;
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { isUnlocked } = useAppContext();
-
-  useEffect(() => {
-    console.log("this is scrollX useEffect", scrollX);
-  }, [scrollX]);
-
-  useEffect(() => {
-    if (isUnlocked) {
-      navigation.replace(ROUTES.STARTER_TOUR2);
-    }
-  }, [isUnlocked]);
 
   const bgs = ["#fff", "#fff", "#fff", "#fff"];
   const DATA = [
@@ -249,9 +239,8 @@ export default function StarterTour(props: any) {
           choice.
         </Text>
         <View style={{ paddingTop: 20 }}>
-          <ProfileForm navigation={undefined} />
+          <ProfileForm navigation={navigation} />
         </View>
-        <Indicator scrollX={scrollX} />
       </View>
     );
   };
@@ -362,7 +351,7 @@ export default function StarterTour(props: any) {
     );
   };
 
-  const DATA2 = [<SomeComponent />, <SomeComponent1 />];
+  const DATA2 = [<SomeComponent2 />];
 
   const Indicator = ({ scrollX }) => {
     React.useEffect(() => {
@@ -509,7 +498,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   walletConnectMainBtn: {
-    backgroundColor: "#372D8A",
+    backgroundColor: "orange",
     borderWidth: 0,
     color: "#FFFFFF",
     borderColor: "#8079B4",

@@ -48,7 +48,7 @@ const Initial = ({ navigation }) => {
 
   useEffect(() => {
     if (allChecksCompleted) {
-      navigation.replace(isUnlocked ? "Wallet" : "Home");
+      navigation.replace(isUnlocked ? "Wallet" : "Starter_Tour");
     }
   }, [allChecksCompleted, isUnlocked]);
 

@@ -10,6 +10,7 @@ import { Wallet } from "../screens";
 import Onboarding from "../screens/Onboarding";
 import Initial from "../screens/Initial";
 import StarterTour from "../components/StarterTour/StarterTour";
+import StarterTour2 from "../components/StarterTour/StarterTour2";
 
 const Stack = createStackNavigator();
 
@@ -24,7 +25,7 @@ function AuthNavigator() {
         headerBackTitleVisible: false,
         headerTintColor: 'white',
       }} */
-      initialRouteName={ROUTES.STARTER_TOUR}
+      initialRouteName={ROUTES.INITIAL}
     >
       <Stack.Screen
         name={ROUTES.INITIAL}
@@ -36,6 +37,13 @@ function AuthNavigator() {
       <Stack.Screen
         name={ROUTES.STARTER_TOUR}
         component={StarterTour}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.STARTER_TOUR2}
+        component={StarterTour2}
         options={{
           headerShown: false,
         }}

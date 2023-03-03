@@ -2974,6 +2974,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ipld/dag-cbor@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@ipld/dag-cbor@npm:9.0.0"
+  dependencies:
+    cborg: ^1.10.0
+    multiformats: ^11.0.0
+  checksum: 8f432c018b5176812a150fcecfd96ec9cfae3d1fe267a32439d037f8fb27d25bba920ee82ed034cc26ff1a624848a0028ebbf09cd36157033fff618b5e9801a3
+  languageName: node
+  linkType: hard
+
 "@istanbuljs/load-nyc-config@npm:^1.0.0":
   version: 1.1.0
   resolution: "@istanbuljs/load-nyc-config@npm:1.1.0"
@@ -4631,6 +4641,7 @@ __metadata:
     "@glazed/datamodel": ^0.3.1
     "@glazed/did-datastore": ^0.3.2
     "@glazed/tile-loader": ^0.2.1
+    "@ipld/dag-cbor": ^9.0.0
     "@metaplex-foundation/js": ^0.17.12
     "@motify/components": ^0.18.0
     "@mui/icons-material": ^5.11.9
@@ -8520,6 +8531,15 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: b43bd4c440aa1e8ee6baefee8063b4850fd0d7b378f6aabc796c9ec8cb26d27fb30b46885350777d9bd079c5256c0e1329ad0dc7c2817e0bb466810ebb353751
+  languageName: node
+  linkType: hard
+
+"cborg@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "cborg@npm:1.10.0"
+  bin:
+    cborg: cli.js
+  checksum: e93ce1135e1bf2cf6a4fa33bc7577b699ce306c6bbf53cfc1c34fca652b95a6f440f6ef0fe123097e3ef6e424a798abbb79a543cf2bd0ca0aeadc384f492a81a
   languageName: node
   linkType: hard
 
@@ -16802,6 +16822,13 @@ __metadata:
   bin:
     multicast-dns: cli.js
   checksum: 00b8a57df152d4cd0297946320a94b7c3cdf75a46a2247f32f958a8927dea42958177f9b7fdae69fab2e4e033fb3416881af1f5e9055a3e1542888767139e2fb
+  languageName: node
+  linkType: hard
+
+"multiformats@npm:^11.0.0":
+  version: 11.0.1
+  resolution: "multiformats@npm:11.0.1"
+  checksum: 056dec14b5ee0570eaa43204385bc16783f93dc8668a8ddcee806c4232adfa58cfc272abb587ce94d9314627eb6f2c115e53ff01169c9909768f8c7d0deaa9e6
   languageName: node
   linkType: hard
 

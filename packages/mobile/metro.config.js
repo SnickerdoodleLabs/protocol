@@ -42,7 +42,6 @@ const extraNodeModules = {
   "@snickerdoodlelabs/signature-verification": path.resolve(
     path.join(__dirname, "../signatureVerification"),
   ),
-
 };
 
 const watchFolders = [
@@ -80,6 +79,7 @@ module.exports = {
   resolver: {
     extraNodeModules,
     nodeModulesPaths,
+    sourceExts: ["jsx", "js", "ts", "tsx", "cjs"],
   },
   watchFolders,
 };

@@ -104,6 +104,15 @@ const AccountLinkingContextProvider = ({ children }) => {
   const onConnect = () => {
     return ResultAsync.fromPromise(wcConnector.connect(), (e) => e)
       .andThen((sessionstatus) => {
+        console.log({ sessionstatus });
+        console.log({ linkedAccounts });
+        if (
+          linkedAccounts.includes(sessionstatus.accounts[0] as AccountAddress)
+        ) {
+          // @TODO show popup
+          wcConnector.killSession();
+          return okAsync(undefined);
+        }
         return okAsync(setAskForSignature(true));
       })
       .orElse((e) => {
@@ -160,7 +169,7 @@ const AccountLinkingContextProvider = ({ children }) => {
           <View>
             <TouchableOpacity
               style={{
-                backgroundColor: "green",
+                backgroundColor: "#53f55e",
                 padding: 10,
                 borderRadius: 16,
                 marginBottom: 20,
@@ -173,7 +182,7 @@ const AccountLinkingContextProvider = ({ children }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={{
-                backgroundColor: "red",
+                backgroundColor: "#f04c41",
                 padding: 10,
                 borderRadius: 16,
               }}
