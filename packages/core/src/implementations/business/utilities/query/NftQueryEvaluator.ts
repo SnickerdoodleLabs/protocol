@@ -2,13 +2,13 @@ import {
   PersistenceError,
   SDQL_Return,
   ChainId,
+  EChain,
   WalletNFT,
   TokenAddress,
   EVMNFT,
   UnixTimestamp,
   ISDQLTimestampRange,
-  NftHoldings,
-  EChainTechnology,
+  NftHolding,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -53,38 +53,32 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     walletNfts: WalletNFT[],
     address: string | string[] | undefined,
     timestampRange: ISDQLTimestampRange | undefined,
-  ): NftHoldings {
+  ): NftHolding[] {
     const filteredNfts = this.filterNfts(walletNfts, address, timestampRange);
-    return this.groupWalletNftsToNftHoldings(filteredNfts);
+    return this.walletNftsToNftHoldings(filteredNfts);
   }
 
-  private setIfNotExist<T, K extends keyof T>(object: T, key: K, value: T[K]) {
-    object[key] = object[key] ?? value;
-  }
-  private groupWalletNftsToNftHoldings(walletNfts: WalletNFT[]): NftHoldings {
-    return walletNfts.reduce<NftHoldings>((nftHoldings, nft) => {
-      const nftType = EChainTechnology[
-        nft.type
-      ] as keyof typeof EChainTechnology;
-      this.setIfNotExist(nftHoldings, nftType, {});
 
-      this.setIfNotExist(nftHoldings[nftType]!, nft.chain, {});
-
-      this.setIfNotExist(nftHoldings[nftType]![nft.chain], nft.token, {
-        amount: 0,
-        name: nft.name,
-      });
-
-      if (nft instanceof EVMNFT) {
-        nftHoldings[nftType]![nft.chain][nft.token].amount += Number(
-          nft.amount,
-        );
-      } else {
-        nftHoldings[nftType]![nft.chain][nft.token].amount++;
+  private walletNftsToNftHoldings(walletNfts : WalletNFT[]) :NftHolding[] {
+    return walletNfts.reduce<NftHolding[]>( (  array , nft  ) => {
+      //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing 
+      let chain : any;
+      if(this.isValidChain(EChain[nft.chain])){
+        chain = EChain[nft.chain];
       }
-      return nftHoldings;
-    }, {});
+      if (nft instanceof EVMNFT) {
+         array.push(new NftHolding(chain ?? "not registered" , nft.token , Number(nft.amount) , nft.name));
+      }else{
+         array.push(new NftHolding(chain ?? "not registered" , nft.token , 1 , nft.name));
+      }
+      return array;
+      
+    } , [])
   }
+
+  private isValidChain(chain: string): chain is keyof typeof EChain  {
+    return chain in EChain;
+}
 
   private filterNfts(
     walletNfts: WalletNFT[],

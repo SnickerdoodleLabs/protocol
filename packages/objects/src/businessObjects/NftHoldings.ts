@@ -1,14 +1,12 @@
 import { TokenAddress } from "@objects/businessObjects";
-import { EChainTechnology } from "@objects/enum";
-import { ChainId } from "@objects/primitives";
+import { EChain} from "@objects/enum";
 
-export type NftHoldings = {
-  [type in keyof typeof EChainTechnology]?: {
-    [chain: ChainId]: {
-      [tokenAddress: TokenAddress]: {
-        amount: number;
-        name: string;
-      };
-    };
-  };
-};
+
+export class NftHolding{
+  public constructor(
+    public chain : keyof typeof EChain | "not registered",
+    public tokenAddress: TokenAddress,
+    public amount : number,
+    public name :string,
+  ) {}
+}
