@@ -99,7 +99,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
       if (result) {
         return okAsync(JSON.parse(result) as T[]);
       } else {
-        return okAsync(undefined as unknown as T[]);
+        return okAsync([] as unknown as T[]);
       }
     });
   }
@@ -120,7 +120,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
       if (result) {
         return okAsync(JSON.parse(result) as T[]) ?? {};
       } else {
-        return okAsync(undefined as unknown as T[]);
+        return okAsync([] as unknown as T[]);
       }
     });
   }
