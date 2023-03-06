@@ -1,3 +1,7 @@
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   ISnickerdoodleCore,
@@ -73,6 +77,9 @@ export class MobileCore {
     return this.iocContainer.get<IAccountStorageUtils>(
       IAccountStorageUtilsType,
     );
+  }
+  public getCyrptoUtils() {
+    return this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
   }
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     return this.core.getEvents();
