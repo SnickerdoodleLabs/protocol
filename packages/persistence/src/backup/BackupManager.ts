@@ -137,7 +137,7 @@ export class BackupManager implements IBackupManager {
     this.fieldUpdates = {};
     this.numUpdates = 0;
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
-    return okAsync(undefined);
+    return okAsync(undefined); 
   }
 
   public popBackup(): ResultAsync<
