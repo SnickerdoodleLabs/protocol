@@ -7,8 +7,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "clean": "watchman watch-del-all && rm -f podfile.lock && rm -rf node_modules && yarn && yarn start --reset-cache"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.20.13",
@@ -152,6 +151,11 @@
       "node"
     ]
   },
+  "rnpm": {
+    "assets": [
+      "./assests/fonts/"
+    ]
+  },
   "react-native": {
     "moduleFileExtensions": [
       "ts"
@@ -183,10 +187,8 @@
     "tls": false
   },
   "overrides": {
-    "crypto": "react-native-quick-crypto",
     "dependency": {
-      "zlib": "browserify-zlib",
-      "crypto": "react-native-quick-crypto"
+      "zlib": "browserify-zlib"
     }
   },
   "browser": {
