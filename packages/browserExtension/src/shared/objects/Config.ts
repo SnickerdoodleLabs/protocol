@@ -26,5 +26,6 @@ export class ExtensionConfig {
     public portfolioPollingIntervalMS?: number,
     public transactionPollingIntervalMS?: number,
     public backupPollingIntervalMS?: number,
+    public enableBackupEncryption?: boolean,
   ) {}
 }

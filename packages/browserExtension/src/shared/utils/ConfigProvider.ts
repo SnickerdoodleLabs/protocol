@@ -26,6 +26,7 @@ declare const __GOOGLE_CLOUD_BUCKET__: string;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
+declare const __ENABLE_BACKUP_ENCRYPTION__: string;
 
 const SIX_HOURS_MS = 21600000;
 const TWO_HOURS_MS = 7200000;
@@ -88,6 +89,9 @@ class ConfigProvider implements IConfigProvider {
       __BACKUP_POLLING_INTERVAL__ == null || __BACKUP_POLLING_INTERVAL__ == ""
         ? ONE_MINUTE_MS
         : Number.parseInt(__BACKUP_POLLING_INTERVAL__),
+      __ENABLE_BACKUP_ENCRYPTION__ == null || __ENABLE_BACKUP_ENCRYPTION__ == ""
+        ? false
+        : __ENABLE_BACKUP_ENCRYPTION__ == "true",
     );
   }
   public getConfig() {
