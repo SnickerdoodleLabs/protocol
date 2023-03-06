@@ -31,11 +31,26 @@ Processing a network query begins with the detection, by an instance of [`Blockc
 [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be executed. 
 The query CID is then passed into the Query Service via a call to `processQuery`. 
 
-The call to `processQuery` then creates two separate abstract syntax tree (AST) objects based on the contents of the [`logic`](/documentation/sdql#logic) block: one for the SDQL 
-[`returns`](/documentation/sdql#returns) block, and one for the [`compensations`](/documentation/sdql#compensations) block. Each of these blocks can themselves reference one or 
-more [`query`](/documentation/sdql#queries) or [`compensation`](/documentation/sdql#compensations) definitions respectively. The ASTs are ultimately evaluated against the data 
-wallet's [persistence layer](/packages/persistence/README.md) consistent with user-specified permissions, i.e. if a `query` specification requires access to the `location` 
-attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query. 
+The call to `processQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 6 AST roots.
+
+    logic: {
+        ads: ["if$q1>30then$a1"],
+        compensations: [
+            "if$q2then$c1",
+            "if$a1then$c2",
+        ],
+    },
+
+
+Each of these logic expressions can reference one or more 
+- [`queries`](/documentation/sdql#queries), 
+- [`ads`](/documentation/sdql#ads),
+- [`compensations`](/documentation/sdql#compensations)
+- [`returns`](/documentation/sdql#returns)  
+
+definitions respectively. Given example references $q1, $q2 as the queries, $a1 as an ad, and $c1, $c2 as compensations.
+
+Resulting ASTs are ultimately evaluated against data wallet's [persistence layer](/packages/persistence/README.md), in consistence with user-specified permissions (i.e. if a `query` specification requires access to the `location` attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query.)
 
 Finally, after data has been accessed at the persistence layer level, the `processQuery` function delivers a cryptographically signed data payload, via the `deliverInsights`
 function to the aggregation url specified the query's SDQL JSON file. 

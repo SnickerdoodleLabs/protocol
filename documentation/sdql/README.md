@@ -110,8 +110,9 @@ The array_items sub-keyword is used in conjunction with the `array` attribute ty
 - `array`: an array of arrays
 - `number`: an array of numbers 
 
-### returns (required)
-The [*returns*](/documentation/sdql/README.md#returns) keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator. A return object has the following sub-keywords:
+### returns (optional)
+The [*returns*](/documentation/sdql/README.md#returns) keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator.<br>
+A return object has the following sub-keywords:
 
 #### name
 What is the type of return:
@@ -136,11 +137,44 @@ A text, markdown, or html string for displaying to the user information about th
 #### callback (required)
 A callback URL for claiming the digital asset. 
 
+### ads (optional)
+The *ads* keyword is used to publish one or more ads. Characteristics are as follows:
+
+#### name (required)
+A short but descriptive string representing the ad.
+
+#### content (required)
+An object containing the **type** and **source** of an ad.
+
+##### type (required)
+Specifies the mime type of the ad content, like "video" or "image".
+
+##### src (required)
+Specifies the url of the ad content file.
+
+#### text (optional)
+A more descriptive explanation of given ad.
+
+#### displayType (required)
+Specifies the surface ad will be displayed through, like "banner" or "popup".
+
+#### weight (required)
+This field is used by the core to prioritize the ads.
+
+### expiry (required)
+The time when ad expires in ISO 8601 format, i.e., YYYY-MM-DDTHH:mm:ss. Ads passed this time are considered stale by a given Insight Platform and the data wallet will not be rewarded, even if it watches the ad.
+
+### keywords (optional)
+??
+
 ### logic (required)
 The *logic* keyword is used to specify arbitrary logic to components specified in the [*queries*](/documentation/sdql/README.md#queries), [*returns*](/documentation/sdql/README.md#returns), and [*compensations*](/documentation/sdql/README.md#compensations) blocks. 
 
-#### returns (required)
-A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer.
+#### returns (optional)
+A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
+
+#### ads (optional)
+A sub-keyword of *logic* used to specify an array of ad expressions. An ad expression can return objects declared in the [*ads*](/documentation/sdql/README.md#ads) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
 
 #### compensations (required)
-A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer.
+A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
