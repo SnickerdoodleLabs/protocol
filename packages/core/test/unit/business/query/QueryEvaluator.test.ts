@@ -8,27 +8,26 @@ import {
 } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
-  IDemographicDataRepository,
   ITransactionHistoryRepository,
+  IDemographicDataRepository,
 } from "@core/interfaces/data";
 import {
   Age,
-  BigNumberString,
   ChainId,
-  CountryCode,
-  EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
-  EVMTransaction,
-  EVMTransactionHash,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
-  TickerSymbol,
-  TokenBalance,
-  TransactionPaymentCounter,
-  UnixTimestamp,
   URLString,
+  TickerSymbol,
+  BigNumberString,
+  TokenBalance,
+  EVMTransaction,
+  UnixTimestamp,
+  EVMTransactionHash,
+  EChainTechnology,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -213,9 +212,6 @@ class QueryEvaluatorMocks {
     td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
 
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
-    td.when(this.demoDataRepo.getLocation()).thenReturn(
-      okAsync(CountryCode("AU")),
-    );
 
     td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
@@ -239,6 +235,10 @@ class QueryEvaluatorMocks {
       this.browsingDataRepo,
       this.transactionRepo,
     );
+    // td.when(this.dataWalletPersistence.getTransactionsMap())
+    // .thenReturn(
+    //     okAsync(this.chainTransactions),
+    // );
   }
 }
 
