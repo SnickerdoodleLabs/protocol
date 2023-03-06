@@ -2,11 +2,14 @@ import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
+  BinaryCondition,
   Condition,
+  ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
+  ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
 
 export class AST_PropertyQuery extends AST_Query {
@@ -27,7 +30,7 @@ export class AST_PropertyQuery extends AST_Query {
       | "object"
       | "array",
     readonly property: string,
-    readonly conditions: Array<Condition>,
+    readonly conditions: Array<BinaryCondition>,
     // for reading gender
     readonly enum_keys: Array<string>,
     readonly patternProperties: Object,
@@ -47,26 +50,36 @@ export class AST_PropertyQuery extends AST_Query {
     );
   }
 
-  static parseConditions(schema: any): Array<Condition> {
-    const conditions = new Array<Condition>();
+  static parseConditions(schema: any): Array<BinaryCondition> {
+    const conditions = new Array<BinaryCondition>();
 
     for (const conditionName in schema) {
       const opName = SDQL_OperatorName(conditionName);
       const rightOperand = schema[conditionName];
       switch (conditionName) {
+        case "g":
+          conditions.push(new ConditionG(opName, null, Number(rightOperand)));
+          break;
         case "ge":
           conditions.push(new ConditionGE(opName, null, Number(rightOperand)));
           break;
         case "l":
           conditions.push(new ConditionL(opName, null, Number(rightOperand)));
           break;
+        case "le":
+          conditions.push(new ConditionLE(opName, null, Number(rightOperand)));
+          break;
+        case "eq":
+          conditions.push(new ConditionE(opName, null, Number(rightOperand)));
+          break;
         case "in":
           conditions.push(
-            new ConditionIn(opName, null, rightOperand as Array<any>),
+            new ConditionIn(
+              opName,
+              null,
+              rightOperand as Array<string | number>,
+            ),
           );
-          break;
-        case "g":
-          conditions.push(new ConditionG(opName, null, Number(rightOperand)));
           break;
       }
     }

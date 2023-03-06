@@ -231,7 +231,7 @@ describe("Tokenizer", () => {
     );
   });
 
-  test.only("if($q1>35and$q2<40)then$r1else$r2", function () {
+  test("if($q1>35and$q2<40)then$r1else$r2", function () {
     const tokenizer = new Tokenizer("if($q1>35and$q2<40)then$r1else$r2");
     expect(tokenizer.hasNext()).toBe(true);
 
