@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/objects",
-  "version": "0.0.41",
+  "version": "^0.0.43",
   "description": "Objects and types shared by the Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
