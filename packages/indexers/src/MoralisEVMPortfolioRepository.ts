@@ -7,6 +7,7 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
+  BlockNumber,
   ChainId,
   EChainTechnology,
   EVMAccountAddress,
@@ -125,6 +126,8 @@ export class MoralisEVMPortfolioRepository
         BigNumberString(token.amount),
         token.name,
         chainId,
+        BlockNumber(Number(token.block_number)),
+        undefined
       );
     });
 

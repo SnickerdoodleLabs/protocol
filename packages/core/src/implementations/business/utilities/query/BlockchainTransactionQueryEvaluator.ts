@@ -4,25 +4,27 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
+import { AST_BlockchainTransactionQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/query/IBlockchainTransactionQueryEvaluator";
 import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
-export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
+export class BlockchainTransactionQueryEvaluator
+  implements IBlockchainTransactionQueryEvaluator
+{
   constructor(
     @inject(ITransactionHistoryRepositoryType)
     protected transactionHistoryRepo: ITransactionHistoryRepository,
   ) {}
 
   public eval(
-    query: AST_NetworkQuery,
+    query: AST_BlockchainTransactionQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     const result = SDQL_Return(false);
     const chainId = query.contract.networkId;
@@ -42,7 +44,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
       return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
-          // console.log("Network Query Result: ", transactions)
+          // console.log("network query Result: ", transactions)
           if (transactions == null) {
             return okAsync(
               SDQL_Return({
@@ -74,7 +76,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
       return this.transactionHistoryRepo
         .getTransactions(filter)
         .andThen((transactions) => {
-          // console.log("Network Query Result: ", transactions);
+          // console.log("network Result: ", transactions);
           if (transactions == null) {
             return okAsync(SDQL_Return(false));
           }
