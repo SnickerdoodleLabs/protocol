@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   StyleSheet,
@@ -19,6 +19,16 @@ import { MotiView } from "@motify/components";
 import { Easing } from "react-native-reanimated";
 import DatePicker from "react-native-date-picker";
 import { ROUTES } from "../../constants";
+import DropDownPicker from "react-native-dropdown-picker";
+import { useAppContext } from "../../context/AppContextProvider";
+import {
+  DomainName,
+  EVMContractAddress,
+  EWalletDataType,
+  Invitation,
+  TokenId,
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
 
 export const ProfileForm = ({ navigation }) => {
   const [selected, setSelected] = React.useState(undefined);
@@ -26,7 +36,10 @@ export const ProfileForm = ({ navigation }) => {
   const [country, setCountry] = React.useState(null);
   const [gender, setGender] = React.useState(null);
   const [open, setOpen] = React.useState(false);
+  const [countryOpen, setCountryOpen] = React.useState(false);
+  const [genderOpen, setGenderOpen] = React.useState(false);
   const [date, setDate] = React.useState(new Date());
+  const { coreContext } = useAppContext();
 
   const genderData = [
     { label: "Male", value: "male" },
@@ -97,25 +110,31 @@ export const ProfileForm = ({ navigation }) => {
   };
   return (
     <View style={{ width: 350 }}>
-      <View>
+      <View style={{ zIndex: 2 }}>
         <View style={{ alignItems: "center" }}>
-          <View style={{ width: "90%", borderRadius: 50 }}>
-            <Dropdown
-              label="Select Country"
-              data={countries}
-              onSelect={(e) => {
-                setCountry(e.value);
-              }}
+          <View style={{ width: "90%", borderRadius: 50, zIndex: 999 }}>
+            <DropDownPicker
+              style={{borderWidth:0,backgroundColor:'#efefef'}}
+              open={countryOpen}
+              value={country}
+              items={countries ?? []}
+              setOpen={setCountryOpen}
+              setValue={setCountry}
+              theme="LIGHT"
+              placeholder="Select Country"
             />
           </View>
 
-          <View style={{ width: "90%", paddingTop: 30 }}>
-            <Dropdown
-              label="Select Gender"
-              data={genderData}
-              onSelect={(e) => {
-                setGender(e.value);
-              }}
+          <View style={{ width: "90%", paddingTop: 30, zIndex: 998 }}>
+            <DropDownPicker
+            style={{borderWidth:0,backgroundColor:'#efefef'}}
+              open={genderOpen}
+              value={gender}
+              items={genderData ?? []}
+              setOpen={setGenderOpen}
+              setValue={setGender}
+              theme="LIGHT"
+              placeholder="Select Gender"
             />
           </View>
           <View style={{ paddingTop: 30 }}>
@@ -134,7 +153,9 @@ export const ProfileForm = ({ navigation }) => {
               <Text
                 style={{
                   flex: 1,
-                  textAlign: "center",
+                  textAlign: "left",
+                  paddingLeft:10,
+                  fontSize:14
                 }}
               >
                 {dateOfBirthday
@@ -143,6 +164,7 @@ export const ProfileForm = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
             <DatePicker
+            style={{}}
               modal
               open={open}
               date={date}
@@ -160,8 +182,15 @@ export const ProfileForm = ({ navigation }) => {
       </View>
       <View style={{ paddingTop: 20 }}>
         <Button
+      
           title="Finish"
-          onPress={() => {
+          onPress={async () => {
+            gender && coreContext.getPIIService().setGender(gender);
+            country && coreContext.getPIIService().setLocation(country);
+            dateOfBirthday &&
+              coreContext
+                .getPIIService()
+                .setBirthday(UnixTimestamp(dateOfBirthday.getTime() / 1000));
             navigation.replace(ROUTES.WALLET);
           }}
         />
