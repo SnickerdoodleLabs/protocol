@@ -60,6 +60,9 @@ const Wallet = (props: any) => {
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
+    console.log("accs", accs);
+    setPickerLinkedAccount(accs);
+    setSelectedAccount(linkedAccounts[0]);
   }, [linkedAccounts]);
 
   useEffect(() => {
@@ -318,7 +321,7 @@ const Wallet = (props: any) => {
                   fontWeight: "600",
                 }}
               >
-                ${`${totalVal}`}
+                ${`${totalVal.toFixed(4)}`}
               </Text>
             </View>
             <View>
@@ -331,13 +334,11 @@ const Wallet = (props: any) => {
           </View>
         </LinearGradient>
       </View>
-      <View style={{ backgroundColor: "#1C1C29", height: "100%" }}>
-        <ScrollView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
-          <View>
-            {data[data.map((e) => e.title).indexOf(activeTab)].component}
-          </View>
-        </ScrollView>
-      </View>
+
+      <ScrollView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
+        {data[data.map((e) => e.title).indexOf(activeTab)].component}
+      </ScrollView>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -373,7 +374,7 @@ const Wallet = (props: any) => {
               items={pickerLinkedAccounts ?? []}
               setOpen={setOpen}
               setValue={setSelectedAccount}
-              theme="DARK"
+              theme="LIGHT"
             />
           </View>
         </View>
@@ -381,7 +382,7 @@ const Wallet = (props: any) => {
     </View>
   );
 };
-var styles = StyleSheet.create({
+let styles = StyleSheet.create({
   profilePhoto: {
     height: 75,
     width: 75,
