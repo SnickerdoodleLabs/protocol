@@ -2,14 +2,14 @@
 
 ->brew install watchman
 
-->React Native uses a .ruby-version file to make sure that your version of Ruby is aligned with what is needed. Currently our project uses version ruby(2.7.5). To check ruby --version. For changing ruby version RVM [https://rvm.io/]
+->React Native uses a .ruby-version file to make sure that your version of Ruby is aligned with what is needed. Currently our project uses ruby(2.7.5). To check ruby --version. For changing ruby version RVM [https://rvm.io/]
 
 ->If you previously installed a global react-native-cli package, please remove it as it may cause unexpected issues:
 -- npm uninstall -g react-native-cli @react-native-community/cli
 
 ->[protocol] run (yarn) then (yarn compile)
 
-->[packages/mobile] Do the followings [yarn , cd ios , pod install]
+->[packages/mobile] Do the followings [yarn , cd ios ,sudo gem install cocoapods, bundle install, pod install]
 
 ->[XCODE] open project with [packages/mobile/ios/SDMobile.xcworkspace]
 
