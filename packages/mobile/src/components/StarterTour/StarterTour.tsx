@@ -74,7 +74,7 @@ export default function StarterTour(props: any) {
       >
         <View style={{}}>
           <LottieView
-            style={{ width: "50%" }}
+            style={{ width: "60%" }}
             resizeMode="contain"
             source={tour2}
             autoPlay
@@ -87,7 +87,7 @@ export default function StarterTour(props: any) {
               textAlign: "center",
               fontSize: 16,
               fontWeight: "400",
-
+              fontFamily: "Space Grotesk",
               color: "black",
               paddingTop: 60,
               lineHeight: 25,
@@ -169,7 +169,7 @@ export default function StarterTour(props: any) {
       >
         <View style={{}}>
           <LottieView
-            style={{ width: "50%" }}
+            style={{ width: "60%" }}
             resizeMode="contain"
             source={tour1}
             autoPlay
@@ -181,8 +181,8 @@ export default function StarterTour(props: any) {
             style={{
               textAlign: "center",
               fontSize: 25,
-              fontWeight: "800",
-
+              fontWeight: "600",
+              fontFamily: "Space Grotesk",
               color: "black",
               paddingTop: 60,
             }}
@@ -197,11 +197,12 @@ export default function StarterTour(props: any) {
               paddingTop: 25,
               lineHeight: 25,
               fontWeight: "400",
+              fontFamily: "Space Grotesk",
             }}
           >
-            You are so cool because you use Snicerdoodle Data WalletYou are so
-            cool because you use Snicerdoodle Data WalletYou are so cool because
-            you use Snicerdoodle Data Wallet
+            You are so cool because you use Snicerdoodle Data Wallet You are so
+            cool because you use Snicerdoodle Data Wallet You are so cool
+            because you use Snicerdoodle Data Wallet
           </Text>
         </View>
 
