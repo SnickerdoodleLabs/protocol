@@ -54,9 +54,15 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
-  pollByPriority(
+  public pollByPriority(
     restored: Set<DataWalletBackupID>,
     priority: EBackupPriority,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return okAsync([]);
+  }
+
+  public fetchBackup(
+    backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return okAsync([]);
   }
@@ -116,11 +122,16 @@ export class CeramicCloudStorage implements ICloudStorage {
     seed: Uint8Array,
   ): ResultAsync<DID, PersistenceError> {
     const provider = new Ed25519Provider(seed);
-    const did = new DID({ provider, resolver: getResolver() });
+    const did = new DID({ provider });
+    // const did = new DID({ provider, resolver: getResolver() });
     return ResultAsync.fromPromise(
       did.authenticate(),
       (e) => new PersistenceError("error authenticated ceramic DID", e),
     ).andThen((_) => okAsync(did));
+  }
+
+  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+    return okAsync([]);
   }
 
   private _init(): ResultAsync<
