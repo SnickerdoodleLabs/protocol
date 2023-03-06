@@ -62,7 +62,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -86,7 +86,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -109,9 +109,9 @@ describe("Postfix expressions", () => {
       new Token(TokenType.query, "$q1", 0),
       new Token(TokenType.gt, ">", 3),
       new Token(TokenType.query, "$q2", 4),
-    ]);
+    ]); // TODO, irfan needs to move it to the right place. This is the wrong place.
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
     const exprParser = new ExprParser(context);
     const postfixTokens = exprParser.infixToPostFix(tokens);
 
@@ -137,7 +137,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -166,7 +166,7 @@ describe("Postfix expressions", () => {
       new Token(TokenType.query, "$q1", 11),
     ]);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
     const postfixTokens = new ExprParser(context).infixToPostFix(tokens);
 
     expect(postfixTokens).toEqual([
@@ -195,7 +195,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -233,7 +233,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -266,7 +266,7 @@ describe("Postfix expressions", () => {
       new Token(TokenType.parenthesisClose, ")", 17),
     ]);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
     const exprParser = new ExprParser(context);
 
     const postfixTokens = exprParser.infixToPostFix(tokens);
@@ -295,7 +295,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -332,7 +332,7 @@ describe("Postfix expressions", () => {
 
     expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
 
     const exprParser = new ExprParser(context);
 
@@ -371,7 +371,7 @@ describe("Postfix expressions", () => {
       new Token(TokenType.ad, "$a1", 25),
     ]);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
     const postfixTokens = new ExprParser(context).infixToPostFix(tokens);
     expect(postfixTokens).toEqual([
       new Token(TokenType.query, "$q1", 3),
@@ -405,7 +405,7 @@ describe("Postfix expressions", () => {
       new Token(TokenType.ad, "$a1", 27),
     ]);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
     const postfixTokens = new ExprParser(context).infixToPostFix(tokens);
     expect(postfixTokens).toEqual([
       new Token(TokenType.query, "$q1", 3),
@@ -439,7 +439,7 @@ describe("Postfix expressions", () => {
       new Token(TokenType.ad, "$a1", 24),
     ]);
 
-    const context: Map<string, any> = new Map();
+    const context: Map<string, ParserContextDataTypes> = new Map();
     const postfixTokens = new ExprParser(context).infixToPostFix(tokens);
     expect(postfixTokens).toEqual([
       new Token(TokenType.query, "$q1", 3),
