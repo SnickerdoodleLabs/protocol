@@ -17,12 +17,13 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-
 import AccountLinkingContextProvider from "./context/AccountLinkingContextProvider";
 import LayoutContextProvider from "./context/LayoutContext";
 import AppContextProvider from "./context/AppContextProvider";
 import EventContextProvider from "./context/EventContextProvider";
 import AuthNavigator from "./navigators/AuthNavigator";
+import InvitationContextProvider from "./context/InvitationContext";
+import DeepLinkHandler from "./navigators/DeepLinkHandler";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -44,33 +45,36 @@ const App = () => {
   };
 
   return (
-    <NavigationContainer linking={linking}>
-      <LayoutContextProvider>
-        <AppContextProvider>
-          <EventContextProvider>{null}</EventContextProvider>
-          <WalletConnectProvider
-            bridge="https://bridge.walletconnect.org"
-            clientMeta={{
-              description: "Connect with WalletConnect",
-              url: "https://walletconnect.org",
-              icons: ["https://walletconnect.org/walletconnect-logo.png"],
-              name: "WalletConnect",
-            }}
-            redirectUrl={
-              Platform.OS === "web" ? "https:google.com" : "sdmobile://"
-            }
-            storageOptions={{
-              //@ts-ignore
-              asyncStorage: AsyncStorage,
-            }}
-          >
-            <AccountLinkingContextProvider>
-              <AuthNavigator />
-            </AccountLinkingContextProvider>
-          </WalletConnectProvider>
-        </AppContextProvider>
-      </LayoutContextProvider>
-    </NavigationContainer>
+    <AppContextProvider>
+      <NavigationContainer linking={linking}>
+        <LayoutContextProvider>
+          <InvitationContextProvider>
+            <DeepLinkHandler />
+            <EventContextProvider>{null}</EventContextProvider>
+            <WalletConnectProvider
+              bridge="https://bridge.walletconnect.org"
+              clientMeta={{
+                description: "Connect with WalletConnect",
+                url: "https://walletconnect.org",
+                icons: ["https://walletconnect.org/walletconnect-logo.png"],
+                name: "WalletConnect",
+              }}
+              redirectUrl={
+                Platform.OS === "web" ? "https:google.com" : "sdmobile://"
+              }
+              storageOptions={{
+                //@ts-ignore
+                asyncStorage: AsyncStorage,
+              }}
+            >
+              <AccountLinkingContextProvider>
+                <AuthNavigator />
+              </AccountLinkingContextProvider>
+            </WalletConnectProvider>
+          </InvitationContextProvider>
+        </LayoutContextProvider>
+      </NavigationContainer>
+    </AppContextProvider>
   );
 };
 
