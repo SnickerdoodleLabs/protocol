@@ -202,14 +202,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
     },
     "logic": {
-        "returns": [
-            "if$q2then$r1else$r2",
-            "$r3",
-            "$r4",
-            "$r5",
-            "$r6",
-            "$r7"
-        ],
         "compensations": [
             "if$q1then$c1",
             "if$q2>15then$c2",

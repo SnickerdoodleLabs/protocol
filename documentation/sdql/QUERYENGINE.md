@@ -31,7 +31,7 @@ Processing a network query begins with the detection, by an instance of [`Blockc
 [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be executed. 
 The query CID is then passed into the Query Service via a call to `processQuery`. 
 
-The call to `processQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 6 AST roots.
+The call to `processQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 3 AST roots.
 
     logic: {
         ads: ["if$q1>30then$a1"],
@@ -42,13 +42,13 @@ The call to `processQuery` then creates one abstract syntax tree (AST) for each 
     },
 
 
-Each of these logic expressions can reference one or more 
+These logic expressions can reference one or more 
 - [`queries`](/documentation/sdql#queries), 
 - [`ads`](/documentation/sdql#ads),
 - [`compensations`](/documentation/sdql#compensations)
-- [`returns`](/documentation/sdql#returns)  
+- and [`returns`](/documentation/sdql#returns).
 
-definitions respectively. Given example references $q1, $q2 as the queries, $a1 as an ad, and $c1, $c2 as compensations.
+Given example references $q1, $q2 as queries, $a1 as an ad, and $c1, $c2 as compensations.
 
 Resulting ASTs are ultimately evaluated against data wallet's [persistence layer](/packages/persistence/README.md), in consistence with user-specified permissions (i.e. if a `query` specification requires access to the `location` attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query.)
 
@@ -119,3 +119,4 @@ We traverse the tree in post-order (evaluate children first in any order).
 4. $q1and$q2or$q3 -> $q1,$q2,and,q3,or
 5. ($q1and($q2or$q3)) -> $q1,$q2,q3,or,and
 6. if$q1and$q2then$r1 -> $q1, $q2, and, if, $r1, then
+7. if($q1>=30)and($q2<=35)then$a1 -> $q1, 30, >, $q2, 35, <, and, $a1, if
