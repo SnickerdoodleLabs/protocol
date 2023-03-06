@@ -74,7 +74,7 @@ export default function StarterTour(props: any) {
       >
         <View style={{}}>
           <LottieView
-            style={{ width: "60%" }}
+            style={{ width: "100%" }}
             resizeMode="contain"
             source={tour2}
             autoPlay
@@ -169,7 +169,7 @@ export default function StarterTour(props: any) {
       >
         <View style={{}}>
           <LottieView
-            style={{ width: "60%" }}
+            style={{ width: "100%" }}
             resizeMode="contain"
             source={tour1}
             autoPlay

@@ -216,7 +216,7 @@ export default function StarterTour2(props: any) {
       >
         <View style={{}}>
           <LottieView
-            style={{ width: "60%" }}
+            style={{ width: "100%" }}
             resizeMode="contain"
             source={profileForm}
             autoPlay

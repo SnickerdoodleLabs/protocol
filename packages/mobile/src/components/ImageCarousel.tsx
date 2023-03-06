@@ -1,7 +1,12 @@
 import { View, Image, Dimensions, StyleSheet, Animated } from "react-native";
 import React from "react";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { ParamList } from "../screens/ForgotPassword";
+export type ParamList = {
+  Params: {
+    userID: string;
+    NFTs: string[];
+  };
+};
 
 const ImageCarousel = () => {
   const route = useRoute<RouteProp<ParamList, "Params">>();
