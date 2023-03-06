@@ -1,8 +1,5 @@
 import "reflect-metadata";
 
-import { IpfsCID, SDQL_Name } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
-
 import {
   ExprParser,
   QueryObjectFactory,
@@ -20,6 +17,7 @@ import {
   AST_ReturnExpr,
   Command_IF,
   ConditionAnd,
+  ConditionE,
   ConditionG,
   ConditionL,
   ConditionLE,
@@ -28,6 +26,8 @@ import {
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
 import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
+import { IpfsCID, SDQL_Name } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
 
 class ExprParserMocks {
   public wrapperMocks = new SDQLQueryWrapperMocks();
@@ -570,6 +570,19 @@ describe("Postfix to AST", () => {
     const g = expr.source as ConditionLE;
     expect(g.lval).toEqual(mocks.context!.get("q1"));
     expect(g.rval).toEqual(10);
+  });
+  test("$q3 US == to ast", async () => {
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const expr = (await parser.buildAstFromPostfix([
+      new Token(TokenType.query, "$q3", 0),
+      new Token(TokenType.string, "US", 5),
+      new Token(TokenType.eq, "==", 3),
+    ])) as AST_ConditionExpr;
+    expect(expr.source.constructor).toBe(ConditionE);
+    const e = expr.source as ConditionE;
+    expect(e.lval).toEqual(mocks.context!.get("q3"));
+    expect(e.rval).toEqual("US");
   });
   test("$q1, $r1, if", () => {
     const mocks = new ExprParserMocks();

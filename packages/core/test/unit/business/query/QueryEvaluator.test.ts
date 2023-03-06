@@ -1,22 +1,34 @@
 import "reflect-metadata";
 
+import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { IProfileService } from "@core/interfaces/business";
+import {
+  IBalanceQueryEvaluator,
+  INetworkQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IBrowsingDataRepository,
+  IDemographicDataRepository,
+  ITransactionHistoryRepository,
+} from "@core/interfaces/data";
 import {
   Age,
+  BigNumberString,
   ChainId,
+  CountryCode,
+  EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
+  EVMTransaction,
+  EVMTransactionHash,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
-  URLString,
   TickerSymbol,
-  BigNumberString,
   TokenBalance,
-  EVMTransaction,
-  UnixTimestamp,
-  EVMTransactionHash,
-  EChainTechnology,
   TransactionPaymentCounter,
+  UnixTimestamp,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -28,18 +40,6 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
-
-import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
-import { IProfileService } from "@core/interfaces/business";
-import {
-  IBalanceQueryEvaluator,
-  INetworkQueryEvaluator,
-} from "@core/interfaces/business/utilities/query/index.js";
-import {
-  IBrowsingDataRepository,
-  ITransactionHistoryRepository,
-  IDemographicDataRepository,
-} from "@core/interfaces/data";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -213,6 +213,9 @@ class QueryEvaluatorMocks {
     td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
 
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
+    td.when(this.demoDataRepo.getLocation()).thenReturn(
+      okAsync(CountryCode("AU")),
+    );
 
     td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
@@ -236,10 +239,6 @@ class QueryEvaluatorMocks {
       this.browsingDataRepo,
       this.transactionRepo,
     );
-    // td.when(this.dataWalletPersistence.getTransactionsMap())
-    // .thenReturn(
-    //     okAsync(this.chainTransactions),
-    // );
   }
 }
 

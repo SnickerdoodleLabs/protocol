@@ -1,3 +1,4 @@
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
   EvalNotImplementedError,
   EvaluationError,
@@ -15,17 +16,17 @@ import {
   AST_ReturnExpr,
   Command_IF,
   ConditionAnd,
+  ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
+  ConditionLE,
   ConditionOr,
   Operator,
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 
 export class AST_Evaluator {
   /**
@@ -40,16 +41,8 @@ export class AST_Evaluator {
     readonly ast: AST | null,
     readonly queryRepository: IQueryRepository,
   ) {
-    this.operatorMap.set(ConditionAnd, this.evalAnd);
-    this.operatorMap.set(ConditionOr, this.evalOr);
-    this.operatorMap.set(ConditionIn, this.evalIn);
-    this.operatorMap.set(ConditionGE, this.evalGE);
-    this.operatorMap.set(ConditionL, this.evalL);
-    this.expMap.set(Command_IF, this.evalIf);
-    this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
-    this.expMap.set(AST_ReturnExpr, this.evalReturnExpr);
-    this.expMap.set(AST_Compensation, this.evalCompensationExpr);
-    this.expMap.set(Operator, this.evalOperator);
+    this._populateOperatorMap();
+    this._populateExpMap();
   }
 
   public eval(): ResultAsync<SDQL_Return, EvaluationError> {
@@ -202,6 +195,18 @@ export class AST_Evaluator {
     );
   }
 
+  public evalE(cond: ConditionE): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        return this.evalAny(cond.rval).andThen(
+          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+            return okAsync(SDQL_Return(lval == rval));
+          },
+        );
+      },
+    );
+  }
+
   public evalGE(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
     return this.evalAny(cond.lval).andThen(
       (lval): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -222,6 +227,18 @@ export class AST_Evaluator {
         return right.andThen(
           (rval): ResultAsync<SDQL_Return, EvaluationError> => {
             return okAsync(SDQL_Return(lval > rval));
+          },
+        );
+      },
+    );
+  }
+
+  public evalLE(cond: ConditionLE): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        return this.evalAny(cond.rval).andThen(
+          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+            return okAsync(SDQL_Return(lval <= rval));
           },
         );
       },
@@ -314,5 +331,26 @@ export class AST_Evaluator {
     expr: AST_Expr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
     return okAsync((expr as AST_Expr).source as SDQL_Return);
+  }
+
+  private _populateOperatorMap(): void {
+    this.operatorMap.set(ConditionAnd, this.evalAnd);
+    this.operatorMap.set(ConditionOr, this.evalOr);
+
+    this.operatorMap.set(ConditionIn, this.evalIn);
+
+    this.operatorMap.set(ConditionE, this.evalE);
+    this.operatorMap.set(ConditionG, this.evalG);
+    this.operatorMap.set(ConditionGE, this.evalGE);
+    this.operatorMap.set(ConditionL, this.evalL);
+    this.operatorMap.set(ConditionLE, this.evalLE);
+  }
+
+  private _populateExpMap(): void {
+    this.expMap.set(Command_IF, this.evalIf);
+    this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
+    this.expMap.set(AST_ReturnExpr, this.evalReturnExpr);
+    this.expMap.set(AST_Compensation, this.evalCompensationExpr);
+    this.expMap.set(Operator, this.evalOperator);
   }
 }

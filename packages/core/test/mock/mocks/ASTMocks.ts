@@ -1,15 +1,5 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
-import {
-  IQueryObjectFactory,
-  ISDQLQueryWrapperFactory,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
-
 import { ProfileService } from "@core/implementations/business";
 import {
   NetworkQueryEvaluator,
@@ -23,11 +13,20 @@ import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   IBrowsingDataRepository,
+  IDemographicDataRepository,
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
-  IDemographicDataRepository,
 } from "@core/interfaces/data";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { okAsync } from "neverthrow";
+import * as td from "testdouble";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -61,7 +60,7 @@ export class ASTMocks {
     this.profileService = new ProfileService(this.demoRepo);
 
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.demoRepo.getLocation()).thenReturn(okAsync(CountryCode("1")));
+    td.when(this.demoRepo.getLocation()).thenReturn(okAsync(CountryCode("AU")));
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,

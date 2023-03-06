@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { ASTMocks } from "@core-tests/mock/mocks";
 import {
   SDQL_Name,
   SDQL_OperatorName,
@@ -12,19 +13,12 @@ import {
   AST_ReturnExpr,
   Command_IF,
   ConditionAnd,
+  ConditionE,
   ConditionGE,
   ConditionIn,
   ConditionL,
   ConditionOr,
 } from "@snickerdoodlelabs/query-parser";
-
-import { ASTMocks } from "@core-tests/mock/mocks";
-
-// const ast = new AST(
-//     Version("0.1"),
-//     "Interactions with the Avalanche blockchain for 15-year and older individuals",
-//     "Shrapnel"
-//     );
 
 // #region Conditions
 describe("Conditions", () => {
@@ -237,6 +231,46 @@ describe("Conditions", () => {
     expect(result.isOk()).toBeTruthy();
     const value = result._unsafeUnwrap();
     expect(value).toBeTruthy();
+  });
+
+  test("'AU' == 'AU'", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
+    const cond = new ConditionE(
+      SDQL_OperatorName("e1"),
+      new AST_Expr(SDQL_Name("string"), "AU"),
+      new AST_Expr(SDQL_Name("string"), "AU"),
+    );
+
+    // Act
+    const result = await astEvaluator.evalOperator(cond);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
+  });
+
+  test("'US' != 'AU", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
+    const cond = new ConditionE(
+      SDQL_OperatorName("e1"),
+      new AST_Expr(SDQL_Name("string"), "US"),
+      new AST_Expr(SDQL_Name("string"), "AU"),
+    );
+
+    // Act
+    const result = await astEvaluator.evalOperator(cond);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeFalsy();
   });
 });
 
