@@ -112,12 +112,8 @@ export class InvitationService implements IInvitationService {
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, SnickerDoodleCoreError | MobileStorageError> {
-    return this.getDataPermissions(dataTypes).andThen((dataPermissions) => {
-      return this.invitationRepository.acceptInvitation(
-        invitation,
-        dataPermissions,
-      );
-    });
+    // MOBILE_TODO Should add datapermission
+    return this.invitationRepository.acceptInvitation(invitation, null);
   }
   public rejectInvitation(
     invitation: Invitation,

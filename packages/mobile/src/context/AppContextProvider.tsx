@@ -30,14 +30,14 @@ const AppContextProvider = ({ children }) => {
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [linkedAccounts, setLinkedAccounts] = useState<AccountAddress[]>([]);
 
-  useEffect(() => {
+/*   useEffect(() => {
     AsyncStorage.getAllKeys()
       .then((keys) => AsyncStorage.multiRemove(keys))
       .then(() => console.error("storage items deleted"));
 
     AppState.addEventListener("change", handleAppStateChange);
     return () => {};
-  }, []);
+  }, []); */
 
   const handleAppStateChange = (state: AppStateStatus) => {
     if (["active", "background"].includes(state)) {
