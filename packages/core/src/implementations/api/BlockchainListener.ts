@@ -1,3 +1,25 @@
+import { IBlockchainListener } from "@core/interfaces/api/index.js";
+import {
+  IMonitoringService,
+  IMonitoringServiceType,
+  IQueryService,
+  IQueryServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -15,37 +37,12 @@ import {
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
+  IpfsCID,
+  RequestForData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-
-import { IBlockchainListener } from "@core/interfaces/api/index.js";
-
 import { okAsync, ResultAsync } from "neverthrow";
-
-import {
-  IMonitoringService,
-  IMonitoringServiceType,
-  IQueryService,
-  IQueryServiceType,
-} from "@core/interfaces/business/index.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
-
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-
@@ -166,13 +163,12 @@ export class BlockchainListener implements IBlockchainListener {
           Array.from(consentContractsMap.values()).map((consentContract) => {
             // Only consent owners can request data
             return ResultUtils.combine([
-              consentContract.getConsentOwner(),
               this.getQueryHorizon(consentContract),
               this.accountRepo.getLatestBlockNumber(
                 consentContract.getContractAddress(),
               ),
             ])
-              .andThen(([consentOwner, queryHorizon, latestBlockNumber]) => {
+              .andThen(([queryHorizon, latestBlockNumber]) => {
                 // Start at the queryHorizon or the firstBlockNumber, whichever is later
                 const startBlock =
                   queryHorizon > latestBlockNumber
@@ -185,22 +181,20 @@ export class BlockchainListener implements IBlockchainListener {
                   return okAsync([]);
                 }
 
-                return consentContract
-                  .getRequestForDataListByRequesterAddress(
-                    consentOwner,
-                    startBlock,
-                    currentBlockNumber,
-                  )
-                  .andThen((requestForDataObjects) => {
-                    return this.accountRepo
-                      .setLatestBlockNumber(
-                        consentContract.getContractAddress(),
-                        currentBlockNumber,
-                      )
-                      .map(() => {
-                        return requestForDataObjects;
-                      });
-                  });
+                return this.getRequestForDataList(
+                  consentContract,
+                  startBlock,
+                  currentBlockNumber,
+                ).andThen((requestForDataObjects) => {
+                  return this.accountRepo
+                    .setLatestBlockNumber(
+                      consentContract.getContractAddress(),
+                      currentBlockNumber,
+                    )
+                    .map(() => {
+                      return requestForDataObjects;
+                    });
+                });
               })
               .andThen((requestForDataObjects) => {
                 if (requestForDataObjects.length > 0) {
@@ -235,6 +229,41 @@ export class BlockchainListener implements IBlockchainListener {
       });
   }
 
+  public getAllQueryCIDs(
+    contractAddresses: EVMContractAddress[],
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<
+    Map<EVMContractAddress, IpfsCID[]>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+  > {
+    return this.consentContractRepository
+      .getConsentContracts(contractAddresses)
+      .andThen((consentContractsMap) => {
+        return ResultUtils.combine(
+          Array.from(consentContractsMap.values()).map((consentContract) => {
+            return this.getPublishedQueryCIDs(
+              consentContract,
+              fromBlock,
+              toBlock,
+            ).map(
+              (queryCidList) =>
+                [consentContract.getContractAddress(), queryCidList] as [
+                  EVMContractAddress,
+                  IpfsCID[],
+                ],
+            );
+          }),
+        ).map(
+          (contractsToCidLists) =>
+            new Map<EVMContractAddress, IpfsCID[]>(contractsToCidLists),
+        );
+      });
+  }
+
   protected getQueryHorizon(
     consentContract: IConsentContract,
   ): ResultAsync<BlockNumber, ConsentContractError> {
@@ -254,6 +283,30 @@ export class BlockchainListener implements IBlockchainListener {
       );
 
       return queryHorizon;
+    });
+  }
+
+  protected getPublishedQueryCIDs(
+    consentContract: IConsentContract,
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<IpfsCID[], ConsentContractError> {
+    return this.getRequestForDataList(consentContract, fromBlock, toBlock).map(
+      (r4dList) => r4dList.map((r4d) => r4d.requestedCID),
+    );
+  }
+
+  protected getRequestForDataList(
+    consentContract: IConsentContract,
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<RequestForData[], ConsentContractError> {
+    return consentContract.getConsentOwner().andThen((consentOwner) => {
+      return consentContract.getRequestForDataListByRequesterAddress(
+        consentOwner,
+        fromBlock,
+        toBlock,
+      );
     });
   }
 }
