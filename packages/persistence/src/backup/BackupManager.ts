@@ -38,6 +38,7 @@ import {
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
   private chunkManager;
+  private tableNames: string[];
 
   public constructor(
     protected privateKey: EVMPrivateKey,
@@ -50,15 +51,18 @@ export class BackupManager implements IBackupManager {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
+    this.tableNames = this.schema.map((x) => x.name);
+    this.schema.forEach((x) => {
+      new ChunkManager(
+        this.privateKey,
+        this.schema,
+        this.volatileStorage,
+        this.cryptoUtils,
+        this.storageUtils,
+        this.maxChunkSize,
+      );
+    });
     this.clear();
-    this.chunkManager = new ChunkManager(
-      this.privateKey,
-      this.schema,
-      this.volatileStorage,
-      this.cryptoUtils,
-      this.storageUtils,
-      this.maxChunkSize,
-    );
   }
 
   public fetchBackupChunk(
@@ -173,6 +177,7 @@ export class BackupManager implements IBackupManager {
         return hash.toString().replace(new RegExp("/", "g"), "-");
       });
   }
+
 
   public clear(): ResultAsync<void, never> {
     return this.chunkManager.clear();

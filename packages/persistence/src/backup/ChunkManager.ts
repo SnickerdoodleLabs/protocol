@@ -29,7 +29,7 @@ import {
   import { errAsync, okAsync, ResultAsync } from "neverthrow";
   import { ResultUtils } from "neverthrow-result-utils";
   
-  import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
+  import { EFieldKey, ERecordKey, LocalStorageKey } from "@persistence/ELocalStorageKey.js";
   import {
     IVolatileStorage,
     IVolatileStorageType,
@@ -43,6 +43,16 @@ import {
     private fieldUpdates: FieldMap = {};
     private tableUpdates: TableMap = {};
     private tableNames: string[];
+
+    private priorityMap: Map<EBackupPriority, Array<IDataWalletBackup>> = new Map();
+    private chunkFieldMap: Map<LocalStorageKey, Array<IDataWalletBackup>> = new Map();
+    /*
+        - Fields - lump these in by their high priority vs low priority
+        - Table - separate by their table keys
+
+        Heap a separate table of renderers
+
+    */
 
     private numUpdates = 0;
     private migrators = new Map<
@@ -70,42 +80,97 @@ import {
 
 
     public clear(): ResultAsync<void, never> {
-        this.tableUpdates = {};
-        this.fieldUpdates = {};
         this.numUpdates = 0;
-        this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+
+
+        // this.tableUpdates = {};
+        // this.fieldUpdates = {};
+        this.priorityMap = new Map();
+        this.chunkFieldMap = new Map();
+    
+
+
+        // this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
         return okAsync(undefined);
-      }
+    }
 
     public addRecord<T extends VersionedObject>(
-        tableName: string,
+        tableName: ERecordKey, // ERecordKey
         value: VolatileStorageMetadata<T>,
       ): ResultAsync<void, PersistenceError> {
-        // this allows us to bypass transactions
-        if (!this.tableUpdates.hasOwnProperty(tableName)) {
+        if (!this.chunkFieldMap.hasOwnProperty(tableName)) {
           return this.volatileStorage.putObject<T>(tableName, value);
         }
-    
-        this.tableUpdates[tableName].push(
-          new VolatileDataUpdate(
-            EDataUpdateOpCode.UPDATE,
-            value.data,
-            value.lastUpdate,
-            value.priority,
-            value.version,
-          ),
+
+        this.chunkFieldMap[tableName].push(
+            new VolatileDataUpdate(
+              EDataUpdateOpCode.UPDATE,
+              value.data,
+              value.lastUpdate,
+              value.priority,
+              value.version,
+            ),
         );
+    
+        // this.tableUpdates[tableName].push(
+        //   new VolatileDataUpdate(
+        //     EDataUpdateOpCode.UPDATE,
+        //     value.data,
+        //     value.lastUpdate,
+        //     value.priority,
+        //     value.version,
+        //   ),
+        // );
         this.numUpdates += 1;
         return this.volatileStorage
           .putObject(tableName, value)
           .andThen(() => this._checkSize());
     }
+
+    public deleteRecord(
+        tableName: ERecordKey,
+        key: VolatileStorageKey,
+        priority: EBackupPriority,
+        timestamp: number = Date.now(),
+      ): ResultAsync<void, PersistenceError> {
+
+        this.ch
+
+        if (!this.chunkFieldMap.hasOwnProperty(tableName)) {
+          return this.volatileStorage.removeObject(tableName, key);
+        }
+
+        this.chunkFieldMap[tableName].push(
+            new VolatileDataUpdate(
+                EDataUpdateOpCode.REMOVE,
+                key,
+                timestamp,
+                priority,
+              ),
+        );
+
+        // this.tableUpdates[tableName].push(
+        //   new VolatileDataUpdate(
+        //     EDataUpdateOpCode.REMOVE,
+        //     key,
+        //     timestamp,
+        //     priority,
+        //   ),
+        // );
+        this.deletionHistory.set(key, timestamp);
+        this.numUpdates += 1;
+        return this.volatileStorage
+          .removeObject(tableName, key)
+          .andThen(() => this._checkSize());
+    }
+
     
     public updateField(
         key: string,
         value: object,
         priority: EBackupPriority,
       ): ResultAsync<void, PersistenceError> {
+
         if (!(key in this.fieldUpdates)) {
           this.numUpdates += 1;
         }
@@ -124,30 +189,7 @@ import {
           .andThen(() => this._checkSize());
     }
   
-    public deleteRecord(
-      tableName: string,
-      key: VolatileStorageKey,
-      priority: EBackupPriority,
-      timestamp: number = Date.now(),
-    ): ResultAsync<void, PersistenceError> {
-      if (!this.tableUpdates.hasOwnProperty(tableName)) {
-        return this.volatileStorage.removeObject(tableName, key);
-      }
-  
-      this.tableUpdates[tableName].push(
-        new VolatileDataUpdate(
-          EDataUpdateOpCode.REMOVE,
-          key,
-          timestamp,
-          priority,
-        ),
-      );
-      this.deletionHistory.set(key, timestamp);
-      this.numUpdates += 1;
-      return this.volatileStorage
-        .removeObject(tableName, key)
-        .andThen(() => this._checkSize());
-    }
+
   
     public popBackup(): ResultAsync<
       IDataWalletBackup | undefined,
