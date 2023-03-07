@@ -72,32 +72,35 @@ const RewardsInfo: FC = () => {
 
   return (
     <Box>
-      <Box mb={4}>
-        <Typography className={classes.title}>My Campaigns</Typography>
+      <Box mb={2}>
+        <Typography className={classes.title}>
+          Reward Program Subscriptions
+        </Typography>
+        <Box mt={0.5}>
+          <Typography className={classes.description}>
+            These are the reward programs you follow. Through these subscription
+            contracts, you have agreed to share anonymized business insights
+            with only these reward programs, in exchange for rewards.
+          </Typography>
+        </Box>
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
           <CircularProgress />
         </Box>
       ) : (
-        <>
+        <Grid container spacing={2}>
           {campaignContractAddressesWithCID &&
           Object.keys(campaignContractAddressesWithCID).length ? (
             Object.keys(campaignContractAddressesWithCID)?.map((key) => (
-              <CampaignItem
-                button={
-                  <Typography
-                    onClick={() => {
-                      onLeaveClick(key as EVMContractAddress);
-                    }}
-                    className={classes.link}
-                  >
-                    Leave
-                  </Typography>
-                }
-                key={key}
-                campaignCID={campaignContractAddressesWithCID[key]}
-              />
+              <Grid item key={key} xs={3}>
+                <CampaignItem
+                  onLeaveClick={() => {
+                    onLeaveClick(key as EVMContractAddress);
+                  }}
+                  campaignCID={campaignContractAddressesWithCID[key]}
+                />
+              </Grid>
             ))
           ) : (
             <Box width="100%" display="flex">
@@ -115,7 +118,7 @@ const RewardsInfo: FC = () => {
               </Box>
             </Box>
           )}
-        </>
+        </Grid>
       )}
     </Box>
   );

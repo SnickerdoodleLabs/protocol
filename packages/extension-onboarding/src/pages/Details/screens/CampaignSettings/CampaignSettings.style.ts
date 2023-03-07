@@ -2,17 +2,20 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   title: {
-    fontFamily: "Shrikhand",
-    fontSize: 36,
-    fontWeight: 400,
-    color: "#232039",
+    fontFamily: "'Roboto'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "30px",
+    lineHeight: "38px",
+    color: "#101828",
   },
   description: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 400,
     fontSize: "16px",
     lineHeight: "24px",
+    color: "#232039",
   },
   link: {
     textDecorationLine: "underline",

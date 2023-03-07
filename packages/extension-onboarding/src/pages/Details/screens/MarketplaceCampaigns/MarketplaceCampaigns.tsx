@@ -94,91 +94,93 @@ const MarketPlaceCampaigns: FC = () => {
 
   const classes = useStyles();
 
-  return (
-    <Box>
-      <Box mb={5}>
-        <Typography className={classes.title}>
-          Browse Available Rewards
-        </Typography>
-      </Box>
-      <Box mb={2}>
-        <Typography className={classes.subTitle}>Featured Rewards</Typography>
-        <Box mt={2} mb={5}>
-          <img
-            style={{ width: "100%" }}
-            src="https://i.ibb.co/TBfCbXB/Group-626053.png"
-          />
-        </Box>
-      </Box>
-      <Box mb={2}>
-        <Typography className={classes.subTitle}>
-          Browse Available Rewards
-        </Typography>
-      </Box>
-      <Box mb={2}>
-        <Typography className={classes.description}>
-          Your NFTs, from linked accounts and newly earned rewards.
-        </Typography>
-      </Box>
-      {isLoading ? (
-        <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Grid container spacing={2}>
-          {campaignContractAddressesWithCID &&
-          Object.keys(campaignContractAddressesWithCID).length ? (
-            Object.keys(campaignContractAddressesWithCID)?.map((key, index) => (
-              <CampaignItem
-                button={
-                  <Box display="flex">
-                    {/*   <Box>
-                      <Typography
-                        onClick={() => {
-                          onReviewClick(key as EVMContractAddress);
-                        }}
-                        className={classes.link}
-                      >
-                        {}
-                        Review
-                      </Typography>
-                    </Box> */}
-                    <Box>
-                      <Typography
-                        onClick={() => {
-                          onClaimClick(key as EVMContractAddress);
-                        }}
-                        className={classes.link}
-                      >
-                        {}
-                        Claim
-                      </Typography>
-                    </Box>
-                  </Box>
-                }
-                key={key}
-                campaignCID={campaignContractAddressesWithCID[key]}
-              />
-            ))
-          ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                pt={20}
-              >
-                <img
-                  style={{ width: 330, height: "auto" }}
-                  src={emptyCampaign}
-                />
-              </Box>
-            </Box>
-          )}
-        </Grid>
-      )}
-    </Box>
-  );
+  return null;
+
+  // return (
+  //   <Box>
+  //     <Box mb={5}>
+  //       <Typography className={classes.title}>
+  //         Browse Available Rewards
+  //       </Typography>
+  //     </Box>
+  //     <Box mb={2}>
+  //       <Typography className={classes.subTitle}>Featured Rewards</Typography>
+  //       <Box mt={2} mb={5}>
+  //         <img
+  //           style={{ width: "100%" }}
+  //           src="https://i.ibb.co/TBfCbXB/Group-626053.png"
+  //         />
+  //       </Box>
+  //     </Box>
+  //     <Box mb={2}>
+  //       <Typography className={classes.subTitle}>
+  //         Browse Available Rewards
+  //       </Typography>
+  //     </Box>
+  //     <Box mb={2}>
+  //       <Typography className={classes.description}>
+  //         Your NFTs, from linked accounts and newly earned rewards.
+  //       </Typography>
+  //     </Box>
+  //     {isLoading ? (
+  //       <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
+  //         <CircularProgress />
+  //       </Box>
+  //     ) : (
+  //       <Grid container spacing={2}>
+  //         {campaignContractAddressesWithCID &&
+  //         Object.keys(campaignContractAddressesWithCID).length ? (
+  //           Object.keys(campaignContractAddressesWithCID)?.map((key, index) => (
+  //             <CampaignItem
+  //               button={
+  //                 <Box display="flex">
+  //                   {/*   <Box>
+  //                     <Typography
+  //                       onClick={() => {
+  //                         onReviewClick(key as EVMContractAddress);
+  //                       }}
+  //                       className={classes.link}
+  //                     >
+  //                       {}
+  //                       Review
+  //                     </Typography>
+  //                   </Box> */}
+  //                   <Box>
+  //                     <Typography
+  //                       onClick={() => {
+  //                         onClaimClick(key as EVMContractAddress);
+  //                       }}
+  //                       className={classes.link}
+  //                     >
+  //                       {}
+  //                       Claim
+  //                     </Typography>
+  //                   </Box>
+  //                 </Box>
+  //               }
+  //               key={key}
+  //               campaignCID={campaignContractAddressesWithCID[key]}
+  //             />
+  //           ))
+  //         ) : (
+  //           <Box width="100%" display="flex">
+  //             <Box
+  //               justifyContent="center"
+  //               alignItems="center"
+  //               width="100%"
+  //               display="flex"
+  //               pt={20}
+  //             >
+  //               <img
+  //                 style={{ width: 330, height: "auto" }}
+  //                 src={emptyCampaign}
+  //               />
+  //             </Box>
+  //           </Box>
+  //         )}
+  //       </Grid>
+  //     )}
+  //   </Box>
+  // );
 };
 export default MarketPlaceCampaigns;
