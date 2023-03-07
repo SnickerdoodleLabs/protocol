@@ -11,6 +11,7 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { raceInit } from "rxjs/internal/observable/race";
 
 import { IDiscordService } from "@core/interfaces/business/IDiscordService.js";
 import {
@@ -133,6 +134,30 @@ export class DiscordService implements IDiscordService {
 
   public poll(): ResultAsync<void, DiscordError | PersistenceError> {
     // First we need to find the authkeys for discord
+    return this.getAuthTokens().andThen((authTokens) => {
+      const results = authTokens.map((authToken) => {
+        return this.discordRepo.fetchUserProfile(authToken);
+      });
+
+      return ResultUtils.combine(results).andThen((uProfiles) => {
+        const guildResults = uProfiles.map((uProfile) => {
+          return this.discordRepo.fetchGuildProfiles(uProfile.authToken);
+        });
+
+        return ResultUtils.combine(guildResults).andThen(
+          (guildProfilesPerUser) => {
+            // flatten as each user will produce an array
+            const gProfiles = guildProfilesPerUser.flat(1);
+
+            // now we have uProfiles and gProfiles.
+            throw new Error("Can we add individual records?");
+          },
+        );
+        // return ResultUtils.com
+        // this.discordRepo.upsertDiscordProfile
+      });
+      return okAsync(undefined);
+    });
     throw new Error("Method not implemented.");
   }
 
