@@ -19,7 +19,10 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IInvitationRepository } from "@synamint-extension-sdk/core/interfaces/data/IInvitationRepository";
-import { IErrorUtils, IErrorUtilsType } from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()
@@ -84,6 +87,17 @@ export class InvitationRepository implements IInvitationRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
+
+  public getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
+    return this.core
+      .getOptInCapacityInfo(consentContractAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
@@ -112,32 +126,32 @@ export class InvitationRepository implements IInvitationRepository {
   }
 
   public setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.setDefaultReceivingAddress(receivingAddress).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core
+      .setDefaultReceivingAddress(receivingAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public setReceivingAddress(
-    contractAddress: EVMContractAddress, 
-    receivingAddress: AccountAddress | null
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.setReceivingAddress(
-      contractAddress, receivingAddress
-    ).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core
+      .setReceivingAddress(contractAddress, receivingAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getReceivingAddress(
-    contractAddress?: EVMContractAddress, 
+    contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
-    return this.core.getReceivingAddress(
-      contractAddress
-    ).mapErr((error) => {
+    return this.core.getReceivingAddress(contractAddress).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

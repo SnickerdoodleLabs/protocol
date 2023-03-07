@@ -162,4 +162,8 @@ export interface ISdlDataWallet extends EventEmitter {
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
+
+  getOptInCapacityInfo(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], JsonRpcError>;
 }

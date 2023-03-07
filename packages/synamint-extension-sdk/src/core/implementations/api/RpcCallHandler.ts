@@ -116,6 +116,7 @@ import {
   IGetReceivingAddressParams,
   mapToObj,
   SnickerDoodleCoreError,
+  IGetOptInCapacityInfoParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -310,6 +311,14 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
         return new AsyncRpcResponseSender(
           this.getInvitationMetadataByCID(ipfsCID),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_OPTIN_CAPACITY_INFO: {
+        const { contractAddress } = params as IGetOptInCapacityInfoParams;
+        return new AsyncRpcResponseSender(
+          this.getOptInCapacityInfo(contractAddress),
           res,
         ).call();
       }
@@ -878,5 +887,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
     return this.invitationService.getReceivingAddress(contractAddress);
+  }
+
+  private getOptInCapacityInfo(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
+    return this.invitationService.getOptInCapacityInfo(contractAddress);
   }
 }

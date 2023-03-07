@@ -99,6 +99,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, unknown> {
@@ -325,6 +326,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
     return coreGateway.getSiteVisitsMap();
+  }
+
+  public getOptInCapacityInfo(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], unknown> {
+    return coreGateway.getOptInCapacityInfo(contractAddress);
   }
 }
 

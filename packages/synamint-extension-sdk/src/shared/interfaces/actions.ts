@@ -166,3 +166,7 @@ export interface ISetReceivingAddressParams {
 export interface IGetReceivingAddressParams {
   contractAddress?: EVMContractAddress;
 }
+
+export interface IGetOptInCapacityInfoParams {
+  contractAddress: EVMContractAddress;
+}

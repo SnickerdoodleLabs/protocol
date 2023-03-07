@@ -81,6 +81,14 @@ export class InvitationService implements IInvitationService {
     return this.invitationRepository.getAcceptedInvitationsCID();
   }
 
+  public getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
+    return this.invitationRepository.getOptInCapacityInfo(
+      consentContractAddress,
+    );
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {

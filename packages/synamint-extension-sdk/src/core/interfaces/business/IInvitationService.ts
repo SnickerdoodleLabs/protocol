@@ -49,6 +49,10 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
 
+  getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], SnickerDoodleCoreError>;
+
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
@@ -68,11 +72,11 @@ export interface IInvitationService {
   ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getReceivingAddress(
     contractAddress?: EVMContractAddress,

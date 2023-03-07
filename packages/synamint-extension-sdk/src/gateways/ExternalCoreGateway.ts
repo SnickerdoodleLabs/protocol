@@ -68,6 +68,7 @@ import {
   IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
+  IGetOptInCapacityInfoParams,
 } from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -441,5 +442,13 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_RECEIVING_ACCOUNT, {
       contractAddress,
     } as IGetReceivingAddressParams);
+  }
+
+  public getOptInCapacityInfo(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_OPTIN_CAPACITY_INFO, {
+      contractAddress,
+    } as IGetOptInCapacityInfoParams);
   }
 }

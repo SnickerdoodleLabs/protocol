@@ -38,6 +38,9 @@ export interface IInvitationRepository {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+  getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[number, number], SnickerDoodleCoreError>;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
@@ -55,16 +58,15 @@ export interface IInvitationRepository {
   getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
-  ): ResultAsync<AccountAddress, SnickerDoodleCoreError>
-
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError>;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");
