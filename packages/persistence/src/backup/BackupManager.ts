@@ -28,20 +28,28 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { ChunkManager } from "./ChunkManager";
 
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
-import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
+import { EFieldKey, ERecordKey, LocalStorageKey } from "@persistence/ELocalStorageKey.js";
 import {
   IVolatileStorage,
   IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
+import { ChunkRenderer } from "./ChunkRenderer";
 
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
   private chunkManager;
   private tableNames: string[];
-  
-  private priorityMap: Map<EBackupPriority, Array<IDataWalletBackup>> = new Map();
-  private chunkFieldMap: Map<LocalStorageKey, Array<IDataWalletBackup>> = new Map();
+
+  private priorityMap: Map<EBackupPriority, Array<IDataWalletBackup>> =
+    new Map();
+  private chunkFieldMap: Map<LocalStorageKey, Array<IDataWalletBackup>> =
+    new Map();
+  /*  
+    - Fields - lump these in by their high priority vs low priority
+    - Table - separate by their table keys
+    Heap a separate table of renderers
+  */
 
   public constructor(
     protected privateKey: EVMPrivateKey,
@@ -56,7 +64,7 @@ export class BackupManager implements IBackupManager {
     );
     this.tableNames = this.schema.map((x) => x.name);
     this.schema.forEach((x) => {
-      new ChunkManager(
+      new ChunkRenderer(
         this.privateKey,
         this.schema,
         this.volatileStorage,
