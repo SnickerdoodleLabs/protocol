@@ -39,6 +39,9 @@ export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
   private chunkManager;
   private tableNames: string[];
+  
+  private priorityMap: Map<EBackupPriority, Array<IDataWalletBackup>> = new Map();
+  private chunkFieldMap: Map<LocalStorageKey, Array<IDataWalletBackup>> = new Map();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
