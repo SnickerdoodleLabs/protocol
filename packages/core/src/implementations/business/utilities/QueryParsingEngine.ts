@@ -1,3 +1,19 @@
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
+import {
+  IQueryParsingEngine,
+  IQueryRepository,
+  IQueryRepositoryType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IAdRepositoryType,
+} from "@core/interfaces/data/index.js";
+import {
+  IQueryFactories,
+  IQueryFactoriesType,
+} from "@core/interfaces/utilities/factory/index.js";
 import {
   DataPermissions,
   EligibleReward,
@@ -19,6 +35,10 @@ import {
   EligibleAd,
   EVMContractAddress,
   PersistenceError,
+  PossibleReward,
+  MissingTokenConstructorError,
+  DuplicateIdInSchema,
+  ParserError,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -29,23 +49,6 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
-
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
-import {
-  IQueryParsingEngine,
-  IQueryRepository,
-  IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IAdContentRepository,
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IAdRepositoryType,
-} from "@core/interfaces/data/index.js";
-import {
-  IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -90,6 +93,24 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
+  public getPossibleRewards(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError> {
+    return this.queryUtils
+      .filterQueryByPermissions(
+        query.query,
+        DataPermissions.createWithAllPermissions(),
+      )
+      .andThen((queryFilteredByPermissions) => {
+        return this.constructPossibleRewards(
+          query,
+          queryFilteredByPermissions.expectedCompensationsMap,
+          queryFilteredByPermissions.eligibleAdsMap,
+          query.cid,
+        );
+      });
+  }
+
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
@@ -105,11 +126,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories
       .makeParserAsync(cid, schemaString)
       .andThen((sdqlParser) => {
-      
         return sdqlParser.buildAST();
       })
       .andThen((ast: AST) => {
-      
         const astEvaluator = this.queryFactories.makeAstEvaluator(
           cid,
           ast,
@@ -125,6 +144,36 @@ export class QueryParsingEngine implements IQueryParsingEngine {
             [insights, rewards],
           );
         });
+      });
+  }
+
+  protected constructPossibleRewards(
+    query: SDQLQuery,
+    iSDQLCompensationsMap: Map<CompensationId, ISDQLCompensations>,
+    iSDQLAdsMap: Map<AdKey, ISDQLAd>,
+    cid: IpfsCID,
+  ): ResultAsync<PossibleReward[], QueryFormatError> {
+    return this.queryFactories
+      .makeParserAsync(cid, query.query)
+      .map((parser) => {
+        const rewardList: PossibleReward[] = [];
+        for (const currentKeyAsString in iSDQLCompensationsMap) {
+          const currentCompId = CompensationId(currentKeyAsString);
+
+          rewardList.push(
+            new PossibleReward(
+              cid,
+              this.queryUtils.getQueryTypeDependencies(parser, currentCompId),
+              iSDQLCompensationsMap[currentCompId].name,
+              iSDQLCompensationsMap[currentCompId].image,
+              iSDQLCompensationsMap[currentCompId].description,
+              iSDQLCompensationsMap[currentCompId].chainId,
+              JSON.stringify(iSDQLCompensationsMap[currentCompId].callback),
+              ERewardType.Direct,
+            ),
+          );
+        }
+        return rewardList;
       });
   }
 

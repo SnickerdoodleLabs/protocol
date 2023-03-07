@@ -1,7 +1,4 @@
 import {
-  EligibleReward,
-  QueryExpiredError,
-  ServerRewardError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -9,12 +6,15 @@ import {
   ConsentError,
   EvaluationError,
   EVMContractAddress,
+  IDynamicRewardParameter,
   IpfsCID,
   IPFSError,
+  PossibleReward,
+  QueryExpiredError,
   QueryFormatError,
   SDQLQuery,
+  ServerRewardError,
   UninitializedError,
-  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -48,6 +48,11 @@ export interface IQueryService {
     | QueryFormatError
     | EvaluationError
   >;
+
+  getPossibleRewards(
+    queryCid: IpfsCID,
+    timeoutSeconds: number,
+  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

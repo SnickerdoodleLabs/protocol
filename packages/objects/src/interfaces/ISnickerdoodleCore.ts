@@ -461,7 +461,14 @@ export interface ISnickerdoodleCore {
    */
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward>, Error>;
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | EvaluationError
+  >;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

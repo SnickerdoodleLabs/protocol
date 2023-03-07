@@ -9,6 +9,13 @@ import {
   QueryIdentifier,
   IDynamicRewardParameter,
   EVMContractAddress,
+  CompensationId,
+  ISDQLCompensations,
+  ISDQLAd,
+  AdKey,
+  IpfsCID,
+  PossibleReward,
+  ParserError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -26,6 +33,9 @@ export interface IQueryParsingEngine {
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError
   >;
+  getPossibleRewards(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError>;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");

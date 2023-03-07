@@ -1,11 +1,3 @@
-import {
-  EWalletDataType,
-  ESDQLQueryReturn,
-  MissingWalletDataTypeError,
-  SDQL_Name,
-  SDQL_OperatorName,
-} from "@snickerdoodlelabs/objects";
-
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
   Condition,
@@ -14,7 +6,15 @@ import {
   ConditionIn,
   ConditionL,
 } from "@query-parser/interfaces/objects/condition/index.js";
-import { Result, ok, err } from "neverthrow";
+import {
+  ESDQLQueryReturn,
+  EWalletDataType,
+  MissingWalletDataTypeError,
+  SDQL_Name,
+  SDQL_OperatorName,
+  Web2QueryTypes,
+} from "@snickerdoodlelabs/objects";
+import { err, ok, Result } from "neverthrow";
 
 export class AST_PropertyQuery extends AST_Query {
   /**
@@ -25,10 +25,11 @@ export class AST_PropertyQuery extends AST_Query {
   constructor(
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,
-    readonly property: string,
+    readonly property: Web2QueryTypes,
     readonly conditions: Array<Condition>,
     // for reading gender
     readonly enum_keys: Array<string>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
     readonly patternProperties: Object,
   ) {
     super(name, returnType);
