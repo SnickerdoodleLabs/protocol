@@ -1,5 +1,5 @@
-import { ChainId, QueryTypes, URLString } from "@objects/primitives";
-import { ERewardType, IpfsCID } from "@snickerdoodlelabs/objects";
+import { ERewardType } from "@objects/enum";
+import { ChainId, IpfsCID, QueryTypes, URLString } from "@objects/primitives";
 
 export class PossibleReward {
   constructor(

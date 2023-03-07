@@ -1,14 +1,9 @@
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
+  ESDQLQueryReturn,
+  SDQL_Name,
   Web3QueryTypes,
   web3QueryTypes,
-} from "@query-parser/interfaces/objects/query-types/index.js";
-import {
-  EWalletDataType,
-  ISDQLQueryClause,
-  ESDQLQueryReturn,
-  MissingWalletDataTypeError,
-  SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 
 export abstract class AST_Web3Query extends AST_Query {
