@@ -62,8 +62,8 @@ sequenceDiagram
 # Data Modeling Steps
 Each new type of entity is stored in its object store (analogous to a table or collection) and each new field for the user is saved in the user object store. In the API, the table names corresponds to the name of the object store. The steps are explained with a new entity called "Animal" for which we need a new object store in the database. For this example we will NOT use an auto-increment id.
 
-1. First, we define the name of the object store in [ERecordKey.ts](./../../packages/persistence/src/ELocalStorageKey.ts). The name of the object store will be and enum value of ERecordKey, ERecordKey.ANIMAL with value SD_ANIMAL.
-2. Second, we add the required members in the Animal class by extending the VersionObject class.
+1. First, we define the name of the object store in [ERecordKey.ts](./../../packages/persistence/src/ELocalStorageKey.ts). The name of the object store will be "SD_ANIMAL". So, we add an enum in ERecordKey, (ERecordKey.ANIMAL, "SD_ANIMAL").
+2. Second, we add the required version-related members in the Animal class by extending the VersionObject class.
 
 ```
     export class Animal extends VersionedObject {
