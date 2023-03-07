@@ -24,4 +24,5 @@ export interface IConfigOverrides {
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
+  enableBackupEncryption?: boolean;
 }

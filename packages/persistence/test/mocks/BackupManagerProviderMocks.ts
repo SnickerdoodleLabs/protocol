@@ -54,6 +54,7 @@ export class BackupManagerProviderMocks {
           this.cryptoUtils,
           this.storageUtils,
           100000,
+          false,
         ),
     );
   }
