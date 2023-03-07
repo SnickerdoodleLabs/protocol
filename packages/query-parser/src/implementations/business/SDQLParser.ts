@@ -19,7 +19,7 @@ import {
   URLString,
   Version,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
@@ -30,7 +30,7 @@ import {
   AST_Compensation,
   AST_Expr,
   AST_Logic,
-  AST_NetworkQuery,
+  AST_Web3Query,
   AST_PropertyQuery,
   AST_Query,
   AST_Return,
@@ -282,27 +282,32 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_NetworkQuery | AST_BalanceQuery | AST_PropertyQuery
+        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery
       >();
       for (const qName in querySchema) {
         // console.log(`parsing query ${qName}`);
-        const name = SDQL_Name(qName);
+        const queryName = SDQL_Name(qName);
         const schema = querySchema[qName];
+        const schemaName = schema.name;
 
-        switch (schema.name) {
-          case "network":
-            // console.log(`${qName} is a network query`);
-            queries.push(AST_NetworkQuery.fromSchema(name, schema));
-            break;
+        const web3QueryType = AST_Web3Query.getWeb3QueryTypeIfValidQueryType(
+          schema.name,
+        );
 
-          case "balance":
-            queries.push(this.queryObjectFactory.toBalanceQuery(name, schema));
-            break;
-
-          default:
-            // console.log(`${qName} is a property query`);
-            queries.push(AST_PropertyQuery.fromSchema(name, schema));
-            break;
+        if (web3QueryType) {
+          queries.push(
+            this.queryObjectFactory.toWeb3Query(
+              queryName,
+              web3QueryType,
+              schema,
+            ),
+          );
+        } else if (schemaName === "balance") {
+          queries.push(
+            this.queryObjectFactory.toBalanceQuery(queryName, schema),
+          );
+        } else {
+          queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
       }
 
@@ -532,11 +537,14 @@ export class SDQLParser {
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
-    return DataPermissions.createWithPermissions(
-      queries.map((query) => {
-        return this.getQueryPermissionFlag(query);
-      }),
-    );
+    const dataTypes = queries.reduce<EWalletDataType[]>((array, query) => {
+      const permission = this.getQueryPermissionFlag(query);
+      if (permission.isOk()) {
+        array.push(permission.value);
+      }
+      return array;
+    }, []);
+    return DataPermissions.createWithPermissions(dataTypes);
   }
 
   public queryIdsToDataPermissions(ids: string[]): DataPermissions {
@@ -552,49 +560,10 @@ export class SDQLParser {
     return this.queriesToDataPermission(queries);
   }
 
-  public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
-    switch (query.constructor) {
-      case AST_NetworkQuery:
-        return EWalletDataType.EVMTransactions;
-      case AST_BalanceQuery:
-        return EWalletDataType.AccountBalances;
-      case AST_PropertyQuery:
-        return this.getPropertyQueryPermissionFlag(query);
-      default:
-        const err = new MissingWalletDataTypeError(query.constructor.name);
-        console.error(err);
-        throw err;
-    }
-  }
-
-  private getPropertyQueryPermissionFlag(query: AST_Query) {
-    const propQuery = query as AST_PropertyQuery;
-    switch (propQuery.property) {
-      case "age":
-        return EWalletDataType.Age;
-      case "gender":
-        return EWalletDataType.Gender;
-      case "givenName":
-        return EWalletDataType.GivenName;
-      case "familyName":
-        return EWalletDataType.FamilyName;
-      case "birthday":
-        return EWalletDataType.Birthday;
-      case "email":
-        return EWalletDataType.Email;
-      case "location":
-        return EWalletDataType.Location;
-      case "browsing_history":
-        return EWalletDataType.SiteVisits;
-      case "url_visited_count":
-        return EWalletDataType.SiteVisits;
-      case "chain_transactions":
-        return EWalletDataType.EVMTransactions;
-      default:
-        const err = new MissingWalletDataTypeError(propQuery.property);
-        console.error(err);
-        throw err;
-    }
+  public getQueryPermissionFlag(
+    query: AST_Query,
+  ): Result<EWalletDataType, MissingWalletDataTypeError> {
+    return query.getPermission();
   }
   // #endregion
 }

@@ -12,6 +12,7 @@ import {
   TickerSymbol,
   BigNumberString,
   EChainTechnology,
+  ESDQLQueryReturn,
   Age,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -33,7 +34,7 @@ import {
   IBrowsingDataRepository,
   IDemographicDataRepository,
   IPortfolioBalanceRepository,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 0),
@@ -76,7 +77,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Sample data 1 - every chainId/contractAddress has a balance > 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ESDQLQueryReturn.Array,
       null, // * - for all, use null
       [],
     );
@@ -167,7 +168,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Sample data 2 - some chainId/contractAddress has a balance = 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ESDQLQueryReturn.Array,
       null, // * - for all, use null
       [],
     );
@@ -246,7 +247,7 @@ describe("BalanceQueryEvaluator", () => {
   test("All Zero Balances: return array of length 0", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ESDQLQueryReturn.Array,
       null, // * - for all, use null
       [],
     );
@@ -315,7 +316,7 @@ describe("BalanceQueryEvaluator", () => {
   test("Only Accept ChainId(1) EVMBalances", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ESDQLQueryReturn.Array,
       ChainId(1), // * - for all, use null
       [],
     );
@@ -394,7 +395,7 @@ describe("BalanceQueryEvaluator", () => {
   test("(20 <= Balance < 30) - ALL VALUES", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
-      "array",
+      ESDQLQueryReturn.Array,
       null,
       conditionsGEandL,
     );

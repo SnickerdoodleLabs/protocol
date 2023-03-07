@@ -13,7 +13,7 @@ import {
 } from "@query-parser/implementations";
 import {
   AST_ConditionExpr,
-  AST_NetworkQuery,
+  AST_BlockchainTransactionQuery,
   AST_PropertyQuery,
   AST_Query,
   AST_Return,
@@ -592,7 +592,7 @@ describe("Postfix to AST", () => {
         expect(rExp.source.constructor).toBe(AST_Return);
         expect(rExp).toEqual(mocks.context!.get("r1"));
         const condExp = ifCommand.conditionExpr as AST_ConditionExpr;
-        expect(condExp.source.constructor).toBe(AST_NetworkQuery);
+        expect(condExp.source.constructor).toBe(AST_BlockchainTransactionQuery);
         expect(condExp.source).toEqual(mocks.context!.get("q1"));
         return okAsync(undefined);
       })

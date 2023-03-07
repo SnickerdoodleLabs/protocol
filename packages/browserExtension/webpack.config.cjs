@@ -50,20 +50,15 @@ var options = {
   // mode: env.NODE_ENV || "development",
   mode: "development",
   entry: {
-    newtab: path.join(__dirname, "src", "app", "Newtab", "index.jsx"),
-    options: path.join(__dirname, "src", "app", "Options", "index.jsx"),
-    popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
-    background: path.join(__dirname, "src", "extensionCore", "index.ts"),
-    contentScript: path.join(__dirname, "src", "app", "Content", "index.tsx"),
-    "injectables/onboarding": path.join(
+    popup: path.join(__dirname, "src", "popup", "index.jsx"),
+    background: path.join(__dirname, "src", "background", "index.ts"),
+    contentScript: path.join(__dirname, "src", "content", "index.ts"),
+    dataWalletProxy: path.join(
       __dirname,
       "src",
-      "app",
-      "Content",
       "injectables",
-      "onboarding.ts",
+      "dataWalletProxy.ts",
     ),
-    devtools: path.join(__dirname, "src", "app", "Devtools", "index.js"),
   },
   output: {
     filename: "[name].bundle.js",
@@ -139,16 +134,11 @@ var options = {
     extensions: fileExtensions
       .map((extension) => "." + extension)
       .concat([".js", ".jsx", ".ts", ".tsx", ".css", "html"]),
-    // fullySpecified: false,
-    // mainFiles: ["index"],
-    // enforceExtension: false,
   },
   plugins: [
     new NodePolyfillPlugin(),
     new CleanWebpackPlugin({ verbose: true }),
     new webpack.ProgressPlugin(),
-    // expose and write the allowed env vars on the compiled bundle
-    // new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
       __ACCOUNT_COOKIE_URL__: JSON.stringify(
@@ -237,24 +227,6 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: "src/app/Content/content.styles.css",
-          to: path.join(__dirname, "build"),
-          force: true,
-        },
-      ],
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: "src/app/Content/injectables",
-          to: path.join(__dirname, "build", "injectables"),
-          force: true,
-        },
-      ],
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
           from: "src/assets",
           to: path.join(__dirname, "build", "assets"),
           force: true,
@@ -262,27 +234,9 @@ var options = {
       ],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Newtab", "index.html"),
-      filename: "newtab.html",
-      chunks: ["newtab"],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Options", "index.html"),
-      filename: "options.html",
-      chunks: ["options"],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Popup", "index.html"),
+      template: path.join(__dirname, "src", "popup", "index.html"),
       filename: "popup.html",
       chunks: ["popup"],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Devtools", "index.html"),
-      filename: "devtools.html",
-      chunks: ["devtools"],
       cache: false,
     }),
   ],
