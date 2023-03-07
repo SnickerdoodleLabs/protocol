@@ -60,7 +60,7 @@ sequenceDiagram
 ```
 
 # Data Modeling steps
-Each new type of entity is stored in its object store and each new field for the user is saved in the user object store. In the API, the table names corresponds to the name of the object store. The steps are explained with a new entity called "Animal" for which we need a new object store in the database. For this example we will NOT use an autoincrement id.
+Each new type of entity is stored in its object store (analogous to a table or collection) and each new field for the user is saved in the user object store. In the API, the table names corresponds to the name of the object store. The steps are explained with a new entity called "Animal" for which we need a new object store in the database. For this example we will NOT use an autoincrement id.
 
 1. First we define the name of the object store in [ERecordKey.ts](./../../packages/persistence/src/ELocalStorageKey.ts). The name of the object store will be and enum value of ERecordKey, ERecordKey.ANIMAL with value SD_ANIMAL.
 2. Then we add the required members in the Animal class by extending the VersionObject class.
@@ -78,7 +78,7 @@ Each new type of entity is stored in its object store and each new field for the
         }
     }
 ```
-3. Now every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchema.ts](./../../packages/persistence/src/volatile/VolatileStorageSchema.ts). But each schema also requires a migrator which is used to convert the data from the object store to javascript Animal objects.
+3. Now every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchema.ts](./../../packages/persistence/src/volatile/VolatileStorageSchema.ts) by adding an object of type [VolatileTableIndex](./../../packages/persistence/src/volatile/VolatileTableIndex.ts). But each schema also requires a migrator which is used to convert the data from the object store to javascript Animal objects.
 ```
   new VolatileTableIndex(
     ERecordKey.ANIMAL, // The name of our object store / table
@@ -116,7 +116,19 @@ We add the migrator definition to the same file where we defined the Animal clas
 ```
 
 
-4. Create search indices
+4. (Optional) To create indices, we supply a array of field names with uniqueness flag. It's possible to create an index on multiple attributes.
+
+```
+  new VolatileTableIndex(
+    ERecordKey.ANIMAL, // The name of our object store / table
+    "id", // primary key field.
+    false, // false disables the auto-increment key generator. 
+    new AnimalMigrator(),
+    [['name', false], ['someOtherField', false], [['comp1', 'comp2'], true]
+  ),
+
+
+```
 
 5. Accessing the store:
 
