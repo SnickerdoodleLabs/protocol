@@ -45,6 +45,7 @@ export * from "@objects/primitives/RecipientAddressType";
 export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
+export * from "@objects/primitives/SocialPrimaryKey";
 export * from "@objects/primitives/SolanaAccountAddress";
 export * from "@objects/primitives/SolanaPrivateKey";
 export * from "@objects/primitives/SolanaTokenAddress";

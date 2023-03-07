@@ -60,7 +60,7 @@ sequenceDiagram
 ```
 
 # Data Modeling steps
-Each new type of entity is stored in its object store and each new field for the user is saved in the user object store. In the API, the table names corresponds to the name of the object store. The steps are explained with a new entity called "Animal" for which we need a new object store in the database.
+Each new type of entity is stored in its object store and each new field for the user is saved in the user object store. In the API, the table names corresponds to the name of the object store. The steps are explained with a new entity called "Animal" for which we need a new object store in the database. For this example we will NOT use an autoincrement id.
 
 1. First we define the name of the object store in [ERecordKey.ts](./../../packages/persistence/src/ELocalStorageKey.ts). The name of the object store will be and enum value of ERecordKey, ERecordKey.ANIMAL with value SD_ANIMAL.
 2. Then we add the required members in the Animal class by extending the VersionObject class.
@@ -68,25 +68,53 @@ Each new type of entity is stored in its object store and each new field for the
 ```
     export class Animal extends VersionedObject {
         public static CURRENT_VERSION = 1;
+
+        public constructor(id: number, name: string) {
+            super();
+        }
+
         public getVersion(): number {
             return DiscordProfile.CURRENT_VERSION;
         }
+    }
+```
+3. Now every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchema.ts](./../../packages/persistence/src/volatile/VolatileStorageSchema.ts). But each schema also requires a migrator which is used to convert the data from the object store to javascript Animal objects.
+```
+  new VolatileTableIndex(
+    ERecordKey.ANIMAL, // The name of our object store / table
+    "id", // primary key field.
+    false, // false disables the auto-increment key generator. 
+    new AnimalMigrator(),
+  ),
+
+```
+
+We add the migrator definition to the same file where we defined the Animal class
+
+```
+    export class Animal extends VersionedObject { ... }
+
+    export class AnimalMigrator extends VersionedObjectMigrator<Animal> {
+        public getCurrentVersion(): number {
+            return Animal.CURRENT_VERSION;
+        }
+
         protected factory(data: Record<string, unknown>): Animal {
-            // convert record type to animal type
-        };
+            return new Animal(
+                data["id"],
+                data["name"]
+            );
+        }
 
         protected getUpgradeFunctions(): Map<
             number,
             (data: Record<string, unknown>, version: number) => Record<string, unknown>
         > {
-            // update old records
+            return new Map();
         }
     }
 ```
-3. Now every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchema.ts](./../../packages/persistence/src/volatile/VolatileStorageSchema.ts)
-```
 
-```
 
 4. Create search indices
 

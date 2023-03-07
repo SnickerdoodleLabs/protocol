@@ -1,11 +1,15 @@
-import { VersionedObject } from "@objects/businessObjects/VersionedObject.js";
-import { BearerAuthToken } from "@objects/primitives/BearerAuthToken";
-import { Integer } from "@objects/primitives/Integer";
-import { SnowflakeID } from "@objects/primitives/SnowflakeID";
-import { UnixTimestamp } from "@objects/primitives/UnixTimestamp";
-import { Username } from "@objects/primitives/Username";
+import { SocialProfile } from "@objects/businessObjects/SocialProfile.js";
+import { ESocialType } from "@objects/enum/index.js";
+import {
+  BearerAuthToken,
+  Integer,
+  SnowflakeID,
+  SocialPrimaryKey,
+  UnixTimestamp,
+  Username,
+} from "@objects/primitives/index.js";
 
-export class DiscordProfile extends VersionedObject {
+export class DiscordProfile extends SocialProfile {
   public static CURRENT_VERSION = 1;
 
   public constructor(
@@ -17,7 +21,11 @@ export class DiscordProfile extends VersionedObject {
     public authToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
     public authExpiry: UnixTimestamp,
   ) {
-    super();
+    super(SocialPrimaryKey(`discord-${id}`), ESocialType.DISCORD);
+  }
+
+  public deriveKey(id: SnowflakeID): SocialPrimaryKey {
+    return SocialPrimaryKey(`discord-${id}`);
   }
 
   public getVersion(): number {
@@ -31,4 +39,18 @@ export interface DiscordProfileAPIResponse {
   display_name: string | null;
   discriminator: string;
   flags: Integer;
+}
+
+export class DiscordProfileMigrator {
+  public factory(data: Record<string, unknown>): DiscordProfile {
+    return new DiscordProfile(
+      SnowflakeID(data["id"] as string),
+      Username(data["username"] as string),
+      data["displayName"] as string,
+      data["discriminator"] as string,
+      Integer(data["flags"] as number),
+      BearerAuthToken(data["authToken"] as string),
+      UnixTimestamp(data["authExpiry"] as number),
+    );
+  }
 }

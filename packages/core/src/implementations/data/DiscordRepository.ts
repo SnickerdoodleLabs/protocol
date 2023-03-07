@@ -152,7 +152,7 @@ export class DiscordRepository implements IDiscordRepository {
     // throw new Error("Method not implemented.");
     // TODO, we need to update existing profile.
     return this.persistence.updateRecord(
-      ERecordKey.SOCIAL_ACCOUNT,
+      ERecordKey.SOCIAL_PROFILE,
       new VolatileStorageMetadata<DiscordProfile>(
         EBackupPriority.NORMAL,
         discordProfile,
@@ -163,7 +163,7 @@ export class DiscordRepository implements IDiscordRepository {
 
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
     return this.persistence.getAll<DiscordProfile>(
-      ERecordKey.SOCIAL_ACCOUNT,
+      ERecordKey.SOCIAL_PROFILE,
       undefined,
       EBackupPriority.NORMAL,
     );
@@ -173,7 +173,7 @@ export class DiscordRepository implements IDiscordRepository {
   //   discordProfile: DiscordProfile,
   // ): ResultAsync<void, PersistenceError> {
   //   return this.persistence.deleteRecord(
-  //     ERecordKey.SOCIAL_ACCOUNT,
+  //     ERecordKey.SOCIAL_PROFILE,
   //     ??,
   //     EBackupPriority.NORMAL
   //   )
