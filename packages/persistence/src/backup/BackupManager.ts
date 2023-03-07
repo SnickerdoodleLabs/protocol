@@ -76,7 +76,7 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     return this._unpackBlob(backup.blob).andThen((backupBlob) => {

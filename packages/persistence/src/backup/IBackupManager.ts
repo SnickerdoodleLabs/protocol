@@ -29,7 +29,7 @@ export interface IBackupManager {
   restore(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
-  fetchBackupChunk(
+  unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 }

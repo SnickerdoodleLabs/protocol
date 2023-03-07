@@ -15,6 +15,7 @@ import {
   PersistenceError,
   AjaxError,
   EBackupPriority,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
@@ -130,7 +131,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     ).andThen((_) => okAsync(did));
   }
 
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
     return okAsync([]);
   }
 

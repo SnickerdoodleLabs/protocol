@@ -1,4 +1,5 @@
 import {
+  BackupFileName,
   DataWalletBackupID,
   EBackupPriority,
   EVMPrivateKey,
@@ -90,11 +91,11 @@ export interface IDataWalletPersistence {
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
-  fetchBackupChunk(
+  unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
-  listBackupHeaders(): ResultAsync<string[], PersistenceError>;
+  listFileNames(): ResultAsync<BackupFileName[], PersistenceError>;
   fetchBackup(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError>;
