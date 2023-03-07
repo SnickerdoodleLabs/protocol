@@ -44,6 +44,13 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
+  getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    [number, number],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   /**
    * Returns the IPFS CID of the metadata for the contract
    * @param consentContractAddress

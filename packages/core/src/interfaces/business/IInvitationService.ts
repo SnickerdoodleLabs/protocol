@@ -78,11 +78,11 @@ export interface IInvitationService {
   >;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
@@ -115,6 +115,12 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+  >;
+  getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    [number, number],
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getInvitationMetadataByCID(

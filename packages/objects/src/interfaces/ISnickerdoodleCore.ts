@@ -340,6 +340,19 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
+  /**
+   * Returns [number, number] array
+   * first item in array represents capacity of consent contract
+   * second item in array represents number of available "slots" for optIn
+   * @param consentContractAddress
+   */
+  getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    [number, number],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | BlockchainProviderError

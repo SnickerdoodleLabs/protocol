@@ -539,6 +539,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getAvailableInvitationsCID();
   }
 
+  public getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    [number, number],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getOptInCapacityInfo(consentContractAddress);
+  }
+
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | BlockchainProviderError

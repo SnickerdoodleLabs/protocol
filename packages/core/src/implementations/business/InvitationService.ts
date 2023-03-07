@@ -630,6 +630,15 @@ export class InvitationService implements IInvitationService {
       );
   }
 
+  public getOptInCapacityInfo(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    [number, number],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo.getOptInCapacityInfo(consentContractAddress);
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
