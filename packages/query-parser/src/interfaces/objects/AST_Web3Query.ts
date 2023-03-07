@@ -1,3 +1,8 @@
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import {
+  Web3QueryTypes,
+  web3QueryTypes,
+} from "@query-parser/interfaces/objects/query-types/index.js";
 import {
   EWalletDataType,
   ISDQLQueryClause,
@@ -5,7 +10,6 @@ import {
   MissingWalletDataTypeError,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 
 export abstract class AST_Web3Query extends AST_Query {
   constructor(
@@ -26,6 +30,3 @@ export abstract class AST_Web3Query extends AST_Query {
 
   // abstract serialize (): JSON;
 }
-
-const web3QueryTypes = ["nft", "network"] as const;
-export type Web3QueryTypes = (typeof web3QueryTypes)[number];

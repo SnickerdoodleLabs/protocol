@@ -72,3 +72,5 @@ export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";
 
 export * from "@objects/primitives/VolatileStorageKey";
+
+export * from "@objects/primitives/QueryTypes.js";
