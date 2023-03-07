@@ -106,4 +106,10 @@ export const volatileStorageSchema = [
     false,
     new ReceivingAccountMigrator(),
   ),
+  new VolatileTableIndex(
+    ERecordKey.SOCIAL_ACCOUNT,
+    "contractAddress",
+    false,
+    new ReceivingAccountMigrator(),
+  ),
 ];

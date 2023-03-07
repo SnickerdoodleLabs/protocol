@@ -58,3 +58,37 @@ sequenceDiagram
 
     deactivate DW Persistence
 ```
+
+# Data Modeling steps
+Each new type of entity is stored in its object store and each new field for the user is saved in the user object store. In the API, the table names corresponds to the name of the object store. The steps are explained with a new entity called "Animal" for which we need a new object store in the database.
+
+1. First we define the name of the object store in [ERecordKey.ts](./../../packages/persistence/src/ELocalStorageKey.ts). The name of the object store will be and enum value of ERecordKey, ERecordKey.ANIMAL with value SD_ANIMAL.
+2. Then we add the required members in the Animal class by extending the VersionObject class.
+
+```
+    export class Animal extends VersionedObject {
+        public static CURRENT_VERSION = 1;
+        public getVersion(): number {
+            return DiscordProfile.CURRENT_VERSION;
+        }
+        protected factory(data: Record<string, unknown>): Animal {
+            // convert record type to animal type
+        };
+
+        protected getUpgradeFunctions(): Map<
+            number,
+            (data: Record<string, unknown>, version: number) => Record<string, unknown>
+        > {
+            // update old records
+        }
+    }
+```
+3. Now every entity requires a schema which is analogous to table definitions in SQL. We add the schema to [VolatileStorageSchema.ts](./../../packages/persistence/src/volatile/VolatileStorageSchema.ts)
+```
+
+```
+
+4. Create search indices
+
+5. Accessing the store:
+
