@@ -22,7 +22,7 @@ import {
   InvalidParametersError,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
-import argon2 from "argon2";
+// import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
@@ -329,22 +329,22 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(SHA256Hash(hash));
   }
 
-  public hashStringArgon2(message: string): ResultAsync<Argon2Hash, never> {
-    return ResultAsync.fromSafePromise<string, never>(argon2.hash(message)).map(
-      (hash) => {
-        return Argon2Hash(hash);
-      },
-    );
-  }
+  // public hashStringArgon2(message: string): ResultAsync<Argon2Hash, never> {
+  //   return ResultAsync.fromSafePromise<string, never>(argon2.hash(message)).map(
+  //     (hash) => {
+  //       return Argon2Hash(hash);
+  //     },
+  //   );
+  // }
 
-  public verifyHashArgon2(
-    hash: Argon2Hash,
-    message: string,
-  ): ResultAsync<boolean, never> {
-    return ResultAsync.fromSafePromise<boolean, never>(
-      argon2.verify(hash, message),
-    );
-  }
+  // public verifyHashArgon2(
+  //   hash: Argon2Hash,
+  //   message: string,
+  // ): ResultAsync<boolean, never> {
+  //   return ResultAsync.fromSafePromise<boolean, never>(
+  //     argon2.verify(hash, message),
+  //   );
+  // }
 
   public xmur3(str: string): () => number {
     let h = 1779033703 ^ str.length;

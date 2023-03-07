@@ -59,7 +59,8 @@ import {
   ConsentTokenUtils,
   InvitationService,
   MonitoringService,
-  NetworkQueryEvaluator,
+  BlockchainTransactionQueryEvaluator,
+  NftQueryEvaluator,
   ProfileService,
   QueryEvaluator,
   QueryParsingEngine,
@@ -123,8 +124,10 @@ import {
   IBalanceQueryEvaluatorType,
   IConsentTokenUtils,
   IConsentTokenUtilsType,
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
@@ -311,8 +314,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
-    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
-      .to(NetworkQueryEvaluator)
+    bind<IBlockchainTransactionQueryEvaluator>(
+      IBlockchainTransactionQueryEvaluatorType,
+    )
+      .to(BlockchainTransactionQueryEvaluator)
+      .inSingletonScope();
+
+    bind<INftQueryEvaluator>(INftQueryEvaluatorType)
+      .to(NftQueryEvaluator)
       .inSingletonScope();
 
     bind<IQueryEvaluator>(IQueryEvaluatorType)

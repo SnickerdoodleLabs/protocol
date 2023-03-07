@@ -115,6 +115,7 @@ export class QueryService implements IQueryService {
               consentContractAddress,
             )
             .andThen(([permittedQueryIds, expectedRewards]) => {
+            
               return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
                 consentToken,
                 optInKey,
@@ -269,6 +270,7 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
+      
       return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
           this.queryParsingEngine.handleQuery(
@@ -281,6 +283,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
+          
           const maps2 = maps as [InsightString[], EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];

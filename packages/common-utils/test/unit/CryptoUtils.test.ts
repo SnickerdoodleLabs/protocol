@@ -379,47 +379,47 @@ describe("CryptoUtils tests", () => {
     expect(retHash2).toBe(retHash1);
   });
 
-  test("hashStringArgon2 Test", async () => {
-    // Arrange
-    const mocks = new CryptoUtilsMocks();
-    const utils = mocks.factoryCryptoUtils();
+  // test("hashStringArgon2 Test", async () => {
+  //   // Arrange
+  //   const mocks = new CryptoUtilsMocks();
+  //   const utils = mocks.factoryCryptoUtils();
 
-    const message = "Phoebe is cute!";
+  //   const message = "Phoebe is cute!";
 
-    // Act
-    const result1 = await utils.hashStringArgon2(message);
-    const result2 = await utils.hashStringArgon2(message);
+  //   // Act
+  //   const result1 = await utils.hashStringArgon2(message);
+  //   const result2 = await utils.hashStringArgon2(message);
 
-    // Assert
-    expect(result1).toBeDefined();
-    expect(result2).toBeDefined();
-    expect(result1.isErr()).toBeFalsy();
-    expect(result2.isErr()).toBeFalsy();
-    const retHash1 = result1._unsafeUnwrap();
-    const retHash2 = result2._unsafeUnwrap();
-    expect(retHash1.length).toBe(96);
-    expect(retHash2.length).toBe(96);
-    expect(retHash2).not.toBe(retHash1);
-  });
+  //   // Assert
+  //   expect(result1).toBeDefined();
+  //   expect(result2).toBeDefined();
+  //   expect(result1.isErr()).toBeFalsy();
+  //   expect(result2.isErr()).toBeFalsy();
+  //   const retHash1 = result1._unsafeUnwrap();
+  //   const retHash2 = result2._unsafeUnwrap();
+  //   expect(retHash1.length).toBe(96);
+  //   expect(retHash2.length).toBe(96);
+  //   expect(retHash2).not.toBe(retHash1);
+  // });
 
-  test("verifyHashArgon2 Test", async () => {
-    // Arrange
-    const mocks = new CryptoUtilsMocks();
-    const utils = mocks.factoryCryptoUtils();
+  // test("verifyHashArgon2 Test", async () => {
+  //   // Arrange
+  //   const mocks = new CryptoUtilsMocks();
+  //   const utils = mocks.factoryCryptoUtils();
 
-    const message = "Phoebe is cute!";
+  //   const message = "Phoebe is cute!";
 
-    // Act
-    const result = await utils.hashStringArgon2(message).andThen((hash) => {
-      return utils.verifyHashArgon2(hash, message);
-    });
+  //   // Act
+  //   const result = await utils.hashStringArgon2(message).andThen((hash) => {
+  //     return utils.verifyHashArgon2(hash, message);
+  //   });
 
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const verified = result._unsafeUnwrap();
-    expect(verified).toBeTruthy();
-  });
+  //   // Assert
+  //   expect(result).toBeDefined();
+  //   expect(result.isErr()).toBeFalsy();
+  //   const verified = result._unsafeUnwrap();
+  //   expect(verified).toBeTruthy();
+  // });
 
   test("verifySolanaSignature() works", async () => {
     // Arrange

@@ -105,9 +105,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories
       .makeParserAsync(cid, schemaString)
       .andThen((sdqlParser) => {
+      
         return sdqlParser.buildAST();
       })
       .andThen((ast: AST) => {
+      
         const astEvaluator = this.queryFactories.makeAstEvaluator(
           cid,
           ast,
