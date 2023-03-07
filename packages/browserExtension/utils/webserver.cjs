@@ -20,6 +20,7 @@ process.env.__GOOGLE_CLOUD_BUCKET__ = "ceramic-replacement-bucket";
 process.env.__PORTFOLIO_POLLING_INTERVAL__ = "";
 process.env.__TRANSACTION_POLLING_INTERVAL__ = "";
 process.env.__BACKUP_POLLING_INTERVAL__ = "";
+process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
