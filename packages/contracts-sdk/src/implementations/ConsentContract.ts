@@ -212,6 +212,7 @@ export class ConsentContract implements IConsentContract {
   public agreementFlags(
     tokenId: TokenId,
   ): ResultAsync<HexString32, ConsentContractError> {
+  
     return ResultAsync.fromPromise(
       this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
       (e) => {
@@ -512,6 +513,7 @@ export class ConsentContract implements IConsentContract {
   public ownerOf(
     tokenId: TokenId,
   ): ResultAsync<EVMAccountAddress, ConsentContractError> {
+   
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
       (e) => {
@@ -572,6 +574,7 @@ export class ConsentContract implements IConsentContract {
       this.ownerOf(tokenId),
       this.agreementFlags(tokenId),
     ]).andThen(([ownerAddress, agreementFlags]) => {
+    
       return okAsync(
         new ConsentToken(
           this.contractAddress,

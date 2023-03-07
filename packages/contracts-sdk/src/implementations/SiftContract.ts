@@ -1,7 +1,3 @@
-
-import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -17,6 +13,10 @@ import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { EdgeInsetsPropType } from "react-native";
+
+import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 @injectable()
 export class SiftContract implements ISiftContract {

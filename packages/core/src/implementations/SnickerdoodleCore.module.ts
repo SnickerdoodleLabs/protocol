@@ -13,7 +13,6 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -23,8 +22,6 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -62,7 +59,8 @@ import {
   ConsentTokenUtils,
   InvitationService,
   MonitoringService,
-  NetworkQueryEvaluator,
+  BlockchainTransactionQueryEvaluator,
+  NftQueryEvaluator,
   ProfileService,
   QueryEvaluator,
   QueryParsingEngine,
@@ -71,6 +69,12 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdDataRepository,
+  BrowsingDataRepository,
+  LinkedAccountRepository,
+  PortfolioBalanceRepository,
+  TransactionHistoryRepository,
+  DemographicDataRepository,
   AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
@@ -81,6 +85,7 @@ import {
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
+  CoinGeckoTokenPriceRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -119,8 +124,10 @@ import {
   IBalanceQueryEvaluatorType,
   IConsentTokenUtils,
   IConsentTokenUtilsType,
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
@@ -135,6 +142,8 @@ import {
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   IDNSRepository,
   IDNSRepositoryType,
   IInvitationRepository,
@@ -147,6 +156,18 @@ import {
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
   ISiftContractRepositoryType,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IBrowsingDataRepositoryType,
+  IBrowsingDataRepository,
+  ILinkedAccountRepositoryType,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepositoryType,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepositoryType,
+  ITransactionHistoryRepository,
+  IDemographicDataRepositoryType,
+  IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -164,7 +185,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -190,9 +210,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
       .inSingletonScope();
-    bind<IAdService>(IAdServiceType)
-      .to(AdService)
-      .inSingletonScope();
+    bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
@@ -246,6 +264,24 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(CoinGeckoTokenPriceRepository)
       .inSingletonScope();
+    bind<IAdDataRepository>(IAdDataRepositoryType)
+      .to(AdDataRepository)
+      .inSingletonScope();
+    bind<IBrowsingDataRepository>(IBrowsingDataRepositoryType)
+      .to(BrowsingDataRepository)
+      .inSingletonScope();
+    bind<ILinkedAccountRepository>(ILinkedAccountRepositoryType)
+      .to(LinkedAccountRepository)
+      .inSingletonScope();
+    bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
+      .to(PortfolioBalanceRepository)
+      .inSingletonScope();
+    bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
+      .to(TransactionHistoryRepository)
+      .inSingletonScope();
+    bind<IDemographicDataRepository>(IDemographicDataRepositoryType)
+      .to(DemographicDataRepository)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
@@ -278,8 +314,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
-    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
-      .to(NetworkQueryEvaluator)
+    bind<IBlockchainTransactionQueryEvaluator>(
+      IBlockchainTransactionQueryEvaluatorType,
+    )
+      .to(BlockchainTransactionQueryEvaluator)
+      .inSingletonScope();
+
+    bind<INftQueryEvaluator>(INftQueryEvaluatorType)
+      .to(NftQueryEvaluator)
       .inSingletonScope();
 
     bind<IQueryEvaluator>(IQueryEvaluatorType)

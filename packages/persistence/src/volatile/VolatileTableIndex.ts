@@ -1,9 +1,16 @@
-export class VolatileTableIndex {
+import {
+  VersionedObject,
+  VersionedObjectMigrator,
+} from "@snickerdoodlelabs/objects";
+
+export class VolatileTableIndex<T extends VersionedObject> {
+  public static DEFAULT_KEY = "id";
   public constructor(
     public name: string,
     public keyPath: string | string[],
     public autoIncrement: boolean = false,
-    public indexBy?: [string, boolean][],
+    public migrator: VersionedObjectMigrator<T>,
+    public indexBy?: [string | string[], boolean][],
     public disableBackup: boolean = false,
   ) {}
 }

@@ -7,6 +7,7 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
+  BlockNumber,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
@@ -64,6 +65,8 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
         BigNumberString(token.amount),
         token.name,
         chainId,
+        undefined,
+        UnixTimestamp(Number(token.own_timestamp))
       );
     });
 

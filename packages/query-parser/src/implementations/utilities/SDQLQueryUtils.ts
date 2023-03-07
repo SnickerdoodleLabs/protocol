@@ -119,6 +119,188 @@ export class SDQLQueryUtils {
       });
   }
 
+  public getExpectedCompensationIdsByEligibleAdKeys(
+    parser: SDQLParser,
+    eligibleAdKeys: AdKey[],
+  ): CompensationId[] {
+    return this.getExpectedCompensationIdsByAdKeys(parser, eligibleAdKeys);
+  }
+
+  public getExpectedCompensationIdsBySeenAdKeys(
+    parser: SDQLParser,
+    seenAdKeys: AdKey[],
+  ): CompensationId[] {
+    return this.getExpectedCompensationIdsByAdKeys(parser, seenAdKeys);
+  }
+
+  public getExpectedCompensationIdsByAdKeys(
+    parser: SDQLParser,
+    adKeys: AdKey[],
+  ): CompensationId[] {
+    const adCompensationIds = new Set<CompensationId>();
+
+    parser.logicCompensations.forEach((comAst, compExpr) => {
+      const adDependencies = parser.parseAdDependencies(compExpr);
+      if (
+        adDependencies.length > 0 && // Is an ad compensation
+        this.adListContainsAllAdDependencies(adKeys, adDependencies)
+      ) {
+        const comIds = this.extractCompensationIdFromAstWithAlternatives(
+          comAst!,
+        );
+        comIds.forEach((comId) => adCompensationIds.add(comId));
+      }
+    });
+
+    return Array.from(adCompensationIds);
+  }
+
+  public getPermittedQueryIdsFromSchemaString(
+    schemaString: SDQLString,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<
+    QueryIdentifier[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+    return this.parserFactory
+      .makeParser(IpfsCID(""), schemaString)
+      .andThen((parser) => {
+        return parser.buildAST().andThen(() => {
+          return this.getPermittedQueryIds(parser, givenPermissions);
+        });
+      });
+  }
+
+  public getPermittedQueryIds(
+    parser: SDQLParser,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<
+    QueryIdentifier[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+    // for each query, check if permission is given
+    const checks = this.getQueryPermissionChecks(parser, givenPermissions);
+    return ResultUtils.combine(checks).andThen((resultIds) => {
+      return okAsync(
+        resultIds.reduce<QueryIdentifier[]>((acc, next) => {
+          if (next != null) {
+            acc.push(QueryIdentifier(next));
+          }
+          return acc;
+        }, []),
+      );
+    });
+  }
+
+  protected extractCompensationIdFromAst(
+    ast: AST_Expr | Command,
+  ): CompensationId {
+    // console.log("extractCompensationIdFromAst: ast", ast);
+    const compensationAst = this.getCompensationAstFromAst(ast);
+    return CompensationId(compensationAst.name as string);
+  }
+
+  protected extractCompensationIdFromAstWithAlternatives(
+    ast: AST_Expr | Command,
+  ): Set<CompensationId> {
+    // console.log("extractCompensationIdFromAst: ast", ast);
+    const comIds = new Set<CompensationId>();
+    const compensationAst = this.getCompensationAstFromAst(ast);
+    comIds.add(CompensationId(compensationAst.name as string));
+    for (const altId of compensationAst.alternatives) {
+      comIds.add(altId);
+    }
+
+    return comIds;
+  }
+
+  protected getCompensationAstFromAst(
+    ast: AST_Expr | Command,
+  ): AST_Compensation {
+    switch (ast.constructor) {
+      case Command_IF:
+        return this.getCompensationAstFromAst((ast as Command_IF).trueExpr);
+      case AST_Compensation:
+        return ast as AST_Compensation;
+      default:
+        console.error(
+          "getCompensationAstFromAst: Unknown expression to extract compensation from.",
+          ast,
+        );
+        throw new QueryFormatError(
+          "Unknown expression to extract compensation from.",
+        );
+    }
+  }
+
+  protected getAdAstFromAst(ast: AST_Expr | Command): AST_Ad {
+    switch (ast.constructor) {
+      case Command_IF:
+        return this.getAdAstFromAst((ast as Command_IF).trueExpr);
+      case AST_Ad:
+        return ast as AST_Ad;
+      default:
+        console.error(
+          "getAdAstFromAst: Unknown expression to extract ad from.",
+          ast,
+        );
+        throw new QueryFormatError("Unknown expression to extract ad from.");
+    }
+  }
+
+  protected getQueryPermissionChecks(
+    parser: SDQLParser,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<SDQL_Name | null, never>[] {
+    /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
+    const checks: ResultAsync<SDQL_Name | null, never>[] = [];
+    for (const [queryId, query] of parser.queries) {
+      checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
+    }
+
+    return checks;
+  }
+
+  protected queryIdIfPermitted(
+    parser: SDQLParser,
+    query: AST_Query,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<SDQL_Name | null, never> {
+    const flag = parser.getQueryPermissionFlag(query);
+    if (flag.isOk() && givenPermissions.getFlag(flag.value)) {
+      return okAsync(query.name);
+    }
+    return okAsync(null);
+  }
+
+  private getPermittedAdKeysByPermittedQueryIds(
+    parser: SDQLParser,
+    permittedQueryIds: string[],
+  ): AdKey[] {
+    const permittedAdKeys = new Set<AdKey>();
+
+    const queryPermissions =
+      parser.queryIdsToDataPermissions(permittedQueryIds);
+    parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
+      if (queryPermissions.contains(adPermissions!)) {
+        const adAstExpr = parser.logicAds.get(adLogicExpr);
+        const adAst = this.getAdAstFromAst(adAstExpr!);
+
+        permittedAdKeys.add(AdKey(adAst.key));
+      }
+    });
+
+    return Array.from(permittedAdKeys);
+  }
+
   private buildEligibleAdsMap(
     parser: SDQLParser,
     permittedAdKeys: AdKey[],
@@ -197,193 +379,11 @@ export class SDQLQueryUtils {
     return Array.from(queryCompensationIds);
   }
 
-  protected extractCompensationIdFromAst(
-    ast: AST_Expr | Command,
-  ): CompensationId {
-    // console.log("extractCompensationIdFromAst: ast", ast);
-    const compensationAst = this.getCompensationAstFromAst(ast);
-    return CompensationId(compensationAst.name as string);
-  }
-
-  protected extractCompensationIdFromAstWithAlternatives(
-    ast: AST_Expr | Command,
-  ): Set<CompensationId> {
-    // console.log("extractCompensationIdFromAst: ast", ast);
-    const comIds = new Set<CompensationId>();
-    const compensationAst = this.getCompensationAstFromAst(ast);
-    comIds.add(CompensationId(compensationAst.name as string));
-    for (const altId of compensationAst.alternatives) {
-      comIds.add(altId);
-    }
-
-    return comIds;
-  }
-
-  protected getCompensationAstFromAst(
-    ast: AST_Expr | Command,
-  ): AST_Compensation {
-    switch (ast.constructor) {
-      case Command_IF:
-        return this.getCompensationAstFromAst((ast as Command_IF).trueExpr);
-      case AST_Compensation:
-        return ast as AST_Compensation;
-      default:
-        console.error(
-          "getCompensationAstFromAst: Unknown expression to extract compensation from.",
-          ast,
-        );
-        throw new QueryFormatError(
-          "Unknown expression to extract compensation from.",
-        );
-    }
-  }
-
-  public getExpectedCompensationIdsByEligibleAdKeys(
-    parser: SDQLParser,
-    eligibleAdKeys: AdKey[],
-  ): CompensationId[] {
-    return this.getExpectedCompensationIdsByAdKeys(parser, eligibleAdKeys);
-  }
-
-  public getExpectedCompensationIdsBySeenAdKeys(
-    parser: SDQLParser,
-    seenAdKeys: AdKey[],
-  ): CompensationId[] {
-    return this.getExpectedCompensationIdsByAdKeys(parser, seenAdKeys);
-  }
-
-  public getExpectedCompensationIdsByAdKeys(
-    parser: SDQLParser,
-    adKeys: AdKey[],
-  ): CompensationId[] {
-    const adCompensationIds = new Set<CompensationId>();
-
-    parser.logicCompensations.forEach((comAst, compExpr) => {
-      const adDependencies = parser.parseAdDependencies(compExpr);
-      if (
-        adDependencies.length > 0 && // Is an ad compensation
-        this.adListContainsAllAdDependencies(adKeys, adDependencies)
-      ) {
-        const comIds = this.extractCompensationIdFromAstWithAlternatives(
-          comAst!,
-        );
-        comIds.forEach((comId) => adCompensationIds.add(comId));
-      }
-    });
-
-    return Array.from(adCompensationIds);
-  }
-
-  private getPermittedAdKeysByPermittedQueryIds(
-    parser: SDQLParser,
-    permittedQueryIds: string[],
-  ): AdKey[] {
-    const permittedAdKeys = new Set<AdKey>();
-
-    const queryPermissions =
-      parser.queryIdsToDataPermissions(permittedQueryIds);
-    parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
-      if (queryPermissions.contains(adPermissions!)) {
-        const adAstExpr = parser.logicAds.get(adLogicExpr);
-        const adAst = this.getAdAstFromAst(adAstExpr!);
-
-        permittedAdKeys.add(AdKey(adAst.key));
-      }
-    });
-
-    return Array.from(permittedAdKeys);
-  }
-
-  protected getAdAstFromAst(ast: AST_Expr | Command): AST_Ad {
-    switch (ast.constructor) {
-      case Command_IF:
-        return this.getAdAstFromAst((ast as Command_IF).trueExpr);
-      case AST_Ad:
-        return ast as AST_Ad;
-      default:
-        console.error(
-          "getAdAstFromAst: Unknown expression to extract ad from.",
-          ast,
-        );
-        throw new QueryFormatError("Unknown expression to extract ad from.");
-    }
-  }
-
   private adListContainsAllAdDependencies(
     permittedAdKeys: string[],
     adDependencies: AST_Ad[],
   ): boolean {
     return adDependencies.every((ad) => permittedAdKeys.includes(ad.key));
-  }
-
-  public getPermittedQueryIdsFromSchemaString(
-    schemaString: SDQLString,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryIdentifier[],
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  > {
-    return this.parserFactory
-      .makeParser(IpfsCID(""), schemaString)
-      .andThen((parser) => {
-        return parser.buildAST().andThen(() => {
-          return this.getPermittedQueryIds(parser, givenPermissions);
-        });
-      });
-  }
-
-  public getPermittedQueryIds(
-    parser: SDQLParser,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryIdentifier[],
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  > {
-    // for each query, check if permission is given
-    const checks = this.getQueryPermissionChecks(parser, givenPermissions);
-    return ResultUtils.combine(checks).andThen((resultIds) => {
-      return okAsync(
-        resultIds.reduce<QueryIdentifier[]>((acc, next) => {
-          if (next != null) {
-            acc.push(QueryIdentifier(next));
-          }
-          return acc;
-        }, []),
-      );
-    });
-  }
-
-  protected getQueryPermissionChecks(
-    parser: SDQLParser,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<SDQL_Name | null, never>[] {
-    /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
-    const checks: ResultAsync<SDQL_Name | null, never>[] = [];
-    for (const [queryId, query] of parser.queries) {
-      checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
-    }
-
-    return checks;
-  }
-
-  protected queryIdIfPermitted(
-    parser: SDQLParser,
-    query: AST_Query,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<SDQL_Name | null, never> {
-    const flag = parser.getQueryPermissionFlag(query);
-    if (givenPermissions.getFlag(flag)) {
-      return okAsync(query.name);
-    }
-    return okAsync(null);
   }
 
   private getDependenciesByCompensationId(

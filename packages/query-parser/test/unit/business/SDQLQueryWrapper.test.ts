@@ -2,8 +2,8 @@ import "reflect-metadata";
 
 import { ISO8601DateString } from "@snickerdoodlelabs/objects";
 
-import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
 import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
+import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
 
 describe("SDQLQueryWrapper with Avalanche", () => {
   test("avalanche 1 has 4 query schema", () => {
@@ -13,7 +13,7 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect(Object.keys(querySchema).length).toBe(4);
   });
 
-  test("avalanche q1 is a network query", () => {
+  test("avalanche q1 is a blockchain transactions query", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
     const querySchema = sdqlSchema.getQuerySchema();

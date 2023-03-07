@@ -42,8 +42,10 @@ import {
   UninitializedError,
   EVMContractAddress,
   EBackupPriority,
+  AESKey,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
+import { injectable } from "inversify";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 // import fs from "fs";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -53,6 +55,7 @@ import { Environment, TestHarnessMocks } from "@test-harness/mocks";
 import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
+@injectable()
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
   private _unlocked = false;
@@ -65,7 +68,6 @@ export class DataWalletProfile {
   private _destroyed = false;
 
   private coreSubscriptions = new Array<Subscription>();
-
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
@@ -166,7 +168,6 @@ export class DataWalletProfile {
       .andThen(() => {
         this._unlocked = true;
         console.log(`Unlocked account ${wallet.accountAddress}!`);
-
         return this.loadFromPathAfterUnlocked().map(() => {
           console.log(`Loaded complete profile for newly unlocked wallet`);
         });

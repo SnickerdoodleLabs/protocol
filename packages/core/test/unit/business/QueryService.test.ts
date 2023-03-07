@@ -1,6 +1,9 @@
 import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import { QueryService } from "@core/implementations/business/index.js";
+
 import {
   AjaxError,
   EligibleReward,
@@ -14,16 +17,37 @@ import {
   DataPermissions,
   ConsentToken,
   TokenId,
-  IDataWalletPersistence,
   IPFSError,
   SDQLQueryRequest,
   HexString32,
   EVMPrivateKey,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
+
+import {
+  IConsentTokenUtils,
+  IQueryParsingEngine,
+} from "@core/interfaces/business/utilities/index.js";
+
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
+
+import {
+  IConsentContractRepository,
+  ILinkedAccountRepository,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data/index.js";
+
 import { errAsync, okAsync } from "neverthrow";
+
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+
 import { ResultUtils } from "neverthrow-result-utils";
+
+import {
+  IConfigProvider,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
+
 import * as td from "testdouble";
 
 import {
@@ -35,20 +59,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { QueryService } from "@core/implementations/business/index.js";
-import {
-  IConsentTokenUtils,
-  IQueryParsingEngine,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  ISDQLQueryRepository,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-import {
-  IConfigProvider,
-  IDataWalletUtils,
-} from "@core/interfaces/utilities/index.js";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");
@@ -86,7 +96,7 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
-  public persistenceRepo: IDataWalletPersistence;
+  public accountRepo: ILinkedAccountRepository;
 
   public consentToken = new ConsentToken(
     consentContractAddress,
@@ -105,7 +115,7 @@ class QueryServiceMocks {
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
-    this.persistenceRepo = td.object<IDataWalletPersistence>();
+    this.accountRepo = td.object<ILinkedAccountRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -165,7 +175,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
-      this.persistenceRepo
+      this.accountRepo,
     );
   }
 }
@@ -221,41 +231,7 @@ describe("processQuery tests", () => {
       });
   });
 });
-// describe("onQueryPosted tests", () => {
-//   test("onQueryPosted: full run through", async () => {
-//     const mocks = new QueryServiceMocks();
-//     const contextMock = new ContextProviderMock();
-//     const configMock = new ConfigProviderMock();
-//     td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
-//       okAsync(sdqlQuery),
-//     );
-//     td.when(mocks.contextProvider.getContext()).thenReturn(
-//       okAsync(td.matchers.anything()),
-//     );
-//     td.when(mocks.configProvider.getConfig()).thenReturn(
-//       okAsync(td.matchers.anything()),
-//     );
-//     td.when(
-//       mocks.consentContractRepo.isAddressOptedIn(
-//         td.matchers.anything(),
-//         td.matchers.anything(),
-//       ),
-//     ).thenReturn(okAsync(true));
-//     td.when(
-//       mocks.queryParsingEngine.getPreviews(
-//         td.matchers.anything(),
-//         td.matchers.anything(),
-//       ),
-//     ).thenReturn(okAsync([[], []]));
-//     const queryService = mocks.factory(); // new context
-//     const result = await queryService.onQueryPosted(
-//       AndrewContractAddress,
-//       queryCID,
-//     );
-//     console.log("result", result);
-//     expect(result).toBeDefined();
-//   });
-// });
+
 describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
     const mocks = new QueryServiceMocks();
@@ -313,7 +289,7 @@ describe("processRewardsPreview tests", () => {
       mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
         sdqlQuery,
         td.matchers.anything(),
-        td.matchers.anything()
+        td.matchers.anything(),
       ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
@@ -341,7 +317,7 @@ describe("processRewardsPreview tests", () => {
           return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
             query,
             new DataPermissions(allPermissions),
-            consentContractAddress
+            consentContractAddress,
           );
         })
         .andThen((rewardsPreviews) => {
