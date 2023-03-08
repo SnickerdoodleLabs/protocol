@@ -111,14 +111,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     ]
                 }
             }
-<<<<<<< HEAD
-        }
-    },
-  "compensations":{
-
-        "parameters": {
-            "recipientAddress": {
-=======
         },
         "q7": {
             "name": "nft",
@@ -183,7 +175,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         "compensations": {
             "parameters": {
                 "recipientAddress": {
->>>>>>> develop
                 type:...,
                 required: true
                 },
@@ -281,60 +272,13 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             ],
             "compensations": [
                 "if$q1then$c1",
-                "if$q2then$c2",
+                "if$q2>15then$c2",
                 "if$q3then$c3",
                 "if$q4then$c2",
                 "if$q5then$c2",
                 "if$q6then$c2"
             ]
-<<<<<<< HEAD
-
-        },
-        "c4":{
-            "description": "a free CrazyApesClub NFT on Avalanche",
-            "chainId": 43114,
-            "callback": {
-                "parameters": [
-                    "recipientAddress",
-                    "shippingAddress"
-                ],
-                "data": {...an object to be forwarded with the api call}
-            },
-            "alternatives": [
-                "c3",
-                "c5"
-            ]
-
-        },
-        "c5":{
-            "description": "a free CrazyApesClub NFT on Solana",
-            "chainId": -1,
-            "callback": {
-                "parameters": [
-                    "recipientAddress",
-                    "shippingAddress"
-                ],
-                "data": {...an object to be forwarded with the api call}
-            },
-            "alternatives": [
-                "c3",
-                "c4"
-            ]
-
-        },
-    },
-    "logic": {
-        "compensations": [
-            "if$q1then$c1",
-            "if$q2>15then$c2",
-            "if$q3then$c3",
-            "if$q4then$c2",
-            "if$q5then$c2",
-            "if$q6then$c2"
-        ]
-=======
         }
->>>>>>> develop
     }
 ```
 

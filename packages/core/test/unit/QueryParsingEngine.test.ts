@@ -1,6 +1,28 @@
 import "reflect-metadata";
 
-import { jest } from "@jest/globals";
+import {
+  NftQueryEvaluator,
+  QueryEvaluator,
+  QueryParsingEngine,
+  QueryRepository,
+} from "@core/implementations/business";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
+import {
+  AdContentRepository,
+  AdDataRepository,
+} from "@core/implementations/data";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { SnickerdoodleCore } from "@core/index";
+import {
+  IBrowsingDataRepository,
+  IDataWalletPersistence,
+  IDemographicDataRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+} from "@core/interfaces/data/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
@@ -33,36 +55,6 @@ import {
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
-
-import {
-  NftQueryEvaluator,
-  QueryEvaluator,
-  QueryParsingEngine,
-  QueryRepository,
-} from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-<<<<<<< HEAD
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
-import { AdContentRepository, AdDataRepository } from "@core/implementations/data";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { SnickerdoodleCore } from "@core/index";
-=======
-import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
-import { AdContentRepository } from "@core/implementations/data";
-import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { SnickerdoodleCore } from "@core/index";
-import {
-  IBrowsingDataRepository,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepository,
-  IDemographicDataRepository,
-  IDataWalletPersistence,
-} from "@core/interfaces/data/index.js";
->>>>>>> develop
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
-import { IBrowsingDataRepository, IDemographicDataRepository, IPortfolioBalanceRepository, ITransactionHistoryRepository } from "@core/interfaces/data";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -283,22 +275,12 @@ describe("Testing order of results", () => {
       .andThen(([insights, rewards]) => {
         console.log("Insights: ", insights);
         console.log("Rewards: ", rewards);
-<<<<<<< HEAD
         expect(insights.returns).toEqual({
           "if($q1and$q2)then$r1else$r2": "not qualified",
           $r3: country,
           $r4: "female",
           $r5: "{}",
         });
-=======
-
-        expect(insights).toEqual([
-          "not qualified", // as network is false
-          country,
-          "female",
-          "{}",
-        ]);
->>>>>>> develop
         return okAsync(insights);
       })
       .mapErr((e) => {
