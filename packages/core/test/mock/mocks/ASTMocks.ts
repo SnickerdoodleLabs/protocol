@@ -12,21 +12,22 @@ import * as td from "testdouble";
 
 import { ProfileService } from "@core/implementations/business";
 import {
-  NetworkQueryEvaluator,
+  BlockchainTransactionQueryEvaluator,
+  NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
 } from "@core/implementations/business/utilities";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IProfileService } from "@core/interfaces/business";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   IBrowsingDataRepository,
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
   IDemographicDataRepository,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 // const ast = new AST(
@@ -47,7 +48,8 @@ export class ASTMocks {
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
-  public networkQueryEvaluator: INetworkQueryEvaluator;
+  public blockchainTransactionEvaluator: IBlockchainTransactionQueryEvaluator;
+  public nftQueryEvaluator: NftQueryEvaluator;
   public profileService: IProfileService;
 
   public constructor() {
@@ -57,7 +59,10 @@ export class ASTMocks {
       this.queryWrapperFactory,
     );
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
-    this.networkQueryEvaluator = new NetworkQueryEvaluator(this.txRepo);
+    this.blockchainTransactionEvaluator =
+      new BlockchainTransactionQueryEvaluator(this.txRepo);
+    this.nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
+    this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
     this.profileService = new ProfileService(this.demoRepo);
 
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
@@ -65,7 +70,8 @@ export class ASTMocks {
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
-      this.networkQueryEvaluator,
+      this.blockchainTransactionEvaluator,
+      this.nftQueryEvaluator,
       this.profileService,
       this.demoRepo,
       this.browsingRepo,

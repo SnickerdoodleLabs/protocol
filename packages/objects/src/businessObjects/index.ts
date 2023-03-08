@@ -1,5 +1,6 @@
 export * from "@objects/businessObjects/AESEncryptedString";
 export * from "@objects/businessObjects/ChainInformation";
+export * from "@objects/businessObjects/NftHoldings";
 export * from "@objects/businessObjects/ChainTransaction";
 export * from "@objects/businessObjects/ChainTransactionMigrator";
 export * from "@objects/businessObjects/ClickData";

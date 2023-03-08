@@ -17,7 +17,7 @@ export class EvaluationError extends Error {}
 
 export class ParserError extends Error {
   constructor(position: number, message: string) {
-    super(`${position}: {$message}`);
+    super(`${position}: ${message}`);
   }
 }
 

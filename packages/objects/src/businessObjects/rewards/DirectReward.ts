@@ -3,6 +3,7 @@ import { ERewardType } from "@objects/enum";
 import {
   ChainId,
   EVMAccountAddress,
+  EVMContractAddress,
   IpfsCID,
   TransactionReceipt,
   URLString,
@@ -15,8 +16,8 @@ export class DirectReward extends EarnedReward {
     readonly image: IpfsCID | null,
     readonly description: string,
     readonly chainId: ChainId,
-    readonly eoa: EVMAccountAddress,
-    readonly transactionReceipt: TransactionReceipt,
+    readonly contractAddress: EVMContractAddress,
+    readonly recipientAddress: EVMAccountAddress,
   ) {
     super(queryCID, name, image, description, ERewardType.Direct);
   }

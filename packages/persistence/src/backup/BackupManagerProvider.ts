@@ -66,6 +66,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.cryptoUtils,
         this.storageUtils,
         config.backupChunkSizeTarget,
+        config.enableBackupEncryption,
       );
     });
 

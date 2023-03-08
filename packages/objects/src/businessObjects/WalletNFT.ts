@@ -8,5 +8,6 @@ export abstract class WalletNFT {
     public chain: ChainId,
     public owner: AccountAddress,
     public token: TokenAddress,
+    public name: string,
   ) {}
 }
