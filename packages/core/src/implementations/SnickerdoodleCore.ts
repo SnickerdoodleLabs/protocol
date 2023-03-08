@@ -116,6 +116,7 @@ import {
   EligibleAd,
   AdSignature,
   PossibleReward,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -202,6 +203,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  fetchBackupChunk(backup: IDataWalletBackup): ResultAsync<string, PersistenceError> {
+    throw new Error("Method not implemented.");
   }
 
   public getListingsTotal(): ResultAsync<
@@ -803,6 +810,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.fetchBackup(backupHeader);
+  }
+
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
@@ -810,30 +826,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.postBackups();
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
-    return persistence.listBackupChunks();
-  }
-
   // and to fetch a specific chunk and decrypt it.
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.fetchBackupChunk(backup);
+    return persistence.unpackBackupChunk(backup);
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
+  }
+
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.listFileNames();
   }
 
   public getTokenPrice(

@@ -79,37 +79,12 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    return okAsync(this.chunkQueue);
-  }
-
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils
-      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-      .andThen((aesKey) => {
-        const fetchedBackup = this.chunkQueue.find(
-          (element) => element == backup,
-        );
-        if (fetchedBackup == undefined) {
-          return errAsync(
-            new PersistenceError("invalid backup chunk detected"),
-          );
-        }
-
-        if (!this.enableEncryption) {
-          return okAsync(JSON.stringify(fetchedBackup.blob));
-        }
-
-        return this.cryptoUtils.decryptAESEncryptedString(
-          fetchedBackup.blob as AESEncryptedString,
-          aesKey,
-        );
-      });
+    return this._unpackBlob(backup.blob).andThen((backupBlob) => {
+      return okAsync(JSON.stringify(backupBlob));
+    });
   }
 
   public deleteRecord(
