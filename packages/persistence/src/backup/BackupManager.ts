@@ -19,12 +19,10 @@ import {
   EVMAccountAddress,
   RestoredBackupMigrator,
   AESKey,
+  ERecordKey,
+  ELocalStorageKey,
+  EFieldKey,
 } from "@snickerdoodlelabs/objects";
-// import {
-//   EFieldKey,
-//   ERecordKey,
-//   EELocalStorageKey,
-// } from "@snickerdoodlelabs/objects/src/enum/EELocalStorageKey";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -38,8 +36,6 @@ import {
   IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
-import { ERecordKey } from "@snickerdoodlelabs/objects";
-import { ELocalStorageKey } from "@snickerdoodlelabs/objects";
 
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
@@ -68,6 +64,12 @@ export class BackupManager implements IBackupManager {
     );
     // this.tableNames = this.schema.map((x) => x.name);
     // this.fieldUpdates = this.schema.map((x) => x.name);
+    console.log("this.schema: ", this.schema);
+    console.log(
+      "this.schema names: ",
+      this.schema.map((x) => x.name),
+    );
+
     this.schema.forEach((tableHeaderName) => {
       console.log("Schema : ", tableHeaderName);
       this.chunkRenderingMap.set(
@@ -210,7 +212,27 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
+    console.log("updateField: ", key);
+    console.log("updateField value: ", value);
+    console.log("updateField priority: ", priority);
+    console.log("this.chunkRenderingMap: ", this.chunkRenderingMap);
+    console.log("key as ELocalStorageKey: ", key as ELocalStorageKey);
+
+    if (this.chunkRenderingMap.get(key as ELocalStorageKey) == undefined) {
+      this.chunkRenderingMap.set(
+        key as EFieldKey,
+        new ChunkRenderer(
+          this.privateKey,
+          this.volatileStorage,
+          this.cryptoUtils,
+          this.storageUtils,
+          key as EFieldKey,
+        ),
+      );
+    }
     const renderer = this.chunkRenderingMap.get(key as ELocalStorageKey);
+    console.log("updateField renderer: ", renderer);
+
     return renderer!.updateField(key, value, priority).andThen(() => {
       return this._checkSize();
     });

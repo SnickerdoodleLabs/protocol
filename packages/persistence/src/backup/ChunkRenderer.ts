@@ -24,15 +24,13 @@ import {
   BackupBlob,
   Signature,
   RestoredBackupMigrator,
+  EFieldKey,
+  ELocalStorageKey,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-// import {
-//   EFieldKey,
-//   ERecordKey,
-//   LocalStorageKey,
-// } from "@snickerdoodlelabs/objects/src/enum/LocalStorageKey";
 
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import {
@@ -40,9 +38,6 @@ import {
   IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
-import { EFieldKey } from "@snickerdoodlelabs/objects";
-import { ELocalStorageKey } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 export class ChunkRenderer implements IChunkRenderer {
   private fieldUpdates: FieldMap = {};
@@ -65,10 +60,23 @@ export class ChunkRenderer implements IChunkRenderer {
     public key: ELocalStorageKey,
   ) {
     this.clear();
-    if (typeof key == typeof EFieldKey) {
-      this.updatesMap = this.fieldUpdates;
+    console.log("constructing this.updatesMap: ", key);
+    const fieldkeys = Object.keys(EFieldKey);
+    console.log("fieldkeys: ", fieldkeys);
+    if (fieldkeys.includes(key)) {
+      // this.updatesMap[] = this.fieldUpdates;
+      // this.updatesMap[key] = new FieldDataUpdate(
+      //   key,
+      //   serialized,
+      //   Date.now(),
+      //   priority,
+      // );
+      this.updatesMap[key] = [];
+      console.log("constructing this.fieldUpdates: ", this.updatesMap);
     } else {
-      this.updatesMap = this.tableUpdates;
+      // this.updatesMap = this.tableUpdates;
+      this.updatesMap[key] = [];
+      console.log("constructing this.tableUpdates: ", this.updatesMap);
     }
   }
 
@@ -82,17 +90,25 @@ export class ChunkRenderer implements IChunkRenderer {
     tableName: ERecordKey, // ERecordKey
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    this.numUpdates += 1;
-    this.updatesMap[this.key].push(
-      new VolatileDataUpdate(
-        EDataUpdateOpCode.UPDATE,
-        value.data,
-        value.lastUpdate,
-        value.priority,
-        value.version,
-      ),
-    );
-    return this.volatileStorage.putObject<T>(this.key, value);
+    if (this.updatesMap.hasOwnProperty(tableName)) {
+      this.numUpdates += 1;
+      console.log("this.updatesMap: ", this.updatesMap);
+      console.log("this.key: ", this.key);
+      console.log("tableName: ", tableName);
+      console.log("value: ", value);
+
+      this.updatesMap[this.key].push(
+        new VolatileDataUpdate(
+          EDataUpdateOpCode.UPDATE,
+          value.data,
+          value.lastUpdate,
+          value.priority,
+          value.version,
+        ),
+      );
+      return this.volatileStorage.putObject<T>(this.key, value);
+    }
+    return okAsync(undefined);
   }
 
   public deleteRecord(
@@ -119,6 +135,12 @@ export class ChunkRenderer implements IChunkRenderer {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
+    console.log("Inside ChunkRenderer updateField: ");
+    console.log("key: ", key);
+    console.log("this.key: ", this.key);
+    console.log("value: ", value);
+    console.log("priority: ", priority);
+
     const serialized = JSON.stringify(value);
     const timestamp = Date.now();
     this.updatesMap[this.key] = new FieldDataUpdate(
@@ -243,6 +265,10 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {
+    console.log("_updateFieldHistory: ", field);
+    console.log("_updateFieldHistory timestamp: ", timestamp);
+    console.log("_updateFieldHistory this.fieldHistory: ", this.fieldHistory);
+
     if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
       this.fieldHistory[field] = timestamp;
     }
