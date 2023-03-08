@@ -9,6 +9,7 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
@@ -25,7 +26,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
@@ -39,69 +40,77 @@ export class CampaignService implements ICampaignService {
     protected queryParsingEngine: IQueryParsingEngine,
     @inject(ISDQLQueryRepositoryType)
     protected sdqlQueryRepo: ISDQLQueryRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
-    return this._getPublishedQueries(contractAddresses).andThen(
-      (contractsToCids) => {
-        return this._getPossibleRewards(contractsToCids);
-      },
+    if (!contractAddresses) {
+      return okAsync(new Map());
+    }
+    return ResultUtils.combine(
+      contractAddresses.map((address) => {
+        return this._getPublishedQueries(address).andThen((queries) => {
+          return this._getPossibleRewards(queries).map(
+            (rewards) =>
+              [address, rewards] as [EVMContractAddress, PossibleReward[]],
+          );
+        });
+      }),
+    ).map(this._filterEmptyRewards);
+  }
+
+  private _filterEmptyRewards(
+    contractToRewardsTuples: [EVMContractAddress, PossibleReward[]][],
+  ): Map<EVMContractAddress, PossibleReward[]> {
+    return new Map(
+      contractToRewardsTuples.filter(
+        (tuple) => tuple.length == 2 && tuple[1].length > 0,
+      ),
     );
   }
 
   private _getPublishedQueries(
-    contractAddresses: EVMContractAddress[],
+    contractAddress: EVMContractAddress,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
   ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID[]>,
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+  > {
+    return this._getConsentContract(contractAddress)
+      .andThen((contract) => {
+        return this._getPublishedQueriesPerContract(
+          contract,
+          fromBlock,
+          toBlock,
+        );
+      })
+      .orElse((e) => {
+        this.logUtils.warning(
+          `No contract could be retrieved with address ${contractAddress}. ` +
+            `Returning [] as published queries. Error message: ${e.message}`,
+        );
+        return okAsync([]);
+      });
+  }
+
+  private _getConsentContract(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentContract,
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
     | ConsentContractError
   > {
     return this.consentContractRepository
-      .getConsentContracts(contractAddresses)
-      .andThen((consentContractsMap) => {
-        return this._getPublishedQueriesByConsentContracts(
-          consentContractsMap,
-          fromBlock,
-          toBlock,
-        );
-      });
-  }
-
-  private _getPublishedQueriesByConsentContracts(
-    consentContractsMap: Map<EVMContractAddress, IConsentContract>,
-    fromBlock?: BlockNumber,
-    toBlock?: BlockNumber,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID[]>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | ConsentContractError
-  > {
-    return ResultUtils.combine(
-      Array.from(consentContractsMap.values()).map((consentContract) => {
-        return this._getPublishedQueriesPerContract(
-          consentContract,
-          fromBlock,
-          toBlock,
-        ).map(
-          (queryCidList) =>
-            [consentContract.getContractAddress(), queryCidList] as [
-              EVMContractAddress,
-              IpfsCID[],
-            ],
-        );
-      }),
-    ).map(
-      (contractCidListEntries) =>
-        new Map<EVMContractAddress, IpfsCID[]>(contractCidListEntries),
-    );
+      .getConsentContracts([contractAddress])
+      .map((consentContractsMap) => consentContractsMap.get(contractAddress)!);
   }
 
   private _getPublishedQueriesPerContract(
@@ -129,46 +138,19 @@ export class CampaignService implements ICampaignService {
   }
 
   private _getPossibleRewards(
-    contractsToCids: Map<EVMContractAddress, IpfsCID[]>,
-  ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
-    EvaluationError | AjaxError
-  > {
-    return ResultUtils.combine(
-      Array.from(contractsToCids.keys()).map((contractAddress) => {
-        return this._getPossibleRewardsPerContract(
-          contractAddress,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          contractsToCids.get(contractAddress)!,
-        );
-      }),
-    ).map((contractToRewardsEntries) => new Map(contractToRewardsEntries));
-  }
-
-  private _getPossibleRewardsPerContract(
-    contractAddress: EVMContractAddress,
-    publishedQueryCids: IpfsCID[],
-  ): ResultAsync<
-    [EVMContractAddress, PossibleReward[]],
-    EvaluationError | AjaxError
-  > {
-    return this._getAllRewardsOfCampaign(publishedQueryCids).map(
-      (allRewards) => [contractAddress, allRewards],
-    );
-  }
-
-  private _getAllRewardsOfCampaign(
-    publishedQueryCids: IpfsCID[],
+    queryCids: IpfsCID[],
   ): ResultAsync<PossibleReward[], EvaluationError | AjaxError> {
+    if (!queryCids || queryCids.length == 0) {
+      return okAsync([]);
+    }
     return ResultUtils.combine(
-      publishedQueryCids.map((cid) =>
+      queryCids.map((cid) =>
         this._getPossibleRewardsPerQuery(cid, this.QUERY_GET_TIMEOUT),
       ),
     ).map((rewardsOfAllQueries) =>
       Array.from(new Set(rewardsOfAllQueries.flat())),
     );
   }
-
   private _getPossibleRewardsPerQuery(
     queryCid: IpfsCID,
     timeoutMs: number,
