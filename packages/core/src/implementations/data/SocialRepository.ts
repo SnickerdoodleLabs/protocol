@@ -16,6 +16,7 @@ import {
   PersistenceError,
   EBackupPriority,
   VolatileStorageMetadata,
+  SocialProfile,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -42,23 +43,56 @@ export class SocialRepository implements ISocialRepository {
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
   ) {}
-  upsertDiscordProfile(
-    discordProfile: DiscordProfile,
+
+  public upsertProfile(
+    socialProfile: SocialProfile,
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    return this.persistence.updateRecord(
+      ERecordKey.SOCIAL_PROFILE,
+      new VolatileStorageMetadata<SocialProfile>(
+        EBackupPriority.NORMAL,
+        socialProfile,
+        socialProfile.getVersion(),
+      ),
+    );
   }
-  getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    throw new Error("Method not implemented.");
+
+  public getProfiles(): ResultAsync<SocialProfile[], PersistenceError> {
+    return this.persistence.getAll<SocialProfile>(ERecordKey.SOCIAL_PROFILE);
   }
-  upsertDiscordGuildProfiles(
+
+  public upsertDiscordGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    return ResultUtils.combine(
+      discordGuildProfiles.map((dProfile) => {
+        return this.upsertDiscordGuildProfile(dProfile);
+      }),
+    ).map(() => undefined);
   }
-  getDiscordGuildProfiles(): ResultAsync<
+
+  public upsertDiscordGuildProfile(
+    discordGuildProfile: DiscordGuildProfile,
+  ): ResultAsync<void, PersistenceError> {
+    // TODO, we need to update existing profile.
+    return this.persistence.updateRecord(
+      ERecordKey.SOCIAL_GROUP,
+      new VolatileStorageMetadata<DiscordGuildProfile>(
+        EBackupPriority.NORMAL,
+        discordGuildProfile,
+        DiscordProfile.CURRENT_VERSION,
+      ),
+    );
+  }
+
+  public getDiscordGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.persistence.getAll<DiscordGuildProfile>(
+      ERecordKey.SOCIAL_GROUP,
+      undefined,
+      EBackupPriority.NORMAL,
+    );
   }
 }

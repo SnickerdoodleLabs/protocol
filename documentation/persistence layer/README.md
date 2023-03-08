@@ -73,6 +73,7 @@ We add the migrator definition to the same file where we defined the Animal clas
 5. Accessing the store: The store is access through the interface of [IDataWalletPersistence](./../../packages/core/src/interfaces/data/utilities/IDataWalletPersistence.ts). It supports basic CRUD methods. Here goes the sample repository methods to access our animal data:
 
 In the examples, **this.persistence** is an instance of DataWalletPersistence. All the update methods need a backup priority flag either as a parameter or an attribute of the object. 
+
 **Add an animal**: We add a new object to the store by wrapping it in a [VolatileStorageMetadata](./../../packages/objects/src/businessObjects/VolatileStorageMetadata.ts) object.
 ```
     const myDog = new Animal("XX12", "Tom");

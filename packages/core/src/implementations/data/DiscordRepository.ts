@@ -26,6 +26,8 @@ import { urlJoin } from "url-join-ts";
 import {
   IDataWalletPersistenceType,
   IDataWalletPersistence,
+  ISocialRepositoryType,
+  ISocialRepository,
 } from "@core/interfaces/data";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
@@ -40,6 +42,8 @@ export class DiscordRepository implements IDiscordRepository {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(ISocialRepositoryType)
+    protected socialRepository: ISocialRepository,
   ) {}
 
   protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
