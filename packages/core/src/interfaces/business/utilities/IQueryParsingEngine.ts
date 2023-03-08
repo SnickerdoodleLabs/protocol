@@ -3,12 +3,12 @@ import {
   EligibleReward,
   ExpectedReward,
   EvaluationError,
-  InsightString,
   QueryFormatError,
   SDQLQuery,
   QueryIdentifier,
   IDynamicRewardParameter,
   EVMContractAddress,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -23,7 +23,7 @@ export interface IQueryParsingEngine {
     dataPermissions: DataPermissions,
     parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
-    [InsightString[], EligibleReward[]],
+    [IInsights, EligibleReward[]],
     EvaluationError | QueryFormatError
   >;
 }

@@ -1,4 +1,28 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { IQueryService } from "@core/interfaces/business/index.js";
+import {
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -27,39 +51,11 @@ import {
   QueryIdentifier,
   ExpectedReward,
   EVMPrivateKey,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-
-import { IQueryService } from "@core/interfaces/business/index.js";
-
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import {
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities/index.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
-
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -115,7 +111,6 @@ export class QueryService implements IQueryService {
               consentContractAddress,
             )
             .andThen(([permittedQueryIds, expectedRewards]) => {
-            
               return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
                 consentToken,
                 optInKey,
@@ -270,7 +265,6 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
-      
       return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
           this.queryParsingEngine.handleQuery(
@@ -283,8 +277,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 

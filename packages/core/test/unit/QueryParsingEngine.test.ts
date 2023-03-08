@@ -1,39 +1,5 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  Age,
-  CountryCode,
-  DataPermissions,
-  ERewardType,
-  ExpectedReward,
-  Gender,
-  HexString32,
-  IpfsCID,
-  QueryIdentifier,
-  SDQLQuery,
-  SDQLString,
-  SDQL_Return,
-  ChainId,
-  ISDQLCompensations,
-  TransactionPaymentCounter,
-  QueryFilteredByPermissions,
-  CompensationId,
-} from "@snickerdoodlelabs/objects";
-import {
-  avalanche1ExpiredSchemaStr,
-  avalanche2SchemaStr,
-  avalanche4SchemaStr,
-  IQueryObjectFactory,
-  ISDQLQueryWrapperFactory,
-  QueryObjectFactory,
-  SDQLQueryWrapperFactory,
-  ISDQLQueryUtils,
-} from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
-import { BaseOf } from "ts-brand";
-
 import {
   NftQueryEvaluator,
   QueryEvaluator,
@@ -42,19 +8,53 @@ import {
 } from "@core/implementations/business";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
-import { AdContentRepository } from "@core/implementations/data";
-import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
+import {
+  AdContentRepository,
+  AdDataRepository,
+} from "@core/implementations/data";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { SnickerdoodleCore } from "@core/index";
 import {
   IBrowsingDataRepository,
+  IDataWalletPersistence,
+  IDemographicDataRepository,
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
-  IDemographicDataRepository,
-  IDataWalletPersistence,
 } from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  Age,
+  ChainId,
+  CompensationId,
+  CountryCode,
+  DataPermissions,
+  ERewardType,
+  ExpectedReward,
+  Gender,
+  HexString32,
+  IpfsCID,
+  ISDQLCompensations,
+  QueryIdentifier,
+  SDQLQuery,
+  SDQLString,
+  SDQL_Return,
+  TransactionPaymentCounter,
+} from "@snickerdoodlelabs/objects";
+import {
+  avalanche1ExpiredSchemaStr,
+  avalanche2SchemaStr,
+  avalanche4SchemaStr,
+  IQueryObjectFactory,
+  ISDQLQueryUtils,
+  ISDQLQueryWrapperFactory,
+  QueryObjectFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { okAsync } from "neverthrow";
+import * as td from "testdouble";
+import { BaseOf } from "ts-brand";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -102,30 +102,15 @@ class QueryParsingMocks {
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.snickerDoodleCore = new SnickerdoodleCore();
+    this.snickerDoodleCore = new SnickerdoodleCore(
+      undefined,
+      undefined,
+      td.object(),
+    );
     this.queryFactories = new QueryFactories(
       this.queryObjectFactory,
       this.queryWrapperFactory,
     );
-
-    td.when(this.demoDataRepo.getGender()).thenReturn(
-      okAsync(Gender("female")),
-    );
-    td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
-
-    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
-      okAsync(new Map()),
-    );
-
-    td.when(
-      this.transactionRepo.getTransactions(td.matchers.anything()),
-    ).thenReturn(okAsync([]));
-
-    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
-      okAsync(new Array<TransactionPaymentCounter>()),
-    );
-
-    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
     const expectedCompensationsMap = new Map<
       CompensationId,
@@ -145,21 +130,6 @@ class QueryParsingMocks {
         chainId: ChainId(1),
       } as ISDQLCompensations);
 
-    td.when(
-      this.queryUtils.filterQueryByPermissions(
-        sdqlQuery4.query,
-        new DataPermissions(allPermissions),
-      ),
-    ).thenReturn(
-      okAsync(
-        new QueryFilteredByPermissions(
-          ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"].map(QueryIdentifier),
-          expectedCompensationsMap,
-          new Map(),
-        ),
-      ),
-    );
-
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
@@ -174,6 +144,30 @@ class QueryParsingMocks {
       new AjaxUtilsMock(),
       new ConfigProviderMock(),
     );
+
+    td.when(this.demoDataRepo.getGender()).thenReturn(
+      okAsync(Gender("female")),
+    );
+    // td.when(this.snickerDoodleCore.getAge()).thenReturn(okAsync(Age(10)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(10)));
+    td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
+    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
+      okAsync(new Map()),
+    );
+    td.when(
+      this.transactionRepo.getTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
+    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
+      okAsync(new Array<TransactionPaymentCounter>()),
+    );
+    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
+
+    td.when(
+      this.queryUtils.getPermittedQueryIds(
+        td.matchers.anything(),
+        new DataPermissions(allPermissions),
+      ),
+    ).thenReturn(okAsync([] as QueryIdentifier[]));
   }
 
   public factory() {
@@ -273,22 +267,20 @@ describe("single Tests", () => {
 
 describe("Testing order of results", () => {
   const mocks = new QueryParsingMocks();
-  test("No null insight with all permissions given", async () => {
-    const engine = mocks.factory();
+  const engine = mocks.factory();
 
+  test("No null insight with all permissions given", async () => {
     await engine
       .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
       .andThen(([insights, rewards]) => {
-        // console.log(insights);
         console.log("Insights: ", insights);
         console.log("Rewards: ", rewards);
-
-        expect(insights).toEqual([
-          "not qualified", // as network is false
-          country,
-          "female",
-          "{}",
-        ]);
+        expect(insights.returns).toEqual({
+          "if($q1and$q2)then$r1else$r2": "not qualified",
+          $r3: country,
+          $r4: "female",
+          $r5: "{}",
+        });
         return okAsync(insights);
       })
       .mapErr((e) => {

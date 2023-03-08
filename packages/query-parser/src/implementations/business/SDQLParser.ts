@@ -1,5 +1,24 @@
 import "reflect-metadata";
 
+import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
+import {
+  AST,
+  AST_Ad,
+  AST_BalanceQuery,
+  AST_Compensation,
+  AST_Expr,
+  AST_Logic,
+  AST_Web3Query,
+  AST_PropertyQuery,
+  AST_Query,
+  AST_Return,
+  AST_ReturnExpr,
+  AST_Returns,
+  Command,
+  IQueryObjectFactory,
+  ParserContextDataTypes,
+  SDQLQueryWrapper,
+} from "@query-parser/interfaces/index.js";
 import {
   AdKey,
   DataPermissions,
@@ -21,26 +40,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
-import {
-  AST,
-  AST_Ad,
-  AST_BalanceQuery,
-  AST_Compensation,
-  AST_Expr,
-  AST_Logic,
-  AST_Web3Query,
-  AST_PropertyQuery,
-  AST_Query,
-  AST_Return,
-  AST_ReturnExpr,
-  AST_Returns,
-  Command,
-  IQueryObjectFactory,
-  ParserContextDataTypes,
-  SDQLQueryWrapper,
-} from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
@@ -140,9 +139,7 @@ export class SDQLParser {
       this.validateMeta(schema),
       this.validateTimeStampExpiry(schema, cid),
       this.validateQuery(schema),
-      this.validateReturns(schema),
       this.validateCompenstations(schema),
-      this.validateReturns(schema),
       this.validateLogic(schema),
     ]).andThen(() => {
       return okAsync(undefined);
@@ -208,25 +205,12 @@ export class SDQLParser {
     return okAsync(undefined);
   }
 
-  public validateReturns(
-    schema: SDQLQueryWrapper,
-  ): ResultAsync<void, QueryFormatError | QueryFormatError> {
-    if (schema.returns === undefined) {
-      return errAsync(new QueryFormatError("schema missing returns"));
-    }
-    return okAsync(undefined);
-  }
-
   public validateLogic(
     schema: SDQLQueryWrapper,
   ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     if (schema.logic === undefined) {
       return errAsync(new QueryFormatError("schema missing logic"));
     }
-    if (schema.logic["returns"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing logic->returns"));
-    }
-
     if (schema.logic["compensations"] === undefined) {
       return errAsync(
         new QueryFormatError("schema missing logic->compensations"),
@@ -338,6 +322,10 @@ export class SDQLParser {
   > {
     try {
       const returnsSchema = this.schema.getReturnSchema();
+      if (!returnsSchema) {
+        return okAsync(undefined);
+      }
+
       const returns = new Array<AST_ReturnExpr>();
 
       for (const rName in returnsSchema) {
@@ -448,10 +436,14 @@ export class SDQLParser {
   > {
     try {
       const logicSchema = this.schema.getLogicSchema();
-      this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
+
       this.logicCompensations = this.parseLogicExpressions(
         logicSchema.compensations,
       );
+
+      if (logicSchema.returns) {
+        this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
+      }
 
       if (logicSchema.ads) {
         this.logicAds = this.parseLogicExpressions(logicSchema.ads);
@@ -493,13 +485,16 @@ export class SDQLParser {
   > {
     try {
       const logicSchema = this.schema.getLogicSchema();
-      this.returnPermissions = this.parseLogicPermissions(
-        logicSchema["returns"],
-      );
 
       this.compensationPermissions = this.parseLogicPermissions(
         logicSchema["compensations"],
       );
+
+      if (logicSchema["returns"]) {
+        this.returnPermissions = this.parseLogicPermissions(
+          logicSchema["returns"],
+        );
+      }
 
       if (logicSchema["ads"]) {
         this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);
