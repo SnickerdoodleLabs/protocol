@@ -27,6 +27,13 @@ import {
   URLString,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { ResultAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   ONBOARDING_PROVIDER_SUBSTREAM,
@@ -36,12 +43,6 @@ import {
   TNotification,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { ResultAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
