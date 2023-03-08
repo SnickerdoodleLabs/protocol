@@ -55,6 +55,7 @@ jobs:
 
   deploy:
     name: Deploy
+    needs: [ setup-build-publish-deploy ]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
