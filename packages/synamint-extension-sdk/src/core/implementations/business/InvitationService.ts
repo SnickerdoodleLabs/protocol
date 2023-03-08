@@ -1,18 +1,3 @@
-import { IInvitationService } from "@synamint-extension-sdk/core/interfaces/business";
-import {
-  IInvitationRepository,
-  IInvitationRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data/IInvitationRepository";
-import {
-  IContextProvider,
-  IContextProviderType,
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities";
-import {
-  ExtensionStorageError,
-  SnickerDoodleCoreError,
-} from "@synamint-extension-sdk/shared";
 import {
   Invitation,
   DataPermissions,
@@ -28,6 +13,22 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { IInvitationService } from "@synamint-extension-sdk/core/interfaces/business";
+import {
+  IInvitationRepository,
+  IInvitationRepositoryType,
+} from "@synamint-extension-sdk/core/interfaces/data/IInvitationRepository";
+import {
+  IContextProvider,
+  IContextProviderType,
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  ExtensionStorageError,
+  SnickerDoodleCoreError,
+} from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class InvitationService implements IInvitationService {

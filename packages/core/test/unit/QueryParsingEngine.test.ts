@@ -34,7 +34,6 @@ import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import {
   NftQueryEvaluator,
   QueryEvaluator,
@@ -55,6 +54,7 @@ import {
   IDataWalletPersistence,
 } from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(

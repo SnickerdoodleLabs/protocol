@@ -37,6 +37,16 @@ import {
   SiteVisit,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import {
+  AsyncJsonRpcEngineNextCallback,
+  JsonRpcRequest,
+  PendingJsonRpcResponse,
+} from "json-rpc-engine";
+import { okAsync, ResultAsync } from "neverthrow";
+import { parse } from "tldts";
+import { Runtime } from "webextension-polyfill";
+
 import { AsyncRpcResponseSender } from "@synamint-extension-sdk/core/implementations/utilities";
 import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
@@ -107,15 +117,6 @@ import {
   mapToObj,
   SnickerDoodleCoreError,
 } from "@synamint-extension-sdk/shared";
-import { inject, injectable } from "inversify";
-import {
-  AsyncJsonRpcEngineNextCallback,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-} from "json-rpc-engine";
-import { okAsync, ResultAsync } from "neverthrow";
-import { parse } from "tldts";
-import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
