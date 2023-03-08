@@ -15,6 +15,8 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICampaignService,
+  ICampaignServiceType,
   IInvitationService,
   IInvitationServiceType,
   IProfileService,
@@ -865,62 +867,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
-  ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | ConsentContractError
-    | EvaluationError
-  > {
-    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-      IBlockchainListenerType,
-    );
-    return blockchainListener
-      .getAllQueryCIDs(contractAddresses)
-      .andThen((contractsToCids) => {
-        return this._getPossibleRewards(contractsToCids);
-      });
-  }
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
+    const campaignService =
+      this.iocContainer.get<ICampaignService>(ICampaignServiceType);
 
-  private _getPossibleRewards(
-    contractsToCids: Map<EVMContractAddress, IpfsCID[]>,
-  ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
-    EvaluationError | AjaxError
-  > {
-    return ResultUtils.combine(
-      Array.from(contractsToCids.keys()).map((contractAddress) => {
-        return this._getPossibleRewardsPerContract(
-          contractAddress,
-          contractsToCids[contractAddress],
-        );
-      }),
-    ).map((contractToRewardsEntries) => new Map(contractToRewardsEntries));
-  }
-
-  private _getPossibleRewardsPerContract(
-    contractAddress: EVMContractAddress,
-    publishedQueryCids: IpfsCID[],
-  ): ResultAsync<
-    [EVMContractAddress, PossibleReward[]],
-    EvaluationError | AjaxError
-  > {
-    const queryService =
-      this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-    const possibleRewards = new Set<PossibleReward>();
-
-    return ResultUtils.combine(
-      publishedQueryCids.map((cid) => queryService.getPossibleRewards(cid, 3)),
-    )
-      .map((rewardsOfAllQueries) => {
-        for (const rewardList of rewardsOfAllQueries) {
-          for (const reward of rewardList) {
-            possibleRewards.add(reward);
-          }
-        }
-      })
-      .map(() => [contractAddress, Array.from(possibleRewards)]);
+    return campaignService.getPossibleRewards(contractAddresses);
   }
 }

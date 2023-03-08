@@ -34,24 +34,23 @@ import {
 import {
   AjaxError,
   ConsentError,
-  ConsentToken,
-  EligibleReward,
   EvaluationError,
   EVMContractAddress,
-  EVMPrivateKey,
-  ExpectedReward,
-  IDynamicRewardParameter,
   InsightString,
   IpfsCID,
   IPFSError,
-  LinkedAccount,
-  PossibleReward,
   QueryFormatError,
-  QueryIdentifier,
+  UninitializedError,
+  EligibleReward,
   SDQLQuery,
   SDQLQueryRequest,
+  ConsentToken,
   ServerRewardError,
-  UninitializedError,
+  IDynamicRewardParameter,
+  LinkedAccount,
+  QueryIdentifier,
+  ExpectedReward,
+  EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -125,100 +124,6 @@ export class QueryService implements IQueryService {
             });
         });
     });
-  }
-
-  public processQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    rewardParameters: IDynamicRewardParameter[],
-  ): ResultAsync<
-    void,
-    | AjaxError
-    | UninitializedError
-    | ConsentError
-    | IPFSError
-    | QueryFormatError
-    | EvaluationError
-  > {
-    console.log(
-      `QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
-    );
-
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.configProvider.getConfig(),
-      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
-    ]).andThen(([context, config, consentToken]) => {
-      return this.validateContextConfig(context, consentToken).andThen(() => {
-        return ResultUtils.combine([
-          this.queryParsingEngine.handleQuery(
-            query,
-            consentToken!.dataPermissions,
-            rewardParameters,
-          ),
-          this.dataWalletUtils.deriveOptInPrivateKey(
-            consentContractAddress,
-            context.dataWalletKey!,
-          ),
-        ]).andThen(([maps, optInKey]) => {
-          const maps2 = maps as [InsightString[], EligibleReward[]];
-          const insights = maps2[0];
-          const rewards = maps2[1];
-
-          return this.insightPlatformRepo
-            .deliverInsights(
-              consentContractAddress,
-              consentToken!.tokenId,
-              query.cid,
-              insights,
-              rewardParameters,
-              optInKey,
-              config.defaultInsightPlatformBaseUrl,
-            )
-            .map((earnedRewards) => {
-              console.log("insight delivery api call done");
-              console.log("Earned Rewards: ", earnedRewards);
-              /* For Direct Rewards, add EarnedRewards to the wallet */
-              this.accountRepo.addEarnedRewards(earnedRewards);
-              /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
-              /* Show Lazy Rewards in rewards tab? */
-              /* Web2 rewards are also EarnedRewards, TBD */
-            });
-        });
-      });
-    });
-  }
-
-  public validateContextConfig(
-    context: CoreContext,
-    consentToken: ConsentToken | null,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
-    if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-      return errAsync(
-        new UninitializedError("Data wallet has not been unlocked yet!"),
-      );
-    }
-
-    if (consentToken == null) {
-      return errAsync(
-        new ConsentError(`Data wallet is not opted in to the contract!`),
-      );
-    }
-    return okAsync(undefined);
-  }
-
-  public getPossibleRewards(
-    queryCid: IpfsCID,
-    timeoutSeconds: number,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
-    return this.getQueryByCIDWithTimeout(queryCid, timeoutSeconds).andThen(
-      (sdqlQuery) => {
-        if (sdqlQuery == null) {
-          return okAsync([]);
-        }
-        return this.queryParsingEngine.getPossibleRewards(sdqlQuery);
-      },
-    );
   }
 
   protected publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
@@ -319,15 +224,8 @@ export class QueryService implements IQueryService {
     });
   }
 
-  protected getQueryByCIDWithTimeout(
-    queryId: IpfsCID,
-    timeoutSeconds: number,
-  ): ResultAsync<SDQLQuery | null, AjaxError> {
-    return this.sdqlQueryRepo.getByCID(queryId, timeoutSeconds);
-  }
-
   // Will need refactoring when we include lazy rewards
-  protected areExpectedAndEligibleRewardsEqual(
+  private areExpectedAndEligibleRewardsEqual(
     eligibleRewards: EligibleReward[],
     expectedRewards: ExpectedReward[],
   ): boolean {
@@ -342,5 +240,85 @@ export class QueryService implements IQueryService {
         expectedRewardKeysSet.has(elem.compensationKey),
       )
     );
+  }
+
+  public processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    rewardParameters: IDynamicRewardParameter[],
+  ): ResultAsync<
+    void,
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  > {
+    console.log(
+      `QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
+    );
+
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
+    ]).andThen(([context, config, consentToken]) => {
+      return this.validateContextConfig(context, consentToken).andThen(() => {
+        return ResultUtils.combine([
+          this.queryParsingEngine.handleQuery(
+            query,
+            consentToken!.dataPermissions,
+            rewardParameters,
+          ),
+          this.dataWalletUtils.deriveOptInPrivateKey(
+            consentContractAddress,
+            context.dataWalletKey!,
+          ),
+        ]).andThen(([maps, optInKey]) => {
+          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const insights = maps2[0];
+          const rewards = maps2[1];
+
+          return this.insightPlatformRepo
+            .deliverInsights(
+              consentContractAddress,
+              consentToken!.tokenId,
+              query.cid,
+              insights,
+              rewardParameters,
+              optInKey,
+              config.defaultInsightPlatformBaseUrl,
+            )
+            .map((earnedRewards) => {
+              console.log("insight delivery api call done");
+              console.log("Earned Rewards: ", earnedRewards);
+              /* For Direct Rewards, add EarnedRewards to the wallet */
+              this.accountRepo.addEarnedRewards(earnedRewards);
+              /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
+              /* Show Lazy Rewards in rewards tab? */
+              /* Web2 rewards are also EarnedRewards, TBD */
+            });
+        });
+      });
+    });
+  }
+
+  public validateContextConfig(
+    context: CoreContext,
+    consentToken: ConsentToken | null,
+  ): ResultAsync<void, UninitializedError | ConsentError> {
+    if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+      return errAsync(
+        new UninitializedError("Data wallet has not been unlocked yet!"),
+      );
+    }
+
+    if (consentToken == null) {
+      return errAsync(
+        new ConsentError(`Data wallet is not opted in to the contract!`),
+      );
+    }
+    return okAsync(undefined);
   }
 }

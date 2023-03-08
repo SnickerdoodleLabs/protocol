@@ -48,11 +48,6 @@ export interface IQueryService {
     | QueryFormatError
     | EvaluationError
   >;
-
-  getPossibleRewards(
-    queryCid: IpfsCID,
-    timeoutSeconds: number,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

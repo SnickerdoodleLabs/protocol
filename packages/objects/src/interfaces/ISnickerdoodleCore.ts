@@ -456,19 +456,12 @@ export interface ISnickerdoodleCore {
   /**
    * This method will accept a list of consent contract addresses and returns
    * all possible rewards with their dependencies.
-   * i.e. Share your age and get a discount
+   * i.e. Join this campaign, share your age; and get a discount
    * @param contractAddresses List of consent contract addresses (of campaigns)
    */
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
-  ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | ConsentContractError
-    | EvaluationError
-  >;
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

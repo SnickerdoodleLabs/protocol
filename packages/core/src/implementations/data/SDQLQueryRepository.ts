@@ -42,28 +42,26 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   // resultutils.combine is how you combine resultasyncs - usually functional notation of cids, uses .map for each value of cids, return copy cache value
   public getByCID(
     cid: IpfsCID,
-    timeoutSeconds?: number,
+    timeoutMs?: number,
   ): ResultAsync<SDQLQuery | null, AjaxError> {
     return this._buildIpfsUrl(cid).andThen((ipfsUrl) => {
-      return this._ajaxGetQuery(ipfsUrl, timeoutSeconds).map(
-        (sdql: SDQLString) => {
-          if (sdql.length == 0) {
-            return null;
-          }
+      return this._ajaxGetQuery(ipfsUrl, timeoutMs).map((sdql: SDQLString) => {
+        if (sdql.length == 0) {
+          return null;
+        }
 
-          if (typeof sdql !== "string") {
-            sdql = SDQLString(JSON.stringify(sdql));
-          }
+        if (typeof sdql !== "string") {
+          sdql = SDQLString(JSON.stringify(sdql));
+        }
 
-          const query = new SDQLQuery(cid, sdql);
+        const query = new SDQLQuery(cid, sdql);
 
-          // Cache the query
-          this.queryCache.set(cid, query);
+        // Cache the query
+        this.queryCache.set(cid, query);
 
-          // Return the query
-          return query;
-        },
-      );
+        // Return the query
+        return query;
+      });
     });
   }
 
@@ -75,10 +73,10 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
 
   private _ajaxGetQuery(
     ipfsUrl: URL,
-    timeoutSeconds?: number,
+    timeoutMs?: number,
   ): ResultAsync<SDQLString, AjaxError> {
-    if (timeoutSeconds) {
-      return this._ajaxGetQueryWithTimeout(ipfsUrl, timeoutSeconds);
+    if (timeoutMs) {
+      return this._ajaxGetQueryWithTimeout(ipfsUrl, timeoutMs);
     }
 
     return this.ajaxUtils.get<SDQLString>(ipfsUrl);
@@ -86,12 +84,12 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
 
   private _ajaxGetQueryWithTimeout(
     ipfsUrl: URL,
-    timeoutSeconds?: number,
+    timeoutMs?: number,
   ): ResultAsync<SDQLString, AjaxError> {
     return ResultUtils.race([
       ResultAsync.fromSafePromise(
         new Promise((resolve) =>
-          setTimeout(() => resolve(SDQLString("")), timeoutSeconds),
+          setTimeout(() => resolve(SDQLString("")), timeoutMs),
         ),
       ),
       this.ajaxUtils.get<SDQLString>(ipfsUrl),
