@@ -1,3 +1,11 @@
+import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
+import {
+  IClearCloudBackupsParams,
+  IDeliverInsightsParams,
+  IExecuteMetatransactionParams,
+  IReceivePreviewsParams,
+  ISignedUrlParams,
+} from "@insightPlatform/params/index.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -32,15 +40,6 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
-
-import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
-import {
-  IClearCloudBackupsParams,
-  IDeliverInsightsParams,
-  IExecuteMetatransactionParams,
-  IReceivePreviewsParams,
-  ISignedUrlParams,
-} from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -152,7 +151,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    returns: IInsights,
+    insights: IInsights,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
@@ -166,7 +165,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
-      returns: JSON.stringify(returns),
+      insights: JSON.stringify(insights),
       rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
@@ -186,7 +185,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           tokenId: tokenId.toString(),
           queryCID: queryCID,
-          returns: returns,
+          insights: insights,
           rewardParameters: rewardParameters,
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);

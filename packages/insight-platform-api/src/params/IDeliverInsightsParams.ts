@@ -10,7 +10,7 @@ export interface IDeliverInsightsParams {
   consentContractId: EVMContractAddress;
   tokenId: string;
   queryCID: IpfsCID;
-  returns: IInsights;
+  insights: IInsights;
   rewardParameters: IDynamicRewardParameter[];
   signature: Signature;
 }
