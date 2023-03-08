@@ -4,15 +4,16 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { okAsync } from "neverthrow";
+import Browser, { Tabs } from "webextension-polyfill";
+
 import { IBrowserTabListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import { URL_PROTOCOLS } from "@synamint-extension-sdk/shared";
-import { inject, injectable } from "inversify";
-import { okAsync } from "neverthrow";
-import Browser, { Tabs } from "webextension-polyfill";
 
 @injectable()
 export class BrowserTabListener implements IBrowserTabListener {
