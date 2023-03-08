@@ -31,8 +31,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class CampaignService implements ICampaignService {
-  QUERY_GET_TIMEOUT = 3000;
-
   public constructor(
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
@@ -45,6 +43,7 @@ export class CampaignService implements ICampaignService {
 
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
+    timeoutMs: number,
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
     if (!contractAddresses) {
       return okAsync(new Map());
@@ -52,7 +51,7 @@ export class CampaignService implements ICampaignService {
     return ResultUtils.combine(
       contractAddresses.map((address) => {
         return this._getPublishedQueries(address).andThen((queries) => {
-          return this._getPossibleRewards(queries).map(
+          return this._getPossibleRewards(queries, timeoutMs).map(
             (rewards) =>
               [address, rewards] as [EVMContractAddress, PossibleReward[]],
           );
@@ -73,8 +72,6 @@ export class CampaignService implements ICampaignService {
 
   private _getPublishedQueries(
     contractAddress: EVMContractAddress,
-    fromBlock?: BlockNumber,
-    toBlock?: BlockNumber,
   ): ResultAsync<
     IpfsCID[],
     | BlockchainProviderError
@@ -84,11 +81,7 @@ export class CampaignService implements ICampaignService {
   > {
     return this._getConsentContract(contractAddress)
       .andThen((contract) => {
-        return this._getPublishedQueriesPerContract(
-          contract,
-          fromBlock,
-          toBlock,
-        );
+        return this._getPublishedQueriesPerContract(contract);
       })
       .orElse((e) => {
         this.logUtils.warning(
@@ -115,42 +108,36 @@ export class CampaignService implements ICampaignService {
 
   private _getPublishedQueriesPerContract(
     consentContract: IConsentContract,
-    fromBlock?: BlockNumber,
-    toBlock?: BlockNumber,
   ): ResultAsync<IpfsCID[], ConsentContractError> {
-    return this._getRequestForDataList(consentContract, fromBlock, toBlock).map(
-      (r4dList) => r4dList.map((r4d) => r4d.requestedCID),
+    return this._getRequestForDataList(consentContract).map((r4dList) =>
+      r4dList.map((r4d) => r4d.requestedCID),
     );
   }
 
   private _getRequestForDataList(
     consentContract: IConsentContract,
-    fromBlock?: BlockNumber,
-    toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError> {
     return consentContract.getConsentOwner().andThen((consentOwner) => {
       return consentContract.getRequestForDataListByRequesterAddress(
         consentOwner,
-        fromBlock,
-        toBlock,
       );
     });
   }
 
   private _getPossibleRewards(
     queryCids: IpfsCID[],
+    timeoutMs: number,
   ): ResultAsync<PossibleReward[], EvaluationError | AjaxError> {
     if (!queryCids || queryCids.length == 0) {
       return okAsync([]);
     }
     return ResultUtils.combine(
-      queryCids.map((cid) =>
-        this._getPossibleRewardsPerQuery(cid, this.QUERY_GET_TIMEOUT),
-      ),
+      queryCids.map((cid) => this._getPossibleRewardsPerQuery(cid, timeoutMs)),
     ).map((rewardsOfAllQueries) =>
       Array.from(new Set(rewardsOfAllQueries.flat())),
     );
   }
+
   private _getPossibleRewardsPerQuery(
     queryCid: IpfsCID,
     timeoutMs: number,

@@ -10,6 +10,5 @@ export * from "@objects/interfaces/ISDQLQueryObject";
 export * from "@objects/interfaces/ISnickerdoodleCore";
 export * from "@objects/interfaces/ISnickerdoodleCoreEvents";
 export * from "@objects/interfaces/ITokenPriceRepository";
-export * from "@objects/interfaces/ICompensationDeps.js";
 
 export * from "@objects/interfaces/chains";

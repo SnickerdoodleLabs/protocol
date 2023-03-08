@@ -867,10 +867,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
+    timeoutMs: number,
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
     const campaignService =
       this.iocContainer.get<ICampaignService>(ICampaignServiceType);
-
-    return campaignService.getPossibleRewards(contractAddresses);
+    return campaignService.getPossibleRewards(contractAddresses, timeoutMs);
   }
 }
