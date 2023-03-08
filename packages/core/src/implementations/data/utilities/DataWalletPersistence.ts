@@ -9,6 +9,7 @@ import {
   VersionedObject,
   VolatileStorageMetadata,
   JSONString,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -276,25 +277,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.listBackupChunks();
-      });
-  }
-
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.fetchBackupChunk(backup);
+        return backupManager.unpackBackupChunk(backup);
       });
+  }
+
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.cloudStorage.fetchBackup(backupHeader);
+  }
+
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    return this.cloudStorage.listFileNames();
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {

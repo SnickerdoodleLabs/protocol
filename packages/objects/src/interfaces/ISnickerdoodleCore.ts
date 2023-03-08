@@ -350,8 +350,7 @@ export interface ISnickerdoodleCore {
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  fetchBackupChunk(
+  unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
@@ -359,7 +358,6 @@ export interface ISnickerdoodleCore {
   addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
-
   onAdDisplayed(
     eligibleAd: EligibleAd,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
