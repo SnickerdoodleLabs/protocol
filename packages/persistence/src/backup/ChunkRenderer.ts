@@ -28,11 +28,11 @@ import {
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import {
-  EFieldKey,
-  ERecordKey,
-  LocalStorageKey,
-} from "packages/objects/src/enum/ELocalStorageKey";
+// import {
+//   EFieldKey,
+//   ERecordKey,
+//   LocalStorageKey,
+// } from "@snickerdoodlelabs/objects/src/enum/LocalStorageKey";
 
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import {
@@ -40,6 +40,9 @@ import {
   IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
+import { EFieldKey } from "@snickerdoodlelabs/objects";
+import { ELocalStorageKey } from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 export class ChunkRenderer implements IChunkRenderer {
   private fieldUpdates: FieldMap = {};
@@ -59,7 +62,7 @@ export class ChunkRenderer implements IChunkRenderer {
     protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
-    public key: LocalStorageKey,
+    public key: ELocalStorageKey,
   ) {
     this.clear();
     if (typeof key == typeof EFieldKey) {

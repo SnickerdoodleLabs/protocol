@@ -8,11 +8,9 @@ import {
   VolatileStorageKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
+import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
-import {
-  ERecordKey,
-  EFieldKey,
-} from "packages/objects/src/enum/ELocalStorageKey.js";
+import { EFieldKey, ERecordKey } from "packages/objects/src/enum";
 
 /**
  * This is technically a repository, but since the form factor may need to override where

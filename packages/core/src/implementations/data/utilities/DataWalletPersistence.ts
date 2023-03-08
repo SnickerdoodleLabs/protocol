@@ -9,7 +9,6 @@ import {
   VersionedObject,
   VolatileStorageMetadata,
   JSONString,
-  EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -32,6 +31,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { EFieldKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {

@@ -10,7 +10,6 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { ERecordKey } from "packages/objects/src/enum/ELocalStorageKey";
 import { parse } from "tldts";
 
 import {
@@ -18,6 +17,7 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
+import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class BrowsingDataRepository implements IBrowsingDataRepository {

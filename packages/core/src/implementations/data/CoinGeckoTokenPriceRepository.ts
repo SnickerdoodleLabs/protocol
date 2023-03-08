@@ -19,7 +19,6 @@ import {
   UnixTimestamp,
   URLString,
   VolatileStorageMetadata,
-  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -34,6 +33,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {

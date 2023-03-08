@@ -4,7 +4,6 @@ import {
   EBackupPriority,
   AdSignature,
   VolatileStorageMetadata,
-  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -15,6 +14,7 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
+import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class AdDataRepository implements IAdDataRepository {

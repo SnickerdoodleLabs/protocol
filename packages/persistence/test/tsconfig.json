@@ -9,6 +9,6 @@
       "path": ".."
     }
   ],
-  "include": ["../src/**/*.ts", "../test/**/*.ts", "../../objects/src/enum/ELocalStorageKey.ts"],
+  "include": ["../src/**/*.ts", "../test/**/*.ts", "../../objects/src/enum/LocalStorageKey.ts"],
   "exclude": ["node_modules"]
 }
