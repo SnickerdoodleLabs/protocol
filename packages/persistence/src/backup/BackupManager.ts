@@ -26,6 +26,8 @@ import {
   EVMAccountAddress,
   RestoredBackupMigrator,
   AESKey,
+  InitializationVector,
+  EncryptedString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -64,6 +66,7 @@ export class BackupManager implements IBackupManager {
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
     public maxChunkSize: number,
+    protected enableEncryption: boolean,
   ) {
     this.tableNames = this.schema.map((x) => x.name);
     this.schema.forEach((x) => {
@@ -359,12 +362,19 @@ export class BackupManager implements IBackupManager {
   }
 
   private _unpackBlob(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    if (!this.enableEncryption) {
+      return okAsync(blob as BackupBlob);
+    }
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
+        return this.cryptoUtils.decryptAESEncryptedString(
+          blob as AESEncryptedString,
+          aesKey,
+        );
       })
       .map((unencrypted) => {
         return JSON.parse(unencrypted) as BackupBlob;
@@ -397,10 +407,16 @@ export class BackupManager implements IBackupManager {
   }
 
   private _generateBlob(): ResultAsync<
-    [AESEncryptedString, EBackupPriority],
+    [AESEncryptedString | BackupBlob, EBackupPriority],
     PersistenceError
   > {
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
+    if (!this.enableEncryption) {
+      return this._getBlobPriority(blob).map((priority) => {
+        return [blob, priority];
+      });
+    }
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -436,7 +452,7 @@ export class BackupManager implements IBackupManager {
   }
 
   private _getContentHash(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<string, PersistenceError> {
     return this.cryptoUtils
       .hashStringSHA256(JSON.stringify(blob))

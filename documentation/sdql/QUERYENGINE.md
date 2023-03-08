@@ -26,7 +26,7 @@ graph TD;
     PL-->|SDQL callback url|AS
 ```
 
-Processing a network query begins with the detection, by an instance of [`BlockchainLister`](packages\core\src\implementations\api\BlockchainListener.ts), of a 
+Processing a blockchain query begins with the detection, by an instance of [`BlockchainLister`](packages\core\src\implementations\api\BlockchainListener.ts), of a 
 [`requestForData`](/packages/contracts/contracts/consent/Consent.sol) event emitted from a consent contract. The event data includes an IPFS 
 [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be executed. 
 The query CID is then passed into the Query Service via a call to `processQuery`. 

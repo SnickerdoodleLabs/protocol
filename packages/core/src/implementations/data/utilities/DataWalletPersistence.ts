@@ -28,7 +28,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IDataWalletPersistence } from "@core/interfaces/data";
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IContextProviderType,

@@ -11,7 +11,7 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify({
   business: "Shrapnel",
   queries: {
     q1: {
-      name: "network",
+      name:"network",
       return: "boolean",
       chain: "AVAX",
       contract: {
