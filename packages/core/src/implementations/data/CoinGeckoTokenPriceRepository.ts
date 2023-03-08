@@ -19,8 +19,8 @@ import {
   UnixTimestamp,
   URLString,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

@@ -29,6 +29,7 @@ export interface IChunkRenderer {
   ): ResultAsync<void, PersistenceError>;
   popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   restore(unpacked: BackupBlob): ResultAsync<void[][], PersistenceError>;
+  dump(): ResultAsync<IDataWalletBackup, PersistenceError>;
 }
 
 export const IChunkManagerType = Symbol.for("IChunkManager");

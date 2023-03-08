@@ -7,10 +7,10 @@ import {
   ClickData,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { ERecordKey } from "packages/objects/src/enum/ELocalStorageKey";
 import { parse } from "tldts";
 
 import {

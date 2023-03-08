@@ -13,10 +13,13 @@ import {
   EBackupPriority,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
+import {
+  EFieldKey,
+  ERecordKey,
+  LocalStorageKey,
+} from "packages/objects/src/enum/ELocalStorageKey";
 
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
-import { ERecordKey } from "@persistence/ELocalStorageKey";
-
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {
     const backupManagerMocks = new BackupManagerProviderMocks();

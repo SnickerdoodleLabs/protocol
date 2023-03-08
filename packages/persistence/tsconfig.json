@@ -27,6 +27,6 @@
 			"path": "../insight-platform-api"
 		}
 	],
-	"include": ["./src/**/*.ts"],
+	"include": ["./src/**/*.ts", "../objects/src/enum/ELocalStorageKey.ts"],
 	"exclude": ["node_modules"]
 }

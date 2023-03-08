@@ -24,27 +24,29 @@ import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import {
+  EFieldKey,
+  ERecordKey,
+  LocalStorageKey,
+} from "packages/objects/src/enum/ELocalStorageKey.js";
+import { render } from "react-dom";
 
-import { ChunkManager } from "./ChunkManager";
-
+import { ChunkRenderer } from "@persistence/backup/ChunkRenderer.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
-import { EFieldKey, ERecordKey, LocalStorageKey } from "@persistence/ELocalStorageKey.js";
 import {
   IVolatileStorage,
   IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
-import { ChunkRenderer } from "./ChunkRenderer";
 
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
-  private chunkManager;
-  private tableNames: string[];
+  // private tableNames: string[];
+  // private fieldUpdates: string[];
+  private numUpdates = 0;
 
-  private priorityMap: Map<EBackupPriority, Array<IDataWalletBackup>> =
-    new Map();
-  private chunkFieldMap: Map<LocalStorageKey, Array<IDataWalletBackup>> =
-    new Map();
+  private chunkQueue: Array<IDataWalletBackup> = [];
+  private chunkRenderingMap: Map<LocalStorageKey, ChunkRenderer> = new Map();
   /*  
     - Fields - lump these in by their high priority vs low priority
     - Table - separate by their table keys
@@ -62,15 +64,19 @@ export class BackupManager implements IBackupManager {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
-    this.tableNames = this.schema.map((x) => x.name);
-    this.schema.forEach((x) => {
-      new ChunkRenderer(
-        this.privateKey,
-        this.schema,
-        this.volatileStorage,
-        this.cryptoUtils,
-        this.storageUtils,
-        this.maxChunkSize,
+    // this.tableNames = this.schema.map((x) => x.name);
+    // this.fieldUpdates = this.schema.map((x) => x.name);
+    this.schema.forEach((tableHeaderName) => {
+      console.log("Schema : ", tableHeaderName);
+      this.chunkRenderingMap.set(
+        tableHeaderName.name as LocalStorageKey,
+        new ChunkRenderer(
+          this.privateKey,
+          this.volatileStorage,
+          this.cryptoUtils,
+          this.storageUtils,
+          tableHeaderName.name as LocalStorageKey,
+        ),
       );
     });
     this.clear();
@@ -135,7 +141,8 @@ export class BackupManager implements IBackupManager {
 
           return this._unpackBlob(backup.blob)
             .andThen((unpacked) => {
-              return okAsync(this.chunkManager.restore(unpacked));
+              return okAsync(undefined);
+              // return okAsync(this.chunkManager.restore(unpacked));
             })
             .andThen(() => {
               return this._addRestored(backup);
@@ -157,6 +164,7 @@ export class BackupManager implements IBackupManager {
         return JSON.parse(unencrypted) as BackupBlob;
       });
   }
+
   private _verifyBackupSignature(
     backup: IDataWalletBackup,
   ): ResultAsync<boolean, PersistenceError> {
@@ -189,9 +197,10 @@ export class BackupManager implements IBackupManager {
       });
   }
 
-
   public clear(): ResultAsync<void, never> {
-    return this.chunkManager.clear();
+    this.numUpdates = 0;
+    return okAsync(undefined);
+    // return this.chunkManager.clear();
   }
 
   public updateField(
@@ -199,7 +208,10 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
-    return this.chunkManager.updateField(key, value, priority);
+    const renderer = this.chunkRenderingMap.get(key as LocalStorageKey);
+    return renderer!.updateField(key, value, priority).andThen(() => {
+      return this._checkSize();
+    });
   }
 
   public deleteRecord(
@@ -208,20 +220,52 @@ export class BackupManager implements IBackupManager {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
-    return this.chunkManager.deleteRecord(tableName, key, priority, timestamp);
+    const renderer = this.chunkRenderingMap.get(key as LocalStorageKey);
+    return renderer!
+      .deleteRecord(tableName as ERecordKey, key, priority, timestamp)
+      .andThen(() => {
+        return this._checkSize();
+      });
   }
 
   public popBackup(): ResultAsync<
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    return this.chunkManager.popBackup();
+    if (this.chunkQueue.length == 0) {
+      if (this.numUpdates == 0) {
+        return okAsync(undefined);
+      }
+      this.chunkRenderingMap.forEach((renderer) => {
+        return renderer.popBackup();
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const backup = this.chunkQueue.pop()!;
+    return this._addRestored(backup).map(() => backup);
   }
 
   public addRecord<T extends VersionedObject>(
     tableName: string,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    return this.chunkManager.addRecord(tableName, value);
+    const renderer = this.chunkRenderingMap.get(tableName as LocalStorageKey);
+    return renderer!.addRecord(tableName as ERecordKey, value).andThen(() => {
+      return this._checkSize();
+    });
+  }
+
+  private _checkSize(): ResultAsync<void, PersistenceError> {
+    if (this.numUpdates >= this.maxChunkSize) {
+      this.chunkRenderingMap.forEach((renderer) => {
+        return renderer!.dump().andThen((backup) => {
+          this.chunkQueue.push(backup);
+          return this.clear();
+        });
+      });
+    }
+
+    return okAsync(undefined);
   }
 }

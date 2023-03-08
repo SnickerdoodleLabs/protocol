@@ -11,8 +11,8 @@ import {
   SiteVisitMigrator,
   TokenInfoMigrator,
 } from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "packages/objects/src/enum/ELocalStorageKey.js";
 
-import { ERecordKey } from "@persistence/ELocalStorageKey.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export const volatileStorageSchema = [

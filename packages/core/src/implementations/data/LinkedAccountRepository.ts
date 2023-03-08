@@ -14,8 +14,10 @@ import {
   Signature,
   TokenId,
   VolatileStorageMetadata,
+  EFieldKey,
+  ERecordKey,
+  LocalStorageKey,
 } from "@snickerdoodlelabs/objects";
-import { EFieldKey, ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

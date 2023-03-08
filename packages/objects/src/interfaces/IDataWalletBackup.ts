@@ -1,3 +1,4 @@
+import { ERecordKey } from "@objects/enum";
 import { AESEncryptedString, VersionedObject } from "@objects/businessObjects";
 import { EBackupPriority } from "@objects/enum";
 import {
@@ -11,6 +12,7 @@ export interface IDataWalletBackupHeader {
   timestamp: UnixTimestamp;
   signature: string;
   priority: EBackupPriority;
+  dataType: ERecordKey | EBackupPriority;
 }
 
 export interface IDataWalletBackup {

@@ -9,6 +9,7 @@ import {
   VersionedObject,
   VolatileStorageMetadata,
   JSONString,
+  EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -20,7 +21,6 @@ import {
   IVolatileStorage,
   IVolatileStorageType,
   IVolatileCursor,
-  EFieldKey,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
