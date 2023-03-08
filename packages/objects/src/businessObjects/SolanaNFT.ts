@@ -29,6 +29,6 @@ export class SolanaNFT extends WalletNFT {
     public symbol: TickerSymbol,
     public name: string,
   ) {
-    super(EChainTechnology.Solana, chain, owner, mint);
+    super(EChainTechnology.Solana, chain, owner, mint, name);
   }
 }

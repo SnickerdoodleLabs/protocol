@@ -13,6 +13,7 @@ import {
   EAdDisplayType,
   ISO8601DateString,
 } from "@objects/primitives";
+import { ESDQLQueryReturn } from "@objects/enum";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -35,8 +36,11 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return: string;
+  return: ESDQLQueryReturn;
   chain?: string;
+  networkid?: string | string[];
+  address?: string | string[];
+  timestampRange?: ISDQLTimestampRange;
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
@@ -59,8 +63,8 @@ export interface ISDQLQueryContract {
 }
 
 export interface ISDQLTimestampRange {
-  start: number;
-  end: number;
+  start: number | string;
+  end: number | string;
 }
 
 export interface ISDQLQueryConditions {

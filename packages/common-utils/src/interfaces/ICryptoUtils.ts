@@ -96,11 +96,11 @@ export interface ICryptoUtils {
   ): ResultAsync<Signature, never>;
 
   hashStringSHA256(message: string): ResultAsync<SHA256Hash, never>;
-  hashStringArgon2(message: string): ResultAsync<Argon2Hash, never>;
-  verifyHashArgon2(
-    hash: Argon2Hash,
-    message: string,
-  ): ResultAsync<boolean, never>;
+  // hashStringArgon2(message: string): ResultAsync<Argon2Hash, never>;
+  // verifyHashArgon2(
+  //   hash: Argon2Hash,
+  //   message: string,
+  // ): ResultAsync<boolean, never>;
 
   xmur3(str: string): () => number;
   sfc32(a: number, b: number, c: number, d: number): () => number;

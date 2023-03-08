@@ -35,15 +35,31 @@ import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
 import {
+  NftQueryEvaluator,
   QueryEvaluator,
   QueryParsingEngine,
   QueryRepository,
 } from "@core/implementations/business";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+<<<<<<< HEAD
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { AdContentRepository, AdDataRepository } from "@core/implementations/data";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { SnickerdoodleCore } from "@core/index";
+=======
+import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
+import { AdContentRepository } from "@core/implementations/data";
+import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { SnickerdoodleCore } from "@core/index";
+import {
+  IBrowsingDataRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+  IDemographicDataRepository,
+  IDataWalletPersistence,
+} from "@core/interfaces/data/index.js";
+>>>>>>> develop
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import { IBrowsingDataRepository, IDemographicDataRepository, IPortfolioBalanceRepository, ITransactionHistoryRepository } from "@core/interfaces/data";
@@ -65,15 +81,19 @@ const noPermissions = HexString32(
 );
 
 class QueryParsingMocks {
-  public balanceRepo = td.object<IPortfolioBalanceRepository>();
-  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
+  public persistenceRepo = td.object<IDataWalletPersistence>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
-  public networkQueryEvaluator = new NetworkQueryEvaluator(
-    this.transactionRepo,
-  );
+  public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
+
+  public blockchainTransactionQueryEvaluator =
+    new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+
+  public nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
+
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
 
   public queryUtils = td.object<ISDQLQueryUtils>();
 
@@ -120,7 +140,8 @@ class QueryParsingMocks {
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
-      this.networkQueryEvaluator,
+      this.blockchainTransactionQueryEvaluator,
+      this.nftQueryEvaluator,
       this.snickerDoodleCore,
       this.demoDataRepo,
       this.browsingDataRepo,
@@ -262,12 +283,22 @@ describe("Testing order of results", () => {
       .andThen(([insights, rewards]) => {
         console.log("Insights: ", insights);
         console.log("Rewards: ", rewards);
+<<<<<<< HEAD
         expect(insights.returns).toEqual({
           "if($q1and$q2)then$r1else$r2": "not qualified",
           $r3: country,
           $r4: "female",
           $r5: "{}",
         });
+=======
+
+        expect(insights).toEqual([
+          "not qualified", // as network is false
+          country,
+          "female",
+          "{}",
+        ]);
+>>>>>>> develop
         return okAsync(insights);
       })
       .mapErr((e) => {

@@ -39,6 +39,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
 - `balance`: accesses the balance of the DW user per chain
+- `nft`: accesses the aggregated nft holdings data of the user
 
 #### return (required)
 The return sub-keyword specifies the object type that will be returned by a query. Supported types include:
@@ -77,8 +78,8 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `1284`: Moonbeam Mainnet
 - `*`: all supported networks
 
-#### chain (required for network queries)
-This sub-keyword is used in conjunction with the `network` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a network query should be run against. The following *chains* are supported:
+#### chain (required for blockchain transaction queries)
+This sub-keyword is used in conjunction with the `network` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a blockchain transaction should be run against. The following *chains* are supported:
 
 - `ETH`: the Ethereum network
 - `AVAX`: the Avalanche network

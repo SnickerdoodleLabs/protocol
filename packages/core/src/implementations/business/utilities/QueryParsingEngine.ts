@@ -1,3 +1,19 @@
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
+import {
+  IQueryParsingEngine,
+  IQueryRepository,
+  IQueryRepositoryType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IAdRepositoryType,
+} from "@core/interfaces/data/index.js";
+import {
+  IQueryFactories,
+  IQueryFactoriesType,
+} from "@core/interfaces/utilities/factory/index.js";
 import {
   DataPermissions,
   EligibleReward,
@@ -35,23 +51,6 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
-
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
-import {
-  IQueryParsingEngine,
-  IQueryRepository,
-  IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IAdContentRepository,
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IAdRepositoryType,
-} from "@core/interfaces/data/index.js";
-import {
-  IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {

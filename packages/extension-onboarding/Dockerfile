@@ -6,6 +6,7 @@ WORKDIR /app
 COPY .yarn .yarn
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages/browserExtension/package.json ./packages/browserExtension/
+COPY packages/synamint-extension-sdk/package.json ./packages/synamint-extension-sdk/
 COPY packages/common-utils/package.json ./packages/common-utils/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/contracts-sdk/package.json ./packages/contracts-sdk/
