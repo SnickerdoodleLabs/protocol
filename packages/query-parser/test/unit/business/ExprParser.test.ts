@@ -296,7 +296,7 @@ describe("Postfix to AST", () => {
     expect(rs.lval).toEqual(mocks.context!.get("q2"));
     expect(rs.rval).toEqual(40);
   });
-  test.only("$q1>35and$q1<40and($q2or$q3) to ast", async () => {
+  test("$q1>35and$q1<40and($q2or$q3) to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser())._unsafeUnwrap();
