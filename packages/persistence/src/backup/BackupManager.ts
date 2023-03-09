@@ -68,9 +68,11 @@ export class BackupManager implements IBackupManager {
     public maxChunkSize: number,
     protected enableEncryption: boolean,
   ) {
-    this.tableNames = this.schema.map((x) => x.name);
     this.schema.forEach((x) => {
-      this.migrators.set(x.name, x.migrator);
+      if (!x.disableBackup) {
+        this.migrators.set(x.name, x.migrator);
+        this.tableNames = this.schema.map((x) => x.name);
+      }
     });
 
     this.accountAddr = DataWalletAddress(
