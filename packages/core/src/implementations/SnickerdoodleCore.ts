@@ -80,6 +80,8 @@ import {
   EligibleAd,
   AdSignature,
   UnauthorizedError,
+  PossibleReward,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -108,10 +110,12 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
   IAdService,
   IAdServiceType,
+  ICampaignService,
+  ICampaignServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
@@ -124,6 +128,8 @@ import {
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
 import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
@@ -259,6 +265,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           IMarketplaceServiceType,
         );
         return marketplaceService.getListingsTotal();
+      },
+      getPossibleRewards: (
+        contractAddresses: EVMContractAddress[],
+        timeoutMs?: number,
+      ) => {
+        const campaignService =
+          this.iocContainer.get<ICampaignService>(ICampaignServiceType);
+        return campaignService.getPossibleRewards(
+          contractAddresses,
+          timeoutMs ?? 3000,
+        );
       },
     };
   }
@@ -877,19 +894,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getEligibleAds(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<EligibleAd[], PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+    const adDataRepo = this.iocContainer.get<IAdDataRepository>(
+      IAdDataRepositoryType,
     );
-    return persistence.getEligibleAds();
+    return adDataRepo.getEligibleAds();
   }
 
   public getAdSignatures(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<AdSignature[], PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+    const adDataRepo = this.iocContainer.get<IAdDataRepository>(
+      IAdDataRepositoryType,
     );
-    return persistence.getAdSignatures();
+    return adDataRepo.getAdSignatures();
   }
 
   public onAdDisplayed(
@@ -919,6 +936,16 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
+  public fetchBackup(
+    backupHeader: string,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.fetchBackup(backupHeader);
+  }
+
   public postBackups(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<DataWalletBackupID[], PersistenceError> {
@@ -926,6 +953,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IDataWalletPersistenceType,
     );
     return persistence.postBackups();
+  }
+
+  // and to fetch a specific chunk and decrypt it.
+  public unpackBackupChunk(
+    backup: IDataWalletBackup,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<string, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.unpackBackupChunk(backup);
   }
 
   public clearCloudStore(
@@ -936,12 +974,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.clearCloudStore();
   }
 
+  public listFileNames(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<BackupFileName[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.listFileNames();
+  }
+
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<number, PersistenceError> {
+  ): ResultAsync<number, AccountIndexingError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTokenPrice(chainId, address, timestamp);

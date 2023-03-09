@@ -51,13 +51,9 @@ export class BackupManagerProvider implements IBackupManagerProvider {
       return this.backupManager;
     }
 
-    const tableNames = volatileStorageSchema
-      .filter((schema) => {
-        return !schema.disableBackup;
-      })
-      .map((schema) => {
-        return schema.name;
-      });
+    const schema = volatileStorageSchema.filter((schema) => {
+      return !schema.disableBackup;
+    });
 
     this.backupManager = ResultUtils.combine([
       this.waitForUnlock(),
@@ -65,11 +61,12 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     ]).map(([key, config]) => {
       return new BackupManager(
         key,
-        tableNames,
+        schema,
         this.volatileStorage,
         this.cryptoUtils,
         this.storageUtils,
         config.backupChunkSizeTarget,
+        config.enableBackupEncryption,
       );
     });
 

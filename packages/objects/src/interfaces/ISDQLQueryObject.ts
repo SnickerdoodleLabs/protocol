@@ -1,6 +1,7 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
 import { AdContent } from "@objects/businessObjects/index.js";
+import { ESDQLQueryReturn } from "@objects/enum/index.js";
 import {
   AccountAddress,
   ChainId,
@@ -35,8 +36,11 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return: string;
+  return: ESDQLQueryReturn;
   chain?: string;
+  networkid?: string | string[];
+  address?: string | string[];
+  timestampRange?: ISDQLTimestampRange;
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
@@ -59,8 +63,8 @@ export interface ISDQLQueryContract {
 }
 
 export interface ISDQLTimestampRange {
-  start: number;
-  end: number;
+  start: number | string;
+  end: number | string;
 }
 
 export interface ISDQLQueryConditions {

@@ -20,7 +20,9 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
-} from "@objects/businessObjects/index.js";
+  AESEncryptedString,
+  PossibleReward,
+} from "@objects/businessObjects";
 import {
   EChain,
   EDataWalletPermission,
@@ -53,6 +55,7 @@ import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
+  AESKey,
   Age,
   ChainId,
   CountryCode,
@@ -61,9 +64,11 @@ import {
   DomainName,
   EmailAddressString,
   EVMContractAddress,
+  EVMPrivateKey,
   FamilyName,
   Gender,
   GivenName,
+  HexString,
   HexString32,
   IpfsCID,
   LanguageCode,
@@ -92,6 +97,19 @@ export interface ICoreMarketplaceMethods {
     number,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
+
+  /**
+   * This method will accept a list of consent contract addresses and returns
+   * all possible rewards with their dependencies.
+   * i.e. Join this campaign, share your age; and get a discount
+   * @param contractAddresses List of consent contract addresses (of campaigns)
+   * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
+   * factor wants to tune the marketplace loading time.
+   */
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export interface ICoreIntegrationMethods {
@@ -463,10 +481,10 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
-  restoreBackup(
+  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  unpackBackupChunk(
     backup: IDataWalletBackup,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<string, PersistenceError>;
 
   getEarnedRewards(
     sourceDomain?: DomainName | undefined,
@@ -474,10 +492,10 @@ export interface ISnickerdoodleCore {
   addEarnedRewards(
     rewards: EarnedReward[],
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
-
+  ): ResultAsync<void, PersistenceError>;
   onAdDisplayed(
     eligibleAd: EligibleAd,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
@@ -601,7 +619,7 @@ export interface ISnickerdoodleCore {
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<number, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<number, AccountIndexingError>;
 
   getTokenMarketData(
     ids: string[],

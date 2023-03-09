@@ -26,3 +26,5 @@ export * from "@objects/errors/SiftContractError";
 export * from "@objects/errors/UnauthorizedError";
 export * from "@objects/errors/UninitializedError";
 export * from "@objects/errors/UnsupportedLanguageError";
+export * from "@objects/errors/ERC721RewardContractError";
+export * from "@objects/errors/RewardsFactoryError";

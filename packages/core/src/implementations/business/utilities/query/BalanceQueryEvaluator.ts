@@ -19,23 +19,23 @@ import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IPortfolioBalanceRepositoryType)
+    protected balanceRepo: IPortfolioBalanceRepository,
   ) {}
 
   public eval(
     query: AST_BalanceQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.dataWalletPersistence
+    return this.balanceRepo
       .getAccountBalances()
       .andThen((balances) => {
         if (query.networkId == null) {
@@ -47,15 +47,12 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         return okAsync(networkBalances);
       })
       .andThen((balanceArray) => {
-        // console.log("line 55 balanceArray", balanceArray);
         return this.evalConditions(query, balanceArray);
       })
       .andThen((balanceArray) => {
-        // console.log("line 59 balanceArray", balanceArray);
         return this.combineContractValues(query, balanceArray);
       })
       .andThen((balanceArray) => {
-        // console.log("line 63 balanceArray", balanceArray);
         return okAsync(SDQL_Return(balanceArray));
       });
   }

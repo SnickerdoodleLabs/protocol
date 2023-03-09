@@ -5,14 +5,11 @@ import {
   Gender,
   PersistenceError,
   SDQL_Return,
-  UnixTimestamp,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
   AST_Expr,
-  AST_NetworkQuery,
+  AST_Web3Query,
   AST_PropertyQuery,
   AST_Query,
   Condition,
@@ -22,6 +19,8 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
+  AST_BlockchainTransactionQuery,
+  AST_NftQuery,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -31,28 +30,42 @@ import {
   IProfileServiceType,
 } from "@core/interfaces/business/IProfileService.js";
 import {
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
   IQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IBalanceQueryEvaluatorType)
     protected balanceQueryEvaluator: IBalanceQueryEvaluator,
-    @inject(INetworkQueryEvaluatorType)
-    protected networkQueryEvaluator: INetworkQueryEvaluator,
+    @inject(IBlockchainTransactionQueryEvaluatorType)
+    protected blockchainTransactionQueryEvaluator: IBlockchainTransactionQueryEvaluator,
+    @inject(INftQueryEvaluatorType)
+    protected nftQueryEvaluator: INftQueryEvaluator,
     @inject(IProfileServiceType)
     protected profileService: IProfileService,
+    @inject(IDemographicDataRepositoryType)
+    protected demographicDataRepo: IDemographicDataRepository,
+    @inject(IBrowsingDataRepositoryType)
+    protected browsingDataRepo: IBrowsingDataRepository,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionRepo: ITransactionHistoryRepository,
   ) {}
 
   protected age: Age = Age(0);
@@ -61,10 +74,12 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    if (query instanceof AST_NetworkQuery) {
-      return this.networkQueryEvaluator.eval(query);
+    if (query instanceof AST_BlockchainTransactionQuery) {
+      return this.blockchainTransactionQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
       return this.balanceQueryEvaluator.eval(query);
+    } else if (query instanceof AST_NftQuery) {
+      return this.nftQueryEvaluator.eval(query);
     } else if (query instanceof AST_PropertyQuery) {
       return this.evalPropertyQuery(query);
     }
@@ -79,14 +94,10 @@ export class QueryEvaluator implements IQueryEvaluator {
   public evalPropertyQuery(
     q: AST_PropertyQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    console.log(" evalPropertyQuery  ");
-
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
         return this.profileService.getAge().andThen((age) => {
-          console.log(" getBirthday  ", age);
-
           switch (q.returnType) {
             case "boolean":
               for (const condition of q.conditions) {
@@ -101,7 +112,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "location":
-        return this.dataWalletPersistence.getLocation().andThen((location) => {
+        return this.demographicDataRepo.getLocation().andThen((location) => {
           switch (q.returnType) {
             case "string":
               result = SDQL_Return(location);
@@ -120,7 +131,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "gender":
-        return this.dataWalletPersistence.getGender().andThen((gender) => {
+        return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
               for (const key of q.enum_keys) {
@@ -134,13 +145,13 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "url_visited_count":
-        return this.dataWalletPersistence
+        return this.browsingDataRepo
           .getSiteVisitsMap()
           .andThen((url_visited_count) => {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence
+        return this.transactionRepo
           .getTransactionValueByChain()
           .andThen((transactionArray) => {
             return okAsync(SDQL_Return(transactionArray));

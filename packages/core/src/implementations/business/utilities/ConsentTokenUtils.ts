@@ -15,17 +15,17 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class ConsentTokenUtils {
   public constructor(
-    @inject(IDataWalletPersistenceType)
-    protected persistenceRepo: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentRepo: IConsentContractRepository,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
 
   // This is nearly identical to ConsentContractRepo.getConsentToken, but does the lookup
@@ -40,7 +40,7 @@ export class ConsentTokenUtils {
     | ConsentError
     | PersistenceError
   > {
-    return this.persistenceRepo.getAcceptedInvitations().andThen((optIns) => {
+    return this.accountRepo.getAcceptedInvitations().andThen((optIns) => {
       const currentOptIn = optIns.find((optIn) => {
         return optIn.consentContractAddress == consentContractAddress;
       });

@@ -28,6 +28,7 @@ import {
   TransactionPaymentCounter,
   DomainName,
   UnauthorizedError,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -137,7 +138,7 @@ export interface IAccountService {
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError>;
+  ): ResultAsync<number, AccountIndexingError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

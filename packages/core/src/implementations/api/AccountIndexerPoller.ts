@@ -8,8 +8,8 @@ import {
   IMonitoringService,
 } from "@core/interfaces/business/index.js";
 import {
-  IDataWalletPersistence,
   IDataWalletPersistenceType,
+  IDataWalletPersistence,
 } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,

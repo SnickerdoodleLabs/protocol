@@ -10,15 +10,15 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IPermissionUtils } from "@core/interfaces/business/utilities/index.js";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class PermissionUtils implements IPermissionUtils {
   public constructor(
-    @inject(IDataWalletPersistenceType)
-    protected peristence: IDataWalletPersistence,
+    @inject(IPermissionRepositoryType)
+    protected permissionRepo: IPermissionRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -32,20 +32,22 @@ export class PermissionUtils implements IPermissionUtils {
       return okAsync(undefined);
     }
 
-    return this.peristence.getPermissions(srcDomain).andThen((permissions) => {
-      if (permissions.includes(permission)) {
-        return okAsync(undefined);
-      }
+    return this.permissionRepo
+      .getPermissions(srcDomain)
+      .andThen((permissions) => {
+        if (permissions.includes(permission)) {
+          return okAsync(undefined);
+        }
 
-      this.logUtils.warning(
-        `Domain ${srcDomain} tried to perform an action that requires permission ${permission} but has only been granted the following permissions: ${permissions}`,
-      );
+        this.logUtils.warning(
+          `Domain ${srcDomain} tried to perform an action that requires permission ${permission} but has only been granted the following permissions: ${permissions}`,
+        );
 
-      return errAsync(
-        new UnauthorizedError(
-          `Domain ${srcDomain} requires permission ${permission} but has only been granted the following permissions: ${permissions}`,
-        ),
-      );
-    });
+        return errAsync(
+          new UnauthorizedError(
+            `Domain ${srcDomain} requires permission ${permission} but has only been granted the following permissions: ${permissions}`,
+          ),
+        );
+      });
   }
 }

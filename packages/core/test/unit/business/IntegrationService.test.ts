@@ -26,15 +26,10 @@ import {
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import {
-  dataWalletAddress,
-  dataWalletKey,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/index.js";
-import { ContextProviderMock } from "@core-tests/mock/utilities/index.js";
 import { IntegrationService } from "@core/implementations/business/index.js";
 import { IIntegrationService } from "@core/interfaces/business/index.js";
-import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
+import { IPermissionRepository } from "@core/interfaces/data/index.js";
+import { ContextProviderMock } from "@core-tests/mock/utilities/index.js";
 
 const evmAccountAddress = EVMAccountAddress("evmAccountAddress");
 const solanaAccountAddress = SolanaAccountAddress("solanaAccountAddress");
@@ -64,23 +59,20 @@ const permissionSet1 = [
 ];
 
 class IntegrationServiceMocks {
-  public dataWalletPersistence: IDataWalletPersistence;
+  public permissionRepo: IPermissionRepository;
   public contextProvider: ContextProviderMock;
 
   public constructor() {
-    this.dataWalletPersistence = td.object<IDataWalletPersistence>();
+    this.permissionRepo = td.object<IPermissionRepository>();
     this.contextProvider = new ContextProviderMock();
 
-    td.when(this.dataWalletPersistence.getPermissions(testDomain1)).thenReturn(
+    td.when(this.permissionRepo.getPermissions(testDomain1)).thenReturn(
       okAsync(permissionSet1),
     );
   }
 
   public factory(): IIntegrationService {
-    return new IntegrationService(
-      this.dataWalletPersistence,
-      this.contextProvider,
-    );
+    return new IntegrationService(this.permissionRepo, this.contextProvider);
   }
 }
 

@@ -12,8 +12,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IIntegrationService } from "@core/interfaces/business/index.js";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
@@ -27,8 +27,8 @@ export class IntegrationService implements IIntegrationService {
     (grantedPermissions: EDataWalletPermission[]) => void
   >();
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IPermissionRepositoryType)
+    protected permissionRepo: IPermissionRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
 
@@ -49,7 +49,7 @@ export class IntegrationService implements IIntegrationService {
 
         return ResultUtils.combine([
           this.contextProvider.getContext(),
-          this.dataWalletPersistence.setPermissions(domain, totalPermissions),
+          this.permissionRepo.setPermissions(domain, totalPermissions),
         ]).map(([context]) => {
           // Let the world know somebody got permissions
           context.publicEvents.onPermissionsGranted.next(
@@ -77,7 +77,7 @@ export class IntegrationService implements IIntegrationService {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.dataWalletPersistence.setPermissions(domain, []),
+      this.permissionRepo.setPermissions(domain, []),
     ]).map(([context]) => {
       context.publicEvents.onPermissionsRevoked.next(domain);
     });
@@ -89,7 +89,7 @@ export class IntegrationService implements IIntegrationService {
   ): ResultAsync<EDataWalletPermission[], PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.dataWalletPersistence.getPermissions(sourceDomain),
+      this.permissionRepo.getPermissions(sourceDomain),
     ])
       .andThen(([context, existingPermissions]) => {
         // Figure out which permissions they actually need
@@ -141,6 +141,6 @@ export class IntegrationService implements IIntegrationService {
       return errAsync(new UnauthorizedError());
     }
 
-    return this.dataWalletPersistence.getPermissions(domain);
+    return this.permissionRepo.getPermissions(domain);
   }
 }

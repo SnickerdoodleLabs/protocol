@@ -17,17 +17,15 @@ export class EvaluationError extends Error {}
 
 export class ParserError extends Error {
   constructor(position: number, message: string) {
-    super(`${position}: {$message}`);
+    super(`${position}: ${message}`);
   }
 }
-
 
 export class MissingTokenConstructorError extends Error {
   constructor(name: string) {
     super(`No Token type constructor defined for ${name}`);
   }
 }
-
 
 export class MissingRequiredFieldError extends Error {
   constructor(name: string) {
@@ -56,5 +54,3 @@ export class ReturnNotImplementedError extends Error {
 export class ParsingError extends Error {}
 
 export class InvalidRegularExpression extends Error {}
-
-

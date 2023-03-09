@@ -21,6 +21,7 @@ const errorCodes = {
   QueryExpiredError: "ERR_QUERY_EXPIRED",
   MissingASTError: "ERR_MISSING_AST",
   ParserTypeNotImplementedError: "ERR_PARSER_TYPE_NOT_IMPLEMENTED",
+  RewardsFactoryError: "ERR_REWARDS_FACTORY",
   ServerRewardError: "ERR_SERVER_REWARD",
   SiftContractError: "ERR_SIFT_CONTRACT",
   UnauthorizedError: "ERR_UNAUTHORIZED",

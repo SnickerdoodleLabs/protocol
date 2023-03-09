@@ -13,16 +13,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IAdService } from "@core/interfaces/business/index.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IAdService } from "@core/interfaces/business/index.js";
 import {
   IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
   IAdRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
 import { CoreContext } from "@core/interfaces/objects/index.js";
 import {
@@ -35,13 +33,13 @@ import {
 @injectable()
 export class AdService implements IAdService {
   constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(IAdRepositoryType)
     protected adContentRepository: IAdContentRepository,
+    @inject(IAdDataRepositoryType)
+    protected adDataRepo: IAdDataRepository,
   ) {}
 
   public requestDisplay(
@@ -54,7 +52,7 @@ export class AdService implements IAdService {
     eligibleAd: EligibleAd,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
     return this.createAdSignature(eligibleAd).andThen((adSignature) => {
-      return this.dataWalletPersistence.saveAdSignatures([adSignature]);
+      return this.adDataRepo.saveAdSignatures([adSignature]);
     });
   }
 

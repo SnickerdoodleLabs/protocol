@@ -15,8 +15,6 @@ import {
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
-  IpfsCID,
-  RequestForData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -32,8 +30,8 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {
@@ -57,8 +55,6 @@ export class BlockchainListener implements IBlockchainListener {
     protected monitoringService: IMonitoringService,
     @inject(IQueryServiceType)
     protected queryService: IQueryService,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IBlockchainProviderType)
@@ -69,6 +65,8 @@ export class BlockchainListener implements IBlockchainListener {
     protected contextProvider: IContextProvider,
     @inject(ILogUtilsType)
     protected logUtils: ILogUtils,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
 
   protected queryHorizonCache = new Map<
@@ -152,7 +150,7 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.dataWalletPersistence
+    return this.accountRepo
       .getAcceptedInvitations()
       .andThen((optIns) => {
         return this.consentContractRepository.getConsentContracts(
@@ -166,7 +164,7 @@ export class BlockchainListener implements IBlockchainListener {
             return ResultUtils.combine([
               consentContract.getConsentOwner(),
               this.getQueryHorizon(consentContract),
-              this.dataWalletPersistence.getLatestBlockNumber(
+              this.accountRepo.getLatestBlockNumber(
                 consentContract.getContractAddress(),
               ),
             ])
@@ -190,7 +188,7 @@ export class BlockchainListener implements IBlockchainListener {
                     currentBlockNumber,
                   )
                   .andThen((requestForDataObjects) => {
-                    return this.dataWalletPersistence
+                    return this.accountRepo
                       .setLatestBlockNumber(
                         consentContract.getContractAddress(),
                         currentBlockNumber,

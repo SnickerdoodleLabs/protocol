@@ -11,11 +11,11 @@ import {
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ResultUtils } from "neverthrow-result-utils";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {

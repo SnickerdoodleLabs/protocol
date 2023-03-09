@@ -10,44 +10,40 @@ import {
 import {
   AjaxError,
   ConsentError,
+  ConsentToken,
+  EligibleReward,
   EvaluationError,
   EVMContractAddress,
-  InsightString,
+  EVMPrivateKey,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
   IpfsCID,
   IPFSError,
+  LinkedAccount,
   QueryFormatError,
-  UninitializedError,
-  EligibleReward,
+  QueryIdentifier,
   SDQLQuery,
   SDQLQueryRequest,
-  ConsentToken,
   ServerRewardError,
-  IDynamicRewardParameter,
-  LinkedAccount,
-  QueryIdentifier,
-  ExpectedReward,
-  EVMPrivateKey,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
-
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -82,8 +78,8 @@ export class QueryService implements IQueryService {
     protected configProvider: IConfigProvider,
     @inject(ICryptoUtilsType)
     protected cryptoUtils: ICryptoUtils,
-    @inject(IDataWalletPersistenceType)
-    protected persistenceRepo: IDataWalletPersistence,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
 
   public onQueryPosted(
@@ -99,7 +95,7 @@ export class QueryService implements IQueryService {
       this.getQueryByCID(queryCID),
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-      this.persistenceRepo.getAccounts(),
+      this.accountRepo.getAccounts(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([query, context, config, accounts, consentToken]) => {
       if (consentToken == null) {
@@ -281,7 +277,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 
@@ -299,7 +295,7 @@ export class QueryService implements IQueryService {
               console.log("insight delivery api call done");
               console.log("Earned Rewards: ", earnedRewards);
               /* For Direct Rewards, add EarnedRewards to the wallet */
-              this.persistenceRepo.addEarnedRewards(earnedRewards);
+              this.accountRepo.addEarnedRewards(earnedRewards);
               /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
               /* Show Lazy Rewards in rewards tab? */
               /* Web2 rewards are also EarnedRewards, TBD */

@@ -1,3 +1,10 @@
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities/index.js";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -23,14 +30,6 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class ContractFactory implements IContractFactory {
