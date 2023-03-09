@@ -90,7 +90,7 @@ export class BackupManager implements IBackupManager {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.removeObject(tableName, key);
     }
 
@@ -156,7 +156,7 @@ export class BackupManager implements IBackupManager {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.putObject<T>(tableName, value);
     }
 
