@@ -55,6 +55,8 @@ import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
+  AdKey,
+  AdSurfaceId,
   AESKey,
   Age,
   ChainId,
@@ -72,6 +74,7 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
   UnixTimestamp,
   URLString,
@@ -161,6 +164,48 @@ export interface ICoreIntegrationMethods {
     domain: DomainName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
+}
+
+export interface IAdMethods {
+  /**
+   * This method returns an EligibleAd that fits the adSurface, if any have been received.
+   * If there are no ads that fit the context, it returns null
+   * This method is where we do Contextual Targeting, as opposed to Demographic Targeting.
+   * This method is also where the ad priority algorithm works, which may be arbitrarily
+   * complex. When given a selection of ads that may be shown, we have to determine which one
+   * goes first. This will be based at least partially on expiration dates and marketplace
+   * stake for rank data.
+   * @param adSurfaceId
+   */
+  getAd(
+    adSurfaceId: AdSurfaceId /*adSurfaceDetails: Details */,
+  ): ResultAsync<EligibleAd | null, PersistenceError>;
+
+  /**
+   * This method is called by the form factor after it displays an eligible ad.
+   * We will store store the content hash with the eligible ad, and then when insights
+   * are delivered, we will also return a list of AdKey:ContentHash pairs. The IP
+   * will use that data to determine if you are eligible for rewards.
+   * This method is the primary trigger for returning insights. Once a user has viewed
+   * ALL EligibleAds for an SDQL Query, that is time for the core to calculate Insights,
+   * and return to the IP.
+   */
+  reportAdShown(
+    queryCID: IpfsCID,
+    consentContractAddress: EVMContractAddress,
+    key: AdKey,
+    adSurfaceId: AdSurfaceId,
+    contentHash: SHA256Hash,
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * This method is used by the form factor to report that the user does not want to watch any
+   * more ads for a particular query.
+   * This method is one trigger for calculating and returning insights to the IP- if the user
+   * does not want to watch all the ElibleAds, then it's time to return insights and Ad
+   * signatures for the ads they did watch.
+   */
+  completeShowingAds(queryCID: IpfsCID): ResultAsync<void, PersistenceError>;
 }
 
 export interface ISnickerdoodleCore {

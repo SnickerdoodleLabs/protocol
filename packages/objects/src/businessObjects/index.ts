@@ -32,6 +32,7 @@ export * from "@objects/businessObjects/RestoredBackup";
 export * from "@objects/businessObjects/VersionedObject";
 export * from "@objects/businessObjects/VolatileStorageMetadata";
 export * from "@objects/businessObjects/QueryFilteredByPermissions";
+export * from "@objects/businessObjects/QueryStatus.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/SDQLQuery.js";

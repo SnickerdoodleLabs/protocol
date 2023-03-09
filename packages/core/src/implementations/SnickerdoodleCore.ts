@@ -82,6 +82,10 @@ import {
   UnauthorizedError,
   PossibleReward,
   BackupFileName,
+  IAdMethods,
+  AdKey,
+  AdSurfaceId,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -147,6 +151,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
+  public ads: IAdMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -214,6 +219,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
+    // Integration Methods ---------------------------------------------------------------------------
     this.integration = {
       grantPermissions: (
         permissions: EDataWalletPermission[],
@@ -250,6 +256,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
     };
 
+    // Marketplace Methods ---------------------------------------------------------------------------
     this.marketplace = {
       getMarketplaceListings: (
         count?: number | undefined,
@@ -276,6 +283,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           contractAddresses,
           timeoutMs ?? 3000,
         );
+      },
+    };
+
+    // Ads Methods ---------------------------------------------------------------------------
+    this.ads = {
+      getAd: (adSurfaceId: AdSurfaceId) => {
+        throw new Error("Unimplemented");
+      },
+      reportAdShown: (
+        queryCID: IpfsCID,
+        consentContractAddress: EVMContractAddress,
+        key: AdKey,
+        adSurfaceId: AdSurfaceId,
+        contentHash: SHA256Hash,
+      ) => {
+        throw new Error("Unimplemented");
       },
     };
   }
