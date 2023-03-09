@@ -68,10 +68,11 @@ export class BackupManager implements IBackupManager {
     public maxChunkSize: number,
     protected enableEncryption: boolean,
   ) {
+    this.tableNames = [];
     this.schema.forEach((x) => {
       if (!x.disableBackup) {
         this.migrators.set(x.name, x.migrator);
-        this.tableNames = this.schema.map((x) => x.name);
+        this.tableNames.push(x.name);
       }
     });
 
