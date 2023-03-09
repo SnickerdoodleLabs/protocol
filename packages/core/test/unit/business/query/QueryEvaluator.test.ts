@@ -217,7 +217,7 @@ class QueryEvaluatorMocks {
 
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
 
-    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
+    td.when(this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything())).thenReturn(
       okAsync(this.URLmap),
     );
 
