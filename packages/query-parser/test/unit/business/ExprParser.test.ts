@@ -1,12 +1,12 @@
 import "reflect-metadata";
 
-import { okAsync } from "neverthrow";
-
 import { Token, TokenType } from "@query-parser/implementations";
 import {
-  AST_ConditionExpr,
   AST_BlockchainTransactionQuery,
+  AST_ConditionExpr,
+  AST_Expr,
   AST_PropertyQuery,
+  AST_Query,
   AST_Return,
   AST_ReturnExpr,
   Command_IF,
@@ -17,6 +17,7 @@ import {
   ConditionOr,
 } from "@query-parser/interfaces";
 import { ExprParserMocks } from "@query-parser-test/mocks";
+import { okAsync } from "neverthrow";
 
 describe("Postfix to AST", () => {
   test("$r2", () => {
@@ -91,22 +92,6 @@ describe("Postfix to AST", () => {
 
     expect(le.lval).toEqual(mocks.context!.get("q2"));
     expect(le.rval).toEqual(mocks.context!.get("q3"));
-  });
-  test("$q1,$q2,q3,or,and to ast", async () => {
-    const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
-    const expr = (await parser.buildAstFromPostfix([
-      new Token(TokenType.query, "$q1", 1),
-      new Token(TokenType.query, "$q2", 8),
-      new Token(TokenType.query, "$q3", 13),
-      new Token(TokenType.or, "or", 11),
-      new Token(TokenType.and, "and", 4),
-    ])) as AST_ConditionExpr;
-
-    console.log(JSON.stringify(expr.source)); // ????
-    const andExpr = expr.source as ConditionAnd;
-    console.log("lval: " + JSON.stringify(andExpr.lval)); // garbage
-    console.log("rval: " + JSON.stringify(andExpr.rval)); // UNDEFINED
   });
   test("$q1 10 > to ast", async () => {
     const mocks = new ExprParserMocks();
@@ -261,59 +246,80 @@ describe("Postfix to AST", () => {
     expect(lt.lval).toEqual(mocks.context!.get("q1"));
     expect(lt.rval).toEqual(mocks.context!.get("q2"));
   });
-
   test("($q1and($q2orq3)) to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser())._unsafeUnwrap();
-    const postfix = [
-      new Token(TokenType.query, "$q1", 1),
-      new Token(TokenType.query, "$q2", 8),
-      new Token(TokenType.query, "$q3", 13),
-      new Token(TokenType.or, "or", 11),
-      new Token(TokenType.and, "and", 4),
-    ];
 
-    // // Action
-    const expr = (await parser.buildAstFromPostfix(
-      postfix,
-    )) as AST_ConditionExpr;
-    console.log(expr);
+    // Action
+    const expr = parser.parse("($q1and($q2or$q3))") as AST_Expr;
 
     // Assert
-    expect(expr.source.constructor).toBe(ConditionAnd);
+    expect(expr.source!.constructor).toBe(ConditionAnd);
     const and = expr.source as ConditionAnd;
     expect(and.lval).toEqual(mocks.context!.get("q1"));
 
     expect(and.rval.constructor).toBe(AST_ConditionExpr);
     const orExpr = and.rval as AST_ConditionExpr;
-    console.log(orExpr);
+
     expect(orExpr.source.constructor).toBe(ConditionOr);
     const or = orExpr.source as ConditionOr;
     expect(or.lval).toEqual(mocks.context!.get("q2"));
     expect(or.rval).toEqual(mocks.context!.get("q3"));
-    // TODO
   });
-  // test.only("$q1>35and$q2<40 to ast", async () => {
-  //   // Acquire
-  //   const mocks = new ExprParserMocks();
-  //   const parser = (await mocks.createExprParser())._unsafeUnwrap();
+  test("$q1>35and$q2<40 to ast", async () => {
+    // Acquire
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser())._unsafeUnwrap();
 
-  //   // // Action
-  //   const expr = parser.parse("$q1>35and$q2<40") as AST_ConditionExpr;
-  //   console.log(expr);
+    // // Action
+    const expr = parser.parse("$q1>35and$q2<40") as AST_ConditionExpr;
 
-  //   // Assert
-  //   expect(expr.source.constructor).toBe(ConditionAnd);
-  //   const and = expr.source as ConditionAnd;
-  //   expect(and.rval).toEqual(mocks.context!.get("q1"));
+    // Assert
+    expect(expr.source.constructor).toBe(ConditionAnd);
+    const and = expr.source as ConditionAnd;
 
-  //   expect(and.lval.constructor).toBe(AST_ConditionExpr);
-  //   const lval = and.lval as AST_ConditionExpr;
-  //   expect(lval.source.constructor).toBe(ConditionLE);
-  //   const le = lval.source as ConditionLE;
+    expect(and.rval!.constructor).toBe(AST_ConditionExpr);
+    expect(and.lval!.constructor).toBe(AST_ConditionExpr);
 
-  //   expect(le.lval).toEqual(mocks.context!.get("q2"));
-  //   expect(le.rval).toEqual(mocks.context!.get("q3"));
-  // });
+    const lval = and.lval as AST_ConditionExpr;
+    expect(lval.source.constructor).toBe(ConditionG);
+    const ls = lval.source as ConditionG;
+
+    expect(ls.lval).toEqual(mocks.context!.get("q1"));
+    expect(ls.rval).toEqual(35);
+
+    const rval = and.rval as AST_ConditionExpr;
+    expect(rval.source.constructor).toBe(ConditionL);
+    const rs = rval.source as ConditionL;
+
+    expect(rs.lval).toEqual(mocks.context!.get("q2"));
+    expect(rs.rval).toEqual(40);
+  });
+  test.only("$q1>35and$q1<40and($q2or$q3) to ast", async () => {
+    // Acquire
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+
+    // // Action
+    const expr = parser.parse(
+      "$q1>35and$q1<40and($q2or$q3)",
+    ) as AST_ConditionExpr;
+
+    // Assert
+    expect(expr.source.constructor).toBe(ConditionAnd);
+    const mainAnd = expr.source as ConditionAnd;
+
+    expect(mainAnd.lval!.constructor).toBe(AST_ConditionExpr);
+    const mainAndLval = mainAnd.lval as AST_ConditionExpr;
+    expect(mainAndLval.source.constructor).toBe(ConditionAnd);
+
+    expect(mainAnd.rval.constructor).toBe(AST_ConditionExpr);
+    const mainAndRval = mainAnd.rval as AST_ConditionExpr;
+    expect(mainAndRval.source.constructor).toBe(ConditionOr);
+    const or = mainAndRval.source as ConditionOr;
+
+    expect(or.lval!).toEqual(mocks.context!.get("q2"));
+    expect(or.rval).toEqual(mocks.context!.get("q3"));
+  });
 });
