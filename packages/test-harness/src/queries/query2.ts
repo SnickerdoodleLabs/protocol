@@ -8,6 +8,10 @@ export const query2 = {
     q1: {
       name: "url_visited_count",
       return: "object",
+      timestampRange: {
+        start: "150",
+        end: "*",
+      },
     },
     q2: {
       name: "chain_transactions",

@@ -134,9 +134,11 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
-              for (const key of q.enum_keys) {
-                if (key == gender) {
-                  return okAsync(SDQL_Return(gender));
+              if(q.schema.enum_keys){
+                for (const key of q.schema.enum_keys) {
+                  if (key == gender) {
+                    return okAsync(SDQL_Return(gender));
+                  }
                 }
               }
               return okAsync(SDQL_Return(Gender("unknown")));

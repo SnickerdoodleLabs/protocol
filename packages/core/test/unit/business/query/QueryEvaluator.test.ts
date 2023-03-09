@@ -254,8 +254,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsGE,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -270,8 +269,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsGE2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -285,8 +283,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsGE3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -303,8 +300,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsLE,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -318,8 +314,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsLE2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -333,8 +328,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsLE3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -351,8 +345,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsG,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -367,8 +360,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsG2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -383,8 +375,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsG3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -401,8 +392,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsL,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -417,8 +407,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsL2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -433,8 +422,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsL3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -451,8 +439,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsGE,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -467,8 +454,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsGE2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -482,8 +468,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsGE3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -500,8 +485,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsLE,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -515,8 +499,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsLE2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -530,8 +513,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsLE3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -548,8 +530,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsG,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -564,8 +545,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsG2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -580,8 +560,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsG3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -598,8 +577,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsL,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -614,8 +592,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsL2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -630,8 +607,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsL3,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -649,8 +625,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsE,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -664,8 +639,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
       ESDQLQueryReturn.Boolean,
       "age",
       conditionsE2,
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Boolean , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -724,8 +698,7 @@ describe("QueryEvaluator return integer values", () => {
       ESDQLQueryReturn.Integer,
       "age",
       [],
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Integer , enum_keys : [] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -756,8 +729,7 @@ describe("QueryEvaluator return integer values", () => {
       ESDQLQueryReturn.Enum,
       "gender",
       [],
-      ["male", "female", "non-binary", "unknown"],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Enum , enum_keys :  ["male", "female", "non-binary", "unknown"] , patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -768,23 +740,25 @@ describe("QueryEvaluator return integer values", () => {
 });
 
 describe("Return URLs Map", () => {
-  test("EvalPropertyQuery: return URLs count", async () => {
+  test("EvalPropertyQuery: return URLs count ", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
       ESDQLQueryReturn.Object,
       "url_visited_count",
       [],
-      [],
-      {},
+      { name: "q1", return: ESDQLQueryReturn.Object , enum_keys :  [], patternProperties : {} }
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
+    
     const result = await repo.eval(propertyQuery);
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
       new Map<URLString, number>([[URLString("www.snickerdoodlelabs.io"), 10]]),
     );
   });
+
+
 });
 
 describe("Return Chain Transaction Flow", () => {
@@ -794,12 +768,12 @@ describe("Return Chain Transaction Flow", () => {
       ESDQLQueryReturn.Array,
       "chain_transactions",
       [],
-      [],
-      {
+      { name: "q1", return: ESDQLQueryReturn.Array , enum_keys :  [], patternProperties : {
         "^ETH|AVAX|SOL$": {
           type: "integer",
         },
-      },
+      }, }
+      
     );
 
     //const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];

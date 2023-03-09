@@ -45,6 +45,7 @@ export interface ISDQLQueryClause {
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
   object_schema?: ISDQLObjectSchema;
+  patternProperties ?: Object;
 }
 
 export interface ISDQLObjectSchema {

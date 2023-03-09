@@ -4,6 +4,7 @@ import {
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,
+  ISDQLQueryClause,
 } from "@snickerdoodlelabs/objects";
 
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
@@ -28,21 +29,21 @@ export class AST_PropertyQuery extends AST_Query {
     readonly property: string,
     readonly conditions: Array<Condition>,
     // for reading gender
-    readonly enum_keys: Array<string>,
-    readonly patternProperties: Object,
+    //readonly enum_keys: Array<string>,
+    //readonly patternProperties: Object,
+    readonly schema : ISDQLQueryClause
   ) {
     super(name, returnType);
   }
-  static fromSchema(name: SDQL_Name, schema: any): AST_PropertyQuery {
+  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
-
+    console.log("harkon : " , schema)
     return new AST_PropertyQuery(
       name,
       schema.return,
       schema.name,
       conditions,
-      schema.enum_keys,
-      schema.patternProperties,
+      schema
     );
   }
 
