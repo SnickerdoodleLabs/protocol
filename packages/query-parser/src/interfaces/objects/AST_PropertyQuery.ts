@@ -4,6 +4,7 @@ import {
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,
+  Web2QueryTypes,
   ISDQLQueryClause,
 } from "@snickerdoodlelabs/objects";
 
@@ -15,7 +16,8 @@ import {
   ConditionIn,
   ConditionL,
 } from "@query-parser/interfaces/objects/condition/index.js";
-import { Result, ok, err } from "neverthrow";
+
+import { err, ok, Result } from "neverthrow";
 
 export class AST_PropertyQuery extends AST_Query {
   /**
@@ -26,7 +28,7 @@ export class AST_PropertyQuery extends AST_Query {
   constructor(
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,
-    readonly property: string,
+    readonly property: Web2QueryTypes,
     readonly conditions: Array<Condition>,
     // for reading gender
     //readonly enum_keys: Array<string>,
@@ -37,11 +39,11 @@ export class AST_PropertyQuery extends AST_Query {
   }
   static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
-    console.log("harkon : " , schema)
+
     return new AST_PropertyQuery(
       name,
       schema.return,
-      schema.name,
+      schema.name as Web2QueryTypes,
       conditions,
       schema
     );

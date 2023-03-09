@@ -9,7 +9,7 @@ export const query2 = {
       name: "url_visited_count",
       return: "object",
       timestampRange: {
-        start: "150",
+        start: "450",
         end: "*",
       },
     },
@@ -67,7 +67,17 @@ export const query2 = {
           required: ["networkId", "balance"],
         },
       },
+      
     },
+    q4 : {
+      name: "url_visited_count",
+      return: "object",
+      timestampRange: {
+        start: "*",
+        end: "50",
+      },
+    }
+    
   },
   returns: {
     r1: {
@@ -81,6 +91,10 @@ export const query2 = {
     r3: {
       name: "query_response",
       query: "q3",
+    },
+    r4: {
+      name: "query_response",
+      query: "q4",
     },
     url: "/////This should dynamically populate",
   },
@@ -140,7 +154,7 @@ export const query2 = {
     },
   },
   logic: {
-    returns: ["$r1", "$r2", "$r3"],
+    returns: ["$r1", "$r2", "$r3" , "$r4"],
     compensations: ["$c1", "$c2", "$c3"],
   },
 };

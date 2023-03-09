@@ -13,6 +13,7 @@ import {
   UnixTimestamp,
   EAdDisplayType,
   ISO8601DateString,
+  QueryTypes,
 } from "@objects/primitives";
 
 export interface ISDQLQueryObject {

@@ -23,6 +23,15 @@
         "url": "chrome://extensions/",
         "startTime": 200,
         "endTime": 500
+    },
+    {
+        "url": "https://warhammer40000.com/",
+        "startTime": 500,
+        "endTime": 600
+    },
+    {
+        "url": "https://warhammerfantasy.fandom.com/wiki/Warhammer_Wiki",
+        "startTime": 10,
+        "endTime": 40
     }
-
 ]

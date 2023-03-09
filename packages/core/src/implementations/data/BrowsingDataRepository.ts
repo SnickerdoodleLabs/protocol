@@ -57,10 +57,13 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     PersistenceError
   > {
     return this.getSiteVisits().andThen((siteVisits) => {
-     
+   
       const result = new Map<URLString, number>();
       siteVisits.forEach((siteVisit, _i, _arr) => {
+      
+      
         if(timestampRange && this.checkInvalidTimestamp(siteVisit.startTime ,siteVisit.endTime , timestampRange )){
+          
           return;
         }
         const baseUrl = DomainName(
