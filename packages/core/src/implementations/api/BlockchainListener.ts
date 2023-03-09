@@ -1,3 +1,25 @@
+import { IBlockchainListener } from "@core/interfaces/api/index.js";
+import {
+  IMonitoringService,
+  IMonitoringServiceType,
+  IQueryService,
+  IQueryServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -17,35 +39,8 @@ import {
   EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-
-import { IBlockchainListener } from "@core/interfaces/api/index.js";
-
 import { okAsync, ResultAsync } from "neverthrow";
-
-import {
-  IMonitoringService,
-  IMonitoringServiceType,
-  IQueryService,
-  IQueryServiceType,
-} from "@core/interfaces/business/index.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
-
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-
