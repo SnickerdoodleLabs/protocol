@@ -15,30 +15,35 @@ import {
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
+  AdKey,
+  CompensationId,
   DataPermissions,
+  DuplicateIdInSchema,
+  EligibleAd,
   EligibleReward,
+  ERewardType,
   EvaluationError,
+  EVMContractAddress,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
+  IInsightsQueries,
+  IInsightsReturns,
   InsightString,
   IpfsCID,
-  QueryExpiredError,
-  QueryFormatError,
-  SDQLQuery,
-  SDQL_Return,
-  QueryIdentifier,
-  ExpectedReward,
-  ERewardType,
-  IDynamicRewardParameter,
-  ISDQLCompensations,
-  CompensationId,
-  AdKey,
   ISDQLAd,
-  EligibleAd,
-  EVMContractAddress,
-  PersistenceError,
+  ISDQLCompensations,
+  MissingTokenConstructorError,
   ParserError,
-  IInsights,
-  IInsightsReturns,
-  IInsightsQueries,
+  PersistenceError,
+  PossibleReward,
+  QueryExpiredError,
+  QueryFilteredByPermissions,
+  QueryFormatError,
+  QueryIdentifier,
+  SDQLQuery,
+  SDQLString,
+  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -95,6 +100,21 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
+  public getPossibleRewards(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError> {
+    return this.filterQueryWithAllPermissions(query.query).andThen(
+      (queryFilteredByPermissions) => {
+        return this.constructPossibleRewards(
+          query,
+          queryFilteredByPermissions.expectedCompensationsMap,
+          queryFilteredByPermissions.eligibleAdsMap,
+          query.cid,
+        );
+      },
+    );
+  }
+
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
@@ -113,6 +133,68 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       })
       .map((insights) => {
         return [insights, []] as [IInsights, EligibleReward[]];
+      });
+  }
+
+  /**
+   * Returns an object containing all "eligible compensations" and "eligible ads"
+   * the query has to offer, because the query is evaluated as if the user granted
+   * all permissions.
+   *
+   * @param queryString Content of query as string
+   */
+  protected filterQueryWithAllPermissions(
+    queryString: SDQLString,
+  ): ResultAsync<
+    QueryFilteredByPermissions,
+    | QueryFormatError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+    return this.queryUtils.filterQueryByPermissions(
+      queryString,
+      DataPermissions.createWithAllPermissions(),
+    );
+  }
+
+  protected constructPossibleRewards(
+    query: SDQLQuery,
+    compensationsMap: Map<CompensationId, ISDQLCompensations>,
+    adsMap: Map<AdKey, ISDQLAd>,
+    cid: IpfsCID,
+  ): ResultAsync<
+    PossibleReward[],
+    | QueryFormatError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+    return this.queryFactories
+      .makeParserAsync(cid, query.query)
+      .andThen((parser) => {
+        return parser.buildAST().map(() => parser);
+      })
+      .andThen((parser) => {
+        const rewardList: PossibleReward[] = [];
+        for (const currentKeyAsString in compensationsMap) {
+          const currentCompId = CompensationId(currentKeyAsString);
+          rewardList.push(
+            new PossibleReward(
+              cid,
+              currentCompId,
+              this.queryUtils.getQueryTypeDependencies(parser, currentCompId),
+              compensationsMap[currentCompId].name,
+              compensationsMap[currentCompId].image,
+              compensationsMap[currentCompId].description,
+              compensationsMap[currentCompId].chainId,
+              ERewardType.Direct,
+            ),
+          );
+        }
+        return okAsync(rewardList);
       });
   }
 
