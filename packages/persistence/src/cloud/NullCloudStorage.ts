@@ -6,6 +6,7 @@ import {
   PersistenceError,
   AjaxError,
   EBackupPriority,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -55,7 +56,7 @@ export class NullCloudStorage implements ICloudStorage {
     return okAsync([]);
   }
 
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
     return okAsync([]);
   }
 }

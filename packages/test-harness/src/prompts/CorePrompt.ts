@@ -2,6 +2,7 @@ import {
   AccountAddress,
   AESEncryptedString,
   AESKey,
+  BackupFileName,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -316,7 +317,7 @@ export class CorePrompt extends DataWalletPrompt {
           console.log("Backup source: Google");
           console.log("Chunks");
           return this.core
-            .listBackupHeaders()
+            .listFileNames()
             .andThen((chunks) => {
               const backupChoices = chunks.map((chunk) => {
                 return new BackupChoice(chunk);
@@ -333,7 +334,7 @@ export class CorePrompt extends DataWalletPrompt {
                 .fetchBackup(selection.backupPrompt)
                 .andThen((output) => {
                   const backup = output[0];
-                  return this.core.fetchBackupChunk(backup).andThen((blob) => {
+                  return this.core.unpackBackupChunk(backup).andThen((blob) => {
                     const parsedBlob = JSON.parse(blob);
                     return okAsync(
                       console.log(
@@ -358,9 +359,9 @@ export class BackupChoice {
   private fileName: string;
   private backupHeader: string;
 
-  public constructor(protected ID: string) {
-    this.fileName = ID;
-    this.backupHeader = ID.substring(ID.indexOf("/") + 1);
+  public constructor(protected ID: BackupFileName) {
+    this.fileName = ID.toString();
+    this.backupHeader = this.fileName.substring(this.fileName.indexOf("/") + 1);
   }
 
   public get name() {

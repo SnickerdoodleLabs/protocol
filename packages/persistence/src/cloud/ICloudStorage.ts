@@ -4,6 +4,7 @@ import {
   EVMPrivateKey,
   DataWalletBackupID,
   AjaxError,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
@@ -25,7 +26,7 @@ export interface ICloudStorage {
   // this is the nuclear option
   clear(): ResultAsync<void, PersistenceError>;
 
-  listBackupHeaders(): ResultAsync<string[], PersistenceError>;
+  listFileNames(): ResultAsync<BackupFileName[], PersistenceError>;
   fetchBackup(
     backupHeader: string,
   ): ResultAsync<IDataWalletBackup[], PersistenceError>;

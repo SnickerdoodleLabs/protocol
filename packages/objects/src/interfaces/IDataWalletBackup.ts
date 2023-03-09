@@ -17,7 +17,7 @@ export interface IDataWalletBackupHeader {
 
 export interface IDataWalletBackup {
   header: IDataWalletBackupHeader;
-  blob: AESEncryptedString;
+  blob: AESEncryptedString | BackupBlob;
 }
 
 export enum EDataUpdateOpCode {

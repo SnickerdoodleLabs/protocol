@@ -78,6 +78,7 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -818,13 +819,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   // and to fetch a specific chunk and decrypt it.
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.fetchBackupChunk(backup);
+    return persistence.unpackBackupChunk(backup);
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -833,11 +834,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.clearCloudStore();
   }
 
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.listBackupHeaders();
+    return persistence.listFileNames();
   }
 
   public getTokenPrice(

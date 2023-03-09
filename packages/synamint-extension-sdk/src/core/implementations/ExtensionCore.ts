@@ -79,6 +79,7 @@ export class ExtensionCore {
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
+      enableBackupEncryption: config.enableBackupEncryption,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

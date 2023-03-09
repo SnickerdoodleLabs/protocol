@@ -17,6 +17,7 @@ import {
   DataWalletBackupID,
   IDataWalletBackupHeader,
   EBackupPriority,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -181,10 +182,10 @@ export class GoogleCloudStorage implements ICloudStorage {
             }),
         );
       })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
+      .mapErr((e) => new PersistenceError("error polling backups", e));
   }
 
-  public listBackupHeaders(): ResultAsync<string[], PersistenceError> {
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
     return this.getWalletListing()
       .andThen((backupsDirectory) => {
         const files = backupsDirectory.items;
@@ -196,13 +197,13 @@ export class GoogleCloudStorage implements ICloudStorage {
         }
 
         // Now iterate only through the found hashes
-        return ResultUtils.combine(
+        return okAsync(
           files.map((file) => {
-            return okAsync(file.name);
+            return BackupFileName(file.name);
           }),
         );
       })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
+      .mapErr((e) => new PersistenceError("error listing file names", e));
   }
 
   public fetchBackup(
@@ -231,9 +232,8 @@ export class GoogleCloudStorage implements ICloudStorage {
             }),
         );
       })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
+      .mapErr((e) => new PersistenceError("error fetching backup", e));
   }
-
 
   protected getWalletListing(): ResultAsync<
     IGoogleWalletBackupDirectory,

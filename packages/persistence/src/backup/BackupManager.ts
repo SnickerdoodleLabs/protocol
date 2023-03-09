@@ -58,6 +58,7 @@ export class BackupManager implements IBackupManager {
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
     public maxChunkSize: number,
+    protected enableEncryption: boolean,
   ) {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
@@ -86,7 +87,7 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     console.log("fetchBackupChunk: ", backup.blob);
@@ -166,14 +167,17 @@ export class BackupManager implements IBackupManager {
   }
 
   private _unpackBlob(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
     console.log("_unpackBlob: ", blob);
 
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
+        return this.cryptoUtils.decryptAESEncryptedString(
+          blob as AESEncryptedString,
+          aesKey,
+        );
       })
       .map((unencrypted) => {
         return JSON.parse(unencrypted) as BackupBlob;
@@ -203,7 +207,7 @@ export class BackupManager implements IBackupManager {
   }
 
   private _getContentHash(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<string, PersistenceError> {
     return this.cryptoUtils
       .hashStringSHA256(JSON.stringify(blob))
