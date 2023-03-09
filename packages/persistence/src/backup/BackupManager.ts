@@ -89,7 +89,10 @@ export class BackupManager implements IBackupManager {
   public fetchBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
+    console.log("fetchBackupChunk: ", backup.blob);
+
     return this._unpackBlob(backup.blob).andThen((backupBlob) => {
+      console.log("backupBlob: ", backupBlob);
       return okAsync(JSON.stringify(backupBlob));
     });
   }
@@ -98,6 +101,7 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
+        console.log("restored: ", restored);
         return restored.map((item) => item.data.id);
       })
       .map((restored) => {
@@ -108,6 +112,8 @@ export class BackupManager implements IBackupManager {
   private _addRestored(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
+    console.log("Backup Manager: add Restored: ", backup);
+
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
@@ -122,6 +128,7 @@ export class BackupManager implements IBackupManager {
   private _wasRestored(
     id: DataWalletBackupID,
   ): ResultAsync<boolean, PersistenceError> {
+    console.log("_wasRestored: ", id);
     return this.volatileStorage
       .getObject<RestoredBackup>(ERecordKey.RESTORED_BACKUPS, id)
       .map((result) => {
@@ -132,6 +139,8 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
+    console.log("restore: ", backup);
+
     return this._wasRestored(DataWalletBackupID(backup.header.hash)).andThen(
       (wasRestored) => {
         if (wasRestored) {
@@ -159,6 +168,8 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    console.log("_unpackBlob: ", blob);
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -256,6 +267,7 @@ export class BackupManager implements IBackupManager {
     IDataWalletBackup | undefined,
     PersistenceError
   > {
+    console.log("inside pop backup: ", this.chunkQueue.length);
     if (this.chunkQueue.length == 0) {
       if (this.numUpdates == 0) {
         return okAsync(undefined);
@@ -281,7 +293,11 @@ export class BackupManager implements IBackupManager {
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
+    console.log("this.numUpdates: ", this.numUpdates);
+    console.log("this.maxChunkSize: ", this.maxChunkSize);
+
     if (this.numUpdates >= this.maxChunkSize) {
+      console.log("dump renderer: ");
       this.chunkRenderingMap.forEach((renderer) => {
         return renderer!.dump().andThen((backup) => {
           this.chunkQueue.push(backup);

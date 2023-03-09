@@ -171,6 +171,7 @@ export class ChunkRenderer implements IChunkRenderer {
   private _addRestored(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
+    console.log("Chunk Renderer: add Restored: ", backup);
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
