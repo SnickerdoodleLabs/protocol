@@ -103,6 +103,8 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
+    console.log("gcp clearcloudstore call");
+
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -110,6 +112,9 @@ export class GoogleCloudStorage implements ICloudStorage {
       .andThen(([privateKey, config]) => {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+
+        console.log("gcp clearcloudstore call: ", privateKey);
+        console.log("gcp clearcloudstore call: ", addr);
         return this.insightPlatformRepo.clearAllBackups(
           privateKey,
           config.defaultInsightPlatformBaseUrl,
@@ -127,12 +132,15 @@ export class GoogleCloudStorage implements ICloudStorage {
       this._configProvider.getConfig(),
     ])
       .andThen(([privateKey, config]) => {
+        console.log("privateKey: ", privateKey);
         const defaultInsightPlatformBaseUrl =
           config.defaultInsightPlatformBaseUrl;
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        console.log("addr: ", addr);
 
         return this._getFileName(backup.header).andThen((fileName) => {
+          console.log("fileName: ", fileName);
           return this.insightPlatformRepo.getSignedUrl(
             privateKey,
             defaultInsightPlatformBaseUrl,

@@ -57,32 +57,40 @@ export class ChunkRenderer implements IChunkRenderer {
     protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
+    protected maxChunkSize: number,
     public key: ELocalStorageKey,
   ) {
     this.clear();
     console.log("constructing this.updatesMap: ", key);
     const fieldkeys = Object.keys(EFieldKey);
     console.log("fieldkeys: ", fieldkeys);
+    // fieldkeys.forEach((element) => {
+    //   this.fieldUpdates[element] = [];
+    // });
     if (fieldkeys.includes(key)) {
-      // this.updatesMap[] = this.fieldUpdates;
-      // this.updatesMap[key] = new FieldDataUpdate(
-      //   key,
-      //   serialized,
-      //   Date.now(),
-      //   priority,
-      // );
-      this.updatesMap[key] = [];
+      this.updatesMap[EBackupPriority.HIGH] = [];
+      this.updatesMap[EBackupPriority.NORMAL] = [];
+
+      // this.fieldUpdates[EBackupPriority.HIGH] = [];
+      // this.fieldUpdates[EBackupPriority.NORMAL] = [];
+
       console.log("constructing this.fieldUpdates: ", this.updatesMap);
     } else {
       // this.updatesMap = this.tableUpdates;
       this.updatesMap[key] = [];
+      this.tableUpdates[key] = [];
       console.log("constructing this.tableUpdates: ", this.updatesMap);
     }
+  }
+  public get updates(): number {
+    return this.numUpdates;
   }
 
   public clear(): ResultAsync<void, never> {
     this.numUpdates = 0;
     this.updatesMap = {};
+    this.tableUpdates = {};
+    this.fieldUpdates = {};
     return okAsync(undefined);
   }
 
@@ -90,14 +98,14 @@ export class ChunkRenderer implements IChunkRenderer {
     tableName: ERecordKey, // ERecordKey
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    if (this.updatesMap.hasOwnProperty(tableName)) {
+    if (this.tableUpdates.hasOwnProperty(tableName)) {
       this.numUpdates += 1;
-      console.log("this.updatesMap: ", this.updatesMap);
+      console.log("this.updatesMap: ", this.tableUpdates);
       console.log("this.key: ", this.key);
       console.log("tableName: ", tableName);
       console.log("value: ", value);
 
-      this.updatesMap[this.key].push(
+      this.tableUpdates[this.key].push(
         new VolatileDataUpdate(
           EDataUpdateOpCode.UPDATE,
           value.data,
@@ -141,15 +149,24 @@ export class ChunkRenderer implements IChunkRenderer {
     console.log("value: ", value);
     console.log("priority: ", priority);
 
+    if (!(key in this.fieldUpdates)) {
+      this.numUpdates += 1;
+    }
+
     const serialized = JSON.stringify(value);
     const timestamp = Date.now();
-    this.updatesMap[this.key] = new FieldDataUpdate(
+
+    console.log("this.fieldUpdates: ", this.fieldUpdates);
+
+    this.fieldUpdates[this.key] = new FieldDataUpdate(
       key,
       serialized,
       Date.now(),
       priority,
     );
     this._updateFieldHistory(key, timestamp);
+    this.numUpdates += 1;
+
     return this.storageUtils.write(key, serialized);
   }
 
@@ -161,11 +178,14 @@ export class ChunkRenderer implements IChunkRenderer {
       return okAsync(undefined);
     }
 
+    // if (this.numUpdates >= this.maxChunkSize) {
     return this.dump().andThen((backup) => {
       return this._addRestored(backup).andThen(() => {
+        console.log("Chunk Manager Add Restored! ");
         return this.clear().map(() => backup);
       });
     });
+    // }
   }
 
   private _addRestored(
@@ -185,7 +205,9 @@ export class ChunkRenderer implements IChunkRenderer {
 
   public dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
     return this._generateBlob().andThen(([blob, priority]) => {
+      console.log("generate blob: ", blob);
       return this._getContentHash(blob).andThen((hash) => {
+        console.log("generate hash: ", hash);
         const timestamp = new Date().getTime();
         return this._generateBackupSignature(hash, timestamp).andThen((sig) => {
           const backup: IDataWalletBackup = {
@@ -200,6 +222,7 @@ export class ChunkRenderer implements IChunkRenderer {
             blob: blob,
           };
 
+          console.log("backup manager dump: ", backup);
           return okAsync(backup);
         });
       });
@@ -221,6 +244,7 @@ export class ChunkRenderer implements IChunkRenderer {
     PersistenceError
   > {
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
+    console.log("generate blob in chunk renderer: ", blob);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {

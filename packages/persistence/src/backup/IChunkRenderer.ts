@@ -12,6 +12,7 @@ import { ResultAsync } from "neverthrow";
 import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IChunkRenderer {
+  updates: number;
   clear(): ResultAsync<void, never>;
   addRecord<T extends VersionedObject>(
     tableName: string,
