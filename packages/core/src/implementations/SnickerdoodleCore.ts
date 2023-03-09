@@ -204,14 +204,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
   }
-  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  fetchBackupChunk(
-    backup: IDataWalletBackup,
-  ): ResultAsync<string, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
 
   public getListingsTotal(): ResultAsync<
     number,
