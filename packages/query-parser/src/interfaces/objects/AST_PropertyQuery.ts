@@ -1,10 +1,13 @@
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
+  BinaryCondition,
   Condition,
+  ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
+  ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
 import {
   ESDQLQueryReturn,
@@ -83,19 +86,29 @@ export class AST_PropertyQuery extends AST_Query {
       const opName = SDQL_OperatorName(conditionName);
       const rightOperand = schema[conditionName];
       switch (conditionName) {
+        case "g":
+          conditions.push(new ConditionG(opName, null, Number(rightOperand)));
+          break;
         case "ge":
           conditions.push(new ConditionGE(opName, null, Number(rightOperand)));
           break;
         case "l":
           conditions.push(new ConditionL(opName, null, Number(rightOperand)));
           break;
+        case "le":
+          conditions.push(new ConditionLE(opName, null, Number(rightOperand)));
+          break;
+        case "eq":
+          conditions.push(new ConditionE(opName, null, Number(rightOperand)));
+          break;
         case "in":
           conditions.push(
-            new ConditionIn(opName, null, rightOperand as Array<any>),
+            new ConditionIn(
+              opName,
+              null,
+              rightOperand as Array<string | number>,
+            ),
           );
-          break;
-        case "g":
-          conditions.push(new ConditionG(opName, null, Number(rightOperand)));
           break;
       }
     }
