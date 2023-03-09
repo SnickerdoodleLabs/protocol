@@ -218,7 +218,7 @@ describe.only("Schema validation", () => {
         expect(err.message.includes("queries")).toBeTruthy();
       });
   });
-  test("missing returns", async () => {
+  test("missing returns is OK", async () => {
     const schemaStr = JSON.stringify({
       version: 0.1,
       description:
@@ -248,7 +248,7 @@ describe.only("Schema validation", () => {
       })
       .mapErr((err) => {
         expect(err.constructor).toBe(QueryFormatError);
-        expect(err.message.includes("returns")).toBeTruthy();
+        expect(err.message.includes("return")).toBeFalsy();
       });
   });
 

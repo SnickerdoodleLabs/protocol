@@ -142,20 +142,13 @@ export class CampaignService implements ICampaignService {
     queryCid: IpfsCID,
     timeoutMs: number,
   ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
-    return this._getQueryWithTimeout(queryCid, timeoutMs).andThen(
-      (sdqlQuery) => {
+    return this.sdqlQueryRepo
+      .getByCID(queryCid, timeoutMs)
+      .andThen((sdqlQuery) => {
         if (sdqlQuery == null) {
           return okAsync([]);
         }
         return this.queryParsingEngine.getPossibleRewards(sdqlQuery);
-      },
-    );
-  }
-
-  private _getQueryWithTimeout(
-    queryCid: IpfsCID,
-    timeoutMs: number,
-  ): ResultAsync<SDQLQuery | null, AjaxError> {
-    return this.sdqlQueryRepo.getByCID(queryCid, timeoutMs);
+      });
   }
 }

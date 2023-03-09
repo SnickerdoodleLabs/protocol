@@ -207,7 +207,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  fetchBackupChunk(backup: IDataWalletBackup): ResultAsync<string, PersistenceError> {
+  fetchBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
@@ -880,10 +882,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
-    timeoutMs: number,
+    timeoutMs?: number,
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
     const campaignService =
       this.iocContainer.get<ICampaignService>(ICampaignServiceType);
-    return campaignService.getPossibleRewards(contractAddresses, timeoutMs);
+    return campaignService.getPossibleRewards(
+      contractAddresses,
+      timeoutMs ?? 3000,
+    );
   }
 }

@@ -1,21 +1,16 @@
 import {
   DataPermissions,
   EligibleReward,
-  ExpectedReward,
   EvaluationError,
-  InsightString,
-  QueryFormatError,
-  SDQLQuery,
-  QueryIdentifier,
-  IDynamicRewardParameter,
   EVMContractAddress,
-  CompensationId,
-  ISDQLCompensations,
-  ISDQLAd,
-  AdKey,
-  IpfsCID,
-  PossibleReward,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
   ParserError,
+  PossibleReward,
+  QueryFormatError,
+  QueryIdentifier,
+  SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -30,7 +25,7 @@ export interface IQueryParsingEngine {
     dataPermissions: DataPermissions,
     parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
-    [InsightString[], EligibleReward[]],
+    [IInsights, EligibleReward[]],
     EvaluationError | QueryFormatError
   >;
   getPossibleRewards(

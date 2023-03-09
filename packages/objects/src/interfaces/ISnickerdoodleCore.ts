@@ -461,7 +461,7 @@ export interface ISnickerdoodleCore {
    */
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
-    timeoutMs: number,
+    timeoutMs?: number,
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 

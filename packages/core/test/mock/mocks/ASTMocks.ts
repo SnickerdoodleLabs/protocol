@@ -19,8 +19,8 @@ import {
 } from "@core/implementations/business/utilities";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IProfileService } from "@core/interfaces/business";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   IBrowsingDataRepository,

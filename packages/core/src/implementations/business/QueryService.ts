@@ -34,23 +34,23 @@ import {
 import {
   AjaxError,
   ConsentError,
+  ConsentToken,
+  EligibleReward,
   EvaluationError,
   EVMContractAddress,
-  InsightString,
+  EVMPrivateKey,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
   IpfsCID,
   IPFSError,
+  LinkedAccount,
   QueryFormatError,
-  UninitializedError,
-  EligibleReward,
+  QueryIdentifier,
   SDQLQuery,
   SDQLQueryRequest,
-  ConsentToken,
   ServerRewardError,
-  IDynamicRewardParameter,
-  LinkedAccount,
-  QueryIdentifier,
-  ExpectedReward,
-  EVMPrivateKey,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -276,7 +276,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 
