@@ -1,7 +1,6 @@
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
   BinaryCondition,
-  Condition,
   ConditionE,
   ConditionG,
   ConditionGE,
@@ -29,7 +28,7 @@ export class AST_PropertyQuery extends AST_Query {
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,
     readonly property: Web2QueryTypes,
-    readonly conditions: Array<Condition>,
+    readonly conditions: Array<BinaryCondition>,
     // for reading gender
     readonly enum_keys: Array<string>,
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -79,8 +78,8 @@ export class AST_PropertyQuery extends AST_Query {
     }
   }
 
-  static parseConditions(schema: any): Array<Condition> {
-    const conditions = new Array<Condition>();
+  static parseConditions(schema: any): Array<BinaryCondition> {
+    const conditions = new Array<BinaryCondition>();
 
     for (const conditionName in schema) {
       const opName = SDQL_OperatorName(conditionName);

@@ -1,7 +1,6 @@
-import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
-
 import { Condition } from "@query-parser/interfaces/objects/condition/Condition.js";
 import { ConditionOperandTypes } from "@query-parser/interfaces/utilities/index.js";
+import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
 export abstract class BinaryCondition extends Condition {
   constructor(

@@ -1,32 +1,4 @@
 import {
-  Age,
-  CountryCode,
-  EvalNotImplementedError,
-  Gender,
-  PersistenceError,
-  SDQL_Return,
-} from "@snickerdoodlelabs/objects";
-import {
-  AST_BalanceQuery,
-  AST_Expr,
-  AST_Web3Query,
-  AST_PropertyQuery,
-  AST_Query,
-  BinaryCondition,
-  Condition,
-  ConditionE,
-  ConditionG,
-  ConditionGE,
-  ConditionIn,
-  ConditionL,
-  ConditionLE,
-  AST_BlockchainTransactionQuery,
-  AST_NftQuery,
-} from "@snickerdoodlelabs/query-parser";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import {
   IProfileService,
   IProfileServiceType,
 } from "@core/interfaces/business/IProfileService.js";
@@ -44,11 +16,35 @@ import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQuer
 import {
   IBrowsingDataRepository,
   IBrowsingDataRepositoryType,
-  ITransactionHistoryRepository,
-  ITransactionHistoryRepositoryType,
   IDemographicDataRepository,
   IDemographicDataRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  Age,
+  CountryCode,
+  EvalNotImplementedError,
+  Gender,
+  PersistenceError,
+  SDQL_Return,
+} from "@snickerdoodlelabs/objects";
+import {
+  AST_BalanceQuery,
+  AST_BlockchainTransactionQuery,
+  AST_NftQuery,
+  AST_PropertyQuery,
+  AST_Query,
+  BinaryCondition,
+  ConditionE,
+  ConditionG,
+  ConditionGE,
+  ConditionIn,
+  ConditionL,
+  ConditionLE,
+} from "@snickerdoodlelabs/query-parser";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
