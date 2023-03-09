@@ -1014,19 +1014,4 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
     return tokenPriceRepo.getTokenMarketData(ids);
   }
-
-  public grantPermissions(
-    permissions: EDataWalletPermission[],
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-
-  public getPermissions(
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<EDataWalletPermission[], PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
 }
