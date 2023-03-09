@@ -48,11 +48,7 @@ export class BackupManager implements IBackupManager {
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
 
-  private tableNames: string[];
-  private migrators = new Map<
-    string,
-    VersionedObjectMigrator<VersionedObject>
-  >();
+  private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
@@ -68,11 +64,9 @@ export class BackupManager implements IBackupManager {
     public maxChunkSize: number,
     protected enableEncryption: boolean,
   ) {
-    this.tableNames = [];
-    this.schema.forEach((x) => {
-      if (!x.disableBackup) {
-        this.migrators.set(x.name, x.migrator);
-        this.tableNames.push(x.name);
+    this.schema.forEach((schema) => {
+      if (!schema.disableBackup) {
+        this.schemas.set(schema.name, schema);
       }
     });
 
@@ -130,7 +124,9 @@ export class BackupManager implements IBackupManager {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    Array.from(this.schemas.keys()).forEach(
+      (tableName) => (this.tableUpdates[tableName] = []),
+    );
     return okAsync(undefined);
   }
 
@@ -265,7 +261,7 @@ export class BackupManager implements IBackupManager {
                   Object.keys(unpacked.records).map((tableName) => {
                     const table = unpacked.records[tableName];
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    const migrator = this.migrators.get(tableName)!;
+                    const migrator = this.schemas.get(tableName)!.migrator;
 
                     return ResultUtils.combine(
                       table.map((value) => {
