@@ -1,3 +1,5 @@
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 import {
   ChainId,
   EWalletDataType,
@@ -5,9 +7,6 @@ import {
   SDQL_Name,
   MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
-
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
-import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 import { ok, Result } from "neverthrow";
 
 export class AST_BalanceQuery extends AST_Query {
