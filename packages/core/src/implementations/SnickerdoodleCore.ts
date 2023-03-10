@@ -300,6 +300,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ) => {
         throw new Error("Unimplemented");
       },
+      completeShowingAds: (queryCID: IpfsCID) => {
+        throw new Error("Unimplemented");
+      },
     };
   }
 
