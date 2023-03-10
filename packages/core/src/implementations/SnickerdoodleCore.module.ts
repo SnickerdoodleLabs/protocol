@@ -92,6 +92,7 @@ import {
   SDQLQueryRepository,
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
+  PermissionRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -182,6 +183,8 @@ import {
   ITransactionHistoryRepository,
   IDemographicDataRepositoryType,
   IDemographicDataRepository,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -307,6 +310,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IDemographicDataRepository>(IDemographicDataRepositoryType)
       .to(DemographicDataRepository)
+      .inSingletonScope();
+    bind<IPermissionRepository>(IPermissionRepositoryType)
+      .to(PermissionRepository)
       .inSingletonScope();
 
     // Utilities
