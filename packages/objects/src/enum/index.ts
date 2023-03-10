@@ -11,4 +11,5 @@ export * from "@objects/enum/ERewardType";
 export * from "@objects/enum/ECredentialType";
 export * from "@objects/enum/ECurrencyCode";
 export * from "@objects/enum/EAdContentType";
+export * from "@objects/enum/ECreatedRewardType";
 export * from "@objects/enum/ESDQLQueryReturn";
