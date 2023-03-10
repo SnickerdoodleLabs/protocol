@@ -40,20 +40,18 @@ import {
 
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
-  // private tableNames: string[];
-  // private fieldUpdates: string[];
   private numUpdates = 0;
   private chunkRendererKey = 0;
   private chunkCheckSizeKey = 0;
 
   private chunkQueue: Array<IDataWalletBackup> = [];
   private chunkRenderingMap: Map<ChunkRenderMapKey, ChunkRenderer> = new Map();
+  private chunkUpdatesTracking: Map<ChunkRenderMapKey, number> = new Map();
 
   /*  
     - Fields - lump these in by their high priority vs low priority
     - Table - separate by their table keys
   */
-
   public constructor(
     protected privateKey: EVMPrivateKey,
     protected schema: VolatileTableIndex<VersionedObject>[],
@@ -66,14 +64,8 @@ export class BackupManager implements IBackupManager {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
-    console.log("this.schema: ", this.schema);
-    console.log(
-      "this.schema names: ",
-      this.schema.map((x) => x.name),
-    );
 
     this.schema.forEach((tableHeaderName) => {
-      console.log("Schema : ", tableHeaderName);
       this.chunkRenderingMap.set(
         tableHeaderName.name as ChunkRenderMapKey,
         new ChunkRenderer(
@@ -114,10 +106,7 @@ export class BackupManager implements IBackupManager {
   private _addRestored(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    console.log("Backup Manager: add Restored: ", backup);
-    console.log("Backup Manager: add Restored: ", backup.header);
-    console.log("Backup Manager: add Restored: ", backup.header.hash);
-
+    console.log("backup: ", backup);
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
@@ -132,7 +121,6 @@ export class BackupManager implements IBackupManager {
   private _wasRestored(
     id: DataWalletBackupID,
   ): ResultAsync<boolean, PersistenceError> {
-    console.log("_wasRestored: ", id);
     return this.volatileStorage
       .getObject<RestoredBackup>(ERecordKey.RESTORED_BACKUPS, id)
       .map((result) => {
@@ -143,7 +131,7 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    console.log("restore: ", backup);
+    console.log("restore my backup: ", backup);
 
     return this._wasRestored(DataWalletBackupID(backup.header.hash)).andThen(
       (wasRestored) => {
@@ -169,8 +157,6 @@ export class BackupManager implements IBackupManager {
                   return renderer.restore(unpacked);
                 }),
               );
-              // return okAsync(this.chunkRenderingMap.)
-              // return okAsync(this.chunkManager.restore(unpacked));
             })
             .andThen(() => {
               return this._addRestored(backup);
@@ -235,7 +221,6 @@ export class BackupManager implements IBackupManager {
   public clear(): ResultAsync<void, never> {
     this.numUpdates = 0;
     return okAsync(undefined);
-    // return this.chunkManager.clear();
   }
 
   public updateField(
@@ -243,12 +228,6 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
-    console.log("updateField: ", key);
-    console.log("updateField value: ", value);
-    console.log("updateField priority: ", priority);
-    console.log("this.chunkRenderingMap: ", this.chunkRenderingMap);
-    console.log("key as ELocalStorageKey: ", key as ChunkRenderMapKey);
-
     if (this.chunkRenderingMap.get(key as ChunkRenderMapKey) == undefined) {
       this.chunkRenderingMap.set(
         priority as ChunkRenderMapKey,
@@ -263,9 +242,8 @@ export class BackupManager implements IBackupManager {
       );
     }
     const renderer = this.chunkRenderingMap.get(priority as ChunkRenderMapKey);
-    console.log("updateField renderer: ", renderer);
-
     return renderer!.updateField(key, value, priority).andThen(() => {
+      this.countRendererUpdates(key as ChunkRenderMapKey);
       this.numUpdates += 1;
       return this._checkSize();
     });
@@ -280,8 +258,12 @@ export class BackupManager implements IBackupManager {
     const renderer = this.chunkRenderingMap.get(key as ChunkRenderMapKey);
     return renderer!
       .deleteRecord(tableName as ERecordKey, key, priority, timestamp)
-      .andThen(() => {
-        this.numUpdates += 1;
+      .andThen((chunk) => {
+        this.countRendererUpdates(tableName as ChunkRenderMapKey);
+        if (chunk == undefined) {
+          return okAsync(undefined);
+        }
+        this.chunkQueue.push(chunk);
         return this._checkSize();
       });
   }
@@ -290,35 +272,29 @@ export class BackupManager implements IBackupManager {
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    console.log("inside pop backup: ", this.chunkQueue.length);
     if (this.chunkQueue.length == 0) {
-      console.log("this.numUpdates: ", this.numUpdates);
       if (this.numUpdates == 0) {
         return okAsync(undefined);
       }
+
       this.chunkRenderingMap.forEach((renderer) => {
-        console.log("renderer.updates:  ", renderer.updates);
+        return renderer!.dump().andThen((backup) => {
+          this.chunkQueue.push(backup);
+          return this.clear();
+        });
       });
-
-      const renderers = Array.from(this.chunkRenderingMap.values());
-
-      if (this.chunkRendererKey < renderers.length - 1) {
-        this.chunkRendererKey = this.chunkRendererKey + 1;
-      } else {
-        this.chunkRendererKey = 0;
-      }
-
-      console.log("this.chunkRendererKey: ", this.chunkRendererKey);
-      return renderers[this.chunkRendererKey].popBackup();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    console.log("this.chunkQueue.length: ", this.chunkQueue.length);
-    console.log("this.numUpdates: ", this.numUpdates);
-
     const backup = this.chunkQueue.pop()!;
-    console.log("backup listed: ", backup);
     return this._addRestored(backup).map(() => backup);
+  }
+
+  private countRendererUpdates(key: ChunkRenderMapKey): void {
+    if (!this.chunkUpdatesTracking.has(key as ChunkRenderMapKey)) {
+      this.chunkUpdatesTracking.set(key as ChunkRenderMapKey, 1);
+    }
+    const counter = this.chunkUpdatesTracking.get(key as ChunkRenderMapKey);
+    this.chunkUpdatesTracking.set(key as ChunkRenderMapKey, counter!);
   }
 
   public addRecord<T extends VersionedObject>(
@@ -326,34 +302,23 @@ export class BackupManager implements IBackupManager {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     const renderer = this.chunkRenderingMap.get(tableName as ChunkRenderMapKey);
-    return renderer!.addRecord(tableName as ERecordKey, value).andThen(() => {
-      this.numUpdates += 1;
-      return this._checkSize();
-    });
+    return renderer!
+      .addRecord(tableName as ERecordKey, value)
+      .andThen((chunk) => {
+        this.countRendererUpdates(tableName as ChunkRenderMapKey);
+        if (chunk == undefined) {
+          return okAsync(undefined);
+        }
+        this.chunkQueue.push(chunk);
+
+        return this._checkSize();
+      });
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
-    console.log("_checkSize this.numUpdates: ", this.numUpdates);
-    console.log("_checkSize this.maxChunkSize: ", this.maxChunkSize);
-
     if (this.numUpdates >= this.maxChunkSize) {
-      console.log("_checkSize dump renderer: ");
-
-      // const renderers = Array.from(this.chunkRenderingMap.values());
-      // if (this.chunkCheckSizeKey < renderers.length - 1) {
-      //   this.chunkCheckSizeKey = this.chunkCheckSizeKey + 1;
-      // } else {
-      //   this.chunkCheckSizeKey = 0;
-      // }
-
-      // console.log("this.chunkRendererKey: ", this.chunkRendererKey);
-      // return renderers[this.chunkRendererKey].popBackup();
-
       this.chunkRenderingMap.forEach((renderer) => {
-        this.chunkCheckSizeKey = this.chunkCheckSizeKey + 1;
-        console.log("_checkSize: ", this.chunkCheckSizeKey);
         return renderer!.dump().andThen((backup) => {
-          console.log("backup manager dump: ", backup);
           this.chunkQueue.push(backup);
           return this.clear();
         });

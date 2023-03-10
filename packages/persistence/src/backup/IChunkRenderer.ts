@@ -17,18 +17,17 @@ export interface IChunkRenderer {
   addRecord<T extends VersionedObject>(
     tableName: string,
     value: VolatileStorageMetadata<T>,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   deleteRecord(
     tableName: string,
     key: VolatileStorageKey,
     priority: EBackupPriority,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   updateField(
     key: string,
     value: object,
     priority: EBackupPriority,
-  ): ResultAsync<void, PersistenceError>;
-  popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
+  ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   restore(unpacked: BackupBlob): ResultAsync<void[][], PersistenceError>;
   dump(): ResultAsync<IDataWalletBackup, PersistenceError>;
 }
