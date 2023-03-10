@@ -27,8 +27,10 @@ import {
   EFieldKey,
   ELocalStorageKey,
   ERecordKey,
+  ELocalStorageType,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import e from "cors";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -42,10 +44,10 @@ import {
 export class ChunkRenderer implements IChunkRenderer {
   private fieldUpdates: FieldMap = {};
   private tableUpdates = {};
-  private updatesMap;
   private numUpdates = 0;
   private HIGH_UPDATES = 0;
   private NORMAL_UPDATES = 0;
+  private tableNames: string[];
 
   private migrators = new Map<
     string,
@@ -53,24 +55,22 @@ export class ChunkRenderer implements IChunkRenderer {
   >();
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
+  // private storageType: ELocalStorageType;
 
   public constructor(
     protected privateKey: EVMPrivateKey,
+    protected schema: VolatileTableIndex<VersionedObject>[],
     protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
     protected maxChunkSize: number,
     public key: ELocalStorageKey,
   ) {
+    this.tableNames = this.schema.map((x) => x.name);
+    this.schema.forEach((x) => {
+      this.migrators.set(x.name, x.migrator);
+    });
     this.clear();
-    console.log("constructing this.updatesMap: ", key);
-    const fieldkeys = Object.keys(EFieldKey);
-    console.log("fieldkeys: ", fieldkeys);
-
-    if (!fieldkeys.includes(key)) {
-      this.tableUpdates[key + EBackupPriority.HIGH] = [];
-      this.tableUpdates[key + EBackupPriority.NORMAL] = [];
-    }
   }
   public get updates(): number {
     return this.numUpdates;
@@ -88,38 +88,33 @@ export class ChunkRenderer implements IChunkRenderer {
     this.numUpdates = 0;
     this.HIGH_UPDATES = 0;
     this.NORMAL_UPDATES = 0;
-    this.updatesMap = {};
-    this.tableUpdates[this.key + EBackupPriority.HIGH] = [];
-    this.tableUpdates[this.key + EBackupPriority.NORMAL] = [];
+    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
     this.fieldUpdates = {};
     return okAsync(undefined);
   }
 
   public addRecord<T extends VersionedObject>(
-    tableName: ERecordKey, // ERecordKey
+    tableName: string, // ERecordKey
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    if (
-      this.tableUpdates.hasOwnProperty(tableName + EBackupPriority.HIGH) ||
-      this.tableUpdates.hasOwnProperty(tableName + EBackupPriority.NORMAL)
-    ) {
-      this.numUpdates += 1;
-      this.alterUpdatesCounter(value.priority);
-
-      this.tableUpdates[this.key + value.priority].push(
-        new VolatileDataUpdate(
-          EDataUpdateOpCode.UPDATE,
-          value.data,
-          value.lastUpdate,
-          value.priority,
-          value.version,
-        ),
-      );
-      return this.volatileStorage.putObject<T>(this.key, value).andThen(() => {
-        return this._checkSize();
+    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      return this.volatileStorage.putObject<T>(tableName, value).andThen(() => {
+        return okAsync(undefined);
       });
     }
-    return okAsync(undefined);
+    this.alterUpdatesCounter(value.priority);
+    this.tableUpdates[this.key].push(
+      new VolatileDataUpdate(
+        EDataUpdateOpCode.UPDATE,
+        value.data,
+        value.lastUpdate,
+        value.priority,
+        value.version,
+      ),
+    );
+    return this.volatileStorage.putObject<T>(tableName, value).andThen(() => {
+      return this._checkSize();
+    });
   }
 
   private _checkSize(): ResultAsync<
@@ -146,7 +141,7 @@ export class ChunkRenderer implements IChunkRenderer {
     this.numUpdates += 1;
     this.deletionHistory.set(key, timestamp);
     this.alterUpdatesCounter(priority);
-    this.tableUpdates[this.key + priority].push(
+    this.tableUpdates[this.key].push(
       new VolatileDataUpdate(
         EDataUpdateOpCode.REMOVE,
         key,
@@ -154,11 +149,9 @@ export class ChunkRenderer implements IChunkRenderer {
         priority,
       ),
     );
-    return this.volatileStorage
-      .removeObject(tableName, this.key)
-      .andThen(() => {
-        return this._checkSize();
-      });
+    return this.volatileStorage.removeObject(tableName, key).andThen(() => {
+      return this._checkSize();
+    });
   }
 
   private alterUpdatesCounter(priority: EBackupPriority): void {
@@ -172,12 +165,12 @@ export class ChunkRenderer implements IChunkRenderer {
 
   public updateField(
     key: string,
-    value: object,
+    serialized: string,
     priority: EBackupPriority,
+    timestamp: number,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    const serialized = JSON.stringify(value);
-    const timestamp = Date.now();
-    this.fieldUpdates[key + priority] = new FieldDataUpdate(
+    // const serialized = JSON.stringify(value);
+    this.fieldUpdates[key] = new FieldDataUpdate(
       key,
       serialized,
       Date.now(),
@@ -193,9 +186,7 @@ export class ChunkRenderer implements IChunkRenderer {
 
   public dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
     return this._generateBlob().andThen(([blob, priority]) => {
-      console.log("generate blob: ", blob);
       return this._getContentHash(blob).andThen((hash) => {
-        console.log("generate hash: ", hash);
         const timestamp = new Date().getTime();
         return this._generateBackupSignature(hash, timestamp).andThen((sig) => {
           const backup: IDataWalletBackup = {
@@ -204,14 +195,13 @@ export class ChunkRenderer implements IChunkRenderer {
               timestamp: UnixTimestamp(timestamp),
               signature: sig,
               priority: priority,
-              // Update with ERecordKey | EBackupPriority
-              dataType: 0,
+              dataType: this.key,
             },
             blob: blob,
           };
-
-          console.log("backup manager dump: ", backup);
-          return okAsync(backup);
+          return this.clear().andThen(() => {
+            return okAsync(backup);
+          });
         });
       });
     });
@@ -232,7 +222,6 @@ export class ChunkRenderer implements IChunkRenderer {
     PersistenceError
   > {
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
-    console.log("generate blob in chunk renderer: ", blob);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -278,10 +267,6 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {
-    console.log("_updateFieldHistory: ", field);
-    console.log("_updateFieldHistory timestamp: ", timestamp);
-    console.log("_updateFieldHistory this.fieldHistory: ", this.fieldHistory);
-
     if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
       this.fieldHistory[field] = timestamp;
     }
@@ -313,12 +298,10 @@ export class ChunkRenderer implements IChunkRenderer {
     ).andThen(() => {
       return ResultUtils.combine(
         Object.keys(unpacked.records).map((tableName) => {
-          console.log("tableName: ", tableName);
           const table = unpacked.records[tableName];
-          console.log("table: ", table);
-
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const migrator = this.migrators.get(tableName)!;
+          // console.log("migrator: ", migrator);
 
           return ResultUtils.combine(
             table.map((value) => {

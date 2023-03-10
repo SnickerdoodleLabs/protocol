@@ -132,15 +132,12 @@ export class GoogleCloudStorage implements ICloudStorage {
       this._configProvider.getConfig(),
     ])
       .andThen(([privateKey, config]) => {
-        console.log("privateKey: ", privateKey);
         const defaultInsightPlatformBaseUrl =
           config.defaultInsightPlatformBaseUrl;
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        console.log("addr: ", addr);
 
         return this._getFileName(backup.header).andThen((fileName) => {
-          console.log("fileName: ", fileName);
           return this.insightPlatformRepo.getSignedUrl(
             privateKey,
             defaultInsightPlatformBaseUrl,

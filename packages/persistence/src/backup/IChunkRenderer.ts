@@ -1,4 +1,4 @@
-import {
+ import {
   AESKey,
   BackupBlob,
   DataWalletBackupID,
@@ -25,8 +25,9 @@ export interface IChunkRenderer {
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   updateField(
     key: string,
-    value: object,
+    value: string,
     priority: EBackupPriority,
+    timestamp: number,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   restore(unpacked: BackupBlob): ResultAsync<void[][], PersistenceError>;
   dump(): ResultAsync<IDataWalletBackup, PersistenceError>;

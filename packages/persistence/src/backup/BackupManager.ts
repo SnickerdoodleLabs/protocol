@@ -50,7 +50,7 @@ export class BackupManager implements IBackupManager {
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
 
   private chunkQueue: Array<IDataWalletBackup> = [];
-  private chunkRenderingMap: Map<ChunkRenderMapKey, ChunkRenderer> = new Map();
+  private chunkRenderingMap: Map<string, ChunkRenderer> = new Map();
   private chunkUpdatesTracking: Map<ChunkRenderMapKey, number> = new Map();
 
   /*  
@@ -78,9 +78,22 @@ export class BackupManager implements IBackupManager {
 
     this.schema.forEach((tableHeaderName) => {
       this.chunkRenderingMap.set(
-        tableHeaderName.name as ChunkRenderMapKey,
+        tableHeaderName.name + EBackupPriority.HIGH,
         new ChunkRenderer(
           this.privateKey,
+          this.schema,
+          this.volatileStorage,
+          this.cryptoUtils,
+          this.storageUtils,
+          this.maxChunkSize,
+          tableHeaderName.name as EFieldKey,
+        ),
+      );
+      this.chunkRenderingMap.set(
+        tableHeaderName.name + EBackupPriority.NORMAL,
+        new ChunkRenderer(
+          this.privateKey,
+          this.schema,
           this.volatileStorage,
           this.cryptoUtils,
           this.storageUtils,
@@ -89,15 +102,129 @@ export class BackupManager implements IBackupManager {
         ),
       );
     });
-    this.clear();
+    // this.clear();
+  }
+
+  public clear(): ResultAsync<void, never> {
+    this.numUpdates = 0;
+    return okAsync(undefined);
+  }
+
+  public addRecord<T extends VersionedObject>(
+    tableName: string,
+    value: VolatileStorageMetadata<T>,
+  ): ResultAsync<void, PersistenceError> {
+    const renderer = this.chunkRenderingMap.get(tableName + value.priority);
+    if (renderer == undefined) {
+      return okAsync(undefined);
+    }
+    return renderer!
+      .addRecord(tableName as ERecordKey, value)
+      .andThen((chunk) => {
+        this.countRendererUpdates(tableName as ChunkRenderMapKey);
+        if (chunk == undefined) {
+          return okAsync(undefined);
+        }
+        this.chunkQueue.push(chunk);
+
+        return this._checkSize();
+      });
+  }
+
+  public deleteRecord(
+    tableName: string,
+    key: VolatileStorageKey,
+    priority: EBackupPriority,
+    timestamp: number = Date.now(),
+  ): ResultAsync<void, PersistenceError> {
+    const renderer = this.chunkRenderingMap.get(tableName + priority);
+    return renderer!
+      .deleteRecord(tableName as ERecordKey, key, priority, timestamp)
+      .andThen((chunk) => {
+        this.countRendererUpdates(tableName as ChunkRenderMapKey);
+        this.deletionHistory.set(key, timestamp);
+        if (chunk == undefined) {
+          return okAsync(undefined);
+        }
+        this.chunkQueue.push(chunk);
+        return this._checkSize();
+      });
+  }
+
+  public updateField(
+    key: string,
+    value: object,
+    priority: EBackupPriority,
+  ): ResultAsync<void, PersistenceError> {
+    if (this.chunkRenderingMap.get(key + priority) == undefined) {
+      this.chunkRenderingMap.set(
+        key + priority,
+        new ChunkRenderer(
+          this.privateKey,
+          this.schema,
+          this.volatileStorage,
+          this.cryptoUtils,
+          this.storageUtils,
+          this.maxChunkSize,
+          key as ELocalStorageKey,
+        ),
+      );
+    }
+    const renderer = this.chunkRenderingMap.get(key + priority);
+    if (renderer == undefined) {
+      return okAsync(undefined);
+    }
+
+    const serialized = JSON.stringify(value);
+    const timestamp = Date.now();
+    this._updateFieldHistory(key, timestamp);
+
+    return ResultUtils.combine([
+      renderer.updateField(key, serialized, priority, timestamp),
+      this.storageUtils.write(key, serialized),
+    ]).andThen(() => {
+      this.countRendererUpdates(key as ChunkRenderMapKey);
+      this.numUpdates += 1;
+      this._updateFieldHistory(key, timestamp);
+      return this._checkSize();
+    });
+  }
+
+  public restore(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    return this._wasRestored(DataWalletBackupID(backup.header.hash)).andThen(
+      (wasRestored) => {
+        if (wasRestored) {
+          return okAsync(undefined);
+        }
+
+        return this._verifyBackupSignature(backup).andThen((valid) => {
+          if (!valid) {
+            return errAsync(new PersistenceError("invalid backup signature"));
+          }
+
+          return this._unpackBlob(backup.blob)
+            .andThen((unpacked) => {
+              const renderers = Array.from(this.chunkRenderingMap.values());
+              return ResultUtils.combine(
+                renderers.map((renderer) => {
+                  return renderer.restore(unpacked);
+                }),
+              );
+            })
+            .andThen(() => {
+              return this._addRestored(backup);
+            });
+        });
+      },
+    );
   }
 
   public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    console.log("fetchBackupChunk: ", backup.blob);
     return this._unpackBlob(backup.blob).andThen((backupBlob) => {
-      console.log("backupBlob: ", backupBlob);
       return okAsync(JSON.stringify(backupBlob));
     });
   }
@@ -106,7 +233,6 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
-        console.log("restored: ", restored);
         return restored.map((item) => item.data.id);
       })
       .map((restored) => {
@@ -127,23 +253,6 @@ export class BackupManager implements IBackupManager {
           okAsync(addr == EVMAccountAddress(this.accountAddr)),
         );
     });
-  }
-
-  private _getBlobPriority(
-    blob: BackupBlob,
-  ): ResultAsync<EBackupPriority, never> {
-    let result = EBackupPriority.NORMAL;
-    Object.keys(blob.fields).map((key) => {
-      const value = blob.fields[key];
-      result = Math.max(result, value.priority);
-    });
-    Object.keys(blob.records).map((table) => {
-      const updates = blob.records[table];
-      updates.forEach((value) => {
-        result = Math.max(result, value.priority);
-      });
-    });
-    return okAsync(result);
   }
 
   private _generateSignatureMessage(hash: string, timestamp: number): string {
@@ -172,7 +281,6 @@ export class BackupManager implements IBackupManager {
   private _addRestored(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    console.log("backup: ", backup);
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
@@ -194,49 +302,9 @@ export class BackupManager implements IBackupManager {
       });
   }
 
-  public restore(
-    backup: IDataWalletBackup,
-  ): ResultAsync<void, PersistenceError> {
-    console.log("restore my backup: ", backup);
-
-    return this._wasRestored(DataWalletBackupID(backup.header.hash)).andThen(
-      (wasRestored) => {
-        console.log("wasRestored status: ", wasRestored);
-        if (wasRestored) {
-          return okAsync(undefined);
-        }
-
-        console.log("wasRestored status: ", wasRestored);
-        return this._verifyBackupSignature(backup).andThen((valid) => {
-          console.log("valid signature: ", valid);
-
-          if (!valid) {
-            return errAsync(new PersistenceError("invalid backup signature"));
-          }
-
-          return this._unpackBlob(backup.blob)
-            .andThen((unpacked) => {
-              console.log("unpack blob: ", backup.blob);
-              const renderers = Array.from(this.chunkRenderingMap.values());
-              return ResultUtils.combine(
-                renderers.map((renderer) => {
-                  return renderer.restore(unpacked);
-                }),
-              );
-            })
-            .andThen(() => {
-              return this._addRestored(backup);
-            });
-        });
-      },
-    );
-  }
-
   private _unpackBlob(
     blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
-    console.log("_unpackBlob: ", blob);
-
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -246,60 +314,7 @@ export class BackupManager implements IBackupManager {
         );
       })
       .map((unencrypted) => {
-        console.log("raw blob unencrypted: ", JSON.parse(unencrypted));
-        console.log("raw blob: ", JSON.parse(unencrypted) as BackupBlob);
         return JSON.parse(unencrypted) as BackupBlob;
-      });
-  }
-
-  public clear(): ResultAsync<void, never> {
-    this.numUpdates = 0;
-    return okAsync(undefined);
-  }
-
-  public updateField(
-    key: string,
-    value: object,
-    priority: EBackupPriority,
-  ): ResultAsync<void, PersistenceError> {
-    if (this.chunkRenderingMap.get(key as ChunkRenderMapKey) == undefined) {
-      this.chunkRenderingMap.set(
-        priority as ChunkRenderMapKey,
-        new ChunkRenderer(
-          this.privateKey,
-          this.volatileStorage,
-          this.cryptoUtils,
-          this.storageUtils,
-          this.maxChunkSize,
-          key as ELocalStorageKey,
-        ),
-      );
-    }
-    const renderer = this.chunkRenderingMap.get(priority as ChunkRenderMapKey);
-    return renderer!.updateField(key, value, priority).andThen(() => {
-      this.countRendererUpdates(key as ChunkRenderMapKey);
-      this.numUpdates += 1;
-      return this._checkSize();
-    });
-  }
-
-  public deleteRecord(
-    tableName: string,
-    key: VolatileStorageKey,
-    priority: EBackupPriority,
-    timestamp: number = Date.now(),
-  ): ResultAsync<void, PersistenceError> {
-    const renderer = this.chunkRenderingMap.get(key as ChunkRenderMapKey);
-    return renderer!
-      .deleteRecord(tableName as ERecordKey, key, priority, timestamp)
-      .andThen((chunk) => {
-        this.countRendererUpdates(tableName as ChunkRenderMapKey);
-        this.deletionHistory.set(key, timestamp);
-        if (chunk == undefined) {
-          return okAsync(undefined);
-        }
-        this.chunkQueue.push(chunk);
-        return this._checkSize();
       });
   }
 
@@ -313,11 +328,18 @@ export class BackupManager implements IBackupManager {
       }
 
       this.chunkRenderingMap.forEach((renderer) => {
-        return renderer!.dump().andThen((backup) => {
-          this.chunkQueue.push(backup);
-          return this.clear();
-        });
+        return renderer!
+          .dump()
+          .andThen((backup) => {
+            this.chunkQueue.push(backup);
+            return this._addRestored(backup);
+          })
+          .andThen(() => {
+            return this.clear();
+          });
       });
+
+      return okAsync(undefined);
     }
 
     const backup = this.chunkQueue.pop()!;
@@ -330,24 +352,6 @@ export class BackupManager implements IBackupManager {
     }
     const counter = this.chunkUpdatesTracking.get(key as ChunkRenderMapKey);
     this.chunkUpdatesTracking.set(key as ChunkRenderMapKey, counter!);
-  }
-
-  public addRecord<T extends VersionedObject>(
-    tableName: string,
-    value: VolatileStorageMetadata<T>,
-  ): ResultAsync<void, PersistenceError> {
-    const renderer = this.chunkRenderingMap.get(tableName as ChunkRenderMapKey);
-    return renderer!
-      .addRecord(tableName as ERecordKey, value)
-      .andThen((chunk) => {
-        this.countRendererUpdates(tableName as ChunkRenderMapKey);
-        if (chunk == undefined) {
-          return okAsync(undefined);
-        }
-        this.chunkQueue.push(chunk);
-
-        return this._checkSize();
-      });
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
