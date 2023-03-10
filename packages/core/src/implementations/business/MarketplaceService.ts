@@ -25,11 +25,11 @@ import {
   PossibleReward,
   RequestForData,
   UninitializedError,
-, MarketplaceListing } from "@snickerdoodlelabs/objects";
+  MarketplaceListing,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
 
 @injectable()
 export class MarketplaceService implements IMarketplaceService {
