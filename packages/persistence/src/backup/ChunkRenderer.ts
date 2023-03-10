@@ -45,8 +45,6 @@ export class ChunkRenderer implements IChunkRenderer {
   private fieldUpdates: FieldMap = {};
   private tableUpdates = {};
   private numUpdates = 0;
-  private HIGH_UPDATES = 0;
-  private NORMAL_UPDATES = 0;
   private tableNames: string[];
 
   private migrators = new Map<
@@ -55,7 +53,6 @@ export class ChunkRenderer implements IChunkRenderer {
   >();
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
-  // private storageType: ELocalStorageType;
 
   public constructor(
     protected privateKey: EVMPrivateKey,
@@ -72,29 +69,16 @@ export class ChunkRenderer implements IChunkRenderer {
     });
     this.clear();
   }
-  public get updates(): number {
-    return this.numUpdates;
-  }
-
-  public get high_updates(): number {
-    return this.HIGH_UPDATES;
-  }
-
-  public get normal_updates(): number {
-    return this.NORMAL_UPDATES;
-  }
 
   public clear(): ResultAsync<void, never> {
     this.numUpdates = 0;
-    this.HIGH_UPDATES = 0;
-    this.NORMAL_UPDATES = 0;
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
     this.fieldUpdates = {};
     return okAsync(undefined);
   }
 
   public addRecord<T extends VersionedObject>(
-    tableName: string, // ERecordKey
+    tableName: string,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
@@ -155,11 +139,6 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   private alterUpdatesCounter(priority: EBackupPriority): void {
-    if (priority == EBackupPriority.HIGH) {
-      this.HIGH_UPDATES += 1;
-    } else {
-      this.NORMAL_UPDATES += 1;
-    }
     this.numUpdates += 1;
   }
 
