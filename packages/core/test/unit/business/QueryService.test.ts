@@ -45,7 +45,7 @@ import {
   dataWalletKey,
   dataWalletAddress,
   defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks";
+} from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,

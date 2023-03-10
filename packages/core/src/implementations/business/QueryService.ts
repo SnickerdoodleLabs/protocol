@@ -1,28 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { IQueryService } from "@core/interfaces/business/index.js";
-import {
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -55,6 +31,31 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IQueryService } from "@core/interfaces/business/index.js";
+import {
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -90,6 +91,21 @@ export class QueryService implements IQueryService {
     // if (!this.safeUpdateQueryContractMap(queryCID, consentContractAddress)) {
     //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryCID}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryCID)}`)); ))
     // }
+
+    /**
+     * TODO
+     * This method, for Ads Flow, will no longer process insights immediately. It will process the
+     * query to do Demographic Targetting for any included ads, and add those ads to the list
+     * of EligibleAds. It will create a QueryStatus object and persist that as well, to track the
+     * progress of the query.
+     *
+     * Insights will be processed after 3 main triggers: 1. core.reportAdShown(), which will check
+     * if there are any remaining EligibleAds for the query. If none exist, process insights.
+     * 2. core.completeShowingAds(), which will immediately mark the query as ready for insights,
+     * returning any ads that have been watches already.
+     * 3. Via a timer, which will watch for SDQLQueries that are about to expire. Expiring queries
+     * should be processed and returned as is, as long as at least a single reward is eligible.
+     */
     return ResultUtils.combine([
       this.getQueryByCID(queryCID),
       this.contextProvider.getContext(),
