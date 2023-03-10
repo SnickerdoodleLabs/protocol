@@ -316,7 +316,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
-    console.log("clearcloudstore call");
     return this.cloudStorage.clear().mapErr((error) => {
       return new PersistenceError((error as Error).message, error);
     });

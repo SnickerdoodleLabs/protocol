@@ -70,6 +70,10 @@ export class ChunkRenderer implements IChunkRenderer {
     this.clear();
   }
 
+  public get updates(): number {
+    return this.numUpdates;
+  }
+
   public clear(): ResultAsync<void, never> {
     this.numUpdates = 0;
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
@@ -274,7 +278,10 @@ export class ChunkRenderer implements IChunkRenderer {
           const table = unpacked.records[tableName];
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const migrator = this.migrators.get(tableName)!;
-          // console.log("migrator: ", migrator);
+          console.log("restoring your records: ", unpacked.records);
+          console.log("restoring your records: ", tableName);
+          console.log("restoring your records: ", unpacked.records[tableName]);
+          console.log("migrator: ", migrator);
 
           return ResultUtils.combine(
             table.map((value) => {

@@ -118,6 +118,9 @@ export class BackupManager implements IBackupManager {
     if (renderer == undefined) {
       return okAsync(undefined);
     }
+    if (!this.schemas.has(tableName)) {
+      return this.volatileStorage.putObject<T>(tableName, value);
+    }
     return renderer!
       .addRecord(tableName as ERecordKey, value)
       .andThen((chunk) => {
@@ -126,7 +129,9 @@ export class BackupManager implements IBackupManager {
           return okAsync(undefined);
         }
         this.chunkQueue.push(chunk);
-
+        return this.volatileStorage.putObject<T>(tableName, value);
+      })
+      .andThen(() => {
         return this._checkSize();
       });
   }
@@ -137,6 +142,9 @@ export class BackupManager implements IBackupManager {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
+    if (!this.schemas.has(tableName)) {
+      return this.volatileStorage.removeObject(tableName, key);
+    }
     const renderer = this.chunkRenderingMap.get(tableName + priority);
     return renderer!
       .deleteRecord(tableName as ERecordKey, key, priority, timestamp)
@@ -147,6 +155,9 @@ export class BackupManager implements IBackupManager {
           return okAsync(undefined);
         }
         this.chunkQueue.push(chunk);
+        return this.volatileStorage.removeObject(tableName, key);
+      })
+      .andThen(() => {
         return this._checkSize();
       });
   }
@@ -209,6 +220,8 @@ export class BackupManager implements IBackupManager {
               const renderers = Array.from(this.chunkRenderingMap.values());
               return ResultUtils.combine(
                 renderers.map((renderer) => {
+                  console.log("blob: ", backup.blob);
+                  console.log("unpacked blob: ", unpacked);
                   return renderer.restore(unpacked);
                 }),
               );
@@ -305,6 +318,7 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    console.log("unencrypt the data: ", blob);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -314,6 +328,7 @@ export class BackupManager implements IBackupManager {
         );
       })
       .map((unencrypted) => {
+        console.log("unencrypt the data: ", unencrypted);
         return JSON.parse(unencrypted) as BackupBlob;
       });
   }
@@ -327,22 +342,40 @@ export class BackupManager implements IBackupManager {
         return okAsync(undefined);
       }
 
-      this.chunkRenderingMap.forEach((renderer) => {
-        return renderer!
-          .dump()
-          .andThen((backup) => {
-            this.chunkQueue.push(backup);
-            return this._addRestored(backup);
-          })
-          .andThen(() => {
-            return this.clear();
+      const renderers = Array.from(this.chunkRenderingMap.values());
+      return ResultUtils.combine(
+        renderers.map((renderer) => {
+          if (renderer.updates == 0) {
+            return okAsync(undefined);
+          }
+          return renderer.dump().andThen((backup) => {
+            return okAsync(this.chunkQueue.push(backup));
           });
+        }),
+      ).andThen((asdf) => {
+        return 
+        return this.clear().map(() => undefined);
       });
+      // this.chunkRenderingMap.forEach((renderer) => {
+      //   return renderer!
+      //     .dump()
+      //     .andThen((backup) => {
+      //       this.chunkQueue.push(backup);
+      //       return this._addRestored(backup);
+      //     })
+      //     .andThen(() => {
+      //       return this.clear();
+      //     });
+      // });
 
-      return okAsync(undefined);
+      // console.log("new queue");
+      // if (this.chunkQueue.length == 0) {
+      //   return okAsync(undefined);
+      // }
     }
 
     const backup = this.chunkQueue.pop()!;
+    console.log("popped backup: ", backup);
     return this._addRestored(backup).map(() => backup);
   }
 
