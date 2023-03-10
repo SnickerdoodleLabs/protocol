@@ -103,8 +103,6 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
-    console.log("gcp clearcloudstore call");
-
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -113,8 +111,6 @@ export class GoogleCloudStorage implements ICloudStorage {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-        console.log("gcp clearcloudstore call: ", privateKey);
-        console.log("gcp clearcloudstore call: ", addr);
         return this.insightPlatformRepo.clearAllBackups(
           privateKey,
           config.defaultInsightPlatformBaseUrl,

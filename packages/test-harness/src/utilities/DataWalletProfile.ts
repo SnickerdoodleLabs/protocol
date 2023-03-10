@@ -410,7 +410,6 @@ export class DataWalletProfile {
     return this.readFile(backupPath, "utf-8")
       .andThen((content) => {
         const backupJson = JSON.parse(content);
-        console.log("backupJson: ", backupJson);
 
         const backup: IDataWalletBackup = {
           header: {
