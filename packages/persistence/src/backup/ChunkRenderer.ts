@@ -86,7 +86,6 @@ export class ChunkRenderer implements IChunkRenderer {
         return okAsync(undefined);
       });
     }
-    this.alterUpdatesCounter(value.priority);
     this.tableUpdates[this.key].push(
       new VolatileDataUpdate(
         EDataUpdateOpCode.UPDATE,
@@ -96,6 +95,7 @@ export class ChunkRenderer implements IChunkRenderer {
         value.version,
       ),
     );
+    this.numUpdates += 1;
     return this.volatileStorage.putObject<T>(tableName, value).andThen(() => {
       return this._checkSize();
     });
@@ -124,7 +124,6 @@ export class ChunkRenderer implements IChunkRenderer {
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
     this.numUpdates += 1;
     this.deletionHistory.set(key, timestamp);
-    this.alterUpdatesCounter(priority);
     this.tableUpdates[this.key].push(
       new VolatileDataUpdate(
         EDataUpdateOpCode.REMOVE,
@@ -136,10 +135,6 @@ export class ChunkRenderer implements IChunkRenderer {
     return this.volatileStorage.removeObject(tableName, key).andThen(() => {
       return this._checkSize();
     });
-  }
-
-  private alterUpdatesCounter(priority: EBackupPriority): void {
-    this.numUpdates += 1;
   }
 
   public updateField(
@@ -156,8 +151,7 @@ export class ChunkRenderer implements IChunkRenderer {
       priority,
     );
     this._updateFieldHistory(key, timestamp);
-    this.alterUpdatesCounter(priority);
-
+    this.numUpdates += 1;
     return this.storageUtils.write(key, serialized).andThen(() => {
       return this._checkSize();
     });
