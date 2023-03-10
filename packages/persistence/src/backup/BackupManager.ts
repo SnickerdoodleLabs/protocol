@@ -44,6 +44,11 @@ export class BackupManager implements IBackupManager {
   private chunkRendererKey = 0;
   private chunkCheckSizeKey = 0;
 
+  private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
+
+  private fieldHistory: Map<string, number> = new Map();
+  private deletionHistory: Map<VolatileStorageKey, number> = new Map();
+
   private chunkQueue: Array<IDataWalletBackup> = [];
   private chunkRenderingMap: Map<ChunkRenderMapKey, ChunkRenderer> = new Map();
   private chunkUpdatesTracking: Map<ChunkRenderMapKey, number> = new Map();
@@ -61,6 +66,12 @@ export class BackupManager implements IBackupManager {
     public maxChunkSize: number,
     protected enableEncryption: boolean,
   ) {
+    this.schema.forEach((schema) => {
+      if (!schema.disableBackup) {
+        this.schemas.set(schema.name, schema);
+      }
+    });
+
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
@@ -101,6 +112,61 @@ export class BackupManager implements IBackupManager {
       .map((restored) => {
         return new Set(restored);
       });
+  }
+
+  private _verifyBackupSignature(
+    backup: IDataWalletBackup,
+  ): ResultAsync<boolean, PersistenceError> {
+    return this._getContentHash(backup.blob).andThen((hash) => {
+      return this.cryptoUtils
+        .verifyEVMSignature(
+          this._generateSignatureMessage(hash, backup.header.timestamp),
+          Signature(backup.header.signature),
+        )
+        .andThen((addr) =>
+          okAsync(addr == EVMAccountAddress(this.accountAddr)),
+        );
+    });
+  }
+
+  private _getBlobPriority(
+    blob: BackupBlob,
+  ): ResultAsync<EBackupPriority, never> {
+    let result = EBackupPriority.NORMAL;
+    Object.keys(blob.fields).map((key) => {
+      const value = blob.fields[key];
+      result = Math.max(result, value.priority);
+    });
+    Object.keys(blob.records).map((table) => {
+      const updates = blob.records[table];
+      updates.forEach((value) => {
+        result = Math.max(result, value.priority);
+      });
+    });
+    return okAsync(result);
+  }
+
+  private _generateSignatureMessage(hash: string, timestamp: number): string {
+    return JSON.stringify({
+      hash: hash,
+      timestamp: timestamp,
+    });
+  }
+
+  private _getContentHash(
+    blob: AESEncryptedString | BackupBlob,
+  ): ResultAsync<string, PersistenceError> {
+    return this.cryptoUtils
+      .hashStringSHA256(JSON.stringify(blob))
+      .map((hash) => {
+        return hash.toString().replace(new RegExp("/", "g"), "-");
+      });
+  }
+
+  private _updateFieldHistory(field: string, timestamp: number): void {
+    if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
+      this.fieldHistory[field] = timestamp;
+    }
   }
 
   private _addRestored(
@@ -186,38 +252,6 @@ export class BackupManager implements IBackupManager {
       });
   }
 
-  private _verifyBackupSignature(
-    backup: IDataWalletBackup,
-  ): ResultAsync<boolean, PersistenceError> {
-    return this._getContentHash(backup.blob).andThen((hash) => {
-      return this.cryptoUtils
-        .verifyEVMSignature(
-          this._generateSignatureMessage(hash, backup.header.timestamp),
-          Signature(backup.header.signature),
-        )
-        .andThen((addr) =>
-          okAsync(addr == EVMAccountAddress(this.accountAddr)),
-        );
-    });
-  }
-
-  private _generateSignatureMessage(hash: string, timestamp: number): string {
-    return JSON.stringify({
-      hash: hash,
-      timestamp: timestamp,
-    });
-  }
-
-  private _getContentHash(
-    blob: AESEncryptedString | BackupBlob,
-  ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils
-      .hashStringSHA256(JSON.stringify(blob))
-      .map((hash) => {
-        return hash.toString().replace(new RegExp("/", "g"), "-");
-      });
-  }
-
   public clear(): ResultAsync<void, never> {
     this.numUpdates = 0;
     return okAsync(undefined);
@@ -260,6 +294,7 @@ export class BackupManager implements IBackupManager {
       .deleteRecord(tableName as ERecordKey, key, priority, timestamp)
       .andThen((chunk) => {
         this.countRendererUpdates(tableName as ChunkRenderMapKey);
+        this.deletionHistory.set(key, timestamp);
         if (chunk == undefined) {
           return okAsync(undefined);
         }

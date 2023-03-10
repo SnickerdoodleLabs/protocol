@@ -1,12 +1,13 @@
 import { DomainName, EScamFilterStatus } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
+
+import { IScamFilterService } from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
 import {
   IScamFilterRepository,
   IScamFilterRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data/IScamFilterRepository";
-import { IScamFilterService } from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()
 export class ScamFilterService implements IScamFilterService {

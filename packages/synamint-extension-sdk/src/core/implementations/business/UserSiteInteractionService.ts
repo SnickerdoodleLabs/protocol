@@ -1,13 +1,13 @@
+import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+
 import { IUserSiteInteractionService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
-
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
-import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class UserSiteInteractionService implements IUserSiteInteractionService {

@@ -92,6 +92,8 @@ export const volatileStorageSchema = [
     ["chain", "address"],
     false,
     new TokenInfoMigrator(),
+    undefined,
+    true,
   ),
   new VolatileTableIndex(
     ERecordKey.RESTORED_BACKUPS,

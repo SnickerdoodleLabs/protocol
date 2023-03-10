@@ -19,6 +19,7 @@ import {
   HexString32,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
@@ -54,11 +55,16 @@ const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
-const insights: InsightString[] = [
-  InsightString("Hello1"),
-  InsightString("Hello2"),
-];
-const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
+const insights = {
+  queries: {},
+  returns: {
+    "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
+    $r3: InsightString("Hello2"),
+  },
+} as IInsights;
+const insightsError = {
+  returns: {},
+} as IInsights;
 const rewards: EligibleReward[] = [];
 const tokenId = TokenId(BigInt(0));
 
