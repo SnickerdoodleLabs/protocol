@@ -3,6 +3,45 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -103,48 +142,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -277,9 +274,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         contractAddresses: EVMContractAddress[],
         timeoutMs?: number,
       ) => {
-        const campaignService =
-          this.iocContainer.get<ICampaignService>(ICampaignServiceType);
-        return campaignService.getPossibleRewards(
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getPossibleRewards(
           contractAddresses,
           timeoutMs ?? 3000,
         );
