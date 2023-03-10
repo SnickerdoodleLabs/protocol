@@ -30,10 +30,15 @@ import {
   IProfileServiceType,
 } from "@core/interfaces/business/IProfileService.js";
 import {
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
-
 import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
 import {
   IBrowsingDataRepository,
@@ -43,13 +48,6 @@ import {
   IDemographicDataRepository,
   IDemographicDataRepositoryType,
 } from "@core/interfaces/data/index.js";
-
-import {
-  IBlockchainTransactionQueryEvaluator,
-  IBlockchainTransactionQueryEvaluatorType,
-  INftQueryEvaluator,
-  INftQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {

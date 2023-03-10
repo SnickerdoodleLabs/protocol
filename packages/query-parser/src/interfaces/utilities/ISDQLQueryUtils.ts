@@ -1,3 +1,4 @@
+import { SDQLParser } from "@query-parser/implementations";
 import {
   CompensationId,
   DuplicateIdInSchema,
@@ -9,10 +10,9 @@ import {
   DataPermissions,
   QueryFilteredByPermissions,
   QueryIdentifier,
+  QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { SDQLParser } from "@query-parser/implementations";
 
 export interface ISDQLQueryUtils {
   getEligibleCompensations(
@@ -62,6 +62,11 @@ export interface ISDQLQueryUtils {
     | MissingTokenConstructorError
     | QueryExpiredError
   >;
+
+  getQueryTypeDependencies(
+    parser: SDQLParser,
+    compId: CompensationId,
+  ): QueryTypes[];
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");

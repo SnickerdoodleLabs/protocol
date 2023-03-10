@@ -1,9 +1,6 @@
 import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
-
-import { QueryService } from "@core/implementations/business/index.js";
-
 import {
   AjaxError,
   EligibleReward,
@@ -22,34 +19,28 @@ import {
   HexString32,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
+import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
+import { errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import * as td from "testdouble";
 
+import { QueryService } from "@core/implementations/business/index.js";
 import {
   IConsentTokenUtils,
   IQueryParsingEngine,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
-
 import {
   IConsentContractRepository,
   ILinkedAccountRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
-
-import { errAsync, okAsync } from "neverthrow";
-
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConfigProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
-
-import * as td from "testdouble";
-
 import {
   dataWalletKey,
   dataWalletAddress,
@@ -64,11 +55,16 @@ const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
-const insights: InsightString[] = [
-  InsightString("Hello1"),
-  InsightString("Hello2"),
-];
-const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
+const insights = {
+  queries: {},
+  returns: {
+    "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
+    $r3: InsightString("Hello2"),
+  },
+} as IInsights;
+const insightsError = {
+  returns: {},
+} as IInsights;
 const rewards: EligibleReward[] = [];
 const tokenId = TokenId(BigInt(0));
 
@@ -253,6 +249,7 @@ describe("processRewardsPreview tests", () => {
     td.when(mocks.configProvider.getConfig()).thenReturn(
       okAsync(
         new CoreConfig(
+          td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),

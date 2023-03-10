@@ -186,6 +186,9 @@ var options = {
       __BACKUP_POLLING_INTERVAL__: JSON.stringify(
         process.env.__BACKUP_POLLING_INTERVAL__,
       ),
+      __ENABLE_BACKUP_ENCRYPTION__: JSON.stringify(
+        process.env.__ENABLE_BACKUP_ENCRYPTION__,
+      ),
     }),
     new CopyWebpackPlugin({
       patterns: [

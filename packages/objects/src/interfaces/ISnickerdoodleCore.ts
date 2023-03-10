@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   Invitation,
   DataPermissions,
@@ -21,6 +19,7 @@ import {
   EligibleAd,
   AdSignature,
   AESEncryptedString,
+  PossibleReward,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -70,6 +69,7 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -350,8 +350,7 @@ export interface ISnickerdoodleCore {
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  fetchBackupChunk(
+  unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
@@ -359,7 +358,6 @@ export interface ISnickerdoodleCore {
   addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
-
   onAdDisplayed(
     eligibleAd: EligibleAd,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
@@ -452,6 +450,19 @@ export interface ISnickerdoodleCore {
     number,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
+
+  /**
+   * This method will accept a list of consent contract addresses and returns
+   * all possible rewards with their dependencies.
+   * i.e. Join this campaign, share your age; and get a discount
+   * @param contractAddresses List of consent contract addresses (of campaigns)
+   * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
+   * factor wants to tune the marketplace loading time.
+   */
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

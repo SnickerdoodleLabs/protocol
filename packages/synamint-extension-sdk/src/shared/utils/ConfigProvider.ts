@@ -1,4 +1,5 @@
 import { ChainId, ProviderUrl, URLString } from "@snickerdoodlelabs/objects";
+
 import {
   EPlatform,
   EManifestVersion,
@@ -28,6 +29,7 @@ declare const __GOOGLE_CLOUD_BUCKET__: string;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
+declare const __ENABLE_BACKUP_ENCRYPTION__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -120,6 +122,10 @@ class ConfigProvider implements IConfigProvider {
       !!__BACKUP_POLLING_INTERVAL__
         ? Number.parseInt(__BACKUP_POLLING_INTERVAL__)
         : ONE_MINUTE_MS,
+      typeof __ENABLE_BACKUP_ENCRYPTION__ !== "undefined" &&
+      !!__ENABLE_BACKUP_ENCRYPTION__
+        ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
+        : false,
     );
   }
   public getConfig() {

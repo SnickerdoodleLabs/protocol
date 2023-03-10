@@ -1,10 +1,11 @@
 import {
   ChainId,
+  ESDQLQueryReturn,
   ISDQLQueryClause,
   ISDQLQueryConditions,
-  ESDQLQueryReturn,
   SDQL_Name,
   SDQL_OperatorName,
+  Web3QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import "reflect-metadata";
@@ -12,15 +13,14 @@ import "reflect-metadata";
 import {
   AST_BalanceQuery,
   AST_BlockchainTransactionQuery,
+  AST_NftQuery,
   AST_PropertyQuery,
-  Web3QueryTypes,
-  IQueryObjectFactory,
   Condition,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
-  AST_NftQuery,
+  IQueryObjectFactory,
 } from "@query-parser/interfaces/index.js";
 
 @injectable()

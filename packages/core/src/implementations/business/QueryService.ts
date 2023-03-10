@@ -1,48 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-} from "@snickerdoodlelabs/insight-platform-api";
-import {
-  AjaxError,
-  ConsentError,
-  EvaluationError,
-  EVMContractAddress,
-  InsightString,
-  IpfsCID,
-  IPFSError,
-  QueryFormatError,
-  UninitializedError,
-  EligibleReward,
-  SDQLQuery,
-  SDQLQueryRequest,
-  ConsentToken,
-  ServerRewardError,
-  IDynamicRewardParameter,
-  LinkedAccount,
-  QueryIdentifier,
-  ExpectedReward,
-  EVMPrivateKey,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-
 import { IQueryService } from "@core/interfaces/business/index.js";
-
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -60,6 +23,38 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
+  AjaxError,
+  ConsentError,
+  ConsentToken,
+  EligibleReward,
+  EvaluationError,
+  EVMContractAddress,
+  EVMPrivateKey,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
+  IpfsCID,
+  IPFSError,
+  LinkedAccount,
+  QueryFormatError,
+  QueryIdentifier,
+  SDQLQuery,
+  SDQLQueryRequest,
+  ServerRewardError,
+  UninitializedError,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -115,7 +110,6 @@ export class QueryService implements IQueryService {
               consentContractAddress,
             )
             .andThen(([permittedQueryIds, expectedRewards]) => {
-            
               return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
                 consentToken,
                 optInKey,
@@ -270,7 +264,6 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
-      
       return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
           this.queryParsingEngine.handleQuery(
@@ -283,8 +276,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 

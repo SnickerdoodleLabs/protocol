@@ -3,6 +3,43 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  ICampaignService,
+  ICampaignServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -78,6 +115,8 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  PossibleReward,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -95,42 +134,6 @@ import {
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -801,6 +804,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.fetchBackup(backupHeader);
+  }
+
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
@@ -808,30 +820,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.postBackups();
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
-    return persistence.listBackupChunks();
-  }
-
   // and to fetch a specific chunk and decrypt it.
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.fetchBackupChunk(backup);
+    return persistence.unpackBackupChunk(backup);
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
+  }
+
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.listFileNames();
   }
 
   public getTokenPrice(
@@ -861,5 +870,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ITokenPriceRepositoryType,
     );
     return tokenPriceRepo.getTokenMarketData(ids);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
+    const campaignService =
+      this.iocContainer.get<ICampaignService>(ICampaignServiceType);
+    return campaignService.getPossibleRewards(
+      contractAddresses,
+      timeoutMs ?? 3000,
+    );
   }
 }

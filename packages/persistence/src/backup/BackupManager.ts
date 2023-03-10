@@ -26,6 +26,8 @@ import {
   EVMAccountAddress,
   RestoredBackupMigrator,
   AESKey,
+  InitializationVector,
+  EncryptedString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -46,11 +48,7 @@ export class BackupManager implements IBackupManager {
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
 
-  private tableNames: string[];
-  private migrators = new Map<
-    string,
-    VersionedObjectMigrator<VersionedObject>
-  >();
+  private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
@@ -64,10 +62,12 @@ export class BackupManager implements IBackupManager {
     protected cryptoUtils: ICryptoUtils,
     protected storageUtils: IStorageUtils,
     public maxChunkSize: number,
+    protected enableEncryption: boolean,
   ) {
-    this.tableNames = this.schema.map((x) => x.name);
-    this.schema.forEach((x) => {
-      this.migrators.set(x.name, x.migrator);
+    this.schema.forEach((schema) => {
+      if (!schema.disableBackup) {
+        this.schemas.set(schema.name, schema);
+      }
     });
 
     this.accountAddr = DataWalletAddress(
@@ -76,33 +76,12 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public listBackupChunks(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError
-  > {
-    return okAsync(this.chunkQueue);
-  }
-
-  public fetchBackupChunk(
+  public unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils
-      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-      .andThen((aesKey) => {
-        const fetchedBackup = this.chunkQueue.find(
-          (element) => element == backup,
-        );
-        if (fetchedBackup == undefined) {
-          return errAsync(
-            new PersistenceError("invalid backup chunk detected"),
-          );
-        }
-
-        return this.cryptoUtils.decryptAESEncryptedString(
-          fetchedBackup.blob,
-          aesKey,
-        );
-      });
+    return this._unpackBlob(backup.blob).andThen((backupBlob) => {
+      return okAsync(JSON.stringify(backupBlob));
+    });
   }
 
   public deleteRecord(
@@ -111,7 +90,7 @@ export class BackupManager implements IBackupManager {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.removeObject(tableName, key);
     }
 
@@ -145,7 +124,9 @@ export class BackupManager implements IBackupManager {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    Array.from(this.schemas.keys()).forEach(
+      (tableName) => (this.tableUpdates[tableName] = []),
+    );
     return okAsync(undefined);
   }
 
@@ -175,7 +156,7 @@ export class BackupManager implements IBackupManager {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.putObject<T>(tableName, value);
     }
 
@@ -280,7 +261,7 @@ export class BackupManager implements IBackupManager {
                   Object.keys(unpacked.records).map((tableName) => {
                     const table = unpacked.records[tableName];
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    const migrator = this.migrators.get(tableName)!;
+                    const migrator = this.schemas.get(tableName)!.migrator;
 
                     return ResultUtils.combine(
                       table.map((value) => {
@@ -380,12 +361,19 @@ export class BackupManager implements IBackupManager {
   }
 
   private _unpackBlob(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    if (!this.enableEncryption) {
+      return okAsync(blob as BackupBlob);
+    }
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
+        return this.cryptoUtils.decryptAESEncryptedString(
+          blob as AESEncryptedString,
+          aesKey,
+        );
       })
       .map((unencrypted) => {
         return JSON.parse(unencrypted) as BackupBlob;
@@ -418,10 +406,16 @@ export class BackupManager implements IBackupManager {
   }
 
   private _generateBlob(): ResultAsync<
-    [AESEncryptedString, EBackupPriority],
+    [AESEncryptedString | BackupBlob, EBackupPriority],
     PersistenceError
   > {
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
+    if (!this.enableEncryption) {
+      return this._getBlobPriority(blob).map((priority) => {
+        return [blob, priority];
+      });
+    }
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -457,7 +451,7 @@ export class BackupManager implements IBackupManager {
   }
 
   private _getContentHash(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<string, PersistenceError> {
     return this.cryptoUtils
       .hashStringSHA256(JSON.stringify(blob))
