@@ -284,10 +284,6 @@ export class ChunkRenderer implements IChunkRenderer {
           const table = unpacked.records[tableName];
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const migrator = this.migrators.get(tableName)!;
-          console.log("restoring your records: ", unpacked.records);
-          console.log("restoring your records: ", tableName);
-          console.log("restoring your records: ", unpacked.records[tableName]);
-          console.log("migrator: ", migrator);
 
           return ResultUtils.combine(
             table.map((value) => {
