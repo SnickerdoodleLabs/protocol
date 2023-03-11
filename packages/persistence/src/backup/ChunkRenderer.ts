@@ -27,7 +27,6 @@ import {
   EFieldKey,
   ELocalStorageKey,
   ERecordKey,
-  ELocalStorageType,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import e from "cors";
@@ -68,17 +67,35 @@ export class ChunkRenderer implements IChunkRenderer {
     this.schema.forEach((x) => {
       this.migrators.set(x.name, x.migrator);
     });
-    this.clear();
+    this.numUpdates = 0;
+    console.log("renderer tableNames: ", this.tableNames);
+    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    this.fieldUpdates = {};
   }
 
   public get updates(): number {
     return this.numUpdates;
   }
 
-  public clear(): ResultAsync<void, never> {
-    this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
-    this.fieldUpdates = {};
+  public clear(): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
+    console.log("this.numUpdates: ", this.numUpdates);
+    console.log("this.maxChunkSize: ", this.maxChunkSize);
+    if (this.numUpdates >= this.maxChunkSize) {
+      return this.dump()
+        .map((backup) => {
+          this.numUpdates = 0;
+          this.tableNames.forEach(
+            (tableName) => (this.tableUpdates[tableName] = []),
+          );
+          this.fieldUpdates = {};
+          return backup;
+        })
+        .mapErr(() => {
+          return new PersistenceError(
+            "error Dumping " + this.key + " chunk renderer",
+          );
+        });
+    }
     return okAsync(undefined);
   }
 
@@ -91,7 +108,7 @@ export class ChunkRenderer implements IChunkRenderer {
         return okAsync(undefined);
       });
     }
-    this.tableUpdates[this.key].push(
+    this.tableUpdates[tableName].push(
       new VolatileDataUpdate(
         EDataUpdateOpCode.UPDATE,
         value.data,
@@ -112,24 +129,21 @@ export class ChunkRenderer implements IChunkRenderer {
   > {
     if (this.numUpdates >= this.maxChunkSize) {
       return this.dump().andThen((backup) => {
-        return this.clear().andThen(() => {
-          return okAsync(backup);
-        });
+        return okAsync(backup);
       });
     }
-
     return okAsync(undefined);
   }
 
   public deleteRecord(
-    tableName: ERecordKey,
+    tableName: string,
     key: VolatileStorageKey,
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
     this.numUpdates += 1;
     this.deletionHistory.set(key, timestamp);
-    this.tableUpdates[this.key].push(
+    this.tableUpdates[tableName].push(
       new VolatileDataUpdate(
         EDataUpdateOpCode.REMOVE,
         key,
@@ -162,7 +176,7 @@ export class ChunkRenderer implements IChunkRenderer {
     });
   }
 
-  public dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
+  private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
     return this._generateBlob().andThen(([blob, priority]) => {
       return this._getContentHash(blob).andThen((hash) => {
         const timestamp = new Date().getTime();
@@ -177,9 +191,7 @@ export class ChunkRenderer implements IChunkRenderer {
             },
             blob: blob,
           };
-          return this.clear().andThen(() => {
-            return okAsync(backup);
-          });
+          return okAsync(backup);
         });
       });
     });

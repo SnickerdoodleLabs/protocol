@@ -13,7 +13,7 @@
 		  },
   },
   "include": [
-    "./src/**/*.ts", "src/enum/LocalStorageKey.ts" 
+    "./src/**/*.ts" 
   ],
   "exclude": [
     "node_modules"

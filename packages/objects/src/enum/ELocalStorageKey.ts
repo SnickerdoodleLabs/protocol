@@ -32,11 +32,4 @@ export enum EFieldKey {
   REJECTED_COHORTS = "SD_RejectedCohorts",
 }
 
-export enum ELocalStorageType {
-  EFieldKey = "EFieldKey",
-  ERecordKey = "ERecordKey",
-};
-
 export type ELocalStorageKey = EFieldKey | ERecordKey;
-
-export type ChunkRenderMapKey = EFieldKey | EBackupPriority;
