@@ -38,7 +38,6 @@ import {
 @injectable()
 export class SocialRepository implements ISocialRepository {
   public constructor(
-    @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
@@ -61,38 +60,38 @@ export class SocialRepository implements ISocialRepository {
     return this.persistence.getAll<SocialProfile>(ERecordKey.SOCIAL_PROFILE);
   }
 
-  public upsertDiscordGuildProfiles(
-    discordGuildProfiles: DiscordGuildProfile[],
-  ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine(
-      discordGuildProfiles.map((dProfile) => {
-        return this.upsertDiscordGuildProfile(dProfile);
-      }),
-    ).map(() => undefined);
-  }
+  // public upsertDiscordGuildProfiles(
+  //   discordGuildProfiles: DiscordGuildProfile[],
+  // ): ResultAsync<void, PersistenceError> {
+  //   return ResultUtils.combine(
+  //     discordGuildProfiles.map((dProfile) => {
+  //       return this.upsertDiscordGuildProfile(dProfile);
+  //     }),
+  //   ).map(() => undefined);
+  // }
 
-  public upsertDiscordGuildProfile(
-    discordGuildProfile: DiscordGuildProfile,
-  ): ResultAsync<void, PersistenceError> {
-    // TODO, we need to update existing profile.
-    return this.persistence.updateRecord(
-      ERecordKey.SOCIAL_GROUP,
-      new VolatileStorageMetadata<DiscordGuildProfile>(
-        EBackupPriority.NORMAL,
-        discordGuildProfile,
-        DiscordProfile.CURRENT_VERSION,
-      ),
-    );
-  }
+  // public upsertDiscordGuildProfile(
+  //   discordGuildProfile: DiscordGuildProfile,
+  // ): ResultAsync<void, PersistenceError> {
+  //   // TODO, we need to update existing profile.
+  //   return this.persistence.updateRecord(
+  //     ERecordKey.SOCIAL_GROUP,
+  //     new VolatileStorageMetadata<DiscordGuildProfile>(
+  //       EBackupPriority.NORMAL,
+  //       discordGuildProfile,
+  //       DiscordProfile.CURRENT_VERSION,
+  //     ),
+  //   );
+  // }
 
-  public getDiscordGuildProfiles(): ResultAsync<
-    DiscordGuildProfile[],
-    PersistenceError
-  > {
-    return this.persistence.getAll<DiscordGuildProfile>(
-      ERecordKey.SOCIAL_GROUP,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
-  }
+  // public getDiscordGuildProfiles(): ResultAsync<
+  //   DiscordGuildProfile[],
+  //   PersistenceError
+  // > {
+  //   return this.persistence.getAll<DiscordGuildProfile>(
+  //     ERecordKey.SOCIAL_GROUP,
+  //     undefined,
+  //     EBackupPriority.NORMAL,
+  //   );
+  // }
 }
