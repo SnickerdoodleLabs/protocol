@@ -112,5 +112,6 @@ export const volatileStorageSchema = [
     "pKey",
     false,
     new SocialProfileMigrator(),
+    [["type", false]],
   ),
 ];

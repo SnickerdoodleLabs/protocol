@@ -17,6 +17,7 @@ import {
   EBackupPriority,
   VolatileStorageMetadata,
   SocialProfile,
+  ESocialType,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -56,8 +57,14 @@ export class SocialRepository implements ISocialRepository {
     );
   }
 
-  public getProfiles(): ResultAsync<SocialProfile[], PersistenceError> {
-    return this.persistence.getAll<SocialProfile>(ERecordKey.SOCIAL_PROFILE);
+  public getProfiles(
+    type: ESocialType,
+  ): ResultAsync<SocialProfile[], PersistenceError> {
+    return this.persistence.getAllByIndex<SocialProfile>(
+      ERecordKey.SOCIAL_PROFILE,
+      "type",
+      type,
+    );
   }
 
   // public upsertDiscordGuildProfiles(

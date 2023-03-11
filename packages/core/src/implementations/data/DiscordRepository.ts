@@ -16,6 +16,7 @@ import {
   PersistenceError,
   EBackupPriority,
   VolatileStorageMetadata,
+  ESocialType,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -172,7 +173,9 @@ export class DiscordRepository implements IDiscordRepository {
     //   undefined,
     //   EBackupPriority.NORMAL,
     // );
-    return this.socialRepository.getDiscordProfiles();
+    return this.socialRepository.getProfiles(
+      ESocialType.DISCORD,
+    ) as ResultAsync<DiscordProfile[], PersistenceError>;
   }
 
   // deleteDiscordProfile(

@@ -3,6 +3,7 @@ import {
   DiscordGuildProfile,
   PersistenceError,
   SocialProfile,
+  ESocialType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -11,7 +12,9 @@ export interface ISocialRepository {
     discordProfile: SocialProfile,
   ): ResultAsync<void, PersistenceError>;
 
-  getProfiles(): ResultAsync<SocialProfile[], PersistenceError>;
+  getProfiles(
+    type: ESocialType,
+  ): ResultAsync<SocialProfile[], PersistenceError>;
 
   // upsertGroupProfiles(
   //   discordGuildProfiles: DiscordGuildProfile[],
