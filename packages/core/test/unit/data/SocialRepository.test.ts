@@ -16,6 +16,7 @@ import {
   UnixTimestamp,
   Username,
 } from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { okAsync, ResultAsync } from "neverthrow";
 import { async } from "rxjs";
 import * as td from "testdouble";
@@ -53,7 +54,10 @@ class SocialRepositoryMock {
     this.socialDataMocks = new SocialDataMock();
 
     td.when(
-      this.repository.upsertProfile(td.matchers.isA(SocialProfile)),
+      this.persistence.updateRecord(
+        ERecordKey.SOCIAL_PROFILE,
+        td.matchers.anything(),
+      ),
     ).thenReturn(okAsync(undefined));
   }
 

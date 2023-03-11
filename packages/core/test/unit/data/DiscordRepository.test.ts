@@ -91,7 +91,7 @@ class DiscordRepositoryMock {
   public configProvider: IConfigProvider;
   public persistence: IDataWalletPersistence;
   protected repository: IDiscordRepository;
-  protected socialRepository: ISocialRepository
+  protected socialRepository: ISocialRepository;
   public constructor() {
     this.ajaxUtil = td.object<IAxiosAjaxUtils>();
     this.configProvider = new ConfigProviderMock();
@@ -118,6 +118,11 @@ class DiscordRepositoryMock {
         td.matchers.anything(),
       ),
     ).thenReturn(okAsync(discordGuildProfileAPIResponses));
+
+    // -- social repository td ---
+    td.when(
+      this.socialRepository.upsertProfile(td.matchers.isA(DiscordProfile)),
+    ).thenReturn(okAsync(undefined));
   }
 
   public getGuildProfiles(): DiscordGuildProfile[] {
@@ -139,7 +144,7 @@ class DiscordRepositoryMock {
   }
 }
 
-describe("DiscordRepository tests", () => {
+describe("DiscordRepository discord API fetch tests", () => {
   test("fetchUserProfile", async () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
@@ -172,5 +177,11 @@ describe("DiscordRepository tests", () => {
     expect(result.isOk()).toBeTruthy();
     const guildProfiles = result._unsafeUnwrap();
     expect(guildProfiles).toEqual(expectedProfiles);
+  });
+});
+
+describe("DiscordRepository persistence tests", () => {
+  test("save user profile", () => {
+
   });
 });
