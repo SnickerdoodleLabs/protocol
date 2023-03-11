@@ -87,6 +87,7 @@ export class BackupManager implements IBackupManager {
           this.storageUtils,
           this.maxChunkSize,
           tableHeaderName.name as EFieldKey,
+          this.enableEncryption,
         ),
       );
       this.chunkRenderingMap.set(
@@ -99,6 +100,7 @@ export class BackupManager implements IBackupManager {
           this.storageUtils,
           this.maxChunkSize,
           tableHeaderName.name as EFieldKey,
+          this.enableEncryption,
         ),
       );
     });
@@ -178,6 +180,7 @@ export class BackupManager implements IBackupManager {
           this.storageUtils,
           this.maxChunkSize,
           key as ELocalStorageKey,
+          this.enableEncryption,
         ),
       );
     }
@@ -318,6 +321,9 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    if (!this.enableEncryption) {
+      return okAsync(blob as BackupBlob);
+    }
     console.log("unencrypt the data: ", blob);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
@@ -353,7 +359,6 @@ export class BackupManager implements IBackupManager {
           });
         }),
       ).andThen((asdf) => {
-        return 
         return this.clear().map(() => undefined);
       });
       // this.chunkRenderingMap.forEach((renderer) => {

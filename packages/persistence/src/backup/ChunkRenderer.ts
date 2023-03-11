@@ -62,6 +62,7 @@ export class ChunkRenderer implements IChunkRenderer {
     protected storageUtils: IStorageUtils,
     protected maxChunkSize: number,
     public key: ELocalStorageKey,
+    protected enableEncryption: boolean,
   ) {
     this.tableNames = this.schema.map((x) => x.name);
     this.schema.forEach((x) => {
@@ -195,10 +196,15 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   private _generateBlob(): ResultAsync<
-    [AESEncryptedString, EBackupPriority],
+    [AESEncryptedString | BackupBlob, EBackupPriority],
     PersistenceError
   > {
     const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
+    if (!this.enableEncryption) {
+      return this._getBlobPriority(blob).map((priority) => {
+        return [blob, priority];
+      });
+    }
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -234,7 +240,7 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   private _getContentHash(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<string, PersistenceError> {
     return this.cryptoUtils
       .hashStringSHA256(JSON.stringify(blob))
