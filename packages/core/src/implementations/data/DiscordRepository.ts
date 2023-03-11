@@ -155,22 +155,24 @@ export class DiscordRepository implements IDiscordRepository {
   ): ResultAsync<void, PersistenceError> {
     // throw new Error("Method not implemented.");
     // TODO, we need to update existing profile.
-    return this.persistence.updateRecord(
-      ERecordKey.SOCIAL_PROFILE,
-      new VolatileStorageMetadata<DiscordProfile>(
-        EBackupPriority.NORMAL,
-        discordProfile,
-        DiscordProfile.CURRENT_VERSION,
-      ),
-    );
+    // return this.persistence.updateRecord(
+    //   ERecordKey.SOCIAL_PROFILE,
+    //   new VolatileStorageMetadata<DiscordProfile>(
+    //     EBackupPriority.NORMAL,
+    //     discordProfile,
+    //     DiscordProfile.CURRENT_VERSION,
+    //   ),
+    // );
+    return this.socialRepository.upsertProfile(discordProfile);
   }
 
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    return this.persistence.getAll<DiscordProfile>(
-      ERecordKey.SOCIAL_PROFILE,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+    // return this.persistence.getAll<DiscordProfile>(
+    //   ERecordKey.SOCIAL_PROFILE,
+    //   undefined,
+    //   EBackupPriority.NORMAL,
+    // );
+    return this.socialRepository.getDiscordProfiles();
   }
 
   // deleteDiscordProfile(

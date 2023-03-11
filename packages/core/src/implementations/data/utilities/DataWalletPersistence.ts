@@ -124,6 +124,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  public getAllByIndex<T extends VersionedObject>(
+    name: string,
+    indexName: string,
+    query: IDBValidKey | IDBKeyRange,
+    priority?: EBackupPriority,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.waitForPriority(priority).andThen(() => {
+      return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
+        return values.map((x) => x.data);
+      });
+    });
+  }
+
   public getAllKeys<T>(
     name: string,
     indexName?: string | undefined,

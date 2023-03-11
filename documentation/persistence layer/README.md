@@ -102,6 +102,10 @@ In the examples, **this.persistence** is an instance of DataWalletPersistence. A
 ```
     return this.persistence.getAll(ERecordKey.ANIMAL);
 ```
+**Get all animals by an index**:
+```
+    return this.persistence.getAllByIndex(ERecordKey.ANIMAL, "name", IDBValidKey("Tom")); // Analogous to the getCursor function. But it returns all the objects.
+```
 **Get all primary keys**:
 ```
     return this.persistence.getAllKeys(ERecordKey.ANIMAL);

@@ -24,6 +24,7 @@ import { IDiscordService } from "@core/interfaces/business";
 import {
   IDataWalletPersistence,
   IDiscordRepository,
+  ISocialRepository,
 } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 import {
@@ -90,14 +91,17 @@ class DiscordRepositoryMock {
   public configProvider: IConfigProvider;
   public persistence: IDataWalletPersistence;
   protected repository: IDiscordRepository;
+  protected socialRepository: ISocialRepository
   public constructor() {
     this.ajaxUtil = td.object<IAxiosAjaxUtils>();
     this.configProvider = new ConfigProviderMock();
     this.persistence = td.object<IDataWalletPersistence>();
+    this.socialRepository = td.object<ISocialRepository>();
     this.repository = new DiscordRepository(
       this.ajaxUtil,
       this.configProvider,
       this.persistence,
+      this.socialRepository,
     );
 
     // --- ajaxUtil td --------------------------------

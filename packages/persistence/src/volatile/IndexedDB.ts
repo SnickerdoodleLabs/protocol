@@ -345,6 +345,37 @@ export class IndexedDB {
     });
   }
 
+  public getAllByIndex<T extends VersionedObject>(
+    name: string,
+    index: VolatileStorageKey,
+    query: IDBValidKey | IDBKeyRange,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this.initialize().andThen((db) => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
+        const promise = new Promise<VolatileStorageMetadata<T>[]>(
+          (resolve, reject) => {
+            const store = tx.objectStore(name);
+            // let request: IDBRequest<VolatileStorageMetadata<T>[]>;
+            const indexObj: IDBIndex = store.index(this._getIndexName(index));
+            const request = indexObj.getAll(query);
+
+            request.onsuccess = (event) => {
+              resolve(request.result);
+            };
+            request.onerror = (event) => {
+              reject(new PersistenceError("error reading from object store"));
+            };
+          },
+        );
+
+        return ResultAsync.fromPromise(
+          promise,
+          (e) => new PersistenceError("error getting all", e),
+        );
+      });
+    });
+  }
+
   public getAllKeys<T>(
     name: string,
     index?: VolatileStorageKey,

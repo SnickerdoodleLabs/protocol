@@ -36,6 +36,11 @@ export interface IVolatileStorage {
     name: string,
     index?: VolatileStorageKey,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
+  getAllByIndex<T extends VersionedObject>(
+    name: string,
+    index: VolatileStorageKey,
+    query: IDBValidKey | IDBKeyRange,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   getAllKeys<T>(
     name: string,
     index?: VolatileStorageKey,
