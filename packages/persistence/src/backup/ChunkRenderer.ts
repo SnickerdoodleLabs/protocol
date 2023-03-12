@@ -1,11 +1,6 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   FieldMap,
-  TableMap,
-  DataWalletAddress,
   VersionedObjectMigrator,
   VersionedObject,
   IDataWalletBackup,
@@ -15,28 +10,21 @@ import {
   PersistenceError,
   VolatileDataUpdate,
   EDataUpdateOpCode,
-  DataWalletBackupID,
-  RestoredBackup,
   VolatileStorageMetadata,
   FieldDataUpdate,
   UnixTimestamp,
   AESEncryptedString,
   BackupBlob,
   Signature,
-  RestoredBackupMigrator,
-  EFieldKey,
   ELocalStorageKey,
-  ERecordKey,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import e from "cors";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { IStorageUtils } from "@snickerdoodlelabs/utils";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import {
   IVolatileStorage,
-  IVolatileStorageType,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
@@ -52,6 +40,7 @@ export class ChunkRenderer implements IChunkRenderer {
   >();
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
+  private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
@@ -63,12 +52,16 @@ export class ChunkRenderer implements IChunkRenderer {
     public key: ELocalStorageKey,
     protected enableEncryption: boolean,
   ) {
+    this.schema.forEach((schema) => {
+      if (!schema.disableBackup) {
+        this.schemas.set(schema.name, schema);
+      }
+    });
     this.tableNames = this.schema.map((x) => x.name);
     this.schema.forEach((x) => {
       this.migrators.set(x.name, x.migrator);
     });
     this.numUpdates = 0;
-    console.log("renderer tableNames: ", this.tableNames);
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
     this.fieldUpdates = {};
   }
@@ -77,10 +70,14 @@ export class ChunkRenderer implements IChunkRenderer {
     return this.numUpdates;
   }
 
-  public clear(): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    console.log("this.numUpdates: ", this.numUpdates);
-    console.log("this.maxChunkSize: ", this.maxChunkSize);
-    if (this.numUpdates >= this.maxChunkSize) {
+  public clear(
+    popBackupChecker: boolean,
+  ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
+    let pushingChanges = this.maxChunkSize;
+    if (popBackupChecker) {
+      pushingChanges = 1;
+    }
+    if (this.numUpdates >= pushingChanges) {
       return this.dump()
         .map((backup) => {
           this.numUpdates = 0;
@@ -103,7 +100,7 @@ export class ChunkRenderer implements IChunkRenderer {
     tableName: string,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.putObject<T>(tableName, value).andThen(() => {
         return okAsync(undefined);
       });
@@ -141,6 +138,11 @@ export class ChunkRenderer implements IChunkRenderer {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
+    if (!this.schemas.has(tableName)) {
+      return this.volatileStorage.removeObject(tableName, key).andThen(() => {
+        return okAsync(undefined);
+      });
+    }
     this.numUpdates += 1;
     this.deletionHistory.set(key, timestamp);
     this.tableUpdates[tableName].push(
@@ -162,7 +164,6 @@ export class ChunkRenderer implements IChunkRenderer {
     priority: EBackupPriority,
     timestamp: number,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    // const serialized = JSON.stringify(value);
     this.fieldUpdates[key] = new FieldDataUpdate(
       key,
       serialized,

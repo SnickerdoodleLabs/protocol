@@ -110,12 +110,11 @@ export class BackupManager implements IBackupManager {
     return renderer
       .addRecord(tableName, value)
       .andThen((chunk) => {
-        console.log("Add Record: ", chunk);
         if (chunk == undefined) {
           return okAsync(undefined);
         }
         return okAsync(this.chunkQueue.push(chunk)).andThen(() => {
-          console.log("addRecord this.chunkQueue: ", this.chunkQueue);
+          this.numUpdates += 1;
           return this.volatileStorage.putObject<T>(tableName, value);
         });
       })
@@ -142,7 +141,7 @@ export class BackupManager implements IBackupManager {
         }
         this.deletionHistory.set(key, timestamp);
         return okAsync(this.chunkQueue.push(chunk)).andThen(() => {
-          console.log("deleteRecord this.chunkQueue: ", this.chunkQueue);
+          this.numUpdates += 1;
           return this.volatileStorage.removeObject(tableName, key);
         });
       })
@@ -205,8 +204,6 @@ export class BackupManager implements IBackupManager {
               const renderers = Array.from(this.chunkRenderingMap.values());
               return ResultUtils.combine(
                 renderers.map((renderer) => {
-                  console.log("blob: ", backup.blob);
-                  console.log("unpacked blob: ", unpacked);
                   return renderer.restore(unpacked);
                 }),
               );
@@ -306,7 +303,6 @@ export class BackupManager implements IBackupManager {
     if (!this.enableEncryption) {
       return okAsync(blob as BackupBlob);
     }
-    console.log("unencrypt the data: ", blob);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -316,7 +312,6 @@ export class BackupManager implements IBackupManager {
         );
       })
       .map((unencrypted) => {
-        console.log("unencrypt the data: ", unencrypted);
         return JSON.parse(unencrypted) as BackupBlob;
       });
   }
@@ -336,10 +331,7 @@ export class BackupManager implements IBackupManager {
           if (renderer.updates == 0) {
             return okAsync(undefined);
           }
-          console.log("renderer.updates: ", renderer.updates);
-          console.log("renderer.key", renderer.key);
-          return renderer.clear().andThen((backup) => {
-            console.log("push renderer backup: ", backup);
+          return renderer.clear(true).andThen((backup) => {
             if (backup == undefined) {
               return okAsync(undefined);
             }
@@ -347,25 +339,20 @@ export class BackupManager implements IBackupManager {
           });
         }),
       ).andThen(() => {
-        console.log("popBackup this.chunkQueue: ", this.chunkQueue);
         return this.clear().map(() => undefined);
       });
     }
 
-    console.log("this.chunkQueue.length: ", this.chunkQueue.length);
-    console.log("this.chunkQueue.length: ", this.chunkQueue);
     const backup = this.chunkQueue.pop()!;
-    console.log("popped backup: ", backup);
     return this._addRestored(backup).map(() => backup);
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
     if (this.numUpdates >= this.maxChunkSize) {
       this.chunkRenderingMap.forEach((renderer) => {
-        return renderer.clear().andThen((backup) => {
+        return renderer.clear(false).andThen((backup) => {
           if (backup != undefined) {
             this.chunkQueue.push(backup as IDataWalletBackup);
-            console.log("_checkSize this.chunkQueue: ", this.chunkQueue);
           }
           return this.clear();
         });
