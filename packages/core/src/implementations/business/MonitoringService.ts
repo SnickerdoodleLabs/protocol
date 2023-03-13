@@ -3,31 +3,33 @@ import {
   SiteVisit,
   IAccountIndexing,
   IAccountIndexingType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   EVMAccountAddress,
   ChainId,
   AccountIndexingError,
-  EVMTransaction,
   EIndexer,
   UnixTimestamp,
   AjaxError,
   PersistenceError,
-  IAccountBalancesType,
-  IAccountBalances,
-  IAccountNFTsType,
-  IAccountNFTs,
   AccountAddress,
   ChainTransaction,
   SolanaAccountAddress,
   isAccountValidForChain,
-  EChain,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IMonitoringService } from "@core/interfaces/business/index.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+} from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IConfigProvider,
@@ -39,13 +41,17 @@ import {
 export class MonitoringService implements IMonitoringService {
   public constructor(
     @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
-    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
-    @inject(IAccountNFTsType) protected accountNFTs: IAccountNFTs,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionRepo: ITransactionHistoryRepository,
+    @inject(IBrowsingDataRepositoryType)
+    protected browsingDataRepo: IBrowsingDataRepository,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -54,7 +60,7 @@ export class MonitoringService implements IMonitoringService {
   > {
     // Grab the linked accounts and the config
     return ResultUtils.combine([
-      this.persistence.getAccounts(),
+      this.accountRepo.getAccounts(),
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
@@ -68,7 +74,7 @@ export class MonitoringService implements IMonitoringService {
                   return okAsync([]);
                 }
 
-                return this.persistence
+                return this.transactionRepo
                   .getLatestTransactionForAccount(
                     chainId,
                     linkedAccount.sourceAccountAddress,
@@ -101,14 +107,14 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.persistence.addTransactions(transactions); // let's not call if empty?
+        return this.transactionRepo.addTransactions(transactions); // let's not call if empty?
       });
   }
 
   public siteVisited(
     siteVisit: SiteVisit,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.addSiteVisits([siteVisit]);
+    return this.browsingDataRepo.addSiteVisits([siteVisit]);
   }
 
   protected getLatestTransactions(
@@ -159,6 +165,24 @@ export class MonitoringService implements IMonitoringService {
             );
           case EIndexer.Polygon:
             return maticRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Gnosis:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Binance:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Moonbeam:
+            return etherscanRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),

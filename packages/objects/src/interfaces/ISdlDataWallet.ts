@@ -52,7 +52,6 @@ export interface ISdlDataWallet extends EventEmitter {
   getUnlockMessage: (
     languageCode?: LanguageCode,
   ) => ResultAsync<string, JsonRpcError>;
-  setAge(age: Age): ResultAsync<void, JsonRpcError>;
   getAge(): ResultAsync<Age | null, JsonRpcError>;
   setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError>;
   getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
@@ -150,4 +149,17 @@ export interface ISdlDataWallet extends EventEmitter {
   ): ResultAsync<MarketplaceListing, JsonRpcError>;
 
   getListingsTotal(): ResultAsync<number, JsonRpcError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, JsonRpcError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, JsonRpcError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, JsonRpcError>;
 }

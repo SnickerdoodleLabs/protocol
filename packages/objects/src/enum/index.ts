@@ -1,3 +1,4 @@
+export * from "@objects/enum/EBackupPriority";
 export * from "@objects/enum/EChain";
 export * from "@objects/enum/EChainTechnology";
 export * from "@objects/enum/EChainType";
@@ -9,3 +10,5 @@ export * from "@objects/enum/EScamFilterStatus";
 export * from "@objects/enum/ERewardType";
 export * from "@objects/enum/ECredentialType";
 export * from "@objects/enum/ECurrencyCode";
+export * from "@objects/enum/EAdContentType";
+export * from "@objects/enum/ESDQLQueryReturn";

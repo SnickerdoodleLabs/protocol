@@ -1,4 +1,3 @@
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   SiftContractError,
   EVMAccountAddress,
@@ -13,6 +12,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface ISiftContract {
   /**

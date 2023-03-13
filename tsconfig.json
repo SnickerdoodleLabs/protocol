@@ -66,6 +66,9 @@
       "path": "packages/signatureVerification/test"
     },
     {
+      "path": "packages/synamint-extension-sdk"
+    },
+    {
       "path": "packages/test-harness"
     },
     {

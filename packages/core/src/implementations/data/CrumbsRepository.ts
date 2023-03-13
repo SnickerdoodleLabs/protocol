@@ -20,13 +20,13 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { ICrumbsRepository } from "@core/interfaces/data/index.js";
 import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/index.js";
-import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class CrumbsRepository implements ICrumbsRepository {

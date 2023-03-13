@@ -1,5 +1,7 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
+import { AdContent } from "@objects/businessObjects";
+import { ESDQLQueryReturn } from "@objects/enum";
 import {
   AccountAddress,
   ChainId,
@@ -7,8 +9,11 @@ import {
   EVMContractAddress,
   IpfsCID,
   URLString,
+  AdKey,
+  UnixTimestamp,
+  EAdDisplayType,
+  ISO8601DateString,
 } from "@objects/primitives";
-import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -16,6 +21,7 @@ export interface ISDQLQueryObject {
   expiry: ISO8601DateString;
   description: string;
   business: string;
+  ads: ISDQLAdsBlock;
   queries: {
     [queryId: string]: ISDQLQueryClause;
   };
@@ -30,8 +36,11 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return: string;
+  return: ESDQLQueryReturn;
   chain?: string;
+  networkid?: string | string[];
+  address?: string | string[];
+  timestampRange?: ISDQLTimestampRange;
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
@@ -54,8 +63,8 @@ export interface ISDQLQueryContract {
 }
 
 export interface ISDQLTimestampRange {
-  start: number;
-  end: number;
+  start: number | string;
+  end: number | string;
 }
 
 export interface ISDQLQueryConditions {
@@ -80,10 +89,22 @@ export interface ISDQLReturnProperties {
   query?: string;
 }
 
+export interface ISDQLAdsBlock {
+  [index: AdKey]: ISDQLAd;
+}
+
+export interface ISDQLAd {
+  name: string;
+  content: AdContent;
+  text: string | null;
+  displayType: EAdDisplayType;
+  weight: number;
+  expiry: UnixTimestamp;
+  keywords: string[];
+}
+
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]:
-    | ISDQLCompensationParameters
-    | ISDQLCompensations;
+  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 
@@ -117,5 +138,6 @@ export interface ISDQLCompensationParameters {
 
 export interface ISDQLLogicObjects {
   returns: string[];
+  ads: string[];
   compensations: string[];
 }

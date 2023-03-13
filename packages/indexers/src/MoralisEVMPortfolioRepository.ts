@@ -7,6 +7,7 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
+  BlockNumber,
   ChainId,
   EChainTechnology,
   EVMAccountAddress,
@@ -71,7 +72,6 @@ export class MoralisEVMPortfolioRepository
             item.decimals,
           );
         });
-
         const chainInfo = getChainInfoByChainId(chainId);
         tokenBalances.push(
           new TokenBalance(
@@ -84,7 +84,6 @@ export class MoralisEVMPortfolioRepository
             chainInfo.nativeCurrency.decimals,
           ),
         );
-
         return tokenBalances;
       });
     });
@@ -127,6 +126,8 @@ export class MoralisEVMPortfolioRepository
         BigNumberString(token.amount),
         token.name,
         chainId,
+        BlockNumber(Number(token.block_number)),
+        undefined
       );
     });
 
@@ -178,7 +179,6 @@ export class MoralisEVMPortfolioRepository
       ["api", "v2", accountAddress.toString(), endpoint],
       params,
     );
-
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",

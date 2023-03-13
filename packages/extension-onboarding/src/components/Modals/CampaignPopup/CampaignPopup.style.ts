@@ -1,16 +1,10 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
+  container: {
+    "& .MuiDialog-paper": {
+      borderRadius: 12,
+    },
   },
   primaryButton: {
     textTransform: "unset",
@@ -49,6 +43,48 @@ export const useStyles = makeStyles((theme) => ({
     fontFamily: "Space Grotesk",
     fontWeight: 500,
     fontSize: 9,
+    color: "#8D8B9E",
+  },
+  accountSectionContainer: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    backgroundColor: "white",
+  },
+  accountInfoText: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 600,
+    fontSize: "14px",
+    lineHeight: "160%",
+    color: "#212121",
+    marginRight: 20,
+  },
+  account: {
+    marginLeft: 6,
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "11px",
+    lineHeight: "160%",
+    color: "#212121",
+  },
+  changeRecievingAccountText: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "14px",
+    lineHeight: "24px",
+    textDecorationLine: "underline",
+    color: "#181818",
+  },
+  changeAccountDescription: {
+    marginTop: 6,
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "11px",
+    lineHeight: "14px",
     color: "#8D8B9E",
   },
 }));

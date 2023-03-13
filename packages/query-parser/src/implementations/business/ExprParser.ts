@@ -11,7 +11,7 @@ import {
   TokenType,
 } from "@query-parser/implementations/business/Tokenizer.js";
 import {
-  ParserContextDataTypes,
+  AST_Ad,
   AST_ConditionExpr,
   AST_Expr,
   AST_Query,
@@ -19,7 +19,13 @@ import {
   Command,
   Command_IF,
   ConditionAnd,
+  ConditionE,
+  ConditionG,
+  ConditionGE,
+  ConditionL,
+  ConditionLE,
   ConditionOr,
+  ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
 
 export class ExprParser {
@@ -34,19 +40,33 @@ export class ExprParser {
   protected tokenToExpMap: Map<TokenType, Function> = new Map();
 
   constructor(readonly context: Map<string, ParserContextDataTypes>) {
-    this.precedence.set(
-      TokenType.parenthesisClose,
-      [
-        TokenType.and,
-        TokenType.or,
-        TokenType.if,
-        TokenType.then,
-        TokenType.else,
-      ], // TODO everything up to a opening parenthesis
-    );
-    this.precedence.set(TokenType.and, [TokenType.and, TokenType.or]);
-    this.precedence.set(TokenType.or, [TokenType.and, TokenType.or]);
+    const logicOps = [TokenType.and, TokenType.or];
+    const compOps = [
+      TokenType.gt,
+      TokenType.gte,
+      TokenType.lt,
+      TokenType.lte,
+      TokenType.eq,
+    ];
 
+    this.precedence.set(TokenType.parenthesisClose, [
+      ...compOps,
+      ...logicOps,
+      TokenType.if,
+      TokenType.then,
+      TokenType.else,
+    ]); // TODO everything up to a opening parenthesis
+
+    logicOps.forEach((cond) =>
+      this.precedence.set(cond, [...compOps, ...logicOps]),
+    );
+    compOps.forEach((cond) => this.precedence.set(cond, compOps));
+
+    this.tokenToExpMap.set(TokenType.gt, this.createG);
+    this.tokenToExpMap.set(TokenType.gte, this.createGE);
+    this.tokenToExpMap.set(TokenType.lt, this.createL);
+    this.tokenToExpMap.set(TokenType.lte, this.createLE);
+    this.tokenToExpMap.set(TokenType.eq, this.createE);
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
     this.tokenToExpMap.set(TokenType.if, this.createIf);
@@ -55,6 +75,7 @@ export class ExprParser {
       this.context.set("dependencies", new Map<string, Set<AST_Query>>());
     }
   }
+
   private getNextId(name: string) {
     this.id++;
     const nextId = `${name}${this.id}`;
@@ -77,7 +98,8 @@ export class ExprParser {
     const ast = this.buildAstFromPostfix(postFix);
     return ast;
   }
-  // #region infix to postfix
+
+  // #region infix to postfix, $q1and$q2 -> $q1$q2and
   infixToPostFix(infix: Token[]): Array<Token> {
     const stack: Array<Token> = [];
     const postFix: Array<Token> = [];
@@ -92,6 +114,7 @@ export class ExprParser {
       switch (token.type) {
         // when token is a literal or a variable
         case TokenType.number:
+        case TokenType.ad:
         case TokenType.query:
         case TokenType.return:
         case TokenType.compensation:
@@ -102,6 +125,11 @@ export class ExprParser {
           stack.push(token);
           break;
 
+        case TokenType.lt:
+        case TokenType.lte:
+        case TokenType.gt:
+        case TokenType.gte:
+        case TokenType.eq:
         case TokenType.and:
         case TokenType.or:
           // pop everything that has higher or equal precedence
@@ -231,6 +259,7 @@ export class ExprParser {
 
   buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
     const exprTypes: Array<TokenType> = [
+      TokenType.ad,
       TokenType.query,
       TokenType.return,
       TokenType.compensation,
@@ -282,11 +311,15 @@ export class ExprParser {
   getExecutableFromContext(token: Token): ParserContextDataTypes {
     let nameStr = "";
     switch (token.type) {
+      case TokenType.ad:
       case TokenType.query:
       case TokenType.return:
       case TokenType.compensation:
         nameStr = token.val.substring(1);
         break;
+      case TokenType.number:
+      case TokenType.string:
+        return token.val;
       default:
         const err = new ParserError(
           token.position,
@@ -307,6 +340,56 @@ export class ExprParser {
     }
 
     return executable;
+  }
+
+  createG(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionG(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createGE(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionGE(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createL(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionL(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createLE(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionLE(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  createE(expList: Array<any>, token: Token): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const condition = new ConditionE(
+      SDQL_OperatorName(id),
+      expList[0],
+      expList[1],
+    );
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
   createAnd(expList: Array<any>, token: Token): AST_ConditionExpr {
@@ -352,7 +435,7 @@ export class ExprParser {
 
   // #region parse dependencies only
 
-  getDependencies(exprStr: string): AST_Query[] {
+  getQueryDependencies(exprStr: string): AST_Query[] {
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
@@ -366,6 +449,22 @@ export class ExprParser {
         if (r.source instanceof AST_Query) {
           deps.push(r.source);
         }
+      }
+      return deps;
+    }, deps);
+
+    return deps;
+  }
+
+  getAdDependencies(exprStr: string): AST_Ad[] {
+    const tokenizer = new Tokenizer(exprStr);
+    const tokens = tokenizer.all();
+
+    const deps: AST_Ad[] = [];
+
+    tokens.reduce((deps, token) => {
+      if (token.type == TokenType.ad) {
+        deps.push(this.getExecutableFromContext(token) as AST_Ad);
       }
       return deps;
     }, deps);

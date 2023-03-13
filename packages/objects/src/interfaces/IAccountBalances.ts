@@ -20,6 +20,10 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
+  getEtherscanBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
 }
 
 export const IAccountBalancesType = Symbol.for("IAccountBalances");

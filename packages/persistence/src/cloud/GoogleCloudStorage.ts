@@ -13,9 +13,11 @@ import {
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
-  URLString,
   AjaxError,
   DataWalletBackupID,
+  IDataWalletBackupHeader,
+  EBackupPriority,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -51,6 +53,40 @@ export class GoogleCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+  }
+
+  public pollByPriority(
+    restored: Set<DataWalletBackupID>,
+    priority: EBackupPriority,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files
+            .filter((file) => {
+              const [hash, backupPriority] = this._parsePath(file.name);
+              return (
+                priority == backupPriority &&
+                !restored.has(DataWalletBackupID(hash))
+              );
+            })
+            .map((file) => {
+              return this.ajaxUtils.get<IDataWalletBackup>(
+                new URL(file.mediaLink as string),
+              );
+            }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error fetching backups", e));
   }
 
   public unlock(
@@ -96,11 +132,13 @@ export class GoogleCloudStorage implements ICloudStorage {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-        return this.insightPlatformRepo.getSignedUrl(
-          privateKey,
-          defaultInsightPlatformBaseUrl,
-          addr + "/" + backup.header.hash,
-        );
+        return this._getFileName(backup.header).andThen((fileName) => {
+          return this.insightPlatformRepo.getSignedUrl(
+            privateKey,
+            defaultInsightPlatformBaseUrl,
+            addr + "/" + fileName,
+          );
+        });
       })
       .andThen((signedUrl) => {
         // if (signedUrl === typeof URLString) {
@@ -134,8 +172,8 @@ export class GoogleCloudStorage implements ICloudStorage {
           files
             .filter((file) => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const name = file.name.split(/[/ ]+/).pop()!;
-              return !restored.has(DataWalletBackupID(name));
+              const [hash, _priority] = this._parsePath(file.name);
+              return !restored.has(DataWalletBackupID(hash));
             })
             .map((file) => {
               return this.ajaxUtils.get<IDataWalletBackup>(
@@ -144,7 +182,57 @@ export class GoogleCloudStorage implements ICloudStorage {
             }),
         );
       })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
+      .mapErr((e) => new PersistenceError("error polling backups", e));
+  }
+
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return okAsync(
+          files.map((file) => {
+            return BackupFileName(file.name);
+          }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error listing file names", e));
+  }
+
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files
+            .filter((file) => {
+              return file.name.includes(backupHeader);
+            })
+            .map((file) => {
+              return this.ajaxUtils.get<IDataWalletBackup>(
+                new URL(file.mediaLink as string),
+              );
+            }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error fetching backup", e));
   }
 
   protected getWalletListing(): ResultAsync<
@@ -167,5 +255,22 @@ export class GoogleCloudStorage implements ICloudStorage {
         new URL(dataWalletFolder),
       );
     });
+  }
+
+  private _getFileName(
+    header: IDataWalletBackupHeader,
+  ): ResultAsync<string, never> {
+    return okAsync(`${header.priority}_${header.hash}`);
+  }
+
+  private _parsePath(path: string): [string, EBackupPriority] {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const name = path.split(/[/ ]+/).pop()!;
+    const delim = name.indexOf("_");
+    const priority = Number.parseInt(
+      name.substring(0, delim),
+    ) as EBackupPriority;
+    const hash = name.substring(delim + 1);
+    return [hash, priority];
   }
 }

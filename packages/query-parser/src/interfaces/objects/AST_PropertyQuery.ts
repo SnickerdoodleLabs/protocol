@@ -1,5 +1,3 @@
-import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
-
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
   Condition,
@@ -8,6 +6,15 @@ import {
   ConditionIn,
   ConditionL,
 } from "@query-parser/interfaces/objects/condition/index.js";
+import {
+  ESDQLQueryReturn,
+  EWalletDataType,
+  MissingWalletDataTypeError,
+  SDQL_Name,
+  SDQL_OperatorName,
+  Web2QueryTypes,
+} from "@snickerdoodlelabs/objects";
+import { err, ok, Result } from "neverthrow";
 
 export class AST_PropertyQuery extends AST_Query {
   /**
@@ -17,19 +24,12 @@ export class AST_PropertyQuery extends AST_Query {
 
   constructor(
     readonly name: SDQL_Name,
-    readonly returnType:
-      | "string"
-      | "boolean"
-      | "integer"
-      | "number"
-      | "list"
-      | "enum"
-      | "object"
-      | "array",
-    readonly property: string,
+    readonly returnType: ESDQLQueryReturn,
+    readonly property: Web2QueryTypes,
     readonly conditions: Array<Condition>,
     // for reading gender
     readonly enum_keys: Array<string>,
+    // eslint-disable-next-line @typescript-eslint/ban-types
     readonly patternProperties: Object,
   ) {
     super(name, returnType);
@@ -45,6 +45,35 @@ export class AST_PropertyQuery extends AST_Query {
       schema.enum_keys,
       schema.patternProperties,
     );
+  }
+
+  getPermission(): Result<EWalletDataType, MissingWalletDataTypeError> {
+    switch (this.property) {
+      case "age":
+        return ok(EWalletDataType.Age);
+      case "gender":
+        return ok(EWalletDataType.Gender);
+      case "givenName":
+        return ok(EWalletDataType.GivenName);
+      case "familyName":
+        return ok(EWalletDataType.FamilyName);
+      case "birthday":
+        return ok(EWalletDataType.Birthday);
+      case "email":
+        return ok(EWalletDataType.Email);
+      case "location":
+        return ok(EWalletDataType.Location);
+      case "browsing_history":
+        return ok(EWalletDataType.SiteVisits);
+      case "url_visited_count":
+        return ok(EWalletDataType.SiteVisits);
+      case "chain_transactions":
+        return ok(EWalletDataType.EVMTransactions);
+      default:
+        const missingWalletType = new MissingWalletDataTypeError(this.property);
+        console.error(missingWalletType);
+        return err(missingWalletType);
+    }
   }
 
   static parseConditions(schema: any): Array<Condition> {

@@ -1,12 +1,4 @@
-import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
-import { useStyles } from "@extension-onboarding/components/TokenItem/TokenItem.style";
-import {
-  tokenInfoObj,
-  stableCoins,
-} from "@extension-onboarding/constants/tokenInfo";
-import { IBalanceItem } from "@extension-onboarding/objects";
 import { Box, Typography } from "@material-ui/core";
-import React, { FC, useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,7 +9,16 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import React, { FC, useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
+
+import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
+import { useStyles } from "@extension-onboarding/components/TokenItem/TokenItem.style";
+import {
+  tokenInfoObj,
+  stableCoins,
+} from "@extension-onboarding/constants/tokenInfo";
+import { IBalanceItem } from "@extension-onboarding/objects";
 
 ChartJS.register(
   CategoryScale,

@@ -7,7 +7,6 @@ import {
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
-
 describe("CryptoUtils tests", () => {
   test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
     // Arrange

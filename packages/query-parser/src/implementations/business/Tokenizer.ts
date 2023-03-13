@@ -10,8 +10,14 @@ export enum TokenType {
   and = "and",
   or = "or",
   query = "query",
+  gt = ">",
+  gte = ">=",
+  lt = "<",
+  lte = "<=",
+  eq = "==",
   return = "return",
   compensation = "compensation",
+  ad = "ad",
   parenthesisOpen = "parenthesisOpen",
   parenthesisClose = "parenthesisClose",
   number = "number",
@@ -39,8 +45,14 @@ rules.push(
   [/or/y, TokenType.or],
   [/\d+/y, TokenType.number],
   [/\$q[0-9]+/y, TokenType.query],
+  [/\>(?!=)/y, TokenType.gt],
+  [/\>=/y, TokenType.gte],
+  [/\<(?!=)/y, TokenType.lt],
+  [/\<=/y, TokenType.lte],
+  [/==/y, TokenType.eq],
   [/\$r[0-9]+/y, TokenType.return],
   [/\$c[0-9]+/y, TokenType.compensation],
+  [/\$a[0-9]+/y, TokenType.ad],
   [/\s+/y, TokenType.whitespace],
 );
 
@@ -80,9 +92,7 @@ export class Tokenizer {
     for (const rule of rules) {
       const rexp = rule[0];
       const tokenType = rule[1];
-
       rexp.lastIndex = this.position; // search from this position
-
       if (this.debug) {
         console.log("searching at", rexp.lastIndex);
         console.log("testing regex", rexp);
@@ -92,11 +102,9 @@ export class Tokenizer {
         if (this.debug) {
           console.log(`found token at ${this.position}, ${rexp.lastIndex}`);
         }
-
         const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
         const tokenVal = this.convertVal(tokenType, rawVal);
         const token = new Token(tokenType, tokenVal, this.position);
-
         if (rexp.lastIndex >= this.exprStr.length) {
           this._hasNext = false;
           this.position = 0;

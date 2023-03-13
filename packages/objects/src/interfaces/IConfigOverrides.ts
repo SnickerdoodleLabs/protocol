@@ -13,11 +13,16 @@ export interface IConfigOverrides {
   accountNFTPollingIntervalMS?: number;
   covalentApiKey?: string;
   moralisApiKey?: string;
+  nftScanApiKey?: string;
+  poapApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
   ceramicModelAliases?: MapModelTypes<ModelTypes, string>;
   ceramicNodeURL?: URLString;
   controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
-  requestForDataCheckingFrequency?: number
+  requestForDataCheckingFrequency?: number;
+  domainFilter?: string;
+  defaultGoogleCloudBucket?: string;
+  enableBackupEncryption?: boolean;
 }

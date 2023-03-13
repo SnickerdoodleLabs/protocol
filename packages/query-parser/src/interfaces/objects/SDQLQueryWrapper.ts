@@ -1,13 +1,12 @@
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  ISDQLAdsBlock,
   ISDQLCompensationBlock,
-  ISDQLCompensations,
   ISDQLLogicObjects,
   ISDQLQueryClause,
   ISDQLQueryObject,
   ISDQLReturnProperties,
   ISO8601DateString,
-  SDQLString,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
@@ -94,6 +93,10 @@ export class SDQLQueryWrapper {
     return this.internalObj.business;
   }
 
+  public get ads(): ISDQLAdsBlock {
+    return this.getAdsSchema();
+  }
+
   public get queries(): {
     [queryId: string]: ISDQLQueryClause;
   } {
@@ -112,6 +115,10 @@ export class SDQLQueryWrapper {
 
   public get logic(): ISDQLLogicObjects {
     return this.getLogicSchema();
+  }
+
+  getAdsSchema(): ISDQLAdsBlock {
+    return this.internalObj.ads;
   }
 
   getQuerySchema(): {

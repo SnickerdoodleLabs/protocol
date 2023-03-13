@@ -1,3 +1,25 @@
+import { IBlockchainListener } from "@core/interfaces/api/index.js";
+import {
+  IMonitoringService,
+  IMonitoringServiceType,
+  IQueryService,
+  IQueryServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -9,8 +31,6 @@ import {
   ConsentError,
   ConsentFactoryContractError,
   EVMContractAddress,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   IPFSError,
   PersistenceError,
   UninitializedError,
@@ -21,27 +41,6 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IBlockchainListener } from "@core/interfaces/api/index.js";
-import {
-  IMonitoringService,
-  IMonitoringServiceType,
-  IQueryService,
-  IQueryServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-
@@ -55,8 +54,6 @@ export class BlockchainListener implements IBlockchainListener {
     protected monitoringService: IMonitoringService,
     @inject(IQueryServiceType)
     protected queryService: IQueryService,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IBlockchainProviderType)
@@ -67,6 +64,8 @@ export class BlockchainListener implements IBlockchainListener {
     protected contextProvider: IContextProvider,
     @inject(ILogUtilsType)
     protected logUtils: ILogUtils,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
 
   protected queryHorizonCache = new Map<
@@ -150,7 +149,7 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.dataWalletPersistence
+    return this.accountRepo
       .getAcceptedInvitations()
       .andThen((optIns) => {
         return this.consentContractRepository.getConsentContracts(
@@ -164,7 +163,7 @@ export class BlockchainListener implements IBlockchainListener {
             return ResultUtils.combine([
               consentContract.getConsentOwner(),
               this.getQueryHorizon(consentContract),
-              this.dataWalletPersistence.getLatestBlockNumber(
+              this.accountRepo.getLatestBlockNumber(
                 consentContract.getContractAddress(),
               ),
             ])
@@ -188,7 +187,7 @@ export class BlockchainListener implements IBlockchainListener {
                     currentBlockNumber,
                   )
                   .andThen((requestForDataObjects) => {
-                    return this.dataWalletPersistence
+                    return this.accountRepo
                       .setLatestBlockNumber(
                         consentContract.getContractAddress(),
                         currentBlockNumber,
@@ -199,13 +198,31 @@ export class BlockchainListener implements IBlockchainListener {
                   });
               })
               .andThen((requestForDataObjects) => {
-                return ResultUtils.combine(
-                  requestForDataObjects.map((requestForDataObject) => {
-                    return this.queryService.onQueryPosted(
-                      requestForDataObject.consentContractAddress,
-                      requestForDataObject.requestedCID,
-                    );
+                if (requestForDataObjects.length > 0) {
+                  this.logUtils.info(
+                    "Received requests for data",
+                    requestForDataObjects,
+                  );
+                }
+
+                // In the odd case that multiple events for the same CID was found, we need
+                // to ditch the repeats
+                // If we create a map by the IpfsCIDs, any repeats will be overwritten
+                const filteredMap = new Map(
+                  requestForDataObjects.map((r4d) => {
+                    return [r4d.requestedCID, r4d];
                   }),
+                );
+
+                return ResultUtils.combine(
+                  Array.from(filteredMap.values()).map(
+                    (requestForDataObject) => {
+                      return this.queryService.onQueryPosted(
+                        requestForDataObject.consentContractAddress,
+                        requestForDataObject.requestedCID,
+                      );
+                    },
+                  ),
                 );
               });
           }),

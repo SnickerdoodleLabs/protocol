@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   Invitation,
   DataPermissions,
@@ -18,6 +16,10 @@ import {
   TokenInfo,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
+  AESEncryptedString,
+  PossibleReward,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -45,6 +47,7 @@ import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
+  AESKey,
   Age,
   ChainId,
   CountryCode,
@@ -53,17 +56,20 @@ import {
   DomainName,
   EmailAddressString,
   EVMContractAddress,
+  EVMPrivateKey,
   FamilyName,
   Gender,
   GivenName,
+  HexString,
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
-  TokenId,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -344,18 +350,26 @@ export interface ISnickerdoodleCore {
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  unpackBackupChunk(
+    backup: IDataWalletBackup,
+  ): ResultAsync<string, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
   addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
+  onAdDisplayed(
+    eligibleAd: EligibleAd,
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -376,6 +390,19 @@ export interface ISnickerdoodleCore {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError>;
+
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
@@ -395,7 +422,7 @@ export interface ISnickerdoodleCore {
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError>;
+  ): ResultAsync<number, AccountIndexingError>;
 
   getTokenMarketData(
     ids: string[],
@@ -423,6 +450,19 @@ export interface ISnickerdoodleCore {
     number,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
+
+  /**
+   * This method will accept a list of consent contract addresses and returns
+   * all possible rewards with their dependencies.
+   * i.e. Join this campaign, share your age; and get a discount
+   * @param contractAddresses List of consent contract addresses (of campaigns)
+   * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
+   * factor wants to tune the marketplace loading time.
+   */
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

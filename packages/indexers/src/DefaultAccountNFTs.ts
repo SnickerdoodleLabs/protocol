@@ -12,13 +12,17 @@ import {
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+
+import { ResultAsync, okAsync } from "neverthrow";
+
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
+import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
+import { PoapRepository } from "@indexers/PoapRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
@@ -26,8 +30,10 @@ import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 export class DefaultAccountNFTs implements IAccountNFTs {
   protected ethereum: IEVMNftRepository;
   protected evm: IEVMNftRepository;
+  protected nftscan: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
+  protected poapRepo: PoapRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -37,14 +43,10 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    // this.ethereum = new EthereumIndexer(
-    //   configProvider,
-    //   ajaxUtils,
-    //   tokenPriceRepo,
-    //   logUtils,
-    // );
     this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = this.evm;
+    this.nftscan = new NftScanEVMPortfolioRepository(configProvider, ajaxUtils);
+    this.poapRepo = new PoapRepository(configProvider, ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
     this.solRepo = new SolanaIndexer(
       this.configProvider,
@@ -52,6 +54,18 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
+  }
+
+  public getPoapRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.poapRepo);
+  }
+
+  public getNftScanRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.nftscan);
+  }
+
+  public getEtherscanNftRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.ethereum);
   }
 
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
