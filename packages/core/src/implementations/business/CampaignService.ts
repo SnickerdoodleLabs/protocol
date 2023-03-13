@@ -1,3 +1,21 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  AjaxError,
+  BlockchainProviderError,
+  ConsentContractError,
+  ConsentFactoryContractError,
+  EvaluationError,
+  EVMContractAddress,
+  IpfsCID,
+  PossibleReward,
+  RequestForData,
+  UninitializedError,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ok, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { ICampaignService } from "@core/interfaces/business/index.js";
 import {
   IQueryParsingEngine,
@@ -9,25 +27,6 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
-import {
-  AjaxError,
-  BlockchainProviderError,
-  BlockNumber,
-  ConsentContractError,
-  ConsentFactoryContractError,
-  EvaluationError,
-  EVMContractAddress,
-  IpfsCID,
-  PossibleReward,
-  RequestForData,
-  SDQLQuery,
-  UninitializedError,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { ok, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class CampaignService implements ICampaignService {

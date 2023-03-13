@@ -10,14 +10,13 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
   SDQLParser,
-  SDQLQueryWrapper,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/index.js";
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
+import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
