@@ -20,8 +20,9 @@ import {
   RestoredBackupMigrator,
   AESKey,
   ERecordKey,
-  ELocalStorageKey,
+  LocalStorageKey,
   EFieldKey,
+  EDataUpdateOpCode,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -42,8 +43,6 @@ export type ChunkRenderMapKey = EFieldKey | EBackupPriority;
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
   private numUpdates = 0;
-  private chunkRendererKey = 0;
-  private chunkCheckSizeKey = 0;
 
   private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
   private fieldHistory: Map<string, number> = new Map();
@@ -55,7 +54,6 @@ export class BackupManager implements IBackupManager {
     Fields: lump these in by their high priority vs low priority
     Tables: separate by their table keys
   */
-  private chunkUpdatesTracking: Map<ChunkRenderMapKey, number> = new Map();
   private chunkRenderingMap: Map<string, ChunkRenderer> = new Map();
 
   public constructor(
@@ -82,10 +80,8 @@ export class BackupManager implements IBackupManager {
         schema.name,
         new ChunkRenderer(
           this.privateKey,
-          this.schema,
-          this.volatileStorage,
+          schema,
           this.cryptoUtils,
-          this.storageUtils,
           this.maxChunkSize,
           schema.name as EFieldKey,
           this.enableEncryption,
@@ -155,21 +151,6 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
-    if (this.chunkRenderingMap.get(key) == undefined) {
-      this.chunkRenderingMap.set(
-        key,
-        new ChunkRenderer(
-          this.privateKey,
-          this.schema,
-          this.volatileStorage,
-          this.cryptoUtils,
-          this.storageUtils,
-          this.maxChunkSize,
-          key as ELocalStorageKey,
-          this.enableEncryption,
-        ),
-      );
-    }
     const renderer = this.chunkRenderingMap.get(key) as ChunkRenderer;
     const serialized = JSON.stringify(value);
     const timestamp = Date.now();
@@ -201,12 +182,112 @@ export class BackupManager implements IBackupManager {
 
           return this._unpackBlob(backup.blob)
             .andThen((unpacked) => {
-              const renderers = Array.from(this.chunkRenderingMap.values());
               return ResultUtils.combine(
-                renderers.map((renderer) => {
-                  return renderer.restore(unpacked);
+                Object.keys(unpacked.fields).map((fieldName) => {
+                  const update = unpacked.fields[fieldName];
+                  // return this.storageUtils.write(fieldName, update.value);
+                  if (
+                    !(fieldName in this.fieldHistory) ||
+                    update.timestamp > this.fieldHistory[fieldName]
+                  ) {
+                    // if (this.fieldUpdates.hasOwnProperty(fieldName)) {
+                    //   if (update.timestamp > this.fieldUpdates[fieldName][1]) {
+                    //     this.fieldHistory[fieldName] = update.timestamp;
+                    //     delete this.fieldUpdates[fieldName];
+                    //     return this.storageUtils.write(fieldName, update.value);
+                    //   }
+                    // } else {
+                      this.fieldHistory[fieldName] = update.timestamp;
+                      return this.storageUtils.write(fieldName, update.value);
+                    // }
+                  }
+
+                  return okAsync(undefined);
                 }),
-              );
+              ).andThen(() => {
+                return ResultUtils.combine(
+                  Object.keys(unpacked.records).map((tableName) => {
+                    const table = unpacked.records[tableName];
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    const migrator = this.schemas.get(tableName)!.migrator;
+
+                    return ResultUtils.combine(
+                      table.map((value) => {
+                        switch (value.operation) {
+                          case EDataUpdateOpCode.UPDATE:
+                            const obj = migrator.getCurrent(
+                              value.value as unknown as Record<string, unknown>,
+                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                              value.version || 0,
+                            );
+
+                            return this.volatileStorage
+                              .getKey(tableName, obj)
+                              .andThen((key) => {
+                                if (key == null) {
+                                  return this.volatileStorage.putObject(
+                                    tableName,
+                                    new VolatileStorageMetadata(
+                                      value.priority,
+                                      obj,
+                                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                      value.version!,
+                                      value.timestamp,
+                                    ),
+                                  );
+                                }
+
+                                return this.volatileStorage
+                                  .getObject(tableName, key)
+                                  .andThen((found) => {
+                                    if (
+                                      (found != null &&
+                                        found.lastUpdate > value.timestamp) ||
+                                      (this.deletionHistory.has(key) &&
+                                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                        this.deletionHistory.get(key)! >
+                                          value.timestamp)
+                                    ) {
+                                      return okAsync(undefined);
+                                    }
+
+                                    return this.volatileStorage.putObject(
+                                      tableName,
+                                      new VolatileStorageMetadata(
+                                        value.priority,
+                                        obj,
+                                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                        value.version!,
+                                        value.timestamp,
+                                      ),
+                                    );
+                                  });
+                              });
+                          case EDataUpdateOpCode.REMOVE:
+                            return this.volatileStorage
+                              .getObject(
+                                tableName,
+                                value.value as VolatileStorageKey,
+                              )
+                              .andThen((found) => {
+                                if (
+                                  found != null &&
+                                  found.lastUpdate > value.timestamp
+                                ) {
+                                  return okAsync(undefined);
+                                }
+
+                                return this.volatileStorage.removeObject(
+                                  tableName,
+                                  value.value as VolatileStorageKey,
+                                );
+                              });
+                        }
+                      }),
+                    );
+                  }),
+                );
+              });
             })
             .andThen(() => {
               return this._addRestored(backup);

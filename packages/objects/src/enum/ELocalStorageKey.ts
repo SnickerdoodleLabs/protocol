@@ -32,4 +32,4 @@ export enum EFieldKey {
   REJECTED_COHORTS = "SD_RejectedCohorts",
 }
 
-export type ELocalStorageKey = EFieldKey | ERecordKey;
+export type LocalStorageKey = EFieldKey | ERecordKey;

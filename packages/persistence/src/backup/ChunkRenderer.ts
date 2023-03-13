@@ -16,7 +16,7 @@ import {
   AESEncryptedString,
   BackupBlob,
   Signature,
-  ELocalStorageKey,
+  LocalStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -29,41 +29,25 @@ import {
 } from "@persistence/volatile/index.js";
 
 export class ChunkRenderer implements IChunkRenderer {
-  private fieldUpdates: FieldMap = {};
-  private tableUpdates = {};
+  public fieldUpdates: FieldMap = {};
+  public tableUpdates = {};
   private numUpdates = 0;
-  private tableNames: string[];
 
-  private migrators = new Map<
-    string,
-    VersionedObjectMigrator<VersionedObject>
-  >();
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
   private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
-    protected schema: VolatileTableIndex<VersionedObject>[],
-    protected volatileStorage: IVolatileStorage,
+    protected schema: VolatileTableIndex<VersionedObject>, // one schema, not many
     protected cryptoUtils: ICryptoUtils,
-    protected storageUtils: IStorageUtils,
     protected maxChunkSize: number,
-    public key: ELocalStorageKey,
+    public key: LocalStorageKey,
     protected enableEncryption: boolean,
   ) {
-    this.schema.forEach((schema) => {
-      if (!schema.disableBackup) {
-        this.schemas.set(schema.name, schema);
-      }
-    });
-    this.tableNames = this.schema.map((x) => x.name);
-    this.schema.forEach((x) => {
-      this.migrators.set(x.name, x.migrator);
-    });
     this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
     this.fieldUpdates = {};
+    this.tableUpdates[this.key] = [];
   }
 
   public get updates(): number {
@@ -71,27 +55,19 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   public clear(
-    popBackupChecker: boolean,
+    forceRender: boolean,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
     let pushingChanges = this.maxChunkSize;
-    if (popBackupChecker) {
+    if (forceRender) {
       pushingChanges = 1;
     }
     if (this.numUpdates >= pushingChanges) {
-      return this.dump()
-        .map((backup) => {
-          this.numUpdates = 0;
-          this.tableNames.forEach(
-            (tableName) => (this.tableUpdates[tableName] = []),
-          );
-          this.fieldUpdates = {};
-          return backup;
-        })
-        .mapErr(() => {
-          return new PersistenceError(
-            "error Dumping " + this.key + " chunk renderer",
-          );
-        });
+      return this.dump().map((backup) => {
+        this.numUpdates = 0;
+        this.tableUpdates[this.key] = [];
+        this.fieldUpdates = {};
+        return backup;
+      });
     }
     return okAsync(undefined);
   }
@@ -100,11 +76,6 @@ export class ChunkRenderer implements IChunkRenderer {
     tableName: string,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    if (!this.schemas.has(tableName)) {
-      return this.volatileStorage.putObject<T>(tableName, value).andThen(() => {
-        return okAsync(undefined);
-      });
-    }
     this.tableUpdates[tableName].push(
       new VolatileDataUpdate(
         EDataUpdateOpCode.UPDATE,
@@ -115,9 +86,7 @@ export class ChunkRenderer implements IChunkRenderer {
       ),
     );
     this.numUpdates += 1;
-    return this.volatileStorage.putObject<T>(tableName, value).andThen(() => {
-      return this._checkSize();
-    });
+    return this._checkSize();
   }
 
   private _checkSize(): ResultAsync<
@@ -138,11 +107,6 @@ export class ChunkRenderer implements IChunkRenderer {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    if (!this.schemas.has(tableName)) {
-      return this.volatileStorage.removeObject(tableName, key).andThen(() => {
-        return okAsync(undefined);
-      });
-    }
     this.numUpdates += 1;
     this.deletionHistory.set(key, timestamp);
     this.tableUpdates[tableName].push(
@@ -153,9 +117,7 @@ export class ChunkRenderer implements IChunkRenderer {
         priority,
       ),
     );
-    return this.volatileStorage.removeObject(tableName, key).andThen(() => {
-      return this._checkSize();
-    });
+    return this._checkSize();
   }
 
   public updateField(
@@ -172,9 +134,7 @@ export class ChunkRenderer implements IChunkRenderer {
     );
     this._updateFieldHistory(key, timestamp);
     this.numUpdates += 1;
-    return this.storageUtils.write(key, serialized).andThen(() => {
-      return this._checkSize();
-    });
+    return this._checkSize();
   }
 
   private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
@@ -266,107 +226,5 @@ export class ChunkRenderer implements IChunkRenderer {
     if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
       this.fieldHistory[field] = timestamp;
     }
-  }
-
-  public restore(
-    unpacked: BackupBlob,
-  ): ResultAsync<void[][], PersistenceError> {
-    return ResultUtils.combine(
-      Object.keys(unpacked.fields).map((fieldName) => {
-        const update = unpacked.fields[fieldName];
-        if (
-          !(fieldName in this.fieldHistory) ||
-          update.timestamp > this.fieldHistory[fieldName]
-        ) {
-          if (this.fieldUpdates.hasOwnProperty(fieldName)) {
-            if (update.timestamp > this.fieldUpdates[fieldName][1]) {
-              this.fieldHistory[fieldName] = update.timestamp;
-              delete this.fieldUpdates[fieldName];
-              return this.storageUtils.write(fieldName, update.value);
-            }
-          } else {
-            this.fieldHistory[fieldName] = update.timestamp;
-            return this.storageUtils.write(fieldName, update.value);
-          }
-        }
-        return okAsync(undefined);
-      }),
-    ).andThen(() => {
-      return ResultUtils.combine(
-        Object.keys(unpacked.records).map((tableName) => {
-          const table = unpacked.records[tableName];
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const migrator = this.migrators.get(tableName)!;
-
-          return ResultUtils.combine(
-            table.map((value) => {
-              switch (value.operation) {
-                case EDataUpdateOpCode.UPDATE:
-                  const obj = migrator.getCurrent(
-                    value.value as unknown as Record<string, unknown>,
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    value.version || 0,
-                  );
-
-                  return this.volatileStorage
-                    .getKey(tableName, obj)
-                    .andThen((key) => {
-                      if (key == null) {
-                        return this.volatileStorage.putObject(
-                          tableName,
-                          new VolatileStorageMetadata(
-                            value.priority,
-                            obj,
-                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                            value.version!,
-                            value.timestamp,
-                          ),
-                        );
-                      }
-
-                      return this.volatileStorage
-                        .getObject(tableName, key)
-                        .andThen((found) => {
-                          if (
-                            (found != null &&
-                              found.lastUpdate > value.timestamp) ||
-                            (this.deletionHistory.has(key) &&
-                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                              this.deletionHistory.get(key)! > value.timestamp)
-                          ) {
-                            return okAsync(undefined);
-                          }
-
-                          return this.volatileStorage.putObject(
-                            tableName,
-                            new VolatileStorageMetadata(
-                              value.priority,
-                              obj,
-                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                              value.version!,
-                              value.timestamp,
-                            ),
-                          );
-                        });
-                    });
-                case EDataUpdateOpCode.REMOVE:
-                  return this.volatileStorage
-                    .getObject(tableName, value.value as VolatileStorageKey)
-                    .andThen((found) => {
-                      if (found != null && found.lastUpdate > value.timestamp) {
-                        return okAsync(undefined);
-                      }
-
-                      return this.volatileStorage.removeObject(
-                        tableName,
-                        value.value as VolatileStorageKey,
-                      );
-                    });
-              }
-            }),
-          );
-        }),
-      );
-    });
   }
 }

@@ -14,7 +14,7 @@ import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 export interface IChunkRenderer {
   updates: number;
   clear(
-    popBackupChecker: boolean,
+    forceRender: boolean,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   addRecord<T extends VersionedObject>(
     tableName: string,
@@ -31,7 +31,6 @@ export interface IChunkRenderer {
     priority: EBackupPriority,
     timestamp: number,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
-  restore(unpacked: BackupBlob): ResultAsync<void[][], PersistenceError>;
 }
 
 export const IChunkManagerType = Symbol.for("IChunkManager");

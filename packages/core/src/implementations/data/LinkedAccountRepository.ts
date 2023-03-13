@@ -14,6 +14,8 @@ import {
   Signature,
   TokenId,
   VolatileStorageMetadata,
+  ERecordKey,
+  EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -24,8 +26,6 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
-import { ERecordKey } from "@snickerdoodlelabs/objects";
-import { EFieldKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class LinkedAccountRepository implements ILinkedAccountRepository {
