@@ -1,4 +1,11 @@
 import {
+  Listing,
+  ListingSlot,
+  TagSlot,
+} from "@contracts-sdk/interfaces/objects";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import {
   BaseURI,
   ConsentFactoryContractError,
   ConsentName,
@@ -8,9 +15,6 @@ import {
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface IConsentFactoryContract {
   /**
@@ -95,6 +99,8 @@ export interface IConsentFactoryContract {
   /**
    * Marketplace Listings
    */
+  getMaxTagsPerListing(): ResultAsync<number, ConsentFactoryContractError>;
+
   listingsTotal(): ResultAsync<number, ConsentFactoryContractError>;
 
   listingsHead(): ResultAsync<number, ConsentFactoryContractError>;
@@ -103,4 +109,70 @@ export interface IConsentFactoryContract {
     count?: number,
     headAt?: number,
   ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
+
+  getNumberOfListings(
+    tag: string,
+  ): ResultAsync<number, ConsentFactoryContractError>;
+
+  getListingDuration(): ResultAsync<number, ConsentFactoryContractError>;
+
+  setListingDuration(
+    listingDuration: bigint,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  setMaxTagsPerListing(
+    maxTagsPerListing: number,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  initializeTag(
+    tag: string,
+    newHead: TagSlot,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  insertUpstream(
+    tag: string,
+    newSlot: ListingSlot,
+    existingSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  insertDownstream(
+    tag: string,
+    existingSlot: ListingSlot,
+    newSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  replaceExpiredListing(
+    tag: string,
+    slot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  removeListing(
+    tag: string,
+    removedSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  adminRemoveListing(
+    tag: string,
+    removedSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError>;
+
+  getListingDetail(
+    tag: string,
+    slot: ListingSlot,
+  ): ResultAsync<Listing, ConsentFactoryContractError>;
+
+  getListingsForward(
+    tag: string,
+    startingSlot: ListingSlot,
+    numberOfSlots: ListingSlot,
+  ): ResultAsync<Listing[], ConsentFactoryContractError>;
+
+  getListingsBackward(
+    tag: string,
+    startingSlot: ListingSlot,
+    numberOfSlots: number,
+    filterActive: boolean,
+  ): ResultAsync<Listing[], ConsentFactoryContractError>;
+
+  getTagTotal(tag: string): ResultAsync<number, ConsentFactoryContractError>;
 }

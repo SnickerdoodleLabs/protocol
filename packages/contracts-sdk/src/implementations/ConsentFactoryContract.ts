@@ -1,3 +1,10 @@
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import {
+  ConsentRoles,
+  ListingSlot,
+  Listing,
+} from "@contracts-sdk/interfaces/objects";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   BaseURI,
   ConsentFactoryContractError,
@@ -6,16 +13,11 @@ import {
   EVMContractAddress,
   IBlockchainError,
   IpfsCID,
-  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -230,59 +232,388 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 
-  public listingsTotal(): ResultAsync<number, ConsentFactoryContractError> {
+  // Marketplace functions
+  public getMaxTagsPerListing(): ResultAsync<
+    number,
+    ConsentFactoryContractError
+  > {
     return ResultAsync.fromPromise(
-      this.contract.listingsTotal() as Promise<BigNumber>,
+      this.contract.maxTagsPerListing() as Promise<BigNumber>,
       (e) => {
         return new ConsentFactoryContractError(
-          "Unable to call listingsTotal()",
+          "Unable to call getMaxTagsPerListing()",
           (e as IBlockchainError).reason,
           e,
         );
       },
-    ).map((listingsTotal) => listingsTotal.toNumber());
+    ).map((num) => {
+      return num.toNumber();
+    });
   }
 
-  public listingsHead(): ResultAsync<number, ConsentFactoryContractError> {
+  public getNumberOfListings(
+    tag: string,
+  ): ResultAsync<number, ConsentFactoryContractError> {
+    const key = ethers.utils.keccak256(ethers.utils.toUtf8String(tag));
     return ResultAsync.fromPromise(
-      this.contract.listingsHead() as Promise<BigNumber>,
+      this.contract.listingTotals(key) as Promise<BigNumber>,
       (e) => {
         return new ConsentFactoryContractError(
-          "Unable to call listingsHead()",
+          "Unable to call getNumberOfListings()",
           (e as IBlockchainError).reason,
           e,
         );
       },
-    ).map((listingsHead) => listingsHead.toNumber());
+    ).map((num) => {
+      return num.toNumber();
+    });
   }
 
-  public getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
-    const listingsTotalAsync =
-      count == null ? this.listingsTotal() : okAsync(count);
+  public getListingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getListingDuration() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListingDuration()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
 
-    const headAtAsync = headAt == null ? this.listingsHead() : okAsync(headAt);
-
-    return ResultUtils.combine([headAtAsync, listingsTotalAsync]).andThen(
-      ([listingsHead, listingsTotal]) => {
-        return ResultAsync.fromPromise(
-          this.contract.getListings(listingsHead, listingsTotal) as Promise<
-            [IpfsCID[], BigNumber]
-          >,
-          (e) => {
-            return new ConsentFactoryContractError(
-              "Unable to call getListings()",
-              (e as IBlockchainError).reason,
-              e,
-            );
-          },
-        ).map((listings) => {
-          return new MarketplaceListing(listings[0], listings[1].toNumber());
+  public setListingDuration(
+    listingDuration: number,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setListingDuration(
+        listingDuration,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call setListingDuration()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for setListingDuration() failed",
+            "Unknown",
+            e,
+          );
         });
+      })
+      .map(() => {});
+  }
+
+  public setMaxTagsPerListing(
+    maxTagsPerListing: number,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setMaxTagsPerListing(
+        maxTagsPerListing,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call setListingDuration()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for setListingDuration() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public initializeTag(
+    tag: string,
+    newHead: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.initializeTag(
+        tag,
+        newHead,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call initializeTag()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for initializeTag() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public insertUpstream(
+    tag: string,
+    newSlot: ListingSlot,
+    existingSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.insertUpstream(
+        tag,
+        newSlot,
+        existingSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call insertUpstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for insertUpstream() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public insertDownstream(
+    tag: string,
+    existingSlot: ListingSlot,
+    newSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.insertUpstream(
+        tag,
+        existingSlot,
+        newSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call insertDownstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for insertDownstream() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public replaceExpiredListing(
+    tag: string,
+    slot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.replaceExpiredListing(
+        tag,
+        slot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call insertDownstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for insertDownstream() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public removeListing(
+    tag: string,
+    removedSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.replaceExpiredListing(
+        tag,
+        removedSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call removeListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for removeListing() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public adminRemoveListing(
+    tag: string,
+    removedSlot: ListingSlot,
+  ): ResultAsync<void, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.adminRemoveListing(
+        tag,
+        removedSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call adminRemoveListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for adminRemoveListing() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public getListingDetail(
+    tag: string,
+    slot: ListingSlot,
+  ): ResultAsync<Listing, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getListing(tag, slot) as Promise<Listing>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
       },
     );
+  }
+
+  public getListingsForward(
+    tag: string,
+    startingSlot: ListingSlot,
+    numberOfSlots: ListingSlot,
+  ): ResultAsync<Listing[], ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getListingsForward(
+        tag,
+        startingSlot,
+        numberOfSlots,
+      ) as Promise<[string[], Listing[]]>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListingsForward()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(([cids, listings]) => {
+      return listings.map((listing, index) => {
+        return new Listing(
+          listing.previous,
+          listing.next,
+          listing.consentContract,
+          listing.timeExpiring,
+          IpfsCID(cids[index]),
+        );
+      });
+    });
+  }
+
+  public getListingsBackward(
+    tag: string,
+    startingSlot: ListingSlot,
+    numberOfSlots: ListingSlot,
+    filterActive: boolean,
+  ): ResultAsync<Listing[], ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getListingsForward(
+        tag,
+        startingSlot,
+        numberOfSlots,
+        filterActive,
+      ) as Promise<[string[], Listing[]]>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListingsForward()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(([cids, listings]) => {
+      return listings.map((listing, index) => {
+        return new Listing(
+          listing.previous,
+          listing.next,
+          listing.consentContract,
+          listing.timeExpiring,
+          IpfsCID(cids[index]),
+        );
+      });
+    });
+  }
+
+  public getTagTotal(
+    tag: string,
+  ): ResultAsync<number, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getTagTotal(tag) as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getTagTotal()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((count) => {
+      return count.toNumber();
+    });
   }
 }
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event

@@ -1,4 +1,11 @@
 import {
+  ConsentRoles,
+  ContractOverrides,
+  ListingSlot,
+  Tag,
+  TagSlot,
+} from "@contracts-sdk/interfaces/objects";
+import {
   ConsentContractError,
   EVMAccountAddress,
   IpfsCID,
@@ -17,11 +24,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import {
-  ConsentRoles,
-  ContractOverrides,
-} from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract {
   getContractAddress(): EVMContractAddress;
@@ -327,6 +329,39 @@ export interface IConsentContract {
   ): ResultAsync<Signature, InvalidParametersError>;
 
   filters: IConsentContractFilters;
+
+  /**
+   * Marketplace functions
+   */
+  getMaxTags(): ResultAsync<number, ConsentContractError>;
+
+  getNumberOfStakedTags(): ResultAsync<number, ConsentContractError>;
+
+  getTagArray(): ResultAsync<Tag[], ConsentContractError>;
+
+  newGlobalTag(
+    tag: string,
+    newSlot: TagSlot,
+  ): ResultAsync<void, ConsentContractError>;
+
+  newLocalTagUpstream(
+    tag: string,
+    newSlot: TagSlot,
+    existingSlot: TagSlot,
+  ): ResultAsync<void, ConsentContractError>;
+
+  newLocalTagDownstream(
+    tag: string,
+    existingSlot: TagSlot,
+    newSlot: TagSlot,
+  ): ResultAsync<void, ConsentContractError>;
+
+  replaceExpiredListing(
+    tag: string,
+    slot: ListingSlot,
+  ): ResultAsync<void, ConsentContractError>;
+
+  removeListing(tag: string): ResultAsync<void, ConsentContractError>;
 }
 
 export interface IConsentContractFilters {

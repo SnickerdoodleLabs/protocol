@@ -1,3 +1,11 @@
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import {
+  ConsentRoles,
+  Tag,
+  ListingSlot,
+  TagSlot,
+} from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
@@ -22,10 +30,6 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -212,7 +216,6 @@ export class ConsentContract implements IConsentContract {
   public agreementFlags(
     tokenId: TokenId,
   ): ResultAsync<HexString32, ConsentContractError> {
-  
     return ResultAsync.fromPromise(
       this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
       (e) => {
@@ -513,7 +516,6 @@ export class ConsentContract implements IConsentContract {
   public ownerOf(
     tokenId: TokenId,
   ): ResultAsync<EVMAccountAddress, ConsentContractError> {
-   
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
       (e) => {
@@ -574,7 +576,6 @@ export class ConsentContract implements IConsentContract {
       this.ownerOf(tokenId),
       this.agreementFlags(tokenId),
     ]).andThen(([ownerAddress, agreementFlags]) => {
-    
       return okAsync(
         new ConsentToken(
           this.contractAddress,
@@ -927,6 +928,195 @@ export class ConsentContract implements IConsentContract {
         );
       },
     );
+  }
+
+  // Marketplace functions
+  public getMaxTags(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.maxTags() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
+
+  public getNumberOfStakedTags(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
+
+  public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getTagArray() as Promise<Tag[]>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    );
+  }
+
+  public newGlobalTag(
+    tag: string,
+    newSlot: TagSlot,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.newGlobalTag(
+        tag,
+        newSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call newGlobalTag()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for newGlobalTag() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public newLocalTagUpstream(
+    tag: string,
+    newSlot: TagSlot,
+    existingSlot: TagSlot,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.newLocalTagUpstream(
+        tag,
+        newSlot,
+        existingSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call newLocalTagUpstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for newLocalTagUpstream() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public newLocalTagDownstream(
+    tag: string,
+    existingSlot: TagSlot,
+    newSlot: TagSlot,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.newGlobalTag(
+        tag,
+        existingSlot,
+        newSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call newLocalTagDownstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for newLocalTagDownstream() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public replaceExpiredListing(
+    tag: string,
+    slot: ListingSlot,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.replaceExpiredListing(
+        tag,
+        slot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call replaceExpiredListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for replaceExpiredListing() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public removeListing(tag: string): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.removeListing(
+        tag,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call removeListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for removeListing() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public filters = {
