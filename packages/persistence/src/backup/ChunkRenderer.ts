@@ -35,11 +35,9 @@ export class ChunkRenderer implements IChunkRenderer {
 
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
-  // private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
-    // protected schema: VolatileTableIndex<VersionedObject>, // one schema, not many
     protected cryptoUtils: ICryptoUtils,
     protected maxChunkSize: number,
     public key: LocalStorageKey,

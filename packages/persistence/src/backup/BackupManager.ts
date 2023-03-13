@@ -82,7 +82,6 @@ export class BackupManager implements IBackupManager {
         schema.name,
         new ChunkRenderer(
           this.privateKey,
-          // schema,
           this.cryptoUtils,
           this.maxChunkSize,
           schema.name as EFieldKey,
@@ -153,13 +152,11 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
-    console.log("update field: ", key, value, priority);
     if (this.chunkRenderingMap.get(key) == undefined) {
       this.chunkRenderingMap.set(
         key,
         new ChunkRenderer(
           this.privateKey,
-          // this.schema,
           this.cryptoUtils,
           this.maxChunkSize,
           key as LocalStorageKey,
@@ -201,7 +198,6 @@ export class BackupManager implements IBackupManager {
               return ResultUtils.combine(
                 Object.keys(unpacked.fields).map((fieldName) => {
                   const update = unpacked.fields[fieldName];
-                  // return this.storageUtils.write(fieldName, update.value);
                   if (
                     !(fieldName in this.fieldHistory) ||
                     update.timestamp > this.fieldHistory[fieldName]
