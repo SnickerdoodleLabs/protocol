@@ -35,11 +35,11 @@ export class ChunkRenderer implements IChunkRenderer {
 
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
-  private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
+  // private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
-    protected schema: VolatileTableIndex<VersionedObject>, // one schema, not many
+    // protected schema: VolatileTableIndex<VersionedObject>, // one schema, not many
     protected cryptoUtils: ICryptoUtils,
     protected maxChunkSize: number,
     public key: LocalStorageKey,
@@ -57,11 +57,7 @@ export class ChunkRenderer implements IChunkRenderer {
   public clear(
     forceRender: boolean,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    let pushingChanges = this.maxChunkSize;
-    if (forceRender) {
-      pushingChanges = 1;
-    }
-    if (this.numUpdates >= pushingChanges) {
+    if (this.numUpdates >= this.maxChunkSize || forceRender) {
       return this.dump().map((backup) => {
         this.numUpdates = 0;
         this.tableUpdates[this.key] = [];

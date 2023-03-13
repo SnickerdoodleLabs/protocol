@@ -23,6 +23,8 @@ import {
   LocalStorageKey,
   EFieldKey,
   EDataUpdateOpCode,
+  FieldMap,
+  FieldDataUpdate,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -48,6 +50,8 @@ export class BackupManager implements IBackupManager {
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
   private chunkQueue: Array<IDataWalletBackup> = [];
+  public fieldUpdates: FieldMap = {};
+
 
   /*  
     For tracking Field and Update changes: 
@@ -80,7 +84,7 @@ export class BackupManager implements IBackupManager {
         schema.name,
         new ChunkRenderer(
           this.privateKey,
-          schema,
+          // schema,
           this.cryptoUtils,
           this.maxChunkSize,
           schema.name as EFieldKey,
@@ -151,10 +155,34 @@ export class BackupManager implements IBackupManager {
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
+    console.log("update field: ", key, value, priority);
+    if (this.chunkRenderingMap.get(key) == undefined) {
+      this.chunkRenderingMap.set(
+        key,
+        new ChunkRenderer(
+          this.privateKey,
+          // this.schema,
+          this.cryptoUtils,
+          this.maxChunkSize,
+          key as LocalStorageKey,
+          this.enableEncryption,
+        ),
+      );
+    }
+    if (!(key in this.fieldUpdates)) {
+      this.numUpdates += 1;
+    }
+
     const renderer = this.chunkRenderingMap.get(key) as ChunkRenderer;
     const serialized = JSON.stringify(value);
     const timestamp = Date.now();
     this._updateFieldHistory(key, timestamp);
+    this.fieldUpdates[key] = new FieldDataUpdate(
+      key,
+      serialized,
+      Date.now(),
+      priority,
+    );
 
     return ResultUtils.combine([
       renderer.updateField(key, serialized, priority, timestamp),
@@ -190,16 +218,16 @@ export class BackupManager implements IBackupManager {
                     !(fieldName in this.fieldHistory) ||
                     update.timestamp > this.fieldHistory[fieldName]
                   ) {
-                    // if (this.fieldUpdates.hasOwnProperty(fieldName)) {
-                    //   if (update.timestamp > this.fieldUpdates[fieldName][1]) {
-                    //     this.fieldHistory[fieldName] = update.timestamp;
-                    //     delete this.fieldUpdates[fieldName];
-                    //     return this.storageUtils.write(fieldName, update.value);
-                    //   }
-                    // } else {
+                    if (this.fieldUpdates.hasOwnProperty(fieldName)) {
+                      if (update.timestamp > this.fieldUpdates[fieldName][1]) {
+                        this.fieldHistory[fieldName] = update.timestamp;
+                        delete this.fieldUpdates[fieldName];
+                        return this.storageUtils.write(fieldName, update.value);
+                      }
+                    } else {
                       this.fieldHistory[fieldName] = update.timestamp;
                       return this.storageUtils.write(fieldName, update.value);
-                    // }
+                    }
                   }
 
                   return okAsync(undefined);
