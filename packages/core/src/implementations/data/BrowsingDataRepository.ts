@@ -62,7 +62,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
       siteVisits.forEach((siteVisit, _i, _arr) => {
       
       
-        if(timestampRange && this.checkInvalidTimestamp(siteVisit.startTime ,siteVisit.endTime , timestampRange )){
+        if(timestampRange && this.timestampBetweenDates(siteVisit.startTime ,siteVisit.endTime , timestampRange )){
           
           return;
         }
@@ -95,7 +95,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     );
   }
 
-  checkInvalidTimestamp(
+  timestampBetweenDates(
     startTime: UnixTimestamp,
     endTime: UnixTimestamp,
     timestampRange: ISDQLTimestampRange,

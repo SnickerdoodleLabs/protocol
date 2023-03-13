@@ -60,12 +60,15 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
 
   private walletNftsToNftHoldings(walletNfts : WalletNFT[]) :NftHolding[] {
+    console.log("walach : " , walletNfts)
     return walletNfts.reduce<NftHolding[]>( (  array , nft  ) => {
       //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing 
       let chain : any;
       if(this.isValidChain(EChain[nft.chain])){
+        console.log("valid : " , chain)
         chain = EChain[nft.chain];
       }
+      console.log(chain)
       if (nft instanceof EVMNFT) {
          array.push(new NftHolding(chain ?? "not registered" , nft.token , Number(nft.amount) , nft.name));
       }else{

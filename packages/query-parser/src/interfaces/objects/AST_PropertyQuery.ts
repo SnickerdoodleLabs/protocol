@@ -6,6 +6,7 @@ import {
   SDQL_OperatorName,
   Web2QueryTypes,
   ISDQLQueryClause,
+  ISDQLTimestampRange,
 } from "@snickerdoodlelabs/objects";
 
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
@@ -31,9 +32,9 @@ export class AST_PropertyQuery extends AST_Query {
     readonly property: Web2QueryTypes,
     readonly conditions: Array<Condition>,
     // for reading gender
-    //readonly enum_keys: Array<string>,
-    //readonly patternProperties: Object,
-    readonly schema : ISDQLQueryClause
+    readonly enum_keys ? : Array<string>,
+    readonly patternProperties ? : Record<string , unknown>,
+    readonly timestampRange ? : ISDQLTimestampRange
   ) {
     super(name, returnType);
   }
@@ -45,7 +46,9 @@ export class AST_PropertyQuery extends AST_Query {
       schema.return,
       schema.name as Web2QueryTypes,
       conditions,
-      schema
+      schema.enum_keys,
+      schema.patternProperties,
+      schema.timestampRange
     );
   }
 

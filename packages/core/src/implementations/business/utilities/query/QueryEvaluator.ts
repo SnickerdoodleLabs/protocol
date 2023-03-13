@@ -134,8 +134,8 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
-              if(q.schema.enum_keys){
-                for (const key of q.schema.enum_keys) {
+              if(q.enum_keys){
+                for (const key of q.enum_keys) {
                   if (key == gender) {
                     return okAsync(SDQL_Return(gender));
                   }
@@ -148,7 +148,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         });
       case "url_visited_count":
         return this.browsingDataRepo
-          .getSiteVisitsMap(q.schema.timestampRange)
+          .getSiteVisitsMap(q.timestampRange)
           .andThen((url_visited_count) => {
             return okAsync(SDQL_Return(url_visited_count));
           });
