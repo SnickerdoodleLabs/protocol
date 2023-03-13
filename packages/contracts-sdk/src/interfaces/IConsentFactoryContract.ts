@@ -1,8 +1,4 @@
-import {
-  Listing,
-  ListingSlot,
-  TagSlot,
-} from "@contracts-sdk/interfaces/objects";
+import { Listing, ListingSlot } from "@contracts-sdk/interfaces/objects";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
@@ -101,15 +97,6 @@ export interface IConsentFactoryContract {
    */
   getMaxTagsPerListing(): ResultAsync<number, ConsentFactoryContractError>;
 
-  listingsTotal(): ResultAsync<number, ConsentFactoryContractError>;
-
-  listingsHead(): ResultAsync<number, ConsentFactoryContractError>;
-
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
-
   getNumberOfListings(
     tag: string,
   ): ResultAsync<number, ConsentFactoryContractError>;
@@ -117,7 +104,7 @@ export interface IConsentFactoryContract {
   getListingDuration(): ResultAsync<number, ConsentFactoryContractError>;
 
   setListingDuration(
-    listingDuration: bigint,
+    listingDuration: number,
   ): ResultAsync<void, ConsentFactoryContractError>;
 
   setMaxTagsPerListing(
@@ -126,7 +113,7 @@ export interface IConsentFactoryContract {
 
   initializeTag(
     tag: string,
-    newHead: TagSlot,
+    newHead: ListingSlot,
   ): ResultAsync<void, ConsentFactoryContractError>;
 
   insertUpstream(

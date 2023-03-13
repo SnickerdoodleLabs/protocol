@@ -569,7 +569,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   public getListingsBackward(
     tag: string,
     startingSlot: ListingSlot,
-    numberOfSlots: ListingSlot,
+    numberOfSlots: number,
     filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(

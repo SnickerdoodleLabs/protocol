@@ -4,7 +4,6 @@ import {
   ConsentRoles,
   Tag,
   ListingSlot,
-  TagSlot,
 } from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
@@ -976,7 +975,7 @@ export class ConsentContract implements IConsentContract {
 
   public newGlobalTag(
     tag: string,
-    newSlot: TagSlot,
+    newSlot: ListingSlot,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newGlobalTag(
@@ -1005,8 +1004,8 @@ export class ConsentContract implements IConsentContract {
 
   public newLocalTagUpstream(
     tag: string,
-    newSlot: TagSlot,
-    existingSlot: TagSlot,
+    newSlot: ListingSlot,
+    existingSlot: ListingSlot,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newLocalTagUpstream(
@@ -1036,8 +1035,8 @@ export class ConsentContract implements IConsentContract {
 
   public newLocalTagDownstream(
     tag: string,
-    existingSlot: TagSlot,
-    newSlot: TagSlot,
+    existingSlot: ListingSlot,
+    newSlot: ListingSlot,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newGlobalTag(

@@ -3,7 +3,6 @@ import {
   ContractOverrides,
   ListingSlot,
   Tag,
-  TagSlot,
 } from "@contracts-sdk/interfaces/objects";
 import {
   ConsentContractError,
@@ -341,19 +340,19 @@ export interface IConsentContract {
 
   newGlobalTag(
     tag: string,
-    newSlot: TagSlot,
+    newSlot: ListingSlot,
   ): ResultAsync<void, ConsentContractError>;
 
   newLocalTagUpstream(
     tag: string,
-    newSlot: TagSlot,
-    existingSlot: TagSlot,
+    newSlot: ListingSlot,
+    existingSlot: ListingSlot,
   ): ResultAsync<void, ConsentContractError>;
 
   newLocalTagDownstream(
     tag: string,
-    existingSlot: TagSlot,
-    newSlot: TagSlot,
+    existingSlot: ListingSlot,
+    newSlot: ListingSlot,
   ): ResultAsync<void, ConsentContractError>;
 
   replaceExpiredListing(
