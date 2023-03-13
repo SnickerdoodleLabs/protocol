@@ -8,11 +8,11 @@ import {
   LinkedAccount,
   Signature,
   TokenBalance,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import {
-  ExtensionCookieError,
   SnickerDoodleCoreError,
 } from "@synamint-extension-sdk/shared/objects/errors";
 
@@ -36,7 +36,7 @@ export interface IAccountRepository {
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
-  isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
+  isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,
     signature: Signature,
