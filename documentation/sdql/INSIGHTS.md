@@ -2,7 +2,7 @@
 
 Related terms: Returns, Answers
 
-When a data wallet receives a query from a campaign it opted in to, it evaluates the query. Informally the term **insight** refers to the answers given to a query, which will be validated by an insight platform to determine which rewards will be handed off to the data wallet.
+When a data wallet receives a query from a campaign it opted in to, it filters and evaluates the query. Informally the term **insight** refers to the answers given to a query, which will be validated by an insight platform to determine which rewards will be handed off to the data wallet.
 
 More formally, **insight** is an object built by [QueryParsingEngine.ts](/packages/core/src/implementations/business/utilities/QueryParsingEngine.ts) respecting the data wallet permissions and the logic compensation expressions.
 
@@ -26,12 +26,18 @@ The compensation logic above means both $r1 and $r2 must be satisfied to earn $c
 
 Now even more formally, **insight** object carries the answers of a data wallet to the **return logic** expressions in a given query. It contains return keys and corresponding answers as key-value pairs. 
 
-Following is an example **insight** object for the query given above.
+Following are some possible **insight** objects for the query given above.
 
 ```JSON
 {
     "r1": "male",
     "r2": true,
+}
+{
+    "r2": false,
+}
+{
+    "r1": "female",
 }
 ```
 # When

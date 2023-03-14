@@ -11,18 +11,17 @@ Such logic expressions get filtered by user permissions, and then evaluated agai
 Consider following queries and return
 ```JSON
 q1: {
-    name: "age",
-    return: "integer",
+    "name": "age",
+    "return": "integer",
 },
 q2: {
-    name: "location",
-    return: "integer",
+    "name": "location",
+    "return": "integer",
 },
 ```
 ```JSON
 r1: {
-    logic: "$q1and$q2",
-    ...
+    "logic": "$q1and$q2",
 },
 ```
 Logic expression **"$q1and$q2"** first gets filtered by permissions. $q1 asks for the age, so data permissions are checked to see if user opted for sharing their age. If not, $r1 will be evaluated as false.
@@ -48,18 +47,18 @@ This expression means $c1 requires $r1 to have a valid answer to its logic expre
 - Strings
     - Immediate strings always resolve to their value.
 - $qN - Queries
-    - During permission filtering, resolves to true of false depending on user shared corresponding data.
+    - During permission filtering, resolves to true of false depending on corresponding data is permitted.
     - During evaluation, resolves to asked data or null
 - $aN - Ads
-    - During permission filtering, resolves to true of false depending on user shared all required data asked in the **ad logic**.
-    - During evaluation, resolves to true or false depending on user has watched the ad
+    - During permission filtering, resolves to true of false depending on all required data asked in the **ad logic** is permitted.
+    - During evaluation, resolves to true or false depending on user has watched the ad.
 - $rN - Returns
-    - During permission filtering, resolves to true of false depending on user shared all required data asked in the **return logic**.
-    - During evaluation, either resolves to a non-null answer to the combination of queries given in the **return logic**, or to null.
+    - During permission filtering, resolves to true of false depending on all required data asked by the queries in the **return logic** is permitted.
+    - During evaluation, resolves to true if its logic expression resolves to true or to a non-null answer.
 - $cN - Compensations
-    - During permission filtering, resolves to true of false depending on user shared all required data asked in the logic statements of corresponding returns. For example, **"if$r1then$c1"** requires that $r1 resolves to true, which means **"$q1and$q2"** should also resolve to true.
-    - During evaluation, resolves to true only when the returns in the **compensation logic** have valid / non-null answers.
-    For example, **"if$r1and$r2then$c1"** requires both $r1 and $r2 have non-null answers.
+    - During permission filtering, resolves to true of false depending on corresponding returns resolve to true or false. For example, **"if$r1then$c1"** requires that $r1 resolves to true, which means **"$q1and$q2"** should also resolve to true.
+    - During evaluation, resolves to true only when the logic expression in the **compensation logic** resolves to true.
+    For example, **"if$r1and$r2then$c1"** requires both $r1 and $r2 resolve to true.
 
 ## Operators
 
