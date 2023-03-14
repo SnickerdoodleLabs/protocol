@@ -1,5 +1,7 @@
 import {
   DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -42,6 +44,9 @@ export class CoreListener implements ICoreListener {
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+      events.onEarnedRewardsAdded.subscribe(
+        this.onEarnedRewardsAdded.bind(this),
+      );
     });
   }
 
@@ -131,5 +136,9 @@ export class CoreListener implements ICoreListener {
       account.sourceAccountAddress,
     );
     this.contextProvider.onAccountRemoved(account);
+  }
+
+  private onEarnedRewardsAdded(rewards: EarnedReward[]): void {
+    this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 }

@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import {
+  EarnedReward,
   LinkedAccount,
   MetatransactionSignatureRequest,
   SDQLQueryRequest,
@@ -12,5 +13,6 @@ export interface ISnickerdoodleCoreEvents {
   onQueryPosted: Observable<SDQLQueryRequest>;
   onAccountAdded: Observable<LinkedAccount>;
   onAccountRemoved: Observable<LinkedAccount>;
+  onEarnedRewardsAdded: Observable<EarnedReward[]>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;
 }

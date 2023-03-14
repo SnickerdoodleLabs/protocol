@@ -25,12 +25,14 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
+import { IContextProviderType, IContextProvider } from "@core/interfaces/utilities";
 
 @injectable()
 export class LinkedAccountRepository implements ILinkedAccountRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
@@ -124,7 +126,11 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
           ),
         );
       }),
-    ).map(() => undefined);
+    ).andThen(() => {
+      return this.contextProvider.getContext().map((context) => {
+        context.publicEvents.onEarnedRewardsAdded.next(rewards);
+      });
+    });
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
