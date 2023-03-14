@@ -262,9 +262,7 @@ export class AST_Evaluator {
         },
       );
     }
-
     return okAsync(SDQL_Return(eef));
-    // return okAsync(SDQL_Return(new ExpectedReward(eef.description, URLString(eef.callback), eef.type)));
   }
 
   public evalCompCondition(
@@ -284,23 +282,7 @@ export class AST_Evaluator {
   public evalReturnExpr(
     expr: AST_ReturnExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    if (TypeChecker.isQuery(expr.source)) {
-      //return this.evalQuery((expr.source) as AST_Query);
-      // console.log(this);
-      const qResult = this.evalQuery(expr.source as AST_Query);
-      if (qResult === undefined) {
-        console.log("got undefined for", expr);
-      }
-      return this.evalQuery(expr.source as AST_Query).andThen((val) => {
-        return okAsync(val);
-      });
-    }
-
-    return this.evalReturn((expr as AST_ReturnExpr).source as AST_Return);
-  }
-
-  public evalReturn(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError> {
-    return okAsync(SDQL_Return(r.message));
+    return this.evalAny(expr.source);
   }
 
   public evalCompensation(
