@@ -10,17 +10,17 @@ Such logic expressions get filtered by user permissions, and then evaluated agai
 
 Consider following queries and return
 ```JSON
-q1: {
+"q1": {
     "name": "age",
     "return": "integer",
 },
-q2: {
+"q2": {
     "name": "location",
     "return": "integer",
 },
 ```
 ```JSON
-r1: {
+"r1": {
     "logic": "$q1and$q2",
 },
 ```
@@ -35,9 +35,9 @@ Data wallet is also responsible for providing the actual data asked by the queri
 
 Say the compensations logic in the query given above is as follows
 ```JSON
-logic: {
-    compensations: ["if$r1then$c1"],
-},
+"logic": {
+    "compensations": ["if$r1then$c1"]
+}
 ```
 This expression means $c1 requires $r1 to have a valid answer to its logic expression. This means both **$q1** and **$q2** must be answered to meet $r1, and hence $c1.
 
