@@ -1,9 +1,9 @@
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
-
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import { AST_Return } from "@query-parser/interfaces/objects/AST_Return.js";
+import { Command } from "@query-parser/interfaces/objects/Command.js";
 import { Command_IF } from "@query-parser/interfaces/objects/Command_IF.js";
 import { Operator } from "@query-parser/interfaces/objects/Operator.js";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
 export class AST_Expr {
   /**
@@ -15,7 +15,7 @@ export class AST_Expr {
   constructor(
     readonly name: SDQL_Name,
     readonly source:
-      | Command_IF
+      | Command
       | AST_Query
       | AST_Return
       | Operator

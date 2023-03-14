@@ -37,8 +37,7 @@ import {
   PersistenceError,
   ParserError,
   IInsights,
-  IInsightsReturns,
-  IInsightsQueries,
+  ReturnKey,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -72,44 +71,34 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
-    const queryString = query.query;
-    const cid: IpfsCID = query.cid;
-
     return this.queryUtils
-      .filterQueryByPermissions(queryString, dataPermissions)
+      .filterQueryByPermissions(query.query, dataPermissions)
       .andThen((queryFilteredByPermissions) => {
         return this.constructAndSaveEligibleAds(
           queryFilteredByPermissions.eligibleAdsMap,
-          cid,
+          query.cid,
           consentContractAddress,
-        ).andThen(() => {
-          const expectedRewardList = this.constructExpectedRewards(
-            queryFilteredByPermissions.expectedCompensationsMap,
-          );
-
-          return okAsync<[QueryIdentifier[], ExpectedReward[]]>([
+        ).map(() => {
+          return [
             queryFilteredByPermissions.permittedQueryIds,
-            expectedRewardList,
-          ]);
+            this.constructExpectedRewards(
+              queryFilteredByPermissions.expectedCompensationsMap,
+            ),
+          ] as [QueryIdentifier[], ExpectedReward[]];
         });
       });
   }
 
   public handleQuery(
     query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     [IInsights, EligibleReward[]],
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const schemaString = query.query;
-    const cid: IpfsCID = query.cid;
-
     return this.queryFactories
-      .makeParserAsync(cid, schemaString)
+      .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        return this.gatherInsights(sdqlParser, cid, dataPermissions);
+        return this.gatherInsights(sdqlParser, query.cid);
       })
       .map((insights) => {
         return [insights, []] as [IInsights, EligibleReward[]];
@@ -183,22 +172,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   protected gatherInsights(
     sdqlParser: SDQLParser,
     cid: IpfsCID,
-    dataPermissions: DataPermissions,
   ): ResultAsync<
     IInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     return this.getAstAndAstEvaluator(sdqlParser, cid).andThen(
       ([ast, astEvaluator]) => {
-        return ResultUtils.combine([
-          this.getAndEvalPermittedReturns(ast, astEvaluator, dataPermissions),
-          this.getAndEvalPermittedQueries(sdqlParser, ast, dataPermissions),
-        ]).map(([returnAnswers, queryAnswers]) => {
-          return {
-            queries: queryAnswers,
-            returns: returnAnswers,
-          };
-        });
+        return this.evalReturns(ast, astEvaluator);
       },
     );
   }
@@ -216,28 +196,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         this.queryFactories.makeAstEvaluator(cid, ast, this.queryRepository),
       ];
     });
-  }
-
-  protected getAndEvalPermittedQueries(
-    sdqlParser: SDQLParser,
-    ast: AST,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    IInsightsQueries,
-    EvaluationError | QueryFormatError | QueryExpiredError
-  > {
-    return this.getPermittedQueries(sdqlParser, ast, dataPermissions).andThen(
-      (queries) => {
-        return ResultUtils.combine(this.evalQueries(queries)).map((results) => {
-          return Object.fromEntries(
-            results.map(([queryId, sdqlReturn]) => [
-              queryId,
-              this.SDQLReturnToInsightString(sdqlReturn),
-            ]),
-          ) as IInsightsQueries;
-        });
-      },
-    );
   }
 
   protected getPermittedQueries(
@@ -272,38 +230,36 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
-  protected getAndEvalPermittedReturns(
+  protected evalReturns(
     ast: AST,
     astEvaluator: AST_Evaluator,
-    dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsightsReturns,
+    IInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    return ResultUtils.combine(
-      this.evalReturns(
-        ast,
-        astEvaluator,
-        this.getPermittedReturnExpressions(ast, dataPermissions),
-      ),
-    ).map((results) => {
-      return Object.fromEntries(
-        results.map(([returnExpr, sdqlReturn]) => [
-          returnExpr,
-          this.SDQLReturnToInsightString(sdqlReturn),
-        ]),
-      ) as IInsightsReturns;
-    });
+    return ResultUtils.combine(this.evalAllReturnLogic(ast, astEvaluator)).map(
+      (results) => {
+        return Object.fromEntries(
+          results
+            .filter(([returnKey, result]) => result && result != "")
+            .map(([returnKey, result]) => [
+              returnKey,
+              this.SDQLReturnToInsightString(result),
+            ]),
+        ) as IInsights;
+      },
+    );
   }
 
-  protected getPermittedReturnExpressions(
+  private evalAllReturnLogic(
     ast: AST,
-    dataPermissions: DataPermissions,
-  ): string[] {
-    return [...ast.logic.returns.keys()].filter((returnExpr) => {
-      const requiredPermissions = ast.logic.getReturnPermissions(returnExpr);
-      return dataPermissions.contains(requiredPermissions);
-    });
+    astEvaluator: AST_Evaluator,
+  ): ResultAsync<[ReturnKey, SDQL_Return], EvaluationError>[] {
+    return [...ast.returns.expressions.keys()].map((returnKey) =>
+      astEvaluator
+        .evalAny(ast.returns.expressions.get(returnKey))
+        .map((insight) => [ReturnKey(returnKey), insight]),
+    );
   }
 
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
@@ -316,27 +272,5 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     } else {
       return InsightString(JSON.stringify(actualTypeData));
     }
-  }
-
-  private evalQueries(
-    queries: AST_Query[],
-  ): ResultAsync<[QueryIdentifier, SDQL_Return], EvaluationError>[] {
-    return queries.map((query) =>
-      this.queryRepository
-        .get(IpfsCID(""), query)
-        .map((res) => [QueryIdentifier(query.name), res]),
-    );
-  }
-
-  private evalReturns(
-    ast: AST,
-    astEvaluator: AST_Evaluator,
-    returnExpressions: string[],
-  ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
-    return returnExpressions.map((returnExpr) =>
-      astEvaluator
-        .evalAny(ast.logic.returns.get(returnExpr))
-        .map((insight) => [returnExpr, insight]),
-    );
   }
 }

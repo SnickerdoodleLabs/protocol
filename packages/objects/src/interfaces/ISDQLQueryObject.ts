@@ -13,6 +13,7 @@ import {
   UnixTimestamp,
   EAdDisplayType,
   ISO8601DateString,
+  ReturnKey,
 } from "@objects/primitives";
 
 export interface ISDQLQueryObject {
@@ -25,12 +26,7 @@ export interface ISDQLQueryObject {
   queries: {
     [queryId: string]: ISDQLQueryClause;
   };
-  returns: {
-    [returnsObject: string]: ISDQLReturnProperties;
-    // issue on why this is any, documented here
-    //https://github.com/Microsoft/TypeScript/issues/10042
-    url;
-  };
+  returns: ISDQLReturnsBlock;
   compensations: ISDQLCompensationBlock;
   logic: ISDQLLogicObjects;
 }
@@ -83,18 +79,23 @@ export interface ISDQLHasObject {
   };
 }
 
-export interface ISDQLReturnProperties {
-  name: string;
-  message?: string;
-  query?: string;
+export interface ISDQLReturnsBlock {
+  [index: ReturnKey]: ISDQLReturn;
+  url;
 }
 
+export interface ISDQLReturn {
+  name: string;
+  logic: string;
+  message?: string;
+}
 export interface ISDQLAdsBlock {
   [index: AdKey]: ISDQLAd;
 }
 
 export interface ISDQLAd {
   name: string;
+  logic: string;
   content: AdContent;
   text: string | null;
   displayType: EAdDisplayType;
@@ -137,7 +138,6 @@ export interface ISDQLCompensationParameters {
 }
 
 export interface ISDQLLogicObjects {
-  returns: string[];
   ads: string[];
   compensations: string[];
 }

@@ -32,10 +32,6 @@ export class TypeChecker {
     return expr instanceof AST_Query;
   }
 
-  // static isCompIfCommand(expr: any): boolean {
-  //   return expr instanceof Command_IF;
-  // }
-
   static isOperator(expr: any): boolean {
     return expr instanceof Operator;
   }
@@ -51,10 +47,6 @@ export class TypeChecker {
   static isIfCommand(expr: any): boolean {
     return expr instanceof Command_IF;
   }
-
-  // static isIfExpr(expr: any): boolean {
-  //     return (expr instanceof AST_IFExpr);
-  // }
 
   static isReturnExpr(expr: any): boolean {
     return expr instanceof AST_ReturnExpr;

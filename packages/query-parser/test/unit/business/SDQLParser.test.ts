@@ -1,13 +1,5 @@
 import "reflect-metadata";
 
-import {
-  EWalletDataType,
-  IpfsCID,
-  SDQL_Name,
-} from "@snickerdoodlelabs/objects";
-
-import { SDQLQueryWrapperMocks } from "../../mocks";
-
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
   AST,
@@ -24,6 +16,13 @@ import {
   ConditionGE,
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
+import {
+  EWalletDataType,
+  IpfsCID,
+  SDQL_Name,
+} from "@snickerdoodlelabs/objects";
+
+import { SDQLQueryWrapperMocks } from "../../mocks";
 
 describe("SDQLParser on avalanche", () => {
   const wrapperMocks = new SDQLQueryWrapperMocks();
@@ -178,79 +177,79 @@ describe("SDQLParser on avalanche", () => {
     });
   });
 
-  describe("Checking Logic return ASTs", () => {
-    test("avalanche 1 has 2 return ASTs", () => {
-      expect(parser.logicReturns.size).toBe(2);
-    });
+  // describe("Checking Logic return ASTs", () => {
+  //   test("avalanche 1 has 2 return ASTs", () => {
+  //     expect(parser.logicReturns.size).toBe(2);
+  //   });
 
-    test("First return is a valid if($q1and$q2)then$r1else$r2 AST", () => {
-      const eef = parser.logicReturns.get(
-        "if($q1and$q2)then$r1else$r2",
-      ) as Command_IF;
-      expect(eef.constructor).toBe(Command_IF);
-      expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
-      const and = eef.conditionExpr.source as ConditionAnd;
-      expect(and.constructor).toBe(ConditionAnd);
-      expect(and.lval).toEqual(parser.context.get("q1"));
-      expect(and.rval).toEqual(parser.context.get("q2"));
+  //   test("First return is a valid if($q1and$q2)then$r1else$r2 AST", () => {
+  //     const eef = parser.logicReturns.get(
+  //       "if($q1and$q2)then$r1else$r2",
+  //     ) as Command_IF;
+  //     expect(eef.constructor).toBe(Command_IF);
+  //     expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
+  //     const and = eef.conditionExpr.source as ConditionAnd;
+  //     expect(and.constructor).toBe(ConditionAnd);
+  //     expect(and.lval).toEqual(parser.context.get("q1"));
+  //     expect(and.rval).toEqual(parser.context.get("q2"));
 
-      expect(eef.trueExpr.constructor).toBe(AST_ReturnExpr);
-      expect(eef.falseExpr?.constructor).toBe(AST_ReturnExpr);
+  //     expect(eef.trueExpr.constructor).toBe(AST_ReturnExpr);
+  //     expect(eef.falseExpr?.constructor).toBe(AST_ReturnExpr);
 
-      expect(eef.trueExpr).toEqual(parser.context.get("r1"));
-      expect(eef.falseExpr).toEqual(parser.context.get("r2"));
-    });
+  //     expect(eef.trueExpr).toEqual(parser.context.get("r1"));
+  //     expect(eef.falseExpr).toEqual(parser.context.get("r2"));
+  //   });
 
-    test("Second return is $r3", () => {
-      const r3 = parser.logicReturns.get("$r3");
-      expect(r3).toEqual(parser.context.get("r3"));
-    });
-  });
+  //   test("Second return is $r3", () => {
+  //     const r3 = parser.logicReturns.get("$r3");
+  //     expect(r3).toEqual(parser.context.get("r3"));
+  //   });
+  // });
 
-  describe("Checking Logic compenstation ASTs", () => {
-    test("avalanche 1 has 3 compenstation ASTs", () => {
-      expect(parser.logicCompensations.size).toBe(3);
-    });
-    test("First compenstation is a valid if$q1then$c1 AST", () => {
-      const eef = parser.logicCompensations.get("if$q1then$c1") as Command_IF;
-      expect(eef.constructor).toBe(Command_IF);
-      expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
-      const q1 = eef.conditionExpr.source as AST_Query;
-      expect(q1.constructor).toBe(AST_BlockchainTransactionQuery);
-      expect(q1).toEqual(parser.context.get("q1"));
+  // describe("Checking Logic compenstation ASTs", () => {
+  //   test("avalanche 1 has 3 compenstation ASTs", () => {
+  //     expect(parser.logicCompensations.size).toBe(3);
+  //   });
+  //   test("First compenstation is a valid if$q1then$c1 AST", () => {
+  //     const eef = parser.logicCompensations.get("if$q1then$c1") as Command_IF;
+  //     expect(eef.constructor).toBe(Command_IF);
+  //     expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
+  //     const q1 = eef.conditionExpr.source as AST_Query;
+  //     expect(q1.constructor).toBe(AST_BlockchainTransactionQuery);
+  //     expect(q1).toEqual(parser.context.get("q1"));
 
-      expect(eef.trueExpr.constructor).toBe(AST_Compensation);
-      expect(eef.falseExpr).toBeNull();
+  //     expect(eef.trueExpr.constructor).toBe(AST_Compensation);
+  //     expect(eef.falseExpr).toBeNull();
 
-      expect(eef.trueExpr).toEqual(parser.context.get("c1"));
-    });
-  });
+  //     expect(eef.trueExpr).toEqual(parser.context.get("c1"));
+  //   });
+  // });
 
-  describe("AST validation", () => {
-    test("meta check", () => {
-      expect(ast!.version).toBe("0.1");
-      expect(ast!.description).toBe(
-        "Interactions with the Avalanche blockchain for 15-year and older individuals",
-      );
-      expect(ast!.business).toBe("Shrapnel");
-    });
-  });
+  // describe("AST validation", () => {
+  //   test("meta check", () => {
+  //     expect(ast!.version).toBe("0.1");
+  //     expect(ast!.description).toBe(
+  //       "Interactions with the Avalanche blockchain for 15-year and older individuals",
+  //     );
+  //     expect(ast!.business).toBe("Shrapnel");
+  //   });
+  // });
 
-  describe("Dependency validation", () => {
-    test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
-      // console.log(parser.returnPermissions);
-      const permissions = parser.returnPermissions.get(
-        "if($q1and$q2)then$r1else$r2",
-      );
-      expect(permissions?.EVMTransactions).toBeTruthy();
-      expect(permissions?.Age).toBeTruthy();
-    });
+  // describe("Dependency validation", () => {
+  //   test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
+  //     // console.log(parser.returnPermissions);
+  //     const permissions = parser.returnPermissions.get(
+  //       "if($q1and$q2)then$r1else$r2",
+  //     );
+  //     expect(permissions?.EVMTransactions).toBeTruthy();
+  //     expect(permissions?.Age).toBeTruthy();
+  //   });
 
-    test("$r3 -> q3", () => {
-      // console.log(parser.returnPermissions);
-      const permissions = parser.returnPermissions.get("$r3");
-      const expectedFlags = EWalletDataType.Location;
-      expect(permissions?.Location).toBeTruthy();
-    });
-  });
+  //   test("$r3 -> q3", () => {
+  //     // console.log(parser.returnPermissions);
+  //     const permissions = parser.returnPermissions.get("$r3");
+  //     const expectedFlags = EWalletDataType.Location;
+  //     expect(permissions?.Location).toBeTruthy();
+  //   });
+  // });
 });

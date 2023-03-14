@@ -267,11 +267,7 @@ export class QueryService implements IQueryService {
     ]).andThen(([context, config, consentToken]) => {
       return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
-          this.queryParsingEngine.handleQuery(
-            query,
-            consentToken!.dataPermissions,
-            rewardParameters,
-          ),
+          this.queryParsingEngine.handleQuery(query),
           this.dataWalletUtils.deriveOptInPrivateKey(
             consentContractAddress,
             context.dataWalletKey!,

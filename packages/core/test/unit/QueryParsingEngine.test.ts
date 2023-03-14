@@ -271,7 +271,7 @@ describe("Testing order of results", () => {
 
   test("No null insight with all permissions given", async () => {
     await engine
-      .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
+      .handleQuery(sdqlQuery)
       .andThen(([insights, rewards]) => {
         console.log("Insights: ", insights);
         console.log("Rewards: ", rewards);

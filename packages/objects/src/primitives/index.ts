@@ -68,6 +68,7 @@ export * from "@objects/primitives/RewardFunctionParam";
 export * from "@objects/primitives/TransactionReceipt";
 export * from "@objects/primitives/CompensationId";
 export * from "@objects/primitives/AdKey";
+export * from "@objects/primitives/ReturnKey";
 
 export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";

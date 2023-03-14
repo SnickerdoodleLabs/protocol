@@ -1,3 +1,4 @@
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
   EvalNotImplementedError,
   EvaluationError,
@@ -24,8 +25,6 @@ import {
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 
 export class AST_Evaluator {
   /**

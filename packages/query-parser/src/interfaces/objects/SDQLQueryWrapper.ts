@@ -5,7 +5,7 @@ import {
   ISDQLLogicObjects,
   ISDQLQueryClause,
   ISDQLQueryObject,
-  ISDQLReturnProperties,
+  ISDQLReturnsBlock,
   ISO8601DateString,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -102,10 +102,7 @@ export class SDQLQueryWrapper {
   } {
     return this.getQuerySchema();
   }
-  public get returns(): {
-    [returnsObject: string]: ISDQLReturnProperties;
-    url: any;
-  } {
+  public get returns(): ISDQLReturnsBlock {
     return this.getReturnSchema();
   }
 
@@ -127,10 +124,7 @@ export class SDQLQueryWrapper {
     return this.internalObj.queries;
   }
 
-  getReturnSchema(): {
-    [returnsObject: string]: ISDQLReturnProperties;
-    url: any;
-  } {
+  getReturnSchema(): ISDQLReturnsBlock {
     return this.internalObj.returns;
   }
 

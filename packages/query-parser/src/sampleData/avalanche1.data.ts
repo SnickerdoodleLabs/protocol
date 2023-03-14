@@ -11,7 +11,7 @@ export const avalanche1SchemaStr = JSON.stringify({
   business: "Shrapnel",
   queries: {
     q1: {
-      name:"network",
+      name: "network",
       return: "boolean",
       chain: "AVAX",
       contract: {
@@ -26,7 +26,6 @@ export const avalanche1SchemaStr = JSON.stringify({
         },
       },
     },
-
     q2: {
       name: "age",
       return: "boolean",
@@ -49,16 +48,12 @@ export const avalanche1SchemaStr = JSON.stringify({
   },
   returns: {
     r1: {
-      name: "callback",
-      message: "qualified",
+      name: "query_response",
+      logic: "$q1and$q2",
     },
     r2: {
-      name: "callback",
-      message: "not qualified",
-    },
-    r3: {
       name: "query_response",
-      query: "q3",
+      logic: "$q3",
     },
     url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
@@ -118,7 +113,6 @@ export const avalanche1SchemaStr = JSON.stringify({
     },
   },
   logic: {
-    returns: ["if($q1and$q2)then$r1else$r2", "$r3"],
-    compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
+    compensations: ["if$r1then$c1", "if$r2then$c2", "$c3"],
   },
 });

@@ -1,11 +1,4 @@
 import {
-  MissingTokenConstructorError,
-  ParserError,
-  SDQL_Name,
-  SDQL_OperatorName,
-} from "@snickerdoodlelabs/objects";
-
-import {
   Token,
   Tokenizer,
   TokenType,
@@ -27,6 +20,12 @@ import {
   ConditionOr,
   ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
+import {
+  MissingTokenConstructorError,
+  ParserError,
+  SDQL_Name,
+  SDQL_OperatorName,
+} from "@snickerdoodlelabs/objects";
 
 export class ExprParser {
   /**
@@ -465,6 +464,22 @@ export class ExprParser {
     tokens.reduce((deps, token) => {
       if (token.type == TokenType.ad) {
         deps.push(this.getExecutableFromContext(token) as AST_Ad);
+      }
+      return deps;
+    }, deps);
+
+    return deps;
+  }
+
+  getReturnDependencies(exprStr: string): AST_ReturnExpr[] {
+    const tokenizer = new Tokenizer(exprStr);
+    const tokens = tokenizer.all();
+
+    const deps: AST_ReturnExpr[] = [];
+
+    tokens.reduce((deps, token) => {
+      if (token.type == TokenType.return) {
+        deps.push(this.getExecutableFromContext(token) as AST_ReturnExpr);
       }
       return deps;
     }, deps);

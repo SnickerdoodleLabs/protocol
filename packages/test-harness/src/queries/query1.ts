@@ -7,6 +7,19 @@ export const query1 = {
   business: "Shrapnel",
   queries: {
     q1: {
+      name: "age",
+      return: "integer",
+    },
+    q2: {
+      name: "location",
+      return: "integer",
+    },
+    q3: {
+      name: "gender",
+      return: "enum",
+      enum_keys: ["female", "male", "nonbinary", "unknown"],
+    },
+    q4: {
       name: "network",
       return: "boolean",
       chain: "AVAX",
@@ -21,19 +34,6 @@ export const query1 = {
           end: 14910334,
         },
       },
-    },
-    q2: {
-      name: "age",
-      return: "integer",
-    },
-    q3: {
-      name: "location",
-      return: "integer",
-    },
-    q4: {
-      name: "gender",
-      return: "enum",
-      enum_keys: ["female", "male", "nonbinary", "unknown"],
     },
     q5: {
       name: "url_visited_count",
@@ -87,45 +87,6 @@ export const query1 = {
       },
       address: "*",
     },
-  },
-  returns: {
-    r1: {
-      name: "query_response",
-      query: "q1",
-    },
-    r2: {
-      name: "query_response",
-      query: "q2",
-    },
-    r3: {
-      name: "query_response",
-      query: "q3",
-    },
-    r4: {
-      name: "query_response",
-      query: "q4",
-    },
-    r5: {
-      name: "query_response",
-      query: "q5",
-    },
-    r6: {
-      name: "query_response",
-      query: "q6",
-    },
-    r7: {
-      name: "query_response",
-      query: "q7",
-    },
-    r8: {
-      name: "query_response",
-      query: "q8",
-    },
-    r9: {
-      name: "query_response",
-      query: "q9",
-    },
-    url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
   compensations: {
     parameters: {
@@ -182,8 +143,18 @@ export const query1 = {
       alternatives: ["c2"],
     },
   },
+  returns: {
+    r1: {
+      name: "query_response",
+      logic: "$q1and$q2",
+    },
+    r2: {
+      name: "query_response",
+      logic: "$q3",
+    },
+    url: "https://418e-64-85-231-39.ngrok.io/insights",
+  },
   logic: {
-    returns: ["$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8", "$r9"],
-    compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
+    compensations: ["if$r1then$c1", "if$r2then$c2", "$c3"],
   },
 };

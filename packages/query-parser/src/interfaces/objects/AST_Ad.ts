@@ -9,6 +9,7 @@ export class AST_Ad {
   constructor(
     readonly key: SDQL_Name, //a1, a2, ..
     readonly name: SDQL_Name,
+    readonly logic: string,
     readonly content: AdContent,
     readonly text: string | null,
     readonly displayType: EAdDisplayType,
