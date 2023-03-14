@@ -1,3 +1,25 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  AjaxError,
+  BlockchainProviderError,
+  BlockNumber,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  ConsentError,
+  ConsentFactoryContractError,
+  EVMContractAddress,
+  IPFSError,
+  PersistenceError,
+  UninitializedError,
+  QueryFormatError,
+  QueryExpiredError,
+  EvaluationError,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { IBlockchainListener } from "@core/interfaces/api/index.js";
 import {
   IMonitoringService,
@@ -20,27 +42,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
-import {
-  AjaxError,
-  BlockchainProviderError,
-  BlockNumber,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  ConsentError,
-  ConsentFactoryContractError,
-  EVMContractAddress,
-  IPFSError,
-  PersistenceError,
-  UninitializedError,
-  QueryFormatError,
-  QueryExpiredError,
-  EvaluationError,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-

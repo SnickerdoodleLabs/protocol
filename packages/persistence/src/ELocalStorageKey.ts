@@ -28,6 +28,7 @@ export enum EFieldKey {
   // TODO: move these to records
   ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
   REJECTED_COHORTS = "SD_RejectedCohorts",
+  DOMAIN_PERMISSIONS = "SD_DomainPermissions",
 }
 
 export type LocalStorageKey = EFieldKey | ERecordKey;

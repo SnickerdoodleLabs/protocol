@@ -1,28 +1,5 @@
 import "reflect-metadata";
 
-import {
-  NftQueryEvaluator,
-  QueryEvaluator,
-  QueryParsingEngine,
-  QueryRepository,
-} from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
-import {
-  AdContentRepository,
-  AdDataRepository,
-} from "@core/implementations/data";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { SnickerdoodleCore } from "@core/index";
-import {
-  IBrowsingDataRepository,
-  IDataWalletPersistence,
-  IDemographicDataRepository,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepository,
-} from "@core/interfaces/data/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
@@ -55,6 +32,30 @@ import {
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
+
+import { QueryParsingEngine } from "@core/implementations/business/utilities/index.js";
+import {
+  BlockchainTransactionQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+  BalanceQueryEvaluator,
+  NftQueryEvaluator,
+} from "@core/implementations/business/utilities/query/index.js";
+import {
+  AdContentRepository,
+  AdDataRepository,
+} from "@core/implementations/data";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { SnickerdoodleCore } from "@core/index";
+import {
+  IBrowsingDataRepository,
+  IDataWalletPersistence,
+  IDemographicDataRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+} from "@core/interfaces/data/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(

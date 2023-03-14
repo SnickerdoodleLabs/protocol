@@ -11,8 +11,8 @@ import {
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
-import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
+  IQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
   IBrowsingDataRepositoryType,
