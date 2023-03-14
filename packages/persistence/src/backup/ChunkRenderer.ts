@@ -148,7 +148,7 @@ export class ChunkRenderer implements IChunkRenderer {
               priority: priority,
               dataType: this.key,
             },
-            blob: blob,
+            blob: JSON.parse(JSON.stringify(blob)),
           };
           return okAsync(backup);
         });
