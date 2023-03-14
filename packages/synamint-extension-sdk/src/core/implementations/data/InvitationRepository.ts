@@ -109,7 +109,7 @@ export class InvitationRepository implements IInvitationRepository {
     Map<EVMContractAddress, PossibleReward[]>,
     SnickerDoodleCoreError
   > {
-    return this.core
+    return this.core.marketplace
       .getPossibleRewards(contractAddresses, timeoutMs)
       .mapErr((error) => {
         this.errorUtils.emit(error);
