@@ -31,6 +31,7 @@ import {
   Signature,
   OptInInfo,
   TokenUri,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -65,10 +66,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getAvailableOptInCount(
+  public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    number,
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
     return this.getConsentContract(consentContractAddress)
@@ -83,28 +84,16 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
         // Crazy sanity check
         if (available < 0) {
-          return 0;
+          return {
+            maxCapacity,
+            availableOptInCount: 0,
+          };
         }
 
-        return available;
-      });
-  }
-
-  public getOptInCapacityInfo(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    [number, number],
-    BlockchainProviderError | UninitializedError | ConsentContractError
-  > {
-    return this.getConsentContract(consentContractAddress)
-      .andThen((contract) => {
-        return ResultUtils.combine([
-          contract.totalSupply(),
-          contract.getMaxCapacity(),
-        ]);
-      })
-      .map(([totalSupply, maxCapacity]) => {
-        return [maxCapacity, maxCapacity - totalSupply];
+        return {
+          maxCapacity,
+          availableOptInCount: available,
+        };
       });
   }
 

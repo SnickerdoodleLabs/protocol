@@ -30,6 +30,8 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
@@ -68,7 +70,8 @@ import {
   IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
-  IGetOptInCapacityInfoParams,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
 } from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -444,11 +447,24 @@ export class ExternalCoreGateway {
     } as IGetReceivingAddressParams);
   }
 
-  public getOptInCapacityInfo(
+  public getConsentCapacity(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
-    return this._handler.call(EExternalActions.GET_OPTIN_CAPACITY_INFO, {
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_CONSENT_CAPACITY, {
       contractAddress,
-    } as IGetOptInCapacityInfoParams);
+    } as IGetConsentCapacityParams);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this._handler.call(EExternalActions.GET_POSSIBLE_REWARDS, {
+      contractAddresses,
+      timeoutMs,
+    } as IGetPossibleRewardsParams);
   }
 }

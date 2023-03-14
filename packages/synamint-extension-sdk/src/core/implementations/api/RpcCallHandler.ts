@@ -36,6 +36,8 @@ import {
   URLString,
   SiteVisit,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -116,7 +118,8 @@ import {
   IGetReceivingAddressParams,
   mapToObj,
   SnickerDoodleCoreError,
-  IGetOptInCapacityInfoParams,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -315,10 +318,19 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
-      case EExternalActions.GET_OPTIN_CAPACITY_INFO: {
-        const { contractAddress } = params as IGetOptInCapacityInfoParams;
+      case EExternalActions.GET_CONSENT_CAPACITY: {
+        const { contractAddress } = params as IGetConsentCapacityParams;
         return new AsyncRpcResponseSender(
-          this.getOptInCapacityInfo(contractAddress),
+          this.getConsentCapacity(contractAddress),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_POSSIBLE_REWARDS: {
+        const { contractAddresses, timeoutMs } =
+          params as IGetPossibleRewardsParams;
+        return new AsyncRpcResponseSender(
+          this.getPossibleRewards(contractAddresses, timeoutMs),
           res,
         ).call();
       }
@@ -639,6 +651,18 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.cryptoUtils.getTokenId();
   }
 
+  private getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationService
+      .getPossibleRewards(contractAddresses, timeoutMs)
+      .map((res) => mapToObj(res));
+  }
+
   private getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
@@ -889,9 +913,9 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService.getReceivingAddress(contractAddress);
   }
 
-  private getOptInCapacityInfo(
+  private getConsentCapacity(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
-    return this.invitationService.getOptInCapacityInfo(contractAddress);
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentCapacity(contractAddress);
   }
 }

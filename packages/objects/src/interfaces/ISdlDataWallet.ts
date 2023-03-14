@@ -12,6 +12,7 @@ import {
   WalletNFT,
   SiteVisit,
   MarketplaceListing,
+  PossibleReward,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -34,6 +35,7 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { IConsentCapacity } from "./IConsentCapacity";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
@@ -163,7 +165,12 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
 
-  getOptInCapacityInfo(
+  getConsentCapacity(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], JsonRpcError>;
+  ): ResultAsync<IConsentCapacity, JsonRpcError>;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
 }

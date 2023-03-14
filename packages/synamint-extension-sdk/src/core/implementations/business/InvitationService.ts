@@ -10,6 +10,8 @@ import {
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -81,11 +83,22 @@ export class InvitationService implements IInvitationService {
     return this.invitationRepository.getAcceptedInvitationsCID();
   }
 
-  public getOptInCapacityInfo(
+  public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
-    return this.invitationRepository.getOptInCapacityInfo(
-      consentContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this.invitationRepository.getConsentCapacity(consentContractAddress);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationRepository.getPossibleRewards(
+      contractAddresses,
+      timeoutMs,
     );
   }
 

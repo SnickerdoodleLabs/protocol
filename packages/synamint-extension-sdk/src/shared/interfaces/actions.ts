@@ -167,6 +167,11 @@ export interface IGetReceivingAddressParams {
   contractAddress?: EVMContractAddress;
 }
 
-export interface IGetOptInCapacityInfoParams {
+export interface IGetConsentCapacityParams {
   contractAddress: EVMContractAddress;
+}
+
+export interface IGetPossibleRewardsParams {
+  contractAddresses: EVMContractAddress[];
+  timeoutMs?: number;
 }

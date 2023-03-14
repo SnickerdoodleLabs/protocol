@@ -2,6 +2,7 @@ export * from "@objects/interfaces/IAccountBalances";
 export * from "@objects/interfaces/IAccountNFTs";
 export * from "@objects/interfaces/IAccountIndexing";
 export * from "@objects/interfaces/IConfigOverrides";
+export * from "@objects/interfaces/IConsentCapacity";
 export * from "@objects/interfaces/ICrumbContent";
 export * from "@objects/interfaces/IDataWalletBackup";
 export * from "@objects/interfaces/IOpenSeaMetadata";

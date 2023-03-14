@@ -70,6 +70,7 @@ import {
   URLString,
 } from "@objects/primitives";
 import { ResultAsync } from "neverthrow";
+import { IConsentCapacity } from "./IConsentCapacity";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -340,16 +341,10 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
-  /**
-   * Returns [number, number] array
-   * first item in array represents capacity of consent contract
-   * second item in array represents number of available "slots" for optIn
-   * @param consentContractAddress
-   */
-  getOptInCapacityInfo(
+  getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    [number, number],
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 

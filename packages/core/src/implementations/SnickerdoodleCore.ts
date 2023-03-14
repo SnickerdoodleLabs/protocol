@@ -117,6 +117,7 @@ import {
   AdSignature,
   PossibleReward,
   BackupFileName,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -539,17 +540,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getAvailableInvitationsCID();
   }
 
-  public getOptInCapacityInfo(
+  public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    [number, number],
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return invitationService.getOptInCapacityInfo(consentContractAddress);
+    return invitationService.getConsentCapacity(consentContractAddress);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<

@@ -22,6 +22,7 @@ import {
   TokenId,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -116,10 +117,10 @@ export interface IInvitationService {
     | ConsentContractError
     | PersistenceError
   >;
-  getOptInCapacityInfo(
+  getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    [number, number],
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 

@@ -5,13 +5,18 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  EarnedReward,
+  EVMContractAddress,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
   const [
     campaignContractAddressesWithCID,
     setCampaignContractAddressesWithCID,
@@ -20,13 +25,17 @@ const RewardsInfo: FC = () => {
 
   useEffect(() => {
     getInvitations();
+    getEarnedRewards();
   }, []);
 
   useEffect(() => {
-    if (campaignContractAddressesWithCID) {
+    if (campaignContractAddressesWithCID && earnedRewards) {
       setIsLoading(false);
     }
-  }, [JSON.stringify(campaignContractAddressesWithCID)]);
+  }, [
+    JSON.stringify(campaignContractAddressesWithCID),
+    JSON.stringify(earnedRewards),
+  ]);
 
   const getInvitations = () => {
     return window.sdlDataWallet
@@ -36,6 +45,17 @@ const RewardsInfo: FC = () => {
       })
       .map((metaData) => {
         setCampaignContractAddressesWithCID(metaData);
+      });
+  };
+
+  const getEarnedRewards = () => {
+    return window.sdlDataWallet
+      .getEarnedRewards()
+      .mapErr((e) => {
+        setIsLoading(false);
+      })
+      .map((rewards) => {
+        setEarnedRewards(rewards);
       });
   };
 
@@ -72,7 +92,7 @@ const RewardsInfo: FC = () => {
 
   return (
     <Box>
-      <Box mb={2}>
+      <Box mb={4.5}>
         <Typography className={classes.title}>
           Reward Program Subscriptions
         </Typography>
@@ -89,15 +109,17 @@ const RewardsInfo: FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={5}>
           {campaignContractAddressesWithCID &&
           Object.keys(campaignContractAddressesWithCID).length ? (
             Object.keys(campaignContractAddressesWithCID)?.map((key) => (
-              <Grid item key={key} xs={3}>
+              <Grid item key={key} xs={6}>
                 <CampaignItem
                   onLeaveClick={() => {
                     onLeaveClick(key as EVMContractAddress);
                   }}
+                  earnedRewards={earnedRewards!}
+                  consentContractAddress={key as EVMContractAddress}
                   campaignCID={campaignContractAddressesWithCID[key]}
                 />
               </Grid>

@@ -14,6 +14,8 @@ import {
   TokenId,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -88,11 +90,25 @@ export class InvitationRepository implements IInvitationRepository {
     });
   }
 
-  public getOptInCapacityInfo(
+  public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], SnickerDoodleCoreError> {
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
     return this.core
-      .getOptInCapacityInfo(consentContractAddress)
+      .getConsentCapacity(consentContractAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this.core
+      .getPossibleRewards(contractAddresses, timeoutMs)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);

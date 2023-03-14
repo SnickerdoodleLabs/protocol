@@ -26,6 +26,8 @@ import {
   UnixTimestamp,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -328,10 +330,17 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getSiteVisitsMap();
   }
 
-  public getOptInCapacityInfo(
+  public getConsentCapacity(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], unknown> {
-    return coreGateway.getOptInCapacityInfo(contractAddress);
+  ): ResultAsync<IConsentCapacity, unknown> {
+    return coreGateway.getConsentCapacity(contractAddress);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, unknown> {
+    return coreGateway.getPossibleRewards(contractAddresses, timeoutMs);
   }
 }
 

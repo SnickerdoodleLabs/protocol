@@ -10,6 +10,8 @@ import {
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -49,10 +51,17 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
 
-  getOptInCapacityInfo(
+  getConsentCapacity(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[number, number], SnickerDoodleCoreError>;
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
 
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  >;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

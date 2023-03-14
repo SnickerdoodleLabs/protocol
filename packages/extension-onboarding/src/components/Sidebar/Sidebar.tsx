@@ -64,9 +64,9 @@ export const routes: IRoute[] = [
     subroutes: [
       { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
       { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Rewards Subscriptions", path: EPaths.CAMPAIGN_SETTINGS },
       { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
-      { title: "Reward Program Subscriptions", path: EPaths.CAMPAIGN_SETTINGS },
     ],
   },
 ];
