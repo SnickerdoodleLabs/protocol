@@ -12,7 +12,6 @@ import { ResultAsync } from "neverthrow";
 import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IChunkRenderer {
-  updates: number;
   clear(
     forceRender: boolean,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;

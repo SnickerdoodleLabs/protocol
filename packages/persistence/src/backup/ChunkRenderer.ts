@@ -17,6 +17,8 @@ import {
   BackupBlob,
   Signature,
   LocalStorageKey,
+  EFieldKey,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -45,17 +47,19 @@ export class ChunkRenderer implements IChunkRenderer {
   ) {
     this.numUpdates = 0;
     this.fieldUpdates = {};
-    this.tableUpdates[this.key] = [];
+    if (Object.values(ERecordKey).includes(this.key as ERecordKey)) {
+      this.tableUpdates[this.key] = [];
+    }
   }
 
-  public get updates(): number {
+  get updates(): number {
     return this.numUpdates;
   }
 
   public clear(
     forceRender: boolean,
   ): ResultAsync<IDataWalletBackup | undefined, PersistenceError> {
-    if (this.numUpdates >= this.maxChunkSize || forceRender) {
+    if (forceRender || this.numUpdates >= this.maxChunkSize) {
       return this.dump().map((backup) => {
         this.numUpdates = 0;
         this.tableUpdates[this.key] = [];
