@@ -8,6 +8,7 @@ import {
   LinkedAccount,
   Signature,
   TokenBalance,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -98,7 +99,10 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getUnlockMessage(languageCode);
   }
 
-  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+  public isDataWalletAddressInitialized(): ResultAsync<
+    boolean,
+    UnauthorizedError
+  > {
     return this.accountRepository.isDataWalletAddressInitialized();
   }
 

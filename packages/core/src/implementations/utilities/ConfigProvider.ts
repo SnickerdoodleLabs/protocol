@@ -111,6 +111,7 @@ export class ConfigProvider
       },
       10000,
       "(localhost|chrome://)",
+      false,
     );
   }
 
@@ -192,5 +193,7 @@ export class ConfigProvider
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
     this.config.domainFilter =
       overrides.domainFilter ?? this.config.domainFilter;
+    this.config.enableBackupEncryption =
+      overrides.enableBackupEncryption ?? false;
   }
 }

@@ -3,14 +3,15 @@ import {
   CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  TimeUtils,
-  ITimeUtils,
-  ITimeUtilsType,
   ICryptoUtils,
   ICryptoUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
-
 import { ContainerModule, interfaces } from "inversify";
+
+import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
 
 import {
   BrowserTabListener,
@@ -74,6 +75,10 @@ import {
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
+import {
   IAccountRepository,
   IAccountRepositoryType,
   IInvitationRepository,
@@ -87,6 +92,10 @@ import {
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IScamFilterRepository,
+  IScamFilterRepositoryType,
+} from "@synamint-extension-sdk/core/interfaces/data/IScamFilterRepository";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -102,23 +111,14 @@ import {
   IRpcEngineFactoryType,
 } from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
+import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/shared/interfaces/configProvider";
 import { configProvider } from "@synamint-extension-sdk/shared/utils/ConfigProvider";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
-import {
-  IScamFilterRepository,
-  IScamFilterRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data/IScamFilterRepository";
-import {
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
-import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
 
 export const extensionCoreModule = new ContainerModule(
   (

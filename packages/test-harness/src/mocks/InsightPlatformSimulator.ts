@@ -44,15 +44,11 @@ import {
   clearCloudBackupsTypes,
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { BigNumber } from "ethers";
 import express from "express";
-
-import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
-
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-
-import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
 
 export class InsightPlatformSimulator {
@@ -194,7 +190,7 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);
       const tokenId = TokenId(BigInt(req.body.tokenId));
-      const returns = JSON.stringify(req.body.returns);
+      const insights = JSON.stringify(req.body.insights);
       const rewardParameters = JSON.stringify(req.body.rewardParameters);
       const signature = Signature(req.body.signature);
 
@@ -202,7 +198,7 @@ export class InsightPlatformSimulator {
         consentContractId,
         queryCID,
         tokenId,
-        returns,
+        insights,
         rewardParameters,
       };
 

@@ -1,4 +1,12 @@
 import { URLString } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import { Runtime } from "webextension-polyfill";
+
 import { IPortConnectionRepository } from "@synamint-extension-sdk/core/interfaces/data";
 import {
   IContextProvider,
@@ -17,13 +25,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/shared";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import pump from "pump";
-import { Runtime } from "webextension-polyfill";
 
 @injectable()
 export class PortConnectionRepository implements IPortConnectionRepository {

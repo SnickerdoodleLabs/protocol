@@ -17,4 +17,5 @@ export interface IPersistenceConfig {
   defaultInsightPlatformBaseUrl: URLString;
   defaultGoogleCloudBucket: string;
   restoreTimeoutMS: number;
+  enableBackupEncryption: boolean;
 }
