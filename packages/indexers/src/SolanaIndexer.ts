@@ -27,7 +27,15 @@ import {
   SolanaCollection,
   getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  Keypair,
+  Transaction,
+  SystemProgram,
+} from "@solana/web3.js";
+import * as bs58 from "bs58";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -65,6 +73,17 @@ export class SolanaIndexer
           new AccountIndexingError("invalid chain id for solana", chainId),
         );
       }
+
+      const connection = new Connection("https://api.mainnet-beta.solana.com");
+      const publicKey = new PublicKey(
+        "67dsfDAnfkpChPwijJp62seeRRHfjy9c9uY8TASLqmTf",
+      );
+      console.log("publicKey: ", publicKey);
+
+      (async () => {
+        const balance = await connection.getBalance(publicKey);
+        console.log(`Using yihau we have ${balance / LAMPORTS_PER_SOL} SOL`);
+      })();
 
       const nativeBalanceConfig = {
         method: "getBalance",
