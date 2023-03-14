@@ -1,23 +1,34 @@
 import { AESEncryptedString, VersionedObject } from "@objects/businessObjects";
-import { EBackupPriority } from "@objects/enum";
-import { UnixTimestamp, VolatileStorageKey } from "@objects/primitives";
+import { EBackupPriority, EFieldKey, StorageKey } from "@objects/enum";
+import {
+  DataWalletBackupID,
+  JSONString,
+  UnixTimestamp,
+  VolatileStorageKey,
+} from "@objects/primitives";
 
 export interface IDataWalletBackupHeader {
-  hash: string;
+  hash: DataWalletBackupID;
   timestamp: UnixTimestamp;
   signature: string;
   priority: EBackupPriority;
+  dataType: StorageKey;
 }
 
 export interface IDataWalletBackup {
   header: IDataWalletBackupHeader;
-  blob: AESEncryptedString | BackupBlob;
+  blob: BackupBlob | EncryptedBackupBlob;
 }
 
 export enum EDataUpdateOpCode {
   UPDATE = 0,
   REMOVE = 1,
 }
+
+export type BackupBlob = VolatileDataUpdate[] | FieldDataUpdate;
+export type EncryptedBackupBlob = AESEncryptedString;
+
+export type DataUpdate = VolatileDataUpdate | FieldDataUpdate;
 
 export class VolatileDataUpdate {
   public constructor(
@@ -31,34 +42,9 @@ export class VolatileDataUpdate {
 
 export class FieldDataUpdate {
   public constructor(
-    public key: string,
-    public value: string,
+    public key: EFieldKey,
+    public value: JSONString,
     public timestamp: number,
     public priority: EBackupPriority,
   ) {}
 }
-
-export type FieldMap = {
-  [key: string]: FieldDataUpdate;
-};
-export type TableMap = {
-  [key: string]: VolatileDataUpdate[];
-};
-
-export class BackupBlob {
-  public constructor(public fields: FieldMap, public records: TableMap) {}
-}
-
-export type BackupIndexEntry = { id: string; timestamp: number };
-export type BackupIndex = { backups: { [key: string]: BackupIndexEntry } };
-
-export type ModelTypes = {
-  schemas: {
-    DataWalletBackup: IDataWalletBackup;
-    BackupIndex: AESEncryptedString;
-  };
-  definitions: {
-    backupIndex: "BackupIndex";
-  };
-  tiles: Record<string, never>;
-};
