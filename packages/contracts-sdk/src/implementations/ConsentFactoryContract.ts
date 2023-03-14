@@ -3,6 +3,7 @@ import {
   ConsentRoles,
   ListingSlot,
   Listing,
+  WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
@@ -289,11 +290,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public setListingDuration(
     listingDuration: number,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.setListingDuration(
         listingDuration,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      ) as Promise<WrappedTransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call setListingDuration()",
@@ -301,26 +302,16 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for setListingDuration() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    );
   }
 
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.setMaxTagsPerListing(
         maxTagsPerListing,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      ) as Promise<WrappedTransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call setListingDuration()",
@@ -328,28 +319,18 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for setListingDuration() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    );
   }
 
   public initializeTag(
     tag: string,
     newHead: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.initializeTag(
         tag,
         newHead,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      ) as Promise<WrappedTransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call initializeTag()",
@@ -357,24 +338,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for initializeTag() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    );
   }
 
   public insertUpstream(
     tag: string,
     newSlot: ListingSlot,
     existingSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.insertUpstream(
         tag,
@@ -388,24 +359,16 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for insertUpstream() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public insertDownstream(
     tag: string,
     existingSlot: ListingSlot,
     newSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.insertUpstream(
         tag,
@@ -419,23 +382,15 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for insertDownstream() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public replaceExpiredListing(
     tag: string,
     slot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.replaceExpiredListing(
         tag,
@@ -448,23 +403,15 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for insertDownstream() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public removeListing(
     tag: string,
     removedSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.replaceExpiredListing(
         tag,
@@ -477,23 +424,15 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for removeListing() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public adminRemoveListing(
     tag: string,
     removedSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.adminRemoveListing(
         tag,
@@ -506,17 +445,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for adminRemoveListing() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public getListingDetail(

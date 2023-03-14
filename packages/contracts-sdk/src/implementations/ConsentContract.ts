@@ -1,4 +1,5 @@
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   ConsentRoles,
@@ -976,7 +977,7 @@ export class ConsentContract implements IConsentContract {
   public newGlobalTag(
     tag: string,
     newSlot: ListingSlot,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newGlobalTag(
         tag,
@@ -989,24 +990,16 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for newGlobalTag() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public newLocalTagUpstream(
     tag: string,
     newSlot: ListingSlot,
     existingSlot: ListingSlot,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newLocalTagUpstream(
         tag,
@@ -1020,24 +1013,16 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for newLocalTagUpstream() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public newLocalTagDownstream(
     tag: string,
     existingSlot: ListingSlot,
     newSlot: ListingSlot,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newGlobalTag(
         tag,
@@ -1051,23 +1036,15 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for newLocalTagDownstream() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public replaceExpiredListing(
     tag: string,
     slot: ListingSlot,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.replaceExpiredListing(
         tag,
@@ -1080,20 +1057,14 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for replaceExpiredListing() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
-  public removeListing(tag: string): ResultAsync<void, ConsentContractError> {
+  public removeListing(
+    tag: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.removeListing(
         tag,
@@ -1105,17 +1076,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for removeListing() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public filters = {

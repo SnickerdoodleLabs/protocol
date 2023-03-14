@@ -1,4 +1,4 @@
-import { Listing, ListingSlot } from "@contracts-sdk/interfaces/objects";
+import { Listing, ListingSlot, WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
@@ -105,43 +105,43 @@ export interface IConsentFactoryContract {
 
   setListingDuration(
     listingDuration: number,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   setMaxTagsPerListing(
     maxTagsPerListing: number,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   initializeTag(
     tag: string,
     newHead: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   insertUpstream(
     tag: string,
     newSlot: ListingSlot,
     existingSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   insertDownstream(
     tag: string,
     existingSlot: ListingSlot,
     newSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   replaceExpiredListing(
     tag: string,
     slot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   removeListing(
     tag: string,
     removedSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   adminRemoveListing(
     tag: string,
     removedSlot: ListingSlot,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   getListingDetail(
     tag: string,
