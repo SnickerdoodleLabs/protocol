@@ -18,13 +18,16 @@ import {
   AST_ReturnExpr,
   Command,
   Command_IF,
+  Condition,
   ConditionAnd,
   ConditionE,
   ConditionG,
   ConditionGE,
   ConditionL,
   ConditionLE,
+  ConditionOperandTypes,
   ConditionOr,
+  IfOperandTypes,
   ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
 
@@ -267,7 +270,7 @@ export class ExprParser {
       TokenType.string,
     ];
 
-    let expList: Array<ParserContextDataTypes> = [];
+    const expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
       if (exprTypes.includes(token.type)) {
@@ -285,7 +288,8 @@ export class ExprParser {
           console.error(err);
           throw err;
         } else {
-          expList = [newExp];
+          // expList = [newExp];
+          expList.push(newExp);
         }
       }
     }
@@ -295,7 +299,7 @@ export class ExprParser {
     return expList.pop() as AST_Expr | Command;
   }
 
-  createExp(expList, token: Token): AST_Expr {
+  createExp(expList: Array<ParserContextDataTypes>, token: Token): AST_Expr {
     const evaluator = this.tokenToExpMap.get(token.type);
     if (evaluator) {
       return evaluator.apply(this, [expList, token]);
@@ -342,94 +346,114 @@ export class ExprParser {
     return executable;
   }
 
-  createG(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createG(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionG(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionG(SDQL_OperatorName(id), lval, rval);
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
-  createGE(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createGE(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionGE(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionGE(SDQL_OperatorName(id), lval, rval);
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
-  createL(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createL(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionL(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionL(SDQL_OperatorName(id), lval, rval);
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
-  createLE(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createLE(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionLE(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionLE(SDQL_OperatorName(id), lval, rval);
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
-  createE(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createE(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionE(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionE(SDQL_OperatorName(id), lval, rval);
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
-  createAnd(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createAnd(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionAnd(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionAnd(SDQL_OperatorName(id), lval, rval);
     const and = new AST_ConditionExpr(SDQL_Name(id), condition);
     // console.log('and constructed to', and);
     return and;
   }
 
-  createOr(expList: Array<any>, token: Token): AST_ConditionExpr {
+  createOr(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
     const id = this.getNextId(token.val);
-    const condition = new ConditionOr(
-      SDQL_OperatorName(id),
-      expList[0],
-      expList[1],
-    );
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionOr(SDQL_OperatorName(id), lval, rval);
     return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
-  createIf(expList: Array<any>, token: Token): Command_IF {
-    let conditionExpr = expList[0];
-    const trueExpr = expList[1];
-    const falseExpr = expList.length > 2 ? expList[2] : null;
+  createIf(expList: Array<ParserContextDataTypes>, token: Token): Command_IF {
+    // const rval = expList.pop();
+    // const lval = expList.pop();
+    // throw new Error("createIf");
+    const conditionExpr = expList[0] as Condition | AST_Query;
+    const trueExpr = expList[1] as IfOperandTypes;
+    const falseExpr = (
+      expList.length > 2 ? expList[2] : null
+    ) as IfOperandTypes;
 
-    if (conditionExpr) {
-      if (conditionExpr.constructor != AST_ConditionExpr) {
-        conditionExpr = new AST_ConditionExpr(
-          conditionExpr.name,
+    if (conditionExpr.constructor != AST_ConditionExpr) {
+      // conditionExpr = new AST_ConditionExpr(
+      //   SDQL_Name(conditionExpr.name as string),
+      //   conditionExpr,
+      // );
+      const id = this.getNextId(token.val);
+      return new Command_IF(
+        SDQL_Name(id),
+        trueExpr!,
+        falseExpr,
+        new AST_ConditionExpr(
+          SDQL_Name(conditionExpr.name as string),
           conditionExpr,
-        );
-      }
+        ),
+      );
+    } else {
+      const id = this.getNextId(token.val);
+      return new Command_IF(SDQL_Name(id), trueExpr!, falseExpr, conditionExpr);
     }
-
-    const id = this.getNextId(token.val);
-    return new Command_IF(SDQL_Name(id), trueExpr, falseExpr, conditionExpr);
   }
   // #endregion
 
