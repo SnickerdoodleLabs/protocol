@@ -1,3 +1,5 @@
+import { ResultAsync } from "neverthrow";
+
 import {
   Invitation,
   DataPermissions,
@@ -21,7 +23,12 @@ import {
   AESEncryptedString,
   PossibleReward,
 } from "@objects/businessObjects";
-import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
+import {
+  EChain,
+  EDataWalletPermission,
+  EInvitationStatus,
+  EScamFilterStatus,
+} from "@objects/enum";
 import {
   AccountIndexingError,
   AjaxError,
@@ -39,12 +46,14 @@ import {
   PersistenceError,
   QueryFormatError,
   SiftContractError,
+  UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
 import {
   AccountAddress,
   AESKey,
@@ -64,13 +73,96 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
-  SHA256Hash,
   Signature,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
-import { ResultAsync } from "neverthrow";
-import { IConsentCapacity } from "./IConsentCapacity";
+
+/**
+ ************************ MAINTENANCE HAZARD ***********************************************
+ Whenever you add or change a method in this class, you also need to look at and probably update
+ ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
+ clones this interface, with some methods removed or added, but all of them updated to remove
+ sourceDomain (which is managed by the integration package)
+ */
+
+export interface ICoreMarketplaceMethods {
+  getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+  getListingsTotal(): ResultAsync<
+    number,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+  >;
+
+  /**
+   * This method will accept a list of consent contract addresses and returns
+   * all possible rewards with their dependencies.
+   * i.e. Join this campaign, share your age; and get a discount
+   * @param contractAddresses List of consent contract addresses (of campaigns)
+   * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
+   * factor wants to tune the marketplace loading time.
+   */
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
+}
+
+export interface ICoreIntegrationMethods {
+  /**
+   * This method grants the requested permissions to the wallet to the specified domain name.
+   * Other than being unlocked, there are no special requirements to do this- the host of the core
+   * is assumed to know what it's doing here. The permissions are only enforced on a particular method
+   * if the sourceDomain parameter is provided; which again is up to the core host. The integration
+   * package must determine if a request should be permissioned and pass along the sourceDomain.
+   * The way this works in practice is that you have a single instance of Core running in a
+   * browser extension, but a proxy is injected via the BrowserExtensionIntegration package into
+   * 3 tabs, A, B, and C. When the proxy for A is used, the request goes to the singleton Core, but
+   * is provided with A as the sourceDomain, so the core will process the request permissioned for
+   * domain A. The host is not required to pass or use sourceDomain, which will then ignore the
+   * permissions system.
+   *
+   * This method always adds additional permissions- you don't have to pass a complete list. It's
+   * just a list of additional permissions. Permissions are revoked completely with revokePermissions()
+   */
+  grantPermissions(
+    permissions: EDataWalletPermission[],
+    domain: DomainName,
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * Revokes all permissions for the domain
+   * @param domain
+   */
+  revokePermissions(domain: DomainName): ResultAsync<void, PersistenceError>;
+
+  /**
+   * This method is called by the data wallet proxy when it wants to get permissions. A
+   * PermissionsRequestedEvent is emitted after confirming there's new permissions to grant. The
+   * method will not return until the permissions are granted.
+   * @param permissions The list of permissions you want
+   * @param sourceDomain The domain that is requesting them
+   * @returns The list of permissions actually granted- this may not match the list requested. If permissions were previously granted then the whole list is returned. This should be identical to the return from getPermissions()
+   */
+  requestPermissions(
+    permissions: EDataWalletPermission[],
+    sourceDomain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+
+  /**
+   * Returns the granted permissions for a particular domain
+   * @param domain
+   */
+  getPermissions(
+    domain: DomainName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
+}
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -79,7 +171,8 @@ export interface ISnickerdoodleCore {
    */
   getUnlockMessage(
     languageCode: LanguageCode,
-  ): ResultAsync<string, UnsupportedLanguageError>;
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
 
   /**
    * unlock() serves a very important task as it both initializes the Query Engine
@@ -105,6 +198,7 @@ export interface ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -115,6 +209,7 @@ export interface ISnickerdoodleCore {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | MinimalForwarderContractError
+    | UnauthorizedError
   >;
 
   /**
@@ -135,6 +230,7 @@ export interface ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -145,6 +241,7 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | AjaxError
     | MinimalForwarderContractError
+    | UnauthorizedError
   >;
 
   /**
@@ -158,6 +255,7 @@ export interface ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -169,6 +267,7 @@ export interface ISnickerdoodleCore {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | UnauthorizedError
   >;
 
   /**
@@ -185,6 +284,7 @@ export interface ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     DataWalletAddress | null,
     | PersistenceError
@@ -193,6 +293,7 @@ export interface ISnickerdoodleCore {
     | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+    | UnauthorizedError
   >;
 
   /**
@@ -204,6 +305,7 @@ export interface ISnickerdoodleCore {
    */
   checkInvitationStatus(
     invitation: Invitation,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     EInvitationStatus,
     | BlockchainProviderError
@@ -212,6 +314,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UnauthorizedError
   >;
 
   /**
@@ -224,6 +327,7 @@ export interface ISnickerdoodleCore {
   acceptInvitation(
     invitation: Invitation,
     dataPermissions: DataPermissions | null,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -232,6 +336,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | UnauthorizedError
   >;
 
   /**
@@ -243,6 +348,7 @@ export interface ISnickerdoodleCore {
    */
   rejectInvitation(
     invitation: Invitation,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -252,6 +358,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UnauthorizedError
   >;
 
   /**
@@ -261,6 +368,7 @@ export interface ISnickerdoodleCore {
    */
   leaveCohort(
     consentContractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -270,75 +378,7 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | MinimalForwarderContractError
     | ConsentError
-  >;
-
-  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
-
-  getInvitationsByDomain(
-    domain: DomainName,
-  ): ResultAsync<
-    PageInvitation[],
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | IPFSError
-  >;
-
-  getConsentContractCID(
-    consentAddress: EVMContractAddress,
-  ): ResultAsync<
-    IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
-  >;
-
-  getAcceptedInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-  >;
-
-  getInvitationMetadataByCID(
-    ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
-
-  checkURL(
-    domain: DomainName,
-  ): ResultAsync<
-    EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
-  >;
-
-  // Called by the form factor to approve the processing of the query.
-  // This is basically per-query consent. The consent token will be
-  // re-checked, of course (trust nobody!).
-  processQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    parameters: IDynamicRewardParameter[],
-  ): ResultAsync<
-    void,
-    | AjaxError
-    | UninitializedError
-    | ConsentError
-    | IPFSError
-    | QueryFormatError
-    | EvaluationError
-  >;
-
-  getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    HexString32,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | ConsentError
+    | UnauthorizedError
   >;
 
   getConsentCapacity(
@@ -348,13 +388,103 @@ export interface ISnickerdoodleCore {
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
-  getAvailableInvitationsCID(): ResultAsync<
+  getAcceptedInvitations(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
+
+  getInvitationsByDomain(
+    domain: DomainName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
+    | UnauthorizedError
+  >;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | UnauthorizedError
+  >;
+
+  getAcceptedInvitationsCID(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentFactoryContractError
+    | PersistenceError
+    | UnauthorizedError
+  >;
+
+  getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
+
+  checkURL(
+    domain: DomainName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    EScamFilterStatus,
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | UnauthorizedError
+  >;
+
+  // Called by the form factor to approve the processing of the query.
+  // This is basically per-query consent. The consent token will be
+  // re-checked, of course (trust nobody!).
+  processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    parameters: IDynamicRewardParameter[],
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+    | UnauthorizedError
+  >;
+
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentFactoryContractError
+    | PersistenceError
+    | ConsentError
+    | UnauthorizedError
+  >;
+
+  getAvailableInvitationsCID(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | UnauthorizedError
   >;
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
@@ -362,12 +492,16 @@ export interface ISnickerdoodleCore {
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
-  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+  getEarnedRewards(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<EarnedReward[], PersistenceError | UnauthorizedError>;
   addEarnedRewards(
     rewards: EarnedReward[],
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
   onAdDisplayed(
     eligibleAd: EligibleAd,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
@@ -375,102 +509,146 @@ export interface ISnickerdoodleCore {
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
-  isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
-
-  /** Google User Information */
-  getAge(): ResultAsync<Age | null, PersistenceError>;
-
-  setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
-  getGivenName(): ResultAsync<GivenName | null, PersistenceError>;
-
-  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
-  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
-
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
-
-  setGender(gender: Gender): ResultAsync<void, PersistenceError>;
-  getGender(): ResultAsync<Gender | null, PersistenceError>;
-
-  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
-  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError>;
-
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
+  isDataWalletAddressInitialized(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<boolean, UnauthorizedError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
 
   setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError>;
 
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<AccountAddress, PersistenceError>;
 
-  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
-  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  /** Google User Information */
+  getAge(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<Age | null, PersistenceError>;
 
-  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    PersistenceError
+  setGivenName(
+    name: GivenName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getGivenName(): ResultAsync<
+    GivenName | null,
+    PersistenceError | UnauthorizedError
   >;
 
-  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  setFamilyName(
+    name: FamilyName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getFamilyName(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<FamilyName | null, PersistenceError | UnauthorizedError>;
+
+  setBirthday(
+    birthday: UnixTimestamp,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getBirthday(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<UnixTimestamp | null, PersistenceError | UnauthorizedError>;
+
+  setGender(
+    gender: Gender,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getGender(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<Gender | null, PersistenceError | UnauthorizedError>;
+
+  setEmail(
+    email: EmailAddressString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getEmail(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    EmailAddressString | null,
+    PersistenceError | UnauthorizedError
+  >;
+
+  setLocation(
+    location: CountryCode,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getLocation(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<CountryCode | null, PersistenceError | UnauthorizedError>;
+
+  addSiteVisits(
+    siteVisits: SiteVisit[],
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getSiteVisits(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
+  getSiteVisitsMap(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
+
+  getAccounts(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
+  getAccountBalances(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
+  getAccountNFTs(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;
+  getTransactionValueByChain(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError | UnauthorizedError
+  >;
+
+  postBackups(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<DataWalletBackupID[], PersistenceError | UnauthorizedError>;
+  clearCloudStore(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<number, AccountIndexingError>;
 
   getTokenMarketData(
     ids: string[],
-  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<TokenMarketData[], AccountIndexingError | UnauthorizedError>;
 
   getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
-  ): ResultAsync<TokenInfo | null, AccountIndexingError>;
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<TokenInfo | null, AccountIndexingError | UnauthorizedError>;
 
   getTransactions(
     filter?: TransactionFilter,
-  ): ResultAsync<ChainTransaction[], PersistenceError>;
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<ChainTransaction[], PersistenceError | UnauthorizedError>;
   addTransactions(
     transactions: ChainTransaction[],
-  ): ResultAsync<void, PersistenceError>;
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<
-    MarketplaceListing,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
-  >;
-  getListingsTotal(): ResultAsync<
-    number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
-  >;
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
-  /**
-   * This method will accept a list of consent contract addresses and returns
-   * all possible rewards with their dependencies.
-   * i.e. Join this campaign, share your age; and get a discount
-   * @param contractAddresses List of consent contract addresses (of campaigns)
-   * @param timeoutMs Timeout for fetching the queries from Ipfs, in case form
-   * factor wants to tune the marketplace loading time.
-   */
-  getPossibleRewards(
-    contractAddresses: EVMContractAddress[],
-    timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
+  marketplace: ICoreMarketplaceMethods;
+  integration: ICoreIntegrationMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -5,6 +5,7 @@ import {
   InvalidSignatureError,
   MinimalForwarderContractError,
   PersistenceError,
+  UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
@@ -25,6 +26,7 @@ export class AddAccount extends Prompt {
     | CrumbsContractError
     | InvalidSignatureError
     | MinimalForwarderContractError
+    | UnauthorizedError
   > {
     return this.core
       .getAccounts()

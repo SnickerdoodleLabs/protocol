@@ -86,8 +86,6 @@ export class InvitationService implements IInvitationService {
     protected invitationRepo: IInvitationRepository,
     @inject(IMetatransactionForwarderRepositoryType)
     protected forwarderRepo: IMetatransactionForwarderRepository,
-    @inject(IMarketplaceRepositoryType)
-    protected marketplaceRepo: IMarketplaceRepository,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -762,23 +760,6 @@ export class InvitationService implements IInvitationService {
           });
       },
     );
-  }
-
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<
-    MarketplaceListing,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
-  > {
-    return this.marketplaceRepo.getMarketplaceListings(count, headAt);
-  }
-
-  public getListingsTotal(): ResultAsync<
-    number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
-  > {
-    return this.marketplaceRepo.getListingsTotal();
   }
 
   public setDefaultReceivingAddress(

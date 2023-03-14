@@ -11,6 +11,7 @@ import {
   LinkedAccount,
   Signature,
   TokenBalance,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -145,7 +146,10 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+  public isDataWalletAddressInitialized(): ResultAsync<
+    boolean,
+    UnauthorizedError
+  > {
     return this.core.isDataWalletAddressInitialized();
   }
 
