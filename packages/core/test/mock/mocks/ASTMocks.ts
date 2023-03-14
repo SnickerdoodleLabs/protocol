@@ -16,12 +16,12 @@ import {
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
-} from "@core/implementations/business/utilities";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IProfileService } from "@core/interfaces/business";
+  BalanceQueryEvaluator,
+} from "@core/implementations/business/utilities/query/index.js";
+import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
+import { IProfileService } from "@core/interfaces/business/index.js";
 import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
   IPortfolioBalanceRepository,
