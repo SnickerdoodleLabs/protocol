@@ -3,17 +3,20 @@ import {
   ConsentRoles,
   ListingSlot,
   Listing,
+  ListingStruct,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   BaseURI,
+  BigNumberString,
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
   IBlockchainError,
   IpfsCID,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -455,7 +458,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     slot: ListingSlot,
   ): ResultAsync<Listing, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.getListing(tag, slot) as Promise<Listing>,
+      this.contract.getListing(tag, slot) as Promise<ListingStruct>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getListing()",
@@ -463,7 +466,16 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    );
+    ).map((listing) => {
+      return new Listing(
+        listing.previous ? BigNumberString(listing.previous.toString()) : null,
+        listing.next ? BigNumberString(listing.next.toString()) : null,
+        listing.consentContract,
+        listing.timeExpiring
+          ? UnixTimestamp(listing.timeExpiring?.toNumber())
+          : null,
+      );
+    });
   }
 
   public getListingsForward(
@@ -476,7 +488,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         tag,
         startingSlot,
         numberOfSlots,
-      ) as Promise<[string[], Listing[]]>,
+      ) as Promise<[string[], ListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getListingsForward()",
@@ -487,10 +499,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ).map(([cids, listings]) => {
       return listings.map((listing, index) => {
         return new Listing(
-          listing.previous,
-          listing.next,
+          listing.previous
+            ? BigNumberString(listing.previous.toString())
+            : null,
+          listing.next ? BigNumberString(listing.next.toString()) : null,
           listing.consentContract,
-          listing.timeExpiring,
+          listing.timeExpiring
+            ? UnixTimestamp(listing.timeExpiring?.toNumber())
+            : null,
           IpfsCID(cids[index]),
         );
       });
@@ -509,7 +525,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         startingSlot,
         numberOfSlots,
         filterActive,
-      ) as Promise<[string[], Listing[]]>,
+      ) as Promise<[string[], ListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getListingsForward()",
@@ -520,10 +536,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ).map(([cids, listings]) => {
       return listings.map((listing, index) => {
         return new Listing(
-          listing.previous,
-          listing.next,
+          listing.previous
+            ? BigNumberString(listing.previous.toString())
+            : null,
+          listing.next ? BigNumberString(listing.next.toString()) : null,
           listing.consentContract,
-          listing.timeExpiring,
+          listing.timeExpiring
+            ? UnixTimestamp(listing.timeExpiring?.toNumber())
+            : null,
           IpfsCID(cids[index]),
         );
       });
