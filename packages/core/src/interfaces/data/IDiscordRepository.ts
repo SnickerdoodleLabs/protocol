@@ -4,6 +4,7 @@ import {
   DiscordError,
   DiscordGuildProfile,
   PersistenceError,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

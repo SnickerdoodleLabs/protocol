@@ -35,12 +35,13 @@ import {
   SocialDataMock,
 } from "@core-tests/mock/mocks/SocialDataMock";
 import {
+  AjaxUtilsMock,
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 
 class DiscordRepositoryMock {
-  public ajaxUtil: IAxiosAjaxUtils;
+  public ajaxUtil: AjaxUtilsMock;
   public configProvider: IConfigProvider;
   public persistence: IDataWalletPersistence;
   protected repository: IDiscordRepository;
@@ -48,7 +49,7 @@ class DiscordRepositoryMock {
   public socialDataMocks: SocialDataMock;
   public constructor() {
     this.socialDataMocks = new SocialDataMock();
-    this.ajaxUtil = td.object<IAxiosAjaxUtils>();
+    this.ajaxUtil = new AjaxUtilsMock();
     this.configProvider = new ConfigProviderMock();
     this.persistence = td.object<IDataWalletPersistence>();
     this.socialRepository = td.object<ISocialRepository>();
@@ -60,19 +61,18 @@ class DiscordRepositoryMock {
     );
 
     // --- ajaxUtil td --------------------------------
-    td.when(
-      this.ajaxUtil.get<DiscordProfileAPIResponse>(
-        td.matchers.contains("@me"),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync(discordProfileAPIResponse));
+    this.ajaxUtil.addGetReturn("@me", discordProfileAPIResponse);
+    this.ajaxUtil.addGetReturn("@me/guilds", discordGuildProfileAPIResponses);
+    // td.when(
+    //   this.ajaxUtil.get(td.matchers.contains("@me"), td.matchers.anything()),
+    // ).thenReturn(okAsync(discordProfileAPIResponse));
 
-    td.when(
-      this.ajaxUtil.get<DiscordGuildProfileAPIResponse[]>(
-        td.matchers.contains("@me/guilds"),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync(discordGuildProfileAPIResponses));
+    // td.when(
+    //   this.ajaxUtil.get<any>(
+    //     td.matchers.contains("@me/guilds"),
+    //     td.matchers.anything(),
+    //   ),
+    // ).thenReturn(okAsync(discordGuildProfileAPIResponses));
 
     // -- social repository td ---
     td.when(
