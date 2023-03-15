@@ -1,6 +1,6 @@
 # SDQL Examples
 
-**For an update list of queries, please, [check here](https://github.com/SnickerdoodleLabs/protocol/tree/develop/packages/contracts/etc/data/queries).**
+**For an update list of queries, please, [check here](https://github.com/SnickerdoodleLabs/protocol/tree/develop/documentation/sdql/examples).**
 
 ## Query Target 15 and Older Users About Avalanche Transfer, Location, Age, Gender, URLs Visited, And Chain Transaction Count
 
@@ -116,10 +116,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             "name": "nft",
             "return": "object",
             "networkid": "*",
-            "timestampRange": {
-                "start": "*",
-                "end": "*",
-            },
             "address": "*",
             "object_schema": {
                 "properties": {
@@ -143,50 +139,34 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
         "returns": {
             "r1": {
-                "name": "callback",
-                "message": "qualified"
-            },
-            "r2": {
-                "name": "callback",
-                "message": "not qualified"
-            },
-            "r3": {
-                "name": "query_response",
-                "query": "q3"
-            },
-            "r4": {
-                "name": "query_response",
-                "query": "q4"
-            },
-            "r5": {
-                "name": "query_response",
-                "query": "q5"
-            },
-            "r6": {
-                "name": "query_response",
-                "query": "q6"
-            },
-            "r7": {
                 "name": "query_response",
                 "query": "q1"
             },
-            "url": "https://418e-64-85-231-39.ngrok.io/insights"
+            "url": "https://418e-64-85-231-39.ngrok.io/insights",
+            "logic":{   
+                "i1" : "r1",
+                "i2" : "q2",
+                "i3" : "q3",
+                "i4" : "q4",
+                "i5" : "q5",
+                "i6" : "q6",
+                "i7" : "q7"
+            }
         },
         "compensations": {
             "parameters": {
                 "recipientAddress": {
-                type:...,
-                required: true
+                    type:...,
+                    required: true
                 },
                 "productId": {
-                type: string,
-                required: true,
-                values: [urls
-                    ]
+                    type: string,
+                    required: true,
+                    values: [urls]
                 },
                 "shippingAddress": {
-                type: string,
-                required: true,
+                    type: string,
+                    required: true,
                 },
             },
             "c1": {
@@ -260,23 +240,12 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     "c4"
                 ]
             },
-        },
-        "logic": {
-            "returns": [
-                "if$q2then$r1else$r2",
-                "$r3",
-                "$r4",
-                "$r5",
-                "$r6",
-                "$r7"
-            ],
-            "compensations": [
-                "if$q1then$c1",
-                "if$q2>15then$c2",
-                "if$q3then$c3",
-                "if$q4then$c2",
-                "if$q5then$c2",
-                "if$q6then$c2"
+            "logic":[
+                "if$i1then$c1",
+                "if$i2>15then$c2",
+                "if$i3and$i4and$i7then$c3",
+                "if$i5then$c4",
+                "if$i6then$c5",
             ]
         }
     }
@@ -284,14 +253,14 @@ This example checks if the user's age is greater than or equal to 15. It also qu
 
 ## Target US-Based Users Who Received An Ethereum NFT And Visited Uniswap and Crabada
 
-This query determines if a US-based user has received an ERC-721 token on the Ethereum mainnet in a certain time-frame and have visited Uniswap and Crabada.
+This query determines if a US-based user has received an ERC-721 token on the Ethereum mainnet in a certain time-frame and have visited Uniswap>=5 and Crabada>=30 times. If the insight is delivered, the user is compensated with a 10% discount code for Starbucks.
 
 ```
 {
     "version": 0.1,
     "timestamp": "2021-11-13T20:20:39",
     "expiry": "2022-11-13T20:20:39",
-    "description": "Target US residents who received an NFT on the Ethereum blockchain and visted Uniswap and Crabada",
+    "description": "Target US residents who received an NFT on the Ethereum blockchain and visted Uniswap>=5 and Crabada>=30 times.",
     "business": "Shrapnel",
     "queries": {
         "q1": {
@@ -320,7 +289,7 @@ This query determines if a US-based user has received an ERC-721 token on the Et
             }
         },
         "q3": {
-            "name": "browsing_history",
+            "name": "url_visited_count",
             "return": "boolean",
             "conditions": {
                 "has": {
@@ -339,39 +308,32 @@ This query determines if a US-based user has received an ERC-721 token on the Et
             "name": "callback",
             "message": "not qualified"
         },
-        "url": "https://418e-64-85-231-39.ngrok.io/insights"
+        "url": "https://418e-64-85-231-39.ngrok.io/insights",
+        "logic": {
+            "i1":"if($q1and$q2and$q3)then$r1else$r2"
+            }
     },
     "compensations": {
         "c1": {
             "description": "10% discount code for Starbucks",
             "callback": "https://418e-64-85-231-39.ngrok.io/starbucks"
-        },
-        "c2": {
-            "description": "participate in the draw to win a CryptoPunk NFT",
-            "callback": "https://418e-64-85-231-39.ngrok.io/cryptopunkdraw"
         }
-    },
-    "logic": {
-        "returns": [
-            "if($q1and$q2and$q3)then$r1else$r2"
-        ],
-        "compensations": [
-            "if$q1then$c1",
-            "if$q2then$c2",
-            "if$q3then$c2"
-        ]
+        "logic": ["if$i1then$c1"]
+        }
     }
 }
 ```
 
-## Query that publishes an ad targeting users of age in [30, 35]
+## Query that publishes an ad targeting users of age in [30, 35] and asks for insight about the user's minimum legal age 
+
+This query publishes an ad targeting users of age in [30, 35] and also asks for insight about the user's minimum legal age. If the ad is viewed or the insight is delivered, the user is compensated with a ticket to heaven.
 
 ```
 {
   "version": 0.1,
   "timestamp": "2021-11-13T20:20:39",
   "expiry": "2022-11-13T20:20:39",
-  "description": "Query that publishes an ad targeting users of age in [30, 35] ",
+  "description": "Query that publishes an ad targeting users of age in [30, 35] and asks for insight about the user's minimum legal age.",
   "business": "The Imaginary Company",
   "queries": {
     "q1": {
@@ -383,11 +345,35 @@ This query determines if a US-based user has received an ERC-721 token on the Et
     "c1": {
       "description": "Ticket to heaven",
       "callback": "https://418e-64-85-231-39.ngrok.io/starbucks"
-    }
+    },
+    "logic":["if$a1or$i1then$c1"]
   },
-  "logic": {
-    "ads": ["if($q1>=30)and($q1<=35)then$a1"],
-    "compensations": ["if$a1then$c1"]
-  }
+  "ads": {
+    "a1": {
+        "name": "Think different",
+        "content": {"type": "video", "src": "https://www.youtube.com/watch?v=5sMBhDv4sik"},
+        "displayType": "banner",
+        "weight": 1,
+        "expiry": "2024-10-17T12:00:00"
+    },
+    "a2": {
+        "name": "Don't drink and drive",
+        "content": {"type": "video", "src": "https://www.youtube.com/watch?v=56b09ZyLaWk"},
+        "displayType": "popup",
+        "weight": 1,
+        "expiry": "2028-10-17T12:00:00"
+    },
+    "logic":["if($q1>=30)and($q1<=35)then$a1", "if$i1then$a2"]
+  },
+  "returns": {
+    "r1": {
+           "name": "callback",
+           "message": "minimum legal drinking age"
+    },
+    "url": "https://418e-64-85-231-39.ngrok.io/insights",
+    "logic":{
+        "i1": "if($q1>=21)then$r1"
+        }
+  },
 }
 ```

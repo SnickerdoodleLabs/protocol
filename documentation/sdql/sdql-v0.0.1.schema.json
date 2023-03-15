@@ -36,7 +36,6 @@
                 "nft",
                 "age",
                 "location",
-                "browsing_history",
                 "gender",
                 "url_visited_count",
                 "chain_transactions",
@@ -56,11 +55,22 @@
             },
             "chain": {
               "type": "string",
-              "enum": ["ETH", "AVAX", "SOL"]
+              "enum": [
+                "ETH",
+                "AVAX",
+                "SOL"
+              ]
             },
             "networkid": {
               "type": "string",
-              "enum": ["1", "4", "43114", "43113", "SOL", "*"]
+              "enum": [
+                "1",
+                "4",
+                "43114",
+                "43113",
+                "SOL",
+                "*"
+              ]
             },
             "contract": {
               "type": "object",
@@ -71,19 +81,32 @@
                 },
                 "networkid": {
                   "type": "string",
-                  "enum": ["1", "4", "43114", "43113"]
+                  "enum": [
+                    "1",
+                    "4",
+                    "43114",
+                    "43113"
+                  ]
                 },
                 "function": {
                   "type": "string",
-                  "enum": ["Transfer"]
+                  "enum": [
+                    "Transfer"
+                  ]
                 },
                 "direction": {
                   "type": "string",
-                  "enum": ["from", "to"]
+                  "enum": [
+                    "from",
+                    "to"
+                  ]
                 },
                 "token": {
                   "type": "string",
-                  "enum": ["ERC20", "ERC721"]
+                  "enum": [
+                    "ERC20",
+                    "ERC721"
+                  ]
                 },
                 "timestampRange": {
                   "type": "object",
@@ -95,7 +118,10 @@
                       "type": "integer"
                     }
                   },
-                  "required": ["start", "end"]
+                  "required": [
+                    "start",
+                    "end"
+                  ]
                 }
               },
               "required": [
@@ -169,16 +195,27 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["boolean", "integer", "object", "array", "number"]
+                  "enum": [
+                    "boolean",
+                    "integer",
+                    "object",
+                    "array",
+                    "number"
+                  ]
                 }
               },
-              "required": ["type"]
+              "required": [
+                "type"
+              ]
             },
             "string_pattern": {
               "type": "string"
             }
           },
-          "required": ["name", "return"],
+          "required": [
+            "name",
+            "return"
+          ],
           "anyOf": [
             {
               "properties": {
@@ -189,7 +226,9 @@
                   "const": "enum"
                 }
               },
-              "required": ["enum_keys"]
+              "required": [
+                "enum_keys"
+              ]
             },
             {
               "properties": {
@@ -200,7 +239,9 @@
                   "const": "object"
                 }
               },
-              "required": ["object_schema"]
+              "required": [
+                "object_schema"
+              ]
             },
             {
               "properties": {
@@ -218,7 +259,9 @@
                   "const": "array"
                 }
               },
-              "required": ["array_items"]
+              "required": [
+                "array_items"
+              ]
             },
             {
               "properties": {
@@ -229,7 +272,11 @@
                   "const": "object"
                 }
               },
-              "required": ["chain", "contract", "object_schema"]
+              "required": [
+                "chain",
+                "contract",
+                "object_schema"
+              ]
             },
             {
               "properties": {
@@ -240,7 +287,10 @@
                   "const": "boolean"
                 }
               },
-              "required": ["chain", "contract"]
+              "required": [
+                "chain",
+                "contract"
+              ]
             },
             {
               "properties": {
@@ -256,12 +306,14 @@
                       "const": "location"
                     },
                     {
-                      "const": "browsing_history"
+                      "const": "url_visited_count"
                     }
                   ]
                 }
               },
-              "required": ["conditions"]
+              "required": [
+                "conditions"
+              ]
             },
             {
               "properties": {
@@ -282,7 +334,9 @@
                   "const": "string"
                 }
               },
-              "required": ["string_pattern"]
+              "required": [
+                "string_pattern"
+              ]
             }
           ]
         }
@@ -296,7 +350,10 @@
           "properties": {
             "name": {
               "type": "string",
-              "enum": ["callback", "query_response"]
+              "enum": [
+                "callback",
+                "query_response"
+              ]
             },
             "message": {
               "type": "string"
@@ -306,7 +363,9 @@
               "pattern": "^q[0-9]$"
             }
           },
-          "required": ["name"],
+          "required": [
+            "name"
+          ],
           "anyOf": [
             {
               "properties": {
@@ -314,7 +373,9 @@
                   "const": "callback"
                 }
               },
-              "required": ["message"]
+              "required": [
+                "message"
+              ]
             },
             {
               "properties": {
@@ -322,7 +383,9 @@
                   "const": "query_response"
                 }
               },
-              "required": ["query"]
+              "required": [
+                "query"
+              ]
             }
           ]
         }
@@ -331,9 +394,19 @@
         "url": {
           "type": "string",
           "pattern": "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$"
+        },
+        "logic": {
+          "type": "object",
+          "patternProperties": {
+            "^i[0-9]$": {
+              "type": "string"
+            }
+          }
         }
       },
-      "required": ["url"]
+      "required": [
+        "url"
+      ]
     },
     "ads": {
       "type": "object",
@@ -351,7 +424,10 @@
               "patternProperties": {
                 "type": {
                   "type": "string",
-                  "enum": ["image", "video"]
+                  "enum": [
+                    "image",
+                    "video"
+                  ]
                 },
                 "src": {
                   "type": "string",
@@ -366,7 +442,10 @@
             },
             "displayType": {
               "type": "string",
-              "enum": ["popup", "banner"]
+              "enum": [
+                "popup",
+                "banner"
+              ]
             },
             "weight": {
               "type": "number"
@@ -382,7 +461,21 @@
               }
             }
           },
-          "required": ["name", "content", "displayType", "weight", "expiry"]
+          "required": [
+            "name",
+            "content",
+            "displayType",
+            "weight",
+            "expiry"
+          ]
+        }
+      },
+      "properties": {
+        "logic": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -402,33 +495,23 @@
               "pattern": "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$"
             }
           },
-          "required": ["description", "callback"]
+          "required": [
+            "description",
+            "callback"
+          ]
         }
-      }
-    },
-    "logic": {
-      "type": "object",
+      },
       "properties": {
-        "ads": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "returns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "compensations": {
+        "logic": {
           "type": "array",
           "items": {
             "type": "string"
           }
         }
       },
-      "required": ["compensations"]
+      "required": [
+        "logic"
+      ]
     }
   },
   "required": [
@@ -438,7 +521,6 @@
     "description",
     "business",
     "queries",
-    "compensations",
-    "logic"
+    "compensations"
   ]
 }

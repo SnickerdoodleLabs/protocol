@@ -31,7 +31,7 @@
             }
         },
         "q3": {
-            "name": "browsing_history",
+            "name": "url_visited_count",
             "return": "boolean",
             "conditions": {
                 "has": {

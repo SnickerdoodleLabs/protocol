@@ -3,7 +3,7 @@ import pandas as pd
 import json 
 
 network_id = {"Polygon": "137", "Ethereum": "1", "Avalanche":"43114", "Gnosis":"100", "Binance":"56","Moonbeam":"1284"}
-network_acronym = {"Polygon": "MATIC", "Ethereum":"ETH", "Avalanche":"AVAX", "Gnosis":"GNO","Binance":"BNB","Moonbeam":"MNB"}
+network_acronym = {"Polygon": "MATIC", "Ethereum":"ETH", "Avalanche":"AVAX", "Gnosis":"xDAI","Binance":"BNB","Moonbeam":"GLMR"}
 
 def generate_query(filename, path):
     queries = []
