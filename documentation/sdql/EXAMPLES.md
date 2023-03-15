@@ -370,7 +370,7 @@ This query publishes an ad targeting users of age in [30, 35] and also asks for 
            "name": "callback",
            "message": "minimum legal drinking age"
     },
-    r2": {
+    "r2": {
            "name": "callback",
            "message": "under age"
     },
