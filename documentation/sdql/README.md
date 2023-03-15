@@ -151,7 +151,7 @@ A callback URL for claiming the digital asset.
 This block also specifies the logic for the compensations delivered to the data wallet holder.
 
 #### compensations.logic (required)
-An array of compensation expressions that specify the return objects declared in the [`compensations`](/documentation/sdql/README.md#compensations) blocks given that objects declared in [`ads`](/documentation/sdql/README.md#ads) have been viewed or [`insights`](/documentation/sdql/README.md#) have been provided (i.e, sufficient permissions exists to access the requisite attributes of the persistence layer) and the insights conditions are resolved to true.
+An array of compensation expressions that specify the return objects declared in the [`compensations`](/documentation/sdql/README.md#compensations) blocks given that objects declared in [`ads`](/documentation/sdql/README.md#ads-optional) have been viewed or [`insights`](/documentation/sdql/README.md#returnslogic-optional) have been provided (i.e, sufficient permissions exists to access the requisite attributes of the persistence layer) and the insights conditions are resolved to true.
 
 ### ads (optional)
 The `ads` keyword is used to publish one or more ads as well as the targetting for logic of the ads. The ad instances can then be referenced by `compensations.logic` keywords. Characteristics of each ad instances are as follows:
@@ -185,8 +185,8 @@ The ad block also specifies the logic for the ads delivered to the data wallet h
 
 #### ads.logic (optional)
 A sub-keyword of `logic` used to specify an array of ad expressions. An ad expression can return objects declared in the [`ads`](/documentation/sdql/README.md#ads) block given either of the following conditions: 
-1. the objects declared in [queries](/documentation/sdql#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true or
-2. the objects declared in [insights](/documentation/sdql/README.md#) have been provided (i.e, sufficient permissions exists to access the requisite attributes of the persistence layer) and the insights conditions are resolved to true.
+1. the objects declared in [queries](/documentation/sdql/README.md#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true or
+2. the insights declared in [returns.logic](/documentation/sdql/README.md#returnslogic-optional) have been provided (i.e, sufficient permissions exists to access the requisite attributes of the persistence layer) and the insights conditions are resolved to true.
 
 ## Accessibliity of Instances 
 The following table describes the accessibility of the instances declared in the SDQL file.
