@@ -114,8 +114,8 @@ The `array_items` sub-keyword is used in conjunction with the array attribute ty
 - array: an array of arrays
 - number: an array of numbers 
 
-### returns (optional)
-The `returns` keyword specifies one or more candidate return instances that may be delivered to an insight aggregator. The return instances are referenced in the `returns.logics` block and have the following sub-keywords:
+### returns (required)
+The `returns` keyword can specify one or more candidate return instances that may be delivered to an insight aggregator. The return instances are referenced in the `returns.logics` block and have the following sub-keywords:
 
 #### returns.{returns.id}.name
 What is the type of return:
@@ -136,7 +136,7 @@ A complete URL specifying the location of the query aggregator associated with t
 
 #### returns.logic (optional)
 A sub-keyword of `logic` used to define the insights object. Each insight key can be referenced by other `compensations.logic` and `ad.logic` blocks.
-An insight value is declared in the [`returns`](/documentation/sdql/README.md#returns-optional) block. The value is set if the dependent objects declared in [`queries`](/documentation/sdql#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
+An insight value is declared in the [`returns`](/documentation/sdql/README.md#returns-required) block. The value is set if the dependent objects declared in [`queries`](/documentation/sdql#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
 
 ### compensations (required)
 The `compensations` keyword is used to declare one or more possible compensations provided to the data wallet holders in exchange for the insights or the ad. Below are the required characteristics of each compensation candidate object:
