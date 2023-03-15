@@ -18,6 +18,7 @@ export class VolatileTableIndex<T extends VersionedObject>
     public migrator: VersionedObjectMigrator<T>,
     public priority: EBackupPriority,
     public backupInterval: number,
+    public maxChunkSize: number,
     public indexBy?: [string | string[], boolean][],
   ) {}
 }

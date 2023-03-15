@@ -17,6 +17,10 @@ import {
   SolanaPrivateKey,
   EVMContractAddress,
   InvalidParametersError,
+  DataWalletBackup,
+  EncryptedBackupBlob,
+  BackupBlob,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -113,6 +117,19 @@ export interface ICryptoUtils {
       BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
+
+  verifyBackupSignature(
+    backup: DataWalletBackup,
+    accountAddr: EVMAccountAddress,
+  ): ResultAsync<boolean, never>;
+  generateBackupSignature(
+    hash: string,
+    timestamp: number,
+    privateKey: EVMPrivateKey,
+  ): ResultAsync<Signature, never>;
+  getBackupHash(
+    blob: BackupBlob | EncryptedBackupBlob,
+  ): ResultAsync<DataWalletBackupID, never>;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");

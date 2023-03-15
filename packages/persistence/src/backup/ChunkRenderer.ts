@@ -35,7 +35,6 @@ export class ChunkRenderer implements IChunkRenderer {
 
   public constructor(
     public schema: IStorageIndex,
-    public maxChunkSize: number,
     public enableEncryption: boolean,
     public cryptoUtils: ICryptoUtils,
     protected privateKey: EVMPrivateKey,
@@ -86,7 +85,8 @@ export class ChunkRenderer implements IChunkRenderer {
 
     (this.updates as VolatileDataUpdate[]).push(update);
     if (
-      ++this.numUpdates >= this.maxChunkSize ||
+      ++this.numUpdates >=
+        (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize ||
       Date.now() - this.lastRender >= this.schema.backupInterval
     ) {
       return this.clear();
@@ -102,62 +102,37 @@ export class ChunkRenderer implements IChunkRenderer {
       return okAsync(null);
     }
 
-    return this._getContentHash(updates as BackupBlob).andThen((hash) => {
-      const timestamp = Date.now();
-      return this._generateBackupSignature(hash, timestamp).andThen(
-        (signature) => {
-          const header = new DataWalletBackupHeader(
-            hash,
-            UnixTimestamp(timestamp),
-            signature,
-            this.schema.priority,
-            this.schema.name,
-          );
-
-          if (!this.enableEncryption) {
-            return okAsync(new DataWalletBackup(header, updates as BackupBlob));
-          }
-
-          return this.cryptoUtils
-            .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-            .andThen((aesKey) => {
-              return this.cryptoUtils
-                .encryptString(JSON.stringify(updates), aesKey)
-                .map((encryptedBlob) => {
-                  return new DataWalletBackup(header, encryptedBlob);
-                });
-            });
-        },
-      );
-    });
-  }
-
-  private _getContentHash(
-    blob: BackupBlob,
-  ): ResultAsync<DataWalletBackupID, PersistenceError> {
     return this.cryptoUtils
-      .hashStringSHA256(JSON.stringify(blob))
-      .map((hash) => {
-        return DataWalletBackupID(
-          hash.toString().replace(new RegExp("/", "g"), "-"),
-        );
+      .getBackupHash(updates as BackupBlob)
+      .andThen((hash) => {
+        const timestamp = Date.now();
+        return this.cryptoUtils
+          .generateBackupSignature(hash, timestamp, this.privateKey)
+          .andThen((signature) => {
+            const header = new DataWalletBackupHeader(
+              hash,
+              UnixTimestamp(timestamp),
+              signature,
+              this.schema.priority,
+              this.schema.name,
+            );
+
+            if (!this.enableEncryption) {
+              return okAsync(
+                new DataWalletBackup(header, updates as BackupBlob),
+              );
+            }
+
+            return this.cryptoUtils
+              .deriveAESKeyFromEVMPrivateKey(this.privateKey)
+              .andThen((aesKey) => {
+                return this.cryptoUtils
+                  .encryptString(JSON.stringify(updates), aesKey)
+                  .map((encryptedBlob) => {
+                    return new DataWalletBackup(header, encryptedBlob);
+                  });
+              });
+          });
       });
-  }
-
-  private _generateBackupSignature(
-    hash: string,
-    timestamp: number,
-  ): ResultAsync<Signature, never> {
-    return this.cryptoUtils.signMessage(
-      this._generateSignatureMessage(hash, timestamp),
-      this.privateKey,
-    );
-  }
-
-  private _generateSignatureMessage(hash: string, timestamp: number): string {
-    return JSON.stringify({
-      hash: hash,
-      timestamp: timestamp,
-    });
   }
 }

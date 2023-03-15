@@ -45,6 +45,7 @@ export class VolatileStorageSchemaProvider
           new LinkedAccountMigrator(),
           EBackupPriority.HIGH,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [["sourceChain", false]],
         ),
         new VolatileTableIndex(
@@ -54,6 +55,7 @@ export class VolatileStorageSchemaProvider
           new ChainTransactionMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [
             ["timestamp", false],
             ["chainId", false],
@@ -69,6 +71,7 @@ export class VolatileStorageSchemaProvider
           new SiteVisitMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [
             ["url", false],
             ["startTime", false],
@@ -82,6 +85,7 @@ export class VolatileStorageSchemaProvider
           new ClickDataMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [
             ["url", false],
             ["timestamp", false],
@@ -95,6 +99,7 @@ export class VolatileStorageSchemaProvider
           new LatestBlockMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
         ),
         new VolatileTableIndex(
           ERecordKey.EARNED_REWARDS,
@@ -103,6 +108,7 @@ export class VolatileStorageSchemaProvider
           new EarnedRewardMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [["type", false]],
         ),
         new VolatileTableIndex(
@@ -112,6 +118,7 @@ export class VolatileStorageSchemaProvider
           new EligibleAdMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [["type", false]],
         ),
         new VolatileTableIndex(
@@ -121,6 +128,7 @@ export class VolatileStorageSchemaProvider
           new AdSignatureMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           [["type", false]],
         ),
         new VolatileTableIndex(
@@ -130,6 +138,7 @@ export class VolatileStorageSchemaProvider
           new TokenInfoMigrator(),
           EBackupPriority.DISABLED,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           undefined,
         ),
         new VolatileTableIndex(
@@ -139,6 +148,7 @@ export class VolatileStorageSchemaProvider
           new RestoredBackupMigrator(),
           EBackupPriority.DISABLED,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
           undefined,
         ),
         new VolatileTableIndex(
@@ -148,6 +158,7 @@ export class VolatileStorageSchemaProvider
           new ReceivingAccountMigrator(),
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
+          config.backupChunkSizeTarget,
         ),
       ];
     });

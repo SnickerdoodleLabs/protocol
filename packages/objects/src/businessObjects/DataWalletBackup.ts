@@ -37,8 +37,9 @@ export type DataUpdate = VolatileDataUpdate | FieldDataUpdate;
 export class VolatileDataUpdate {
   public constructor(
     public operation: EDataUpdateOpCode,
-    public value: VersionedObject | VolatileStorageKey,
+    public key: VolatileStorageKey,
     public timestamp: number,
+    public value?: VersionedObject,
     public version?: number,
   ) {}
 }
