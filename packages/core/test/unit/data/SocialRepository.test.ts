@@ -10,9 +10,11 @@ import {
   DiscordGuildProfileAPIResponse,
   DiscordProfile,
   DiscordProfileAPIResponse,
+  ESocialType,
   Integer,
   PersistenceError,
   SnowflakeID,
+  SocialGroupProfile,
   SocialProfile,
   UnixTimestamp,
   Username,
@@ -34,7 +36,7 @@ import {
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-import { SocialDataMock } from "@core-tests/mock/mocks";
+import { discordProfiles, SocialDataMock } from "@core-tests/mock/mocks";
 import {
   ConfigProviderMock,
   ContextProviderMock,
@@ -60,6 +62,29 @@ class SocialRepositoryMock {
         td.matchers.anything(),
       ),
     ).thenReturn(okAsync(undefined));
+
+    td.when(
+      this.persistence.getAllByIndex<SocialProfile>(
+        ERecordKey.SOCIAL_PROFILE,
+        "type",
+        td.matchers.anything(),
+      ),
+    ).thenReturn(this.socialDataMocks.getDiscordProfiles());
+
+    td.when(
+      this.persistence.updateRecord(
+        ERecordKey.SOCIAL_GROUP,
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(undefined));
+
+    td.when(
+      this.persistence.getAllByIndex<SocialGroupProfile>(
+        ERecordKey.SOCIAL_GROUP,
+        "type",
+        td.matchers.anything(),
+      ),
+    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles());
   }
 
   public getDiscordGuildProfiles(): ResultAsync<DiscordGuildProfile[], never> {
@@ -90,7 +115,53 @@ describe("Test social profile", () => {
     // Assert
     expect(result.isOk()).toBeTruthy();
   });
+
+  test("get existing discord profile", async () => {
+    // Acquire
+    const socialMocks = new SocialRepositoryMock();
+    const repository = socialMocks.factory();
+    const expectedData = (
+      await socialMocks.getDiscordProfiles()
+    )._unsafeUnwrap();
+
+    // Action
+    const result = await repository.getProfiles(ESocialType.DISCORD);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const gotData = result._unsafeUnwrap();
+    expect(gotData).toEqual(expectedData);
+  });
 });
 describe("Test social group", () => {
-  // TODO
+  test("save new discord group", async () => {
+    // Acquire
+    const socialMocks = new SocialRepositoryMock();
+    const repository = socialMocks.factory();
+    const discordGuildProfiles = (
+      await socialMocks.getDiscordGuildProfiles()
+    )._unsafeUnwrap();
+
+    // Action
+    const result = await repository.upsertGroupProfiles(discordGuildProfiles);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+  });
+  test("get existing discord groups", async () => {
+    // Acquire
+    const socialMocks = new SocialRepositoryMock();
+    const repository = socialMocks.factory();
+    const expectedData = (
+      await socialMocks.getDiscordGuildProfiles()
+    )._unsafeUnwrap();
+
+    // Action
+    const result = await repository.getGroupProfiles(ESocialType.DISCORD);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const gotData = result._unsafeUnwrap();
+    expect(gotData).toEqual(expectedData);
+  });
 });

@@ -9,6 +9,7 @@ import {
   ReceivingAccountMigrator,
   RestoredBackupMigrator,
   SiteVisitMigrator,
+  SocialGroupProfileMigrator,
   SocialProfileMigrator,
   TokenInfoMigrator,
 } from "@snickerdoodlelabs/objects";
@@ -114,6 +115,13 @@ export const volatileStorageSchema = [
     "pKey",
     false,
     new SocialProfileMigrator(),
+    [["type", false]],
+  ),
+  new VolatileTableIndex(
+    ERecordKey.SOCIAL_GROUP,
+    "pKey",
+    false,
+    new SocialGroupProfileMigrator(),
     [["type", false]],
   ),
 ];

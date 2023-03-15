@@ -18,6 +18,7 @@ import {
   VolatileStorageMetadata,
   SocialProfile,
   ESocialType,
+  SocialGroupProfile,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -67,38 +68,36 @@ export class SocialRepository implements ISocialRepository {
     );
   }
 
-  // public upsertDiscordGuildProfiles(
-  //   discordGuildProfiles: DiscordGuildProfile[],
-  // ): ResultAsync<void, PersistenceError> {
-  //   return ResultUtils.combine(
-  //     discordGuildProfiles.map((dProfile) => {
-  //       return this.upsertDiscordGuildProfile(dProfile);
-  //     }),
-  //   ).map(() => undefined);
-  // }
+  public upsertGroupProfiles(
+    groupProfiles: SocialGroupProfile[],
+  ): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine(
+      groupProfiles.map((gProfile) => {
+        return this.upsertGroupProfile(gProfile);
+      }),
+    ).map(() => {});
+  }
 
-  // public upsertDiscordGuildProfile(
-  //   discordGuildProfile: DiscordGuildProfile,
-  // ): ResultAsync<void, PersistenceError> {
-  //   // TODO, we need to update existing profile.
-  //   return this.persistence.updateRecord(
-  //     ERecordKey.SOCIAL_GROUP,
-  //     new VolatileStorageMetadata<DiscordGuildProfile>(
-  //       EBackupPriority.NORMAL,
-  //       discordGuildProfile,
-  //       DiscordProfile.CURRENT_VERSION,
-  //     ),
-  //   );
-  // }
+  public getGroupProfiles(
+    type: ESocialType,
+  ): ResultAsync<SocialGroupProfile[], PersistenceError> {
+    return this.persistence.getAllByIndex<SocialGroupProfile>(
+      ERecordKey.SOCIAL_GROUP,
+      "type",
+      type,
+    );
+  }
 
-  // public getDiscordGuildProfiles(): ResultAsync<
-  //   DiscordGuildProfile[],
-  //   PersistenceError
-  // > {
-  //   return this.persistence.getAll<DiscordGuildProfile>(
-  //     ERecordKey.SOCIAL_GROUP,
-  //     undefined,
-  //     EBackupPriority.NORMAL,
-  //   );
-  // }
+  public upsertGroupProfile(
+    gProfile: SocialGroupProfile,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.updateRecord(
+      ERecordKey.SOCIAL_GROUP,
+      new VolatileStorageMetadata<SocialGroupProfile>(
+        EBackupPriority.NORMAL,
+        gProfile,
+        gProfile.getVersion(),
+      ),
+    );
+  }
 }

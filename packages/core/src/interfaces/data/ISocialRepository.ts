@@ -1,9 +1,8 @@
 import {
-  DiscordProfile,
-  DiscordGuildProfile,
   PersistenceError,
   SocialProfile,
   ESocialType,
+  SocialGroupProfile,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -16,14 +15,13 @@ export interface ISocialRepository {
     type: ESocialType,
   ): ResultAsync<SocialProfile[], PersistenceError>;
 
-  // upsertGroupProfiles(
-  //   discordGuildProfiles: DiscordGuildProfile[],
-  // ): ResultAsync<void, PersistenceError>;
+  upsertGroupProfiles(
+    groupProfiles: SocialGroupProfile[],
+  ): ResultAsync<void, PersistenceError>;
 
-  // getGroupProfiles(): ResultAsync<
-  //   DiscordGuildProfile[],
-  //   PersistenceError
-  // >;
+  getGroupProfiles(
+    type: ESocialType,
+  ): ResultAsync<SocialGroupProfile[], PersistenceError>;
 }
 
 export const ISocialRepositoryType = Symbol.for("ISocialRepository");

@@ -10,6 +10,7 @@ import {
   DiscordGuildProfileAPIResponse,
   DiscordProfile,
   DiscordProfileAPIResponse,
+  ESocialType,
   Integer,
   PersistenceError,
   SnowflakeID,
@@ -78,6 +79,9 @@ class DiscordRepositoryMock {
     td.when(
       this.socialRepository.upsertProfile(td.matchers.isA(DiscordProfile)),
     ).thenReturn(okAsync(undefined));
+    td.when(this.socialRepository.getProfiles(ESocialType.DISCORD)).thenReturn(
+      okAsync(discordProfiles),
+    );
   }
 
   public factory(): IDiscordRepository {
@@ -128,6 +132,7 @@ describe("DiscordRepository discord API fetch tests", () => {
 
 describe("DiscordRepository persistence tests", () => {
   test("save user profile", async () => {
+    // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
     const discordProfiles = (
@@ -139,5 +144,21 @@ describe("DiscordRepository persistence tests", () => {
 
     // Assert
     expect(result.isOk()).toBeTruthy();
+  });
+
+  test("get saved profiles", async () => {
+    const mocks = new DiscordRepositoryMock();
+    const repository = mocks.factory();
+
+    // Act
+    const discordProfiles = (
+      await mocks.socialDataMocks.getDiscordProfiles()
+    )._unsafeUnwrap();
+
+    // Assert
+    const result = await repository.getUserProfiles();
+    expect(result.isOk()).toBeTruthy();
+    const userProfiles = result._unsafeUnwrap();
+    expect(userProfiles).toEqual(discordProfiles);
   });
 });
