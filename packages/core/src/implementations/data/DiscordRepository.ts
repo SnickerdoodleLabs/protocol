@@ -151,7 +151,7 @@ export class DiscordRepository implements IDiscordRepository {
     });
   }
 
-  upsertDiscordProfile(
+  upsertUserProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
     // throw new Error("Method not implemented.");
@@ -167,7 +167,7 @@ export class DiscordRepository implements IDiscordRepository {
     return this.socialRepository.upsertProfile(discordProfile);
   }
 
-  getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
+  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
     // return this.persistence.getAll<DiscordProfile>(
     //   ERecordKey.SOCIAL_PROFILE,
     //   undefined,

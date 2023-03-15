@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BearerAuthToken,
@@ -51,7 +52,7 @@ class DiscordServiceMocks {
     this.discordRepo = td.object<IDiscordRepository>();
     this.timeUtils = new TimeUtils();
 
-    td.when(this.discordRepo.getDiscordProfiles()).thenReturn(
+    td.when(this.discordRepo.getUserProfiles()).thenReturn(
       this.getDiscordProfiles(),
     );
   }

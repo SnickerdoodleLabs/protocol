@@ -11,17 +11,12 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { raceInit } from "rxjs/internal/observable/race";
 
 import { IDiscordService } from "@core/interfaces/business/IDiscordService.js";
 import {
   IDiscordRepository,
   IDiscordRepositoryType,
 } from "@core/interfaces/data/IDiscordRepository";
-import {
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
-} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -82,7 +77,7 @@ export class DiscordService implements IDiscordService {
       this.discordRepo.fetchGuildProfiles(authToken),
     ]).andThen(([userProfile, guildProfiles]) => {
       return ResultUtils.combine([
-        this.discordRepo.upsertDiscordProfile(userProfile),
+        this.discordRepo.upsertUserProfile(userProfile),
         this.discordRepo.upsertDiscordGuildProfiles(guildProfiles),
       ]).andThen(() => {
         return okAsync(undefined);
@@ -92,7 +87,7 @@ export class DiscordService implements IDiscordService {
   }
 
   public getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    return this.discordRepo.getDiscordProfiles();
+    return this.discordRepo.getUserProfiles();
   }
 
   public getGuildProfiles(): ResultAsync<
@@ -162,7 +157,7 @@ export class DiscordService implements IDiscordService {
   }
 
   public getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError> {
-    return this.discordRepo.getDiscordProfiles().map((uProfiles) => {
+    return this.discordRepo.getUserProfiles().map((uProfiles) => {
       return uProfiles.map((uProfile) => uProfile.authToken);
     });
   }

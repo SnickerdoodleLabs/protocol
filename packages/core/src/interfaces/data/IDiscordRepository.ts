@@ -16,11 +16,11 @@ export interface IDiscordRepository {
     authToken: BearerAuthToken,
   ): ResultAsync<DiscordGuildProfile[], DiscordError>;
 
-  upsertDiscordProfile(
+  upsertUserProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError>;
 
-  getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
+  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
 
   upsertDiscordGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
