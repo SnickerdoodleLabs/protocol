@@ -37,9 +37,11 @@ import {
 } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import { inject } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
+
+import { IIndexerConfig } from "./IIndexerConfig";
 
 import {
   IIndexerConfigProvider,
@@ -63,10 +65,23 @@ export class SolanaIndexer
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  private async getNativeBalance(
+    config: IIndexerConfig,
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ): Promise<number> {
+    const connection = new Connection(config.alchemyEndpoints.solana);
+    const publicKey = new PublicKey(accountAddress);
+    console.log("publicKey: ", publicKey);
+    const balance = await connection.getBalance(publicKey);
+    console.log("balance: ", balance);
+    return balance;
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (chainId != ChainId(EChain.Solana)) {
         return errAsync(
@@ -74,47 +89,24 @@ export class SolanaIndexer
         );
       }
 
-      const connection = new Connection("https://api.mainnet-beta.solana.com");
-      const publicKey = new PublicKey(
-        "67dsfDAnfkpChPwijJp62seeRRHfjy9c9uY8TASLqmTf",
-      );
-      console.log("publicKey: ", publicKey);
-
-      (async () => {
-        const balance = await connection.getBalance(publicKey);
-        console.log(`Using yihau we have ${balance / LAMPORTS_PER_SOL} SOL`);
-      })();
-
-      const nativeBalanceConfig = {
-        method: "getBalance",
-        jsonrpc: "2.0",
-        id: "1",
-        params: [accountAddress],
-      };
-
-      return this.ajaxUtils
-        .post<IAlchemyBalanceResponse>(
-          new URL(config.alchemyEndpoints.solana),
-          JSON.stringify(nativeBalanceConfig),
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
-          },
-        )
-        .andThen((SolanaNativeBalance) => {
-          const nativeBalance = new TokenBalance(
-            EChainTechnology.Solana,
-            TickerSymbol("SOL"),
-            chainId,
-            null,
-            accountAddress,
-            BigNumberString(SolanaNativeBalance.result.value.toString()),
-            getChainInfoByChainId(chainId).nativeCurrency.decimals,
-          );
-
-          return okAsync([nativeBalance]);
-        });
+      const connection = new Connection(config.alchemyEndpoints.solana);
+      const publicKey = new PublicKey(accountAddress);
+      return ResultAsync.fromSafePromise(
+        this.getNativeBalance(config, chainId, accountAddress),
+      ).andThen((balance: number) => {
+        console.log("create token balance ");
+        const nativeBalance = new TokenBalance(
+          EChainTechnology.Solana,
+          TickerSymbol("SOL"),
+          chainId,
+          null,
+          accountAddress,
+          BigNumberString((balance / LAMPORTS_PER_SOL).toString()),
+          getChainInfoByChainId(chainId).nativeCurrency.decimals,
+        );
+        console.log("nativeBalance: ", nativeBalance);
+        return okAsync([nativeBalance]);
+      });
     });
   }
 
