@@ -22,6 +22,7 @@ import {
   AdSignature,
   AESEncryptedString,
   PossibleReward,
+  DataWalletBackup,
 } from "@objects/businessObjects";
 import {
   EChain,
@@ -50,7 +51,6 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
@@ -479,9 +479,9 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
-  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
   getEarnedRewards(

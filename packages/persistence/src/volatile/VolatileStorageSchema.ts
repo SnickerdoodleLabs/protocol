@@ -3,6 +3,7 @@ import {
   ChainTransactionMigrator,
   ClickDataMigrator,
   EarnedRewardMigrator,
+  EBackupPriority,
   EligibleAdMigrator,
   LatestBlockMigrator,
   LinkedAccountMigrator,
@@ -10,9 +11,9 @@ import {
   RestoredBackupMigrator,
   SiteVisitMigrator,
   TokenInfoMigrator,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 
-import { ERecordKey } from "@persistence/ELocalStorageKey.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export const volatileStorageSchema = [
@@ -21,6 +22,7 @@ export const volatileStorageSchema = [
     "sourceAccountAddress",
     false,
     new LinkedAccountMigrator(),
+    EBackupPriority.HIGH,
     [["sourceChain", false]],
   ),
   new VolatileTableIndex(
@@ -28,6 +30,7 @@ export const volatileStorageSchema = [
     "hash",
     false,
     new ChainTransactionMigrator(),
+    EBackupPriority.NORMAL,
     [
       ["timestamp", false],
       ["chainId", false],
@@ -35,13 +38,13 @@ export const volatileStorageSchema = [
       ["to", false],
       ["from", false],
     ],
-    false, // TODO: Re-enable backups of transactions!
   ),
   new VolatileTableIndex(
     ERecordKey.SITE_VISITS,
     VolatileTableIndex.DEFAULT_KEY,
     true,
     new SiteVisitMigrator(),
+    EBackupPriority.NORMAL,
     [
       ["url", false],
       ["startTime", false],
@@ -53,6 +56,7 @@ export const volatileStorageSchema = [
     VolatileTableIndex.DEFAULT_KEY,
     true,
     new ClickDataMigrator(),
+    EBackupPriority.NORMAL,
     [
       ["url", false],
       ["timestamp", false],
@@ -64,12 +68,14 @@ export const volatileStorageSchema = [
     "contract",
     false,
     new LatestBlockMigrator(),
+    EBackupPriority.NORMAL,
   ),
   new VolatileTableIndex(
     ERecordKey.EARNED_REWARDS,
     "queryCID",
     false,
     new EarnedRewardMigrator(),
+    EBackupPriority.NORMAL,
     [["type", false]],
   ),
   new VolatileTableIndex(
@@ -77,6 +83,7 @@ export const volatileStorageSchema = [
     ["queryCID", "key"],
     false,
     new EligibleAdMigrator(),
+    EBackupPriority.NORMAL,
     [["type", false]],
   ),
   new VolatileTableIndex(
@@ -84,6 +91,7 @@ export const volatileStorageSchema = [
     ["queryCID", "adKey"],
     false,
     new AdSignatureMigrator(),
+    EBackupPriority.NORMAL,
     [["type", false]],
   ),
   new VolatileTableIndex(
@@ -91,21 +99,22 @@ export const volatileStorageSchema = [
     ["chain", "address"],
     false,
     new TokenInfoMigrator(),
+    EBackupPriority.DISABLED,
     undefined,
-    true,
   ),
   new VolatileTableIndex(
     ERecordKey.RESTORED_BACKUPS,
     VolatileTableIndex.DEFAULT_KEY,
     false,
     new RestoredBackupMigrator(),
+    EBackupPriority.DISABLED,
     undefined,
-    true,
   ),
   new VolatileTableIndex(
     ERecordKey.RECEIVING_ADDRESSES,
     "contractAddress",
     false,
     new ReceivingAccountMigrator(),
+    EBackupPriority.NORMAL,
   ),
 ];

@@ -7,17 +7,21 @@ import {
   VolatileStorageKey,
 } from "@objects/primitives";
 
-export interface IDataWalletBackupHeader {
-  hash: DataWalletBackupID;
-  timestamp: UnixTimestamp;
-  signature: string;
-  priority: EBackupPriority;
-  dataType: StorageKey;
+export class DataWalletBackupHeader {
+  public constructor(
+    public hash: DataWalletBackupID,
+    public timestamp: UnixTimestamp,
+    public signature: string,
+    public priority: EBackupPriority,
+    public dataType: StorageKey,
+  ) {}
 }
 
-export interface IDataWalletBackup {
-  header: IDataWalletBackupHeader;
-  blob: BackupBlob | EncryptedBackupBlob;
+export class DataWalletBackup {
+  public constructor(
+    public header: DataWalletBackupHeader,
+    public blob: BackupBlob | EncryptedBackupBlob,
+  ) {}
 }
 
 export enum EDataUpdateOpCode {

@@ -2,6 +2,7 @@ import { ModelAliases } from "@glazed/types";
 import {
   ChainId,
   ChainInformation,
+  EFieldKey,
   ModelTypes,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -18,4 +19,5 @@ export interface IPersistenceConfig {
   defaultGoogleCloudBucket: string;
   restoreTimeoutMS: number;
   enableBackupEncryption: boolean;
+  dataWalletBackupIntervalMS: number;
 }

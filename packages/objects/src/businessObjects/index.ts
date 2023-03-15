@@ -6,6 +6,7 @@ export * from "@objects/businessObjects/ChainTransactionMigrator";
 export * from "@objects/businessObjects/ClickData";
 export * from "@objects/businessObjects/ClickFilter";
 export * from "@objects/businessObjects/DataPermissions";
+export * from "@objects/businessObjects/DataWalletBackup";
 export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/AdContent";
 export * from "@objects/businessObjects/AdSignature";

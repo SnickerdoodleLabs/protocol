@@ -1,13 +1,13 @@
 import {
   PersistenceError,
-  IDataWalletBackup,
+  DataWalletBackup,
   DataUpdate,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IChunkRenderer {
-  clear(): ResultAsync<IDataWalletBackup | null, never>;
+  clear(): ResultAsync<DataWalletBackup | null, PersistenceError>;
   update(
     update: DataUpdate,
-  ): ResultAsync<IDataWalletBackup | null, PersistenceError>;
+  ): ResultAsync<DataWalletBackup | null, PersistenceError>;
 }

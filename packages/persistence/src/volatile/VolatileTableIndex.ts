@@ -1,4 +1,5 @@
 import {
+  EBackupPriority,
   ERecordKey,
   VersionedObject,
   VersionedObjectMigrator,
@@ -11,7 +12,7 @@ export class VolatileTableIndex<T extends VersionedObject> {
     public keyPath: string | string[],
     public autoIncrement: boolean = false,
     public migrator: VersionedObjectMigrator<T>,
+    public priority: EBackupPriority,
     public indexBy?: [string | string[], boolean][],
-    public disableBackup: boolean = false,
   ) {}
 }
