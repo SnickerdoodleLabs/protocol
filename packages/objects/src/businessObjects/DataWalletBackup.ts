@@ -39,7 +39,6 @@ export class VolatileDataUpdate {
     public operation: EDataUpdateOpCode,
     public value: VersionedObject | VolatileStorageKey,
     public timestamp: number,
-    public priority: EBackupPriority,
     public version?: number,
   ) {}
 }
@@ -49,6 +48,5 @@ export class FieldDataUpdate {
     public key: EFieldKey,
     public value: JSONString,
     public timestamp: number,
-    public priority: EBackupPriority,
   ) {}
 }

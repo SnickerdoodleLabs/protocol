@@ -2,14 +2,12 @@ import { EBackupPriority, EFieldKey } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { LocalStorageIndex } from "./LocalStorageIndex";
-
-import { IPersistenceConfig } from "@persistence/IPersistenceConfig.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
-import { ILocalStorageSchemaProvider } from "@persistence/local/ILocalStorageSchemaProvider.js";
+import { FieldIndex } from "@persistence/local/FieldIndex.js";
+import { ILocalStorageSchemaProvider } from "@persistence/local/IFieldSchemaProvider.js";
 
 export class LocalStorageSchemaProvider implements ILocalStorageSchemaProvider {
   public constructor(
@@ -17,39 +15,39 @@ export class LocalStorageSchemaProvider implements ILocalStorageSchemaProvider {
     protected configProvider: IPersistenceConfigProvider,
   ) {}
 
-  public getLocalStorageSchema(): ResultAsync<LocalStorageIndex[], never> {
+  public getLocalStorageSchema(): ResultAsync<FieldIndex[], never> {
     return this.configProvider.getConfig().map((config) => {
       return [
-        new LocalStorageIndex(
+        new FieldIndex(
           EFieldKey.ACCEPTED_INVITATIONS,
           EBackupPriority.HIGH,
           config.dataWalletBackupIntervalMS,
         ),
-        new LocalStorageIndex(
+        new FieldIndex(
           EFieldKey.BIRTHDAY,
           EBackupPriority.HIGH,
           0, // instant push
         ),
-        new LocalStorageIndex(
+        new FieldIndex(
           EFieldKey.DEFAULT_RECEIVING_ADDRESS,
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
         ),
-        new LocalStorageIndex(
+        new FieldIndex(
           EFieldKey.DOMAIN_PERMISSIONS,
           EBackupPriority.HIGH,
           config.dataWalletBackupIntervalMS,
         ),
-        new LocalStorageIndex(
+        new FieldIndex(
           EFieldKey.EMAIL,
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,
         ),
-        new LocalStorageIndex(EFieldKey.FIRST_NAME, EBackupPriority.HIGH, 0),
-        new LocalStorageIndex(EFieldKey.GENDER, EBackupPriority.HIGH, 0),
-        new LocalStorageIndex(EFieldKey.LAST_NAME, EBackupPriority.HIGH, 0),
-        new LocalStorageIndex(EFieldKey.LOCATION, EBackupPriority.HIGH, 0),
-        new LocalStorageIndex(
+        new FieldIndex(EFieldKey.FIRST_NAME, EBackupPriority.HIGH, 0),
+        new FieldIndex(EFieldKey.GENDER, EBackupPriority.HIGH, 0),
+        new FieldIndex(EFieldKey.LAST_NAME, EBackupPriority.HIGH, 0),
+        new FieldIndex(EFieldKey.LOCATION, EBackupPriority.HIGH, 0),
+        new FieldIndex(
           EFieldKey.REJECTED_COHORTS,
           EBackupPriority.NORMAL,
           config.dataWalletBackupIntervalMS,

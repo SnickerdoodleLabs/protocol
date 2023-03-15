@@ -1,8 +1,10 @@
 import { EBackupPriority, EFieldKey } from "@snickerdoodlelabs/objects";
 
-export class LocalStorageIndex {
+import { IStorageIndex } from "@persistence/IStorageIndex.js";
+
+export class FieldIndex implements IStorageIndex {
   public constructor(
-    public key: EFieldKey,
+    public name: EFieldKey,
     public priority: EBackupPriority,
     public backupInterval: number,
   ) {}

@@ -24,14 +24,18 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
+import { IStorageIndex } from "@persistence/IStorageIndex.js";
+import { FieldIndex } from "@persistence/local";
 import { VolatileTableIndex } from "@persistence/volatile";
 
 export class ChunkRenderer implements IChunkRenderer {
   private updates: VolatileDataUpdate[] | (FieldDataUpdate | null);
+
   private numUpdates = 0;
+  private lastRender = Date.now();
 
   public constructor(
-    public schema: VolatileTableIndex<VersionedObject> | EFieldKey,
+    public schema: IStorageIndex,
     public maxChunkSize: number,
     public enableEncryption: boolean,
     public cryptoUtils: ICryptoUtils,
@@ -44,7 +48,8 @@ export class ChunkRenderer implements IChunkRenderer {
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {
     return this._dump(this.updates).map((result) => {
       this.numUpdates = 0;
-      this.updates = this.schema instanceof VolatileDataUpdate ? [] : null;
+      this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
+      this.lastRender = Date.now();
       return result;
     });
   }
@@ -53,9 +58,9 @@ export class ChunkRenderer implements IChunkRenderer {
     update: DataUpdate,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
     if (
-      (this.schema instanceof VolatileDataUpdate &&
+      (this.schema instanceof VolatileTableIndex &&
         update instanceof FieldDataUpdate) ||
-      (this.schema instanceof FieldDataUpdate &&
+      (this.schema instanceof FieldIndex &&
         update instanceof VolatileDataUpdate)
     ) {
       return errAsync(
@@ -73,9 +78,12 @@ export class ChunkRenderer implements IChunkRenderer {
         this.updates = update;
       }
 
-      // since we are overwriting the number of updates is irrelevant.
-      // we can wait for an explicit dump operation.
-      return okAsync(null);
+      const schema = this.schema as FieldIndex;
+      if (Date.now() - this.lastRender >= schema.backupInterval) {
+        return this.clear();
+      } else {
+        return okAsync(null);
+      }
     }
 
     (this.updates as VolatileDataUpdate[]).push(update);
@@ -101,8 +109,8 @@ export class ChunkRenderer implements IChunkRenderer {
             hash,
             UnixTimestamp(timestamp),
             signature,
-            this._getBlobPriority(updates as BackupBlob),
-            this._getDataType(),
+            this.schema.priority,
+            this.schema.name,
           );
 
           if (!this.enableEncryption) {
@@ -121,20 +129,6 @@ export class ChunkRenderer implements IChunkRenderer {
         },
       );
     });
-  }
-
-  private _getBlobPriority(blob: BackupBlob): EBackupPriority {
-    if (blob instanceof FieldDataUpdate) {
-      return blob.priority;
-    }
-    return (this.schema as VolatileTableIndex<VersionedObject>).priority;
-  }
-
-  private _getDataType(): StorageKey {
-    if (this.schema instanceof VolatileTableIndex) {
-      return this.schema.name;
-    }
-    return this.schema as EFieldKey;
   }
 
   private _getContentHash(

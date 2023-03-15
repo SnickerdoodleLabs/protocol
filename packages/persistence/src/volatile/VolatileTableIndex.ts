@@ -5,7 +5,11 @@ import {
   VersionedObjectMigrator,
 } from "@snickerdoodlelabs/objects";
 
-export class VolatileTableIndex<T extends VersionedObject> {
+import { IStorageIndex } from "@persistence/IStorageIndex.js";
+
+export class VolatileTableIndex<T extends VersionedObject>
+  implements IStorageIndex
+{
   public static DEFAULT_KEY = "id";
   public constructor(
     public name: ERecordKey,

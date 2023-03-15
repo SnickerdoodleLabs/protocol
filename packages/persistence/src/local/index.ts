@@ -1,2 +1,3 @@
-export * from "@persistence/local/LocalStorageIndex.js";
-export * from "@persistence/local/LocalStorageSchema.js";
+export * from "@persistence/local/IFieldSchemaProvider.js";
+export * from "@persistence/local/FieldIndex.js";
+export * from "@persistence/local/FieldSchemaProvider.js";

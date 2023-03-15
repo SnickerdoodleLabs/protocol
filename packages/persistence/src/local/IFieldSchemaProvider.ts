@@ -1,9 +1,9 @@
 import { ResultAsync } from "neverthrow";
 
-import { LocalStorageIndex } from "@persistence/local/LocalStorageIndex.js";
+import { FieldIndex } from "@persistence/local/FieldIndex.js";
 
 export interface ILocalStorageSchemaProvider {
-  getLocalStorageSchema(): ResultAsync<LocalStorageIndex[], never>;
+  getLocalStorageSchema(): ResultAsync<FieldIndex[], never>;
 }
 
 export const ILocalStorageSchemaProviderType = Symbol.for(
