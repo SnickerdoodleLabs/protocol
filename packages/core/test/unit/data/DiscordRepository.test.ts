@@ -146,19 +146,50 @@ describe("DiscordRepository persistence tests", () => {
     expect(result.isOk()).toBeTruthy();
   });
 
-  test("get saved profiles", async () => {
+  test("get saved user profiles", async () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-
-    // Act
     const discordProfiles = (
       await mocks.socialDataMocks.getDiscordProfiles()
     )._unsafeUnwrap();
 
-    // Assert
+    // Act
     const result = await repository.getUserProfiles();
+
+    // Assert
     expect(result.isOk()).toBeTruthy();
     const userProfiles = result._unsafeUnwrap();
     expect(userProfiles).toEqual(discordProfiles);
+  });
+
+  test("save guild profiles", async () => {
+    // Arrange
+    const mocks = new DiscordRepositoryMock();
+    const repository = mocks.factory();
+    const guildProfiles = (
+      await mocks.socialDataMocks.getDiscordGuildProfiles()
+    )._unsafeUnwrap();
+
+    // Action
+    const result = await repository.upsertGuildProfiles(guildProfiles);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+  });
+
+  test("get saved guild profiles", async () => {
+    const mocks = new DiscordRepositoryMock();
+    const repository = mocks.factory();
+    const expectedData = (
+      await mocks.socialDataMocks.getDiscordGuildProfiles()
+    )._unsafeUnwrap();
+
+    // Act
+    const result = await repository.getGuildProfiles();
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const gotData = result._unsafeUnwrap();
+    expect(gotData).toEqual(expectedData);
   });
 });

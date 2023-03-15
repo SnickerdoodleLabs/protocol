@@ -78,7 +78,7 @@ export class DiscordService implements IDiscordService {
     ]).andThen(([userProfile, guildProfiles]) => {
       return ResultUtils.combine([
         this.discordRepo.upsertUserProfile(userProfile),
-        this.discordRepo.upsertDiscordGuildProfiles(guildProfiles),
+        this.discordRepo.upsertGuildProfiles(guildProfiles),
       ]).andThen(() => {
         return okAsync(undefined);
       });
@@ -94,66 +94,17 @@ export class DiscordService implements IDiscordService {
     DiscordGuildProfile[],
     PersistenceError
   > {
-    return this.discordRepo.getDiscordGuildProfiles();
+    return this.discordRepo.getGuildProfiles();
   }
-
-  // public getUserProfile(
-  //   authToken: BearerAuthToken,
-  // ): ResultAsync<DiscordProfile, DiscordError> {
-  //   // return this.repository.getUserProfile(authToken);
-  //   throw new Error("Method not implemented.");
-  // }
-
-  // public getGuildProfiles(
-  //   authToken: BearerAuthToken,
-  // ): ResultAsync<DiscordGuildProfile[], DiscordError> {
-  //   // return this.repository.getGuildProfiles(authToken);
-  //   throw new Error("Method not implemented.");
-  // }
-
-  // public updateUserProfile(
-  //   userProfile: DiscordProfile,
-  // ): ResultAsync<void, DiscordError> {
-  //   throw new Error("Method not implemented.");
-  //   // return this.dataWalletPersistence
-  //   //   .upsertDiscordProfile(userProfile)
-  //   //   .orElse((e) => {
-  //   //     return errAsync(new DiscordError(e.message));
-  //   //   });
-  // }
-  // public updateGuildProfiles(
-  //   guildProfiles: DiscordGuildProfile[],
-  // ): ResultAsync<void, DiscordError> {
-  //   return okAsync(undefined);
-  // }
 
   public poll(): ResultAsync<void, DiscordError | PersistenceError> {
     // First we need to find the authkeys for discord
     return this.getAuthTokens().andThen((authTokens) => {
-      const results = authTokens.map((authToken) => {
-        return this.discordRepo.fetchUserProfile(authToken);
-      });
-
-      return ResultUtils.combine(results).andThen((uProfiles) => {
-        const guildResults = uProfiles.map((uProfile) => {
-          return this.discordRepo.fetchGuildProfiles(uProfile.authToken);
-        });
-
-        return ResultUtils.combine(guildResults).andThen(
-          (guildProfilesPerUser) => {
-            // flatten as each user will produce an array
-            const gProfiles = guildProfilesPerUser.flat(1);
-
-            // now we have uProfiles and gProfiles.
-            throw new Error("Can we add individual records?");
-          },
-        );
-        // return ResultUtils.com
-        // this.discordRepo.upsertDiscordProfile
-      });
-      return okAsync(undefined);
+      const results = authTokens.map((authToken) =>
+        this.initializeUser(authToken),
+      );
+      return ResultUtils.combine(results).andThen(() => okAsync(undefined));
     });
-    throw new Error("Method not implemented.");
   }
 
   public getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError> {

@@ -151,75 +151,27 @@ export class DiscordRepository implements IDiscordRepository {
     });
   }
 
-  upsertUserProfile(
+  public upsertUserProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
-    // throw new Error("Method not implemented.");
-    // TODO, we need to update existing profile.
-    // return this.persistence.updateRecord(
-    //   ERecordKey.SOCIAL_PROFILE,
-    //   new VolatileStorageMetadata<DiscordProfile>(
-    //     EBackupPriority.NORMAL,
-    //     discordProfile,
-    //     DiscordProfile.CURRENT_VERSION,
-    //   ),
-    // );
     return this.socialRepository.upsertProfile(discordProfile);
   }
 
-  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    // return this.persistence.getAll<DiscordProfile>(
-    //   ERecordKey.SOCIAL_PROFILE,
-    //   undefined,
-    //   EBackupPriority.NORMAL,
-    // );
+  public getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
     return this.socialRepository.getProfiles(
       ESocialType.DISCORD,
     ) as ResultAsync<DiscordProfile[], PersistenceError>;
   }
 
-  // deleteDiscordProfile(
-  //   discordProfile: DiscordProfile,
-  // ): ResultAsync<void, PersistenceError> {
-  //   return this.persistence.deleteRecord(
-  //     ERecordKey.SOCIAL_PROFILE,
-  //     ??,
-  //     EBackupPriority.NORMAL
-  //   )
-  // }
-
-  upsertDiscordGuildProfiles(
-    discordGuildProfiles: DiscordGuildProfile[],
+  public upsertGuildProfiles(
+    guildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine(
-      discordGuildProfiles.map((dProfile) => {
-        return this.upsertDiscordGuildProfile(dProfile);
-      }),
-    ).map(() => undefined);
+    return this.socialRepository.upsertGroupProfiles(guildProfiles);
   }
 
-  upsertDiscordGuildProfile(
-    discordGuildProfile: DiscordGuildProfile,
-  ): ResultAsync<void, PersistenceError> {
-    // TODO, we need to update existing profile.
-    return this.persistence.updateRecord(
-      ERecordKey.SOCIAL_GROUP,
-      new VolatileStorageMetadata<DiscordGuildProfile>(
-        EBackupPriority.NORMAL,
-        discordGuildProfile,
-        DiscordProfile.CURRENT_VERSION,
-      ),
-    );
-  }
-
-  getDiscordGuildProfiles(): ResultAsync<
-    DiscordGuildProfile[],
-    PersistenceError
-  > {
-    return this.persistence.getAll<DiscordGuildProfile>(
-      ERecordKey.SOCIAL_GROUP,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError> {
+    return this.socialRepository.getGroupProfiles(
+      ESocialType.DISCORD,
+    ) as ResultAsync<DiscordGuildProfile[], PersistenceError>;
   }
 }

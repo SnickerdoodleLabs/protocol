@@ -23,14 +23,11 @@ export interface IDiscordRepository {
 
   getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
 
-  upsertDiscordGuildProfiles(
-    discordGuildProfiles: DiscordGuildProfile[],
+  upsertGuildProfiles(
+    guildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError>;
 
-  getDiscordGuildProfiles(): ResultAsync<
-    DiscordGuildProfile[],
-    PersistenceError
-  >;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
 }
 
 export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");
