@@ -1,4 +1,4 @@
-[SDQL](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
+![SDQL](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
 
 # Snickerdoodle Query Language (SDQL)
 
