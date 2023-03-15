@@ -36,7 +36,7 @@ The `name` sub-keyword indicates which attribute must be accessed in the DW pers
 - `location`: access to location data of the DW user in ISO 3166-2 format
 - `gender`: access to the gender of the DW user
 - `url_visited_count`: access to the browsing history of the DW user
-- `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain. For a list of supported chains see [here](/documentation/sdql/EXAMPLES.md#queries.{query.id}.chain).
+- `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain. For a list of supported chains see [here](/documentation/sdql/README.md#queriesqueryidchain-required-for-network-transaction-queries).
 - `balance`: accesses the balance of the DW user per chain
 - `nft`: accesses the aggregated nft holdings data of the user
 
@@ -136,7 +136,7 @@ A complete URL specifying the location of the query aggregator associated with t
 
 #### returns.logic (optional)
 A sub-keyword of `logic` used to define the insights object. Each insight key can be referenced by other `compensations.logic` and `ad.logic` blocks.
-An insight value is declared in the [`returns`](/documentation/sdql/README.md#returns) block. The value is set if the dependent objects declared in [`queries`](/documentation/sdql#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
+An insight value is declared in the [`returns`](/documentation/sdql/README.md#returns-optional) block. The value is set if the dependent objects declared in [`queries`](/documentation/sdql#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true.
 
 ### compensations (required)
 The `compensations` keyword is used to declare one or more possible compensations provided to the data wallet holders in exchange for the insights or the ad. Below are the required characteristics of each compensation candidate object:
@@ -184,7 +184,7 @@ The time when ad expires in ISO 8601 format, i.e., YYYY-MM-DDTHH:mm:ss. Ads pass
 The ad block also specifies the logic for the ads delivered to the data wallet holder.
 
 #### ads.logic (optional)
-A sub-keyword of `logic` used to specify an array of ad expressions. An ad expression can return objects declared in the [`ads`](/documentation/sdql/README.md#ads) block given either of the following conditions: 
+A sub-keyword of `logic` used to specify an array of ad expressions. An ad expression can return objects declared in the [`ads`](/documentation/sdql/README.md#ads-optional) block given either of the following conditions: 
 1. the objects declared in [queries](/documentation/sdql/README.md#queries-required) have sufficient permissions to access the requisite attributes of the persistence layer, and the conditional queries resolve to true or
 2. the insights declared in [returns.logic](/documentation/sdql/README.md#returnslogic-optional) have been provided (i.e, sufficient permissions exists to access the requisite attributes of the persistence layer) and the insights conditions are resolved to true.
 
