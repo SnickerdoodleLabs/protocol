@@ -964,7 +964,7 @@ export class ConsentContract implements IConsentContract {
 
   public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.getTagArray() as Promise<ITag[]>,
+      this.contract.getTagArray() as Promise<ITagStruct[]>,
       (e) => {
         return new ConsentContractError(
           "Unable to call openOptInDisabled()",
@@ -1120,7 +1120,7 @@ export class ConsentContract implements IConsentContract {
   }
 }
 
-interface ITag {
+interface ITagStruct {
   slot: BigNumber | null;
   tag: string | null;
   staker: EVMAccountAddress | null;
