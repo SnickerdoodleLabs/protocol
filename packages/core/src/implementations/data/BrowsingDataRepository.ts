@@ -60,10 +60,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
    
       const result = new Map<URLString, number>();
       siteVisits.forEach((siteVisit, _i, _arr) => {
-      
-      
         if(timestampRange && this.timestampBetweenDates(siteVisit.startTime ,siteVisit.endTime , timestampRange )){
-          
           return;
         }
         const baseUrl = DomainName(
