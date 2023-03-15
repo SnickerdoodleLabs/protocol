@@ -370,9 +370,13 @@ This query publishes an ad targeting users of age in [30, 35] and also asks for 
            "name": "callback",
            "message": "minimum legal drinking age"
     },
+    r2": {
+           "name": "callback",
+           "message": "under age"
+    },
     "url": "https://418e-64-85-231-39.ngrok.io/insights",
     "logic":{
-        "i1": "if($q1>=21)then$r1"
+        "i1": "if($q1>=21)then$r1else$r2"
         }
   },
 }
