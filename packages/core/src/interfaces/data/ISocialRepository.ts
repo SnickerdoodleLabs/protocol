@@ -19,6 +19,10 @@ export interface ISocialRepository {
     groupProfiles: SocialGroupProfile[],
   ): ResultAsync<void, PersistenceError>;
 
+  upsertGroupProfile(
+    groupProfiles: SocialGroupProfile,
+  ): ResultAsync<void, PersistenceError>;
+
   getGroupProfiles(
     type: ESocialType,
   ): ResultAsync<SocialGroupProfile[], PersistenceError>;

@@ -64,24 +64,23 @@ class DiscordRepositoryMock {
     // --- ajaxUtil td --------------------------------
     this.ajaxUtil.addGetReturn("@me", discordProfileAPIResponse);
     this.ajaxUtil.addGetReturn("@me/guilds", discordGuildProfileAPIResponses);
-    // td.when(
-    //   this.ajaxUtil.get(td.matchers.contains("@me"), td.matchers.anything()),
-    // ).thenReturn(okAsync(discordProfileAPIResponse));
 
-    // td.when(
-    //   this.ajaxUtil.get<any>(
-    //     td.matchers.contains("@me/guilds"),
-    //     td.matchers.anything(),
-    //   ),
-    // ).thenReturn(okAsync(discordGuildProfileAPIResponses));
-
-    // -- social repository td ---
+    // --- td social repo ---
     td.when(
       this.socialRepository.upsertProfile(td.matchers.isA(DiscordProfile)),
     ).thenReturn(okAsync(undefined));
+
     td.when(this.socialRepository.getProfiles(ESocialType.DISCORD)).thenReturn(
-      okAsync(discordProfiles),
+      this.socialDataMocks.getDiscordProfiles(),
     );
+
+    td.when(
+      this.socialRepository.upsertGroupProfiles(td.matchers.anything()),
+    ).thenReturn(okAsync(undefined));
+
+    td.when(
+      this.socialRepository.getGroupProfiles(ESocialType.DISCORD),
+    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles());
   }
 
   public factory(): IDiscordRepository {
