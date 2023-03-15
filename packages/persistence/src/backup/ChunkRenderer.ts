@@ -21,7 +21,6 @@ import {
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import { IStorageIndex } from "@persistence/IStorageIndex.js";
@@ -78,8 +77,7 @@ export class ChunkRenderer implements IChunkRenderer {
         this.updates = update;
       }
 
-      const schema = this.schema as FieldIndex;
-      if (Date.now() - this.lastRender >= schema.backupInterval) {
+      if (Date.now() - this.lastRender >= this.schema.backupInterval) {
         return this.clear();
       } else {
         return okAsync(null);
@@ -87,7 +85,10 @@ export class ChunkRenderer implements IChunkRenderer {
     }
 
     (this.updates as VolatileDataUpdate[]).push(update);
-    if (++this.numUpdates >= this.maxChunkSize) {
+    if (
+      ++this.numUpdates >= this.maxChunkSize ||
+      Date.now() - this.lastRender >= this.schema.backupInterval
+    ) {
       return this.clear();
     } else {
       return okAsync(null);
