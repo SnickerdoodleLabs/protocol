@@ -17,20 +17,16 @@ import {
   EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBlockchainListener } from "@core/interfaces/api/index.js";
-
-import { okAsync, ResultAsync } from "neverthrow";
-
 import {
   IMonitoringService,
   IMonitoringServiceType,
   IQueryService,
   IQueryServiceType,
 } from "@core/interfaces/business/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,

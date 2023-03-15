@@ -5,3 +5,4 @@ export * from "@objects/businessObjects/rewards/ExpectedReward";
 export * from "@objects/businessObjects/rewards/EligibleReward";
 export * from "@objects/businessObjects/rewards/LazyReward";
 export * from "@objects/businessObjects/rewards/Web2Reward";
+export * from "@objects/businessObjects/rewards/PossibleReward.js";

@@ -1,4 +1,5 @@
 export * from "@query-parser/interfaces/objects/condition/Condition.js";
+export * from "@query-parser/interfaces/objects/condition/BinaryCondition.js";
 export * from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
 export * from "@query-parser/interfaces/objects/condition/ConditionAnd.js";
 export * from "@query-parser/interfaces/objects/condition/ConditionOr.js";

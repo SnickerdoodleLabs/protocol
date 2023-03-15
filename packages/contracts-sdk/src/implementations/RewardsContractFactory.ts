@@ -5,6 +5,7 @@ import {
   IBlockchainError,
   BaseURI,
   RewardsFactoryError,
+  ECreatedRewardType,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -13,17 +14,21 @@ import { okAsync, ResultAsync } from "neverthrow";
 @injectable()
 export class RewardsContractFactory implements IRewardsContractFactory {
   protected contractFactory: ethers.ContractFactory;
+  protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
+    protected rewardType: ECreatedRewardType,
   ) {
+    // Set the correct contract factory based on rewardTypeToDeploy
     this.contractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC721Reward.abi,
       ContractsAbis.ERC721Reward.bytecode,
       providerOrSigner as ethers.Wallet,
     );
+    this.rewardTypeToDeploy = rewardType;
   }
 
   // function to deploy a new ERC721 reward contract
@@ -32,38 +37,40 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     symbol: string,
     baseURI: BaseURI,
   ): ResultAsync<EVMContractAddress, RewardsFactoryError> {
-    return this.estimateGasToDeployContract(name, symbol, baseURI).andThen(
-      (bufferedGasLimit) => {
+    return this.estimateGasToDeployERC721Contract(
+      name,
+      symbol,
+      baseURI,
+    ).andThen((bufferedGasLimit) => {
+      return ResultAsync.fromPromise(
+        this.contractFactory.deploy(symbol, name, baseURI, {
+          gasLimit: bufferedGasLimit,
+        }),
+        (e) => {
+          return new RewardsFactoryError(
+            "Failed to deploy contract",
+            (e as IBlockchainError).reason,
+            e,
+          );
+        },
+      ).andThen((contract) => {
         return ResultAsync.fromPromise(
-          this.contractFactory.deploy(symbol, name, baseURI, {
-            gasLimit: bufferedGasLimit,
-          }),
+          contract.deployTransaction.wait(),
           (e) => {
             return new RewardsFactoryError(
-              "Failed to deploy contract",
+              "Failed to wait() for contract deployment",
               (e as IBlockchainError).reason,
               e,
             );
           },
-        ).andThen((contract) => {
-          return ResultAsync.fromPromise(
-            contract.deployTransaction.wait(),
-            (e) => {
-              return new RewardsFactoryError(
-                "Failed to wait() for contract deployment",
-                (e as IBlockchainError).reason,
-                e,
-              );
-            },
-          ).map((receipt) => {
-            return EVMContractAddress(receipt.contractAddress);
-          });
+        ).map((receipt) => {
+          return EVMContractAddress(receipt.contractAddress);
         });
-      },
-    );
+      });
+    });
   }
 
-  public estimateGasToDeployContract(
+  public estimateGasToDeployERC721Contract(
     name: string,
     symbol: string,
     baseURI: BaseURI,

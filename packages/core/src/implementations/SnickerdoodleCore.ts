@@ -24,7 +24,6 @@ import {
   EmailAddressString,
   EvaluationError,
   EVMContractAddress,
-  EVMTransaction,
   TransactionFilter,
   FamilyName,
   Gender,
@@ -74,10 +73,14 @@ import {
   AccountIndexingError,
   TokenInfo,
   TokenMarketData,
-  MarketplaceListing,
   TransactionPaymentCounter,
+  EDataWalletPermission,
+  ICoreMarketplaceMethods,
+  ICoreIntegrationMethods,
   EligibleAd,
   AdSignature,
+  UnauthorizedError,
+  PossibleReward,
   BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -94,7 +97,7 @@ import {
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
@@ -109,8 +112,14 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICampaignService,
+  ICampaignServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
@@ -135,6 +144,9 @@ import {
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
+
+  public marketplace: ICoreMarketplaceMethods;
+  public integration: ICoreIntegrationMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -201,29 +213,71 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
-  }
 
-  public getListingsTotal(): ResultAsync<
-    number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-    return invitationService.getListingsTotal();
-  }
+    this.integration = {
+      grantPermissions: (
+        permissions: EDataWalletPermission[],
+        domain: DomainName,
+      ) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.grantPermissions(permissions, domain);
+      },
+      revokePermissions: (domain: DomainName) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.revokePermissions(domain);
+      },
+      requestPermissions: (
+        permissions: EDataWalletPermission[],
+        sourceDomain: DomainName,
+      ) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.requestPermissions(permissions, sourceDomain);
+      },
+      getPermissions: (
+        domain: DomainName,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.getPermissions(domain, sourceDomain);
+      },
+    };
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<
-    MarketplaceListing,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-    return invitationService.getMarketplaceListings(count, headAt);
+    this.marketplace = {
+      getMarketplaceListings: (
+        count?: number | undefined,
+        headAt?: number | undefined,
+      ) => {
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getMarketplaceListings(count, headAt);
+      },
+      getListingsTotal: () => {
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getListingsTotal();
+      },
+      getPossibleRewards: (
+        contractAddresses: EVMContractAddress[],
+        timeoutMs?: number,
+      ) => {
+        const campaignService =
+          this.iocContainer.get<ICampaignService>(ICampaignServiceType);
+        return campaignService.getPossibleRewards(
+          contractAddresses,
+          timeoutMs ?? 3000,
+        );
+      },
+    };
   }
 
   public getConsentContractCID(
@@ -249,6 +303,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getUnlockMessage(
     languageCode: LanguageCode,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<string, UnsupportedLanguageError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -269,6 +324,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -322,6 +378,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -349,6 +406,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -377,6 +435,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     DataWalletAddress | null,
     | PersistenceError
@@ -406,6 +465,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public checkInvitationStatus(
     invitation: Invitation,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     EInvitationStatus,
     | BlockchainProviderError
@@ -425,6 +485,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public acceptInvitation(
     invitation: Invitation,
     dataPermissions: DataPermissions | null,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -443,6 +504,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public rejectInvitation(
     invitation: Invitation,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -462,6 +524,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -479,7 +542,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.leaveCohort(consentContractAddress);
   }
 
-  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+  public getAcceptedInvitations(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<Invitation[], PersistenceError> {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
@@ -489,6 +554,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getInvitationsByDomain(
     domain: DomainName,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     PageInvitation[],
     | ConsentContractError
@@ -506,6 +572,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getAgreementFlags(
     consentContractAddress: EVMContractAddress,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     HexString32,
     | BlockchainProviderError
@@ -522,7 +589,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getAgreementFlags(consentContractAddress);
   }
 
-  public getAvailableInvitationsCID(): ResultAsync<
+  public getAvailableInvitationsCID(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | BlockchainProviderError
     | UninitializedError
@@ -537,7 +606,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getAvailableInvitationsCID();
   }
 
-  public getAcceptedInvitationsCID(): ResultAsync<
+  public getAcceptedInvitationsCID(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | BlockchainProviderError
     | UninitializedError
@@ -565,6 +636,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     void,
     | AjaxError
@@ -591,6 +663,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public checkURL(
     domain: DomainName,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
@@ -601,117 +674,163 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return siftService.checkURL(domain);
   }
 
-  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+  public setGivenName(
+    name: GivenName,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setGivenName(name);
   }
-  getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
+  public getGivenName(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<GivenName | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getGivenName();
   }
-  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+  public setFamilyName(
+    name: FamilyName,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setFamilyName(name);
   }
-  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
+  public getFamilyName(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<FamilyName | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getFamilyName();
   }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+  public setBirthday(
+    birthday: UnixTimestamp,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
+  public getBirthday(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<UnixTimestamp | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getBirthday();
   }
-  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+  public setGender(
+    gender: Gender,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setGender(gender);
   }
-  getGender(): ResultAsync<Gender | null, PersistenceError> {
+  public getGender(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<Gender | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getGender();
   }
-  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+  public setEmail(
+    email: EmailAddressString,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setEmail(email);
   }
-  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
+  public getEmail(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<EmailAddressString | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getEmail();
   }
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+  public setLocation(
+    location: CountryCode,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
+  public getLocation(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<CountryCode | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  getAge(): ResultAsync<Age | null, PersistenceError> {
+  getAge(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<Age | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getAge();
   }
-  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
+
+  public getAccounts(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccounts();
+    return accountService.getAccounts(sourceDomain);
   }
 
-  getTransactions(
+  public getTransactions(
     filter?: TransactionFilter,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTranactions(filter);
   }
 
-  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
+  public getAccountBalances(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();
   }
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
+  public getAccountNFTs(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<WalletNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
   }
 
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    PersistenceError
-  > {
+  public getTransactionValueByChain(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionValueByChain();
   }
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {
+  public getSiteVisitsMap(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<Map<URLString, number>, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisitsMap();
   }
-  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+  public getSiteVisits(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<SiteVisit[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisits();
   }
-  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
+  public addSiteVisits(
+    siteVisits: SiteVisit[],
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addSiteVisits(siteVisits);
@@ -719,6 +838,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -730,6 +850,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -743,6 +864,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getReceivingAddress(
     contractAddress?: EVMContractAddress,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<AccountAddress, PersistenceError> {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -751,35 +873,43 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getReceivingAddress(contractAddress);
   }
 
-  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+  getEarnedRewards(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<EarnedReward[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getEarnedRewards();
   }
-  addEarnedRewards(
+  public addEarnedRewards(
     rewards: EarnedReward[],
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEarnedRewards(rewards);
   }
 
-  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+  public getEligibleAds(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<EligibleAd[], PersistenceError> {
     const adDataRepo = this.iocContainer.get<IAdDataRepository>(
       IAdDataRepositoryType,
     );
     return adDataRepo.getEligibleAds();
   }
 
-  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+  public getAdSignatures(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<AdSignature[], PersistenceError> {
     const adDataRepo = this.iocContainer.get<IAdDataRepository>(
       IAdDataRepositoryType,
     );
     return adDataRepo.getAdSignatures();
   }
 
-  onAdDisplayed(
+  public onAdDisplayed(
     eligibleAd: EligibleAd,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
     const adService = this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.onAdDisplayed(eligibleAd);
@@ -787,6 +917,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public addTransactions(
     transactions: ChainTransaction[],
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -795,6 +926,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public restoreBackup(
     backup: IDataWalletBackup,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
@@ -804,6 +936,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public fetchBackup(
     backupHeader: string,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
@@ -811,7 +944,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.fetchBackup(backupHeader);
   }
 
-  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+  public postBackups(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<DataWalletBackupID[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
@@ -821,6 +956,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   // and to fetch a specific chunk and decrypt it.
   public unpackBackupChunk(
     backup: IDataWalletBackup,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
@@ -828,13 +964,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.unpackBackupChunk(backup);
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+  public clearCloudStore(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
   }
 
-  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+  public listFileNames(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<BackupFileName[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
@@ -845,6 +985,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<number, AccountIndexingError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -854,6 +995,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
       ITokenPriceRepositoryType,
@@ -863,6 +1005,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getTokenMarketData(
     ids: string[],
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
       ITokenPriceRepositoryType,

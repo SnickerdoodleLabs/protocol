@@ -10,39 +10,35 @@ import {
 import {
   AjaxError,
   ConsentError,
+  ConsentToken,
+  EligibleReward,
   EvaluationError,
   EVMContractAddress,
-  InsightString,
+  EVMPrivateKey,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
   IpfsCID,
   IPFSError,
+  LinkedAccount,
   QueryFormatError,
-  UninitializedError,
-  EligibleReward,
+  QueryIdentifier,
   SDQLQuery,
   SDQLQueryRequest,
-  ConsentToken,
   ServerRewardError,
-  IDynamicRewardParameter,
-  LinkedAccount,
-  QueryIdentifier,
-  ExpectedReward,
-  EVMPrivateKey,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
-
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -115,7 +111,6 @@ export class QueryService implements IQueryService {
               consentContractAddress,
             )
             .andThen(([permittedQueryIds, expectedRewards]) => {
-            
               return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
                 consentToken,
                 optInKey,
@@ -270,7 +265,6 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
-      
       return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
           this.queryParsingEngine.handleQuery(
@@ -283,8 +277,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 

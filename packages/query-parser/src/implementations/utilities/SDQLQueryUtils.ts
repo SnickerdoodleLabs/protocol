@@ -1,3 +1,21 @@
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
+import {
+  AST_Ad,
+  AST_BalanceQuery,
+  AST_BlockchainTransactionQuery,
+  AST_Compensation,
+  AST_Expr,
+  AST_NftQuery,
+  AST_PropertyQuery,
+  AST_Query,
+  AST_Web3Query,
+  Command,
+  Command_IF,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+} from "@query-parser/interfaces/index.js";
 import {
   AdKey,
   CompensationId,
@@ -9,29 +27,16 @@ import {
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
+  QueryFilteredByPermissions,
   QueryFormatError,
   QueryIdentifier,
+  QueryTypes,
   SDQLString,
   SDQL_Name,
-  QueryFilteredByPermissions,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
-import {
-  AST_Ad,
-  AST_Compensation,
-  AST_Expr,
-  AST_Query,
-  Command,
-  Command_IF,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-} from "@query-parser/interfaces/index.js";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -198,6 +203,32 @@ export class SDQLQueryUtils {
         }, []),
       );
     });
+  }
+
+  public getQueryTypeDependencies(
+    parser: SDQLParser,
+    compId: CompensationId,
+  ): QueryTypes[] {
+    const queryTypes = new Set<QueryTypes>();
+
+    parser.logicCompensations.forEach((comAst, compExpr) => {
+      const comIdFromExpression = this.extractCompensationIdFromAst(comAst!);
+      if (compId == comIdFromExpression) {
+        const adDependencies = parser.parseAdDependencies(compExpr);
+        if (adDependencies.length == 0) {
+          const queryDependencies = parser.parseQueryDependencies(compExpr);
+          queryDependencies.forEach((subQuery) => {
+            if (subQuery instanceof AST_Web3Query) {
+              queryTypes.add(subQuery.type);
+            } else if (subQuery instanceof AST_PropertyQuery) {
+              queryTypes.add(subQuery.property);
+            }
+          });
+        }
+      }
+    });
+
+    return Array.from(queryTypes);
   }
 
   protected extractCompensationIdFromAst(
@@ -384,29 +415,5 @@ export class SDQLQueryUtils {
     adDependencies: AST_Ad[],
   ): boolean {
     return adDependencies.every((ad) => permittedAdKeys.includes(ad.key));
-  }
-
-  private getDependenciesByCompensationId(
-    parser: SDQLParser,
-    compId: CompensationId,
-  ): (AST_Ad | AST_Query)[][] {
-    const resultingArray: (AST_Ad | AST_Query)[][] = [];
-
-    for (const [compExpr, comAst] of parser.logicCompensations) {
-      const comIdFromExpression = this.extractCompensationIdFromAst(comAst!);
-      if (compId != comIdFromExpression) {
-        continue;
-      }
-
-      const adDependencies = parser.parseAdDependencies(compExpr);
-      if (adDependencies.length > 0) {
-        resultingArray.push(adDependencies);
-      } else {
-        const queryDependencies = parser.parseQueryDependencies(compExpr);
-        resultingArray.push(queryDependencies);
-      }
-    }
-
-    return resultingArray;
   }
 }

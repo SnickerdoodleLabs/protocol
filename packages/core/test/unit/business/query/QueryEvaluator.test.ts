@@ -213,7 +213,6 @@ class QueryEvaluatorMocks {
   // },
 
   public constructor() {
-    //this.dataWalletPersistence.setLocation(CountryCode("US"));
     td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
 
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
