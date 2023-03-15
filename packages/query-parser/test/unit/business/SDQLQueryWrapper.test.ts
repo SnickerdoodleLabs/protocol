@@ -13,7 +13,7 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect(Object.keys(querySchema).length).toBe(4);
   });
 
-  test("avalanche q1 is a network query", () => {
+  test("avalanche q1 is a blockchain transactions query", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
     const querySchema = sdqlSchema.getQuerySchema();

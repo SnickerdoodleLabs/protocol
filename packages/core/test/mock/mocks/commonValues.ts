@@ -102,6 +102,7 @@ export const testCoreConfig = new CoreConfig(
   { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
   10000,
   "(localhost|chrome:\/\/)",
+  false,
   discordConfig,
 );
 

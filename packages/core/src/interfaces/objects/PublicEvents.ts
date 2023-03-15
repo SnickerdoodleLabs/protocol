@@ -1,13 +1,14 @@
 import {
-  AccountAddress,
-  ChainId,
   DataWalletAddress,
   DataWalletBackupID,
+  DomainName,
   EVMContractAddress,
   EVMTransaction,
   ISnickerdoodleCoreEvents,
   LinkedAccount,
   MetatransactionSignatureRequest,
+  PermissionsGrantedEvent,
+  PermissionsRequestedEvent,
   PortfolioUpdate,
   SDQLQueryRequest,
   TokenBalance,
@@ -27,6 +28,9 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
   public onBackupRestored: Subject<DataWalletBackupID>;
+  public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
+  public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
+  public onPermissionsRevoked: Subject<DomainName>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -40,5 +44,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onTokenBalanceUpdate = new Subject();
     this.onNftBalanceUpdate = new Subject();
     this.onBackupRestored = new Subject();
+    this.onPermissionsGranted = new Subject();
+    this.onPermissionsRequested = new Subject();
+    this.onPermissionsRevoked = new Subject();
   }
 }

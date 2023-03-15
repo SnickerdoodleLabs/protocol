@@ -2,6 +2,7 @@ export * from "@objects/primitives/AccountAddress";
 export * from "@objects/primitives/AESKey";
 export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
+export * from "@objects/primitives/BackupFileName";
 export * from "@objects/primitives/Base64String";
 export * from "@objects/primitives/BaseURI";
 export * from "@objects/primitives/BigNumberString";
@@ -77,3 +78,5 @@ export * from "@objects/primitives/Integer";
 export * from "@objects/primitives/Username";
 
 export * from "@objects/primitives/VolatileStorageKey";
+
+export * from "@objects/primitives/QueryTypes.js";

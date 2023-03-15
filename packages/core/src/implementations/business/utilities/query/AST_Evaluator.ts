@@ -25,7 +25,7 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
+import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
 
 export class AST_Evaluator {
   /**
@@ -190,12 +190,16 @@ export class AST_Evaluator {
   public evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError> {
     return this.evalAny(cond.lval).andThen(
       (lval): ResultAsync<SDQL_Return, EvaluationError> => {
-        const right = this.evalAny(cond.rvals);
+        const right = this.evalAny(cond.rval);
         return right.andThen(
           (rvals): ResultAsync<SDQL_Return, EvaluationError> => {
             // console.log('left', lval);
             // console.log('right', rvals);
-            return okAsync(SDQL_Return((rvals as Array<any>).includes(lval)));
+            return okAsync(
+              SDQL_Return(
+                (rvals as Array<string | number | SDQL_Return>).includes(lval),
+              ),
+            );
           },
         );
       },
