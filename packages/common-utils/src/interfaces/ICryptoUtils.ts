@@ -17,6 +17,8 @@ import {
   SolanaPrivateKey,
   EVMContractAddress,
   InvalidParametersError,
+  RSAKeyPair,
+  KeyGenerationError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -26,6 +28,11 @@ export interface ICryptoUtils {
   getTokenId(): ResultAsync<TokenId, never>;
   getTokenIds(quantity: number): ResultAsync<TokenId[], never>;
 
+  /**
+   * Creates a new 4096 bit RSA public/private keypair. There's no way to derive a valid RSA key
+   * via PBKDF2. The resulting keys are PEM encoded but not encrypted
+   */
+  createRSAKeyPair(): ResultAsync<RSAKeyPair, KeyGenerationError>;
   createAESKey(): ResultAsync<AESKey, never>;
   deriveAESKeyFromSignature(
     signature: Signature,

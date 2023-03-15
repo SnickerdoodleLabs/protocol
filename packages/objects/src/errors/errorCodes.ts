@@ -12,6 +12,7 @@ const errorCodes = {
   InvalidParametersError: "INVALID_PARAMETERS_ERROR",
   InvalidSignatureError: "ERR_INVALID_SIGNATURE",
   IPFSError: "ERR_IPFS",
+  KeyGenerationError: "ERR_CRYPTO_KEY_GENERATION",
   MinimalForwarderContractError: "ERR_MINIMAL_FORWARDER_CONTRACT",
   JWKSError: "ERR_JWKS",
   PersistenceError: "ERR_PERSISTENCE",

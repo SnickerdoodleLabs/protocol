@@ -9,7 +9,6 @@ import {
   Signature,
   AESEncryptedString,
   AESKey,
-  Argon2Hash,
   EncryptedString,
   EVMPrivateKey,
   InitializationVector,
@@ -21,6 +20,10 @@ import {
   SolanaPrivateKey,
   InvalidParametersError,
   EVMContractAddress,
+  RSAKeyPair,
+  PEMEncodedRSAPrivateKey,
+  PEMEncodedRSAPublicKey,
+  KeyGenerationError,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -151,6 +154,41 @@ export class CryptoUtils implements ICryptoUtils {
       );
       return new Uint8Array(keyBuffer.buffer);
     });
+  }
+
+  public createRSAKeyPair(): ResultAsync<RSAKeyPair, KeyGenerationError> {
+    return ResultAsync.fromPromise(
+      new Promise((resolve, reject) => {
+        Crypto.generateKeyPair(
+          "rsa",
+          {
+            modulusLength: 4096,
+            publicKeyEncoding: {
+              type: "spki",
+              format: "pem",
+            },
+            privateKeyEncoding: {
+              type: "pkcs8",
+              format: "pem",
+            },
+          } as Crypto.RSAKeyPairOptions<"pem", "pem">,
+          (err, publicKey, privateKey) => {
+            if (err != null) {
+              reject(err);
+            }
+            resolve(
+              new RSAKeyPair(
+                PEMEncodedRSAPrivateKey(privateKey),
+                PEMEncodedRSAPublicKey(publicKey),
+              ),
+            );
+          },
+        );
+      }),
+      (e) => {
+        return new KeyGenerationError("Unable to generate a new RSA Key", e);
+      },
+    );
   }
 
   public createAESKey(): ResultAsync<AESKey, never> {

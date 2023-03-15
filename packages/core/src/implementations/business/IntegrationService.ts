@@ -1,12 +1,19 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   PersistenceError,
   DomainName,
   EDataWalletPermission,
   UnauthorizedError,
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
+  JsonWebToken,
+  InvalidSignatureError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
+import jwt from "jsonwebtoken";
 import { errAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -30,6 +37,7 @@ export class IntegrationService implements IIntegrationService {
     @inject(IPermissionRepositoryType)
     protected permissionRepo: IPermissionRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
 
   public grantPermissions(
@@ -143,4 +151,47 @@ export class IntegrationService implements IIntegrationService {
 
     return this.permissionRepo.getPermissions(domain);
   }
+
+  public getBearerToken(
+    nonce: string,
+    domain: DomainName,
+  ): ResultAsync<JsonWebToken, InvalidSignatureError> {
+    // When a domain requests a token, it must check if we have already created an ID for this
+    // domain (along with a key)
+    // First, we need to derive a keypair for the domain that we'll use to sign the JWT with
+    // We'll use an asymetric algorithm for signing.
+    return ResultAsync.fromPromise(
+      new Promise<JsonWebToken>((resolve, reject) =>
+        jwt.sign(
+          {
+            nonce: nonce,
+            aud: domain,
+          } as IUserTokenPayload,
+          config.tokenSigningKey,
+          {
+            algorithm: "RS256",
+            expiresIn: "1h",
+            issuer: config.tokenIssuer,
+          },
+          (err, token) => {
+            if (err) {
+              return reject(err);
+            }
+            if (!token) {
+              return new InvalidSignatureError("Empty token");
+            }
+            return resolve(JsonWebToken(token));
+          },
+        ),
+      ),
+      (e) => {
+        return e as InvalidSignatureError;
+      },
+    );
+  }
+}
+
+interface IUserTokenPayload extends jwt.JwtPayload {
+  gty?: string;
+  azp?: string;
 }

@@ -34,6 +34,7 @@ export * from "@objects/businessObjects/VolatileStorageMetadata";
 export * from "@objects/businessObjects/QueryFilteredByPermissions";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/Reward.js";
+export * from "@objects/businessObjects/RSAKeyPair.js";
 export * from "@objects/businessObjects/SDQLQuery.js";
 export * from "@objects/businessObjects/SDQLQueryRequest.js";
 export * from "@objects/businessObjects/SiteVisit.js";
