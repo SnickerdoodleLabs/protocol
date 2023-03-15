@@ -1,4 +1,4 @@
-import { Metaplex, token } from "@metaplex-foundation/js";
+import { Metaplex } from "@metaplex-foundation/js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -37,7 +37,6 @@ import {
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
