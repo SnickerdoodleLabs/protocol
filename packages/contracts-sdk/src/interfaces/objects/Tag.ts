@@ -1,9 +1,8 @@
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import { BigNumberString, EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 export class Tag {
   public constructor(
-    public slot: BigNumber | null = null,
+    public slot: BigNumberString | null = null,
     public tag: string | null = null,
     public staker: EVMAccountAddress | null = null,
   ) {}

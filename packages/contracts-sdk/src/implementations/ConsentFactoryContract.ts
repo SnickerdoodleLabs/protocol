@@ -3,7 +3,6 @@ import {
   ConsentRoles,
   ListingSlot,
   Listing,
-  ListingStruct,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -458,7 +457,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     slot: ListingSlot,
   ): ResultAsync<Listing, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.getListing(tag, slot) as Promise<ListingStruct>,
+      this.contract.getListing(tag, slot) as Promise<IListingStruct>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getListing()",
@@ -488,7 +487,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         tag,
         startingSlot,
         numberOfSlots,
-      ) as Promise<[string[], ListingStruct[]]>,
+      ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getListingsForward()",
@@ -525,7 +524,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         startingSlot,
         numberOfSlots,
         filterActive,
-      ) as Promise<[string[], ListingStruct[]]>,
+      ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getListingsForward()",
@@ -567,6 +566,15 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 }
+interface IListingStruct {
+  previous: BigNumber | null;
+  next: BigNumber | null;
+  consentContract: EVMContractAddress | null;
+  timeExpiring: BigNumber | null;
+}
+
+// I listinStruct { at the place where we're using it, and dont have to export here
+
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
 
 /* // TODO: Replace Promise<any> with correct types returned from ConsentDeployed() and queryFilter()

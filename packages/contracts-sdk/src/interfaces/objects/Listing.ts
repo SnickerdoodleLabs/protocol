@@ -4,16 +4,7 @@ import {
   IpfsCID,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 
-export class ListingStruct {
-  public constructor(
-    public previous: BigNumber | null = null,
-    public next: BigNumber | null = null,
-    public consentContract: EVMContractAddress | null = null,
-    public timeExpiring: BigNumber | null = null,
-  ) {}
-}
 export class Listing {
   public constructor(
     public previous: BigNumberString | null = null,

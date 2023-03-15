@@ -25,6 +25,7 @@ import {
   InvalidParametersError,
   ConsentToken,
   DataPermissions,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -963,7 +964,7 @@ export class ConsentContract implements IConsentContract {
 
   public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.getTagArray() as Promise<Tag[]>,
+      this.contract.getTagArray() as Promise<ITag[]>,
       (e) => {
         return new ConsentContractError(
           "Unable to call openOptInDisabled()",
@@ -971,7 +972,15 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    );
+    ).map((tags) => {
+      return tags.map((tag) => {
+        return new Tag(
+          tag.slot ? BigNumberString(tag.slot.toString()) : null,
+          tag.tag,
+          tag.staker,
+        );
+      });
+    });
   }
 
   public newGlobalTag(
@@ -1109,4 +1118,10 @@ export class ConsentContract implements IConsentContract {
       values,
     );
   }
+}
+
+interface ITag {
+  slot: BigNumber | null;
+  tag: string | null;
+  staker: EVMAccountAddress | null;
 }
