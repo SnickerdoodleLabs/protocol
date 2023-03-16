@@ -48,11 +48,7 @@ export class BackupManager implements IBackupManager {
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
 
-  private tableNames: string[];
-  private migrators = new Map<
-    string,
-    VersionedObjectMigrator<VersionedObject>
-  >();
+  private schemas = new Map<string, VolatileTableIndex<VersionedObject>>();
 
   private fieldHistory: Map<string, number> = new Map();
   private deletionHistory: Map<VolatileStorageKey, number> = new Map();
@@ -68,9 +64,10 @@ export class BackupManager implements IBackupManager {
     public maxChunkSize: number,
     protected enableEncryption: boolean,
   ) {
-    this.tableNames = this.schema.map((x) => x.name);
-    this.schema.forEach((x) => {
-      this.migrators.set(x.name, x.migrator);
+    this.schema.forEach((schema) => {
+      if (!schema.disableBackup) {
+        this.schemas.set(schema.name, schema);
+      }
     });
 
     this.accountAddr = DataWalletAddress(
@@ -93,7 +90,7 @@ export class BackupManager implements IBackupManager {
     priority: EBackupPriority,
     timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.removeObject(tableName, key);
     }
 
@@ -127,7 +124,9 @@ export class BackupManager implements IBackupManager {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    Array.from(this.schemas.keys()).forEach(
+      (tableName) => (this.tableUpdates[tableName] = []),
+    );
     return okAsync(undefined);
   }
 
@@ -157,7 +156,7 @@ export class BackupManager implements IBackupManager {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+    if (!this.schemas.has(tableName)) {
       return this.volatileStorage.putObject<T>(tableName, value);
     }
 
@@ -262,7 +261,7 @@ export class BackupManager implements IBackupManager {
                   Object.keys(unpacked.records).map((tableName) => {
                     const table = unpacked.records[tableName];
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    const migrator = this.migrators.get(tableName)!;
+                    const migrator = this.schemas.get(tableName)!.migrator;
 
                     return ResultUtils.combine(
                       table.map((value) => {

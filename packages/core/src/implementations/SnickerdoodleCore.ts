@@ -306,7 +306,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     IpfsCID,
     ConsentContractError | UninitializedError | BlockchainProviderError
@@ -649,7 +648,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,

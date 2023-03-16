@@ -444,7 +444,6 @@ export interface ISnickerdoodleCore {
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
-    sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     IpfsCID,
     | BlockchainProviderError
@@ -467,7 +466,6 @@ export interface ISnickerdoodleCore {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-    sourceDomain?: DomainName | undefined,
   ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
 
   checkURL(
