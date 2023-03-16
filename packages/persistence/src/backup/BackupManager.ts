@@ -37,9 +37,9 @@ import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ChunkRenderer } from "./ChunkRenderer";
-
+import { ChunkRenderer } from "@persistence/backup/ChunkRenderer.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
+import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import { FieldIndex } from "@persistence/local";
 import {
   IVolatileStorage,
@@ -48,8 +48,8 @@ import {
 
 export class BackupManager implements IBackupManager {
   private accountAddr: DataWalletAddress;
-  private tableRenderers = new Map<ERecordKey, ChunkRenderer>();
-  private fieldRenderers = new Map<EFieldKey, ChunkRenderer>();
+  private tableRenderers = new Map<ERecordKey, IChunkRenderer>();
+  private fieldRenderers = new Map<EFieldKey, IChunkRenderer>();
   private fieldHistory: Map<string, number> = new Map();
   private renderedChunks = new Map<DataWalletBackupID, DataWalletBackup>();
   private migrators = new Map<

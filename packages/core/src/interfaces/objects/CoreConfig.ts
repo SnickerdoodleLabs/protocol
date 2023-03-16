@@ -46,5 +46,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
+    public backupHeartbeatIntervalMS: number,
   ) {}
 }
