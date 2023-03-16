@@ -1,5 +1,3 @@
-import { EBackupPriority } from "./EBackupPriority";
-
 export enum ERecordKey {
   ACCOUNT = "SD_Accounts",
   SITE_VISITS = "SD_SiteVisits",
