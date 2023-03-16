@@ -155,7 +155,6 @@ export class AccountService implements IAccountService {
     | MinimalForwarderContractError
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
-    console.log('validateSignatureForAddress()')
     return this.validateSignatureForAddress(
       accountAddress,
       signature,

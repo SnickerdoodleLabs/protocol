@@ -1,3 +1,4 @@
+import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import {
   ChainId,
   IConfigOverrides,
