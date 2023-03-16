@@ -31,22 +31,18 @@ import {
   Connection,
   PublicKey,
   LAMPORTS_PER_SOL,
-  Keypair,
-  Transaction,
-  SystemProgram,
+  GetProgramAccountsFilter,
 } from "@solana/web3.js";
-import * as bs58 from "bs58";
 import { inject } from "inversify";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
-
-import { IIndexerConfig } from "./IIndexerConfig";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { BigNumber } from "ethers";
 
 export class SolanaIndexer
   implements
@@ -65,23 +61,78 @@ export class SolanaIndexer
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  private async getNativeBalance(
-    config: IIndexerConfig,
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-  ): Promise<number> {
-    const connection = new Connection(config.alchemyEndpoints.solana);
-    const publicKey = new PublicKey(accountAddress);
-    console.log("publicKey: ", publicKey);
-    const balance = await connection.getBalance(publicKey);
-    console.log("balance: ", balance);
-    return balance;
-  }
-
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.getNonNativeBalance(chainId, accountAddress),
+      this.getNativeBalance(chainId, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
+    });
+  }
+
+  private getNonNativeBalance(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this._getParsedAccounts(chainId, accountAddress),
+    ])
+      .map(([accounts]) => {
+        return accounts.map((account) => {
+          return this.tokenPriceRepo
+            .getTokenInfo(
+              chainId,
+              account?.account?.data["parsed"]["info"]["mint"],
+            )
+            .andThen((tokenInfo) => {
+              if (tokenInfo == null) {
+                return okAsync(null);
+              }
+
+              return okAsync(
+                new TokenBalance(
+                  EChainTechnology.Solana,
+                  tokenInfo.symbol,
+                  chainId,
+                  tokenInfo.address,
+                  accountAddress,
+                  BigNumberString(
+                    BigNumber.from(
+                      account?.account?.data["parsed"]["info"]["tokenAmount"][
+                        "amount"
+                      ],
+                    ).toString(),
+                  ),
+                  account?.account?.data["parsed"]["info"]["tokenAmount"][
+                    "decimals"
+                  ],
+                ),
+              );
+            });
+        });
+      })
+      .map((balances) => {
+        return Promise.all(balances).then((balance) => {
+          return (
+            balance
+              //@ts-ignore
+              .filter((obj) => obj.value != null)
+              .map((tokenBalance) => {
+                //@ts-ignore
+                return tokenBalance.value;
+              })
+          );
+        });
+      });
+  }
+
+  private getNativeBalance(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (chainId != ChainId(EChain.Solana)) {
         return errAsync(
@@ -89,24 +140,36 @@ export class SolanaIndexer
         );
       }
 
-      const connection = new Connection(config.alchemyEndpoints.solana);
-      const publicKey = new PublicKey(accountAddress);
-      return ResultAsync.fromSafePromise(
-        this.getNativeBalance(config, chainId, accountAddress),
-      ).andThen((balance: number) => {
-        console.log("create token balance ");
-        const nativeBalance = new TokenBalance(
-          EChainTechnology.Solana,
-          TickerSymbol("SOL"),
-          chainId,
-          null,
-          accountAddress,
-          BigNumberString((balance / LAMPORTS_PER_SOL).toString()),
-          getChainInfoByChainId(chainId).nativeCurrency.decimals,
-        );
-        console.log("nativeBalance: ", nativeBalance);
-        return okAsync([nativeBalance]);
-      });
+      const nativeBalanceConfig = {
+        method: "getBalance",
+        jsonrpc: "2.0",
+        id: "1",
+        params: [accountAddress],
+      };
+
+      return this.ajaxUtils
+        .post<IAlchemyBalanceResponse>(
+          new URL(config.alchemyEndpoints.solana),
+          JSON.stringify(nativeBalanceConfig),
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        )
+        .andThen((SolanaNativeBalance) => {
+          const nativeBalance = new TokenBalance(
+            EChainTechnology.Solana,
+            TickerSymbol("SOL"),
+            chainId,
+            null,
+            accountAddress,
+            BigNumberString(SolanaNativeBalance.result.value.toString()),
+            getChainInfoByChainId(chainId).nativeCurrency.decimals,
+          );
+
+          return okAsync(nativeBalance);
+        });
     });
   }
 
@@ -213,6 +276,41 @@ export class SolanaIndexer
     const connection = new Connection(endpoint);
     const metaplex = new Metaplex(connection);
     return okAsync([connection, metaplex]);
+  }
+
+  private _getParsedAccounts(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ) {
+    return ResultUtils.combine([
+      this._getConnectionForChainId(chainId),
+      this._getFilters(accountAddress),
+    ]).map(async ([[conn], filters]) => {
+      const accounts = await conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
+        filters: filters,
+      });
+      const balances = accounts.map((account) => {
+        return account;
+      });
+      return balances;
+    });
+  }
+
+  private _getFilters(
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<GetProgramAccountsFilter[], never> {
+    const filters: GetProgramAccountsFilter[] = [
+      {
+        dataSize: 165, //size of account (bytes)
+      },
+      {
+        memcmp: {
+          offset: 32, //location of our query in the account (bytes)
+          bytes: accountAddress, //our search criteria, a base58 encoded string
+        },
+      },
+    ];
+    return okAsync(filters);
   }
 
   private _lamportsToSol(lamports: number): BigNumberString {
