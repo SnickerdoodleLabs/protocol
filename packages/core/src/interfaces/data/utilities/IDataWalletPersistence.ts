@@ -9,9 +9,12 @@ import {
   VolatileStorageKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
+import {
+  EFieldKey,
+  ERecordKey,
+  IVolatileCursor,
+} from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
-import { EFieldKey, ERecordKey } from "packages/objects/src/enum";
 
 /**
  * This is technically a repository, but since the form factor may need to override where

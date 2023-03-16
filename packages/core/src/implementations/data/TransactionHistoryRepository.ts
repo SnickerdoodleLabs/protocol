@@ -13,6 +13,12 @@ import {
   ITokenPriceRepositoryType,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
+import {
+  ERecordKey,
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+  IVolatileCursor,
+} from "@snickerdoodlelabs/persistence";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -29,8 +35,6 @@ import {
   IContextProviderType,
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
-import { IPersistenceConfigProvider, IPersistenceConfigProviderType, IVolatileCursor } from "@snickerdoodlelabs/persistence";
-import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class TransactionHistoryRepository

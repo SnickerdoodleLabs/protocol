@@ -21,6 +21,7 @@ import {
   IVolatileStorage,
   IVolatileStorageType,
   IVolatileCursor,
+  EFieldKey,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -32,7 +33,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { EFieldKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {

@@ -1,5 +1,5 @@
 import { AESEncryptedString, VersionedObject } from "@objects/businessObjects";
-import { EBackupPriority, LocalStorageKey } from "@objects/enum";
+import { EBackupPriority } from "@objects/enum";
 import { UnixTimestamp, VolatileStorageKey } from "@objects/primitives";
 
 export interface IDataWalletBackupHeader {
@@ -7,7 +7,6 @@ export interface IDataWalletBackupHeader {
   timestamp: UnixTimestamp;
   signature: string;
   priority: EBackupPriority;
-  dataType: LocalStorageKey;
 }
 
 export interface IDataWalletBackup {
