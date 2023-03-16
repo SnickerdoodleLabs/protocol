@@ -3,11 +3,13 @@ import { EBackupPriority } from "@objects/enum/EBackupPriority";
 
 export const VolatileStorageDataKey = "data";
 export const VolatileStorageMetadataIndexes: [string, boolean][] = [
-  ["priority", false],
-  ["lastUpdate", false],
-  ["deletedAt", false],
-  ["version", false],
+  ["deleted", false],
 ];
+
+export enum EBoolean {
+  FALSE = 0,
+  TRUE = 1,
+}
 
 export class VolatileStorageMetadata<T extends VersionedObject> {
   public constructor(
@@ -15,5 +17,6 @@ export class VolatileStorageMetadata<T extends VersionedObject> {
     public data: T,
     public version: number,
     public lastUpdate: number = Date.now(),
+    public deleted: EBoolean = EBoolean.FALSE,
   ) {}
 }

@@ -2,8 +2,6 @@ import { ModelAliases } from "@glazed/types";
 import {
   ChainId,
   ChainInformation,
-  EFieldKey,
-  ModelTypes,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
@@ -12,7 +10,6 @@ export interface IPersistenceConfig {
   accountBalancePollingIntervalMS: number;
   accountNFTPollingIntervalMS: number;
   backupChunkSizeTarget: number;
-  ceramicModelAliases: ModelAliases<ModelTypes>;
   ceramicNodeURL: URLString;
   chainInformation: Map<ChainId, ChainInformation>;
   defaultInsightPlatformBaseUrl: URLString;

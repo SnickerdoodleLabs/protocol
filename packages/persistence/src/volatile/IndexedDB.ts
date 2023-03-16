@@ -1,4 +1,5 @@
 import {
+  EBoolean,
   PersistenceError,
   VersionedObject,
   VolatileStorageDataKey,
@@ -281,7 +282,14 @@ export class IndexedDB {
         return ResultAsync.fromPromise(
           promise,
           (e) => new PersistenceError("error getting object", e),
-        ).map((result) => result as VolatileStorageMetadata<T>);
+        ).map((result) => {
+          const obj = result as VolatileStorageMetadata<T>;
+          if (obj != null && obj.deleted != EBoolean.TRUE) {
+            return obj;
+          } else {
+            return null;
+          }
+        });
       });
     });
   }
@@ -314,6 +322,7 @@ export class IndexedDB {
   public getAll<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
+    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
@@ -322,10 +331,15 @@ export class IndexedDB {
             const store = tx.objectStore(name);
             let request: IDBRequest<VolatileStorageMetadata<T>[]>;
             if (index == undefined) {
-              request = store.getAll();
-            } else {
-              const indexObj: IDBIndex = store.index(this._getIndexName(index));
+              const indexObj: IDBIndex = store.index("deleted");
               request = indexObj.getAll();
+            } else {
+              // const indexObj: IDBIndex = store.index(this._getIndexName(index));
+              // request = indexObj.getAll(query);
+              // TODO: fix when we go to SQLite
+              throw new PersistenceError(
+                "getting all by index query no longer supported",
+              );
             }
 
             request.onsuccess = (event) => {
@@ -357,10 +371,15 @@ export class IndexedDB {
           const store = tx.objectStore(name);
           let request: IDBRequest<any[]>;
           if (index == undefined) {
-            request = store.getAllKeys(query, count);
+            const indexObj: IDBIndex = store.index("deleted");
+            request = indexObj.getAllKeys(EBoolean.FALSE, count);
           } else {
-            const indexObj: IDBIndex = store.index(this._getIndexName(index));
-            request = indexObj.getAllKeys(query, count);
+            // TODO: fix when we go to SQLite
+            throw new PersistenceError(
+              "getting keys by index query no longer supported",
+            );
+            // const indexObj: IDBIndex = store.index(this._getIndexName(index));
+            // request = indexObj.getAllKeys(query, count);
           }
 
           request.onsuccess = (event) => {

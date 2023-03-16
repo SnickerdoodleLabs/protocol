@@ -35,6 +35,7 @@ export interface IVolatileStorage {
   getAll<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
+    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   getAllKeys<T>(
     name: string,
