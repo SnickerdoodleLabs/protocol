@@ -7,7 +7,6 @@ import {
   ClickData,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -18,6 +17,7 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
+import { ERecordKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class BrowsingDataRepository implements IBrowsingDataRepository {

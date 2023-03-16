@@ -15,8 +15,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
-import { ERecordKey } from "@persistence/ELocalStorageKey";
-
+import { ERecordKey } from "@snickerdoodlelabs/objects";
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {
     const backupManagerMocks = new BackupManagerProviderMocks();

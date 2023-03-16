@@ -322,6 +322,9 @@ export class CorePrompt extends DataWalletPrompt {
               const backupChoices = chunks.map((chunk) => {
                 return new BackupChoice(chunk);
               });
+              if (backupChoices.length == 0) {
+                return okAsync(null);
+              }
               return inquiryWrapper({
                 type: "list",
                 name: "backupPrompt",
@@ -330,6 +333,9 @@ export class CorePrompt extends DataWalletPrompt {
               });
             })
             .andThen((selection) => {
+              if (selection == null){
+                return okAsync(console.log("No backups found"));
+              }
               return this.core
                 .fetchBackup(selection.backupPrompt)
                 .andThen((output) => {

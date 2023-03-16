@@ -1,3 +1,4 @@
+export * from "@objects/enum/ELocalStorageKey";
 export * from "@objects/enum/EAdContentType.js";
 export * from "@objects/enum/EBackupPriority.js";
 export * from "@objects/enum/EChain.js";

@@ -110,6 +110,7 @@ export class GoogleCloudStorage implements ICloudStorage {
       .andThen(([privateKey, config]) => {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+
         return this.insightPlatformRepo.clearAllBackups(
           privateKey,
           config.defaultInsightPlatformBaseUrl,

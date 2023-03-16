@@ -9,7 +9,6 @@ import {
   EmailAddressString,
   CountryCode,
 } from "@snickerdoodlelabs/objects";
-import { EFieldKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -18,6 +17,7 @@ import {
   IDataWalletPersistenceType,
   IDemographicDataRepository,
 } from "@core/interfaces/data/index.js";
+import { EFieldKey } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class DemographicDataRepository implements IDemographicDataRepository {
