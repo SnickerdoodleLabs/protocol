@@ -26,7 +26,6 @@ import {
   TickerSymbol,
   SolanaCollection,
   getChainInfoByChainId,
-  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   Connection,
@@ -120,10 +119,10 @@ export class SolanaIndexer
           return (
             balance
               //@ts-ignore
-              .filter((val) => val.value != null)
-              .map((v) => {
+              .filter((obj) => obj.value != null)
+              .map((tokenBalance) => {
                 //@ts-ignore
-                return v.value;
+                return tokenBalance.value;
               })
           );
         });
@@ -234,24 +233,6 @@ export class SolanaIndexer
     return okAsync([]); //TODO
   }
 
-  private _getParsedAccounts(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-  ) {
-    return ResultUtils.combine([
-      this._getConnectionForChainId(chainId),
-      this._getFilters(accountAddress),
-    ]).map(async ([[conn], filters]) => {
-      const accounts = await conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
-        filters: filters,
-      });
-      const balances = accounts.map((account) => {
-        return account;
-      });
-      return balances;
-    });
-  }
-
   private _getConnectionForChainId(
     chainId: ChainId,
   ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
@@ -296,6 +277,25 @@ export class SolanaIndexer
     const metaplex = new Metaplex(connection);
     return okAsync([connection, metaplex]);
   }
+
+  private _getParsedAccounts(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ) {
+    return ResultUtils.combine([
+      this._getConnectionForChainId(chainId),
+      this._getFilters(accountAddress),
+    ]).map(async ([[conn], filters]) => {
+      const accounts = await conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
+        filters: filters,
+      });
+      const balances = accounts.map((account) => {
+        return account;
+      });
+      return balances;
+    });
+  }
+
   private _getFilters(
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<GetProgramAccountsFilter[], never> {
