@@ -35,6 +35,8 @@ export * from "@objects/primitives/HexString32";
 export * from "@objects/primitives/InitializationVector";
 export * from "@objects/primitives/InsightString";
 export * from "@objects/primitives/IpfsCID";
+export * from "@objects/primitives/ISDQLConditionString";
+export * from "@objects/primitives/ISDQLExpressionString";
 export * from "@objects/primitives/JSONString";
 export * from "@objects/primitives/JsonWebToken";
 export * from "@objects/primitives/LanguageCode";

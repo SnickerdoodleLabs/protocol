@@ -13,10 +13,13 @@ import {
   UnixTimestamp,
   EAdDisplayType,
   ISO8601DateString,
+  ISDQLConditionString,
+  ISDQLExpressionString,
 } from "@objects/primitives/index.js";
 
 export interface ISDQLQueryObject {
   version: string;
+  insightPlatform: URLString;
   timestamp: ISO8601DateString;
   expiry: ISO8601DateString;
   description: string;
@@ -25,6 +28,9 @@ export interface ISDQLQueryObject {
   queries: {
     [queryId: string]: ISDQLQueryClause;
   };
+  insights: {
+    [insightId: string]: ISDQLInsightBlock;
+  }
   returns: {
     [returnsObject: string]: ISDQLReturnProperties;
     // issue on why this is any, documented here
@@ -83,6 +89,11 @@ export interface ISDQLHasObject {
   };
 }
 
+export interface ISDQLInsightBlock {
+  name: string;
+  conditions: ISDQLConditionString;
+  returns: ISDQLExpressionString;
+}
 export interface ISDQLReturnProperties {
   name: string;
   message?: string;
@@ -100,7 +111,7 @@ export interface ISDQLAd {
   displayType: EAdDisplayType;
   weight: number;
   expiry: UnixTimestamp;
-  keywords: string[];
+  target: ISDQLConditionString;
 }
 
 export interface ISDQLCompensationBlock {
