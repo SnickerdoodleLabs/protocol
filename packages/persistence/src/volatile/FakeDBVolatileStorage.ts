@@ -55,11 +55,11 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB.andThen((db) => db.putObject(name, obj));
   }
 
-  public removeObject(
+  public removeObject<T extends VersionedObject>(
     name: string,
     key: string,
-  ): ResultAsync<void, PersistenceError> {
-    return this.indexedDB.andThen((db) => db.removeObject(name, key));
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
+    return this.indexedDB.andThen((db) => db.removeObject<T>(name, key));
   }
 
   public getObject<T extends VersionedObject>(

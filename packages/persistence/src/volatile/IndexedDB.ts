@@ -221,41 +221,47 @@ export class IndexedDB {
       .map(() => {});
   }
 
-  public removeObject(
+  public removeObject<T extends VersionedObject>(
     name: string,
     key: string,
-  ): ResultAsync<void, PersistenceError> {
-    return this.initialize().andThen((db) => {
-      return this.getTransaction(name, "readwrite").andThen((tx) => {
-        const promise = new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new PersistenceError("timeout"));
-          }, 1000);
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
+    return this.getObject<T>(name, key).andThen((found) => {
+      if (found == null) {
+        return okAsync(null);
+      }
 
-          try {
-            const store = tx.objectStore(name);
-            const request = store.delete(key);
-            request.onsuccess = (event) => {
-              clearTimeout(timeout);
-              tx.commit();
-              resolve(undefined);
-            };
-            request.onerror = (event) => {
+      return this.initialize().andThen((db) => {
+        return this.getTransaction(name, "readwrite").andThen((tx) => {
+          const promise = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new PersistenceError("timeout"));
+            }, 1000);
+
+            try {
+              const store = tx.objectStore(name);
+              const request = store.delete(key);
+              request.onsuccess = (event) => {
+                clearTimeout(timeout);
+                tx.commit();
+                resolve(undefined);
+              };
+              request.onerror = (event) => {
+                clearTimeout(timeout);
+                tx.abort();
+                reject(new PersistenceError("error updating object store"));
+              };
+            } catch (e) {
               clearTimeout(timeout);
               tx.abort();
-              reject(new PersistenceError("error updating object store"));
-            };
-          } catch (e) {
-            clearTimeout(timeout);
-            tx.abort();
-            reject(new PersistenceError("error removing object", e));
-          }
-        });
+              reject(new PersistenceError("error removing object", e));
+            }
+          });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error removing object", e),
-        ).andThen(() => okAsync(undefined));
+          return ResultAsync.fromPromise(
+            promise,
+            (e) => new PersistenceError("error removing object", e),
+          ).andThen(() => okAsync(found));
+        });
       });
     });
   }

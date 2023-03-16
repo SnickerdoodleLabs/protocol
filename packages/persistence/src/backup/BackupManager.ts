@@ -28,6 +28,8 @@ import {
   EncryptedString,
   ERecordKey,
   EFieldKey,
+  EBoolean,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -89,6 +91,10 @@ export class BackupManager implements IBackupManager {
         key,
         value.lastUpdate,
       ).andThen((valid) => {
+        if (!valid) {
+          return okAsync(undefined);
+        }
+
         return this.volatileStorage.putObject(tableName, value).andThen(() => {
           if (!this.tableRenderers.has(tableName)) {
             return errAsync(
@@ -106,7 +112,7 @@ export class BackupManager implements IBackupManager {
                 key!,
                 value.lastUpdate,
                 value.data,
-                value.version,
+                value.data.getVersion(),
               ),
             )
             .map((backup) => {
@@ -123,17 +129,73 @@ export class BackupManager implements IBackupManager {
   public deleteRecord(
     tableName: ERecordKey,
     key: VolatileStorageKey,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    const timestamp = Date.now();
+    return this._checkRecordUpdateRecency(tableName, key, timestamp).andThen(
+      (valid) => {
+        if (!valid) {
+          return okAsync(undefined);
+        }
+        return this.volatileStorage
+          .getObject(tableName, key)
+          .andThen((found) => {
+            if (!found) {
+              return okAsync(undefined);
+            }
+
+            found.deleted = EBoolean.TRUE;
+            found.lastUpdate = timestamp;
+            return this.volatileStorage
+              .putObject(tableName, found)
+              .andThen(() => {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                return this.tableRenderers
+                  .get(tableName)!
+                  .update(
+                    new VolatileDataUpdate(
+                      EDataUpdateOpCode.REMOVE,
+                      key,
+                      timestamp,
+                      found.data,
+                      found.data.getVersion(),
+                    ),
+                  )
+                  .map((backup) => {
+                    if (backup != null) {
+                      this.renderedChunks.set(backup?.header.hash, backup);
+                    }
+                    return undefined;
+                  });
+              });
+          });
+      },
+    );
   }
 
   public updateField(
     key: EFieldKey,
     value: object,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    if (!this.fieldRenderers.has(key)) {
+      return errAsync(
+        new PersistenceError("no renderer available for field", key),
+      );
+    }
+
+    const timestamp = Date.now();
+    this.fieldHistory.set(key, timestamp);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.fieldRenderers
+      .get(key)!
+      .update(
+        new FieldDataUpdate(key, JSONString(JSON.stringify(value)), timestamp),
+      )
+      .map((backup) => {
+        if (backup != null) {
+          this.renderedChunks.set(backup.header.hash, backup);
+        }
+        return undefined;
+      });
   }
 
   public restore(
@@ -143,13 +205,23 @@ export class BackupManager implements IBackupManager {
   }
 
   public getRendered(): ResultAsync<DataWalletBackup[], PersistenceError> {
-    throw new Error("Method not implemented.");
+    return okAsync(Array.from(this.renderedChunks.values()));
   }
 
   public popRendered(
     id: DataWalletBackupID,
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    if (!this.renderedChunks.has(id)) {
+      return errAsync(
+        new PersistenceError("no backup with that id in map", id),
+      );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this._addRestored(this.renderedChunks.get(id)!).map(() => {
+      this.renderedChunks.delete(id);
+      return undefined;
+    });
   }
 
   public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
@@ -213,7 +285,6 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
-        EBackupPriority.NORMAL,
         new RestoredBackup(DataWalletBackupID(backup.header.hash)),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         new RestoredBackupMigrator().getCurrentVersion(),

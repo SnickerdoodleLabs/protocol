@@ -16,10 +16,10 @@ export interface IVolatileStorage {
     name: string,
     obj: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError>;
-  removeObject(
+  removeObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
 
   getObject<T extends VersionedObject>(
     name: string,

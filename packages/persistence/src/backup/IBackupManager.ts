@@ -19,12 +19,10 @@ export interface IBackupManager {
   deleteRecord(
     tableName: ERecordKey,
     key: VolatileStorageKey,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
     value: object,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
   restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
 
