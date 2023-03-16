@@ -17,10 +17,17 @@ import {
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
 import {
+  ILocalStorageSchemaProvider,
+  ILocalStorageSchemaProviderType,
+} from "@persistence/local/IFieldSchemaProvider.js";
+import {
   IVolatileStorage,
   IVolatileStorageType,
 } from "@persistence/volatile/index.js";
-import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
+import {
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+} from "@persistence/volatile/IVolatileStorageSchemaProvider.js";
 
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
@@ -34,6 +41,10 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
+    @inject(IVolatileStorageSchemaProviderType)
+    protected recordSchemaProvider: IVolatileStorageSchemaProvider,
+    @inject(ILocalStorageSchemaProviderType)
+    protected fieldSchemaProvider: ILocalStorageSchemaProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -51,21 +62,19 @@ export class BackupManagerProvider implements IBackupManagerProvider {
       return this.backupManager;
     }
 
-    const schema = volatileStorageSchema.filter((schema) => {
-      return !schema.disableBackup;
-    });
-
     this.backupManager = ResultUtils.combine([
       this.waitForUnlock(),
       this.configProvider.getConfig(),
-    ]).map(([key, config]) => {
+      this.recordSchemaProvider.getVolatileStorageSchema(),
+      this.fieldSchemaProvider.getLocalStorageSchema(),
+    ]).map(([key, config, recordSchema, fieldSchema]) => {
       return new BackupManager(
         key,
-        schema,
-        this.volatileStorage,
+        recordSchema,
+        fieldSchema,
         this.cryptoUtils,
+        this.volatileStorage,
         this.storageUtils,
-        config.backupChunkSizeTarget,
         config.enableBackupEncryption,
       );
     });

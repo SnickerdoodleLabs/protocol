@@ -11,11 +11,11 @@ import {
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   EVMPrivateKey,
-  IDataWalletBackup,
+  DataWalletBackup,
   PersistenceError,
   AjaxError,
   DataWalletBackupID,
-  IDataWalletBackupHeader,
+  DataWalletBackupHeader,
   EBackupPriority,
   BackupFileName,
 } from "@snickerdoodlelabs/objects";
@@ -35,7 +35,7 @@ import {
 
 @injectable()
 export class GoogleCloudStorage implements ICloudStorage {
-  protected _backups = new Map<string, IDataWalletBackup>();
+  protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
@@ -58,7 +58,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   public pollByPriority(
     restored: Set<DataWalletBackupID>,
     priority: EBackupPriority,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return this.getWalletListing()
       .andThen((backupsDirectory) => {
         const files = backupsDirectory.items;
@@ -80,7 +80,7 @@ export class GoogleCloudStorage implements ICloudStorage {
               );
             })
             .map((file) => {
-              return this.ajaxUtils.get<IDataWalletBackup>(
+              return this.ajaxUtils.get<DataWalletBackup>(
                 new URL(file.mediaLink as string),
               );
             }),
@@ -120,7 +120,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public putBackup(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
@@ -156,7 +156,7 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   public pollBackups(
     restored: Set<DataWalletBackupID>,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return this.getWalletListing()
       .andThen((backupsDirectory) => {
         const files = backupsDirectory.items;
@@ -176,7 +176,7 @@ export class GoogleCloudStorage implements ICloudStorage {
               return !restored.has(DataWalletBackupID(hash));
             })
             .map((file) => {
-              return this.ajaxUtils.get<IDataWalletBackup>(
+              return this.ajaxUtils.get<DataWalletBackup>(
                 new URL(file.mediaLink as string),
               );
             }),
@@ -208,7 +208,7 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   public fetchBackup(
     backupHeader: string,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return this.getWalletListing()
       .andThen((backupsDirectory) => {
         const files = backupsDirectory.items;
@@ -226,7 +226,7 @@ export class GoogleCloudStorage implements ICloudStorage {
               return file.name.includes(backupHeader);
             })
             .map((file) => {
-              return this.ajaxUtils.get<IDataWalletBackup>(
+              return this.ajaxUtils.get<DataWalletBackup>(
                 new URL(file.mediaLink as string),
               );
             }),
@@ -258,7 +258,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   private _getFileName(
-    header: IDataWalletBackupHeader,
+    header: DataWalletBackupHeader,
   ): ResultAsync<string, never> {
     return okAsync(`${header.priority}_${header.hash}`);
   }
