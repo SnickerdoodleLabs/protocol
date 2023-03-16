@@ -1,4 +1,5 @@
 import {
+  BackupFileName,
   DataWalletBackupID,
   EBackupPriority,
   EVMPrivateKey,
@@ -8,12 +9,9 @@ import {
   VolatileStorageKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import {
-  EFieldKey,
-  ERecordKey,
-  IVolatileCursor,
-} from "@snickerdoodlelabs/persistence";
+import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
+import { EFieldKey, ERecordKey } from "packages/objects/src/enum";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -90,11 +88,14 @@ export interface IDataWalletPersistence {
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
-
-  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  fetchBackupChunk(
+  unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
+
+  listFileNames(): ResultAsync<BackupFileName[], PersistenceError>;
+  fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

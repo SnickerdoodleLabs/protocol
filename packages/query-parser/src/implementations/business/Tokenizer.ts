@@ -92,9 +92,7 @@ export class Tokenizer {
     for (const rule of rules) {
       const rexp = rule[0];
       const tokenType = rule[1];
-
       rexp.lastIndex = this.position; // search from this position
-
       if (this.debug) {
         console.log("searching at", rexp.lastIndex);
         console.log("testing regex", rexp);
@@ -104,11 +102,9 @@ export class Tokenizer {
         if (this.debug) {
           console.log(`found token at ${this.position}, ${rexp.lastIndex}`);
         }
-
         const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
         const tokenVal = this.convertVal(tokenType, rawVal);
         const token = new Token(tokenType, tokenVal, this.position);
-
         if (rexp.lastIndex >= this.exprStr.length) {
           this._hasNext = false;
           this.position = 0;

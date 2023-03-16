@@ -11,7 +11,7 @@ import { ResultAsync } from "neverthrow";
 import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IBackupManager {
-  clear(): ResultAsync<void, never>;
+  clear(): ResultAsync<void, PersistenceError>;
   addRecord<T extends VersionedObject>(
     tableName: string,
     value: VolatileStorageMetadata<T>,
@@ -29,8 +29,7 @@ export interface IBackupManager {
   restore(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
   getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
-  listBackupChunks(): ResultAsync<IDataWalletBackup[], PersistenceError>;
-  fetchBackupChunk(
+  unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 }

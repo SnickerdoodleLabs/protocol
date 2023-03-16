@@ -17,6 +17,7 @@ import {
   DataWalletBackupID,
   IDataWalletBackupHeader,
   EBackupPriority,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -109,6 +110,7 @@ export class GoogleCloudStorage implements ICloudStorage {
       .andThen(([privateKey, config]) => {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+
         return this.insightPlatformRepo.clearAllBackups(
           privateKey,
           config.defaultInsightPlatformBaseUrl,
@@ -181,7 +183,57 @@ export class GoogleCloudStorage implements ICloudStorage {
             }),
         );
       })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
+      .mapErr((e) => new PersistenceError("error polling backups", e));
+  }
+
+  public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return okAsync(
+          files.map((file) => {
+            return BackupFileName(file.name);
+          }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error listing file names", e));
+  }
+
+  public fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
+
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files
+            .filter((file) => {
+              return file.name.includes(backupHeader);
+            })
+            .map((file) => {
+              return this.ajaxUtils.get<IDataWalletBackup>(
+                new URL(file.mediaLink as string),
+              );
+            }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error fetching backup", e));
   }
 
   protected getWalletListing(): ResultAsync<

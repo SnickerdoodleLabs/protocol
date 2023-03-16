@@ -364,8 +364,8 @@ export class DataWalletProfile {
                   IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
                   "direct reward description",
                   ChainId(r.chainId),
+                  EVMContractAddress(r.contractAddress),
                   EVMAccountAddress(r.eoa),
-                  TransactionReceipt(r.transactionReceipt),
                 ),
               );
               break;
@@ -377,6 +377,7 @@ export class DataWalletProfile {
                   IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
                   "lazy reward description",
                   ChainId(r.chainId),
+                  EVMContractAddress(r.contractAddress),
                   EVMAccountAddress(r.eoa),
                   r.functionName,
                   r.functionParams as RewardFunctionParam[],
@@ -416,6 +417,7 @@ export class DataWalletProfile {
             timestamp: UnixTimestamp(backupJson.timestamp),
             signature: backupJson.signature,
             priority: EBackupPriority.NORMAL,
+            dataType: backupJson,
           },
           blob: new AESEncryptedString(
             EncryptedString(backupJson.blob.data),
