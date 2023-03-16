@@ -27,6 +27,7 @@ const errorCodes = {
   UnauthorizedError: "ERR_UNAUTHORIZED",
   UninitializedError: "ERR_UNINITIALIZED",
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
+  GasPriceError: "GasPriceError",
 };
 
 export default errorCodes;
