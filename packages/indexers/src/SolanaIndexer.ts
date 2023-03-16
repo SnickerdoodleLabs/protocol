@@ -27,12 +27,14 @@ import {
   SolanaCollection,
   getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   Connection,
   PublicKey,
   LAMPORTS_PER_SOL,
   GetProgramAccountsFilter,
 } from "@solana/web3.js";
+import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -41,8 +43,6 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { BigNumber } from "ethers";
 
 export class SolanaIndexer
   implements
@@ -133,44 +133,29 @@ export class SolanaIndexer
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      if (chainId != ChainId(EChain.Solana)) {
-        return errAsync(
-          new AccountIndexingError("invalid chain id for solana", chainId),
+    const publicKey = new PublicKey(accountAddress);
+    return ResultUtils.combine([
+      this._getConnectionForChainId(chainId),
+      this._getFilters(accountAddress),
+    ])
+      .map(async ([[conn], filters]) => {
+        const balance = await conn.getBalance(publicKey);
+        return balance;
+      })
+      .andThen((balance: number) => {
+        console.log("balance: ", balance);
+        const nativeBalance = new TokenBalance(
+          EChainTechnology.Solana,
+          TickerSymbol("SOL"),
+          chainId,
+          null,
+          accountAddress,
+          BigNumberString((balance / LAMPORTS_PER_SOL).toString()),
+          getChainInfoByChainId(chainId).nativeCurrency.decimals,
         );
-      }
-
-      const nativeBalanceConfig = {
-        method: "getBalance",
-        jsonrpc: "2.0",
-        id: "1",
-        params: [accountAddress],
-      };
-
-      return this.ajaxUtils
-        .post<IAlchemyBalanceResponse>(
-          new URL(config.alchemyEndpoints.solana),
-          JSON.stringify(nativeBalanceConfig),
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
-          },
-        )
-        .andThen((SolanaNativeBalance) => {
-          const nativeBalance = new TokenBalance(
-            EChainTechnology.Solana,
-            TickerSymbol("SOL"),
-            chainId,
-            null,
-            accountAddress,
-            BigNumberString(SolanaNativeBalance.result.value.toString()),
-            getChainInfoByChainId(chainId).nativeCurrency.decimals,
-          );
-
-          return okAsync(nativeBalance);
-        });
-    });
+        console.log("nativeBalance obj: ", nativeBalance);
+        return okAsync(nativeBalance);
+      });
   }
 
   public getTokensForAccount(
