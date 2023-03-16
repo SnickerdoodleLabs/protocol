@@ -19,11 +19,13 @@ import {
   InvalidParametersError,
   RSAKeyPair,
   KeyGenerationError,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
+  getUUID(): UUID;
   getNonce(nonceSize?: number): ResultAsync<Base64String, never>;
   getTokenId(): ResultAsync<TokenId, never>;
   getTokenIds(quantity: number): ResultAsync<TokenId[], never>;

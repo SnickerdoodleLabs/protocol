@@ -24,6 +24,7 @@ import {
   PEMEncodedRSAPrivateKey,
   PEMEncodedRSAPublicKey,
   KeyGenerationError,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -32,6 +33,7 @@ import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import nacl from "tweetnacl";
+import { v4 } from "uuid";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 
@@ -39,6 +41,10 @@ import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
   constructor() {}
+
+  public getUUID(): UUID {
+    return UUID(v4());
+  }
 
   public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
     const baseString = Base64String(

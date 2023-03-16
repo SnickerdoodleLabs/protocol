@@ -11,10 +11,14 @@ import {
   PermissionsRequestedEvent,
   JsonWebToken,
   InvalidSignatureError,
+  DomainCredential,
+  UUID,
+  KeyGenerationError,
+  PEMEncodedRSAPublicKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
-import { errAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IIntegrationService } from "@core/interfaces/business/index.js";
@@ -152,42 +156,93 @@ export class IntegrationService implements IIntegrationService {
     return this.permissionRepo.getPermissions(domain);
   }
 
+  public getTokenVerificationPublicKey(
+    domain: DomainName,
+  ): ResultAsync<
+    PEMEncodedRSAPublicKey,
+    PersistenceError | KeyGenerationError
+  > {
+    return this.assureDomainCredential(domain).map((domainCredential) => {
+      return domainCredential.key.publicKey;
+    });
+  }
+
   public getBearerToken(
     nonce: string,
     domain: DomainName,
-  ): ResultAsync<JsonWebToken, InvalidSignatureError> {
+  ): ResultAsync<
+    JsonWebToken,
+    InvalidSignatureError | PersistenceError | KeyGenerationError
+  > {
     // When a domain requests a token, it must check if we have already created an ID for this
     // domain (along with a key)
-    // First, we need to derive a keypair for the domain that we'll use to sign the JWT with
-    // We'll use an asymetric algorithm for signing.
-    return ResultAsync.fromPromise(
-      new Promise<JsonWebToken>((resolve, reject) =>
-        jwt.sign(
-          {
-            nonce: nonce,
-            aud: domain,
-          } as IUserTokenPayload,
-          config.tokenSigningKey,
-          {
-            algorithm: "RS256",
-            expiresIn: "1h",
-            issuer: config.tokenIssuer,
-          },
-          (err, token) => {
-            if (err) {
-              return reject(err);
-            }
-            if (!token) {
-              return new InvalidSignatureError("Empty token");
-            }
-            return resolve(JsonWebToken(token));
-          },
+    return this.assureDomainCredential(domain).andThen((domainCredential) => {
+      // First, we need to derive a keypair for the domain that we'll use to sign the JWT with
+      // We'll use an asymetric algorithm for signing.
+      return ResultAsync.fromPromise(
+        new Promise<JsonWebToken>((resolve, reject) =>
+          jwt.sign(
+            {
+              sub: domainCredential.id,
+              nonce: nonce,
+              aud: domain,
+            } as IUserTokenPayload,
+            domainCredential.key.privateKey,
+            {
+              algorithm: "RS256",
+              expiresIn: "1h",
+              issuer: "Snickerdoodle Data Wallet",
+            },
+            (err, token) => {
+              if (err) {
+                return reject(err);
+              }
+              if (!token) {
+                return new InvalidSignatureError("Empty token");
+              }
+              return resolve(JsonWebToken(token));
+            },
+          ),
         ),
-      ),
-      (e) => {
-        return e as InvalidSignatureError;
-      },
-    );
+        (e) => {
+          return new InvalidSignatureError(
+            "Error while creating bearer token",
+            e,
+          );
+        },
+      );
+    });
+  }
+
+  protected assureDomainCredential(
+    domain: DomainName,
+  ): ResultAsync<DomainCredential, PersistenceError | KeyGenerationError> {
+    return this.permissionRepo
+      .getDomainCredential(domain)
+      .andThen((domainCredential) => {
+        // if the credential exists, we mint a new token from the credential. If not, we need
+        // to first create the credential.
+        if (domainCredential != null) {
+          return okAsync(domainCredential);
+        }
+
+        // To create a credential, we will generate a new UUID for the domain and a keypair
+        return this.cryptoUtils.createRSAKeyPair().andThen((keyPair) => {
+          const newCredential = new DomainCredential(
+            domain,
+            this.cryptoUtils.getUUID(),
+            keyPair,
+          );
+
+          // Store it in persistence
+          return this.permissionRepo
+            .addDomainCredential(newCredential)
+            .map(() => {
+              // And return it
+              return newCredential;
+            });
+        });
+      });
   }
 }
 

@@ -1,4 +1,5 @@
 import {
+  DomainCredential,
   DomainName,
   EDataWalletPermission,
   PersistenceError,
@@ -13,6 +14,13 @@ export interface IPermissionRepository {
   setPermissions(
     domain: DomainName,
     permissions: EDataWalletPermission[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getDomainCredential(
+    domain: DomainName,
+  ): ResultAsync<DomainCredential | null, PersistenceError>;
+  addDomainCredential(
+    domainCredential: DomainCredential,
   ): ResultAsync<void, PersistenceError>;
 }
 
