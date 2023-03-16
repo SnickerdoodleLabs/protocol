@@ -30,6 +30,7 @@ import {
   EFieldKey,
   EBoolean,
   JSONString,
+  DataWalletBackupHeader,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -51,6 +52,10 @@ export class BackupManager implements IBackupManager {
   private fieldRenderers = new Map<EFieldKey, ChunkRenderer>();
   private fieldHistory: Map<string, number> = new Map();
   private renderedChunks = new Map<DataWalletBackupID, DataWalletBackup>();
+  private migrators = new Map<
+    ERecordKey,
+    VersionedObjectMigrator<VersionedObject>
+  >();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
@@ -67,6 +72,7 @@ export class BackupManager implements IBackupManager {
           schema.name,
           new ChunkRenderer(schema, enableEncryption, cryptoUtils, privateKey),
         );
+        this.migrators.set(schema.name, schema.migrator);
       }
     });
     fields.forEach((schema) => {
@@ -201,7 +207,97 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    return this.cryptoUtils
+      .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
+      .andThen((valid) => {
+        if (!valid) {
+          return errAsync(
+            new PersistenceError(
+              "invalid signature for backup",
+              backup.header.hash,
+            ),
+          );
+        } else {
+          return this._unpackBlob(backup.blob);
+        }
+      })
+      .andThen((unpacked) => {
+        if (Array.isArray(unpacked)) {
+          return this._restoreRecords(
+            backup.header,
+            unpacked as VolatileDataUpdate[],
+          );
+        } else {
+          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
+        }
+      })
+      .andThen(() => {
+        return this._addRestored(backup);
+      });
+  }
+
+  private _restoreRecords(
+    header: DataWalletBackupHeader,
+    blob: VolatileDataUpdate[],
+  ): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine(
+      blob.map((update) => {
+        return this._checkRecordUpdateRecency(
+          header.dataType as ERecordKey,
+          update.key,
+          update.timestamp,
+        ).andThen((valid) => {
+          if (!valid) {
+            return okAsync(undefined);
+          }
+
+          switch (update.operation) {
+            case EDataUpdateOpCode.REMOVE:
+              let metadata = new VolatileStorageMetadata<VersionedObject>(
+                update.value,
+                update.timestamp,
+                EBoolean.TRUE,
+              );
+              return this.volatileStorage.putObject(
+                header.dataType as ERecordKey,
+                metadata,
+              );
+            case EDataUpdateOpCode.UPDATE:
+              metadata = new VolatileStorageMetadata<VersionedObject>(
+                update.value,
+                update.timestamp,
+                EBoolean.FALSE,
+              );
+              return this.volatileStorage.putObject(
+                header.dataType as ERecordKey,
+                metadata,
+              );
+            default:
+              return errAsync(
+                new PersistenceError(
+                  "invalid opcode for data update",
+                  update.operation,
+                ),
+              );
+          }
+        });
+      }),
+    ).map(() => undefined);
+  }
+
+  private _restoreField(
+    header: DataWalletBackupHeader,
+    blob: FieldDataUpdate,
+  ): ResultAsync<void, PersistenceError> {
+    if (
+      !this.fieldHistory.has(header.dataType) ||
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.fieldHistory.get(header.dataType)! < blob.timestamp
+    ) {
+      this.fieldHistory.set(header.dataType, blob.timestamp);
+      return this.storageUtils.write(header.dataType, blob.value);
+    }
+    return okAsync(undefined);
   }
 
   public getRendered(): ResultAsync<DataWalletBackup[], PersistenceError> {
@@ -210,7 +306,7 @@ export class BackupManager implements IBackupManager {
 
   public popRendered(
     id: DataWalletBackupID,
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
     if (!this.renderedChunks.has(id)) {
       return errAsync(
         new PersistenceError("no backup with that id in map", id),
@@ -220,7 +316,7 @@ export class BackupManager implements IBackupManager {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._addRestored(this.renderedChunks.get(id)!).map(() => {
       this.renderedChunks.delete(id);
-      return undefined;
+      return id;
     });
   }
 
@@ -255,6 +351,7 @@ export class BackupManager implements IBackupManager {
         if (found == null) {
           return okAsync(true);
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return okAsync(found!.lastUpdate < timestamp);
       });
   }

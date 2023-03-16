@@ -2,7 +2,7 @@ import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
   EVMPrivateKey,
-  IDataWalletBackup,
+  DataWalletBackup,
   DataWalletBackupID,
   EBackupPriority,
   VolatileStorageKey,
@@ -10,6 +10,8 @@ import {
   VolatileStorageMetadata,
   JSONString,
   BackupFileName,
+  EFieldKey,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -21,7 +23,6 @@ import {
   IVolatileStorage,
   IVolatileStorageType,
   IVolatileCursor,
-  EFieldKey,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -126,7 +127,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAllKeys<T>(
-    name: string,
+    name: ERecordKey,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
     count?: number | undefined,
@@ -138,7 +139,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public updateRecord<T extends VersionedObject>(
-    tableName: string,
+    tableName: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
@@ -150,7 +151,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public deleteRecord(
-    tableName: string,
+    tableName: ERecordKey,
     key: VolatileStorageKey,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
@@ -158,12 +159,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.waitForUnlock(),
       this.backupManagerProvider.getBackupManager(),
     ]).andThen(([_key, backupManager]) => {
-      return backupManager.deleteRecord(tableName, key, priority);
+      return backupManager.deleteRecord(tableName, key);
     });
   }
 
   public updateField(
-    key: string,
+    key: EFieldKey,
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
@@ -171,7 +172,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.waitForUnlock(),
       this.backupManagerProvider.getBackupManager(),
     ]).andThen(([_key, backupManager]) => {
-      return backupManager.updateField(key, value, priority);
+      return backupManager.updateField(key, value);
     });
   }
 
@@ -237,7 +238,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public restoreBackup(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
@@ -268,17 +269,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen(() => {
-        return this.postBackups().map(() => undefined);
-      })
-      .orElse((e) => {
-        this.logUtils.error("error loading backups", e);
-        return okAsync(undefined);
-      });
+      .map(() => undefined);
   }
 
   public unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
@@ -289,7 +284,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public fetchBackup(
     backupHeader: string,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return this.cloudStorage.fetchBackup(backupHeader);
   }
 
@@ -301,16 +296,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.popBackup().andThen((backup) => {
-          if (backup == undefined) {
-            return okAsync([]);
-          }
-
-          return this.cloudStorage.putBackup(backup).andThen((streamID) => {
-            return this.postBackups().map((ids) => {
-              return [streamID, ...ids];
-            });
-          });
+        return backupManager.getRendered().andThen((chunks) => {
+          return ResultUtils.combine(
+            chunks.map((chunk) => {
+              return ResultUtils.backoffAndRetry<
+                DataWalletBackupID,
+                PersistenceError
+              >(
+                () => this.cloudStorage.putBackup(chunk),
+                [PersistenceError],
+              ).andThen((id) => {
+                return backupManager.popRendered(id);
+              });
+            }),
+          );
         });
       });
   }

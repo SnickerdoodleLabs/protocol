@@ -40,7 +40,7 @@ export class VolatileDataUpdate {
     public key: VolatileStorageKey,
     public timestamp: number,
     public value: VersionedObject,
-    public version?: number,
+    public version: number,
   ) {}
 }
 
