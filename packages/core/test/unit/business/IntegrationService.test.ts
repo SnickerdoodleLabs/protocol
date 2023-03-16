@@ -18,7 +18,10 @@ import * as td from "testdouble";
 
 import { IntegrationService } from "@core/implementations/business/index.js";
 import { IIntegrationService } from "@core/interfaces/business/index.js";
-import { IPermissionRepository } from "@core/interfaces/data/index.js";
+import {
+  IDomainCredentialRepository,
+  IPermissionRepository,
+} from "@core/interfaces/data/index.js";
 import { ContextProviderMock } from "@core-tests/mock/utilities/index.js";
 
 const testDomain1 = DomainName("phoebe.cute");
@@ -111,11 +114,13 @@ const permissionSet1 = [
 
 class IntegrationServiceMocks {
   public permissionRepo: IPermissionRepository;
+  public domainCredentialRepo: IDomainCredentialRepository;
   public contextProvider: ContextProviderMock;
   public cryptoUtils: ICryptoUtils;
 
   public constructor() {
     this.permissionRepo = td.object<IPermissionRepository>();
+    this.domainCredentialRepo = td.object<IDomainCredentialRepository>();
     this.contextProvider = new ContextProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
 
@@ -124,14 +129,14 @@ class IntegrationServiceMocks {
     );
 
     // Domain 1 already defined, domain 2 undefined
-    td.when(this.permissionRepo.getDomainCredential(testDomain1)).thenReturn(
-      okAsync(domainCredential1),
-    );
-    td.when(this.permissionRepo.getDomainCredential(testDomain2)).thenReturn(
-      okAsync(null),
-    );
     td.when(
-      this.permissionRepo.addDomainCredential(
+      this.domainCredentialRepo.getDomainCredential(testDomain1),
+    ).thenReturn(okAsync(domainCredential1));
+    td.when(
+      this.domainCredentialRepo.getDomainCredential(testDomain2),
+    ).thenReturn(okAsync(null));
+    td.when(
+      this.domainCredentialRepo.addDomainCredential(
         td.matchers.contains(domainCredential2),
       ),
     ).thenReturn(okAsync(undefined));
@@ -143,6 +148,7 @@ class IntegrationServiceMocks {
 
   public factory(): IIntegrationService {
     return new IntegrationService(
+      this.domainCredentialRepo,
       this.permissionRepo,
       this.contextProvider,
       this.cryptoUtils,
@@ -281,9 +287,9 @@ describe("IntegrationService tests", () => {
     const mocks = new IntegrationServiceMocks();
 
     const err = new PersistenceError();
-    td.when(mocks.permissionRepo.getDomainCredential(testDomain1)).thenReturn(
-      errAsync(err),
-    );
+    td.when(
+      mocks.domainCredentialRepo.getDomainCredential(testDomain1),
+    ).thenReturn(errAsync(err));
 
     const service = mocks.factory();
 
@@ -326,7 +332,7 @@ describe("IntegrationService tests", () => {
 
     const err = new PersistenceError();
     td.when(
-      mocks.permissionRepo.addDomainCredential(td.matchers.anything()),
+      mocks.domainCredentialRepo.addDomainCredential(td.matchers.anything()),
     ).thenReturn(errAsync(err));
 
     const service = mocks.factory();

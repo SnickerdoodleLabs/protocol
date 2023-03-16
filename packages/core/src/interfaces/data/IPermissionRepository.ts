@@ -15,13 +15,6 @@ export interface IPermissionRepository {
     domain: DomainName,
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError>;
-
-  getDomainCredential(
-    domain: DomainName,
-  ): ResultAsync<DomainCredential | null, PersistenceError>;
-  addDomainCredential(
-    domainCredential: DomainCredential,
-  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IPermissionRepositoryType = Symbol.for("IPermissionRepository");

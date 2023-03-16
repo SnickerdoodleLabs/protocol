@@ -1,5 +1,4 @@
 import {
-  DomainCredential,
   DomainName,
   EBackupPriority,
   EDataWalletPermission,
@@ -67,18 +66,6 @@ export class PermissionRepository implements IPermissionRepository {
           EBackupPriority.HIGH,
         );
       });
-  }
-
-  public getDomainCredential(
-    domain: DomainName,
-  ): ResultAsync<DomainCredential | null, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-
-  public addDomainCredential(
-    domainCredential: DomainCredential,
-  ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
   }
 }
 

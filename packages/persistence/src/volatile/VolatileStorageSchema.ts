@@ -2,6 +2,7 @@ import {
   AdSignatureMigrator,
   ChainTransactionMigrator,
   ClickDataMigrator,
+  DomainCredentialMigrator,
   EarnedRewardMigrator,
   EligibleAdMigrator,
   LatestBlockMigrator,
@@ -107,5 +108,11 @@ export const volatileStorageSchema = [
     "contractAddress",
     false,
     new ReceivingAccountMigrator(),
+  ),
+  new VolatileTableIndex(
+    ERecordKey.DOMAIN_CREDENTIALS,
+    "domain",
+    false,
+    new DomainCredentialMigrator(),
   ),
 ];

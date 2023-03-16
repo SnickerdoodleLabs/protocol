@@ -12,7 +12,6 @@ import {
   JsonWebToken,
   InvalidSignatureError,
   DomainCredential,
-  UUID,
   KeyGenerationError,
   PEMEncodedRSAPublicKey,
 } from "@snickerdoodlelabs/objects";
@@ -23,6 +22,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IIntegrationService } from "@core/interfaces/business/index.js";
 import {
+  IDomainCredentialRepository,
+  IDomainCredentialRepositoryType,
   IPermissionRepository,
   IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -38,6 +39,8 @@ export class IntegrationService implements IIntegrationService {
     (grantedPermissions: EDataWalletPermission[]) => void
   >();
   constructor(
+    @inject(IDomainCredentialRepositoryType)
+    protected domainCredentialRepo: IDomainCredentialRepository,
     @inject(IPermissionRepositoryType)
     protected permissionRepo: IPermissionRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -217,7 +220,7 @@ export class IntegrationService implements IIntegrationService {
   protected assureDomainCredential(
     domain: DomainName,
   ): ResultAsync<DomainCredential, PersistenceError | KeyGenerationError> {
-    return this.permissionRepo
+    return this.domainCredentialRepo
       .getDomainCredential(domain)
       .andThen((domainCredential) => {
         // if the credential exists, we mint a new token from the credential. If not, we need
@@ -235,7 +238,7 @@ export class IntegrationService implements IIntegrationService {
           );
 
           // Store it in persistence
-          return this.permissionRepo
+          return this.domainCredentialRepo
             .addDomainCredential(newCredential)
             .map(() => {
               // And return it

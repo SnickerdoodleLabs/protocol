@@ -5704,6 +5704,7 @@ __metadata:
     inquirer: ^8.0.0
     inversify: ^5.1.1
     ipfs-http-client: ^55.0.0
+    jsonwebtoken: ^9.0.0
     lzutf8: ^0.6.3
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
