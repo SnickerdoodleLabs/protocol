@@ -64,8 +64,11 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   public getObject<T extends VersionedObject>(
     name: string,
     key: string,
+    _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
-    return this.indexedDB.andThen((db) => db.getObject<T>(name, key));
+    return this.indexedDB.andThen((db) =>
+      db.getObject<T>(name, key, _includeDeleted),
+    );
   }
 
   public getCursor<T extends VersionedObject>(

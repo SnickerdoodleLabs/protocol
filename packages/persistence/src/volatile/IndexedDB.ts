@@ -269,6 +269,7 @@ export class IndexedDB {
   public getObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
+    _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
@@ -290,7 +291,10 @@ export class IndexedDB {
           (e) => new PersistenceError("error getting object", e),
         ).map((result) => {
           const obj = result as VolatileStorageMetadata<T>;
-          if (obj != null && obj.deleted != EBoolean.TRUE) {
+          if (
+            obj != null &&
+            (obj.deleted != EBoolean.TRUE || _includeDeleted)
+          ) {
             return obj;
           } else {
             return null;

@@ -137,7 +137,7 @@ export class BackupManager implements IBackupManager {
           return okAsync(undefined);
         }
         return this.volatileStorage
-          .getObject(tableName, key)
+          .getObject(tableName, key, true)
           .andThen((found) => {
             if (!found) {
               return okAsync(undefined);
@@ -250,7 +250,7 @@ export class BackupManager implements IBackupManager {
     }
 
     return this.volatileStorage
-      .getObject<T>(tableName, key)
+      .getObject<T>(tableName, key, true)
       .andThen((found) => {
         if (found == null) {
           return okAsync(true);

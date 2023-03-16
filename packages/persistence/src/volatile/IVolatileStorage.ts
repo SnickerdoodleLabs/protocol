@@ -24,6 +24,7 @@ export interface IVolatileStorage {
   getObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
+    _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
     name: string,
