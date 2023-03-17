@@ -1,5 +1,9 @@
 import { EQueryProcessingStatus } from "@objects/enum/index.js";
-import { IpfsCID, UnixTimestamp } from "@objects/primitives/index.js";
+import {
+  BlockNumber,
+  IpfsCID,
+  UnixTimestamp,
+} from "@objects/primitives/index.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
@@ -16,6 +20,7 @@ import { IpfsCID, UnixTimestamp } from "@objects/primitives/index.js";
 export class QueryStatus {
   public constructor(
     public queryCID: IpfsCID,
+    public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
   ) {}

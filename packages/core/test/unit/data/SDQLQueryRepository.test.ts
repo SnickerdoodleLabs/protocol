@@ -1,7 +1,5 @@
 import "reflect-metadata";
 import { IpfsCID, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
-import * as td from "testdouble";
 
 import { SDQLQueryRepository } from "@core/implementations/data/index.js";
 import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
@@ -49,13 +47,13 @@ class SDQLQueryRepositoryMocks {
 }
 
 describe("SDQLQueryRepository tests", () => {
-  test("getByCID returns text on success", async () => {
+  test("getSDQLQueryByCID returns text on success", async () => {
     // Arrange
     const mocks = new SDQLQueryRepositoryMocks();
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.getByCID(cidString);
+    const result = await repo.getSDQLQueryByCID(cidString);
 
     // Assert
     expect(result).toBeDefined();

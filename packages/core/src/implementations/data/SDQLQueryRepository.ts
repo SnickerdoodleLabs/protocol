@@ -1,10 +1,3 @@
-import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -14,11 +7,22 @@ import {
   SDQLQuery,
   SDQLString,
   AjaxError,
+  PersistenceError,
+  QueryStatus,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
+
+import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class SDQLQueryRepository implements ISDQLQueryRepository {
@@ -34,13 +38,26 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
     this.queryCache = new Map();
   }
 
+  public getQueryStatusByConsentContract(
+    consentContractAddress: EVMContractAddress,
+    queryHorizon: number,
+  ): ResultAsync<QueryStatus[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public upsertQueryStatus(
+    queryStatus: QueryStatus,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
   // if you have cache, good idea to duplicate objects before returned - business objects are immutable
   // list of ipfs results can be done in parallel
   // check the cache and do the results
   // multiple calls of ipfs in parallel with multiple pieces of content
   // easier in parallel than proper for loop
   // resultutils.combine is how you combine resultasyncs - usually functional notation of cids, uses .map for each value of cids, return copy cache value
-  public getByCID(
+  public getSDQLQueryByCID(
     cid: IpfsCID,
     timeoutMs?: number,
   ): ResultAsync<SDQLQuery | null, AjaxError> {
