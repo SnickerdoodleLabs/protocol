@@ -1,15 +1,15 @@
-import { AdContent } from "@objects/businessObjects/AdContent";
+import { AdContent } from "@objects/businessObjects/AdContent.js";
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject";
+} from "@objects/businessObjects/VersionedObject.js";
 import {
   AdKey,
   EVMContractAddress,
   IpfsCID,
   UnixTimestamp,
   EAdDisplayType,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class EligibleAd extends VersionedObject {
   public static CURRENT_VERSION = 1;

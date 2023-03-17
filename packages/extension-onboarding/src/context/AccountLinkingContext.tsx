@@ -1,3 +1,14 @@
+import { EChain } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
+import React, {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
+
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
@@ -8,17 +19,6 @@ import {
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { EChain } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
-import React, {
-  createContext,
-  FC,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 

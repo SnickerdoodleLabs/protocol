@@ -16,8 +16,6 @@ const errorCodes = {
   JWKSError: "ERR_JWKS",
   PersistenceError: "ERR_PERSISTENCE",
   ProviderRpcError: "PROVIDER_RPC_ERROR",
-  UninitializedError: "ERR_UNINITIALIZED",
-  UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   MissingWalletDataTypeError: "ERR_MISSING_WALLET_DATA_TYPE",
   PermissionError: "ERR_PERMISSION",
   QueryExpiredError: "ERR_QUERY_EXPIRED",
@@ -26,6 +24,11 @@ const errorCodes = {
   RewardsFactoryError: "ERR_REWARDS_FACTORY",
   ServerRewardError: "ERR_SERVER_REWARD",
   TransactionResponseError: "ERR_TRANSACTION_RESPONSE",
+  SiftContractError: "ERR_SIFT_CONTRACT",
+  UnauthorizedError: "ERR_UNAUTHORIZED",
+  UninitializedError: "ERR_UNINITIALIZED",
+  UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
+  GasPriceError: "ERR_GAS_PRICE",
 };
 
 export default errorCodes;
