@@ -5,7 +5,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { BackupManager, IBackupManager } from "@persistence/backup";
 import { FakeDBVolatileStorage, IVolatileStorage } from "@persistence/volatile";
-import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema";
+import { VolatileStorageSchemaProvider } from "@persistence/volatile/VolatileStorageSchemaProvider";
 
 export class BackupManagerProviderMocks {
   private backupManager?: ResultAsync<IBackupManager, PersistenceError>;
