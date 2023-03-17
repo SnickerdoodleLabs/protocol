@@ -1,6 +1,11 @@
+import {
+  VersionedObject,
+  VersionedObjectMigrator,
+} from "@objects/businessObjects/VersionedObject.js";
 import { EQueryProcessingStatus } from "@objects/enum/index.js";
 import {
   BlockNumber,
+  EVMContractAddress,
   IpfsCID,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
@@ -17,11 +22,42 @@ import {
  * @param status Current status of the query
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
-export class QueryStatus {
+export class QueryStatus extends VersionedObject {
+  public static CURRENT_VERSION = 1;
   public constructor(
+    public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
     public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
-  ) {}
+  ) {
+    super();
+  }
+
+  public getVersion(): number {
+    return QueryStatus.CURRENT_VERSION;
+  }
+}
+
+export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
+  public getCurrentVersion(): number {
+    return QueryStatus.CURRENT_VERSION;
+  }
+
+  protected factory(data: Record<string, unknown>): QueryStatus {
+    return new QueryStatus(
+      data["consentContractAddress"] as EVMContractAddress,
+      data["queryCID"] as IpfsCID,
+      data["receivedBlock"] as BlockNumber,
+      data["status"] as EQueryProcessingStatus,
+      data["expirationDate"] as UnixTimestamp,
+    );
+  }
+
+  protected getUpgradeFunctions(): Map<
+    number,
+    (data: Record<string, unknown>, version: number) => Record<string, unknown>
+  > {
+    return new Map();
+  }
 }

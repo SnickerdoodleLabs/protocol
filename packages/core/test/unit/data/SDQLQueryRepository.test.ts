@@ -1,8 +1,12 @@
 import "reflect-metadata";
 import { IpfsCID, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
+import * as td from "testdouble";
 
 import { SDQLQueryRepository } from "@core/implementations/data/index.js";
-import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
+import {
+  IDataWalletPersistence,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IConfigProvider,
@@ -25,11 +29,13 @@ class SDQLQueryRepositoryMocks {
   public contextProvider: IContextProvider;
   public configProvider: IConfigProvider;
   public ajaxUtils: AjaxUtilsMock;
+  public persistence: IDataWalletPersistence;
 
   constructor() {
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
     this.ajaxUtils = new AjaxUtilsMock();
+    this.persistence = td.object<IDataWalletPersistence>();
 
     this.ajaxUtils.addGetReturn(
       `${testCoreConfig.ipfsFetchBaseUrl}/${cidString}`,
@@ -39,6 +45,7 @@ class SDQLQueryRepositoryMocks {
 
   public factoryRepository(): ISDQLQueryRepository {
     return new SDQLQueryRepository(
+      this.persistence,
       this.configProvider,
       this.contextProvider,
       this.ajaxUtils,

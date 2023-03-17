@@ -6,6 +6,7 @@ import {
   EligibleAdMigrator,
   LatestBlockMigrator,
   LinkedAccountMigrator,
+  QueryStatusMigrator,
   ReceivingAccountMigrator,
   RestoredBackupMigrator,
   SiteVisitMigrator,
@@ -107,5 +108,11 @@ export const volatileStorageSchema = [
     "contractAddress",
     false,
     new ReceivingAccountMigrator(),
+  ),
+  new VolatileTableIndex(
+    ERecordKey.QUERY_STATUS,
+    "queryCID",
+    false,
+    new QueryStatusMigrator(),
   ),
 ];

@@ -10,13 +10,21 @@ import {
   PersistenceError,
   QueryStatus,
   EVMContractAddress,
+  VolatileStorageMetadata,
+  EBackupPriority,
+  EligibleAd,
 } from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
-import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -29,8 +37,10 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   protected queryCache: Map<IpfsCID, SDQLQuery>;
 
   public constructor(
-    @inject(IConfigProviderType) public configProvider: IConfigProvider,
-    @inject(IContextProviderType) public contextProvider: IContextProvider,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {
     // Singelton - eager initialization
@@ -42,13 +52,45 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
     consentContractAddress: EVMContractAddress,
     queryHorizon: number,
   ): ResultAsync<QueryStatus[], PersistenceError> {
-    throw new Error("Method not implemented.");
+    // TODO: Make this more efficient in the future
+    return this.persistence
+      .getAll<QueryStatus>(
+        ERecordKey.QUERY_STATUS,
+        undefined,
+        EBackupPriority.HIGH,
+      )
+      .map((queryStatii) => {
+        // Just in case the contract addresses get the cases mixed up
+        const lowerConsentContractAddress =
+          consentContractAddress.toLowerCase();
+
+        // Return only those status from after the query horizon and for the requested
+        // contract
+        return queryStatii.filter((queryStatus) => {
+          return (
+            queryStatus.consentContractAddress.toLowerCase() ==
+              lowerConsentContractAddress &&
+            queryStatus.receivedBlock > queryHorizon
+          );
+        });
+      });
   }
 
   public upsertQueryStatus(
-    queryStatus: QueryStatus,
+    queryStatii: QueryStatus[],
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    return ResultUtils.combine(
+      queryStatii.map((queryStatus) => {
+        return this.persistence.updateRecord(
+          ERecordKey.QUERY_STATUS,
+          new VolatileStorageMetadata<QueryStatus>(
+            EBackupPriority.HIGH,
+            queryStatus,
+            EligibleAd.CURRENT_VERSION,
+          ),
+        );
+      }),
+    ).map(() => {});
   }
 
   // if you have cache, good idea to duplicate objects before returned - business objects are immutable

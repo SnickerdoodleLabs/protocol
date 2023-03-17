@@ -22,6 +22,7 @@ import {
   IVolatileStorageType,
   IVolatileCursor,
   EFieldKey,
+  ERecordKey,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -83,7 +84,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getObject<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     key: VolatileStorageKey,
     priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError> {
@@ -95,7 +96,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getCursor<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
     direction?: IDBCursorDirection | undefined,
@@ -114,7 +115,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAll<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     indexName?: string | undefined,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
@@ -126,7 +127,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAllKeys<T>(
-    name: string,
+    name: ERecordKey,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
     count?: number | undefined,
@@ -138,7 +139,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public updateRecord<T extends VersionedObject>(
-    tableName: string,
+    tableName: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
@@ -150,7 +151,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public deleteRecord(
-    tableName: string,
+    tableName: ERecordKey,
     key: VolatileStorageKey,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
@@ -163,7 +164,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public updateField(
-    key: string,
+    key: EFieldKey,
     value: object,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {

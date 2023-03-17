@@ -123,14 +123,15 @@ export class QueryService implements IQueryService {
       if (consentToken == null) {
         // Record the query as having been received, but ignore it
         return this.sdqlQueryRepo
-          .upsertQueryStatus(
+          .upsertQueryStatus([
             new QueryStatus(
+              requestForData.consentContractAddress,
               requestForData.requestedCID,
               requestForData.blockNumber,
               EQueryProcessingStatus.NoConsentToken,
               queryWrapper.expiry,
             ),
-          )
+          ])
           .andThen(() => {
             return errAsync(new EvaluationError(`Consent token not found!`));
           });
@@ -140,14 +141,15 @@ export class QueryService implements IQueryService {
       // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
       // should grow significantly
       return this.sdqlQueryRepo
-        .upsertQueryStatus(
+        .upsertQueryStatus([
           new QueryStatus(
+            requestForData.consentContractAddress,
             requestForData.requestedCID,
             requestForData.blockNumber,
             EQueryProcessingStatus.Recieved,
             queryWrapper.expiry,
           ),
-        )
+        ])
         .andThen(() => {
           return ResultUtils.combine([
             this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(

@@ -20,7 +20,7 @@ export interface ISDQLQueryRepository {
   ): ResultAsync<QueryStatus[], PersistenceError>;
 
   upsertQueryStatus(
-    queryStatus: QueryStatus,
+    queryStatii: QueryStatus[],
   ): ResultAsync<void, PersistenceError>;
 
   getSDQLQueryByCID(
