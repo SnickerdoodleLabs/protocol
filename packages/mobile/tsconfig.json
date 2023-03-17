@@ -19,38 +19,7 @@
 
     }
 },
-"references": [
-  {
-    "path": "../common-utils"
-  },
-  {
-    "path": "../contracts-sdk"
-  },
-  {
-    "path": "../core"
-  }, 
-  {
-    "path": "../indexers"
-  },
-  {
-    "path": "../insight-platform-api"
-  },
-  {
-    "path": "../objects"
-  },
-  {
-    "path": "../persistence"
-  },
-  {
-    "path": "../query-parser"
-  },
-  {
-    "path": "../signatureVerification"
-  },
-  {
-    "path": "../utils"
-  },
-],
+
 "include": [
   "src"
 ],

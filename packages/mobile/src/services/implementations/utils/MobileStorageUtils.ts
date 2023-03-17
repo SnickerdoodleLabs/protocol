@@ -5,7 +5,6 @@ import { ResultAsync } from "neverthrow";
 
 export class MobileStorageUtils implements IStorageUtils {
   public remove<T = any>(key: string): ResultAsync<void, PersistenceError> {
-    console.log("MobileStorageWriteRemove");
     return ResultAsync.fromPromise(AsyncStorage.removeItem(key), (e) => {
       return new PersistenceError(
         `Cannot remove key ${key} from mobile storage, ${e}`,
@@ -14,7 +13,6 @@ export class MobileStorageUtils implements IStorageUtils {
   }
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
-    console.log("MobileStorageWrite");
     return ResultAsync.fromPromise(
       AsyncStorage.setItem(key, value as string),
       (e) => {
@@ -26,7 +24,6 @@ export class MobileStorageUtils implements IStorageUtils {
   }
 
   public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
-    console.log("MobileStorageRead");
     return ResultAsync.fromPromise(AsyncStorage.getItem(key), (e) => {
       return new PersistenceError(
         `Cannot read key ${key} from mobile storage, ${e}`,
@@ -37,7 +34,6 @@ export class MobileStorageUtils implements IStorageUtils {
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
-    console.log("MobileStorageClear");
     return ResultAsync.fromPromise(AsyncStorage.clear(), (e) => {
       return new PersistenceError(`Cannot clear storage storage: ${e}`);
     });

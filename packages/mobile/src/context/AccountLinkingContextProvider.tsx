@@ -47,7 +47,7 @@ export const AccountLinkingContext =
   React.createContext<IAccountLinkingContext>({} as IAccountLinkingContext);
 
 const AccountLinkingContextProvider = ({ children }) => {
-  const { coreContext, isUnlocked, linkedAccounts } = useAppContext();
+  const { mobileCore, isUnlocked, linkedAccounts } = useAppContext();
   const [askForSignature, setAskForSignature] = useState<boolean>(false);
   const [credentials, setCredentials] =
     useState<ICredentials>(initialCredentials);
@@ -72,7 +72,7 @@ const AccountLinkingContextProvider = ({ children }) => {
     }
   }, [JSON.stringify(credentials)]);
   const sign = () => {
-    const accountService = coreContext.getAccountService();
+    const accountService = mobileCore.getAccountService();
 
     return accountService
       .getUnlockMessage(enLangueCode)
@@ -122,11 +122,12 @@ const AccountLinkingContextProvider = ({ children }) => {
   };
 
   const manageAccountCredentials = () => {
+    console.log("credentials", credentials);
     setLoadingStatus({
       loading: true,
       type: ELoadingStatusType.ADDING_ACCOUNT,
     });
-    const accountService = coreContext.getAccountService();
+    const accountService = mobileCore.getAccountService();
     if (!isUnlocked) {
       accountService.unlock(
         credentials.accountAddress!,

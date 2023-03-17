@@ -39,7 +39,6 @@ const extraNodeModules = {
   ),
   stream: require.resolve("stream-browserify"),
   crypto: require.resolve("react-native-quick-crypto"),
-  argon2: require.resolve("react-native-argon2"),
   zlib: require.resolve("browserify-zlib"),
 };
 

@@ -1,3 +1,5 @@
+import { ObjectUtils } from "@snickerdoodlelabs/utils/src/ObjectUtils";
+
 import { parse } from "querystring";
 
 import { useEffect, useState } from "react";
@@ -35,7 +37,7 @@ const DeepLinkHandler = () => {
     ) {
       setInvitation(deepLink.params);
     }
-  }, [JSON.stringify(deepLink)]);
+  }, [ObjectUtils.serialize(deepLink)]);
 
   const urlChangeListener = (event: { url: string }) => {
     checkUrl(event.url);

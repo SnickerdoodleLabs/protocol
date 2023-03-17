@@ -5,17 +5,16 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import Browser from "webextension-polyfill";
 import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
-import { IDataPermissionsUtils } from "../../interfaces/utils/IDataPermissionsUtils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { IDataPermissionsRepository } from "../../interfaces/data/IDataPermissionsRepository";
 
 export const dependedFlags = {
   [EWalletDataType.Age]: [EWalletDataType.Birthday],
   [EWalletDataType.Birthday]: [EWalletDataType.Age],
 };
 @injectable()
-export class DataPermissionsUtils implements IDataPermissionsUtils {
+export class DataPermissionRepository implements IDataPermissionsRepository {
   public get defaultFlags(): ResultAsync<HexString32, MobileStorageError> {
     return ResultAsync.fromPromise(
       AsyncStorage.getItem("defaultFlags"),

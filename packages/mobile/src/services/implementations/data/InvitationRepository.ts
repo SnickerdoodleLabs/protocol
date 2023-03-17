@@ -31,13 +31,15 @@ export class InvitationRepository implements IInvitationRepository {
     count?: number | undefined,
     headAt?: number | undefined,
   ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this.core.getMarketplaceListings(count, headAt).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.marketplace
+      .getMarketplaceListings(count, headAt)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
   public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.core.getListingsTotal().mapErr((error) => {
+    return this.core.marketplace.getListingsTotal().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

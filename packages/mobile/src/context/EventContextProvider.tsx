@@ -16,12 +16,12 @@ export interface IEventCtx {}
 export const EventCtx = React.createContext<IEventCtx>({} as IEventCtx);
 
 const EventContextProvider = ({ children }) => {
-  const { coreContext, setUnlockState, updateLinkedAccounts } = useAppContext();
+  const { mobileCore, setUnlockState, updateLinkedAccounts } = useAppContext();
   const [appLevelNotifications, setAppLevelNotifications] = useState();
   const [infoLevelNotification, setInfoLevelNotification] = useState();
   const { cancelLoading } = useLayoutContext();
   useEffect(() => {
-    coreContext.getEvents().map((events) => {
+    mobileCore.getEvents().map((events) => {
       events.onInitialized.subscribe(onInitialized);
       events.onAccountAdded.subscribe(onAccountAdded);
       events.onQueryPosted.subscribe(onQueryPosted);
@@ -68,7 +68,7 @@ const EventContextProvider = ({ children }) => {
       }
     });
 
-    coreContext
+    mobileCore
       .getCore()
       .processQuery(
         request.consentContractAddress,

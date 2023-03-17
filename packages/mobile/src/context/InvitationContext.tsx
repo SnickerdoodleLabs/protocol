@@ -9,6 +9,7 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
+import { ObjectUtils } from "@snickerdoodlelabs/utils/src/ObjectUtils";
 import { okAsync } from "neverthrow";
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text } from "react-native";
@@ -33,7 +34,7 @@ const InvitationContextProvider = ({ children }) => {
   const [invitationParams, setInvitationParams] = useState<IInvitationParams>();
   const [invitationToDisplay, setInvitationToDisplay] = useState<Invitation>();
   const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
-  const { coreContext, isUnlocked } = useAppContext();
+  const { mobileCore, isUnlocked } = useAppContext();
   const { setInvitationStatus } = useLayoutContext();
 
   useEffect(() => {
@@ -48,11 +49,7 @@ const InvitationContextProvider = ({ children }) => {
     if (invitationToDisplay) {
       getInvitationData();
     }
-  }, [
-    JSON.stringify(invitationToDisplay, (key, value) =>
-      typeof value === "bigint" ? value.toString() : value,
-    ),
-  ]);
+  }, [ObjectUtils.serialize(invitationToDisplay)]);
 
   const setInvitation = (invitation: IInvitationParams) => {
     setInvitationParams(invitation);
@@ -60,7 +57,7 @@ const InvitationContextProvider = ({ children }) => {
 
   const checkInvitationStatus = () => {
     console.warn("CHECKING INVITATION");
-    const invitationService = coreContext.getInvitationService();
+    const invitationService = mobileCore.getInvitationService();
     const { consentAddress, signature, tokenId } = invitationParams!;
     let _invitation: Invitation;
 
@@ -94,11 +91,11 @@ const InvitationContextProvider = ({ children }) => {
     if (tokenId) {
       return okAsync(TokenId(BigInt(tokenId)));
     }
-    return coreContext.getCyrptoUtils().getTokenId();
+    return mobileCore.getCyrptoUtils().getTokenId();
   };
 
   const getInvitationData = () => {
-    const invitationService = coreContext.getInvitationService();
+    const invitationService = mobileCore.getInvitationService();
     invitationService
       .getConsentContractCID(invitationToDisplay!.consentContractAddress)
       .andThen((cid) => invitationService.getInvitationMetadataByCID(cid))
@@ -106,7 +103,7 @@ const InvitationContextProvider = ({ children }) => {
   };
   const getMetaData = () => {
     {
-      coreContext
+      mobileCore
         ?.getInvitationService()
         .checkInvitationStatus(
           new Invitation(
@@ -121,14 +118,14 @@ const InvitationContextProvider = ({ children }) => {
           console.log("invitationStatusEnd", res);
           //@ts-ignore
           if (EInvitationStatus.New === res?.value) {
-            coreContext
+            mobileCore
               .getInvitationService()
               .getConsentContractCID(
                 invitationParams?.consentAddress as EVMContractAddress,
               )
               .then((res2) => {
                 console.log("getConsentContractCIDend2", res2);
-                coreContext
+                mobileCore
                   .getInvitationService()
                   .getInvitationMetadataByCID(res2?.value as IpfsCID)
                   .then((res3) => {
@@ -142,8 +139,7 @@ const InvitationContextProvider = ({ children }) => {
   };
   return (
     <InvitationContext.Provider value={{ setInvitation }}>
-      <View style={{ position: "absolute", zIndex: 9999 }}>
-      </View>
+      <View style={{ position: "absolute", zIndex: 9999 }}></View>
 
       {children}
     </InvitationContext.Provider>

@@ -1,13 +1,4 @@
 import {
-  AccountAddress,
-  Signature,
-  EChain,
-  LanguageCode,
-  LinkedAccount,
-  TokenBalance,
-  WalletNFT,
-  DataWalletAddress,
-  EarnedReward,
   MarketplaceListing,
   EVMContractAddress,
   IpfsCID,
@@ -21,33 +12,29 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { IAccountService } from "../../interfaces/business/IAccountService";
 import {
   IInvitationService,
   IInvitationServiceType,
 } from "../../interfaces/business/IInvitationService";
+
 import {
-  IAccountRepository,
-  IAccountRepositoryType,
-} from "../../interfaces/data/IAccountRepository";
+  IDataPermissionsRepository,
+  IDataPermissionsRepositoryType,
+} from "../../interfaces/data/IDataPermissionsRepository";
 import {
   IInvitationRepository,
   IInvitationRepositoryType,
 } from "../../interfaces/data/IInvitationRepository";
 import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
-import {
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
-} from "../../interfaces/utils/IDataPermissionsUtils";
 
 @injectable()
 export class InvitationService implements IInvitationService {
   constructor(
     @inject(IInvitationRepositoryType)
     protected invitationRepository: IInvitationRepository,
-    @inject(IDataPermissionsUtilsType)
-    protected dataPermissionsUtils: IDataPermissionsUtils,
+    @inject(IDataPermissionsRepositoryType)
+    protected dataPermissionsUtils: IDataPermissionsRepository,
   ) {}
   public getMarketplaceListings(
     count?: number | undefined,

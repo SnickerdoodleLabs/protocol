@@ -9,7 +9,7 @@ import { ResultAsync } from "neverthrow";
 import { MobileCookieError } from "../objects/errors/MobileCookieError";
 import { IUnlockParams } from "../objects/params/IParams";
 
-export interface IAccountStorageUtils {
+export interface IAccountStorageRepository {
   writeAccountInfoToStorage(
     accountAddress: AccountAddress,
     signature: Signature,
@@ -32,4 +32,4 @@ export interface IAccountStorageUtils {
   removeDataWalletAddressFromstorage(): ResultAsync<void, MobileCookieError>;
 }
 
-export const IAccountStorageUtilsType = Symbol.for("IAccountStorageUtils");
+export const IAccountStorageRepositoryType = Symbol.for("IAccountStorageRepository");
