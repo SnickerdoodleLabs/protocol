@@ -10,18 +10,17 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { IAccountStorageRepository } from "../../interfaces/data/IAccountStorageRepository";
 
 import { MobileCookieError } from "../../interfaces/objects/errors/MobileCookieError";
 import { IUnlockParams } from "../../interfaces/objects/params/IParams";
-import { IAccountStorageUtils } from "../../interfaces/utils/IAccountStorageUtils";
-
 export enum ECookieName {
   AccountInfo = "dw-account-info",
   DataWalletAddress = "dw-address",
 }
 
 @injectable()
-export class AccountStorageUtils implements IAccountStorageUtils {
+export class AccountStorageRepository implements IAccountStorageRepository {
   constructor() {}
   public writeAccountInfoToStorage(
     accountAddress: AccountAddress,

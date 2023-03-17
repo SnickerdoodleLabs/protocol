@@ -31,7 +31,7 @@ enum EUnlockState {
 }
 
 const Initial = ({ navigation }) => {
-  const { coreContext, isUnlocked } = useAppContext();
+  const { mobileCore, isUnlocked } = useAppContext();
   const [unlockCompleted, setUnlockCompleted] = useState<EUnlockState>(
     EUnlockState.IDLE,
   );
@@ -53,8 +53,8 @@ const Initial = ({ navigation }) => {
   }, [allChecksCompleted, isUnlocked]);
 
   const tryUnlock = (): ResultAsync<void, Error> => {
-    const accountService = coreContext.getAccountService();
-    const accountStorageUtils = coreContext.getAccountStorageUtils();
+    const accountService = mobileCore.getAccountService();
+    const accountStorageUtils = mobileCore.getAccountStorageUtils();
     return ResultUtils.combine([
       accountStorageUtils.readAccountInfoStorage(),
       accountStorageUtils.readDataWalletAddressFromstorage(),

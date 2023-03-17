@@ -13,7 +13,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AnimatedLottieView from "lottie-react-native";
 import profileFormLottie from "../../assets/lotties/profileForm.json";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
-import { countries } from "../../constants/countries";
 import Dropdown from "./Dropdown";
 import { MotiView } from "@motify/components";
 import { Easing } from "react-native-reanimated";
@@ -29,6 +28,7 @@ import {
   TokenId,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
+import { countries } from "../../services/interfaces/objects/Countries";
 
 export const ProfileForm = ({ navigation }) => {
   const [selected, setSelected] = React.useState(undefined);
@@ -39,7 +39,7 @@ export const ProfileForm = ({ navigation }) => {
   const [countryOpen, setCountryOpen] = React.useState(false);
   const [genderOpen, setGenderOpen] = React.useState(false);
   const [date, setDate] = React.useState(new Date());
-  const { coreContext } = useAppContext();
+  const { mobileCore } = useAppContext();
 
   const genderData = [
     { label: "Male", value: "male" },
@@ -114,7 +114,7 @@ export const ProfileForm = ({ navigation }) => {
         <View style={{ alignItems: "center" }}>
           <View style={{ width: "90%", borderRadius: 50, zIndex: 999 }}>
             <DropDownPicker
-              style={{borderWidth:0,backgroundColor:'#efefef'}}
+              style={{ borderWidth: 0, backgroundColor: "#efefef" }}
               open={countryOpen}
               value={country}
               items={countries ?? []}
@@ -127,7 +127,7 @@ export const ProfileForm = ({ navigation }) => {
 
           <View style={{ width: "90%", paddingTop: 30, zIndex: 998 }}>
             <DropDownPicker
-            style={{borderWidth:0,backgroundColor:'#efefef'}}
+              style={{ borderWidth: 0, backgroundColor: "#efefef" }}
               open={genderOpen}
               value={gender}
               items={genderData ?? []}
@@ -154,8 +154,8 @@ export const ProfileForm = ({ navigation }) => {
                 style={{
                   flex: 1,
                   textAlign: "left",
-                  paddingLeft:10,
-                  fontSize:14
+                  paddingLeft: 10,
+                  fontSize: 14,
                 }}
               >
                 {dateOfBirthday
@@ -164,7 +164,7 @@ export const ProfileForm = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
             <DatePicker
-            style={{}}
+              style={{}}
               modal
               open={open}
               date={date}
@@ -182,13 +182,12 @@ export const ProfileForm = ({ navigation }) => {
       </View>
       <View style={{ paddingTop: 20 }}>
         <Button
-      
           title="Finish"
           onPress={async () => {
-            gender && coreContext.getPIIService().setGender(gender);
-            country && coreContext.getPIIService().setLocation(country);
+            gender && mobileCore.getPIIService().setGender(gender);
+            country && mobileCore.getPIIService().setLocation(country);
             dateOfBirthday &&
-              coreContext
+              mobileCore
                 .getPIIService()
                 .setBirthday(UnixTimestamp(dateOfBirthday.getTime() / 1000));
             navigation.replace(ROUTES.WALLET);

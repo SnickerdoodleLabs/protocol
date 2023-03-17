@@ -1,7 +1,8 @@
+//Shim.js is needed for nodeify our react native project. It allow us to use crypto,ethers,buffer e.t.c.
+
 import "react-native-get-random-values";
 import "@ethersproject/shims";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import ReactNative from "react-native";
+
 if (typeof btoa === "undefined") {
   global.btoa = function (str) {
     return new Buffer(str, "binary").toString("base64");

@@ -10,6 +10,7 @@ import {
   Animated,
   StatusBar,
   Modal,
+  Button,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import LinearGradient from "react-native-linear-gradient";
@@ -21,14 +22,13 @@ import {
   withWalletConnect,
 } from "@walletconnect/react-native-dapp";
 import { MoralisAPI } from "../services/implementations/api/MoralisAPI";
-import { MobileCore } from "../services/implementations/Gateway";
+import { MobileCore } from "../services/implementations/MobileCore";
 import { ethers } from "ethers";
 import { AccountAddress, ChainId } from "@snickerdoodlelabs/objects";
 import { TokenItem } from "../components/TokenItem";
 import { useAppContext } from "../context/AppContextProvider";
 import Picker from "../components/Picker/Picker";
 import { useAccountLinkingContext } from "../context/AccountLinkingContextProvider";
-import BottomSheetModal from "react-native-bottom-sheet";
 import DropDownPicker, { ItemType } from "react-native-dropdown-picker";
 const Wallet = (props: any) => {
   const { navigation } = props;
@@ -50,6 +50,7 @@ const Wallet = (props: any) => {
   const [pickerLinkedAccounts, setPickerLinkedAccount] =
     useState<ItemType<string>[]>();
 
+  const { mobileCore } = useAppContext();
   React.useEffect(() => {
     getAllNFTs();
     getTokens();
@@ -277,6 +278,17 @@ const Wallet = (props: any) => {
                     {selectedAccount?.slice(38, 42)}
                   </Text>
                   <View style={{ paddingLeft: 10 }}>
+                    <Button
+                      title="getAccounts"
+                      onPress={() => {
+                        console.log(
+                          "accounts",
+                          mobileCore.getAccountService().getAccounts().andThen((res)=>{
+                            console.log('res',res)
+                          }),
+                        );
+                      }}
+                    />
                     <TouchableOpacity
                       onPress={() => {
                         setModalVisible(true);

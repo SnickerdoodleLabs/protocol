@@ -1,6 +1,5 @@
 export default {
   INITIAL: "Initial",
-  HOME: "Home",
   FORGOT: "Forgot",
   SIGN: "Sign",
   BOTTOM_TAB: "Bottom_Tab",

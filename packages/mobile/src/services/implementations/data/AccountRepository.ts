@@ -10,16 +10,18 @@ import {
   EarnedReward,
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IAccountRepository } from "../../interfaces/data/IAccountRepository";
-import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
 import {
-  IAccountStorageUtils,
-  IAccountStorageUtilsType,
-} from "../../interfaces/utils/IAccountStorageUtils";
+  IAccountStorageRepository,
+  IAccountStorageRepositoryType,
+} from "../../interfaces/data/IAccountStorageRepository";
+import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
+
 import {
   IErrorUtils,
   IErrorUtilsType,
@@ -30,8 +32,8 @@ export class AccountRepository implements IAccountRepository {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
-    @inject(IAccountStorageUtilsType)
-    protected accountStorage: IAccountStorageUtils,
+    @inject(IAccountStorageRepositoryType)
+    protected accountStorage: IAccountStorageRepository,
   ) {}
   public addAccount(
     account: AccountAddress,
@@ -104,7 +106,11 @@ export class AccountRepository implements IAccountRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+
+  public isDataWalletAddressInitialized(): ResultAsync<
+    boolean,
+    UnauthorizedError
+  > {
     return this.core.isDataWalletAddressInitialized();
   }
   public unlinkAccount(

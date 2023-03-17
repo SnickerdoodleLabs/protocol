@@ -32,13 +32,13 @@ import {
   ITokenPriceService,
 } from "../interfaces/business/ITokenPriceService";
 import { IAccountRepositoryType } from "../interfaces/data/IAccountRepository";
-import { coreConfig } from "../interfaces/objects/Config";
 import {
-  IAccountStorageUtils,
-  IAccountStorageUtilsType,
-} from "../interfaces/utils/IAccountStorageUtils";
+  IAccountStorageRepository,
+  IAccountStorageRepositoryType,
+} from "../interfaces/data/IAccountStorageRepository";
+import { coreConfig } from "../interfaces/objects/Config";
 
-import { mobileCoreModule } from "./Gateway.module";
+import { mobileCoreModule } from "./MobileCore.module";
 import { MobileStorageUtils } from "./utils/MobileStorageUtils";
 
 export class MobileCore {
@@ -74,8 +74,8 @@ export class MobileCore {
     return this.iocContainer.get<IPIIService>(IPIIServiceType);
   }
   public getAccountStorageUtils() {
-    return this.iocContainer.get<IAccountStorageUtils>(
-      IAccountStorageUtilsType,
+    return this.iocContainer.get<IAccountStorageRepository>(
+      IAccountStorageRepositoryType,
     );
   }
   public getCyrptoUtils() {

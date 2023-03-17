@@ -90,7 +90,7 @@ const initialLoadingStatus: ILoadingStatus = {
 };
 
 const LayoutContextProvider = ({ children }) => {
-  const { coreContext } = useAppContext();
+  const { mobileCore } = useAppContext();
   const [loadingStatus, _setLoadingStatus] =
     useState<ILoadingStatus>(initialLoadingStatus);
   const [invitationData, setInvitationData] = useState<IOpenSeaMetadata>();
@@ -114,10 +114,6 @@ const LayoutContextProvider = ({ children }) => {
   const cancelLoading = () => {
     _setLoadingStatus(initialLoadingStatus);
   };
-
-  useEffect(() => {
-    console.log("falanfilaninv", invitation);
-  }, [invitation]);
 
   const loadingComponent = useMemo(() => {
     if (loadingStatus.loading) {
@@ -200,7 +196,7 @@ const LayoutContextProvider = ({ children }) => {
                   <Button
                     title="Reject"
                     onPress={() => {
-                      coreContext
+                      mobileCore
                         .getInvitationService()
                         .rejectInvitation(
                           new Invitation(
@@ -224,10 +220,10 @@ const LayoutContextProvider = ({ children }) => {
                         invitation?.signature ?? null,
                       );
                       console.log("inv22", inv);
-                      coreContext
+                      mobileCore
                         .getInvitationService()
                         .acceptInvitation(inv, null);
-                      setInvitationStatus(false,null,null);
+                      setInvitationStatus(false, null, null);
                     }}
                   />
                 </View>

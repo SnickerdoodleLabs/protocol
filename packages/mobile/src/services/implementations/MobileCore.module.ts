@@ -17,12 +17,11 @@ import {
   PIIService,
   InvitationService,
   TokenPriceService,
-} from "../implementations/business";
-import { AccountRepository } from "../implementations/data/AccountRepository";
-import { InvitationRepository } from "../implementations/data/InvitationRepository";
-import { PIIRepository } from "../implementations/data/PIIRepository";
-import { TokenPriceRepository } from "../implementations/data/TokenPriceRepository";
-import { ConfigProvider } from "../implementations/utils/ConfigProvider";
+} from "./business";
+import { AccountRepository } from "./data/AccountRepository";
+import { InvitationRepository } from "./data/InvitationRepository";
+import { PIIRepository } from "./data/PIIRepository";
+import { TokenPriceRepository } from "./data/TokenPriceRepository";
 import {
   IAccountService,
   IAccountServiceType,
@@ -55,19 +54,15 @@ import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "../interfaces/data/ITokenPriceRepository";
-import {
-  IAccountStorageUtils,
-  IAccountStorageUtilsType,
-} from "../interfaces/utils/IAccountStorageUtils";
-
-import {
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
-} from "../interfaces/utils/IDataPermissionsUtils";
 import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
-import { AccountStorageUtils } from "./utils/AccountStorageUtils";
-import { DataPermissionsUtils } from "./utils/DataPermissionsUtils";
 import { ErrorUtils } from "./utils/ErrorUtils";
+import { AccountStorageRepository } from "./data/AccountStorageRepository";
+import {
+  IAccountStorageRepository,
+  IAccountStorageRepositoryType,
+} from "../interfaces/data/IAccountStorageRepository";
+import { IDataPermissionsRepository } from "../interfaces/data/IDataPermissionsRepository";
+import { DataPermissionRepository } from "./data/DataPermissionRepository";
 export const mobileCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -100,6 +95,12 @@ export const mobileCoreModule = new ContainerModule(
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(TokenPriceRepository)
       .inSingletonScope();
+    bind<IAccountStorageRepository>(IAccountStorageRepositoryType).to(
+      AccountStorageRepository,
+    );
+    bind<IDataPermissionsRepository>(DataPermissionRepository).to(
+      DataPermissionRepository,
+    );
 
     // Utilities
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
@@ -108,11 +109,5 @@ export const mobileCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
-    bind<IAccountStorageUtils>(IAccountStorageUtilsType).to(
-      AccountStorageUtils,
-    );
-    bind<IDataPermissionsUtils>(IDataPermissionsUtilsType).to(
-      DataPermissionsUtils,
-    );
   },
 );

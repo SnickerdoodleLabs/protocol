@@ -1,6 +1,5 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import Home from "../screens/Home";
 import { COLORS, ROUTES } from "../constants";
 import ImageCarousel from "../components/ImageCarousel";
 import { Wallet } from "../screens";
@@ -45,14 +44,7 @@ function AuthNavigator() {
           headerShown: false,
         }}
       />
-      <Stack.Screen
-        name={ROUTES.HOME}
-        component={Home}
-        options={{
-          headerShown: false,
-        }}
-      />
-   
+
       <Stack.Screen
         name={ROUTES.IMAGE_CAROUSEL}
         component={ImageCarousel}

@@ -171,7 +171,9 @@ export class AccountService implements IAccountService {
     )
       .andThen(() => {
         // Next step is to convert the signature into a derived account
-        console.log('getDerivedEVMAccountFromSignature() -> contextProvider.getContext()')
+        console.log(
+          "getDerivedEVMAccountFromSignature() -> contextProvider.getContext()",
+        );
         return ResultUtils.combine([
           this.dataWalletUtils.getDerivedEVMAccountFromSignature(
             accountAddress,
@@ -181,7 +183,7 @@ export class AccountService implements IAccountService {
         ]);
       })
       .andThen(([derivedEOA, context]) => {
-        console.log('getCrumb()')
+        console.log("getCrumb()");
         return this.crumbsRepo
           .getCrumb(derivedEOA.accountAddress, languageCode)
           .andThen((encryptedDataWalletKey) => {
@@ -205,7 +207,7 @@ export class AccountService implements IAccountService {
 
             // Need to update the context
             context.unlockInProgress = true;
-            console.log('contextProvider.setContext()')
+            console.log("contextProvider.setContext()");
             return this.contextProvider
               .setContext(context)
               .andThen(() => {
@@ -224,7 +226,7 @@ export class AccountService implements IAccountService {
                 this.logUtils.info(
                   `Existing crumb found for ${accountAddress}`,
                 );
-                console.log('getDataWalletAccount()')
+                console.log("getDataWalletAccount()");
                 return this.getDataWalletAccount(
                   encryptedDataWalletKey,
                   accountAddress,
@@ -247,7 +249,7 @@ export class AccountService implements IAccountService {
                 context.unlockInProgress = false;
 
                 // We can update the context and provide the key to the persistence in one step
-                console.log('dataWalletPersistence.unlock()')
+                console.log("dataWalletPersistence.unlock()");
                 return ResultUtils.combine([
                   this.dataWalletPersistence.unlock(
                     dataWalletAccount.privateKey,
@@ -271,14 +273,14 @@ export class AccountService implements IAccountService {
               })
               .andThen(() => {
                 // Need to emit some events
-                console.log('emitEvents onInitalize')
+                console.log("emitEvents onInitalize");
                 context.publicEvents.onInitialized.next(
                   context.dataWalletAddress!,
                 );
 
                 // If the account was newly added, event out
                 if (encryptedDataWalletKey == null) {
-                  console.log('emitEvents onAccountAdded')
+                  console.log("emitEvents onAccountAdded");
                   context.publicEvents.onAccountAdded.next(
                     new LinkedAccount(
                       chain,
@@ -385,6 +387,7 @@ export class AccountService implements IAccountService {
           })
           .andThen(() => {
             // Add the account to the data wallet
+            console.log("addAccountbefore", chain, accountAddress);
             return this.accountRepo.addAccount(
               new LinkedAccount(
                 chain,
@@ -565,12 +568,16 @@ export class AccountService implements IAccountService {
   public getAccounts(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
+    console.log("getAccbefore");
     return this.permissionUtils
       .assureSourceDomainHasPermission(
         sourceDomain,
         EDataWalletPermission.ReadLinkedAccounts,
       )
       .andThen(() => {
+        this.accountRepo.getAccounts().map((res) => {
+          console.log("accccccccccc", res);
+        });
         return this.accountRepo.getAccounts();
       });
   }

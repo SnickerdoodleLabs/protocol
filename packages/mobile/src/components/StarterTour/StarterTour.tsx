@@ -200,9 +200,9 @@ export default function StarterTour(props: any) {
               fontFamily: "Space Grotesk",
             }}
           >
-            You are so cool because you use Snicerdoodle Data Wallet You are so
-            cool because you use Snicerdoodle Data Wallet You are so cool
-            because you use Snicerdoodle Data Wallet
+            You are so cool because you use Snickerdoodle Data Wallet You are so
+            cool because you use Snickerdoodle Data Wallet You are so cool
+            because you use Snickerdoodle Data Wallet
           </Text>
         </View>
 
