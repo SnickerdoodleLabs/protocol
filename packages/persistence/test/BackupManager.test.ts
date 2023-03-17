@@ -12,10 +12,10 @@ import {
   EVMContractAddress,
   EBackupPriority,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
-import { ERecordKey } from "@persistence/ELocalStorageKey";
 
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {

@@ -3,8 +3,8 @@ import {
   EBackupPriority,
   EDataWalletPermission,
   PersistenceError,
+  EFieldKey,
 } from "@snickerdoodlelabs/objects";
-import { EFieldKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 

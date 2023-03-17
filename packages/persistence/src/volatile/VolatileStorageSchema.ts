@@ -10,9 +10,9 @@ import {
   RestoredBackupMigrator,
   SiteVisitMigrator,
   TokenInfoMigrator,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 
-import { ERecordKey } from "@persistence/ELocalStorageKey.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export const volatileStorageSchema = [

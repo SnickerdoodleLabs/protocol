@@ -12,9 +12,9 @@ import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import {
-  ERecordKey,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   IVolatileCursor,

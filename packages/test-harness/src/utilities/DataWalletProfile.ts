@@ -417,6 +417,7 @@ export class DataWalletProfile {
             timestamp: UnixTimestamp(backupJson.timestamp),
             signature: backupJson.signature,
             priority: EBackupPriority.NORMAL,
+            dataType: backupJson,
           },
           blob: new AESEncryptedString(
             EncryptedString(backupJson.blob.data),

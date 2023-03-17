@@ -11,7 +11,7 @@ import { ResultAsync } from "neverthrow";
 import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IBackupManager {
-  clear(): ResultAsync<void, never>;
+  clear(): ResultAsync<void, PersistenceError>;
   addRecord<T extends VersionedObject>(
     tableName: string,
     value: VolatileStorageMetadata<T>,
