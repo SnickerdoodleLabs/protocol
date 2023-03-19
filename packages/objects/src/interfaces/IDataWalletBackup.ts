@@ -1,10 +1,6 @@
 import { AESEncryptedString, VersionedObject } from "@objects/businessObjects";
 import { EBackupPriority } from "@objects/enum";
-import {
-  JSONString,
-  UnixTimestamp,
-  VolatileStorageKey,
-} from "@objects/primitives";
+import { UnixTimestamp, VolatileStorageKey } from "@objects/primitives";
 
 export interface IDataWalletBackupHeader {
   hash: string;
@@ -15,7 +11,7 @@ export interface IDataWalletBackupHeader {
 
 export interface IDataWalletBackup {
   header: IDataWalletBackupHeader;
-  blob: AESEncryptedString;
+  blob: AESEncryptedString | BackupBlob;
 }
 
 export enum EDataUpdateOpCode {

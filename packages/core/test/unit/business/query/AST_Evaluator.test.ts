@@ -1,10 +1,6 @@
 import "reflect-metadata";
 
-import {
-  SDQL_Name,
-  SDQL_OperatorName,
-  SDQL_Return,
-} from "@snickerdoodlelabs/objects";
+import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -81,11 +77,7 @@ describe("Conditions", () => {
     const mocks = new ASTMocks();
     const astEvaluator = mocks.factory();
 
-    const and = new ConditionAnd(
-      SDQL_OperatorName("And1"),
-      SDQL_Return(true),
-      SDQL_Return(true),
-    );
+    const and = new ConditionAnd(SDQL_OperatorName("And1"), true, true);
 
     // console.log("SDQL_Return type", typeof SDQL_Return(true));
 

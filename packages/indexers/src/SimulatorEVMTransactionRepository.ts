@@ -2,6 +2,7 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
+  BlockNumber,
   ChainId,
   EChainTechnology,
   EVMAccountAddress,
@@ -29,11 +30,11 @@ export class SimulatorEVMTransactionRepository
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    const num = Math.floor(Math.random() * 10);
+    const num = Math.floor(Math.random() * 10) + 1;
     const result: EVMNFT[] = [];
     for (let i = 0; i < num; i++) {
       const item = new EVMNFT(
-        EVMContractAddress("EVMContractAddress#" + i),
+        EVMContractAddress("EVMContractAddress#"),
         BigNumberString(`${Math.floor(Math.random() * 1000)}`),
         "erc721",
         accountAddress,
@@ -42,6 +43,9 @@ export class SimulatorEVMTransactionRepository
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         "Fake Token #" + i,
         chainId,
+        BlockNumber(i),
+        //86400 => day
+        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
       );
       result.push(item);
     }

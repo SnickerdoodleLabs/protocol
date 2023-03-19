@@ -16,6 +16,9 @@ Give a brief summary of what your change is and why it is required.
 - Are there any metrics (or indicators) that can prove or disprove the integrity of this change?
 - List them here...
 
+#### Testing Notes:
+- How has this been tested?
+
 <!---For minor fixes replace with the following --->
 <!---### Minor Change
 A 1-2 sentence summary on the change. If this requires more detail your change is likely not minor.-->

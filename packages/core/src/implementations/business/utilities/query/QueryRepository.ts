@@ -11,7 +11,7 @@ import {
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryRepository,
-} from "@core/interfaces/business/utilities/index.js";
+} from "@core/interfaces/business/utilities/query/index.js";
 
 @injectable()
 export class QueryRepository implements IQueryRepository {

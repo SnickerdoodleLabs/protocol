@@ -25,6 +25,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.PROD_GCP_CREDENTIALS }}'
+    - name: Identifier Fetching
+      id: identifier
+      run: |-
+        JIRA_TICKET=prod
+        GKE_CLUSTER=$(gcloud container clusters list --format="csv(name)" | grep $JIRA_TICKET)  
+        output=$(echo $GKE_CLUSTER | sed "s/sdl-cluster-//")
+        echo "::set-output name=identifier::$output"
+        
+        
     # Setup gcloud CLI
     - id: 'auth'
       uses: 'google-github-actions/auth@v0'
@@ -35,6 +47,7 @@ jobs:
     - name: Docker configuration
       run: |-
         gcloud --quiet auth configure-docker $GAR_LOCATION-docker.pkg.dev
+
         
     - name: Build protocol
       run: |-
@@ -45,6 +58,8 @@ jobs:
           --build-arg BUILD_ENV=prod \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
+          --build-arg IPFS_FETCH_BASE_URL="https://ipfs-gateway.snickerdoodle.com/ipfs/" \
+          --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
           -f ./packages/extension-onboarding/Dockerfile \
           .
     # Push the Docker image to Google Artifact Registry
@@ -54,6 +69,7 @@ jobs:
 
   deploy:
     name: Deploy
+    needs: [ setup-build-publish-deploy ]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout

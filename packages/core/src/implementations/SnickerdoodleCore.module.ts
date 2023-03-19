@@ -55,18 +55,25 @@ import {
 import {
   AccountService,
   AdService,
-  BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
   MonitoringService,
-  NetworkQueryEvaluator,
   ProfileService,
-  QueryEvaluator,
   QueryParsingEngine,
-  QueryRepository,
   QueryService,
   SiftContractService,
+  CampaignService,
+  MarketplaceService,
+  IntegrationService,
 } from "@core/implementations/business/index.js";
+import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
+import {
+  BalanceQueryEvaluator,
+  BlockchainTransactionQueryEvaluator,
+  NftQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+} from "@core/implementations/business/utilities/query/index.js";
 import {
   AdDataRepository,
   BrowsingDataRepository,
@@ -85,6 +92,7 @@ import {
   SDQLQueryRepository,
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
+  PermissionRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -107,8 +115,14 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICampaignService,
+  ICampaignServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -123,14 +137,18 @@ import {
   IBalanceQueryEvaluatorType,
   IConsentTokenUtils,
   IConsentTokenUtilsType,
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
+  IPermissionUtils,
+  IPermissionUtilsType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
@@ -165,6 +183,8 @@ import {
   ITransactionHistoryRepository,
   IDemographicDataRepositoryType,
   IDemographicDataRepository,
+  IPermissionRepository,
+  IPermissionRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -201,14 +221,23 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(AccountService)
       .inSingletonScope();
 
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
+      .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
+      .inSingletonScope();
+    bind<IMarketplaceService>(IMarketplaceServiceType)
+      .to(MarketplaceService)
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<ICampaignService>(ICampaignServiceType)
+      .to(CampaignService)
+      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -218,6 +247,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
       .to(ConsentTokenUtils)
+      .inSingletonScope();
+    bind<IPermissionUtils>(IPermissionUtilsType)
+      .to(PermissionUtils)
       .inSingletonScope();
     bind<IQueryParsingEngine>(IQueryParsingEngineType)
       .to(QueryParsingEngine)
@@ -279,6 +311,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDemographicDataRepository>(IDemographicDataRepositoryType)
       .to(DemographicDataRepository)
       .inSingletonScope();
+    bind<IPermissionRepository>(IPermissionRepositoryType)
+      .to(PermissionRepository)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
@@ -311,8 +346,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
-    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
-      .to(NetworkQueryEvaluator)
+    bind<IBlockchainTransactionQueryEvaluator>(
+      IBlockchainTransactionQueryEvaluatorType,
+    )
+      .to(BlockchainTransactionQueryEvaluator)
+      .inSingletonScope();
+
+    bind<INftQueryEvaluator>(INftQueryEvaluatorType)
+      .to(NftQueryEvaluator)
       .inSingletonScope();
 
     bind<IQueryEvaluator>(IQueryEvaluatorType)
