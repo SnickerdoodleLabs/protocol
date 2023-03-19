@@ -91,7 +91,6 @@ export class SolanaIndexer
               if (tokenInfo == null) {
                 return okAsync(null);
               }
-
               return okAsync(
                 new TokenBalance(
                   EChainTechnology.Solana,
@@ -143,17 +142,15 @@ export class SolanaIndexer
         return balance;
       })
       .andThen((balance: number) => {
-        console.log("balance: ", balance);
         const nativeBalance = new TokenBalance(
           EChainTechnology.Solana,
           TickerSymbol("SOL"),
           chainId,
           null,
           accountAddress,
-          BigNumberString((balance / LAMPORTS_PER_SOL).toString()),
+          BigNumberString(BigNumber.from(balance).toString()),
           getChainInfoByChainId(chainId).nativeCurrency.decimals,
         );
-        console.log("nativeBalance obj: ", nativeBalance);
         return okAsync(nativeBalance);
       });
   }
