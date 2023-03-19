@@ -196,17 +196,15 @@ const LayoutContextProvider = ({ children }) => {
                   <Button
                     title="Reject"
                     onPress={() => {
-                      mobileCore
-                        .getInvitationService()
-                        .rejectInvitation(
-                          new Invitation(
-                            "" as DomainName,
-                            invitation?.consentAddress ??
-                              ("" as EVMContractAddress),
-                            TokenId(BigInt(invitation?.tokenId ?? 0)),
-                            invitation?.signature ?? null,
-                          ),
-                        );
+                      mobileCore.invitationService.rejectInvitation(
+                        new Invitation(
+                          "" as DomainName,
+                          invitation?.consentAddress ??
+                            ("" as EVMContractAddress),
+                          TokenId(BigInt(invitation?.tokenId ?? 0)),
+                          invitation?.signature ?? null,
+                        ),
+                      );
                     }}
                   />
                   <Button
@@ -220,9 +218,7 @@ const LayoutContextProvider = ({ children }) => {
                         invitation?.signature ?? null,
                       );
                       console.log("inv22", inv);
-                      mobileCore
-                        .getInvitationService()
-                        .acceptInvitation(inv, null);
+                      mobileCore.invitationService.acceptInvitation(inv, null);
                       setInvitationStatus(false, null, null);
                     }}
                   />

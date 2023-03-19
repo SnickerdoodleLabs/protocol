@@ -96,7 +96,10 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getUnlockMessage(languageCode);
   }
 
-  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+  public isDataWalletAddressInitialized(): ResultAsync<
+    boolean,
+    never
+  > {
     return this.accountRepository.isDataWalletAddressInitialized();
   }
 

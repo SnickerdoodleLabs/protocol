@@ -55,7 +55,7 @@ const InvitationContextProvider = ({ children }) => {
     setInvitationParams(invitation);
   };
 
-  const checkInvitationStatus = () => {
+  /*   const checkInvitationStatus = () => {
     console.warn("CHECKING INVITATION");
     const invitationService = mobileCore.invitationService;
     const { consentAddress, signature, tokenId } = invitationParams!;
@@ -85,14 +85,13 @@ const InvitationContextProvider = ({ children }) => {
           setInvitationParams(undefined);
         });
     });
-  };
-
-  const getTokenId = (tokenId: BigNumberString | undefined) => {
+      const getTokenId = (tokenId: BigNumberString | undefined) => {
     if (tokenId) {
       return okAsync(TokenId(BigInt(tokenId)));
     }
     return mobileCore.getCyrptoUtils().getTokenId();
   };
+  }; */
 
   const getInvitationData = () => {
     const invitationService = mobileCore.invitationService;
@@ -103,8 +102,7 @@ const InvitationContextProvider = ({ children }) => {
   };
   const getMetaData = () => {
     {
-      mobileCore
-        ?.invitationService
+      mobileCore?.invitationService
         .checkInvitationStatus(
           new Invitation(
             "" as DomainName,
@@ -118,15 +116,14 @@ const InvitationContextProvider = ({ children }) => {
           console.log("invitationStatusEnd", res);
           //@ts-ignore
           if (EInvitationStatus.New === res?.value) {
-            mobileCore
-              .invitationService
+            mobileCore.invitationService
               .getConsentContractCID(
                 invitationParams?.consentAddress as EVMContractAddress,
               )
               .then((res2) => {
                 console.log("getConsentContractCIDend2", res2);
-                mobileCore
-                  .invitationService
+                mobileCore.invitationService
+                  //@ts-ignore
                   .getInvitationMetadataByCID(res2?.value as IpfsCID)
                   .then((res3) => {
                     console.log("MetaData", res3);
