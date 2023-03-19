@@ -38563,7 +38563,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"realm@npm:^11.3.0, realm@npm:^11.4.0":
+"realm@npm:^11.3.0":
   version: 11.5.1
   resolution: "realm@npm:11.5.1"
   dependencies:
@@ -40688,7 +40688,6 @@ __metadata:
     prettier: ^2.2.1
     process: ^0.11.10
     randomstring: ^1.1.5
-    realm: ^11.4.0
     rimraf: ^3.0.2
     sass-loader: ^11.1.1
     solidity-coverage: ^0.7.9

@@ -72,7 +72,7 @@ const AccountLinkingContextProvider = ({ children }) => {
     }
   }, [JSON.stringify(credentials)]);
   const sign = () => {
-    const accountService = mobileCore.getAccountService();
+    const accountService = mobileCore.accountService;
 
     return accountService
       .getUnlockMessage(enLangueCode)
@@ -127,7 +127,7 @@ const AccountLinkingContextProvider = ({ children }) => {
       loading: true,
       type: ELoadingStatusType.ADDING_ACCOUNT,
     });
-    const accountService = mobileCore.getAccountService();
+    const accountService = mobileCore.accountService;
     if (!isUnlocked) {
       accountService.unlock(
         credentials.accountAddress!,

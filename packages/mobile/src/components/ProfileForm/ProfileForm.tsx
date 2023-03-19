@@ -184,12 +184,12 @@ export const ProfileForm = ({ navigation }) => {
         <Button
           title="Finish"
           onPress={async () => {
-            gender && mobileCore.getPIIService().setGender(gender);
-            country && mobileCore.getPIIService().setLocation(country);
+            gender && mobileCore.piiService.setGender(gender);
+            country && mobileCore.piiService.setLocation(country);
             dateOfBirthday &&
-              mobileCore
-                .getPIIService()
-                .setBirthday(UnixTimestamp(dateOfBirthday.getTime() / 1000));
+              mobileCore.piiService.setBirthday(
+                UnixTimestamp(dateOfBirthday.getTime() / 1000),
+              );
             navigation.replace(ROUTES.WALLET);
           }}
         />

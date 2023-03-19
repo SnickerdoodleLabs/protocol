@@ -28,7 +28,6 @@ export interface IPIIService {
   getEmail(): ResultAsync<EmailAddressString | null, SnickerDoodleCoreError>;
   setLocation(location: CountryCode): ResultAsync<void, SnickerDoodleCoreError>;
   getLocation(): ResultAsync<CountryCode | null, SnickerDoodleCoreError>;
-  test();
 }
 
 export const IPIIServiceType = Symbol.for("IPIIService");

@@ -53,7 +53,7 @@ const Initial = ({ navigation }) => {
   }, [allChecksCompleted, isUnlocked]);
 
   const tryUnlock = (): ResultAsync<void, Error> => {
-    const accountService = mobileCore.getAccountService();
+    const accountService = mobileCore.accountService;
     const accountStorageUtils = mobileCore.getAccountStorageUtils();
     return ResultUtils.combine([
       accountStorageUtils.readAccountInfoStorage(),

@@ -57,7 +57,7 @@ const InvitationContextProvider = ({ children }) => {
 
   const checkInvitationStatus = () => {
     console.warn("CHECKING INVITATION");
-    const invitationService = mobileCore.getInvitationService();
+    const invitationService = mobileCore.invitationService;
     const { consentAddress, signature, tokenId } = invitationParams!;
     let _invitation: Invitation;
 
@@ -95,7 +95,7 @@ const InvitationContextProvider = ({ children }) => {
   };
 
   const getInvitationData = () => {
-    const invitationService = mobileCore.getInvitationService();
+    const invitationService = mobileCore.invitationService;
     invitationService
       .getConsentContractCID(invitationToDisplay!.consentContractAddress)
       .andThen((cid) => invitationService.getInvitationMetadataByCID(cid))
@@ -104,7 +104,7 @@ const InvitationContextProvider = ({ children }) => {
   const getMetaData = () => {
     {
       mobileCore
-        ?.getInvitationService()
+        ?.invitationService
         .checkInvitationStatus(
           new Invitation(
             "" as DomainName,
@@ -119,14 +119,14 @@ const InvitationContextProvider = ({ children }) => {
           //@ts-ignore
           if (EInvitationStatus.New === res?.value) {
             mobileCore
-              .getInvitationService()
+              .invitationService
               .getConsentContractCID(
                 invitationParams?.consentAddress as EVMContractAddress,
               )
               .then((res2) => {
                 console.log("getConsentContractCIDend2", res2);
                 mobileCore
-                  .getInvitationService()
+                  .invitationService
                   .getInvitationMetadataByCID(res2?.value as IpfsCID)
                   .then((res3) => {
                     console.log("MetaData", res3);

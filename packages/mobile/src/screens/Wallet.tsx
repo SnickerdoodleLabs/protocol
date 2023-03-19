@@ -283,9 +283,11 @@ const Wallet = (props: any) => {
                       onPress={() => {
                         console.log(
                           "accounts",
-                          mobileCore.getAccountService().getAccounts().andThen((res)=>{
-                            console.log('res',res)
-                          }),
+                          mobileCore.accountService
+                            .getAccounts()
+                            .andThen((res) => {
+                              console.log("res", res);
+                            }),
                         );
                       }}
                     />
