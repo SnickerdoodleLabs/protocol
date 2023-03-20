@@ -4,8 +4,10 @@ import AccountUnlinkingModal from "@extension-onboarding/components/Modals/Accou
 import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
 import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
 import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPermissionsModal";
+import LeaveCohortModal from "@extension-onboarding/components/Modals/LeaveCohortModal";
 import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
+import SubscriptionSuccessModal from "@extension-onboarding/components/Modals/SubscriptionSuccessModal";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
 import React, {
   ReactNode,
@@ -69,6 +71,11 @@ export const LayoutProvider: FC = ({ children }) => {
         return <PermissionSelectionModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
+      case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
+        return <LeaveCohortModal />;
+      case modalState.modalSelector ===
+        EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL:
+        return <SubscriptionSuccessModal />;
       case modalState.modalSelector === EModalSelectors.CUSTOMIZABLE_MODAL:
         return (
           <CustomizableModal

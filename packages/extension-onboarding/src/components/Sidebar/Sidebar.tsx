@@ -48,15 +48,6 @@ export const routes: IRoute[] = [
       { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
   },
-  // {
-  //   icon: campaignIcon,
-  //   title: "Campaigns",
-  //   path: null,
-  //   subroutes: [
-  //     { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
-  //     { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
-  //   ],
-  // },
   {
     icon: settingsIcon,
     title: "Settings",
@@ -64,7 +55,7 @@ export const routes: IRoute[] = [
     subroutes: [
       { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
       { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
-      { title: "Rewards Subscriptions", path: EPaths.CAMPAIGN_SETTINGS },
+      { title: "Rewards Subscriptions", path: EPaths.REWARDS_SUBSCRIPTIONS },
       { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],

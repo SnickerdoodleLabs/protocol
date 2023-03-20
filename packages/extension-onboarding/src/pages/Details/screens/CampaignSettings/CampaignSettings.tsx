@@ -5,18 +5,15 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-import {
-  EarnedReward,
-  EVMContractAddress,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
+import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
+  const { earnedRewards, updateOptedInContracts } = useAppContext();
   const [
     campaignContractAddressesWithCID,
     setCampaignContractAddressesWithCID,
@@ -25,7 +22,6 @@ const RewardsInfo: FC = () => {
 
   useEffect(() => {
     getInvitations();
-    getEarnedRewards();
   }, []);
 
   useEffect(() => {
@@ -48,17 +44,6 @@ const RewardsInfo: FC = () => {
       });
   };
 
-  const getEarnedRewards = () => {
-    return window.sdlDataWallet
-      .getEarnedRewards()
-      .mapErr((e) => {
-        setIsLoading(false);
-      })
-      .map((rewards) => {
-        setEarnedRewards(rewards);
-      });
-  };
-
   const leaveCohort = (consentContractAddress: EVMContractAddress) => {
     setLoadingStatus(true);
     window.sdlDataWallet
@@ -71,19 +56,15 @@ const RewardsInfo: FC = () => {
         delete metadata[consentContractAddress];
         setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
+        updateOptedInContracts();
       });
   };
 
   const onLeaveClick = (consentContractAddress: EVMContractAddress) => {
     setModal({
-      modalSelector: EModalSelectors.CONFIRMATION_MODAL,
+      modalSelector: EModalSelectors.LEAVE_COHORT_MODAL,
       onPrimaryButtonClick: () => {
         leaveCohort(consentContractAddress);
-      },
-      customProps: {
-        title: "Leave",
-        content: "Are you sure you want to leave from cohort?",
-        primaryButtonText: "Leave",
       },
     });
   };
@@ -115,12 +96,11 @@ const RewardsInfo: FC = () => {
             Object.keys(campaignContractAddressesWithCID)?.map((key) => (
               <Grid item key={key} xs={6}>
                 <CampaignItem
+                  isSubscriptionsPage
                   onLeaveClick={() => {
                     onLeaveClick(key as EVMContractAddress);
                   }}
-                  earnedRewards={earnedRewards!}
                   consentContractAddress={key as EVMContractAddress}
-                  campaignCID={campaignContractAddressesWithCID[key]}
                 />
               </Grid>
             ))

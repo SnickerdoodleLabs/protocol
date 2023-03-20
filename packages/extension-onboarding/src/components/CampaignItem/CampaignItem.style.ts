@@ -73,4 +73,20 @@ export const useStyles = makeStyles((theme) => ({
     color: "#D32F2F",
     cursor: "pointer",
   },
+  rewardText: {
+    fontFamily: "'Roboto'",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "12px",
+    lineHeight: "14px",
+    color: "#616161",
+  },
+  subscribedText: {
+    fontFamily: "'Roboto'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "12px",
+    lineHeight: "13px",
+    color: "#54A858",
+  },
 }));

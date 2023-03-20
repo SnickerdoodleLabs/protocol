@@ -3,6 +3,7 @@ import {
   AccountAddress,
   BigNumberString,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   EVMContractAddress,
   LinkedAccount,
@@ -60,6 +61,9 @@ export interface IAppContext {
   linkedAccounts: ILinkedAccount[];
   isSDLDataWalletDetected: boolean;
   providerList: IProvider[];
+  earnedRewards: EarnedReward[];
+  updateOptedInContracts: () => void;
+  optedInContracts: EVMContractAddress[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
   appMode: EAppModes | undefined;
@@ -89,6 +93,10 @@ export const AppContextProvider: FC = ({ children }) => {
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
     INITIAL_INVITATION_INFO,
   );
+  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
+  const [optedInContracts, setUptedInContracts] = useState<
+    EVMContractAddress[]
+  >([]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -142,20 +150,14 @@ export const AppContextProvider: FC = ({ children }) => {
     };
   }, []);
 
-  useEffect(() => {
-    console.warn("window changed");
-  }, [window?.sdlDataWallet]);
-
-  useEffect(() => {
-    if (isSDLDataWalletDetected) {
-    }
-  }, [isSDLDataWalletDetected]);
-
   const checkDataWalletAddressAndInitializeApp = () => {
     window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
       if (dataWalletAddress) {
         getUserAccounts();
+        getEarnedRewards();
+        getOptedInContracts();
         subscribeToAccountAdding();
+        subscribeToEarnedRewardAdding();
         subscribeToAccountRemoving();
         if (
           sessionStorage.getItem("appMode") ===
@@ -174,19 +176,6 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const refreshNotificationSubscriptions = () => {
-    window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
-      if (dataWalletAddress) {
-        getUserAccounts();
-        subscribeToAccountAdding();
-        subscribeToAccountRemoving();
-      } else {
-        subscribeToAccountInitiating();
-        subscribeToAccountAdding();
-      }
-    });
-  };
-
   const subscribeToAccountAdding = () => {
     window?.sdlDataWallet?.on("onAccountAdded", onAccountAdded);
   };
@@ -197,6 +186,26 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const subscribeToAccountRemoving = () => {
     window?.sdlDataWallet?.on("onAccountRemoved", onAccountRemoved);
+  };
+
+  const subscribeToEarnedRewardAdding = () => {
+    window?.sdlDataWallet?.on("onEarnedRewardsAdded", onEarnedRewardAdded);
+  };
+
+  const onEarnedRewardAdded = (notification: {
+    data: { rewards: EarnedReward[] };
+  }) => {
+    getEarnedRewards();
+  };
+
+  const updateOptedInContracts = () => {
+    getOptedInContracts();
+  };
+
+  const getOptedInContracts = () => {
+    window.sdlDataWallet.getAcceptedInvitationsCID().map((records) => {
+      setUptedInContracts(Object.keys(records) as EVMContractAddress[]);
+    });
   };
 
   const onAccountInitialized = (notification: {
@@ -236,10 +245,6 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const onWalletConnected = useCallback(() => {
-    // Phantom wallet can not initiate window phantom object at time
-    if (isSDLDataWalletDetected) {
-      return refreshNotificationSubscriptions();
-    }
     setSDLDataWalletDetected(true);
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();
@@ -268,6 +273,12 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
+  const getEarnedRewards = () => {
+    return window.sdlDataWallet.getEarnedRewards().map((rewards) => {
+      setEarnedRewards(earnedRewards);
+    });
+  };
+
   const addAccount = (account: ILinkedAccount) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
@@ -275,6 +286,8 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        updateOptedInContracts,
+        optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(),
         providerList,
@@ -282,6 +295,7 @@ export const AppContextProvider: FC = ({ children }) => {
         linkedAccounts,
         getUserAccounts,
         appMode,
+        earnedRewards,
         addAccount,
         invitationInfo,
         setInvitationInfo: updateInvitationInfo,

@@ -125,7 +125,9 @@ const DataPermissionsModal: FC = () => {
                 closeModal();
               }}
             >
-              Save & Claim Reward
+              {customProps.primaryButtonText
+                ? customProps.primaryButtonText
+                : "Save & Claim Reward"}
             </Button>
           </Box>
         </Box>

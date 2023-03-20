@@ -27,6 +27,7 @@ import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinkin
 import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
+import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
 
 export const OnboardingRoutes = (
   <Route>
@@ -72,7 +73,10 @@ export const AuthFlowRoutes = (
       /> */}
       <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
       <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} />
-      <Route path={EPaths.CAMPAIGN_SETTINGS} element={<CampaignSettings />} />
+      <Route
+        path={EPaths.REWARDS_SUBSCRIPTIONS}
+        element={<CampaignSettings />}
+      />
       <Route
         path={EPaths.DATA_PERMISSIONS_SETTING}
         element={<DataPermissionsSettings />}
@@ -80,6 +84,10 @@ export const AuthFlowRoutes = (
       <Route
         path={EPaths.SCAM_FILTER_SETTINGS}
         element={<ScamFilterSettings />}
+      />
+      <Route
+        path={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
+        element={<RewardProgramDetails />}
       />
     </Route>
   </Route>

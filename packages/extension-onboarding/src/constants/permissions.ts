@@ -11,6 +11,17 @@ export const PERMISSION_NAMES = {
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
+export const PERMISSION_TEXT_NAMES = {
+  [EWalletDataType.Gender]: "gender",
+  [EWalletDataType.Birthday]: "birthday",
+  [EWalletDataType.Location]: "location",
+  [EWalletDataType.SiteVisits]: "sites visited",
+  [EWalletDataType.EVMTransactions]: "transaction history",
+  [EWalletDataType.AccountBalances]: "token balances",
+  [EWalletDataType.AccountNFTs]: "NFTs",
+  // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
+};
+
 export const PERMISSIONS = [
   {
     title: "Web2 Data",
