@@ -28,6 +28,8 @@ import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/Onboarding
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
 import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
+import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
+import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
 
 export const OnboardingRoutes = (
   <Route>
@@ -41,7 +43,14 @@ export const OnboardingRoutes = (
         path={EPaths.ONBOARDING_BUILD_PROFILE}
         element={<ProfileCreation />}
       />
-      {/* <Route path={EPaths.ONBOARDING_VIEW_DATA} element={<ViewData />} /> */}
+      <Route
+        path={EPaths.ONBOARDING_PERMISSION_SELECTION}
+        element={<PermissionSelection />}
+      />
+      <Route
+        path={EPaths.ONBOARDING_TAG_SELECTION}
+        element={<CategorySelection />}
+      />
     </Route>
     <Route path={EPaths.ONBOARDING_OPT_IN} element={<OptIn />} />
   </Route>

@@ -42,8 +42,7 @@ const ProfileCreation: FC = () => {
                     if (invitationInfo.consentAddress) {
                       navigate(EPaths.ONBOARDING_OPT_IN);
                     } else {
-                      sessionStorage.removeItem("appMode");
-                      window.location.reload();
+                      navigate(EPaths.ONBOARDING_PERMISSION_SELECTION);
                     }
                   }}
                 />
@@ -54,13 +53,8 @@ const ProfileCreation: FC = () => {
             <Box mb={3}>
               <img src={artboardImage} style={{ width: "100%" }} />
             </Box>
-            <Box mb={1.5}>
-              <Typography className={classes.infoText}>
-                Last Step On The Way to Your Data Wallet...
-              </Typography>
-            </Box>
             <Button fullWidth type="submit" form="profile-create-form">
-              {invitationInfo.consentAddress ? "Next" : "Go to Data Wallet"}
+              Next
             </Button>
           </Grid>
         </Grid>

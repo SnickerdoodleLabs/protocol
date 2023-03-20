@@ -3,7 +3,7 @@ import { useStyles } from "@extension-onboarding/components/TagSelection/TagSele
 import { tags } from "@extension-onboarding/constants/tags";
 import { Grid, Typography, Box, FormControlLabel } from "@material-ui/core";
 import { ETag } from "@snickerdoodlelabs/objects";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 
 interface ITagSelectionProps {
   onSaveClick?: () => void;
@@ -19,6 +19,10 @@ const TagSelection: FC<ITagSelectionProps> = ({ onSaveClick }) => {
       setSelectedTags(Array.from(new Set([...(selectedTags ?? []), tag])));
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem("sdl-selected-tags", JSON.stringify(selectedTags));
+  }, [JSON.stringify(selectedTags)]);
 
   return (
     <>

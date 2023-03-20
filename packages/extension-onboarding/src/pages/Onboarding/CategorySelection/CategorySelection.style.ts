@@ -14,4 +14,11 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "16px",
     lineHeight: "24px",
   },
+  infoText: {
+    fontFamily: "'Helvetica'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    color: "#5A5292",
+  },
 }));
