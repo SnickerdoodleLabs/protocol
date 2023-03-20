@@ -52,7 +52,7 @@ jobs:
           --build-arg BUILD_ENV=prod \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
-          --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.summarize-changed-fields.outputs.changed-fields-output }}-sdl-dw \
+          --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
           -f ./packages/extension-onboarding/Dockerfile \
           .
   

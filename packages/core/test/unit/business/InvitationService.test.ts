@@ -1,9 +1,6 @@
 import "reflect-metadata";
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
-
-import { InvitationService } from "@core/implementations/business/index.js";
-
 import {
   BigNumberString,
   DomainName,
@@ -16,21 +13,17 @@ import {
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
-
-import { IInvitationService } from "@core/interfaces/business/index.js";
-
-import { errAsync, okAsync } from "neverthrow";
-
-import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
-
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
+import { InvitationService } from "@core/implementations/business/index.js";
+import { IInvitationService } from "@core/interfaces/business/index.js";
+import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
   ILinkedAccountRepository,
-  IMarketplaceRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -77,7 +70,6 @@ class InvitationServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
-  public marketplaceRepo: IMarketplaceRepository;
   public forwarderRepo: IMetatransactionForwarderRepository;
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
@@ -92,7 +84,6 @@ class InvitationServiceMocks {
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.dnsRepository = td.object<IDNSRepository>();
     this.invitationRepo = td.object<IInvitationRepository>();
-    this.marketplaceRepo = td.object<IMarketplaceRepository>();
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
@@ -149,7 +140,6 @@ class InvitationServiceMocks {
       this.dnsRepository,
       this.invitationRepo,
       this.forwarderRepo,
-      this.marketplaceRepo,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,
