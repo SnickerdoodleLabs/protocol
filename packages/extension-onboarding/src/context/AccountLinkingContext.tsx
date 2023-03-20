@@ -94,6 +94,11 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                   .getDataWalletAddress()
                   .andThen((address) => {
                     if (!linkedAccounts.length && !address) {
+                      console.log("!address: ", !address);
+                      console.log(
+                        "!linkedAccounts.length: ",
+                        !linkedAccounts.length,
+                      );
                       setLoadingStatus(true, {
                         type: ELoadingIndicatorType.COMPONENT,
                         component: <AccountLinkingIndicator />,
