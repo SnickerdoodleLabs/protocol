@@ -151,7 +151,8 @@ export interface IConsentFactoryContract {
   getListingsForward(
     tag: string,
     startingSlot: ListingSlot,
-    numberOfSlots: ListingSlot,
+    numberOfSlots: number,
+    filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError>;
 
   getListingsBackward(

@@ -480,13 +480,15 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   public getListingsForward(
     tag: string,
     startingSlot: ListingSlot,
-    numberOfSlots: ListingSlot,
+    numberOfSlots: number,
+    filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
         startingSlot,
         numberOfSlots,
+        filterActive,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
