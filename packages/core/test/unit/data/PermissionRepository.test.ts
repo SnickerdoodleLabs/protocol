@@ -3,8 +3,8 @@ import {
   DomainName,
   EBackupPriority,
   EDataWalletPermission,
-  EFieldKey,
 } from "@snickerdoodlelabs/objects";
+import { EFieldKey } from "@snickerdoodlelabs/persistence";
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
