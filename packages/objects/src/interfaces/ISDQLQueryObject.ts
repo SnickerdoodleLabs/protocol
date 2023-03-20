@@ -24,21 +24,15 @@ export interface ISDQLQueryObject {
   expiry: ISO8601DateString;
   description: string;
   business: string;
+
   ads: ISDQLAdsBlock;
-  queries: {
-    [queryId: string]: ISDQLQueryClause;
-  };
-  insights: {
-    [insightId: string]: ISDQLInsightBlock;
-  }
-  returns: {
-    [returnsObject: string]: ISDQLReturnProperties;
-    // issue on why this is any, documented here
-    //https://github.com/Microsoft/TypeScript/issues/10042
-    url;
-  };
+  queries: ISDQLQueriesBlock;
+  insights: ISDQLInsightsBlock;
   compensations: ISDQLCompensationBlock;
-  logic: ISDQLLogicObjects;
+}
+
+export interface ISDQLQueriesBlock {
+  [queryId: string]: ISDQLQueryClause;
 }
 export interface ISDQLQueryClause {
   name: string;
@@ -89,16 +83,19 @@ export interface ISDQLHasObject {
   };
 }
 
+export interface ISDQLInsightsBlock {
+  [insightId: string]: ISDQLInsightBlock;
+}
 export interface ISDQLInsightBlock {
   name: string;
-  conditions: ISDQLConditionString;
+  target: ISDQLConditionString;
   returns: ISDQLExpressionString;
 }
-export interface ISDQLReturnProperties {
-  name: string;
-  message?: string;
-  query?: string;
-}
+// export interface ISDQLReturnProperties {
+//   name: string;
+//   message?: string;
+//   query?: string;
+// }
 
 export interface ISDQLAdsBlock {
   [index: AdKey]: ISDQLAd;
@@ -123,6 +120,7 @@ export interface ISDQLCompensations {
   name: string;
   image: IpfsCID | URLString | null;
   description: string;
+  requires: ISDQLConditionString;
   chainId: ChainId;
   callback: ISDQLCallback;
   alternatives?: CompensationId[];
@@ -147,8 +145,8 @@ export interface ISDQLCompensationParameters {
   };
 }
 
-export interface ISDQLLogicObjects {
-  returns: string[];
-  ads: string[];
-  compensations: string[];
-}
+// export interface ISDQLLogicObjects {
+//   returns: string[];
+//   ads: string[];
+//   compensations: string[];
+// }
