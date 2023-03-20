@@ -214,6 +214,7 @@ const LayoutContextProvider = ({ children }) => {
                         "" as DomainName,
                         invitation?.consentAddress ??
                           ("" as EVMContractAddress),
+                        //@ts-ignore
                         invitation?.tokenId,
                         invitation?.signature ?? null,
                       );

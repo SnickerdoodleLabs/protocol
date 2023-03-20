@@ -19530,9 +19530,9 @@ __metadata:
   linkType: hard
 
 "react-native-background-fetch@npm:^4.1.5":
-  version: 4.1.5
-  resolution: "react-native-background-fetch@npm:4.1.5"
-  checksum: 5c83fd100359a1151df5904499ca05a613107edc055745c66db9c522431391dbf85ac860718adfe4f50fd78bdc8ca6f8ee010e54f0918e31f6776834a985a3bc
+  version: 4.1.9
+  resolution: "react-native-background-fetch@npm:4.1.9"
+  checksum: ec16a9a716284890e2b877be22ea29cca055e5c69da726999f127bb89f3aa10da2ca56fc9c1c92d90160812b5296cbca6e678a744849e5e56ca57ff692a0f283
   languageName: node
   linkType: hard
 

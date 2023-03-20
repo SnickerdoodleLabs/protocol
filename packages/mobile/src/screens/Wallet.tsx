@@ -279,12 +279,12 @@ const Wallet = (props: any) => {
                   </Text>
                   <View style={{ paddingLeft: 10 }}>
                     <Button
-                      title="getAccounts"
+                      title="getNFTS"
                       onPress={() => {
                         console.log(
                           "accounts",
                           mobileCore.accountService
-                            .getAccounts()
+                            .getAccountNFTs()
                             .andThen((res) => {
                               console.log("res", res);
                             }),

@@ -8,6 +8,7 @@ import {
   WalletNFT,
   DataWalletAddress,
   EarnedReward,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -98,7 +99,7 @@ export class AccountService implements IAccountService {
 
   public isDataWalletAddressInitialized(): ResultAsync<
     boolean,
-    never
+    UnauthorizedError
   > {
     return this.accountRepository.isDataWalletAddressInitialized();
   }
