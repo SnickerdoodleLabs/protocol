@@ -105,16 +105,11 @@ export class BackupManager implements IBackupManager {
       return this.volatileStorage.putObject<T>(tableName, value);
     }
     const renderer = this.chunkRenderers.get(tableName)!;
-    console.log("tableName: ", tableName + " has renderer: ", renderer);
     return renderer.addRecord(tableName, value).andThen((chunk) => {
-      console.log(tableName + " has chunk: ", chunk);
-      if (chunk == undefined) {
-        return okAsync(undefined);
+      if (chunk != undefined) {
+        this.chunkQueue.push(chunk);
       }
-      return okAsync(this.chunkQueue.push(chunk)).andThen(() => {
-        console.log(tableName + " has chunk: ", chunk);
-        return this.volatileStorage.putObject<T>(tableName, value);
-      });
+      return this.volatileStorage.putObject<T>(tableName, value);
     });
   }
 
@@ -131,13 +126,11 @@ export class BackupManager implements IBackupManager {
     return renderer
       .deleteRecord(tableName, key, priority, timestamp)
       .andThen((chunk) => {
-        if (chunk == undefined) {
-          return okAsync(undefined);
-        }
         this.deletionHistory.set(key, timestamp);
-        return okAsync(this.chunkQueue.push(chunk)).andThen(() => {
-          return this.volatileStorage.removeObject(tableName, key);
-        });
+        if (chunk != undefined) {
+          this.chunkQueue.push(chunk);
+        }
+        return this.volatileStorage.removeObject(tableName, key);
       });
   }
 
