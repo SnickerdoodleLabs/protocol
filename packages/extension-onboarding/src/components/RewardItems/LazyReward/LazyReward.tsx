@@ -42,33 +42,11 @@ export default ({
       {image}
 
       <Box mt={1.5}>
-        <Typography
-          style={{
-            fontFamily: "Space Grotesk",
-            fontWeight: 700,
-            fontSize: 16,
-            lineHeight: "20px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            color: "rgba(35, 32, 57, 0.87)",
-          }}
-        >
+        <Typography className={rewardItemsClasses.title}>
           {reward.name}
         </Typography>
       </Box>
-      <Typography
-        style={{
-          fontFamily: "Space Grotesk",
-          fontWeight: 400,
-          fontSize: 16,
-          lineHeight: "24px",
-          color: "#9E9E9E",
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-        }}
-      >
+      <Typography className={rewardItemsClasses.description}>
         {reward.description}
       </Typography>
     </Box>

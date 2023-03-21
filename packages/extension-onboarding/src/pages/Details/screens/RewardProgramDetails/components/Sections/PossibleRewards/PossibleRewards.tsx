@@ -19,7 +19,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({ rewards, type }) => {
     switch (true) {
       case type === EPossibleRewardDisplayType.MorePermissionRequiered:
         return {
-          badge: EBadgeType.MorePermissionRequiered,
+          badge: EBadgeType.MorePermissionRequired,
           title: "Rent More Data, Get More Rewards",
           subtitle:
             "Share the data specified below, and you will be eligible to claim these additional rewards!",
@@ -32,7 +32,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({ rewards, type }) => {
         };
       default:
         return {
-          badge: EBadgeType.None,
+          badge: EBadgeType.Available,
           title: "Collect These Rewards Now",
           subtitle: "",
         };

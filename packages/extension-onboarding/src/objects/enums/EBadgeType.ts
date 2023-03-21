@@ -1,6 +1,7 @@
 export enum EBadgeType {
   Waiting,
   Collected,
-  MorePermissionRequiered,
+  MorePermissionRequired,
+  Available,
   None,
 }

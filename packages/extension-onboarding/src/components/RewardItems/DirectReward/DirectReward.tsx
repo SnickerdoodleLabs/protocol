@@ -1,7 +1,7 @@
+import earnedBadge from "@extension-onboarding/assets/images/badge-earned.svg";
 import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
 import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { EBadgeType } from "@extension-onboarding/objects";
 import { Box, Typography } from "@material-ui/core";
 import { DirectReward, EWalletDataType } from "@snickerdoodlelabs/objects";
 import React from "react";
@@ -34,36 +34,17 @@ export default ({ reward, permissions }: IDirectRewardProps) => {
       p={3}
       mb={2}
     >
-      {image}
+      <Box width="100%" position="relative">
+        {image}
+        <img className={rewardItemsClasses.badge} src={earnedBadge} />
+      </Box>
 
       <Box mt={1.5}>
-        <Typography
-          style={{
-            fontFamily: "Space Grotesk",
-            fontWeight: 700,
-            fontSize: 16,
-            lineHeight: "20px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            color: "rgba(35, 32, 57, 0.87)",
-          }}
-        >
+        <Typography className={rewardItemsClasses.title}>
           {reward.name}
         </Typography>
       </Box>
-      <Typography
-        style={{
-          fontFamily: "Space Grotesk",
-          fontWeight: 400,
-          fontSize: 16,
-          lineHeight: "24px",
-          color: "#9E9E9E",
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-        }}
-      >
+      <Typography className={rewardItemsClasses.description}>
         {reward.description}
       </Typography>
     </Box>
