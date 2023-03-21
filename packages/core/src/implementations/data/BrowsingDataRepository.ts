@@ -6,6 +6,8 @@ import {
   URLString,
   ClickData,
   VolatileStorageMetadata,
+  ISDQLTimestampRange,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -50,13 +52,17 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   }
 
   // return a map of URLs
-  public getSiteVisitsMap(): ResultAsync<
+  public getSiteVisitsMap(timestampRange ?:ISDQLTimestampRange ): ResultAsync<
     Map<URLString, number>,
     PersistenceError
   > {
     return this.getSiteVisits().andThen((siteVisits) => {
+   
       const result = new Map<URLString, number>();
       siteVisits.forEach((siteVisit, _i, _arr) => {
+        if(timestampRange && this.timestampBetweenDates(siteVisit.startTime ,siteVisit.endTime , timestampRange )){
+          return;
+        }
         const baseUrl = DomainName(
           siteVisit.domain ? siteVisit.domain : siteVisit.url,
         );
@@ -84,5 +90,30 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
       undefined,
       EBackupPriority.NORMAL,
     );
+  }
+
+  timestampBetweenDates(
+    startTime: UnixTimestamp,
+    endTime: UnixTimestamp,
+    timestampRange: ISDQLTimestampRange,
+  ): boolean {
+    const start = timestampRange.start;
+    const end = timestampRange.end;
+    
+    if (start !== "*") {
+      const startTimeStamp = UnixTimestamp(Number(start));
+      if (startTimeStamp > startTime) {
+        return true;
+      }
+    }
+
+    if (end !== "*") {
+      const endTimeStamp = UnixTimestamp(Number(end));
+      if (endTimeStamp < endTime) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
