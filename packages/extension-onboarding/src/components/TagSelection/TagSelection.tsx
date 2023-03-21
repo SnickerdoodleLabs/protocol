@@ -1,5 +1,6 @@
 import Checkbox from "@extension-onboarding/components/Checkbox";
 import { useStyles } from "@extension-onboarding/components/TagSelection/TagSelection.style";
+import { LOCAL_STORAGE_TAGS_KEY } from "@extension-onboarding/constants";
 import { tags } from "@extension-onboarding/constants/tags";
 import { Grid, Typography, Box, FormControlLabel } from "@material-ui/core";
 import { ETag } from "@snickerdoodlelabs/objects";
@@ -21,7 +22,7 @@ const TagSelection: FC<ITagSelectionProps> = ({ onSaveClick }) => {
   };
 
   useEffect(() => {
-    localStorage.setItem("sdl-selected-tags", JSON.stringify(selectedTags));
+    localStorage.setItem(LOCAL_STORAGE_TAGS_KEY, JSON.stringify(selectedTags));
   }, [JSON.stringify(selectedTags)]);
 
   return (

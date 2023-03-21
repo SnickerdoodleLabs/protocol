@@ -4,7 +4,7 @@ import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { authFlowRouteSettings } from "@extension-onboarding/containers/Router/Router.settings";
 import { Box } from "@material-ui/core";
 import React, { useEffect, useMemo } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const AutFlowLayout = () => {
   // TODO remove below code when extension navigations fixed
@@ -24,8 +24,11 @@ const AutFlowLayout = () => {
   }, []);
 
   const { hideSidebar, bgColor, removeDefaultPadding } = useMemo(() => {
+    const originalPath = Object.values(EPaths).find((path) =>
+      matchPath(path, pathname),
+    );
     return (
-      authFlowRouteSettings[pathname as EPaths] ?? {
+      authFlowRouteSettings[originalPath as EPaths] ?? {
         bgColor: "#fff",
         hideSidebar: false,
         removeDefaultPadding: false,

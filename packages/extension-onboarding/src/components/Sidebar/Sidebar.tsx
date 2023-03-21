@@ -38,6 +38,12 @@ export const routes: IRoute[] = [
     subroutes: null,
   },
   {
+    icon: rewardsIcon,
+    title: "Rewards Marketplace",
+    path: EPaths.MARKETPLACE,
+    subroutes: null,
+  },
+  {
     icon: portfolioIcon,
     title: "My Data Dashboard",
     path: null,

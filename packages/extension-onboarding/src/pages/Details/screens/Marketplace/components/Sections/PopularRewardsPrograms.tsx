@@ -1,20 +1,15 @@
 import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import Carousel from "@extension-onboarding/components/Carousel";
-import Section, {
-  useSectionStyles,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
+
+import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Typography } from "@material-ui/core";
-import { EVMContractAddress } from "@snickerdoodlelabs/objects";
+import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
-interface IConsentOwnersOtherProgramsProps {
-  consentContract: EVMContractAddress;
-  brandInfo?: any;
+interface IPopularRewardsProgramsProps {
+  tag?: ETag;
 }
-const ConsentOwnersOtherPrograms: FC<IConsentOwnersOtherProgramsProps> = ({
-  consentContract,
-  brandInfo,
-}) => {
+const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({ tag }) => {
   const sectionClasses = useSectionStyles();
 
   const responsive = {
@@ -36,18 +31,11 @@ const ConsentOwnersOtherPrograms: FC<IConsentOwnersOtherProgramsProps> = ({
     },
   };
   return (
-    <Section>
-      <Box mb={4}>
+    <>
+      <Box mb={3}>
         <Typography className={sectionClasses.sectionTitle}>
-          {!brandInfo
-            ? `Popular Reward Programs of This Reward Program Owner`
-            : `Popular ${brandInfo.name} Rewards Programs`}
+          Popular Rewards Programs
         </Typography>
-        <Box>
-          <Typography
-            className={sectionClasses.sectionDescription}
-          ></Typography>
-        </Box>
       </Box>
       <Box className={sectionClasses.carouselWrapper}>
         <Carousel responsive={responsive}>
@@ -58,14 +46,15 @@ const ConsentOwnersOtherPrograms: FC<IConsentOwnersOtherProgramsProps> = ({
           ].map((item) => (
             <Box mr={3}>
               <CampaignItem
+                tag={tag}
                 consentContractAddress={item as EVMContractAddress}
               />
             </Box>
           ))}
         </Carousel>
       </Box>
-    </Section>
+    </>
   );
 };
 
-export default ConsentOwnersOtherPrograms;
+export default PopularRewardsPrograms;

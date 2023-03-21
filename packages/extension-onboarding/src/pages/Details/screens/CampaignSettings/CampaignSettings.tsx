@@ -1,17 +1,21 @@
 import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.svg";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import CampaignItem from "@extension-onboarding/components/CampaignItem";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
-import { useAppContext } from "@extension-onboarding/context/App";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
+  const { setAlert } = useNotificationContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { earnedRewards, updateOptedInContracts } = useAppContext();
   const [
@@ -57,6 +61,10 @@ const RewardsInfo: FC = () => {
         setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
         updateOptedInContracts();
+        setAlert({
+          severity: EAlertSeverity.SUCCESS,
+          message: `Unsubscribed Successfully`,
+        });
       });
   };
 
@@ -96,6 +104,7 @@ const RewardsInfo: FC = () => {
             Object.keys(campaignContractAddressesWithCID)?.map((key) => (
               <Grid item key={key} xs={6}>
                 <CampaignItem
+                  navigationPath={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
                   isSubscriptionsPage
                   onLeaveClick={() => {
                     onLeaveClick(key as EVMContractAddress);

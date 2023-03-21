@@ -10,6 +10,10 @@ export const breadcrumb: Partial<Record<EPaths, IBreadcumbProperties>> = {
     clickable: false,
     displayName: "Settings",
   },
+  [EPaths.MARKETPLACE]: {
+    clickable: true,
+    displayName: "Rewards Marketplace",
+  },
   [EPaths.REWARDS_SUBSCRIPTIONS]: {
     clickable: true,
     displayName: "Reward Program Subscriptions",

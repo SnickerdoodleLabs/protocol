@@ -30,6 +30,8 @@ import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreat
 import RewardProgramDetails from "@extension-onboarding/pages/Details/screens/RewardProgramDetails";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
+import Marketplace from "@extension-onboarding/pages/Details/screens/Marketplace";
+import CategoryDetail from "@extension-onboarding/pages/Details/screens/Marketplace/CategoryDetail";
 
 export const OnboardingRoutes = (
   <Route>
@@ -68,6 +70,7 @@ export const AuthFlowRoutes = (
           element={<DataDashboarPersonalInfo />}
         />
       </Route>
+      <Route path={EPaths.MARKETPLACE} element={<Marketplace />} />
       <Route path={EPaths.NFT_DETAIL} element={<NFTDetails />} />
       <Route path={EPaths.MY_REWARDS} element={<MarketplaceRewardsTemp />} />
       <Route path={EPaths.MARKETPLACE_REWARD} element={<RewardReview />} />
@@ -96,6 +99,18 @@ export const AuthFlowRoutes = (
       />
       <Route
         path={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
+        element={<RewardProgramDetails />}
+      />
+      <Route
+        path={EPaths.MARKETPLACE_CAMPAIGN_DETAIL}
+        element={<RewardProgramDetails />}
+      />
+      <Route
+        path={EPaths.MARKETPLACE_TAG_DETAIL}
+        element={<CategoryDetail />}
+      />
+      <Route
+        path={EPaths.MARKETPLACE_CAMPAIGN_DETAIL_WITH_TAG}
         element={<RewardProgramDetails />}
       />
     </Route>

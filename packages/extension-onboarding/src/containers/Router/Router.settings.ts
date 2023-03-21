@@ -19,4 +19,24 @@ export const authFlowRouteSettings: Partial<
     removeDefaultPadding: false,
     bgColor: "#FAFAFA",
   },
+  [EPaths.MARKETPLACE_CAMPAIGN_DETAIL]: {
+    hideSidebar: true,
+    removeDefaultPadding: true,
+    bgColor: "#FAFAFA",
+  },
+  [EPaths.MARKETPLACE_TAG_DETAIL]: {
+    hideSidebar: false,
+    removeDefaultPadding: false,
+    bgColor: "#FAFAFA",
+  },
+  [EPaths.MARKETPLACE_CAMPAIGN_DETAIL_WITH_TAG]: {
+    hideSidebar: true,
+    removeDefaultPadding: true,
+    bgColor: "#FAFAFA",
+  },
+  [EPaths.MARKETPLACE]: {
+    hideSidebar: false,
+    removeDefaultPadding: false,
+    bgColor: "#FAFAFA",
+  },
 };

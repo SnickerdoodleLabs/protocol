@@ -1,10 +1,11 @@
 import BackButton from "@extension-onboarding/components/BackButton";
 import { useStyles } from "@extension-onboarding/components/Breadcrumb/Breadcrumb.style";
+import { tags } from "@extension-onboarding/constants/tags";
 import { breadcrumb } from "@extension-onboarding/containers/Router/Router.breadcrumb";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { Box, Typography } from "@material-ui/core";
 import React, { Fragment, useMemo } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 
 interface IBreadcrumbProps {
   currentPathName?: string;
@@ -22,6 +23,15 @@ const Breadcrumb = ({ currentPathName }: IBreadcrumbProps) => {
   }, [pathname, currentPathName]);
 
   const generateDisplayName = (path: EPaths) => {
+    // check tag
+    const matches = matchPath(EPaths.MARKETPLACE_TAG_DETAIL, path);
+    if (matches?.params.tag) {
+      const tagInfo = tags.find((tag) => tag.tag === matches.params.tag);
+      console.log("tagInfo", tagInfo, path);
+      if (tagInfo?.defaultDisplayName) {
+        return tagInfo.defaultDisplayName;
+      }
+    }
     return path
       .replace(/.*\//, "")
       .split("-")

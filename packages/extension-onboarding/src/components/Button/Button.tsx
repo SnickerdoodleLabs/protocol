@@ -80,6 +80,27 @@ const CustomButtonV2 = withStyles({
   },
 })(MaterialButton);
 
+const CustomButtonV2Primary = withStyles({
+  root: {
+    color: "#FFFFFF",
+    borderRadius: 4,
+    textTransform: "none",
+    boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.016)",
+    fontStyle: "normal",
+    fontFamily: "Public Sans",
+    fontSize: "14px",
+    lineHeight: "22px",
+    border: "1px solid",
+    borderColor: "#D9D9D9",
+    fontWeight: 400,
+    height: 40,
+    backgroundColor: "#8079B4",
+    "&:hover": {
+      backgroundColor: "#8079B4",
+    },
+  },
+})(MaterialButton);
+
 const CustomButtonV2Danger = withStyles({
   root: {
     color: "#D15151",
@@ -102,7 +123,13 @@ const CustomButtonV2Danger = withStyles({
 })(MaterialButton);
 
 interface IButtonProps extends ButtonProps {
-  buttonType?: "primary" | "secondary" | "main" | "v2" | "v2Danger";
+  buttonType?:
+    | "primary"
+    | "secondary"
+    | "main"
+    | "v2"
+    | "v2Danger"
+    | "v2Primary";
 }
 
 const Button: FC<IButtonProps> = ({
@@ -129,6 +156,12 @@ const Button: FC<IButtonProps> = ({
         <CustomButtonV2 {...restProps} variant="contained">
           {children}
         </CustomButtonV2>
+      );
+    case "v2Primary":
+      return (
+        <CustomButtonV2Primary {...restProps} variant="contained">
+          {children}
+        </CustomButtonV2Primary>
       );
     case "v2Danger":
       return (

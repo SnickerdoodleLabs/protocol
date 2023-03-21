@@ -1,7 +1,9 @@
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import {
   CollectedRewards,
@@ -99,6 +101,7 @@ const RewardProgramDetails: FC = () => {
   >([]);
   const { optedInContracts, earnedRewards, updateOptedInContracts } =
     useAppContext();
+  const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
 
   const handleSubscribeButton = () => {
@@ -133,6 +136,13 @@ const RewardProgramDetails: FC = () => {
                 campaignName: info?.rewardName,
               },
             });
+          })
+          .mapErr(() => {
+            setLoadingStatus(false);
+            setAlert({
+              severity: EAlertSeverity.ERROR,
+              message: `${info?.rewardName} Rewards Program Subscription Failed!`,
+            });
           });
       },
       customProps: {
@@ -144,7 +154,7 @@ const RewardProgramDetails: FC = () => {
 
   const getCapacityInfo = () => {
     window.sdlDataWallet
-      .getConsentCapacity(consentContractAddress)
+      ?.getConsentCapacity(consentContractAddress)
       .map((capacity) => {
         setCapacityInfo(capacity);
       });
