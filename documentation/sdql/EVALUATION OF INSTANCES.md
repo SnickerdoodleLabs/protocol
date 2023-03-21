@@ -191,9 +191,9 @@ This **ad signature** can then be presented to an insight platform in means of a
 
 These are blocks of information declaring a compensation that an **eligible** data wallet can claim and get. They may represent on-chain rewards like an NFT as well as web2 rewards like a ticket for a soccer game.
 
-The whole purpose of SDQL query evaluation is to determine **eligiblity for a compensation** of a given data wallet. Starting from user permissions and user data, ad instances and insight instances are calculated to be used as tokens in a compensation logic expression.
+The whole purpose of compensation logic is to determine **eligiblity for a compensation** of a given data wallet. Starting from user permissions and user data, ad instances and insight instances are evaluated and calculated to satisfy the compensation logic.
 
-Even if a data wallet can provide a valid ad signature for $aN and a valid insight data for $iN, if $aN or $iN cannot fully satisfy a compensation logic, then data wallet will not get any compensations. In these situations data wallet is not expected to expose any data to an insight platform because there is no rewards to claim.
+Even if a data wallet can provide a valid ad signature for $aN and a valid insight data for $iN, if $aN or $iN cannot fully satisfy a compensation logic, then data wallet will not get any compensations.
 
 Hence compensations are the final stage of evaluation. They each come with one logic expression that must be satisfied to claim that compensation. Compensation logic can only reference ad instances ($aN) and insight instances ($iN).
 
@@ -212,10 +212,10 @@ At this point the logic expression is not dependent on user permissions or user 
 
 If logic expression evaluates to true, data wallet can claim the reward.
   - Ad instances ($aN) that return a valid ad signature are treated as true.
-  - Insight instances ($iN) that does not return null are treated as true.
+  - Insight instances ($iN) that do not return null are treated as true.
   - Any other ad or insight instances are treated as false.
 
 
 It's important to note that unlike other instance types, logic expressions of compensation instances are evaluated both by data wallets and insight platforms. Other logic expressions are only evaluated by data wallets.
 
-Data wallets evaluate these expressions to see if "they should" claim a reward, and insight platforms evaluate these expressions against "data wallet response" to determine if a data wallet is actually eligible to get regarding compensation.
+Data wallets evaluate these expressions to see if "they're eligible to" claim a reward, and insight platforms evaluate these expressions against "data wallet response" to determine if a data wallet is actually eligible to get regarding compensation.
