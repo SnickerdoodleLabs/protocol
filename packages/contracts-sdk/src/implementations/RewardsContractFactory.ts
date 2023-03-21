@@ -1,4 +1,3 @@
-import { IRewardsContractFactory } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   EVMContractAddress,
@@ -9,7 +8,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
+import {
+  ContractOverrides,
+  IRewardsContractFactory,
+} from "@contracts-sdk/interfaces/index.js";
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
 
 @injectable()
 export class RewardsContractFactory implements IRewardsContractFactory {
@@ -36,15 +40,15 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     name: string,
     symbol: string,
     baseURI: BaseURI,
+    overrides: ContractOverrides | null = null,
   ): ResultAsync<EVMContractAddress, RewardsFactoryError> {
-    return this.estimateGasToDeployERC721Contract(
-      name,
-      symbol,
-      baseURI,
-    ).andThen((bufferedGasLimit) => {
+    return GasUtils.getGasFee<RewardsFactoryError>(
+      this.providerOrSigner,
+    ).andThen((gasFee) => {
       return ResultAsync.fromPromise(
         this.contractFactory.deploy(symbol, name, baseURI, {
-          gasLimit: bufferedGasLimit,
+          ...gasFee,
+          ...overrides,
         }),
         (e) => {
           return new RewardsFactoryError(
