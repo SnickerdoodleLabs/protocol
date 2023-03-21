@@ -153,7 +153,7 @@ It's safe to say a data wallet must first get targeted by an ad instance in a qu
 
 Evaluation-wise ad instances represent another intermediary layer between query instances and compensation instances, just like insight instances.
 
-Biggest similarities of ad instances and insight instances are they both use query instances in their targeting logic, and they both constitute the dependencies of a compensation logic expression. 
+Biggest similarities of ad instances and insight instances are they both use query instances in their targeting logic, and they both constitute the dependencies of a compensation logic expression.
 
 However their evaluation is slightly different. In other words, $aN and $iN in a compensation logic expression resolve to true or false depending on different conditions.
 
@@ -175,15 +175,16 @@ Like insight instances, ad instances can be referenced only by **compensation lo
 }
 ```
 
-### Ad Instances - Rules of Evaluation
 
-Ads in compensation logic can resolve to true or false based on following rules:
-1. If targeting logic strictly depends on a query instance for which the user didn't give permission, $aN evaluates to false
-2. Else if target logic evaluates to false for any reason, $aN evaluates to false
-    - For example, user could have given permission for age, but provided "yes" as an answer. If $aN's target expression strictly depends on this age query instance, $aN will evaluate to false.
-3. Else if user didn't watch the ad on the defined ad surface, and hence does not have an ad signature, $aN will evaluate to false.
-4. Else if user cannot provide a valid ad signature, $aN will evaluate to false.
-5. Else, $aN evaluates to true.
+### Ad Instances - Target
+
+Target field is a (logic expression)[/documentation/sdql/LOGICEXPRESSIONS.md] that specifies which data wallets are targeted for given ad.
+
+Target logic is only allowed to reference zero or more query instances. After these query instance reference/s get evaluated, $qN expressions and in-line conditions applied on them will resolve to just true or false.
+
+If the result of this expression is true, then data wallet will queue the ad for watching upon request of form factor. After the ad has been seen by the user on a valid ad surface for an eligible amount of time, data wallet will create an **ad signature** that contains the hashes of ad content and ad surface.
+
+This **ad signature** can then be presented to an insight platform in means of a proof that data wallet has interacted with the ad.
 
 
 ## 4- Compensation Instances
