@@ -7,6 +7,7 @@ export * from "@objects/errors/ConsentError.js";
 export * from "@objects/errors/CrumbsContractError.js";
 export * from "@objects/errors/DataWalletLockedError.js";
 export * from "@objects/errors/ConsentContractRepositoryError.js";
+export * from "@objects/errors/GasPriceError.js";
 export * from "@objects/errors/IBlockchainError.js";
 export * from "@objects/errors/InvalidParametersError.js";
 export * from "@objects/errors/InvalidSignatureError.js";
