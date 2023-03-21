@@ -41,8 +41,8 @@ Following are some possible **insight** objects
 }
 {
     "i1": true,
-    "a1": <ad signature>,
-    "a2": <ad signature>
+    "a1": "<ad signature>",
+    "a2": "<ad signature>"
 }
 ```
 

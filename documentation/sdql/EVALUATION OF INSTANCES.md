@@ -208,7 +208,7 @@ Hence compensations are the final stage of evaluation. They each come with one l
   "logic": "$a2 or $i1",
   "name": "Key to my heart",
   "image": "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
-  ...
+  "..."
 }
 ```
 
