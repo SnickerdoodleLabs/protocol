@@ -260,6 +260,16 @@ export class BackupManager implements IBackupManager {
                 return ResultUtils.combine(
                   Object.keys(unpacked.records).map((tableName) => {
                     const table = unpacked.records[tableName];
+                    // fail gracefully if invalid table is found in the chunk
+                    if (!this.schemas.has(tableName)) {
+                      console.error(
+                        "invalid table found in backup chunk",
+                        tableName,
+                        backup.header.hash,
+                      );
+                      return okAsync(undefined);
+                    }
+
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     const migrator = this.schemas.get(tableName)!.migrator;
 
