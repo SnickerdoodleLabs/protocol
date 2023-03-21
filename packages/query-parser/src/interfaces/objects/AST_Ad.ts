@@ -5,6 +5,8 @@ import {
   EAdDisplayType,
 } from "@snickerdoodlelabs/objects";
 
+import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
+
 export class AST_Ad {
   constructor(
     readonly key: SDQL_Name, //a1, a2, ..
@@ -15,5 +17,6 @@ export class AST_Ad {
     readonly weight: number,
     readonly expiry: UnixTimestamp,
     readonly keywords: string[],
+    readonly target: AST_ConditionExpr,
   ) {}
 }
