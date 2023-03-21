@@ -109,21 +109,14 @@ Insight instances can be referenced only by **compensation logic**. Hence it wou
 }
 ```
 
-### Insight Instances - Conditions
+### Insight Instances - Target
 
-Conditions field specifies which data wallets are expected to hand the insight. In a sense, this is the "targeting" section of an instance.
+Target field is a (logic expression)[/documentation/sdql/LOGICEXPRESSIONS.md] that specifies which data wallets are expected to hand the insight. 
 
-This field is a logic expression that resolves to true or false depending on user permissions and specified conditions applied on given query instances.
+Target logic is only allowed to reference zero or more query instances. After these query instance reference/s get evaluated, $qN expressions and in-line conditions applied on them will resolve to just true or false.
 
-Conditions logic is only allowed to reference zero or more query instances. It can't reference any other instance declarations.
+If the result of this expression is true, then data wallet will calculate the **return expression** of the insight instance.
 
-### Insight Instances - Conditions - Rules of Evaluation
-
-Insights in logic expressions can resolve to true or false based on following rules:
-1. If conditions logic strictly depends on a query instance for which the user didn't give permission, $iN evaluates to false
-2. Else if conditions logic evaluates to false for any reason, $iN evaluates to false
-    - For example, user could have given permission for age, but provided "yes" as an answer. If $iN's conditions expression strictly depends on this age query, $iN will evaluate to false.
-3. Else, $iN evaluates to true.
 
 ### Insight Instances - Returns
 
@@ -131,9 +124,9 @@ This field specifies the form of insights. It defines a set of arithmetic operat
 
 In other words, insight instances arithmetically combine user data for aggregation. Because insights is the only value returned to an insight platform, return value of instances is the sole thing that is used by an insight platform to determine which data wallets are eligible for a given compensation.
 
-An important remark is that return expressions are dependent on the condition expressions of the same instance, because a data wallet must be targeted by an organization owner in the first place, and this is what the conditions logic is for.
+An important remark is that return expressions are dependent on the condition expressions of the same instance, because a data wallet must be targeted by an organization owner in the first place, and this is what the target logic is for.
 
-Please notice **compensation logic** will only respect the result of the return expression of an insight instance, not the conditions expression. But as explained, returns expression is dependent on conditions.
+Please notice **compensation logic** will only respect the result of the return expression of an insight instance, not the target expression. But as explained, returns expression is dependent on the target expression.
 
 Return expressions are different from logic expressions because they're not supposed to resolve to a binary value like true or false (they can, though). 
 They can resolve in numbers, strings, booleans, as well as complex objects and null. What matters in the end for compensations logic is if return value of an insight instance is not null and is valid.
@@ -145,7 +138,7 @@ If return expression of $iN results in a non-null answer after validation and co
 Returns expressions can only reference zero or more query instances. It can't reference any other instance types.
 
 ### Insight Instances - Returns - Rules of Evaluation
-1. If conditions logic of $iN evaluates to false, return expression of $iN will evaluate to null.
+1. If target logic of $iN evaluates to false, return expression of $iN will evaluate to null.
 2. Else if returns operations depend on a query instance that is not permitted by the user, return expression of $iN will evaluate to null.
 3. Else if returns operations depend on at least one query instance that returns invalid / unexpected form of data, $iN will evaluate to null.
 4. Else, the return of $iN will be a non-null and valid value, which will make $iN be treated as true in a compensation logic expression.
@@ -187,7 +180,7 @@ Like insight instances, ad instances can be referenced only by **compensation lo
 Ads in compensation logic can resolve to true or false based on following rules:
 1. If targeting logic strictly depends on a query instance for which the user didn't give permission, $aN evaluates to false
 2. Else if target logic evaluates to false for any reason, $aN evaluates to false
-    - For example, user could have given permission for age, but provided "yes" as an answer. If $aN's conditions expression strictly depends on this age query instance, $aN will evaluate to false.
+    - For example, user could have given permission for age, but provided "yes" as an answer. If $aN's target expression strictly depends on this age query instance, $aN will evaluate to false.
 3. Else if user didn't watch the ad on the defined ad surface, and hence does not have an ad signature, $aN will evaluate to false.
 4. Else if user cannot provide a valid ad signature, $aN will evaluate to false.
 5. Else, $aN evaluates to true.
