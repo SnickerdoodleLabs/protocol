@@ -61,8 +61,11 @@ import {
   IAccountStorageRepository,
   IAccountStorageRepositoryType,
 } from "../interfaces/data/IAccountStorageRepository";
-import { IDataPermissionsRepository } from "../interfaces/data/IDataPermissionsRepository";
-import { DataPermissionRepository } from "./data/DataPermissionRepository";
+import {
+  IDataPermissionsRepository,
+  IDataPermissionsRepositoryType,
+} from "../interfaces/data/IDataPermissionsRepository";
+import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
 export const mobileCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -98,8 +101,8 @@ export const mobileCoreModule = new ContainerModule(
     bind<IAccountStorageRepository>(IAccountStorageRepositoryType).to(
       AccountStorageRepository,
     );
-    bind<IDataPermissionsRepository>(DataPermissionRepository).to(
-      DataPermissionRepository,
+    bind<IDataPermissionsRepository>(IDataPermissionsRepositoryType).to(
+      DataPermissionsRepository,
     );
 
     // Utilities

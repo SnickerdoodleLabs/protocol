@@ -3,6 +3,7 @@ import {
   DomainName,
   EVMAccountAddress,
   EVMContractAddress,
+  EWalletDataType,
   IDynamicRewardParameter,
   Invitation,
   IOpenSeaMetadata,
@@ -201,7 +202,7 @@ const LayoutContextProvider = ({ children }) => {
                           "" as DomainName,
                           invitation?.consentAddress ??
                             ("" as EVMContractAddress),
-                          TokenId(BigInt(invitation?.tokenId ?? 0)),
+                          TokenId(BigInt(0)),
                           invitation?.signature ?? null,
                         ),
                       );
@@ -210,17 +211,16 @@ const LayoutContextProvider = ({ children }) => {
                   <Button
                     title="Accept"
                     onPress={() => {
-                      const inv = new Invitation(
-                        "" as DomainName,
-                        invitation?.consentAddress ??
-                          ("" as EVMContractAddress),
-                        //@ts-ignore
-                        invitation?.tokenId,
-                        invitation?.signature ?? null,
+                      mobileCore.invitationService.acceptInvitation(
+                        new Invitation(
+                          "" as DomainName,
+                          invitation?.consentAddress ??
+                            ("" as EVMContractAddress),
+                          TokenId(BigInt(0)),
+                          invitation?.signature ?? null,
+                        ),
+                        null,
                       );
-                      console.log("inv22", inv);
-                      mobileCore.invitationService.acceptInvitation(inv, null);
-                      setInvitationStatus(false, null, null);
                     }}
                   />
                 </View>

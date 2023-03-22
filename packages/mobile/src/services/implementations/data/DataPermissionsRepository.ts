@@ -14,7 +14,7 @@ export const dependedFlags = {
   [EWalletDataType.Birthday]: [EWalletDataType.Age],
 };
 @injectable()
-export class DataPermissionRepository implements IDataPermissionsRepository {
+export class DataPermissionsRepository implements IDataPermissionsRepository {
   public get defaultFlags(): ResultAsync<HexString32, MobileStorageError> {
     return ResultAsync.fromPromise(
       AsyncStorage.getItem("defaultFlags"),

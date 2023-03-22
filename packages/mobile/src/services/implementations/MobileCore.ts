@@ -88,6 +88,7 @@ export class MobileCore {
         invitation: Invitation,
         dataTypes: EWalletDataType[] | null,
       ) => {
+        console.log(invitation);
         const _invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
         );
