@@ -17,7 +17,7 @@ import {
   EVMPrivateKey,
   EVMTransaction,
   IConfigOverrides,
-  IDataWalletBackup,
+  DataWalletBackup,
   InitializationVector,
   IpfsCID,
   LazyReward,
@@ -131,6 +131,7 @@ export class DataWalletProfile {
               `Request account address: ${request.accountAddress}`,
             );
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             await env
               .dataWalletProfile!.signMetatransactionRequest(request)
               .mapErr((e) => {
@@ -410,20 +411,7 @@ export class DataWalletProfile {
     return this.readFile(backupPath, "utf-8")
       .andThen((content) => {
         const backupJson = JSON.parse(content);
-
-        const backup: IDataWalletBackup = {
-          header: {
-            hash: backupJson.hash,
-            timestamp: UnixTimestamp(backupJson.timestamp),
-            signature: backupJson.signature,
-            priority: EBackupPriority.NORMAL,
-          },
-          blob: new AESEncryptedString(
-            EncryptedString(backupJson.blob.data),
-            InitializationVector(backupJson.blob.initializationVector),
-          ),
-        };
-        return this.core.restoreBackup(backup);
+        return this.core.restoreBackup(backupJson as DataWalletBackup);
       })
       .map(() => console.log(`loaded backup from ${backupPath}`))
       .mapErr((e) => this._loadOnError(e, backupPath));

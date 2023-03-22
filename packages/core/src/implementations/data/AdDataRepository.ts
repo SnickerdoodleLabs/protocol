@@ -4,8 +4,8 @@ import {
   EBackupPriority,
   AdSignature,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -30,11 +30,7 @@ export class AdDataRepository implements IAdDataRepository {
       ads.map((ad) => {
         return this.persistence.updateRecord(
           ERecordKey.ELIGIBLE_ADS,
-          new VolatileStorageMetadata<EligibleAd>(
-            EBackupPriority.NORMAL,
-            ad,
-            EligibleAd.CURRENT_VERSION,
-          ),
+          new VolatileStorageMetadata<EligibleAd>(ad),
         );
       }),
     ).map(() => {});
@@ -55,11 +51,7 @@ export class AdDataRepository implements IAdDataRepository {
       adSigList.map((adSig) => {
         return this.persistence.updateRecord(
           ERecordKey.AD_SIGNATURES,
-          new VolatileStorageMetadata<AdSignature>(
-            EBackupPriority.NORMAL,
-            adSig,
-            AdSignature.CURRENT_VERSION,
-          ),
+          new VolatileStorageMetadata<AdSignature>(adSig),
         );
       }),
     ).map(() => undefined);

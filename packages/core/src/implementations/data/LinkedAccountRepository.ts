@@ -4,9 +4,10 @@ import {
   DomainName,
   EarnedReward,
   EBackupPriority,
+  EFieldKey,
+  ERecordKey,
   EVMContractAddress,
   Invitation,
-  JSONString,
   LatestBlock,
   LinkedAccount,
   PersistenceError,
@@ -15,7 +16,6 @@ import {
   TokenId,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { EFieldKey, ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -117,11 +117,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       rewards.map((reward) => {
         return this.persistence.updateRecord<EarnedReward>(
           ERecordKey.EARNED_REWARDS,
-          new VolatileStorageMetadata(
-            EBackupPriority.NORMAL,
-            reward,
-            EarnedReward.CURRENT_VERSION,
-          ),
+          new VolatileStorageMetadata(reward),
         );
       }),
     ).map(() => undefined);
@@ -172,9 +168,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
     const metadata = new VolatileStorageMetadata<LatestBlock>(
-      EBackupPriority.NORMAL,
       new LatestBlock(contractAddress, blockNumber),
-      LatestBlock.CURRENT_VERSION,
     );
     return this.persistence.updateRecord(ERecordKey.LATEST_BLOCK, metadata);
   }
@@ -199,11 +193,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    const metadata = new VolatileStorageMetadata<LinkedAccount>(
-      EBackupPriority.HIGH,
-      linkedAccount,
-      LinkedAccount.CURRENT_VERSION,
-    );
+    const metadata = new VolatileStorageMetadata<LinkedAccount>(linkedAccount);
     return this.persistence.updateRecord(ERecordKey.ACCOUNT, metadata);
   }
 
@@ -248,9 +238,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       return this.persistence.updateRecord(
         ERecordKey.RECEIVING_ADDRESSES,
         new VolatileStorageMetadata(
-          EBackupPriority.NORMAL,
           new ReceivingAccount(contractAddress, receivingAddress),
-          ReceivingAccount.CURRENT_VERSION,
         ),
       );
     }

@@ -9,6 +9,7 @@ import {
   EBackupPriority,
   EChain,
   ECurrencyCode,
+  ERecordKey,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -20,7 +21,6 @@ import {
   URLString,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -94,11 +94,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
     return this.persistence.updateRecord(
       ERecordKey.COIN_INFO,
-      new VolatileStorageMetadata<TokenInfo>(
-        EBackupPriority.NORMAL,
-        info,
-        TokenInfo.CURRENT_VERSION,
-      ),
+      new VolatileStorageMetadata<TokenInfo>(info),
     );
   }
 
@@ -295,11 +291,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                     results.push(
                       this.persistence.updateRecord(
                         ERecordKey.COIN_INFO,
-                        new VolatileStorageMetadata(
-                          EBackupPriority.NORMAL,
-                          tokenInfo,
-                          TokenInfo.CURRENT_VERSION,
-                        ),
+                        new VolatileStorageMetadata(tokenInfo),
                       ),
                     );
                   }

@@ -2,18 +2,16 @@ import {
   BackupFileName,
   DataWalletBackupID,
   EBackupPriority,
+  EFieldKey,
+  ERecordKey,
   EVMPrivateKey,
-  IDataWalletBackup,
+  DataWalletBackup,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import {
-  EFieldKey,
-  ERecordKey,
-  IVolatileCursor,
-} from "@snickerdoodlelabs/persistence";
+import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -85,20 +83,20 @@ export interface IDataWalletPersistence {
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods
-  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
   unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
   listFileNames(): ResultAsync<BackupFileName[], PersistenceError>;
   fetchBackup(
     backupHeader: string,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  ): ResultAsync<DataWalletBackup[], PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
