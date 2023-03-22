@@ -207,33 +207,42 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this.cryptoUtils
-      .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
-      .andThen((valid) => {
-        if (!valid) {
-          return errAsync(
-            new PersistenceError(
-              "invalid signature for backup",
-              backup.header.hash,
-            ),
-          );
-        } else {
-          return this._unpackBlob(backup.blob);
-        }
-      })
-      .andThen((unpacked) => {
-        if (Array.isArray(unpacked)) {
-          return this._restoreRecords(
-            backup.header,
-            unpacked as VolatileDataUpdate[],
-          );
-        } else {
-          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
-        }
-      })
-      .andThen(() => {
-        return this._addRestored(backup);
-      });
+    return this._wasRestored(backup.header.hash).andThen((restored) => {
+      if (restored) {
+        return okAsync(undefined);
+      }
+
+      return this.cryptoUtils
+        .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
+        .andThen((valid) => {
+          if (!valid) {
+            return errAsync(
+              new PersistenceError(
+                "invalid signature for backup",
+                backup.header.hash,
+              ),
+            );
+          } else {
+            return this._unpackBlob(backup.blob);
+          }
+        })
+        .andThen((unpacked) => {
+          if (Array.isArray(unpacked)) {
+            return this._restoreRecords(
+              backup.header,
+              unpacked as VolatileDataUpdate[],
+            );
+          } else {
+            return this._restoreField(
+              backup.header,
+              unpacked as FieldDataUpdate,
+            );
+          }
+        })
+        .andThen(() => {
+          return this._addRestored(backup);
+        });
+    });
   }
 
   private _restoreRecords(
