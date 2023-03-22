@@ -18,9 +18,10 @@ import {
   DataWalletBackupHeader,
   EBackupPriority,
   BackupFileName,
+  StorageKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ok, okAsync, Result, ResultAsync } from "neverthrow";
+import { Err, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
@@ -73,10 +74,14 @@ export class GoogleCloudStorage implements ICloudStorage {
         return ResultUtils.combine(
           files
             .filter((file) => {
-              const [hash, backupPriority] = this._parsePath(file.name);
+              const parsed = ParsedBackupFileName.parse(file.name);
+              if (parsed == null) {
+                return false;
+              }
+
               return (
-                priority == backupPriority &&
-                !restored.has(DataWalletBackupID(hash))
+                priority == parsed.priority &&
+                !restored.has(DataWalletBackupID(parsed.hash))
               );
             })
             .map((file) => {
@@ -132,13 +137,12 @@ export class GoogleCloudStorage implements ICloudStorage {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-        return this._getFileName(backup.header).andThen((fileName) => {
-          return this.insightPlatformRepo.getSignedUrl(
-            privateKey,
-            defaultInsightPlatformBaseUrl,
-            addr + "/" + fileName,
-          );
-        });
+        const fileName = ParsedBackupFileName.fromHeader(backup.header);
+        return this.insightPlatformRepo.getSignedUrl(
+          privateKey,
+          defaultInsightPlatformBaseUrl,
+          addr + "/" + fileName,
+        );
       })
       .andThen((signedUrl) => {
         // if (signedUrl === typeof URLString) {
@@ -171,9 +175,11 @@ export class GoogleCloudStorage implements ICloudStorage {
         return ResultUtils.combine(
           files
             .filter((file) => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const [hash, _priority] = this._parsePath(file.name);
-              return !restored.has(DataWalletBackupID(hash));
+              const parsed = ParsedBackupFileName.parse(file.name);
+              if (parsed == null) {
+                return false;
+              }
+              return !restored.has(DataWalletBackupID(parsed.hash));
             })
             .map((file) => {
               return this.ajaxUtils.get<DataWalletBackup>(
@@ -256,21 +262,47 @@ export class GoogleCloudStorage implements ICloudStorage {
       );
     });
   }
+}
 
-  private _getFileName(
-    header: DataWalletBackupHeader,
-  ): ResultAsync<string, never> {
-    return okAsync(`${header.priority}_${header.hash}`);
+class ParsedBackupFileName {
+  public constructor(
+    public priority: EBackupPriority,
+    public dataType: StorageKey,
+    public timestamp: number,
+    public hash: DataWalletBackupID,
+  ) {}
+
+  public render(): string {
+    return `${this.priority}_${this.dataType}_${this.timestamp}_${this.hash}`;
   }
 
-  private _parsePath(path: string): [string, EBackupPriority] {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const name = path.split(/[/ ]+/).pop()!;
-    const delim = name.indexOf("_");
-    const priority = Number.parseInt(
-      name.substring(0, delim),
-    ) as EBackupPriority;
-    const hash = name.substring(delim + 1);
-    return [hash, priority];
+  public static fromHeader(
+    header: DataWalletBackupHeader,
+  ): ParsedBackupFileName {
+    return new ParsedBackupFileName(
+      header.priority,
+      header.dataType,
+      header.timestamp,
+      header.hash,
+    );
+  }
+
+  public static parse(path: string): ParsedBackupFileName | null {
+    const name = path.split(/[/ ]+/).pop();
+    if (name == undefined) {
+      return null;
+    }
+
+    const split = name.split("_");
+    if (split.length != 4) {
+      return null;
+    }
+
+    return new ParsedBackupFileName(
+      Number.parseInt(split[0]) as EBackupPriority,
+      split[1] as StorageKey,
+      Number.parseInt(split[2]),
+      split[3] as DataWalletBackupID,
+    );
   }
 }
