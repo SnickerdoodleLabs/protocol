@@ -92,10 +92,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   }
 
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.COIN_INFO,
-      new VolatileStorageMetadata<TokenInfo>(info),
-    );
+    return this.persistence.updateRecord(ERecordKey.COIN_INFO, info);
   }
 
   public getTokenMarketData(
@@ -291,7 +288,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                     results.push(
                       this.persistence.updateRecord(
                         ERecordKey.COIN_INFO,
-                        new VolatileStorageMetadata(tokenInfo),
+                        tokenInfo,
                       ),
                     );
                   }

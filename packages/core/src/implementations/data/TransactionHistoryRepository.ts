@@ -177,8 +177,7 @@ export class TransactionHistoryRepository
 
     return ResultUtils.combine(
       transactions.map((tx) => {
-        const metadata = new VolatileStorageMetadata<ChainTransaction>(tx);
-        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, metadata);
+        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
       }),
     ).andThen(() => okAsync(undefined));
   }

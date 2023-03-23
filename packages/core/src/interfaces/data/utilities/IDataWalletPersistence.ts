@@ -38,7 +38,7 @@ export interface IDataWalletPersistence {
   // write methods
   updateRecord<T extends VersionedObject>(
     tableName: ERecordKey,
-    value: VolatileStorageMetadata<T>,
+    value: T,
   ): ResultAsync<void, PersistenceError>;
   deleteRecord(
     tableName: ERecordKey,

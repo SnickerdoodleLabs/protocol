@@ -102,7 +102,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       rewards.map((reward) => {
         return this.persistence.updateRecord<EarnedReward>(
           ERecordKey.EARNED_REWARDS,
-          new VolatileStorageMetadata(reward),
+          reward,
         );
       }),
     ).map(() => undefined);
@@ -144,10 +144,10 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
-    const metadata = new VolatileStorageMetadata<LatestBlock>(
+    return this.persistence.updateRecord(
+      ERecordKey.LATEST_BLOCK,
       new LatestBlock(contractAddress, blockNumber),
     );
-    return this.persistence.updateRecord(ERecordKey.LATEST_BLOCK, metadata);
   }
 
   public getLatestBlockNumber(
@@ -169,8 +169,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    const metadata = new VolatileStorageMetadata<LinkedAccount>(linkedAccount);
-    return this.persistence.updateRecord(ERecordKey.ACCOUNT, metadata);
+    return this.persistence.updateRecord(ERecordKey.ACCOUNT, linkedAccount);
   }
 
   public removeAccount(
@@ -205,9 +204,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     if (receivingAddress && receivingAddress != "") {
       return this.persistence.updateRecord(
         ERecordKey.RECEIVING_ADDRESSES,
-        new VolatileStorageMetadata(
-          new ReceivingAccount(contractAddress, receivingAddress),
-        ),
+        new ReceivingAccount(contractAddress, receivingAddress),
       );
     }
 
