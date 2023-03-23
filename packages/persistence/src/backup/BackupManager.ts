@@ -110,21 +110,16 @@ export class BackupManager implements IBackupManager {
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     return this.volatileStorage.getKey(tableName, value.data).andThen((key) => {
-      // TODO: Remove
-      console.debug("Retrieved the key for the record", key);
       return this._checkRecordUpdateRecency(
         tableName,
         key,
         value.lastUpdate,
       ).andThen((valid) => {
-        console.debug("Record update recency: ", valid);
         if (!valid) {
           return okAsync(undefined);
         }
 
-        console.debug("Putting object into volatile storage");
         return this.volatileStorage.putObject(tableName, value).andThen(() => {
-          console.debug("Object put into volatile storage, rendering backup");
           if (!this.tableRenderers.has(tableName)) {
             return errAsync(
               new PersistenceError("no renderer for table", tableName),
@@ -145,7 +140,6 @@ export class BackupManager implements IBackupManager {
               ),
             )
             .map((backup) => {
-              console.debug("Rendered backup", backup);
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);
               }

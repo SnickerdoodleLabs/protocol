@@ -44,7 +44,7 @@ export class ChunkRenderer implements IChunkRenderer {
   ) {
     this.lastRender = timeUtils.getUnixNowMS();
     this.numUpdates = 0;
-    this.updates = this.schema instanceof VolatileDataUpdate ? [] : null;
+    this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
   }
 
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {

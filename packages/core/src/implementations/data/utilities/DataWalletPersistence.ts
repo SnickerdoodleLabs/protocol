@@ -183,8 +183,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.getBackupManager(),
       this.waitForUnlock(),
     ]).andThen(([backupManager]) => {
-      // TODO: remove
-      this.logUtils.debug("Retrieved backup manager and successfully unlocked DWP");
       return backupManager.addRecord(tableName, value);
     });
   }
