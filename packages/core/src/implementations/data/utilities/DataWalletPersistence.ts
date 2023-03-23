@@ -23,11 +23,17 @@ import {
   IVolatileStorage,
   IVolatileStorageType,
   IVolatileCursor,
+  IVolatileStorageSchemaProviderType,
+  IVolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import {
+  ILocalStorageSchemaProvider,
+  ILocalStorageSchemaProviderType,
+} from "packages/persistence/src/local/index.js";
 
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 import {
@@ -57,6 +63,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     protected configProvider: IPersistenceConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IVolatileStorageSchemaProviderType)
+    protected volatileSchemaProvider: IVolatileStorageSchemaProvider,
+    @inject(ILocalStorageSchemaProviderType)
+    protected fieldSchemaProvider: ILocalStorageSchemaProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -69,61 +79,79 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getField<T>(
-    key: EFieldKey,
-    priority?: EBackupPriority,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.waitForPriority(priority).andThen(() => {
-      return this.storageUtils.read<JSONString>(key).map((raw) => {
-        if (raw == null) {
-          return null;
-        }
-        return JSON.parse(raw) as T;
+  public getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError> {
+    return this.fieldSchemaProvider
+      .getLocalStorageSchema()
+      .andThen((schema) => {
+        const priority = schema.get(key)?.priority;
+        return this.waitForPriority(priority);
+      })
+      .andThen(() => {
+        return this.storageUtils.read<JSONString>(key).map((raw) => {
+          if (raw == null) {
+            return null;
+          }
+          return JSON.parse(raw) as T;
+        });
       });
-    });
   }
 
   public getObject<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     key: VolatileStorageKey,
-    priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.waitForPriority(priority).andThen(() => {
-      return this.volatileStorage
-        .getObject<T>(name, key)
-        .map((x) => (x == null ? null : x.data));
-    });
+    return this.volatileSchemaProvider
+      .getVolatileStorageSchema()
+      .andThen((schema) => {
+        const priority = schema.get(name)?.priority;
+        return this.waitForPriority(priority);
+      })
+      .andThen(() => {
+        return this.volatileStorage
+          .getObject<T>(name, key)
+          .map((x) => (x == null ? null : x.data));
+      });
   }
 
   public getCursor<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode | undefined,
-    priority?: EBackupPriority,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    return this.waitForPriority(priority).andThen(() => {
-      return this.volatileStorage.getCursor<T>(
-        name,
-        indexName,
-        query,
-        direction,
-        mode,
-      );
-    });
+    return this.volatileSchemaProvider
+      .getVolatileStorageSchema()
+      .andThen((schema) => {
+        const priority = schema.get(name)?.priority;
+        return this.waitForPriority(priority);
+      })
+      .andThen(() => {
+        return this.volatileStorage.getCursor<T>(
+          name,
+          indexName,
+          query,
+          direction,
+          mode,
+        );
+      });
   }
 
   public getAll<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     indexName?: string | undefined,
-    priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
-    return this.waitForPriority(priority).andThen(() => {
-      return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
-        return values.map((x) => x.data);
+    return this.volatileSchemaProvider
+      .getVolatileStorageSchema()
+      .andThen((schema) => {
+        const priority = schema.get(name)?.priority;
+        return this.waitForPriority(priority);
+      })
+      .andThen(() => {
+        return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
+          return values.map((x) => x.data);
+        });
       });
-    });
   }
 
   public getAllKeys<T>(
@@ -133,9 +161,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     count?: number | undefined,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
-    return this.waitForPriority(priority).andThen(() => {
-      return this.volatileStorage.getAllKeys<T>(name, indexName, query, count);
-    });
+    return this.volatileSchemaProvider
+      .getVolatileStorageSchema()
+      .andThen((schema) => {
+        const priority = schema.get(name)?.priority;
+        return this.waitForPriority(priority);
+      })
+      .andThen(() => {
+        return this.volatileStorage.getAllKeys<T>(
+          name,
+          indexName,
+          query,
+          count,
+        );
+      });
   }
 
   public updateRecord<T extends VersionedObject>(
@@ -153,7 +192,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public deleteRecord(
     tableName: ERecordKey,
     key: VolatileStorageKey,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
@@ -166,7 +204,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateField(
     key: EFieldKey,
     value: object,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),

@@ -419,47 +419,4 @@ export class CryptoUtils implements ICryptoUtils {
     }
     return Buffer.from(ethers.utils.arrayify(hex));
   }
-
-  public verifyBackupSignature(
-    backup: DataWalletBackup,
-    accountAddr: EVMAccountAddress,
-  ): ResultAsync<boolean, never> {
-    return this.getBackupHash(backup.blob).andThen((hash) => {
-      return this.verifyEVMSignature(
-        this._generateBackupSignatureMessage(hash, backup.header.timestamp),
-        Signature(backup.header.signature),
-      ).andThen((addr) => okAsync(addr == EVMAccountAddress(accountAddr)));
-    });
-  }
-
-  public generateBackupSignature(
-    hash: string,
-    timestamp: number,
-    privateKey: EVMPrivateKey,
-  ): ResultAsync<Signature, never> {
-    return this.signMessage(
-      this._generateBackupSignatureMessage(hash, timestamp),
-      privateKey,
-    );
-  }
-
-  public getBackupHash(
-    blob: BackupBlob | EncryptedBackupBlob,
-  ): ResultAsync<DataWalletBackupID, never> {
-    return this.hashStringSHA256(JSON.stringify(blob)).map((hash) => {
-      return DataWalletBackupID(
-        hash.toString().replace(new RegExp("/", "g"), "-"),
-      );
-    });
-  }
-
-  private _generateBackupSignatureMessage(
-    hash: string,
-    timestamp: number,
-  ): string {
-    return JSON.stringify({
-      hash: hash,
-      timestamp: timestamp,
-    });
-  }
 }

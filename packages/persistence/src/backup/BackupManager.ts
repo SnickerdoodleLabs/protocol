@@ -1,6 +1,7 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ITimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletAddress,
@@ -39,6 +40,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { ChunkRenderer } from "@persistence/backup/ChunkRenderer.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
+import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import { FieldIndex } from "@persistence/local";
 import {
@@ -65,12 +67,21 @@ export class BackupManager implements IBackupManager {
     protected volatileStorage: IVolatileStorage,
     protected storageUtils: IStorageUtils,
     protected enableEncryption: boolean,
+    protected timeUtils: ITimeUtils,
+    protected backupUtils: IBackupUtils,
   ) {
     tables.forEach((schema) => {
       if (schema.priority != EBackupPriority.DISABLED) {
         this.tableRenderers.set(
           schema.name,
-          new ChunkRenderer(schema, enableEncryption, cryptoUtils, privateKey),
+          new ChunkRenderer(
+            schema,
+            enableEncryption,
+            cryptoUtils,
+            backupUtils,
+            privateKey,
+            timeUtils,
+          ),
         );
         this.migrators.set(schema.name, schema.migrator);
       }
@@ -78,7 +89,14 @@ export class BackupManager implements IBackupManager {
     fields.forEach((schema) => {
       this.fieldRenderers.set(
         schema.name,
-        new ChunkRenderer(schema, enableEncryption, cryptoUtils, privateKey),
+        new ChunkRenderer(
+          schema,
+          enableEncryption,
+          cryptoUtils,
+          backupUtils,
+          privateKey,
+          timeUtils,
+        ),
       );
     });
 
@@ -212,7 +230,7 @@ export class BackupManager implements IBackupManager {
         return okAsync(undefined);
       }
 
-      return this.cryptoUtils
+      return this.backupUtils
         .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
         .andThen((valid) => {
           if (!valid) {
@@ -222,9 +240,8 @@ export class BackupManager implements IBackupManager {
                 backup.header.hash,
               ),
             );
-          } else {
-            return this._unpackBlob(backup.blob);
           }
+          return this._unpackBlob(backup.blob);
         })
         .andThen((unpacked) => {
           if (Array.isArray(unpacked)) {
@@ -232,12 +249,8 @@ export class BackupManager implements IBackupManager {
               backup.header,
               unpacked as VolatileDataUpdate[],
             );
-          } else {
-            return this._restoreField(
-              backup.header,
-              unpacked as FieldDataUpdate,
-            );
           }
+          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
         })
         .andThen(() => {
           return this._addRestored(backup);
@@ -260,35 +273,17 @@ export class BackupManager implements IBackupManager {
             return okAsync(undefined);
           }
 
-          switch (update.operation) {
-            case EDataUpdateOpCode.REMOVE:
-              let metadata = new VolatileStorageMetadata<VersionedObject>(
-                update.value,
-                update.timestamp,
-                EBoolean.TRUE,
-              );
-              return this.volatileStorage.putObject(
-                header.dataType as ERecordKey,
-                metadata,
-              );
-            case EDataUpdateOpCode.UPDATE:
-              metadata = new VolatileStorageMetadata<VersionedObject>(
-                update.value,
-                update.timestamp,
-                EBoolean.FALSE,
-              );
-              return this.volatileStorage.putObject(
-                header.dataType as ERecordKey,
-                metadata,
-              );
-            default:
-              return errAsync(
-                new PersistenceError(
-                  "invalid opcode for data update",
-                  update.operation,
-                ),
-              );
-          }
+          const metadata = new VolatileStorageMetadata<VersionedObject>(
+            update.value,
+            update.timestamp,
+            update.operation == EDataUpdateOpCode.REMOVE
+              ? EBoolean.TRUE
+              : EBoolean.FALSE,
+          );
+          return this.volatileStorage.putObject(
+            header.dataType as ERecordKey,
+            metadata,
+          );
         });
       }),
     ).map(() => undefined);

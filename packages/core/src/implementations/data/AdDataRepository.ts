@@ -37,11 +37,7 @@ export class AdDataRepository implements IAdDataRepository {
   }
 
   public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
-    return this.persistence.getAll<EligibleAd>(
-      ERecordKey.ELIGIBLE_ADS,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getAll<EligibleAd>(ERecordKey.ELIGIBLE_ADS);
   }
 
   public saveAdSignatures(
@@ -58,10 +54,6 @@ export class AdDataRepository implements IAdDataRepository {
   }
 
   public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
-    return this.persistence.getAll<AdSignature>(
-      ERecordKey.AD_SIGNATURES,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getAll<AdSignature>(ERecordKey.AD_SIGNATURES);
   }
 }

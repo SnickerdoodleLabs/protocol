@@ -15,44 +15,77 @@ export class LocalStorageSchemaProvider implements ILocalStorageSchemaProvider {
     protected configProvider: IPersistenceConfigProvider,
   ) {}
 
-  public getLocalStorageSchema(): ResultAsync<FieldIndex[], never> {
+  public getLocalStorageSchema(): ResultAsync<
+    Map<EFieldKey, FieldIndex>,
+    never
+  > {
     return this.configProvider.getConfig().map((config) => {
-      return [
-        new FieldIndex(
+      return new Map([
+        [
           EFieldKey.ACCEPTED_INVITATIONS,
-          EBackupPriority.HIGH,
-          config.dataWalletBackupIntervalMS,
-        ),
-        new FieldIndex(
+          new FieldIndex(
+            EFieldKey.ACCEPTED_INVITATIONS,
+            EBackupPriority.HIGH,
+            0,
+          ),
+        ],
+        [
           EFieldKey.BIRTHDAY,
-          EBackupPriority.HIGH,
-          0, // instant push
-        ),
-        new FieldIndex(
+          new FieldIndex(
+            EFieldKey.BIRTHDAY,
+            EBackupPriority.HIGH,
+            0, // instant push
+          ),
+        ],
+        [
           EFieldKey.DEFAULT_RECEIVING_ADDRESS,
-          EBackupPriority.NORMAL,
-          config.dataWalletBackupIntervalMS,
-        ),
-        new FieldIndex(
+          new FieldIndex(
+            EFieldKey.DEFAULT_RECEIVING_ADDRESS,
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+          ),
+        ],
+        [
           EFieldKey.DOMAIN_PERMISSIONS,
-          EBackupPriority.HIGH,
-          config.dataWalletBackupIntervalMS,
-        ),
-        new FieldIndex(
+          new FieldIndex(
+            EFieldKey.DOMAIN_PERMISSIONS,
+            EBackupPriority.HIGH,
+            config.dataWalletBackupIntervalMS,
+          ),
+        ],
+        [
           EFieldKey.EMAIL,
-          EBackupPriority.NORMAL,
-          config.dataWalletBackupIntervalMS,
-        ),
-        new FieldIndex(EFieldKey.FIRST_NAME, EBackupPriority.HIGH, 0),
-        new FieldIndex(EFieldKey.GENDER, EBackupPriority.HIGH, 0),
-        new FieldIndex(EFieldKey.LAST_NAME, EBackupPriority.HIGH, 0),
-        new FieldIndex(EFieldKey.LOCATION, EBackupPriority.HIGH, 0),
-        new FieldIndex(
+          new FieldIndex(
+            EFieldKey.EMAIL,
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+          ),
+        ],
+        [
+          EFieldKey.FIRST_NAME,
+          new FieldIndex(EFieldKey.FIRST_NAME, EBackupPriority.HIGH, 0),
+        ],
+        [
+          EFieldKey.GENDER,
+          new FieldIndex(EFieldKey.GENDER, EBackupPriority.HIGH, 0),
+        ],
+        [
+          EFieldKey.LAST_NAME,
+          new FieldIndex(EFieldKey.LAST_NAME, EBackupPriority.HIGH, 0),
+        ],
+        [
+          EFieldKey.LOCATION,
+          new FieldIndex(EFieldKey.LOCATION, EBackupPriority.HIGH, 0),
+        ],
+        [
           EFieldKey.REJECTED_COHORTS,
-          EBackupPriority.NORMAL,
-          config.dataWalletBackupIntervalMS,
-        ),
-      ];
+          new FieldIndex(
+            EFieldKey.REJECTED_COHORTS,
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+          ),
+        ],
+      ]);
     });
   }
 }

@@ -34,19 +34,12 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   ) {}
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.persistence.getAll<LinkedAccount>(
-      ERecordKey.ACCOUNT,
-      undefined,
-      EBackupPriority.HIGH,
-    );
+    return this.persistence.getAll<LinkedAccount>(ERecordKey.ACCOUNT);
   }
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
     return this.persistence
-      .getField<InvitationForStorage[]>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
+      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
       .map((storedInvitations) => {
         if (storedInvitations == null) {
           return [];
@@ -62,10 +55,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     invitations: Invitation[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<InvitationForStorage[]>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
+      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
       .andThen((storedInvitations) => {
         if (storedInvitations == null) {
           storedInvitations = [];
@@ -80,7 +70,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
         return this.persistence.updateField(
           EFieldKey.ACCEPTED_INVITATIONS,
           allInvitations,
-          EBackupPriority.HIGH,
         );
       });
   }
@@ -89,10 +78,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     addressesToRemove: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<InvitationForStorage[]>(
-        EFieldKey.ACCEPTED_INVITATIONS,
-        EBackupPriority.HIGH,
-      )
+      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
       .andThen((storedInvitations) => {
         if (storedInvitations == null) {
           storedInvitations = [];
@@ -105,7 +91,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
         return this.persistence.updateField(
           EFieldKey.ACCEPTED_INVITATIONS,
           invitations,
-          EBackupPriority.HIGH,
         );
       });
   }
@@ -127,7 +112,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     return this.persistence.getAll<EarnedReward>(
       ERecordKey.EARNED_REWARDS,
       undefined,
-      EBackupPriority.NORMAL,
     );
   }
 
@@ -135,17 +119,13 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<EVMContractAddress[]>(
-        EFieldKey.REJECTED_COHORTS,
-        EBackupPriority.NORMAL,
-      )
+      .getField<EVMContractAddress[]>(EFieldKey.REJECTED_COHORTS)
       .andThen((raw) => {
         const saved = raw ?? [];
-        return this.persistence.updateField(
-          EFieldKey.REJECTED_COHORTS,
-          [...saved, ...consentContractAddresses],
-          EBackupPriority.NORMAL,
-        );
+        return this.persistence.updateField(EFieldKey.REJECTED_COHORTS, [
+          ...saved,
+          ...consentContractAddresses,
+        ]);
       });
   }
 
@@ -154,10 +134,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     PersistenceError
   > {
     return this.persistence
-      .getField<EVMContractAddress[]>(
-        EFieldKey.REJECTED_COHORTS,
-        EBackupPriority.NORMAL,
-      )
+      .getField<EVMContractAddress[]>(EFieldKey.REJECTED_COHORTS)
       .map((raw) => {
         return raw ?? [];
       });
@@ -180,7 +157,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       .getObject<LatestBlock>(
         ERecordKey.LATEST_BLOCK,
         contractAddress.toString(),
-        EBackupPriority.NORMAL,
       )
       .map((block) => {
         if (block == null) {
@@ -200,11 +176,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   public removeAccount(
     accountAddress: AccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.deleteRecord(
-      ERecordKey.ACCOUNT,
-      accountAddress,
-      EBackupPriority.HIGH,
-    );
+    return this.persistence.deleteRecord(ERecordKey.ACCOUNT, accountAddress);
   }
 
   public setDefaultReceivingAddress(
@@ -213,7 +185,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     return this.persistence.updateField(
       EFieldKey.DEFAULT_RECEIVING_ADDRESS,
       !receivingAddress ? ("" as AccountAddress) : receivingAddress,
-      EBackupPriority.NORMAL,
     );
   }
 
@@ -222,10 +193,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     PersistenceError
   > {
     return this.persistence
-      .getField<AccountAddress>(
-        EFieldKey.DEFAULT_RECEIVING_ADDRESS,
-        EBackupPriority.NORMAL,
-      )
+      .getField<AccountAddress>(EFieldKey.DEFAULT_RECEIVING_ADDRESS)
       .map((val) => (val == "" ? null : val));
   }
 
@@ -246,7 +214,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     return this.persistence.deleteRecord(
       ERecordKey.RECEIVING_ADDRESSES,
       contractAddress,
-      EBackupPriority.NORMAL,
     );
   }
 

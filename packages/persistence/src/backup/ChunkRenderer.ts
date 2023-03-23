@@ -1,4 +1,4 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AESEncryptedString,
   BackupBlob,
@@ -22,23 +22,27 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
+import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import { IStorageIndex } from "@persistence/IStorageIndex.js";
-import { FieldIndex } from "@persistence/local";
-import { VolatileTableIndex } from "@persistence/volatile";
+import { FieldIndex } from "@persistence/local/index.js";
+import { VolatileTableIndex } from "@persistence/volatile/index.js";
 
 export class ChunkRenderer implements IChunkRenderer {
   private updates: VolatileDataUpdate[] | (FieldDataUpdate | null);
 
   private numUpdates = 0;
-  private lastRender = Date.now();
+  private lastRender;
 
   public constructor(
     public schema: IStorageIndex,
     public enableEncryption: boolean,
     public cryptoUtils: ICryptoUtils,
+    public backupUtils: IBackupUtils,
     protected privateKey: EVMPrivateKey,
+    protected timeUtils: ITimeUtils,
   ) {
+    this.lastRender = timeUtils.getUnixNowMS();
     this.numUpdates = 0;
     this.updates = this.schema instanceof VolatileDataUpdate ? [] : null;
   }
@@ -47,7 +51,7 @@ export class ChunkRenderer implements IChunkRenderer {
     return this._dump(this.updates).map((result) => {
       this.numUpdates = 0;
       this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
-      this.lastRender = Date.now();
+      this.lastRender = this.timeUtils.getUnixNowMS();
       return result;
     });
   }
@@ -76,7 +80,10 @@ export class ChunkRenderer implements IChunkRenderer {
         this.updates = update;
       }
 
-      if (Date.now() - this.lastRender >= this.schema.backupInterval) {
+      if (
+        this.timeUtils.getUnixNowMS() - this.lastRender >=
+        this.schema.backupInterval
+      ) {
         return this.clear();
       } else {
         return okAsync(null);
@@ -84,10 +91,12 @@ export class ChunkRenderer implements IChunkRenderer {
     }
 
     (this.updates as VolatileDataUpdate[]).push(update);
+    this.numUpdates++;
     if (
-      ++this.numUpdates >=
+      this.numUpdates >=
         (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize ||
-      Date.now() - this.lastRender >= this.schema.backupInterval
+      this.timeUtils.getUnixNowMS() - this.lastRender >=
+        this.schema.backupInterval
     ) {
       return this.clear();
     } else {
@@ -102,11 +111,11 @@ export class ChunkRenderer implements IChunkRenderer {
       return okAsync(null);
     }
 
-    return this.cryptoUtils
+    return this.backupUtils
       .getBackupHash(updates as BackupBlob)
       .andThen((hash) => {
-        const timestamp = Date.now();
-        return this.cryptoUtils
+        const timestamp = this.timeUtils.getUnixNowMS();
+        return this.backupUtils
           .generateBackupSignature(hash, timestamp, this.privateKey)
           .andThen((signature) => {
             const header = new DataWalletBackupHeader(

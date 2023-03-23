@@ -50,86 +50,56 @@ export class DemographicDataRepository implements IDemographicDataRepository {
   }
 
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateField(
-      EFieldKey.FIRST_NAME,
-      name,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.updateField(EFieldKey.FIRST_NAME, name);
   }
 
   public getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
-    return this.persistence.getField(
-      EFieldKey.FIRST_NAME,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getField(EFieldKey.FIRST_NAME);
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateField(
-      EFieldKey.LAST_NAME,
-      name,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.updateField(EFieldKey.LAST_NAME, name);
   }
 
   public getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
-    return this.persistence.getField(
-      EFieldKey.LAST_NAME,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getField(EFieldKey.LAST_NAME);
   }
 
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateField(
-      EFieldKey.BIRTHDAY,
-      birthday,
-      EBackupPriority.HIGH,
-    );
+    return this.persistence.updateField(EFieldKey.BIRTHDAY, birthday);
   }
 
   public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
-    return this.persistence.getField(EFieldKey.BIRTHDAY, EBackupPriority.HIGH);
+    return this.persistence.getField(EFieldKey.BIRTHDAY);
   }
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateField(
-      EFieldKey.GENDER,
-      gender,
-      EBackupPriority.HIGH,
-    );
+    return this.persistence.updateField(EFieldKey.GENDER, gender);
   }
 
   public getGender(): ResultAsync<Gender | null, PersistenceError> {
-    return this.persistence.getField(EFieldKey.GENDER, EBackupPriority.HIGH);
+    return this.persistence.getField(EFieldKey.GENDER);
   }
 
   public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateField(
-      EFieldKey.EMAIL,
-      email,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.updateField(EFieldKey.EMAIL, email);
   }
 
   public getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
-    return this.persistence.getField(EFieldKey.EMAIL, EBackupPriority.NORMAL);
+    return this.persistence.getField(EFieldKey.EMAIL);
   }
 
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateField(
-      EFieldKey.LOCATION,
-      location,
-      EBackupPriority.HIGH,
-    );
+    return this.persistence.updateField(EFieldKey.LOCATION, location);
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.persistence.getField(EFieldKey.LOCATION, EBackupPriority.HIGH);
+    return this.persistence.getField(EFieldKey.LOCATION);
   }
 }

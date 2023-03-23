@@ -43,23 +43,17 @@ export interface IDataWalletPersistence {
   deleteRecord(
     tableName: ERecordKey,
     key: VolatileStorageKey,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
     value: object,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
 
   // read methods
-  getField<T>(
-    key: EFieldKey,
-    priority?: EBackupPriority,
-  ): ResultAsync<T | null, PersistenceError>;
+  getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError>;
   getObject<T extends VersionedObject>(
     name: ERecordKey,
     key: VolatileStorageKey,
-    priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
     name: ERecordKey,
@@ -67,19 +61,16 @@ export interface IDataWalletPersistence {
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
-    priority?: EBackupPriority,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
     name: ERecordKey,
     indexName?: string,
-    priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
   getAllKeys<T extends VersionedObject>(
     name: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
-    priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods

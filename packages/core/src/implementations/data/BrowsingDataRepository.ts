@@ -71,10 +71,6 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   }
 
   public getClicks(): ResultAsync<ClickData[], PersistenceError> {
-    return this.persistence.getAll<ClickData>(
-      ERecordKey.CLICKS,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getAll<ClickData>(ERecordKey.CLICKS);
   }
 }

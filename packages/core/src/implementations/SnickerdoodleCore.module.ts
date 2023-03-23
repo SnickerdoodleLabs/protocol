@@ -27,8 +27,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
+  BackupUtils,
   IBackupManagerProvider,
   IBackupManagerProviderType,
+  IBackupUtils,
+  IBackupUtilsType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
@@ -314,6 +317,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
+    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();

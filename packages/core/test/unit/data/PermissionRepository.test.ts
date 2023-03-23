@@ -30,10 +30,7 @@ class PermissionRepositoryMocks {
     this.dataWalletPeristence = td.object<IDataWalletPersistence>();
 
     td.when(
-      this.dataWalletPeristence.getField(
-        EFieldKey.DOMAIN_PERMISSIONS,
-        EBackupPriority.HIGH,
-      ),
+      this.dataWalletPeristence.getField(EFieldKey.DOMAIN_PERMISSIONS),
     ).thenReturn(okAsync(domainPermissions));
 
     td.when(
@@ -42,7 +39,6 @@ class PermissionRepositoryMocks {
         td.matchers.contains({
           [domainName1]: [EDataWalletPermission.ReadWeb3Data],
         }),
-        EBackupPriority.HIGH,
       ),
     ).thenReturn(okAsync(undefined));
   }
@@ -73,10 +69,7 @@ describe("PermissionRepository tests", () => {
     const mocks = new PermissionRepositoryMocks();
 
     td.when(
-      mocks.dataWalletPeristence.getField(
-        EFieldKey.DOMAIN_PERMISSIONS,
-        EBackupPriority.HIGH,
-      ),
+      mocks.dataWalletPeristence.getField(EFieldKey.DOMAIN_PERMISSIONS),
     ).thenReturn(okAsync(null));
 
     const repo = mocks.factoryRepository();
@@ -128,10 +121,7 @@ describe("PermissionRepository tests", () => {
     const mocks = new PermissionRepositoryMocks();
 
     td.when(
-      mocks.dataWalletPeristence.getField(
-        EFieldKey.DOMAIN_PERMISSIONS,
-        EBackupPriority.HIGH,
-      ),
+      mocks.dataWalletPeristence.getField(EFieldKey.DOMAIN_PERMISSIONS),
     ).thenReturn(okAsync(null));
 
     const repo = mocks.factoryRepository();

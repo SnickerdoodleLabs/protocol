@@ -207,8 +207,6 @@ export class TransactionHistoryRepository
         "timestamp",
         undefined,
         "prev",
-        undefined,
-        EBackupPriority.NORMAL,
       )
       .andThen((cursor) => {
         const filter = new TransactionFilter([chainId], [address]);
@@ -236,13 +234,7 @@ export class TransactionHistoryRepository
     return ResultUtils.combine(
       chains.map((chain) => {
         return this.persistence
-          .getAllKeys(
-            ERecordKey.TRANSACTIONS,
-            "chainId",
-            chain,
-            undefined,
-            EBackupPriority.NORMAL,
-          )
+          .getAllKeys(ERecordKey.TRANSACTIONS, "chainId", chain)
           .andThen((keys) => {
             return okAsync([chain, keys.length]);
           });

@@ -96,8 +96,8 @@ export class ConfigProvider
       },
       10000,
       "(localhost|chrome://)",
-      false,
-      120000,
+      false, // enable backup encryption
+      120000, // backup placement heartbeat
     );
   }
 

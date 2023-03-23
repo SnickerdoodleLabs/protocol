@@ -2,6 +2,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
@@ -12,6 +14,10 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { BackupManager } from "@persistence/backup/BackupManager.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
+import {
+  IBackupUtils,
+  IBackupUtilsType,
+} from "@persistence/backup/IBackupUtils.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -45,6 +51,8 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     protected recordSchemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILocalStorageSchemaProviderType)
     protected fieldSchemaProvider: ILocalStorageSchemaProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(IBackupUtilsType) protected backupUtils: IBackupUtils,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -70,12 +78,14 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     ]).map(([key, config, recordSchema, fieldSchema]) => {
       return new BackupManager(
         key,
-        recordSchema,
-        fieldSchema,
+        Array.from(recordSchema.values()),
+        Array.from(fieldSchema.values()),
         this.cryptoUtils,
         this.volatileStorage,
         this.storageUtils,
         config.enableBackupEncryption,
+        this.timeUtils,
+        this.backupUtils,
       );
     });
 

@@ -38,7 +38,6 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
           this.logUtils.error(e);
         });
       }, config.dataWalletBackupIntervalMS);
-      this.monitoringService.pollBackups();
 
       this.persistence.waitForFullRestore().map(() => {
         setInterval(() => {
@@ -46,14 +45,12 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
             this.logUtils.error(e);
           });
         }, config.accountIndexingPollingIntervalMS);
-        this.monitoringService.pollTransactions();
 
         setInterval(() => {
           this.monitoringService.postBackups().mapErr((e) => {
             this.logUtils.error(e);
           });
         }, config.backupHeartbeatIntervalMS);
-        this.monitoringService.postBackups();
       });
     });
   }
