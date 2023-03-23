@@ -32,8 +32,14 @@ import {
   IBackupManagerProviderType,
   IBackupUtils,
   IBackupUtilsType,
+  ILocalStorageSchemaProvider,
+  ILocalStorageSchemaProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+  LocalStorageSchemaProvider,
+  VolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -318,6 +324,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(PermissionRepository)
       .inSingletonScope();
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
+    bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
+      .to(VolatileStorageSchemaProvider)
+      .inSingletonScope();
+    bind<ILocalStorageSchemaProvider>(ILocalStorageSchemaProviderType)
+      .to(LocalStorageSchemaProvider)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
