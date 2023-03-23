@@ -14,7 +14,7 @@ import {
   ERecordKey,
   VersionedObject,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -24,6 +24,7 @@ import {
 import { IVolatileStorageSchemaProvider } from "@persistence/volatile/IVolatileStorageSchemaProvider.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
+@injectable()
 export class VolatileStorageSchemaProvider
   implements IVolatileStorageSchemaProvider
 {

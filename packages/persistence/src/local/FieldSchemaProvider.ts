@@ -1,5 +1,5 @@
 import { EBackupPriority, EFieldKey } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -9,6 +9,7 @@ import {
 import { FieldIndex } from "@persistence/local/FieldIndex.js";
 import { ILocalStorageSchemaProvider } from "@persistence/local/IFieldSchemaProvider.js";
 
+@injectable()
 export class LocalStorageSchemaProvider implements ILocalStorageSchemaProvider {
   public constructor(
     @inject(IPersistenceConfigProviderType)
