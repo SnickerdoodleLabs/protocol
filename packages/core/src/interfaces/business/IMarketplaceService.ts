@@ -1,41 +1,30 @@
+import { Listing } from "@snickerdoodlelabs/contracts-sdk";
 import {
-  AjaxError,
   BlockchainProviderError,
-  Invitation,
-  DataPermissions,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  ConsentError,
-  DomainName,
-  EInvitationStatus,
-  EVMContractAddress,
-  MinimalForwarderContractError,
-  PersistenceError,
   UninitializedError,
-  PageInvitation,
-  IPFSError,
-  IOpenSeaMetadata,
   ConsentFactoryContractError,
-  IpfsCID,
-  HexString32,
-  Signature,
-  TokenId,
   MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IMarketplaceService {
   getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
   ): ResultAsync<
-    MarketplaceListing,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    PagedResponse<Listing>,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
 
-  getListingsTotal(): ResultAsync<
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
 }
 

@@ -75,3 +75,5 @@ export * from "@objects/primitives/TransactionHash";
 export * from "@objects/primitives/VolatileStorageKey";
 
 export * from "@objects/primitives/QueryTypes.js";
+
+export * from "@objects/primitives/MarketplaceTag";

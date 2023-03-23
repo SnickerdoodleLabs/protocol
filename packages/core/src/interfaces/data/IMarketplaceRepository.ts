@@ -1,22 +1,38 @@
+import { Listing, Tag } from "@snickerdoodlelabs/contracts-sdk";
 import {
   MarketplaceListing,
   ConsentFactoryContractError,
   BlockchainProviderError,
   UninitializedError,
+  MarketplaceTag,
+  PagingRequest,
+  PagedResponse,
+  ConsentContractError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IMarketplaceRepository {
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean, // make it optional in interface, = true here
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<Listing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
-  getListingsTotal(): ResultAsync<
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getRecommendationsByListing(
+    listing: Listing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 }
 

@@ -15,6 +15,7 @@ import {
   EVMContractAddress,
   IBlockchainError,
   IpfsCID,
+  MarketplaceTag,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
@@ -255,7 +256,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getNumberOfListings(
-    tag: string,
+    tag: MarketplaceTag,
   ): ResultAsync<number, ConsentFactoryContractError> {
     const key = ethers.utils.keccak256(ethers.utils.toUtf8String(tag));
     return ResultAsync.fromPromise(
@@ -325,7 +326,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public initializeTag(
-    tag: string,
+    tag: MarketplaceTag,
     newHead: ListingSlot,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
@@ -344,7 +345,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public insertUpstream(
-    tag: string,
+    tag: MarketplaceTag,
     newSlot: ListingSlot,
     existingSlot: ListingSlot,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
@@ -367,7 +368,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public insertDownstream(
-    tag: string,
+    tag: MarketplaceTag,
     existingSlot: ListingSlot,
     newSlot: ListingSlot,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
@@ -390,7 +391,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public replaceExpiredListing(
-    tag: string,
+    tag: MarketplaceTag,
     slot: ListingSlot,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
@@ -411,7 +412,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public removeListing(
-    tag: string,
+    tag: MarketplaceTag,
     removedSlot: ListingSlot,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
@@ -432,7 +433,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public adminRemoveListing(
-    tag: string,
+    tag: MarketplaceTag,
     removedSlot: ListingSlot,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
@@ -453,7 +454,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getListingDetail(
-    tag: string,
+    tag: MarketplaceTag,
     slot: ListingSlot,
   ): ResultAsync<Listing, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
@@ -478,7 +479,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getListingsForward(
-    tag: string,
+    tag: MarketplaceTag,
     startingSlot: ListingSlot,
     numberOfSlots: number,
     filterActive: boolean,
@@ -515,7 +516,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getListingsBackward(
-    tag: string,
+    tag: MarketplaceTag,
     startingSlot: ListingSlot,
     numberOfSlots: number,
     filterActive: boolean,
@@ -552,7 +553,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getTagTotal(
-    tag: string,
+    tag: MarketplaceTag,
   ): ResultAsync<number, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getTagTotal(tag) as Promise<BigNumber>,
