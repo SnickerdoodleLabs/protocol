@@ -1,4 +1,4 @@
-import RecommendedCampaignItem from "@extension-onboarding/components/RecommendedCampaignItem";
+import { RecommendedCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";

@@ -1,6 +1,6 @@
 import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import CampaignItem from "@extension-onboarding/components/CampaignItem";
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns/MarketplaceCampaigns.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";

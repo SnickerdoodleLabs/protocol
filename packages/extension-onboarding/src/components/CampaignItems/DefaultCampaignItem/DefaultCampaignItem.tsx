@@ -1,5 +1,5 @@
 import Button from "@extension-onboarding/components/Button";
-import { useStyles } from "@extension-onboarding/components/FeaturedCampaignItem/FeaturedCampaignItem.style";
+import { useStyles } from "@extension-onboarding/components/CampaignItems/DefaultCampaignItem/DefaultCampaignItem.style";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -8,18 +8,22 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 import { Box, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState, useMemo, useRef } from "react";
+import React, { FC } from "react";
 import { useNavigate } from "react-router";
 import { generatePath } from "react-router-dom";
 
 declare const window: IWindowWithSdlDataWallet;
-interface IFeaturedCampaignItemProps {
+interface ICampaignItemProps {
   consentContractAddress: EVMContractAddress;
+  onLeaveClick?: () => void;
+  isSubscriptionsPage?: boolean;
   navigationPath?: EPaths;
   tag?: ETag;
 }
 
-const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
+const CampaignItem: FC<ICampaignItemProps> = ({
+  onLeaveClick,
+  isSubscriptionsPage = false,
   consentContractAddress,
   tag,
   navigationPath = tag
@@ -28,7 +32,6 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
 }) => {
   const {
     campaignInfo,
-    subscriberCount,
     isLoading,
     isSubscribed,
     possibleRewards,
@@ -39,6 +42,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
   const navigate = useNavigate();
   const classes = useStyles();
   const { apiGateway } = useAppContext();
+
   return (
     <Box
       display="flex"
@@ -46,54 +50,24 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
       flexDirection={"column"}
       justifyContent="space-between"
       p={3}
-      border="0.955437px solid #E3E3E3"
-      borderRadius={12}
+      border=" 1px solid #E3E3E3"
+      borderRadius={16}
     >
-      <Box display="flex">
-        <Box display="flex" height={188} position="relative" mr={2}>
-          <img src={campaignInfo?.image} className={classes.image} />
-          {subscriberCount > 0 && (
-            <Box
-              display="flex"
-              alignItems="center"
-              width={46}
-              height={46}
-              borderRadius={23}
-              bgcolor="#5A5292"
-              position="absolute"
-              bottom={0}
-              border="1px solid #FFFFFF"
-              right={0}
-            >
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                mx={0.75}
-              >
-                <Box mr={0.5}>
-                  <img
-                    width={11.2}
-                    height={12}
-                    src="https://storage.googleapis.com/dw-assets/spa/icons/profile.png"
-                  />
-                </Box>
-                <Typography className={classes.subscriberCount}>
-                  {subscriberCount > 99 ? "99+" : subscriberCount}
-                </Typography>
-              </Box>
-            </Box>
+      <Box mb={2}>
+        <Typography className={classes.name}>
+          {isLoading ? (
+            <Skeleton animation="wave" />
+          ) : (
+            `${campaignInfo?.rewardName}`
           )}
+        </Typography>
+      </Box>
+      <Box display="flex">
+        <Box width="30%" mr={2}>
+          <img src={campaignInfo?.image} className={classes.image} />
         </Box>
         <Box display="flex" flex={1} flexDirection="column">
-          <Typography className={classes.name}>
-            {isLoading ? (
-              <Skeleton animation="wave" />
-            ) : (
-              `${campaignInfo?.rewardName}`
-            )}
-          </Typography>
-          <Box mt={2} mb={2} height={42}>
+          <Box mb={2} height={42}>
             <Typography className={classes.description}>
               {isLoading ? (
                 <Skeleton animation="wave" height={42} />
@@ -108,12 +82,12 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
               <Box mt={0.5} display="flex" alignItems="center">
                 {possibleRewards ? (
                   <>
-                    {possibleRewards?.slice(0, 7).map((reward, index) => {
+                    {possibleRewards?.slice(0, 5).map((reward, index) => {
                       return (
                         <img
                           key={index}
-                          width={56}
-                          height={56}
+                          width={32}
+                          height={32}
                           style={{
                             borderRadius: 4,
                             border: "1px solid #FFFFFF",
@@ -123,31 +97,31 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                         />
                       );
                     })}
-                    {possibleRewards.length > 7 ? (
+                    {possibleRewards.length > 5 ? (
                       <Box
-                        width={50}
-                        height={50}
+                        width={40}
+                        height={40}
                         ml={-1}
                         border="1px solid #FFFFFF"
                         borderRadius={4}
-                        bgcolor="#ddd"
+                        bgcolor="#E6F7FF"
                         display="flex"
                         justifyContent="center"
                         alignItems="center"
                       >
-                        <Typography>+{possibleRewards.length - 7}</Typography>
+                        <Typography>+{possibleRewards.length - 5}</Typography>
                       </Box>
                     ) : (
-                      <Box height={50} />
+                      <Box height={40} />
                     )}
                   </>
                 ) : (
-                  <Box height={56} />
+                  <Box height={42} />
                 )}
               </Box>
             </Box>
           ) : possibleRewards ? (
-            <Box>
+            <Box mb={!isSubscriptionsPage ? 1.5 : 5}>
               <Box display="flex" justifyContent="space-between" mb={0.5}>
                 <Typography className={classes.earnedText}>
                   {collectedRewards.length} Rewards Earned
@@ -163,26 +137,27 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                   (possibleRewards.length || 1)
                 }
               />
-
-              <Box mt={1.25} display="flex" alignItems="center">
-                <Box mr={0.5}>
-                  <img
-                    width={10}
-                    height={8}
-                    src="https://storage.googleapis.com/dw-assets/spa/icons/check-mark.png"
-                  />
+              {!isSubscriptionsPage && (
+                <Box mt={1.25} display="flex" alignItems="center">
+                  <Box mr={0.5}>
+                    <img
+                      width={10}
+                      height={8}
+                      src="https://storage.googleapis.com/dw-assets/spa/icons/check-mark.png"
+                    />
+                  </Box>
+                  <Typography className={classes.subscribedText}>
+                    Subscribed
+                  </Typography>
                 </Box>
-                <Typography className={classes.subscribedText}>
-                  Subscribed
-                </Typography>
-              </Box>
+              )}
             </Box>
           ) : (
             <Box mb={5} height={31.3125} />
           )}
 
           <Box marginLeft="auto">
-            <Box display="inline" mr={!isSubscribed ? 2 : 0}>
+            <Box display="inline" mr={!onLeaveClick && isSubscribed ? 0 : 2}>
               <Button
                 onClick={() => {
                   navigate(navigationPath, {
@@ -196,9 +171,14 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                 }}
                 buttonType="v2"
               >
-                Program Details
+                Details
               </Button>
             </Box>
+            {onLeaveClick && isSubscribed && (
+              <Button onClick={onLeaveClick} buttonType="v2Danger">
+                Unsubscribe
+              </Button>
+            )}
             {!isSubscribed && (
               <Button onClick={handleSubscribeButton} buttonType="v2Primary">
                 Subscribe
@@ -210,4 +190,4 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
     </Box>
   );
 };
-export default FeaturedCampaignItem;
+export default CampaignItem;

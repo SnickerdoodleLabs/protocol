@@ -1,4 +1,4 @@
-import CampaignItem from "@extension-onboarding/components/CampaignItem";
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import Carousel from "@extension-onboarding/components/Carousel";
 
 import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
@@ -45,7 +45,7 @@ const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({ tag }) => {
             "0x9031E8903f3192158046f72639db900d73b33359",
           ].map((item) => (
             <Box mr={3}>
-              <CampaignItem
+              <DefaultCampaignItem
                 tag={tag}
                 consentContractAddress={item as EVMContractAddress}
               />

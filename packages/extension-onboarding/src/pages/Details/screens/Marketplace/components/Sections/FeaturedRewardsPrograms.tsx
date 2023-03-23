@@ -1,5 +1,5 @@
+import { FeaturedCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import Carousel from "@extension-onboarding/components/Carousel";
-import FeaturedCampaignItem from "@extension-onboarding/components/FeaturedCampaignItem";
 import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Typography } from "@material-ui/core";
 import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";

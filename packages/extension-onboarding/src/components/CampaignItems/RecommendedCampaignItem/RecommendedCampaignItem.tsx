@@ -1,4 +1,4 @@
-import { useStyles } from "@extension-onboarding/components/RecommendedCampaignItem/RecommendedCampaignItem.style";
+import { useStyles } from "@extension-onboarding/components/CampaignItems/RecommendedCampaignItem/RecommendedCampaignItem.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import useCampaignItemLogic from "@extension-onboarding/hooks/useCampaignItemLogic";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";

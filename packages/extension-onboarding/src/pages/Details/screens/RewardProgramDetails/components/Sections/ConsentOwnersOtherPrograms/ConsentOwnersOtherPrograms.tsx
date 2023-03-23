@@ -1,4 +1,4 @@
-import CampaignItem from "@extension-onboarding/components/CampaignItem";
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import Carousel from "@extension-onboarding/components/Carousel";
 import Section, {
   useSectionStyles,
@@ -57,7 +57,7 @@ const ConsentOwnersOtherPrograms: FC<IConsentOwnersOtherProgramsProps> = ({
             "0x9031E8903f3192158046f72639db900d73b33359",
           ].map((item) => (
             <Box mr={3}>
-              <CampaignItem
+              <DefaultCampaignItem
                 consentContractAddress={item as EVMContractAddress}
               />
             </Box>

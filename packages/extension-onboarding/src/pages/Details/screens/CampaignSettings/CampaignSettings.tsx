@@ -1,5 +1,5 @@
 import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.svg";
-import CampaignItem from "@extension-onboarding/components/CampaignItem";
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -103,7 +103,7 @@ const RewardsInfo: FC = () => {
           Object.keys(campaignContractAddressesWithCID).length ? (
             Object.keys(campaignContractAddressesWithCID)?.map((key) => (
               <Grid item key={key} xs={6}>
-                <CampaignItem
+                <DefaultCampaignItem
                   navigationPath={EPaths.REWARDS_SUBSCRIPTION_DETAIL}
                   isSubscriptionsPage
                   onLeaveClick={() => {
