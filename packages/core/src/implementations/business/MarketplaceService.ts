@@ -13,6 +13,7 @@ import {
   MarketplaceTag,
   PagedResponse,
   PagingRequest,
+  ConsentContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -46,5 +47,14 @@ export class MarketplaceService implements IMarketplaceService {
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
     return this.marketplaceRepo.getListingsTotalByTag(tag);
+  }
+
+  public getRecommendationsByListing(
+    listing: Listing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    UninitializedError | BlockchainProviderError | ConsentContractError
+  > {
+    return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
 }
