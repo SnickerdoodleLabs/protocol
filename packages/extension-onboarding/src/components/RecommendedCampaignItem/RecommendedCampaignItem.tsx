@@ -1,10 +1,6 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/RecommendedCampaignItem/RecommendedCampaignItem.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import useCampaignItemLogic from "@extension-onboarding/hooks/useCampaignItemLogic";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
@@ -13,16 +9,8 @@ import {
   withStyles,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
-import {
-  EarnedReward,
-  ETag,
-  EVMContractAddress,
-  EWalletDataType,
-  IOpenSeaMetadata,
-  PossibleReward,
-  QueryTypePermissionMap,
-} from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState, useMemo, useRef } from "react";
+import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import React, { FC } from "react";
 import { generatePath, useNavigate } from "react-router";
 
 declare const window: IWindowWithSdlDataWallet;
@@ -84,128 +72,17 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
     ? generatePath(EPaths.MARKETPLACE_CAMPAIGN_DETAIL_WITH_TAG, { tag })
     : EPaths.MARKETPLACE_CAMPAIGN_DETAIL,
 }) => {
-  const [campaignInfo, setCampaignInfo] = useState<IOpenSeaMetadata>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>();
-  const navigate = useNavigate();
-  const classes = useStyles();
-  const { optedInContracts, earnedRewards, updateOptedInContracts } =
-    useAppContext();
-  const { setModal, setLoadingStatus } = useLayoutContext();
-  const { setAlert } = useNotificationContext();
-
-  const rewardsRef = useRef<PossibleReward[]>([]);
-
-  useEffect(() => {
-    getRewardItem();
-    getPossibleRewards();
-  }, []);
-
-  useEffect(() => {
-    if (campaignInfo) {
-      setIsLoading(false);
-    }
-  }, [JSON.stringify(campaignInfo)]);
-
-  const getRewardItem = () => {
-    window.sdlDataWallet
-      .getConsentContractCID(consentContractAddress)
-      .map((campaignCID) =>
-        window.sdlDataWallet
-          .getInvitationMetadataByCID(campaignCID)
-          .map((metadata) => {
-            setCampaignInfo(metadata);
-          })
-          .mapErr((e) => {
-            setIsLoading(false);
-          }),
-      );
-  };
-
-  const getPossibleRewards = () => {
-    window.sdlDataWallet
-      ?.getPossibleRewards?.([consentContractAddress])
-      .map((possibleRewards) =>
-        setPossibleRewards(possibleRewards[consentContractAddress]),
-      );
-  };
-
-  const isSubscribed = useMemo(() => {
-    return optedInContracts.includes(consentContractAddress);
-  }, [optedInContracts]);
-
-  const collectedRewards: EarnedReward[] = useMemo(() => {
-    if (possibleRewards) {
-      return earnedRewards.filter((reward) =>
-        possibleRewards.find(
-          (possibleReward) => possibleReward.queryCID === reward.queryCID,
-        ),
-      );
-    }
-    return [];
-  }, [
-    JSON.stringify(possibleRewards),
+  const {
+    campaignInfo,
+    isLoading,
     isSubscribed,
-    JSON.stringify(earnedRewards),
-  ]);
+    possibleRewards,
+    handleSubscribeButton,
+  } = useCampaignItemLogic({ consentContractAddress });
 
-  const handleSubscribeButton = () => {
-    setModal({
-      modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-      onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
-        setLoadingStatus(true);
-        rewardsRef.current =
-          possibleRewards ??
-          ([] as PossibleReward[])
-            ?.filter(
-              (reward) =>
-                !collectedRewards.find(
-                  (earned) => earned.queryCID === reward.queryCID,
-                ),
-            )
-            .reduce((acc, item) => {
-              const requiredDataTypes = item.queryDependencies.map(
-                (queryType) => QueryTypePermissionMap.get(queryType)!,
-              );
-              const permissionsMatched = requiredDataTypes.every((item) =>
-                dataTypes.includes(item),
-              );
-              if (permissionsMatched) {
-                acc = [...acc, item];
-              }
-              return acc;
-            }, [] as PossibleReward[]);
-        window.sdlDataWallet
-          .acceptInvitation(dataTypes, consentContractAddress)
-          .map(() => {
-            updateOptedInContracts();
-            setLoadingStatus(false);
-            setModal({
-              modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
-              onPrimaryButtonClick: () => {},
-              customProps: {
-                campaignImage: campaignInfo?.image,
-                eligibleRewards: rewardsRef.current,
-                dataTypes,
-                campaignName: campaignInfo?.rewardName,
-              },
-            });
-          })
-          .mapErr(() => {
-            setLoadingStatus(false);
-            setAlert({
-              severity: EAlertSeverity.ERROR,
-              message: `${campaignInfo?.rewardName} Rewards Program Subscription Failed!`,
-            });
-          });
-      },
-      customProps: {
-        onCloseClicked: () => {},
-        primaryButtonText: "Save",
-      },
-    });
-  };
+  const navigate = useNavigate();
 
+  const classes = useStyles();
   return (
     <Box
       display="flex"
