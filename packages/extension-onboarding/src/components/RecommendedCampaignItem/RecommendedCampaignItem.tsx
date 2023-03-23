@@ -226,7 +226,7 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
               {isLoading ? (
                 <Skeleton animation="wave" />
               ) : (
-                `${campaignInfo?.rewardName} Rewards Program`
+                `${campaignInfo?.rewardName}`
               )}
             </Typography>
           </Box>

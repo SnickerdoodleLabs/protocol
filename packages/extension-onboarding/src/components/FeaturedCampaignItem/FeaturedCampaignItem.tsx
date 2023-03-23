@@ -238,7 +238,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
             {isLoading ? (
               <Skeleton animation="wave" />
             ) : (
-              `${campaignInfo?.rewardName} Rewards Program`
+              `${campaignInfo?.rewardName}`
             )}
           </Typography>
           <Box mt={2} mb={2} height={42}>
