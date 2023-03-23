@@ -68,6 +68,10 @@ export class IndexedDB {
               keyPathObj,
             );
 
+            VolatileStorageMetadataIndexes.forEach(([name, unique]) => {
+              objectStore.createIndex(name, name, { unique: unique });
+            });
+
             if (storeInfo.indexBy) {
               storeInfo.indexBy.forEach(([name, unique]) => {
                 if (Array.isArray(name)) {
@@ -83,10 +87,6 @@ export class IndexedDB {
                   const path = this._getFieldPath(name);
                   objectStore.createIndex(path, path, { unique: unique });
                 }
-              });
-
-              VolatileStorageMetadataIndexes.forEach(([name, unique]) => {
-                objectStore.createIndex(name, name, { unique: unique });
               });
             }
           });
