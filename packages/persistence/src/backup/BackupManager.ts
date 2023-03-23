@@ -42,7 +42,11 @@ import { ChunkRenderer } from "@persistence/backup/ChunkRenderer.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
-import { FieldIndex } from "@persistence/local";
+import {
+  FieldIndex,
+  SerializedObject,
+  Serializer,
+} from "@persistence/local/index.js";
 import {
   IVolatileStorage,
   VolatileTableIndex,
@@ -208,18 +212,31 @@ export class BackupManager implements IBackupManager {
 
     const timestamp = Date.now();
     this.fieldHistory.set(key, timestamp);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return this.fieldRenderers
-      .get(key)!
-      .update(
-        new FieldDataUpdate(key, JSONString(JSON.stringify(value)), timestamp),
-      )
-      .map((backup) => {
-        if (backup != null) {
-          this.renderedChunks.set(backup.header.hash, backup);
-        }
-        return undefined;
-      });
+
+    return Serializer.serialize(value).andThen((serializedObj) => {
+      return this.storageUtils
+        .write<SerializedObject>(key, serializedObj)
+        .andThen(() => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          return this.fieldRenderers
+            .get(key)!
+            .update(
+              new FieldDataUpdate(
+                key,
+                JSONString(JSON.stringify(value)),
+                timestamp,
+              ),
+            )
+            .map((backup) => {
+              console.log(backup);
+
+              if (backup != null) {
+                this.renderedChunks.set(backup.header.hash, backup);
+              }
+              return undefined;
+            });
+        });
+    });
   }
 
   public restore(
@@ -387,8 +404,6 @@ export class BackupManager implements IBackupManager {
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
         new RestoredBackup(DataWalletBackupID(backup.header.hash)),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new RestoredBackupMigrator().getCurrentVersion(),
       ),
     );
   }

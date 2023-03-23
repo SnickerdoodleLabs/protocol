@@ -27,6 +27,8 @@ import {
   IVolatileStorageSchemaProvider,
   IFieldSchemaProvider,
   ILocalStorageSchemaProviderType,
+  SerializedObject,
+  Serializer,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -85,11 +87,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return this.waitForPriority(priority);
       })
       .andThen(() => {
-        return this.storageUtils.read<JSONString>(key).map((raw) => {
+        return this.storageUtils.read<SerializedObject>(key).map((raw) => {
           if (raw == null) {
             return null;
           }
-          return JSON.parse(raw) as T;
+          return Serializer.deserialize(raw) as unknown as T;
         });
       });
   }
