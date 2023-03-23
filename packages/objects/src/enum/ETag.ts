@@ -12,7 +12,7 @@ export enum ETag {
   Virtual_Fashion = "virtual-fashion",
   Virtual_Real_Estate = "virtual-real-estate",
   DAOs = "daos",
-  Event_Tickkets = "event-tickets",
+  Event_Tickets = "event-tickets",
   Metaverse = "metaverse",
   Gambeling = "gambeling",
   Sports = "sports",

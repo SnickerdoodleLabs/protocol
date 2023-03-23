@@ -76,7 +76,7 @@ export const tags: ITagItem[] = [
     iconUrl: "https://storage.googleapis.com/dw-assets/spa/tags/daos.png",
   },
   {
-    tag: ETag.Event_Tickkets,
+    tag: ETag.Event_Tickets,
     defaultDisplayName: "Event Tickets",
     iconUrl:
       "https://storage.googleapis.com/dw-assets/spa/tags/event-tickets.png",
