@@ -3,6 +3,45 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -82,6 +121,10 @@ import {
   UnauthorizedError,
   PossibleReward,
   BackupFileName,
+  IAdMethods,
+  AdKey,
+  AdSurfaceId,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -100,53 +143,12 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
-
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
+  public ads: IAdMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -214,6 +216,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
+    // Integration Methods ---------------------------------------------------------------------------
     this.integration = {
       grantPermissions: (
         permissions: EDataWalletPermission[],
@@ -250,6 +253,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
     };
 
+    // Marketplace Methods ---------------------------------------------------------------------------
     this.marketplace = {
       getMarketplaceListings: (
         count?: number | undefined,
@@ -270,12 +274,32 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         contractAddresses: EVMContractAddress[],
         timeoutMs?: number,
       ) => {
-        const campaignService =
-          this.iocContainer.get<ICampaignService>(ICampaignServiceType);
-        return campaignService.getPossibleRewards(
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getPossibleRewards(
           contractAddresses,
           timeoutMs ?? 3000,
         );
+      },
+    };
+
+    // Ads Methods ---------------------------------------------------------------------------
+    this.ads = {
+      getAd: (adSurfaceId: AdSurfaceId) => {
+        throw new Error("Unimplemented");
+      },
+      reportAdShown: (
+        queryCID: IpfsCID,
+        consentContractAddress: EVMContractAddress,
+        key: AdKey,
+        adSurfaceId: AdSurfaceId,
+        contentHash: SHA256Hash,
+      ) => {
+        throw new Error("Unimplemented");
+      },
+      completeShowingAds: (queryCID: IpfsCID) => {
+        throw new Error("Unimplemented");
       },
     };
   }

@@ -1,4 +1,6 @@
 export * from "@objects/primitives/AccountAddress";
+export * from "@objects/primitives/AdKey";
+export * from "@objects/primitives/AdSurfaceId";
 export * from "@objects/primitives/AESKey";
 export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
@@ -67,7 +69,6 @@ export * from "@objects/primitives/Web2Credential";
 export * from "@objects/primitives/RewardFunctionParam";
 export * from "@objects/primitives/TransactionReceipt";
 export * from "@objects/primitives/CompensationId";
-export * from "@objects/primitives/AdKey";
 
 export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";
