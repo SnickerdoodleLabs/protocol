@@ -32,13 +32,13 @@ import {
   IBackupManagerProviderType,
   IBackupUtils,
   IBackupUtilsType,
-  ILocalStorageSchemaProvider,
+  IFieldSchemaProvider,
   ILocalStorageSchemaProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
-  LocalStorageSchemaProvider,
+  FieldSchemaProvider,
   VolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -327,8 +327,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)
       .inSingletonScope();
-    bind<ILocalStorageSchemaProvider>(ILocalStorageSchemaProviderType)
-      .to(LocalStorageSchemaProvider)
+    bind<IFieldSchemaProvider>(ILocalStorageSchemaProviderType)
+      .to(FieldSchemaProvider)
       .inSingletonScope();
 
     // Utilities

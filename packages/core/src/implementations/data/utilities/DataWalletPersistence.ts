@@ -25,7 +25,7 @@ import {
   IVolatileCursor,
   IVolatileStorageSchemaProviderType,
   IVolatileStorageSchemaProvider,
-  ILocalStorageSchemaProvider,
+  IFieldSchemaProvider,
   ILocalStorageSchemaProviderType,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
@@ -64,7 +64,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IVolatileStorageSchemaProviderType)
     protected volatileSchemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILocalStorageSchemaProviderType)
-    protected fieldSchemaProvider: ILocalStorageSchemaProvider,
+    protected fieldSchemaProvider: IFieldSchemaProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -183,6 +183,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.getBackupManager(),
       this.waitForUnlock(),
     ]).andThen(([backupManager]) => {
+      // TODO: remove
+      this.logUtils.debug("Retrieved backup manager and successfully unlocked DWP");
       return backupManager.addRecord(tableName, value);
     });
   }
@@ -260,13 +262,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             this.resolveInitRestore!();
           }, config.restoreTimeoutMS);
 
-          this._pollHighPriorityBackups().map(() => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.resolveInitRestore!();
-            clearTimeout(timeout);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.pollBackups().map(() => this.resolveFullRestore!());
-          });
+          this._pollHighPriorityBackups()
+            .map(() => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              this.resolveInitRestore!();
+              clearTimeout(timeout);
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              this.pollBackups().map(() => this.resolveFullRestore!());
+            })
+            .mapErr((e) => {
+              this.logUtils.debug("Unable to poll high priority backups", e);
+              clearTimeout(timeout);
+              return e;
+            });
         });
       })
       .mapErr((e) => new PersistenceError("error unlocking data wallet", e));

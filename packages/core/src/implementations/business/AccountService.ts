@@ -265,6 +265,8 @@ export class AccountService implements IAccountService {
                 );
               })
               .andThen(() => {
+                // TODO: Remove
+                this.logUtils.debug("Added account during unlock, emitting events");
                 // Need to emit some events
                 context.publicEvents.onInitialized.next(
                   context.dataWalletAddress!,

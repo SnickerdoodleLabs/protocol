@@ -7,10 +7,10 @@ import {
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
 import { FieldIndex } from "@persistence/local/FieldIndex.js";
-import { ILocalStorageSchemaProvider } from "@persistence/local/IFieldSchemaProvider.js";
+import { IFieldSchemaProvider } from "@persistence/local/IFieldSchemaProvider.js";
 
 @injectable()
-export class LocalStorageSchemaProvider implements ILocalStorageSchemaProvider {
+export class FieldSchemaProvider implements IFieldSchemaProvider {
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
