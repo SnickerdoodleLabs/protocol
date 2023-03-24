@@ -131,7 +131,6 @@ export class BackupManager implements IBackupManager {
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);
               }
-              return undefined;
             });
         });
       });
@@ -350,14 +349,16 @@ export class BackupManager implements IBackupManager {
       return okAsync(true);
     }
 
+    // Get the object out of storage.
     return this.volatileStorage
       .getObject<T>(tableName, key, true)
       .andThen((found) => {
+        // Given that we passed it what should have been a valid key from getKey(), this
+        // if may be perfunctory
         if (found == null) {
           return okAsync(true);
         }
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return okAsync(found!.lastUpdate < timestamp);
+        return okAsync(found.lastUpdate < timestamp);
       });
   }
 

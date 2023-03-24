@@ -2,7 +2,6 @@ import {
   AESEncryptedString,
   DataWalletBackupHeader,
   FieldDataUpdate,
-  VersionedObject,
   VolatileDataUpdate,
 } from "@objects/businessObjects";
 

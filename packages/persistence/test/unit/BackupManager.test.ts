@@ -19,6 +19,13 @@ import {
   EBoolean,
   VolatileDataUpdate,
   EDataUpdateOpCode,
+  DataWalletBackup,
+  DataWalletBackupHeader,
+  AESEncryptedString,
+  DataWalletBackupID,
+  EncryptedString,
+  InitializationVector,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync } from "neverthrow";
@@ -43,12 +50,13 @@ const maxChunkSize = 20;
 const now = UnixTimestamp(30);
 const recordKey = ERecordKey.ACCOUNT;
 const fieldKey = EFieldKey.ACCEPTED_INVITATIONS;
-const testVersionedObjectKey = "foo";
+const keyPath = "foo";
+const keyValue = "Key Value";
 
 class TestVersionedObject extends VersionedObject {
   public static CURRENT_VERSION = 1;
 
-  public constructor(public foo: string) {
+  public constructor(public keyVal: string, public otherVal: number) {
     super();
   }
 
@@ -63,7 +71,10 @@ class TestMigrator extends VersionedObjectMigrator<TestVersionedObject> {
   }
 
   protected factory(data: Record<string, unknown>): TestVersionedObject {
-    return new TestVersionedObject(data["foo"] as string);
+    return new TestVersionedObject(
+      data["keyVal"] as string,
+      data["otherVal"] as number,
+    );
   }
 
   protected getUpgradeFunctions(): Map<
@@ -76,7 +87,7 @@ class TestMigrator extends VersionedObjectMigrator<TestVersionedObject> {
 
 const testVolatileTableIndex = new VolatileTableIndex<VersionedObject>(
   recordKey,
-  testVersionedObjectKey, // keyPath
+  keyPath, // keyPath
   false, // autoincrement
   new TestMigrator(),
   EBackupPriority.NORMAL,
@@ -93,6 +104,20 @@ const testFieldIndex = new FieldIndex(
 );
 const fieldIndexes = [testFieldIndex];
 
+const recordBackup = new DataWalletBackup(
+  new DataWalletBackupHeader(
+    DataWalletBackupID("Data Wallet Backup ID-Record"),
+    now,
+    Signature("signature"),
+    EBackupPriority.NORMAL,
+    recordKey,
+  ),
+  new AESEncryptedString(
+    EncryptedString("BackupBlob"),
+    InitializationVector("initialization vector"),
+  ),
+);
+
 class BackupManagerMocks {
   public cryptoUtils: ICryptoUtils;
   public volatileStorage: IVolatileStorage;
@@ -100,12 +125,12 @@ class BackupManagerMocks {
   public timeUtils: ITimeUtils;
   public backupUtils: IBackupUtils;
   public chunkRendererFactory: IChunkRendererFactory;
-  public testRecord = new TestVersionedObject("newVal");
+  public testRecord = new TestVersionedObject(keyValue, 1);
   public recordChunkRenderer: IChunkRenderer;
   public fieldChunkRenderer: IChunkRenderer;
 
   public constructor(
-    protected existingObject = false,
+    protected existingObject = true,
     protected enableEncryption = false,
   ) {
     this.cryptoUtils = td.object<ICryptoUtils>();
@@ -122,20 +147,20 @@ class BackupManagerMocks {
 
     // VolatileStorage ---------------------------------------------------
     td.when(this.volatileStorage.getKey(recordKey, this.testRecord)).thenReturn(
-      okAsync("foo"),
+      okAsync(keyValue),
     );
 
     if (existingObject) {
       td.when(
         this.volatileStorage.getObject<TestVersionedObject>(
           recordKey,
-          testVersionedObjectKey,
+          keyValue,
           true,
         ),
       ).thenReturn(
         okAsync(
           new VolatileStorageMetadata(
-            new TestVersionedObject("oldVal"),
+            new TestVersionedObject(keyValue, 0),
             UnixTimestamp(0),
             EBoolean.FALSE,
           ),
@@ -145,7 +170,7 @@ class BackupManagerMocks {
       td.when(
         this.volatileStorage.getObject<TestVersionedObject>(
           recordKey,
-          testVersionedObjectKey,
+          keyValue,
           true,
         ),
       ).thenReturn(okAsync(null));
@@ -180,7 +205,7 @@ class BackupManagerMocks {
       this.recordChunkRenderer.update(
         td.matchers.contains({
           operation: EDataUpdateOpCode.UPDATE,
-          key: "foo",
+          key: keyValue,
           timestamp: now,
           value: td.matchers.isA(TestVersionedObject),
           version: 1,
@@ -206,9 +231,98 @@ class BackupManagerMocks {
 }
 
 describe("BackupManager Tests", () => {
-  test("addRecord() works with no rendered backups", async () => {
+  test("addRecord() works and does not render a backup", async () => {
     // Arrange
     const mocks = new BackupManagerMocks();
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(0);
+  });
+
+  test("addRecord() renders a backup", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    td.when(
+      mocks.recordChunkRenderer.update(
+        td.matchers.contains({
+          operation: EDataUpdateOpCode.UPDATE,
+          key: keyValue,
+          timestamp: now,
+          value: td.matchers.isA(TestVersionedObject),
+          version: 1,
+        }),
+      ),
+    ).thenReturn(okAsync(recordBackup));
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(1);
+    expect(backups[0]).toBe(recordBackup);
+  });
+
+  test("addRecord() works if no key is found", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    td.when(
+      mocks.volatileStorage.getKey(recordKey, mocks.testRecord),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.recordChunkRenderer.update(
+        td.matchers.contains({
+          operation: EDataUpdateOpCode.UPDATE,
+          key: null,
+          timestamp: now,
+          value: td.matchers.isA(TestVersionedObject),
+          version: 1,
+        }),
+      ),
+    ).thenReturn(okAsync(null));
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(0);
+  });
+
+  test("addRecord() works when data is not available even though the key exists", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks(false);
 
     const backupManager = mocks.factory();
 
