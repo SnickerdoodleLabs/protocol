@@ -6,6 +6,7 @@ export * from "@objects/enum/EChainType.js";
 export * from "@objects/enum/ECreatedRewardType.js";
 export * from "@objects/enum/ECredentialType.js";
 export * from "@objects/enum/ECurrencyCode.js";
+export * from "@objects/enum/EDataUpdateOpCode.js";
 export * from "@objects/enum/EDataWalletPermission.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EInvitationStatus.js";
