@@ -1,7 +1,6 @@
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import {
   ConsentRoles,
-  ListingSlot,
   Listing,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
@@ -327,7 +326,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public initializeTag(
     tag: MarketplaceTag,
-    newHead: ListingSlot,
+    newHead: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.initializeTag(
@@ -346,8 +345,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public insertUpstream(
     tag: MarketplaceTag,
-    newSlot: ListingSlot,
-    existingSlot: ListingSlot,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.insertUpstream(
@@ -369,8 +368,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public insertDownstream(
     tag: MarketplaceTag,
-    existingSlot: ListingSlot,
-    newSlot: ListingSlot,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.insertUpstream(
@@ -392,7 +391,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public replaceExpiredListing(
     tag: MarketplaceTag,
-    slot: ListingSlot,
+    slot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.replaceExpiredListing(
@@ -413,7 +412,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public removeListing(
     tag: MarketplaceTag,
-    removedSlot: ListingSlot,
+    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.replaceExpiredListing(
@@ -434,7 +433,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public adminRemoveListing(
     tag: MarketplaceTag,
-    removedSlot: ListingSlot,
+    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.adminRemoveListing(
@@ -455,7 +454,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public getListingDetail(
     tag: MarketplaceTag,
-    slot: ListingSlot,
+    slot: BigNumberString,
   ): ResultAsync<Listing, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListing(tag, slot) as Promise<IListingStruct>,
@@ -468,19 +467,20 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       },
     ).map((listing) => {
       return new Listing(
-        listing.previous ? BigNumberString(listing.previous.toString()) : null,
-        listing.next ? BigNumberString(listing.next.toString()) : null,
+        BigNumberString(listing.previous.toString()),
+        BigNumberString(listing.next.toString()),
         listing.consentContract,
-        listing.timeExpiring
-          ? UnixTimestamp(listing.timeExpiring?.toNumber())
-          : null,
+        UnixTimestamp(listing.timeExpiring?.toNumber()),
+        IpfsCID(""), // TODO: Update contract to also return its CID for getListing (only does this with getListingsForward/backward atm)
+        slot,
+        tag,
       );
     });
   }
 
   public getListingsForward(
     tag: MarketplaceTag,
-    startingSlot: ListingSlot,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError> {
@@ -501,15 +501,13 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ).map(([cids, listings]) => {
       return listings.map((listing, index) => {
         return new Listing(
-          listing.previous
-            ? BigNumberString(listing.previous.toString())
-            : null,
-          listing.next ? BigNumberString(listing.next.toString()) : null,
+          BigNumberString(listing.previous.toString()),
+          BigNumberString(listing.next.toString()),
           listing.consentContract,
-          listing.timeExpiring
-            ? UnixTimestamp(listing.timeExpiring?.toNumber())
-            : null,
+          UnixTimestamp(listing.timeExpiring.toNumber()),
           IpfsCID(cids[index]),
+          BigNumberString(listings[index + 1].previous.toString()),
+          tag,
         );
       });
     });
@@ -517,7 +515,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public getListingsBackward(
     tag: MarketplaceTag,
-    startingSlot: ListingSlot,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError> {
@@ -538,15 +536,13 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ).map(([cids, listings]) => {
       return listings.map((listing, index) => {
         return new Listing(
-          listing.previous
-            ? BigNumberString(listing.previous.toString())
-            : null,
-          listing.next ? BigNumberString(listing.next.toString()) : null,
+          BigNumberString(listing.previous.toString()),
+          BigNumberString(listing.next.toString()),
           listing.consentContract,
-          listing.timeExpiring
-            ? UnixTimestamp(listing.timeExpiring?.toNumber())
-            : null,
+          UnixTimestamp(listing.timeExpiring?.toNumber()),
           IpfsCID(cids[index]),
+          BigNumberString(listings[index + 1].previous.toString()),
+          tag,
         );
       });
     });
@@ -570,10 +566,10 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 }
 interface IListingStruct {
-  previous: BigNumber | null;
-  next: BigNumber | null;
-  consentContract: EVMContractAddress | null;
-  timeExpiring: BigNumber | null;
+  previous: BigNumber;
+  next: BigNumber;
+  consentContract: EVMContractAddress;
+  timeExpiring: BigNumber;
 }
 
 // I listinStruct { at the place where we're using it, and dont have to export here

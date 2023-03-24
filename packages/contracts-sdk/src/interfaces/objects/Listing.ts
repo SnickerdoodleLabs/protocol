@@ -1,4 +1,3 @@
-import { ListingSlot } from "@contracts-sdk/index";
 import {
   BigNumberString,
   EVMContractAddress,
@@ -9,13 +8,13 @@ import {
 
 export class Listing {
   public constructor(
-    public previous: BigNumberString | null = null,
-    public next: BigNumberString | null = null,
-    public consentContract: EVMContractAddress | null = null,
-    public timeExpiring: UnixTimestamp | null = null,
-    public cid: IpfsCID | null = null,
-    public slot: ListingSlot | null = null,
-    public tag: MarketplaceTag | null = null,
+    public previous: BigNumberString,
+    public next: BigNumberString,
+    public consentContract: EVMContractAddress,
+    public timeExpiring: UnixTimestamp,
+    public cid: IpfsCID,
+    public stakeAmount: BigNumberString,
+    public tag: MarketplaceTag,
   ) {}
 }
 

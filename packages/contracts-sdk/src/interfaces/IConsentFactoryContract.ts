@@ -1,12 +1,12 @@
 import {
   Listing,
-  ListingSlot,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
+  BigNumberString,
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
@@ -118,51 +118,51 @@ export interface IConsentFactoryContract {
 
   initializeTag(
     tag: MarketplaceTag,
-    newHead: ListingSlot,
+    newHead: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   insertUpstream(
     tag: MarketplaceTag,
-    newSlot: ListingSlot,
-    existingSlot: ListingSlot,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   insertDownstream(
     tag: MarketplaceTag,
-    existingSlot: ListingSlot,
-    newSlot: ListingSlot,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   replaceExpiredListing(
     tag: MarketplaceTag,
-    slot: ListingSlot,
+    slot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   removeListing(
     tag: MarketplaceTag,
-    removedSlot: ListingSlot,
+    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   adminRemoveListing(
     tag: MarketplaceTag,
-    removedSlot: ListingSlot,
+    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   getListingDetail(
     tag: MarketplaceTag,
-    slot: ListingSlot,
+    slot: BigNumberString,
   ): ResultAsync<Listing, ConsentFactoryContractError>;
 
   getListingsForward(
     tag: MarketplaceTag,
-    startingSlot: ListingSlot,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError>;
 
   getListingsBackward(
     tag: MarketplaceTag,
-    startingSlot: ListingSlot,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
   ): ResultAsync<Listing[], ConsentFactoryContractError>;
