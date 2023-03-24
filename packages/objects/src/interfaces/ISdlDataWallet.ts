@@ -17,6 +17,7 @@ import {
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
 import {
   AccountAddress,
   Age,
@@ -35,7 +36,6 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
-import { IConsentCapacity } from "./IConsentCapacity";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {

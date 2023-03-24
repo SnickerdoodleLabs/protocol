@@ -25,7 +25,7 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
-import { IContextProviderType, IContextProvider } from "@core/interfaces/utilities";
+import { IContextProviderType, IContextProvider } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class LinkedAccountRepository implements ILinkedAccountRepository {
