@@ -92,6 +92,7 @@ export class ChunkRenderer implements IChunkRenderer {
 
     (this.updates as VolatileDataUpdate[]).push(update);
     this.numUpdates++;
+
     if (
       this.numUpdates >=
         (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize ||

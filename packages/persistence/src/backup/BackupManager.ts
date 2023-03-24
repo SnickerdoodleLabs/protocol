@@ -227,8 +227,6 @@ export class BackupManager implements IBackupManager {
               ),
             )
             .map((backup) => {
-              console.log(backup);
-
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);
               }

@@ -48,7 +48,7 @@ export class VolatileStorageSchemaProvider
             new LinkedAccountMigrator(),
             EBackupPriority.HIGH,
             config.dataWalletBackupIntervalMS,
-            config.backupChunkSizeTarget,
+            0, // auto push
             [["sourceChain", false]],
           ),
         ],
