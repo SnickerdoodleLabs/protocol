@@ -136,8 +136,7 @@ export class BackupManager implements IBackupManager {
             .update(
               new VolatileDataUpdate(
                 EDataUpdateOpCode.UPDATE,
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                key!,
+                key,
                 value.lastUpdate,
                 value.data,
                 value.data.getVersion(),
