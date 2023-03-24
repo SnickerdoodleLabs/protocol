@@ -1,7 +1,9 @@
+import { ListingSlot } from "@contracts-sdk/index";
 import {
   BigNumberString,
   EVMContractAddress,
   IpfsCID,
+  MarketplaceTag,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
@@ -12,6 +14,8 @@ export class Listing {
     public consentContract: EVMContractAddress | null = null,
     public timeExpiring: UnixTimestamp | null = null,
     public cid: IpfsCID | null = null,
+    public slot: ListingSlot | null = null,
+    public tag: MarketplaceTag | null = null,
   ) {}
 }
 

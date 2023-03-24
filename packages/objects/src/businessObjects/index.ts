@@ -49,3 +49,6 @@ export * from "@objects/businessObjects/WalletNFT.js";
 
 export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";
+
+export * from "@objects/businessObjects/PagedResponse";
+export * from "@objects/businessObjects/PagingRequest";

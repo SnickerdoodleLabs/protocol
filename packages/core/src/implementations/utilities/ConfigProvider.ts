@@ -112,6 +112,7 @@ export class ConfigProvider
       10000,
       "(localhost|chrome://)",
       false,
+      300000,
     );
   }
 

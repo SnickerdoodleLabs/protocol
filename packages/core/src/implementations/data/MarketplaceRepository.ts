@@ -64,23 +64,21 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     PagedResponse<Listing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
-    return this.getMarketplaceTagListingsCached(tag, filterActive).map(
-      (listings) => {
-        const page = pagingReq.page;
-        const pageSize = pagingReq.pageSize;
-        // slice the array based on pages response
-        const startingIndex = (page - 1) * pageSize - 1;
-        const endingIndex = page * pageSize - 1;
-        const slicedArr = listings.slice(startingIndex, endingIndex);
+    return this.getMarketplaceTagListingsCached(tag).map((listings) => {
+      const page = pagingReq.page;
+      const pageSize = pagingReq.pageSize;
+      // slice the array based on pages response
+      const startingIndex = (page - 1) * pageSize - 1;
+      const endingIndex = page * pageSize - 1;
+      const slicedArr = listings.slice(startingIndex, endingIndex);
 
-        return new PagedResponse(
-          slicedArr, // The result
-          pagingReq.page, // which page number
-          slicedArr.length, // Returned result count
-          listings.length, //Total listings result
-        );
-      },
-    );
+      return new PagedResponse(
+        slicedArr, // The result
+        pagingReq.page, // which page number
+        slicedArr.length, // Returned result count
+        listings.length, //Total listings result
+      );
+    });
   }
 
   public getRecommendationsByListing(
@@ -99,23 +97,23 @@ export class MarketplaceRepository implements IMarketplaceRepository {
       );
     }
 
-    return this.getConsentContract([listing.consentContract]).andThen(
-      ([consentContract]) => {
-        return consentContract.getTagArray().map((tagArr) => {
-          // Return array is an array or array of Tag
-          // Flatten and extract its tags
-          return tagArr.map((tag) =>
-            tag.tag ? MarketplaceTag(tag.tag) : MarketplaceTag(""),
-          );
-        });
-      },
-    );
+    return this.contractFactory
+      .factoryConsentContracts([listing.consentContract])
+      .andThen(([consentContract]) => {
+        return consentContract.getTagArray();
+      })
+      .map((tagArr) => {
+        // Extract its tags
+        return tagArr.map((tag) =>
+          tag.tag ? MarketplaceTag(tag.tag) : MarketplaceTag(""),
+        );
+      });
   }
 
   protected tagCache = new Map<MarketplaceTag, MarketplaceTagCache>();
+
   protected getMarketplaceTagListingsCached(
     tag: MarketplaceTag,
-    filterActive: boolean,
   ): ResultAsync<
     Listing[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
@@ -128,19 +126,18 @@ export class MarketplaceRepository implements IMarketplaceRepository {
         // Check the cache time
         const now = this.timeUtils.getUnixNow();
         if (cache.cacheTime + config.marketplaceListingsCacheTime < now) {
-          return this.buildCacheForTag(tag, filterActive);
+          return this.buildCacheForTag(tag);
         }
         return okAsync(cache.listings);
       }
 
       // Need to rebuild the cache
-      return this.buildCacheForTag(tag, filterActive);
+      return this.buildCacheForTag(tag);
     });
   }
 
   protected buildCacheForTag(
     tag: MarketplaceTag,
-    filterActive: boolean,
   ): ResultAsync<
     Listing[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
@@ -155,7 +152,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
               tag,
               ListingSlot(BigInt(ethers.constants.MaxUint256.toString())),
               totalListings,
-              filterActive,
+              true,
             );
           });
       })
@@ -163,6 +160,13 @@ export class MarketplaceRepository implements IMarketplaceRepository {
         // Remove the first item from the array as it is the MaxUint256's slot that only helps point to the rank 1
         // This will help avoid misrepresentations in total listings count downstream
         listings.shift();
+
+        // Update the listings with its slot and tag
+        for (let i = 0; i < listings.length; i++) {
+          listings[i].slot = ListingSlot(listings[i + 1].next?.toString());
+          listings[i].tag = tag;
+        }
+
         const cache = new MarketplaceTagCache(
           tag,
           this.timeUtils.getUnixNow(),
@@ -178,15 +182,6 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     BlockchainProviderError | UninitializedError
   > {
     return this.contractFactory.factoryConsentFactoryContract();
-  }
-
-  protected getConsentContract(
-    contractAddresses: EVMContractAddress[],
-  ): ResultAsync<
-    IConsentContract[],
-    BlockchainProviderError | UninitializedError
-  > {
-    return this.contractFactory.factoryConsentContracts(contractAddresses);
   }
 }
 
