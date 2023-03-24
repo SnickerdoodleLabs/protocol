@@ -15,7 +15,7 @@
   },
   "include": [
     "./src/**/*.ts"
-  ],
+, "../utils/src/ObjectUtils.ts"  ],
   "exclude": [
     "node_modules",
     "dist"
