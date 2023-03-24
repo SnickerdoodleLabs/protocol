@@ -12,7 +12,6 @@ import {
   IConsentContract,
   IConsentFactoryContract,
   Listing,
-  ListingSlot,
   Tag,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -27,6 +26,7 @@ import {
   EVMContractAddress,
   ConsentName,
   ConsentContractError,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -150,7 +150,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
             // Get all listings, starting from slot 1
             return consentFactoryContract.getListingsForward(
               tag,
-              ListingSlot(BigInt(ethers.constants.MaxUint256.toString())),
+              BigNumberString(ethers.constants.MaxUint256.toString()),
               totalListings,
               true,
             );
@@ -163,7 +163,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
 
         // Update the listings with its slot and tag
         for (let i = 0; i < listings.length; i++) {
-          listings[i].slot = ListingSlot(listings[i + 1].next?.toString());
+          listings[i].slot = BigNumberString(listings[i + 1].next.toString());
           listings[i].tag = tag;
         }
 
