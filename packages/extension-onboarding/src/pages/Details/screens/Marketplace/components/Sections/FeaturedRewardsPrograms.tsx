@@ -41,7 +41,8 @@ const FeaturedRewardsPrograms: FC<IFeaturedRewardsProgramsProps> = ({
       <Box className={sectionClasses.carouselWrapper}>
         <Carousel responsive={responsive}>
           {[
-            "0x6303c6f490CF742F6EaEDD560945f16E42136aCE",
+            "0xe9C9575E969a3f917a9CAF38a59859fB8E200B20",
+            "0xeA730e52735aa6568daEB7d56E5e44f0B4d30E0c",
             "0xc336E4ff9271f4B4B2B9E514D4B73c066e3Fc1d6",
             "0x9031E8903f3192158046f72639db900d73b33359",
           ].map((item) => (

@@ -49,7 +49,7 @@ const OptIn: FC = () => {
 
   const navigateToNext = useCallback(() => {
     setLoadingStatus(false);
-    navigate(EPaths.ONBOARDING_PERMISSION_SELECTION);
+    navigate(EPaths.ONBOARDING_TAG_SELECTION);
   }, []);
 
   const getInvitationData = useCallback(() => {
@@ -92,11 +92,21 @@ const OptIn: FC = () => {
   ) => {
     setAcceptLoading(true);
     return window.sdlDataWallet
-      .acceptInvitation(null, consentContractAddress, tokenId, signature)
+      .getDefaultPermissions()
+      .andThen((permissions) =>
+        window.sdlDataWallet.acceptInvitation(
+          permissions,
+          consentContractAddress,
+          tokenId,
+          signature,
+        ),
+      )
       .mapErr((e) => {
-        setAlert({ severity: EAlertSeverity.ERROR, message: "Error" });
-        sessionStorage.removeItem("appMode");
-        window.location.reload();
+        setAlert({
+          severity: EAlertSeverity.ERROR,
+          message: "Error Optin Failed!",
+        });
+        navigateToNext();
       })
       .map(() => {
         setAcceptLoading(false);

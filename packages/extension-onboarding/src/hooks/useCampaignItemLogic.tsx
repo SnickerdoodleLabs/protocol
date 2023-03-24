@@ -44,7 +44,6 @@ const useCampaignItemLogic = ({
   useEffect(() => {
     getRewardItem();
     getPossibleRewards();
-    getConsentCapacity();
   }, []);
 
   useEffect(() => {
@@ -110,61 +109,88 @@ const useCampaignItemLogic = ({
     JSON.stringify(earnedRewards),
   ]);
 
+  useEffect(() => {
+    getConsentCapacity();
+  }, [isSubscribed]);
+
   const handleSubscribeButton = () => {
-    setModal({
-      modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-      onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
-        setLoadingStatus(true);
-        rewardsRef.current =
-          possibleRewards ??
-          ([] as PossibleReward[])
-            ?.filter(
-              (reward) =>
-                !collectedRewards.find(
-                  (earned) => earned.queryCID === reward.queryCID,
-                ),
-            )
-            .reduce((acc, item) => {
-              const requiredDataTypes = item.queryDependencies.map(
-                (queryType) => QueryTypePermissionMap.get(queryType)!,
-              );
-              const permissionsMatched = requiredDataTypes.every((item) =>
-                dataTypes.includes(item),
-              );
-              if (permissionsMatched) {
-                acc = [...acc, item];
-              }
-              return acc;
-            }, [] as PossibleReward[]);
+    window.sdlDataWallet.getApplyDefaultPermissionsOption().map((option) => {
+      if (option) {
         window.sdlDataWallet
-          .acceptInvitation(dataTypes, consentContractAddress)
-          .map(() => {
-            updateOptedInContracts();
-            setLoadingStatus(false);
-            setModal({
-              modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
-              onPrimaryButtonClick: () => {},
-              customProps: {
-                campaignImage: campaignInfo?.image,
-                eligibleRewards: rewardsRef.current,
-                dataTypes,
-                campaignName: campaignInfo?.rewardName,
-              },
-            });
-          })
-          .mapErr(() => {
-            setLoadingStatus(false);
-            setAlert({
-              severity: EAlertSeverity.ERROR,
-              message: `${campaignInfo?.rewardName} Rewards Program Subscription Failed!`,
-            });
-          });
-      },
-      customProps: {
-        onCloseClicked: () => {},
-        primaryButtonText: "Save",
-      },
+          .getDefaultPermissions()
+          .map((permissions) => acceptInvitation(permissions));
+      } else {
+        setModal({
+          modalSelector: EModalSelectors.PERMISSION_SELECTION,
+          onPrimaryButtonClick: () => {
+            acceptInvitation(null);
+          },
+          customProps: {
+            onCloseClicked: () => {},
+            onManageClicked: () => {
+              setModal({
+                modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
+                onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
+                  acceptInvitation(dataTypes);
+                },
+                customProps: {
+                  onCloseClicked: () => {},
+                  primaryButtonText: "Save",
+                },
+              });
+            },
+          },
+        });
+      }
     });
+  };
+
+  const acceptInvitation = (dataTypes: EWalletDataType[] | null) => {
+    setLoadingStatus(true);
+    rewardsRef.current =
+      possibleRewards ??
+      ([] as PossibleReward[])
+        ?.filter(
+          (reward) =>
+            !collectedRewards.find(
+              (earned) => earned.queryCID === reward.queryCID,
+            ),
+        )
+        .reduce((acc, item) => {
+          const requiredDataTypes = item.queryDependencies.map(
+            (queryType) => QueryTypePermissionMap.get(queryType)!,
+          );
+          const permissionsMatched = dataTypes
+            ? requiredDataTypes.every((item) => dataTypes.includes(item))
+            : true;
+          if (permissionsMatched) {
+            acc = [...acc, item];
+          }
+          return acc;
+        }, [] as PossibleReward[]);
+    window.sdlDataWallet
+      .acceptInvitation(dataTypes, consentContractAddress)
+      .map(() => {
+        updateOptedInContracts();
+        setLoadingStatus(false);
+        setModal({
+          modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: {
+            campaignImage: campaignInfo?.image,
+            eligibleRewards: rewardsRef.current,
+            dataTypes,
+            campaignName: campaignInfo?.rewardName,
+          },
+        });
+      })
+      .mapErr(() => {
+        setLoadingStatus(false);
+        setAlert({
+          severity: EAlertSeverity.ERROR,
+          message: `${campaignInfo?.rewardName} Rewards Program Subscription Failed!`,
+        });
+      });
   };
 
   return {

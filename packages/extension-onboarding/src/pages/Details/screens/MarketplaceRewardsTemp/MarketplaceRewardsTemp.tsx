@@ -1,5 +1,4 @@
 import EarnedRewards from "@extension-onboarding/pages/Details/screens/EarnedRewards";
-import MarketplaceCampaigns from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns";
 import { LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION } from "@extension-onboarding/constants";
 import { Box, IconButton } from "@material-ui/core";
 import React, { FC, useEffect, useState } from "react";

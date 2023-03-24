@@ -1,4 +1,5 @@
 import marketplaceImage from "@extension-onboarding/assets/images/marketplace.svg";
+import { LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION } from "@extension-onboarding/constants";
 import { tags } from "@extension-onboarding/constants/tags";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import {
@@ -7,9 +8,17 @@ import {
   RecommendedRewardPrograms,
 } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
 import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
-import { Box, MenuItem, Select, Typography } from "@material-ui/core";
+import {
+  Box,
+  Collapse,
+  IconButton,
+  MenuItem,
+  Select,
+  Typography,
+} from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { ETag } from "@snickerdoodlelabs/objects";
-import React from "react";
+import React, { useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 const Marketplace = () => {
   const classes = useMarketplaceStyles();
@@ -17,9 +26,33 @@ const Marketplace = () => {
   const handleCategoryClick = (tag: ETag) => {
     navigate(generatePath(EPaths.MARKETPLACE_TAG_DETAIL, { tag }));
   };
+  const [isBannerVisible, setIsBannerVisible] = useState<boolean>(
+    !localStorage.getItem(LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION),
+  );
+
   return (
     <>
-      <img src={marketplaceImage} width="100%" />
+      <Collapse in={isBannerVisible}>
+        <Box width="100%" position="relative">
+          <Box position="absolute" top={8} right={8}>
+            <IconButton
+              disableFocusRipple
+              disableRipple
+              disableTouchRipple
+              onClick={() => {
+                localStorage.setItem(
+                  LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION,
+                  "visited",
+                );
+                setIsBannerVisible(false);
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <img src={marketplaceImage} width="100%" />
+        </Box>
+      </Collapse>
       <Box mt={5}>
         <Typography className={classes.title}>Rewards Marketplace</Typography>
       </Box>

@@ -17,9 +17,7 @@ export default ({ reward, permissions }: IDirectRewardProps) => {
 
   const image = (
     <img
-      width="100%"
-      height={192}
-      style={{ objectFit: "contain", borderRadius: 8 }}
+      className={rewardItemsClasses.img}
       src={`${apiGateway.config.ipfsFetchBaseUrl}${reward.image}`}
     />
   );
@@ -29,24 +27,24 @@ export default ({ reward, permissions }: IDirectRewardProps) => {
       display="flex"
       flexDirection="column"
       justifyContent="center"
-      border="1px solid #D9D9D9"
-      borderRadius={12}
-      p={3}
-      mb={2}
+      border="2px solid #F0F0F0"
+      borderRadius={4}
     >
       <Box width="100%" position="relative">
         {image}
         <img className={rewardItemsClasses.badge} src={earnedBadge} />
       </Box>
 
-      <Box mt={1.5}>
-        <Typography className={rewardItemsClasses.title}>
-          {reward.name}
+      <Box p={1.5} display="flex" flexDirection="column">
+        <Box mb={0.5}>
+          <Typography className={rewardItemsClasses.title}>
+            {reward.name}
+          </Typography>
+        </Box>
+        <Typography className={rewardItemsClasses.description}>
+          {reward.description}
         </Typography>
       </Box>
-      <Typography className={rewardItemsClasses.description}>
-        {reward.description}
-      </Typography>
     </Box>
   );
 };

@@ -12,7 +12,6 @@ import { useNavigate } from "react-router-dom";
 
 const ProfileCreation: FC = () => {
   const navigate = useNavigate();
-  const { invitationInfo } = useAppContext();
   const classes = useStyles();
   return (
     <>
@@ -39,11 +38,7 @@ const ProfileCreation: FC = () => {
                 </Typography>
                 <ProfileForm
                   onSubmitted={() => {
-                    if (invitationInfo.consentAddress) {
-                      navigate(EPaths.ONBOARDING_OPT_IN);
-                    } else {
-                      navigate(EPaths.ONBOARDING_PERMISSION_SELECTION);
-                    }
+                    navigate(EPaths.ONBOARDING_PERMISSION_SELECTION);
                   }}
                 />
               </Box>

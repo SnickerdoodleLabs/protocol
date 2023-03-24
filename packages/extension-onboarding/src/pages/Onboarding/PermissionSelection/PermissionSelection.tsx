@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 const PermissionSelection: FC = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const { invitationInfo } = useAppContext();
   return (
     <>
       <img src={snickerDoodleLogo} />
@@ -20,7 +21,7 @@ const PermissionSelection: FC = () => {
           Consent to share aggregate, anonymized insights derived from your
           data. You can set permissions individually, for each item.
         </Typography>
-        <PermissionSelectionComponent />
+        <PermissionSelectionComponent showDefaultsSettings={false} />
         <Box
           display="flex"
           flexDirection="column"
@@ -30,7 +31,11 @@ const PermissionSelection: FC = () => {
         >
           <Button
             onClick={() => {
-              navigate(EPaths.ONBOARDING_TAG_SELECTION);
+              if (invitationInfo.consentAddress) {
+                navigate(EPaths.ONBOARDING_OPT_IN);
+              } else {
+                navigate(EPaths.ONBOARDING_TAG_SELECTION);
+              }
             }}
             fullWidth
           >
@@ -43,3 +48,6 @@ const PermissionSelection: FC = () => {
 };
 
 export default PermissionSelection;
+function useAppContext(): { invitationInfo: any } {
+  throw new Error("Function not implemented.");
+}

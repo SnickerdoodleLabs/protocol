@@ -17,7 +17,13 @@ import {
 } from "@material-ui/core";
 import React, { FC } from "react";
 
-const DataPermissionsSettings: FC = () => {
+interface IPermissionSelection {
+  showDefaultsSettings?: boolean;
+}
+
+const PermissionSelection: FC<IPermissionSelection> = ({
+  showDefaultsSettings = true,
+}) => {
   const {
     permissionForm,
     handleApplyDefaultOptionChange,
@@ -29,27 +35,29 @@ const DataPermissionsSettings: FC = () => {
 
   return (
     <Box>
-      <Box mt={5}>
-        <RadioGroup
-          value={applyDefaults}
-          onChange={(e) =>
-            handleApplyDefaultOptionChange(e.target.value as "true" | "false")
-          }
-        >
-          <FormControlLabel
-            className={classes.label}
-            value={true}
-            control={<Radio />}
-            label="Apply my settings for every rewards"
-          />
-          <FormControlLabel
-            className={classes.label}
-            value={false}
-            control={<Radio />}
-            label="Ask me about my settings for everytime I accept the reward"
-          />
-        </RadioGroup>
-      </Box>
+      {showDefaultsSettings && (
+        <Box mt={5}>
+          <RadioGroup
+            value={applyDefaults}
+            onChange={(e) =>
+              handleApplyDefaultOptionChange(e.target.value as "true" | "false")
+            }
+          >
+            <FormControlLabel
+              className={classes.label}
+              value={true}
+              control={<Radio />}
+              label="Apply my settings for every rewards"
+            />
+            <FormControlLabel
+              className={classes.label}
+              value={false}
+              control={<Radio />}
+              label="Ask me about my settings for everytime I accept the reward"
+            />
+          </RadioGroup>
+        </Box>
+      )}
       <Box mt={4}>
         {PERMISSIONS.map((item, sectionIndex) => {
           return (
@@ -119,4 +127,4 @@ const DataPermissionsSettings: FC = () => {
   );
 };
 
-export default DataPermissionsSettings;
+export default PermissionSelection;

@@ -4,10 +4,8 @@ import TagSelection from "@extension-onboarding/components/TagSelection";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/CategorySelection/CategorySelection.style";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
-import { useNavigate } from "react-router-dom";
 const CategorySelection: FC = () => {
   const classes = useStyles();
-  const navigate = useNavigate();
   return (
     <>
       <img src={snickerDoodleLogo} />

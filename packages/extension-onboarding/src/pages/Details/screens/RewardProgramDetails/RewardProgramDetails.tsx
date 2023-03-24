@@ -104,6 +104,8 @@ const RewardProgramDetails: FC = () => {
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
 
+  console.log("earnedREwards", { earnedRewards });
+
   const handleSubscribeButton = () => {
     setModal({
       modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
@@ -212,6 +214,8 @@ const RewardProgramDetails: FC = () => {
         permissionRequiredRewards: [] as PossibleReward[],
       };
     }
+
+    console.log("collectedRewards", collectedRewards);
 
     // get eligibleRewards
     const eligibleRewards = possibleRewards.reduce((acc, item) => {

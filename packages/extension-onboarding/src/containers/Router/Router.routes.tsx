@@ -12,7 +12,6 @@ import CampaignSettings from "@extension-onboarding/pages/Details/screens/Campai
 import DataDashboarPersonalInfo from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo";
 import DataPermissionsSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import EarnedRewards from "@extension-onboarding/pages/Details/screens/EarnedRewards";
-import MarketPlaceCampaigns from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns";
 import MarketPlaceCollection from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection";
 import RewardReview from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/RewardReview";
 import MarketplaceRewardsTemp from "@extension-onboarding/pages/Details/screens/MarketplaceRewardsTemp";

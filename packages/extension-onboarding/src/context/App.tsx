@@ -195,6 +195,7 @@ export const AppContextProvider: FC = ({ children }) => {
   const onEarnedRewardAdded = (notification: {
     data: { rewards: EarnedReward[] };
   }) => {
+    console.warn("EARNED REWARD ADDED", notification);
     getEarnedRewards();
   };
 
@@ -275,7 +276,7 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getEarnedRewards = () => {
     return window.sdlDataWallet.getEarnedRewards().map((rewards) => {
-      setEarnedRewards(earnedRewards);
+      setEarnedRewards(rewards);
     });
   };
 

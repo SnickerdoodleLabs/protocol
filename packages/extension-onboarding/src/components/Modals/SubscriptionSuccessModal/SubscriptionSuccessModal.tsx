@@ -26,13 +26,19 @@ const SubscriptionSuccessModal: FC = () => {
   } = modalState;
 
   const getPermissionsText = () => {
-    const arr = (dataTypes as EWalletDataType[]).reduce((acc, dataType) => {
-      const name = PERMISSION_TEXT_NAMES[dataType] as string;
-      if (name) {
-        acc = [...acc, name];
-      }
-      return acc;
-    }, [] as string[]);
+    let arr: string[];
+    if (dataTypes) {
+      arr = (dataTypes as EWalletDataType[]).reduce((acc, dataType) => {
+        const name = PERMISSION_TEXT_NAMES[dataType] as string;
+        if (name) {
+          acc = [...acc, name];
+        }
+        return acc;
+      }, [] as string[]);
+    } else {
+      arr = Object.values(PERMISSION_TEXT_NAMES);
+    }
+
     return arr.length > 1 ? (
       <>
         <strong>{arr.slice(0, -1).join(", ")}</strong> and{" "}
