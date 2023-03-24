@@ -70,8 +70,6 @@ export class AST_PropertyQuery extends AST_Query {
         return ok(EWalletDataType.Email);
       case "location":
         return ok(EWalletDataType.Location);
-      case "browsing_history":
-        return ok(EWalletDataType.SiteVisits);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
       case "chain_transactions":
