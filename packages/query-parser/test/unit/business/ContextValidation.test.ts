@@ -1,6 +1,7 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IpfsCID,
+  MillisecondTimestamp,
   MissingASTError,
   QueryFormatError,
 } from "@snickerdoodlelabs/objects";
@@ -13,10 +14,10 @@ import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 const cid = IpfsCID("0");
 const timeUtils = new TimeUtils();
 const futureTimeISO = timeUtils.getISO8601TimeString(
-  Date.now() + 1000 * 60 * 60 * 24,
+  MillisecondTimestamp(Date.now() + 1000 * 60 * 60 * 24),
 );
 const pastTimeISO = timeUtils.getISO8601TimeString(
-  Date.now() - 1000 * 60 * 60 * 24,
+  MillisecondTimestamp(Date.now() - 1000 * 60 * 60 * 24),
 );
 const currentTimeISO = timeUtils.getISO8601TimeString();
 

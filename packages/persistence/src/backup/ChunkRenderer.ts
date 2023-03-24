@@ -29,7 +29,7 @@ import { FieldIndex } from "@persistence/local/index.js";
 import { VolatileTableIndex } from "@persistence/volatile/index.js";
 
 export class ChunkRenderer implements IChunkRenderer {
-  private updates: VolatileDataUpdate[] | (FieldDataUpdate | null);
+  private updates: VolatileDataUpdate[] | FieldDataUpdate | null;
 
   private numUpdates = 0;
   private lastRender;
@@ -42,7 +42,7 @@ export class ChunkRenderer implements IChunkRenderer {
     protected privateKey: EVMPrivateKey,
     protected timeUtils: ITimeUtils,
   ) {
-    this.lastRender = timeUtils.getUnixNowMS();
+    this.lastRender = timeUtils.getUnixNow();
     this.numUpdates = 0;
     this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
   }
@@ -51,7 +51,7 @@ export class ChunkRenderer implements IChunkRenderer {
     return this._dump(this.updates).map((result) => {
       this.numUpdates = 0;
       this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
-      this.lastRender = this.timeUtils.getUnixNowMS();
+      this.lastRender = this.timeUtils.getUnixNow();
       return result;
     });
   }
@@ -81,7 +81,7 @@ export class ChunkRenderer implements IChunkRenderer {
       }
 
       if (
-        this.timeUtils.getUnixNowMS() - this.lastRender >=
+        this.timeUtils.getUnixNow() - this.lastRender >=
         this.schema.backupInterval
       ) {
         return this.clear();
@@ -95,7 +95,7 @@ export class ChunkRenderer implements IChunkRenderer {
     if (
       this.numUpdates >=
         (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize ||
-      this.timeUtils.getUnixNowMS() - this.lastRender >=
+      this.timeUtils.getUnixNow() - this.lastRender >=
         this.schema.backupInterval
     ) {
       return this.clear();
@@ -114,7 +114,7 @@ export class ChunkRenderer implements IChunkRenderer {
     return this.backupUtils
       .getBackupHash(updates as BackupBlob)
       .andThen((hash) => {
-        const timestamp = this.timeUtils.getUnixNowMS();
+        const timestamp = this.timeUtils.getUnixNow();
         return this.backupUtils
           .generateBackupSignature(hash, timestamp, this.privateKey)
           .andThen((signature) => {

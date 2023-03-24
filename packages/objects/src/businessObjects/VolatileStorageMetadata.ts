@@ -1,5 +1,5 @@
 import { VersionedObject } from "@objects/businessObjects/VersionedObject";
-import { EBackupPriority } from "@objects/enum/EBackupPriority";
+import { UnixTimestamp } from "@objects/primitives/index.js";
 
 export const VolatileStorageDataKey = "data";
 export const VolatileStorageMetadataIndexes: [string, boolean][] = [
@@ -12,9 +12,15 @@ export enum EBoolean {
 }
 
 export class VolatileStorageMetadata<T extends VersionedObject> {
+  public lastUpdate: UnixTimestamp;
   public constructor(
     public data: T,
-    public lastUpdate: number = Date.now(),
+    lastUpdate?: UnixTimestamp,
     public deleted: EBoolean = EBoolean.FALSE,
-  ) {}
+  ) {
+    // This points to a need to use a factory for these objects. We should probably
+    // do the work of making this class internal to the persistence stuff.
+    this.lastUpdate =
+      lastUpdate || UnixTimestamp(Math.floor(Date.now() / 1000));
+  }
 }
