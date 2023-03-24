@@ -87,11 +87,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return this.waitForPriority(priority);
       })
       .andThen(() => {
-        return this.storageUtils.read<SerializedObject>(key).map((raw) => {
+        return this.storageUtils.read<SerializedObject>(key).andThen((raw) => {
           if (raw == null) {
-            return null;
+            return okAsync(null);
           }
-          return Serializer.deserialize(raw) as unknown as T;
+          return Serializer.deserialize(raw).map((result) => {
+            return result as T;
+          });
         });
       });
   }
