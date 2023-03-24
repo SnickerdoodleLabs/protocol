@@ -328,11 +328,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.getRestored();
       })
       .andThen((restored) => {
+        this.logUtils.info(
+          `${restored.size} number of files found on persistence`,
+        );
         return this.cloudStorage
           .pollByPriority(restored, EBackupPriority.HIGH)
           .andThen((backups) => {
+            this.logUtils.info(
+              `${backups.length} number of high priority files found on persistence`,
+            );
             return ResultUtils.combine(
               backups.map((backup) => {
+                this.logUtils.info(`File on persistence ${backup}`);
                 return this.restoreBackup(backup);
               }),
             );
