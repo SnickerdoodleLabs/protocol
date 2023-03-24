@@ -2,6 +2,7 @@ import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleL
 import Button from "@extension-onboarding/components/Button";
 import PermissionSelectionComponent from "@extension-onboarding/components/PermissionSelection";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/PermissionSelection/PermissionSelection.style";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
@@ -47,7 +48,4 @@ const PermissionSelection: FC = () => {
   );
 };
 
-export default PermissionSelection;
-function useAppContext(): { invitationInfo: any } {
-  throw new Error("Function not implemented.");
-}
+export default PermissionSelection; 
