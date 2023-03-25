@@ -64,3 +64,6 @@ packages/test-harness/data/insight/*
 
 # Mobile
 packages/mobile/ios/Pods
+
+# Dapps Data
+documentation/sdql/examples/output
