@@ -197,8 +197,8 @@ if __name__ == "__main__":
     if not os.path.exists(logos_path):
         os.mkdir(logos_path)
 
-    # data = get_all_dapp_details(input_dir, logos_path)
-    # store_all_dapp_details(data, dapp_filename)
+    data = get_all_dapp_details(input_dir, logos_path)
+    store_all_dapp_details(data, dapp_filename)
 
     generate_query(dapp_filename, output_dir)
     build_data_sheet(dapp_filename, output_dir)
