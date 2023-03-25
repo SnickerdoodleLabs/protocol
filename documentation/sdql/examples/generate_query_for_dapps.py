@@ -1,5 +1,6 @@
 # %%
 import pandas as pd
+import re
 from urllib.parse import urlparse
 import json
 import os
@@ -131,6 +132,8 @@ def build_data_sheet(filename, path):
     for i in range(len(dapps)):
         website = dapps.loc[i, "Project/Dapp Website"]
         description = dapps.loc[i, "Description"]
+        if isinstance(description, str): 
+            description = re.sub('\n', ' ', description)
         name = dapps.loc[i, "Project Name"]
         chain = dapps.loc[i, "Chain"]
         app_type = dapps.loc[i, "App Type"]
@@ -194,8 +197,8 @@ if __name__ == "__main__":
     if not os.path.exists(logos_path):
         os.mkdir(logos_path)
 
-    data = get_all_dapp_details(input_dir, logos_path)
-    store_all_dapp_details(data, dapp_filename)
+    # data = get_all_dapp_details(input_dir, logos_path)
+    # store_all_dapp_details(data, dapp_filename)
 
     generate_query(dapp_filename, output_dir)
     build_data_sheet(dapp_filename, output_dir)
