@@ -5646,6 +5646,7 @@ __metadata:
     neverthrow-result-utils: ^2.0.2
     pino: ^8.1.0
     tweetnacl: ^1.0.3
+    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
@@ -5703,6 +5704,7 @@ __metadata:
     inquirer: ^8.0.0
     inversify: ^5.1.1
     ipfs-http-client: ^55.0.0
+    jsonwebtoken: ^9.0.0
     lzutf8: ^0.6.3
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
@@ -5724,6 +5726,7 @@ __metadata:
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
+    jsonwebtoken: ^9.0.0
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
@@ -6668,6 +6671,15 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: e60b153664572116dfea673c5bda7778dbff150498f44f998e34b5886d8afc47f16799280e4b6e241c0472aef1bc36add771c569c68fc5125fc2ae519a3eb9ac
+  languageName: node
+  linkType: hard
+
+"@types/jsonwebtoken@npm:^9.0.1":
+  version: 9.0.1
+  resolution: "@types/jsonwebtoken@npm:9.0.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: a7f0925e9a42ad3ae970364c63c5986d40da5c83d51d3f4e624eb0f064a380376f9e3fb3f2f837390a9ab80143f5d75fd51866da30e110f6b486a3379e1c768f
   languageName: node
   linkType: hard
 
@@ -21339,6 +21351,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonwebtoken@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "jsonwebtoken@npm:9.0.0"
+  dependencies:
+    jws: ^3.2.2
+    lodash: ^4.17.21
+    ms: ^2.1.1
+    semver: ^7.3.8
+  checksum: b9181cecf9df99f1dc0253f91ba000a1aa4d91f5816d1608c0dba61a5623726a0bfe200b51df25de18c1a6000825d231ad7ce2788aa54fd48dcb760ad9eb9514
+  languageName: node
+  linkType: hard
+
 "jsprim@npm:^1.2.2":
   version: 1.4.2
   resolution: "jsprim@npm:1.4.2"
@@ -21464,6 +21488,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwa@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "jwa@npm:1.4.1"
+  dependencies:
+    buffer-equal-constant-time: 1.0.1
+    ecdsa-sig-formatter: 1.0.11
+    safe-buffer: ^5.0.1
+  checksum: ff30ea7c2dcc61f3ed2098d868bf89d43701605090c5b21b5544b512843ec6fd9e028381a4dda466cbcdb885c2d1150f7c62e7168394ee07941b4098e1035e2f
+  languageName: node
+  linkType: hard
+
 "jwa@npm:^2.0.0":
   version: 2.0.0
   resolution: "jwa@npm:2.0.0"
@@ -21472,6 +21507,16 @@ __metadata:
     ecdsa-sig-formatter: 1.0.11
     safe-buffer: ^5.0.1
   checksum: 8f00b71ad5fe94cb55006d0d19202f8f56889109caada2f7eeb63ca81755769ce87f4f48101967f398462e3b8ae4faebfbd5a0269cb755dead5d63c77ba4d2f1
+  languageName: node
+  linkType: hard
+
+"jws@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "jws@npm:3.2.2"
+  dependencies:
+    jwa: ^1.4.1
+    safe-buffer: ^5.0.1
+  checksum: f0213fe5b79344c56cd443428d8f65c16bf842dc8cb8f5aed693e1e91d79c20741663ad6eff07a6d2c433d1831acc9814e8d7bada6a0471fbb91d09ceb2bf5c2
   languageName: node
   linkType: hard
 
@@ -28796,6 +28841,7 @@ __metadata:
     "@types/express": ^4.17.11
     "@types/inquirer": ^8.2.1
     "@types/jest": ^29.0.2
+    "@types/jsonwebtoken": ^9.0.1
     "@types/pino": ^6.3.2
     "@types/postmate": ^1.5.1
     "@types/pump": ^1.1.1

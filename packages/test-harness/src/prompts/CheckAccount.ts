@@ -1,10 +1,9 @@
 import {
-  AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  MinimalForwarderContractError,
   PersistenceError,
+  UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
@@ -17,14 +16,13 @@ import { TestWallet } from "@test-harness/utilities/index.js";
 export class CheckAccount extends Prompt {
   public start(): ResultAsync<
     void,
-    | UnsupportedLanguageError
+    | InvalidSignatureError
     | PersistenceError
-    | AjaxError
     | BlockchainProviderError
     | UninitializedError
+    | UnauthorizedError
+    | UnsupportedLanguageError
     | CrumbsContractError
-    | InvalidSignatureError
-    | MinimalForwarderContractError
   > {
     return inquiryWrapper([
       {
