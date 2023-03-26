@@ -125,9 +125,7 @@ export class BackupManager implements IBackupManager {
 
         return this.volatileStorage.putObject(tableName, value).andThen(() => {
           if (!this.tableRenderers.has(tableName)) {
-            return errAsync(
-              new PersistenceError("no renderer for table", tableName),
-            );
+            return okAsync(undefined);
           }
 
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
