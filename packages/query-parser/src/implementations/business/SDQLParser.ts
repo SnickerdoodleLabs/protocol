@@ -18,6 +18,7 @@ import {
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
+  AST_ConditionExpr,
 } from "@query-parser/interfaces/index.js";
 import {
   AdKey,
@@ -40,6 +41,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
@@ -208,14 +210,14 @@ export class SDQLParser {
   public validateLogic(
     schema: SDQLQueryWrapper,
   ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    if (schema.logic === undefined) {
-      return errAsync(new QueryFormatError("schema missing logic"));
-    }
-    if (schema.logic["compensations"] === undefined) {
-      return errAsync(
-        new QueryFormatError("schema missing logic->compensations"),
-      );
-    }
+    // if (schema.logic === undefined) {
+    //   return errAsync(new QueryFormatError("schema missing logic"));
+    // }
+    // if (schema.logic["compensations"] === undefined) {
+    //   return errAsync(
+    //     new QueryFormatError("schema missing logic->compensations"),
+    //   );
+    // }
 
     return okAsync(undefined);
   }
@@ -241,6 +243,7 @@ export class SDQLParser {
           singleAdSchema.weight,
           singleAdSchema.expiry,
           singleAdSchema.keywords,
+          new AST_ConditionExpr(SDQL_Name("True"), true),
         );
 
         this.ads.set(adKey, ad);
@@ -320,67 +323,68 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    try {
-      const returnsSchema = this.schema.getReturnSchema();
-      if (!returnsSchema) {
-        return okAsync(undefined);
-      }
+    return okAsync(undefined);
+    // try {
+    //   const returnsSchema = this.schema.getReturnSchema();
+    //   if (!returnsSchema) {
+    //     return okAsync(undefined);
+    //   }
 
-      const returns = new Array<AST_ReturnExpr>();
+    //   const returns = new Array<AST_ReturnExpr>();
 
-      for (const rName in returnsSchema) {
-        // console.log(`parsing return ${rName}`);
+    //   for (const rName in returnsSchema) {
+    //     // console.log(`parsing return ${rName}`);
 
-        const name = SDQL_Name(rName);
-        const schema = returnsSchema[rName];
+    //     const name = SDQL_Name(rName);
+    //     const schema = returnsSchema[rName];
 
-        if (typeof schema === "string") {
-          continue;
-        }
+    //     if (typeof schema === "string") {
+    //       continue;
+    //     }
 
-        if ("query" in schema) {
-          const source = this.context.get(SDQL_Name(schema.query!)) as
-            | AST_Query
-            | AST_Return;
-          if (null == source) {
-            return errAsync(new MissingASTError(schema.query!));
-          }
-          const returnExpr = new AST_ReturnExpr(name, source);
-          returns.push(returnExpr);
-        } else if ("message" in schema) {
-          const source = new AST_Return(
-            SDQL_Name(schema.name),
-            schema.message!,
-          );
-          const returnExpr = new AST_ReturnExpr(name, source);
-          returns.push(returnExpr);
-        } else {
-          // const err = new ReturnNotImplementedError(rName);
-          // console.error(err);
-          // throw err;
-          return errAsync(
-            new QueryFormatError("Missing type definition", 0, schema),
-          );
-        }
-      }
+    //     if ("query" in schema) {
+    //       const source = this.context.get(SDQL_Name(schema.query!)) as
+    //         | AST_Query
+    //         | AST_Return;
+    //       if (null == source) {
+    //         return errAsync(new MissingASTError(schema.query!));
+    //       }
+    //       const returnExpr = new AST_ReturnExpr(name, source);
+    //       returns.push(returnExpr);
+    //     } else if ("message" in schema) {
+    //       const source = new AST_Return(
+    //         SDQL_Name(schema.name),
+    //         schema.message!,
+    //       );
+    //       const returnExpr = new AST_ReturnExpr(name, source);
+    //       returns.push(returnExpr);
+    //     } else {
+    //       // const err = new ReturnNotImplementedError(rName);
+    //       // console.error(err);
+    //       // throw err;
+    //       return errAsync(
+    //         new QueryFormatError("Missing type definition", 0, schema),
+    //       );
+    //     }
+    //   }
 
-      this.returns = new AST_Returns(URLString(returnsSchema.url));
+    //   this.returns = new AST_Returns(URLString(returnsSchema.url));
 
-      for (const r of returns) {
-        this.saveInContext(r.name, r);
-        this.returns.expressions.set(r.name, r);
-      }
+    //   for (const r of returns) {
+    //     this.saveInContext(r.name, r);
+    //     this.returns.expressions.set(r.name, r);
+    //   }
 
-      return okAsync(undefined);
-    } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
-    }
+    //   return okAsync(undefined);
+    // } catch (err) {
+    //   if (err instanceof DuplicateIdInSchema) {
+    //     return errAsync(err as DuplicateIdInSchema);
+    //   }
+    //   if (err instanceof QueryFormatError) {
+    //     return errAsync(err as QueryFormatError);
+    //   }
+    //   return errAsync(new QueryFormatError(JSON.stringify(err)));
+    // }
   }
 
   private parseCompensations(): ResultAsync<
@@ -405,6 +409,7 @@ export class SDQLParser {
           const compensation = new AST_Compensation(
             name,
             schema.description,
+            new AST_RequireExpr(SDQL_Name("TODO"), true),
             schema.chainId,
             schema.callback,
             schema.alternatives ? schema.alternatives : [],
@@ -434,31 +439,32 @@ export class SDQLParser {
     void,
     ParserError | MissingTokenConstructorError | QueryFormatError
   > {
-    try {
-      const logicSchema = this.schema.getLogicSchema();
+    return okAsync(undefined);
+    // try {
+    //   const logicSchema = this.schema.getLogicSchema();
 
-      this.logicCompensations = this.parseLogicExpressions(
-        logicSchema.compensations,
-      );
+    //   this.logicCompensations = this.parseLogicExpressions(
+    //     logicSchema.compensations,
+    //   );
 
-      if (logicSchema.returns) {
-        this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
-      }
+    //   if (logicSchema.returns) {
+    //     this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
+    //   }
 
-      if (logicSchema.ads) {
-        this.logicAds = this.parseLogicExpressions(logicSchema.ads);
-      }
+    //   if (logicSchema.ads) {
+    //     this.logicAds = this.parseLogicExpressions(logicSchema.ads);
+    //   }
 
-      return okAsync(undefined);
-    } catch (err) {
-      if (err instanceof ParserError) {
-        return errAsync(err as ParserError);
-      }
-      if (err instanceof MissingTokenConstructorError) {
-        return errAsync(err as MissingTokenConstructorError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
-    }
+    //   return okAsync(undefined);
+    // } catch (err) {
+    //   if (err instanceof ParserError) {
+    //     return errAsync(err as ParserError);
+    //   }
+    //   if (err instanceof MissingTokenConstructorError) {
+    //     return errAsync(err as MissingTokenConstructorError);
+    //   }
+    //   return errAsync(new QueryFormatError(JSON.stringify(err)));
+    // }
   }
 
   private parseLogicExpressions(
@@ -483,27 +489,28 @@ export class SDQLParser {
     void,
     ParserError | MissingWalletDataTypeError
   > {
-    try {
-      const logicSchema = this.schema.getLogicSchema();
+    return okAsync(undefined);
+    // try {
+    //   const logicSchema = this.schema.getLogicSchema();
 
-      this.compensationPermissions = this.parseLogicPermissions(
-        logicSchema["compensations"],
-      );
+    //   this.compensationPermissions = this.parseLogicPermissions(
+    //     logicSchema["compensations"],
+    //   );
 
-      if (logicSchema["returns"]) {
-        this.returnPermissions = this.parseLogicPermissions(
-          logicSchema["returns"],
-        );
-      }
+    //   if (logicSchema["returns"]) {
+    //     this.returnPermissions = this.parseLogicPermissions(
+    //       logicSchema["returns"],
+    //     );
+    //   }
 
-      if (logicSchema["ads"]) {
-        this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);
-      }
+    //   if (logicSchema["ads"]) {
+    //     this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);
+    //   }
 
-      return okAsync(undefined);
-    } catch (err) {
-      return errAsync(err as MissingWalletDataTypeError);
-    }
+    //   return okAsync(undefined);
+    // } catch (err) {
+    //   return errAsync(err as MissingWalletDataTypeError);
+    // }
   }
 
   private parseLogicPermissions(

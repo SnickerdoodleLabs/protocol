@@ -145,7 +145,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         });
       case "url_visited_count":
         return this.browsingDataRepo
-          .getSiteVisitsMap(q.timestampRange)
+          .getSiteVisitsMap(q.timestampRange!)
           .andThen((url_visited_count) => {
             return okAsync(SDQL_Return(url_visited_count));
           });

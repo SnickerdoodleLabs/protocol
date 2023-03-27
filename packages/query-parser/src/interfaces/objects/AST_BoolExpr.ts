@@ -10,7 +10,7 @@ export class AST_BoolExpr extends AST_Expr {
    */
   constructor(
     readonly name: SDQL_Name,
-    readonly source: AST_Query | Operator | null,
+    readonly source: AST_Query | Operator | boolean | null,
   ) {
     super(name, source);
     this.check();

@@ -7,7 +7,7 @@ import {
   TokenType,
 } from "@query-parser/implementations/business/Tokenizer";
 
-describe("Tokenizer", () => {
+describe("Tokenizer type tests", () => {
   test("12 is a number", function () {
     const tokenizer = new Tokenizer("12");
 
@@ -84,7 +84,9 @@ describe("Tokenizer", () => {
       new ParserError(0, "no more tokens"),
     );
   });
+});
 
+describe("Tokenizer expression tests", () => {
   test("if($q1>30)then$r1", function () {
     const tokenizer = new Tokenizer("if$q1>30then$r1");
     expect(tokenizer.hasNext()).toBe(true);

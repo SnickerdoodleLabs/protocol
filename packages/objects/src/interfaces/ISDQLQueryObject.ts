@@ -110,6 +110,7 @@ export interface ISDQLAd {
   displayType: EAdDisplayType;
   weight: number;
   expiry: UnixTimestamp;
+  keywords: string[];
   target: ISDQLConditionString;
 }
 

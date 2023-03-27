@@ -2,12 +2,12 @@ import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ISDQLAdsBlock,
   ISDQLCompensationBlock,
-  ISDQLLogicObjects,
   ISDQLQueryClause,
   ISDQLQueryObject,
-  ISDQLReturnProperties,
+  // ISDQLReturnProperties,
   ISO8601DateString,
   UnixTimestamp,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLQueryWrapper {
@@ -102,20 +102,20 @@ export class SDQLQueryWrapper {
   } {
     return this.getQuerySchema();
   }
-  public get returns(): {
-    [returnsObject: string]: ISDQLReturnProperties;
-    url: any;
-  } {
-    return this.getReturnSchema();
-  }
+  // public get returns(): {
+  //   [returnsObject: string]: ISDQLReturnProperties;
+  //   url: any;
+  // } {
+  //   return this.getReturnSchema();
+  // }
 
   public get compensations(): ISDQLCompensationBlock {
     return this.getCompensationSchema();
   }
 
-  public get logic(): ISDQLLogicObjects {
-    return this.getLogicSchema();
-  }
+  // public get logic(): ISDQLLogicObjects {
+  //   return this.getLogicSchema();
+  // }
 
   getAdsSchema(): ISDQLAdsBlock {
     return this.internalObj.ads;
@@ -127,18 +127,19 @@ export class SDQLQueryWrapper {
     return this.internalObj.queries;
   }
 
-  getReturnSchema(): {
-    [returnsObject: string]: ISDQLReturnProperties;
-    url: any;
-  } {
-    return this.internalObj.returns;
-  }
+  // getReturnSchema(): {
+  //   [returnsObject: string]: ISDQLReturnProperties;
+  //   url: any;
+  // } {
+  //   // return this.internalObj.returns;
+  //   return { url: URLString("") };
+  // }
 
   getCompensationSchema(): ISDQLCompensationBlock {
     return this.internalObj.compensations;
   }
 
-  getLogicSchema(): ISDQLLogicObjects {
-    return this.internalObj.logic;
-  }
+  // getLogicSchema(): ISDQLLogicObjects {
+  //   return this.internalObj.logic;
+  // }
 }

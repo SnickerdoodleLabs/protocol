@@ -24,6 +24,7 @@ export enum TokenType {
   url = "url",
   string = "string",
   whitespace = "whitespace",
+  boolean = "boolean",
 }
 
 export class Token {
@@ -34,7 +35,8 @@ export class Token {
   ) {}
 }
 
-const rules = new Array<[RegExp, TokenType]>(); // Order matters
+const rules = new Array<[RegExp, TokenType]>(); 
+// Order matters. The string rule should be the last one for unambiguous parsing.
 rules.push(
   [/if/y, TokenType.if],
   [/else/y, TokenType.else],
@@ -44,6 +46,7 @@ rules.push(
   [/and/y, TokenType.and],
   [/or/y, TokenType.or],
   [/\d+/y, TokenType.number],
+  [/true|false/iy, TokenType.boolean],
   [/\$q[0-9]+/y, TokenType.query],
   [/\>(?!=)/y, TokenType.gt],
   [/\>=/y, TokenType.gte],
@@ -54,8 +57,8 @@ rules.push(
   [/\$c[0-9]+/y, TokenType.compensation],
   [/\$a[0-9]+/y, TokenType.ad],
   [/\s+/y, TokenType.whitespace],
+  [/\w+/y, TokenType.string],
 );
-
 export class Tokenizer {
   /**
    * @remarks regex.lastIndex is reset to 0 when there is no match. So, we need to set it before any test. Also, regex can output a lastIndex which is out of range. So, first rule may invalidly fail
@@ -79,11 +82,11 @@ export class Tokenizer {
     this._hasNext = true;
   }
 
-  hasNext() {
+  hasNext(): boolean {
     return this._hasNext;
   }
 
-  next() {
+  next(): Token {
     if (!this.hasNext()) {
       const err = new ParserError(this.position, "no more tokens");
       // console.error(err);
@@ -141,10 +144,14 @@ export class Tokenizer {
     }
   }
 
-  convertVal(type: TokenType, rawVal: any) {
+  convertVal(type: TokenType, rawVal: string) {
     switch (type) {
       case TokenType.number:
         return Number(rawVal);
+      case TokenType.boolean:
+        return Boolean(rawVal.toLowerCase());
+      case TokenType.string:
+        return String(rawVal);
       default:
         return rawVal;
     }

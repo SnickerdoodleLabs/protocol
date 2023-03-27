@@ -8,6 +8,7 @@ import {
   ISDQLQueryClause,
   ISDQLTimestampRange,
 } from "@snickerdoodlelabs/objects";
+import { err, ok, Result } from "neverthrow";
 
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
@@ -19,8 +20,6 @@ import {
   ConditionL,
   ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
-
-import { err, ok, Result } from "neverthrow";
 
 export class AST_PropertyQuery extends AST_Query {
   /**
@@ -34,13 +33,16 @@ export class AST_PropertyQuery extends AST_Query {
     readonly property: Web2QueryTypes,
     readonly conditions: Array<BinaryCondition>,
     // for reading gender
-    readonly enum_keys ? : Array<string>,
-    readonly patternProperties ? : Record<string , unknown>,
-    readonly timestampRange ? : ISDQLTimestampRange
+    readonly enum_keys?: Array<string>,
+    readonly patternProperties?: Record<string, unknown>,
+    readonly timestampRange?: ISDQLTimestampRange,
   ) {
     super(name, returnType);
   }
-  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
+  static fromSchema(
+    name: SDQL_Name,
+    schema: ISDQLQueryClause,
+  ): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
 
     return new AST_PropertyQuery(
@@ -50,7 +52,7 @@ export class AST_PropertyQuery extends AST_Query {
       conditions,
       schema.enum_keys,
       schema.patternProperties,
-      schema.timestampRange
+      schema.timestampRange,
     );
   }
 

@@ -11,7 +11,7 @@ export class AST_ConditionExpr extends AST_BoolExpr {
    */
   constructor(
     readonly name: SDQL_Name,
-    readonly source: Condition | AST_Query,
+    readonly source: Condition | AST_Query | boolean,
   ) {
     super(name, source);
   }

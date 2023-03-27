@@ -27,26 +27,26 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect(querySchema["q3"].return).toBe("string");
   });
 
-  test("avalanche has 4 return schema", () => {
-    const mocks = new SDQLQueryWrapperMocks();
-    const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
-    const returnSchema = sdqlSchema.getReturnSchema();
-    expect(Object.keys(returnSchema).length).toBe(4);
-  });
+  // test("avalanche has 4 return schema", () => {
+  //   const mocks = new SDQLQueryWrapperMocks();
+  //   const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
+  //   const returnSchema = sdqlSchema.getReturnSchema();
+  //   expect(Object.keys(returnSchema).length).toBe(4);
+  // });
 
-  test("avalanche returns has a url", () => {
-    const mocks = new SDQLQueryWrapperMocks();
-    const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
-    const returnSchema = sdqlSchema.getReturnSchema();
-    expect("url" in returnSchema).toBeTruthy();
-  });
+  // test("avalanche returns has a url", () => {
+  //   const mocks = new SDQLQueryWrapperMocks();
+  //   const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
+  //   const returnSchema = sdqlSchema.getReturnSchema();
+  //   expect("url" in returnSchema).toBeTruthy();
+  // });
 
-  test("avalanche r3 has a query", () => {
-    const mocks = new SDQLQueryWrapperMocks();
-    const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
-    const returnSchema = sdqlSchema.getReturnSchema();
-    expect("query" in returnSchema["r3"]).toBeTruthy();
-  });
+  // test("avalanche r3 has a query", () => {
+  //   const mocks = new SDQLQueryWrapperMocks();
+  //   const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
+  //   const returnSchema = sdqlSchema.getReturnSchema();
+  //   expect("query" in returnSchema["r3"]).toBeTruthy();
+  // });
 
   test("avalanche has 3 compensation schema and 1 parameters", () => {
     const mocks = new SDQLQueryWrapperMocks();
@@ -59,12 +59,12 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect(Object.keys(compensationSchema).includes("c3")).toBeTruthy();
   });
 
-  test("avalanche has 2 logic schema", () => {
-    const mocks = new SDQLQueryWrapperMocks();
-    const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
-    const logicSchema = sdqlSchema.getLogicSchema();
-    expect(Object.keys(logicSchema).length).toBe(2);
-  });
+  // test("avalanche has 2 logic schema", () => {
+  //   const mocks = new SDQLQueryWrapperMocks();
+  //   const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
+  //   const logicSchema = sdqlSchema.getLogicSchema();
+  //   expect(Object.keys(logicSchema).length).toBe(2);
+  // });
 
   test("date fix", () => {
     const schemaStr = JSON.stringify({
