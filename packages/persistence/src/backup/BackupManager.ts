@@ -32,6 +32,7 @@ import {
   EBoolean,
   JSONString,
   DataWalletBackupHeader,
+  SerializedObject,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
@@ -42,11 +43,7 @@ import { ChunkRenderer } from "@persistence/backup/ChunkRenderer.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
-import {
-  FieldIndex,
-  SerializedObject,
-  Serializer,
-} from "@persistence/local/index.js";
+import { FieldIndex, Serializer } from "@persistence/local/index.js";
 import {
   IVolatileStorage,
   VolatileTableIndex,
@@ -217,13 +214,7 @@ export class BackupManager implements IBackupManager {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return this.fieldRenderers
             .get(key)!
-            .update(
-              new FieldDataUpdate(
-                key,
-                JSONString(JSON.stringify(value)),
-                timestamp,
-              ),
-            )
+            .update(new FieldDataUpdate(key, serializedObj, timestamp))
             .map((backup) => {
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);

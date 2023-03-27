@@ -1,4 +1,4 @@
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { PersistenceError, SerializedObject } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 export class Serializer {
@@ -45,8 +45,4 @@ export class Serializer {
       return errAsync(new PersistenceError("error deserializing object", e));
     }
   }
-}
-
-export class SerializedObject {
-  public constructor(public type: string, public data: string) {}
 }

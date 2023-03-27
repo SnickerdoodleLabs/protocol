@@ -33,10 +33,7 @@ import {
   IBackupManager,
   IBackupUtils,
 } from "@persistence/backup/index.js";
-import {
-  FieldIndex,
-  IFieldSchemaProvider,
-} from "@persistence/local/index.js";
+import { FieldIndex, IFieldSchemaProvider } from "@persistence/local/index.js";
 import {
   FakeDBVolatileStorage,
   IVolatileStorage,
@@ -105,9 +102,7 @@ export class BackupManagerProviderMocks {
   }
 }
 
-export class MockLocalStorageSchemaProvider
-  implements IFieldSchemaProvider
-{
+export class MockLocalStorageSchemaProvider implements IFieldSchemaProvider {
   getLocalStorageSchema(): ResultAsync<Map<EFieldKey, FieldIndex>, never> {
     const dataWalletBackupIntervalMS = 1000;
     return okAsync(
