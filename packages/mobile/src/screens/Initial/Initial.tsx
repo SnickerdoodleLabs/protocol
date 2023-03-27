@@ -54,7 +54,7 @@ const Initial = ({ navigation }) => {
 
   const tryUnlock = (): ResultAsync<void, Error> => {
     const accountService = mobileCore.accountService;
-    const accountStorageUtils = mobileCore.getAccountStorageUtils();
+    const accountStorageUtils = mobileCore.accountStorage;
     return ResultUtils.combine([
       accountStorageUtils.readAccountInfoStorage(),
       accountStorageUtils.readDataWalletAddressFromstorage(),
@@ -90,9 +90,10 @@ const Initial = ({ navigation }) => {
                   .map(() => {
                     console.log(`Account ${accountAddress} removed`);
                     tryUnlock();
-                  }).mapErr((e)=>{
-                    return 'Try Unlock Error'
                   })
+                  .mapErr((e) => {
+                    return "Try Unlock Error";
+                  });
               }
               return accountService
                 .unlock(

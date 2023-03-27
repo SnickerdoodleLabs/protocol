@@ -7,6 +7,7 @@ import {
   AccountAddress,
   ChainId,
   CountryCode,
+  DataWalletAddress,
   DomainName,
   EChain,
   EmailAddressString,
@@ -65,6 +66,8 @@ export class MobileCore {
   public accountService: IAccountService;
   public tokenPriceService: ITokenPriceService;
   public piiService: IPIIService;
+  public accountStorage: IAccountStorageRepository;
+
   constructor() {
     this.iocContainer = new Container();
     this.iocContainer.load(...[mobileCoreModule]);
@@ -277,6 +280,7 @@ export class MobileCore {
         return _tokenPriceService.getTokenInfo(chainId, contractAddress);
       },
     };
+
     this.piiService = {
       getAge: () => {
         const _piiService = this.iocContainer.get<IPIIService>(IPIIServiceType);
@@ -331,28 +335,67 @@ export class MobileCore {
         return _piiService.getLocation();
       },
     };
+    this.accountStorage = {
+      writeAccountInfoToStorage: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+      ) => {
+        const _accountStorage =
+          this.iocContainer.get<IAccountStorageRepository>(
+            IAccountStorageRepositoryType,
+          );
+        return _accountStorage.writeAccountInfoToStorage(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
+      },
+      readAccountInfoStorage: () => {
+        const _accountStorage =
+          this.iocContainer.get<IAccountStorageRepository>(
+            IAccountStorageRepositoryType,
+          );
+        return _accountStorage.readAccountInfoStorage();
+      },
+      removeAccountInfoStorage: (accountAddress: AccountAddress) => {
+        const _accountStorage =
+          this.iocContainer.get<IAccountStorageRepository>(
+            IAccountStorageRepositoryType,
+          );
+        return _accountStorage.removeAccountInfoStorage(accountAddress);
+      },
+      writeDataWalletAddressToStorage: (
+        dataWalletAddress: DataWalletAddress,
+      ) => {
+        const _accountStorage =
+          this.iocContainer.get<IAccountStorageRepository>(
+            IAccountStorageRepositoryType,
+          );
+        return _accountStorage.writeDataWalletAddressToStorage(
+          dataWalletAddress,
+        );
+      },
+      readDataWalletAddressFromstorage: () => {
+        const _accountStorage =
+          this.iocContainer.get<IAccountStorageRepository>(
+            IAccountStorageRepositoryType,
+          );
+        return _accountStorage.readDataWalletAddressFromstorage();
+      },
+      removeDataWalletAddressFromstorage: () => {
+        const _accountStorage =
+          this.iocContainer.get<IAccountStorageRepository>(
+            IAccountStorageRepositoryType,
+          );
+        return _accountStorage.removeDataWalletAddressFromstorage();
+      },
+    };
   }
   public getCore() {
     return this.core;
-  }
-  /*  public getInvitationService() {
-    return this.iocContainer.get<IInvitationService>(IInvitationServiceType);
-  }
-  public getAccountService() {
-    return this.iocContainer.get<IAccountService>(IAccountServiceType);
-  }
-  public getTokenPriceService() {
-    return this.iocContainer.get<ITokenPriceService>(ITokenPriceServiceType);
-  }
-  public getPIIService() {
-    return this.iocContainer.get<IPIIService>(IPIIServiceType);
-  }
- 
-  } */
-  public getAccountStorageUtils() {
-    return this.iocContainer.get<IAccountStorageRepository>(
-      IAccountStorageRepositoryType,
-    );
   }
   public getCyrptoUtils() {
     return this.iocContainer.get<ICryptoUtils>(ICryptoUtilsType);
