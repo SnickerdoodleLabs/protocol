@@ -83,7 +83,6 @@ const AccountLinkingContextProvider = ({ children }) => {
         ),
       )
       .map((signature) => {
-        console.log({ signature });
         if (signature) {
           setCredentials({
             accountAddress: wcConnector.accounts[0] as AccountAddress,
@@ -104,8 +103,6 @@ const AccountLinkingContextProvider = ({ children }) => {
   const onConnect = () => {
     return ResultAsync.fromPromise(wcConnector.connect(), (e) => e)
       .andThen((sessionstatus) => {
-        console.log({ sessionstatus });
-        console.log({ linkedAccounts });
         if (
           linkedAccounts.includes(sessionstatus.accounts[0] as AccountAddress)
         ) {
@@ -122,7 +119,6 @@ const AccountLinkingContextProvider = ({ children }) => {
   };
 
   const manageAccountCredentials = () => {
-    console.log("credentials", credentials);
     setLoadingStatus({
       loading: true,
       type: ELoadingStatusType.ADDING_ACCOUNT,

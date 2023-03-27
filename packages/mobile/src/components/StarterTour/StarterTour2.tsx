@@ -354,9 +354,6 @@ export default function StarterTour2(props: any) {
   const DATA2 = [<SomeComponent2 />];
 
   const Indicator = ({ scrollX }) => {
-    React.useEffect(() => {
-      console.log("inside Indicator", scrollX);
-    }, [scrollX]);
     return (
       <View
         style={{

@@ -8,7 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "compile": "cd ../.. %% yarn compile && cd packages/mobile && yarn start --reset-cache"
+    "compile": "cd ../.. %% yarn compile && cd packages/mobile && yarn start --reset-cache",
+    "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'"
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.20.13",

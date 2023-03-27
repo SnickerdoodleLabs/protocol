@@ -63,8 +63,7 @@ const App = () => {
                 Platform.OS === "web" ? "https:google.com" : "sdmobile://"
               }
               storageOptions={{
-                //@ts-ignore
-                asyncStorage: AsyncStorage,
+                asyncStorage: AsyncStorage as any,
               }}
             >
               <AccountLinkingContextProvider>

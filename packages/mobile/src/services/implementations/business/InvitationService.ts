@@ -9,109 +9,152 @@ import {
   Invitation,
   EInvitationStatus,
   DataPermissions,
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import {
-  IInvitationService,
-  IInvitationServiceType,
-} from "../../interfaces/business/IInvitationService";
-
+import { IInvitationService } from "../../interfaces/business/IInvitationService";
 import {
   IDataPermissionsRepository,
   IDataPermissionsRepositoryType,
 } from "../../interfaces/data/IDataPermissionsRepository";
-import {
-  IInvitationRepository,
-  IInvitationRepositoryType,
-} from "../../interfaces/data/IInvitationRepository";
 import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
 import { SnickerDoodleCoreError } from "../../interfaces/objects/errors/SnickerDoodleCoreError";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "../../interfaces/utils/IErrorUtils";
 
 @injectable()
 export class InvitationService implements IInvitationService {
   constructor(
-    @inject(IInvitationRepositoryType)
-    protected invitationRepository: IInvitationRepository,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IDataPermissionsRepositoryType)
     protected dataPermissionsUtils: IDataPermissionsRepository,
   ) {}
+
+  getInvitationByDomain(
+    domain: DomainName,
+  ): ResultAsync<PageInvitation[], SnickerDoodleCoreError> {
+    throw new Error("Method not implemented.");
+  }
+  getAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
+    throw new Error("Method not implemented.");
+  }
   public getMarketplaceListings(
     count?: number | undefined,
     headAt?: number | undefined,
   ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this.invitationRepository.getMarketplaceListings(count, headAt);
+    return this.core.marketplace
+      .getMarketplaceListings(count, headAt)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
-
   public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.invitationRepository.getListingsTotal();
+    return this.core.marketplace.getListingsTotal().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
-    return this.invitationRepository.getConsentContractCID(consentAddress);
+    return this.core.getConsentContractCID(consentAddress).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
-  public getAgreementPermissions(
+  public getAgreementFlags(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
-    return this.invitationRepository
+  ): ResultAsync<HexString32, SnickerDoodleCoreError> {
+    return this.core
       .getAgreementFlags(consentContractAddress)
-      .andThen((flags) =>
-        this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
-      );
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   > {
-    return this.invitationRepository.getAvailableInvitationsCID();
+    return this.core.getAvailableInvitationsCID().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   > {
-    return this.invitationRepository.getAcceptedInvitationsCID();
+    return this.core.getAcceptedInvitationsCID().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
-
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
-    return this.invitationRepository.getInvitationMetadataByCID(ipfsCID);
+    return this.core.getInvitationMetadataByCID(ipfsCID).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
-  public getInvitationByDomain(
+  public getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError> {
-    return this.invitationRepository.getInvitationsByDomain(domain);
+    return this.core.getInvitationsByDomain(domain).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
   public checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
-    return this.invitationRepository.checkInvitationStatus(invitation);
+    return this.core.checkInvitationStatus(invitation).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
-  public acceptInvitation(
+  acceptInvitation(
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,
   ): ResultAsync<void, SnickerDoodleCoreError | MobileStorageError> {
-    // MOBILE_TODO Should add datapermission
-    return this.invitationRepository.acceptInvitation(invitation, null);
+    // TODO MOBILE DATAPERMISSIONS
+    return this.core.acceptInvitation(invitation, null).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
   public rejectInvitation(
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationRepository.rejectInvitation(invitation);
+    return this.core.rejectInvitation(invitation).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
-
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationRepository.leaveCohort(consentContractAddress);
+    return this.core.leaveCohort(consentContractAddress).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
   protected getDataPermissions(

@@ -18,10 +18,6 @@ import {
   InvitationService,
   TokenPriceService,
 } from "./business";
-import { AccountRepository } from "./data/AccountRepository";
-import { InvitationRepository } from "./data/InvitationRepository";
-import { PIIRepository } from "./data/PIIRepository";
-import { TokenPriceRepository } from "./data/TokenPriceRepository";
 import {
   IAccountService,
   IAccountServiceType,
@@ -38,22 +34,6 @@ import {
   ITokenPriceService,
   ITokenPriceServiceType,
 } from "../interfaces/business/ITokenPriceService";
-import {
-  IAccountRepository,
-  IAccountRepositoryType,
-} from "../interfaces/data/IAccountRepository";
-import {
-  IInvitationRepository,
-  IInvitationRepositoryType,
-} from "../interfaces/data/IInvitationRepository";
-import {
-  IPIIRepository,
-  IPIIRepositoryType,
-} from "../interfaces/data/IPIIRepository";
-import {
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-} from "../interfaces/data/ITokenPriceRepository";
 import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
 import { ErrorUtils } from "./utils/ErrorUtils";
 import { AccountStorageRepository } from "./data/AccountStorageRepository";
@@ -85,19 +65,6 @@ export const mobileCoreModule = new ContainerModule(
       .to(InvitationService)
       .inSingletonScope();
 
-    // Data
-    bind<IAccountRepository>(IAccountRepositoryType)
-      .to(AccountRepository)
-      .inSingletonScope();
-    bind<IPIIRepository>(IPIIRepositoryType)
-      .to(PIIRepository)
-      .inSingletonScope();
-    bind<IInvitationRepository>(IInvitationRepositoryType)
-      .to(InvitationRepository)
-      .inSingletonScope();
-    bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
-      .to(TokenPriceRepository)
-      .inSingletonScope();
     bind<IAccountStorageRepository>(IAccountStorageRepositoryType).to(
       AccountStorageRepository,
     );

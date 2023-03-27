@@ -81,8 +81,8 @@ export interface ILoadingStatus {
 }
 export interface IInvitationStatus {
   status: boolean;
-  data?: any;
-  invitationParams?: IInvitationParams;
+  data?: IOpenSeaMetadata;
+  invitationParams?: Invitation;
 }
 
 const initialLoadingStatus: ILoadingStatus = {
@@ -114,6 +114,20 @@ const LayoutContextProvider = ({ children }) => {
 
   const cancelLoading = () => {
     _setLoadingStatus(initialLoadingStatus);
+  };
+
+  const acceptInvitationHandle = () => {
+    mobileCore.invitationService.acceptInvitation(
+      invitationStatus.invitationParams!,
+      null,
+    );
+    setInvitationStatus(false, invitationStatus.data, invitationStatus.invitationParams);
+  };
+  const rejectInvitationHandle = () => {
+    mobileCore.invitationService.rejectInvitation(
+      invitationStatus.invitationParams!,
+    );
+    setInvitationStatus(false, invitationStatus.data, invitationStatus.invitationParams);
   };
 
   const loadingComponent = useMemo(() => {
@@ -181,48 +195,21 @@ const LayoutContextProvider = ({ children }) => {
               </View>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <Image
-                  source={{ uri: invitationData?.image }}
+                  source={{ uri: invitationStatus.data?.image }}
                   style={{ width: 250, height: 250 }}
                 />
                 <View style={{ paddingTop: 10 }}>
                   <Text style={{ fontSize: 16, textAlign: "center" }}>
-                    {invitationData?.title}
+                    {invitationStatus.data?.title}
                   </Text>
                   <Text style={{ fontSize: 14, textAlign: "center" }}>
-                    {invitationData?.description}
+                    {invitationStatus.data?.description}
                   </Text>
                 </View>
 
                 <View style={{ flexDirection: "row" }}>
-                  <Button
-                    title="Reject"
-                    onPress={() => {
-                      mobileCore.invitationService.rejectInvitation(
-                        new Invitation(
-                          "" as DomainName,
-                          invitation?.consentAddress ??
-                            ("" as EVMContractAddress),
-                          TokenId(BigInt(0)),
-                          invitation?.signature ?? null,
-                        ),
-                      );
-                    }}
-                  />
-                  <Button
-                    title="Accept"
-                    onPress={() => {
-                      mobileCore.invitationService.acceptInvitation(
-                        new Invitation(
-                          "" as DomainName,
-                          invitation?.consentAddress ??
-                            ("" as EVMContractAddress),
-                          TokenId(BigInt(0)),
-                          invitation?.signature ?? null,
-                        ),
-                        null,
-                      );
-                    }}
-                  />
+                  <Button title="Reject" onPress={rejectInvitationHandle} />
+                  <Button title="Accept" onPress={acceptInvitationHandle} />
                 </View>
               </View>
             </View>

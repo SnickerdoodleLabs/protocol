@@ -32,10 +32,6 @@ export default function StarterTour(props: any) {
   const { isUnlocked } = useAppContext();
 
   useEffect(() => {
-    console.log("this is scrollX useEffect", scrollX);
-  }, [scrollX]);
-
-  useEffect(() => {
     if (isUnlocked) {
       navigation.replace(ROUTES.STARTER_TOUR2);
     }
@@ -366,9 +362,6 @@ export default function StarterTour(props: any) {
   const DATA2 = [<SomeComponent />, <SomeComponent1 />];
 
   const Indicator = ({ scrollX }) => {
-    React.useEffect(() => {
-      console.log("inside Indicator", scrollX);
-    }, [scrollX]);
     return (
       <View
         style={{

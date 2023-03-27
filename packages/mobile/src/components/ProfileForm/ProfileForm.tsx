@@ -102,12 +102,6 @@ export const ProfileForm = ({ navigation }) => {
     return month + "/" + day + "/" + year;
   }
 
-  const onSubmit = (values) => {
-    console.log("values", values);
-  };
-  const handleSubmit = () => {
-    console.log({ country, gender, dateOfBirthday });
-  };
   return (
     <View style={{ width: 350 }}>
       <View style={{ zIndex: 2 }}>

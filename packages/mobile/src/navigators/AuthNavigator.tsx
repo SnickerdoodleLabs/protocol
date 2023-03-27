@@ -51,8 +51,6 @@ function AuthNavigator() {
         options={{
           headerBackTitleVisible: false,
           headerTransparent: true,
-          //@ts-ignore
-          title: false,
         }}
       />
       <Stack.Screen
@@ -68,8 +66,6 @@ function AuthNavigator() {
         options={{
           headerBackTitleVisible: false,
           headerTransparent: true,
-          //@ts-ignore
-          title: false,
         }}
       />
     </Stack.Navigator>

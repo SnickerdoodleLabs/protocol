@@ -1,33 +1,24 @@
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   Image,
   StyleSheet,
-  Dimensions,
-  FlatList,
-  Animated,
   StatusBar,
   Modal,
   Button,
+  Switch,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ROUTES } from "../constants";
 import { ScrollView } from "react-native-gesture-handler";
-import {
-  useWalletConnect,
-  withWalletConnect,
-} from "@walletconnect/react-native-dapp";
+import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import { MoralisAPI } from "../services/implementations/api/MoralisAPI";
-import { MobileCore } from "../services/implementations/MobileCore";
-import { ethers } from "ethers";
-import { AccountAddress, ChainId } from "@snickerdoodlelabs/objects";
+import { ChainId } from "@snickerdoodlelabs/objects";
 import { TokenItem } from "../components/TokenItem";
 import { useAppContext } from "../context/AppContextProvider";
-import Picker from "../components/Picker/Picker";
 import { useAccountLinkingContext } from "../context/AccountLinkingContextProvider";
 import DropDownPicker, { ItemType } from "react-native-dropdown-picker";
 const Wallet = (props: any) => {
@@ -49,32 +40,51 @@ const Wallet = (props: any) => {
   const [open, setOpen] = useState(false);
   const [pickerLinkedAccounts, setPickerLinkedAccount] =
     useState<ItemType<string>[]>();
+  const [isMainnet, setIsMainnet] = React.useState<boolean>(true);
 
-  const { mobileCore } = useAppContext();
   React.useEffect(() => {
-    getAllNFTs();
-    getTokens();
-  }, [selectedAccount]);
+    getAllNFTs(isMainnet);
+    getTokens(isMainnet);
+  }, [selectedAccount, isMainnet]);
 
   useEffect(() => {
     let accs = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
-    console.log("accs", accs);
     setPickerLinkedAccount(accs);
     setSelectedAccount(linkedAccounts[0]);
   }, [linkedAccounts]);
 
-  useEffect(() => {
-    console.log("totalVal", totalVal);
-  }, [totalVal]);
-  const getAllNFTs = async () => {
+  const getAllNFTs = async (isMainnet: boolean) => {
     const temp: string[] = [];
     const api = new MoralisAPI();
-    const chains = ["eth", "polygon"];
+    const chains = isMainnet
+      ? ["0x1", "0x89", "0xa86a", "0x38"]
+      : ["0x13881", "0x89", "0x61", "0xa869"];
 
-    await api.getAllNFTs(selectedAccount, "eth").then((res) => {
+    const _nftResponse = chains.map((chain) => {
+      return api.getAllNFTs(selectedAccount, chain);
+    });
+    Promise.all(_nftResponse).then((nfts) => {
+      const allNFTs = [];
+      nfts.map((nft) => {
+        allNFTs.push(nft.result);
+      });
+      allNFTs.flat().map((obj) => {
+        console.log(obj);
+        const image = obj?.normalized_metadata?.image;
+        console.log("image", image);
+        if (image) {
+          temp.push(
+            image.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/"),
+          );
+        }
+      });
+      console.log("temp", temp);
+      setMyNFTs(temp);
+    });
+    /*   await api.getAllNFTs(selectedAccount, "eth").then((res) => {
       res.result.map((data: any) => {
         let a = data.normalized_metadata.image;
         if (a) {
@@ -82,38 +92,38 @@ const Wallet = (props: any) => {
         }
       });
     });
-
-    console.log("temp", temp);
-    setMyNFTs(temp);
+    setMyNFTs(temp); */
   };
   // const scrollX = React.useRef(new Animated(0)).current;
 
   //////////////////////////////////////////
 
-  const getTokens = async () => {
+  const getTokens = async (isMainnet: boolean) => {
     const api = new MoralisAPI();
-    let a = [ChainId(1), ChainId(137), ChainId(43113), ChainId(80001)];
+    let a = [ChainId(1), ChainId(137), ChainId(43113), ChainId(43114)];
+    const chains = isMainnet
+      ? ["1", "137", "43114"]
+      : ["4", "42", "43113", "8001"];
     let allTokens: any[] = [];
     let total = 0;
-
-    await a.map((res) => {
-      api.getTokens(selectedAccount, ChainId(res)).then((token) => {
-        allTokens.push(token);
-        token.map((tkn) => {
-          console.log("tkn", tkn.quote);
-          total += tkn.quote;
+    if (selectedAccount) {
+      await chains.map((res) => {
+        api.getTokens(selectedAccount, res).then((token) => {
+          allTokens.push(token);
+          token.map((tkn) => {
+            total += tkn.quote;
+          });
+          setTotalVal(total);
         });
-        setTotalVal(total);
       });
-    });
-    setMyTokens(allTokens);
+      setMyTokens(allTokens);
+    }
   };
 
   useEffect(() => {
     myTokens.flat().map((tokenData) => {
       setTotalVal(totalVal + tokenData?.quote);
     });
-    console.log("TotalVal", totalVal);
   }, [myTokens]);
 
   const Tokens = () => {
@@ -174,7 +184,6 @@ const Wallet = (props: any) => {
   const data = Object.keys(TabComponents).map((i) => ({
     key: i,
     title: i,
-    //@ts-ignore
     component: TabComponents[i],
   }));
 
@@ -278,19 +287,6 @@ const Wallet = (props: any) => {
                     {selectedAccount?.slice(38, 42)}
                   </Text>
                   <View style={{ paddingLeft: 10 }}>
-                    <Button
-                      title="getNFTS"
-                      onPress={() => {
-                        console.log(
-                          "accounts",
-                          mobileCore.accountService
-                            .getAccountNFTs()
-                            .andThen((res) => {
-                              console.log("res", res);
-                            }),
-                        );
-                      }}
-                    />
                     <TouchableOpacity
                       onPress={() => {
                         setModalVisible(true);
@@ -304,6 +300,20 @@ const Wallet = (props: any) => {
                       />
                     </TouchableOpacity>
                   </View>
+                </View>
+              </View>
+              <View style={{ flexDirection: "row-reverse" }}>
+                <View style={{ marginRight: 10 }}>
+                  <Text style={{ color: "white" }}>
+                    {isMainnet ? "Mainnet" : "Testnet"}
+                  </Text>
+                  <Switch
+                    trackColor={{ false: "#767577", true: "#81b0ff" }}
+                    thumbColor={isMainnet ? "#f4f3f4" : "#f4f3f4"}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={setIsMainnet}
+                    value={isMainnet}
+                  />
                 </View>
               </View>
 
@@ -348,7 +358,6 @@ const Wallet = (props: any) => {
           </View>
         </LinearGradient>
       </View>
-
       <ScrollView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
         {data[data.map((e) => e.title).indexOf(activeTab)].component}
       </ScrollView>
@@ -366,7 +375,6 @@ const Wallet = (props: any) => {
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
-              <View></View>
               <View>
                 <TouchableOpacity
                   onPress={() => {
