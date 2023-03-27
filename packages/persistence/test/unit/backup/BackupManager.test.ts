@@ -214,6 +214,16 @@ class BackupManagerMocks {
     ).thenReturn(okAsync(undefined));
 
     td.when(
+      this.volatileStorage.putObject(
+        recordKey,
+        td.matchers.contains({
+          lastUpdate: beforeNow,
+          deleted: EBoolean.FALSE,
+        }),
+      ),
+    ).thenReturn(okAsync(undefined));
+
+    td.when(
       this.volatileStorage.getObject<RestoredBackup>(
         ERecordKey.RESTORED_BACKUPS,
         recordBackupId,
@@ -280,9 +290,7 @@ class BackupManagerMocks {
       this.fieldChunkRenderer.update(
         new FieldDataUpdate(
           fieldKey,
-          td.matchers.contains(
-            new SerializedObject("string", JSON.stringify(newFieldValue)),
-          ),
+          td.matchers.contains(new SerializedObject("string", newFieldValue)),
           now,
         ),
       ),

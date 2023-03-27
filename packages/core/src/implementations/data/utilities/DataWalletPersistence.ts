@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
   EVMPrivateKey,
@@ -67,6 +72,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     protected volatileSchemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILocalStorageSchemaProviderType)
     protected fieldSchemaProvider: IFieldSchemaProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -189,7 +195,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ]).andThen(([backupManager]) => {
       return backupManager.addRecord(
         tableName,
-        new VolatileStorageMetadata<T>(value),
+        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
       );
     });
   }

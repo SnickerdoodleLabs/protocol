@@ -212,7 +212,6 @@ export class BackupManager implements IBackupManager {
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
     return this._wasRestored(backup.header.hash).andThen((restored) => {
-      console.log("CHARLIE wasRestored", restored);
       if (restored) {
         return okAsync(undefined);
       }
@@ -220,7 +219,6 @@ export class BackupManager implements IBackupManager {
       return this.backupUtils
         .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
         .andThen((valid) => {
-          console.log("CHARLIE valid", valid);
           if (!valid) {
             return errAsync(
               new PersistenceError(
@@ -233,13 +231,11 @@ export class BackupManager implements IBackupManager {
         })
         .andThen((unpacked) => {
           if (Array.isArray(unpacked)) {
-            console.log("CHARLIE restoring records");
             return this._restoreRecords(
               backup.header,
               unpacked as VolatileDataUpdate[],
             );
           }
-          console.log("CHARLIE restoring fields");
           return this._restoreField(backup.header, unpacked as FieldDataUpdate);
         })
         .andThen(() => {
@@ -277,7 +273,7 @@ export class BackupManager implements IBackupManager {
           );
         });
       }),
-    ).map(() => undefined);
+    ).map(() => {});
   }
 
   private _restoreField(
@@ -380,6 +376,7 @@ export class BackupManager implements IBackupManager {
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
         new RestoredBackup(DataWalletBackupID(backup.header.hash)),
+        this.timeUtils.getUnixNow(),
       ),
     );
   }
