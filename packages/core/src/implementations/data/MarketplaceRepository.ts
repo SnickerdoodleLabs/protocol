@@ -2,7 +2,7 @@ import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
