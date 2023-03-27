@@ -24,6 +24,7 @@ import {
   EBoolean,
   JSONString,
   DataWalletBackupHeader,
+  SerializedObject,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -33,11 +34,7 @@ import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import { IChunkRendererFactory } from "@persistence/backup/IChunkRendererFactory.js";
-import {
-  FieldIndex,
-  SerializedObject,
-  Serializer,
-} from "@persistence/local/index.js";
+import { FieldIndex, Serializer } from "@persistence/local/index.js";
 import {
   IVolatileStorage,
   VolatileTableIndex,
@@ -200,13 +197,7 @@ export class BackupManager implements IBackupManager {
         .andThen(() => {
           return this.fieldRenderers
             .get(key)!
-            .update(
-              new FieldDataUpdate(
-                key,
-                JSONString(JSON.stringify(value)),
-                timestamp,
-              ),
-            )
+            .update(new FieldDataUpdate(key, serializedObj, timestamp))
             .map((backup) => {
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);
@@ -220,45 +211,42 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this._wasRestored(backup.header.hash)
-      .andThen((restored) => {
-        console.log("CHARLIE wasRestored", restored);
-        if (restored) {
-          return okAsync(undefined);
-        }
+    return this._wasRestored(backup.header.hash).andThen((restored) => {
+      console.log("CHARLIE wasRestored", restored);
+      if (restored) {
+        return okAsync(undefined);
+      }
 
-        return this.backupUtils.verifyBackupSignature(
-          backup,
-          EVMAccountAddress(this.accountAddr),
-        );
-      })
-      .andThen((valid) => {
-        console.log("CHARLIE valid", valid);
-        if (!valid) {
-          return errAsync(
-            new PersistenceError(
-              "invalid signature for backup",
-              backup.header.hash,
-            ),
-          );
-        }
-        return this._unpackBlob(backup.blob);
-      })
-      .andThen((unpacked) => {
-        if (Array.isArray(unpacked)) {
-          console.log("CHARLIE restoring records");
-          return this._restoreRecords(
-            backup.header,
-            unpacked as VolatileDataUpdate[],
-          );
-        }
-        console.log("CHARLIE restoring fields");
-        return this._restoreField(backup.header, unpacked as FieldDataUpdate);
-      })
-      .andThen(() => {
-        console.log("CHARLIE");
-        return this._addRestored(backup);
-      });
+      return this.backupUtils
+        .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
+        .andThen((valid) => {
+          console.log("CHARLIE valid", valid);
+          if (!valid) {
+            return errAsync(
+              new PersistenceError(
+                "invalid signature for backup",
+                backup.header.hash,
+              ),
+            );
+          }
+          return this._unpackBlob(backup.blob);
+        })
+        .andThen((unpacked) => {
+          if (Array.isArray(unpacked)) {
+            console.log("CHARLIE restoring records");
+            return this._restoreRecords(
+              backup.header,
+              unpacked as VolatileDataUpdate[],
+            );
+          }
+          console.log("CHARLIE restoring fields");
+          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
+        })
+        .andThen(() => {
+          console.log("CHARLIE");
+          return this._addRestored(backup);
+        });
+    });
   }
 
   private _restoreRecords(

@@ -39,6 +39,7 @@ export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/SDQLQuery.js";
 export * from "@objects/businessObjects/SDQLQueryRequest.js";
+export * from "@objects/businessObjects/SerializedObject.js";
 export * from "@objects/businessObjects/SiteVisit.js";
 export * from "@objects/businessObjects/SolanaTransaction.js";
 export * from "@objects/businessObjects/SolanaNFT.js";

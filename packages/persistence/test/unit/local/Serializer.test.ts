@@ -1,5 +1,7 @@
 import "reflect-metadata";
-import { SerializedObject, Serializer } from "@persistence/local/index.js";
+import { SerializedObject } from "@snickerdoodlelabs/objects";
+
+import { Serializer } from "@persistence/local/index.js";
 
 describe("Serializer Tests", () => {
   test("serialize() works for a number", async () => {

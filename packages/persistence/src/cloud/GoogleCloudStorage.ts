@@ -275,7 +275,8 @@ class ParsedBackupFileName {
   ) {}
 
   public render(): string {
-    return `${this.priority}_${this.dataType}_${this.timestamp}_${this.hash}`;
+    const sanitized = ParsedBackupFileName._sanitizeDataType(this.dataType);
+    return `${this.priority}_${sanitized}_${this.timestamp}_${this.hash}`;
   }
 
   public static fromHeader(
@@ -302,9 +303,17 @@ class ParsedBackupFileName {
 
     return new ParsedBackupFileName(
       Number.parseInt(split[0]) as EBackupPriority,
-      split[1] as StorageKey,
+      ParsedBackupFileName._getDataType(split[1]),
       Number.parseInt(split[2]),
       split[3] as DataWalletBackupID,
     );
+  }
+
+  private static _sanitizeDataType(dataType: StorageKey): string {
+    return dataType.replace("_", "$");
+  }
+
+  private static _getDataType(raw: string): StorageKey {
+    return raw.replace("$", "_") as StorageKey;
   }
 }

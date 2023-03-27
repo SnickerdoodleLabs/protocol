@@ -1,4 +1,4 @@
-import { VersionedObject } from "@objects/businessObjects";
+import { SerializedObject, VersionedObject } from "@objects/businessObjects";
 import { EDataUpdateOpCode, EFieldKey } from "@objects/enum";
 import {
   JSONString,
@@ -21,7 +21,7 @@ export class VolatileDataUpdate {
 export class FieldDataUpdate {
   public constructor(
     public key: EFieldKey,
-    public value: JSONString,
+    public value: SerializedObject,
     public timestamp: UnixTimestamp,
   ) {}
 }

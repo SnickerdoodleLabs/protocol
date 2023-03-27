@@ -12,6 +12,7 @@ import {
   BackupFileName,
   EFieldKey,
   ERecordKey,
+  SerializedObject,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -27,7 +28,6 @@ import {
   IVolatileStorageSchemaProvider,
   IFieldSchemaProvider,
   ILocalStorageSchemaProviderType,
-  SerializedObject,
   Serializer,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";

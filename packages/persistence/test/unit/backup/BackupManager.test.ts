@@ -31,6 +31,7 @@ import {
   RestoredBackup,
   DataWalletAddress,
   EVMAccountAddress,
+  SerializedObject,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync } from "neverthrow";
@@ -43,7 +44,7 @@ import {
   IChunkRenderer,
   IChunkRendererFactory,
 } from "@persistence/backup/index.js";
-import { FieldIndex, SerializedObject } from "@persistence/local/index.js";
+import { FieldIndex } from "@persistence/local/index.js";
 import {
   IVolatileStorage,
   VolatileTableIndex,
@@ -279,7 +280,9 @@ class BackupManagerMocks {
       this.fieldChunkRenderer.update(
         new FieldDataUpdate(
           fieldKey,
-          JSONString(JSON.stringify(newFieldValue)),
+          td.matchers.contains(
+            new SerializedObject("string", JSON.stringify(newFieldValue)),
+          ),
           now,
         ),
       ),

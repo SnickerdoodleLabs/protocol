@@ -1,4 +1,4 @@
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { PersistenceError, SerializedObject } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { err, ok, Result } from "neverthrow";
 
@@ -58,8 +58,4 @@ export class Serializer {
       return err(new PersistenceError("error deserializing object", e));
     }
   }
-}
-
-export class SerializedObject {
-  public constructor(public type: string, public data: string) {}
 }
