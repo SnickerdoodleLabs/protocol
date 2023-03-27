@@ -28,6 +28,9 @@ import {
   Signature,
   FieldDataUpdate,
   JSONString,
+  RestoredBackup,
+  DataWalletAddress,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync } from "neverthrow";
@@ -47,15 +50,18 @@ import {
 } from "@persistence/volatile/index.js";
 
 const privateKey = EVMPrivateKey("Private Key");
+const dataWalletAddress = EVMAccountAddress("Data Wallet Address");
 const backupInterval = 10;
 const maxChunkSize = 20;
 const now = UnixTimestamp(30);
+const beforeNow = UnixTimestamp(20);
 const recordKey = ERecordKey.ACCOUNT;
 const fieldKey = EFieldKey.ACCEPTED_INVITATIONS;
 const keyPath = "foo";
 const keyValue = "Key Value";
 const newFieldValue = "New Field Value";
 const oldFieldValue = "Old Field Value";
+const recordBackupId = DataWalletBackupID("Data Wallet Backup ID-Record");
 
 class TestVersionedObject extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -107,20 +113,28 @@ const testFieldIndex = new FieldIndex(
   backupInterval,
 );
 const fieldIndexes = [testFieldIndex];
+const testRecord = new TestVersionedObject(keyValue, 1);
 
 const recordBackup = new DataWalletBackup(
   new DataWalletBackupHeader(
-    DataWalletBackupID("Data Wallet Backup ID-Record"),
+    recordBackupId,
     now,
     Signature("signature"),
     EBackupPriority.NORMAL,
     recordKey,
   ),
-  new AESEncryptedString(
-    EncryptedString("BackupBlob"),
-    InitializationVector("initialization vector"),
-  ),
+  [
+    new VolatileDataUpdate(
+      EDataUpdateOpCode.UPDATE,
+      keyValue,
+      beforeNow,
+      testRecord,
+      0,
+    ),
+  ],
 );
+
+const restoredBackup = new RestoredBackup(recordBackupId);
 
 class BackupManagerMocks {
   public cryptoUtils: ICryptoUtils;
@@ -129,7 +143,6 @@ class BackupManagerMocks {
   public timeUtils: ITimeUtils;
   public backupUtils: IBackupUtils;
   public chunkRendererFactory: IChunkRendererFactory;
-  public testRecord = new TestVersionedObject(keyValue, 1);
   public recordChunkRenderer: IChunkRenderer;
   public fieldChunkRenderer: IChunkRenderer;
 
@@ -150,7 +163,7 @@ class BackupManagerMocks {
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never); // Seriously, I don't know why the as never is needed; some strange typing issue in testdouble dealing with ts-brand
 
     // VolatileStorage ---------------------------------------------------
-    td.when(this.volatileStorage.getKey(recordKey, this.testRecord)).thenReturn(
+    td.when(this.volatileStorage.getKey(recordKey, testRecord)).thenReturn(
       okAsync(keyValue),
     );
 
@@ -196,6 +209,26 @@ class BackupManagerMocks {
           lastUpdate: now,
           deleted: EBoolean.FALSE,
         }),
+      ),
+    ).thenReturn(okAsync(undefined));
+
+    td.when(
+      this.volatileStorage.getObject<RestoredBackup>(
+        ERecordKey.RESTORED_BACKUPS,
+        recordBackupId,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      this.volatileStorage.putObject(
+        ERecordKey.RESTORED_BACKUPS,
+        td.matchers.contains(
+          new VolatileStorageMetadata(
+            new RestoredBackup(recordBackupId),
+            now,
+            EBoolean.FALSE,
+          ),
+        ),
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -259,6 +292,20 @@ class BackupManagerMocks {
         td.matchers.contains({ type: "string", data: newFieldValue }),
       ),
     ).thenReturn(okAsync(undefined));
+
+    // BackupUtils -----------------------------------------------------------
+    // Backup verifies by default
+    td.when(
+      this.backupUtils.verifyBackupSignature(
+        recordBackup,
+        EVMAccountAddress(dataWalletAddress),
+      ),
+    ).thenReturn(okAsync(true));
+
+    // CryptoUtils -----------------------------------------------------------
+    td.when(
+      this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
+    ).thenReturn(dataWalletAddress as never);
   }
 
   public factory(): IBackupManager {
@@ -286,7 +333,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -318,7 +365,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -335,9 +382,9 @@ describe("BackupManager Tests", () => {
     // Arrange
     const mocks = new BackupManagerMocks();
 
-    td.when(
-      mocks.volatileStorage.getKey(recordKey, mocks.testRecord),
-    ).thenReturn(okAsync(null));
+    td.when(mocks.volatileStorage.getKey(recordKey, testRecord)).thenReturn(
+      okAsync(null),
+    );
 
     td.when(
       mocks.recordChunkRenderer.update(
@@ -355,7 +402,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -375,7 +422,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -478,5 +525,42 @@ describe("BackupManager Tests", () => {
     expect(result.isErr()).toBeFalsy();
     const backups = result._unsafeUnwrap();
     expect(backups.length).toBe(0);
+  });
+
+  test("restore() restores backup", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager.restore(recordBackup);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+  });
+
+  test("restore() does nothing if backup was already restored", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    td.when(
+      mocks.volatileStorage.getObject<RestoredBackup>(
+        ERecordKey.RESTORED_BACKUPS,
+        recordBackupId,
+      ),
+    ).thenReturn(
+      okAsync(new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE)),
+    );
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager.restore(recordBackup);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
   });
 });

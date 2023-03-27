@@ -220,37 +220,45 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this._wasRestored(backup.header.hash).andThen((restored) => {
-      if (restored) {
-        return okAsync(undefined);
-      }
+    return this._wasRestored(backup.header.hash)
+      .andThen((restored) => {
+        console.log("CHARLIE wasRestored", restored);
+        if (restored) {
+          return okAsync(undefined);
+        }
 
-      return this.backupUtils
-        .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
-        .andThen((valid) => {
-          if (!valid) {
-            return errAsync(
-              new PersistenceError(
-                "invalid signature for backup",
-                backup.header.hash,
-              ),
-            );
-          }
-          return this._unpackBlob(backup.blob);
-        })
-        .andThen((unpacked) => {
-          if (Array.isArray(unpacked)) {
-            return this._restoreRecords(
-              backup.header,
-              unpacked as VolatileDataUpdate[],
-            );
-          }
-          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
-        })
-        .andThen(() => {
-          return this._addRestored(backup);
-        });
-    });
+        return this.backupUtils.verifyBackupSignature(
+          backup,
+          EVMAccountAddress(this.accountAddr),
+        );
+      })
+      .andThen((valid) => {
+        console.log("CHARLIE valid", valid);
+        if (!valid) {
+          return errAsync(
+            new PersistenceError(
+              "invalid signature for backup",
+              backup.header.hash,
+            ),
+          );
+        }
+        return this._unpackBlob(backup.blob);
+      })
+      .andThen((unpacked) => {
+        if (Array.isArray(unpacked)) {
+          console.log("CHARLIE restoring records");
+          return this._restoreRecords(
+            backup.header,
+            unpacked as VolatileDataUpdate[],
+          );
+        }
+        console.log("CHARLIE restoring fields");
+        return this._restoreField(backup.header, unpacked as FieldDataUpdate);
+      })
+      .andThen(() => {
+        console.log("CHARLIE");
+        return this._addRestored(backup);
+      });
   }
 
   private _restoreRecords(
