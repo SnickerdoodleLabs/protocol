@@ -215,8 +215,6 @@ const RewardProgramDetails: FC = () => {
       };
     }
 
-    console.log("collectedRewards", collectedRewards);
-
     // get eligibleRewards
     const eligibleRewards = possibleRewards.reduce((acc, item) => {
       const requiredDataTypes = item.queryDependencies.map(
