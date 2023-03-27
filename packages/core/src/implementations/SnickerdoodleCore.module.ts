@@ -1,54 +1,4 @@
 import {
-  AxiosAjaxUtils,
-  CryptoUtils,
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-  ITimeUtils,
-  ITimeUtilsType,
-  LogUtils,
-  TimeUtils,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@snickerdoodlelabs/indexers";
-import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-  InsightPlatformRepository,
-} from "@snickerdoodlelabs/insight-platform-api";
-import {
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-} from "@snickerdoodlelabs/objects";
-import {
-  BackupManagerProvider,
-  IBackupManagerProvider,
-  IBackupManagerProviderType,
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@snickerdoodlelabs/persistence";
-import {
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
-  ISDQLQueryUtils,
-  ISDQLQueryUtilsType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-  QueryObjectFactory,
-  SDQLParserFactory,
-  SDQLQueryUtils,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { ContainerModule, interfaces } from "inversify";
-
-import {
   AccountIndexerPoller,
   BlockchainListener,
 } from "@core/implementations/api/index.js";
@@ -62,7 +12,6 @@ import {
   QueryParsingEngine,
   QueryService,
   SiftContractService,
-  CampaignService,
   MarketplaceService,
   IntegrationService,
 } from "@core/implementations/business/index.js";
@@ -93,6 +42,7 @@ import {
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
   PermissionRepository,
+  DomainCredentialRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -115,8 +65,6 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -185,6 +133,8 @@ import {
   IDemographicDataRepository,
   IPermissionRepository,
   IPermissionRepositoryType,
+  IDomainCredentialRepositoryType,
+  IDomainCredentialRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -202,6 +152,55 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+  ICryptoUtils,
+  ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+  LogUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
+import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+  InsightPlatformRepository,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+} from "@snickerdoodlelabs/objects";
+import {
+  BackupManagerProvider,
+  IBackupManagerProvider,
+  IBackupManagerProviderType,
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@snickerdoodlelabs/persistence";
+import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+  ISDQLQueryUtils,
+  ISDQLQueryUtilsType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  QueryObjectFactory,
+  SDQLParserFactory,
+  SDQLQueryUtils,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { ContainerModule, interfaces } from "inversify";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -235,9 +234,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
-    bind<ICampaignService>(ICampaignServiceType)
-      .to(CampaignService)
-      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -275,6 +271,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     );
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
+      .inSingletonScope();
+    bind<IDomainCredentialRepository>(IDomainCredentialRepositoryType)
+      .to(DomainCredentialRepository)
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)

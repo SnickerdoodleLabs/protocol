@@ -1,4 +1,5 @@
 import {
+  DomainCredential,
   DomainName,
   EDataWalletPermission,
   PersistenceError,
