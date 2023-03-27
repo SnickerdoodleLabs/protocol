@@ -119,6 +119,8 @@ const Sidebar = () => {
               (route.subroutes ? route.subroutes : []).findIndex(
                 (subroute) => subroute.path === location.pathname,
               ) > -1;
+            const isHighlighted =
+              route.path && location.pathname.includes(route.path);
             return (
               <Box
                 key={index}
@@ -140,7 +142,7 @@ const Sidebar = () => {
                   px={1.5}
                   display="flex"
                   alignItems="center"
-                  {...(isActive && { bgcolor: "#DAD8E9" })}
+                  {...((isActive || isHighlighted) && { bgcolor: "#DAD8E9" })}
                   className={classes.routeWrapper}
                 >
                   {/* <Box display="flex" mr={1.5}>
