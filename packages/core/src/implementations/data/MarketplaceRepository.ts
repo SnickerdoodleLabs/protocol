@@ -11,7 +11,6 @@ import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IConsentContract,
   IConsentFactoryContract,
-  Listing,
   Tag,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -27,6 +26,7 @@ import {
   ConsentName,
   ConsentContractError,
   BigNumberString,
+  Listing,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -163,7 +163,9 @@ export class MarketplaceRepository implements IMarketplaceRepository {
 
         // Update the listings with its slot and tag
         for (let i = 0; i < listings.length; i++) {
-          listings[i].slot = BigNumberString(listings[i + 1].next.toString());
+          listings[i].stakeAmount = BigNumberString(
+            listings[i + 1].next.toString(),
+          );
           listings[i].tag = tag;
         }
 

@@ -1,4 +1,3 @@
-import { Listing, Tag } from "@snickerdoodlelabs/contracts-sdk";
 import {
   MarketplaceListing,
   ConsentFactoryContractError,
@@ -8,6 +7,7 @@ import {
   PagingRequest,
   PagedResponse,
   ConsentContractError,
+  Listing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
