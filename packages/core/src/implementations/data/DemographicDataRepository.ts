@@ -1,3 +1,4 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   PersistenceError,
@@ -24,6 +25,7 @@ export class DemographicDataRepository implements IDemographicDataRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public getAge(): ResultAsync<Age | null, PersistenceError> {
@@ -32,19 +34,9 @@ export class DemographicDataRepository implements IDemographicDataRepository {
         return null;
       }
 
-      let ageYear =
-        new Date(Date.now()).getFullYear() -
-        new Date(birthdayEpoch * 1000).getFullYear();
-      const ageMonth =
-        new Date(Date.now()).getMonth() -
-        new Date(birthdayEpoch * 1000).getMonth();
-      const dateBirthday = new Date(birthdayEpoch * 1000).getDate();
-      const dateToday = new Date(Date.now()).getDate();
-
-      if (ageMonth < 0 || (ageMonth == 0 && dateToday < dateBirthday)) {
-        ageYear = ageYear - 1;
-      }
-
+      const ageYear = Math.floor(
+        (this.timeUtils.getUnixNow() - birthdayEpoch) / (60 * 60 * 24 * 365),
+      );
       return Age(ageYear);
     });
   }

@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -50,6 +52,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this._nativeIds = new Map();
     chainConfig.forEach((value) => {
@@ -170,7 +173,15 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           contractAddress,
         ]);
       })
-      .mapErr((e) => new AccountIndexingError("error fetching token info", e));
+      .mapErr((e) => {
+        this.logUtils.error(
+          "error fetching token info",
+          chainId,
+          contractAddress,
+          e,
+        );
+        return new AccountIndexingError("error fetching token info", e);
+      });
   }
 
   public getTokenPrice(

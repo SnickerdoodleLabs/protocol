@@ -112,9 +112,7 @@ export class BackupManager implements IBackupManager {
         return this.volatileStorage.putObject(recordKey, value).andThen(() => {
           const tableRenderer = this.tableRenderers.get(recordKey);
           if (tableRenderer == null) {
-            return errAsync(
-              new PersistenceError("no renderer for table", recordKey),
-            );
+            return okAsync(undefined);
           }
 
           return tableRenderer
@@ -210,8 +208,6 @@ export class BackupManager implements IBackupManager {
               ),
             )
             .map((backup) => {
-              console.log(backup);
-
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);
               }

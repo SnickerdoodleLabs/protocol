@@ -137,7 +137,9 @@ export class GoogleCloudStorage implements ICloudStorage {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-        const fileName = ParsedBackupFileName.fromHeader(backup.header);
+        const fileName = ParsedBackupFileName.fromHeader(
+          backup.header,
+        ).render();
         return this.insightPlatformRepo.getSignedUrl(
           privateKey,
           defaultInsightPlatformBaseUrl,

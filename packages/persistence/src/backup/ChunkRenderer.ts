@@ -22,7 +22,6 @@ import { VolatileTableIndex } from "@persistence/volatile/index.js";
 export class ChunkRenderer implements IChunkRenderer {
   private updates: VolatileDataUpdate[] | FieldDataUpdate | null;
 
-  private numUpdates = 0;
   private lastRender;
 
   public constructor(
@@ -34,13 +33,11 @@ export class ChunkRenderer implements IChunkRenderer {
     protected timeUtils: ITimeUtils,
   ) {
     this.lastRender = timeUtils.getUnixNow();
-    this.numUpdates = 0;
     this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
   }
 
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {
     return this._dump(this.updates).map((result) => {
-      this.numUpdates = 0;
       this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
       this.lastRender = this.timeUtils.getUnixNow();
       return result;
@@ -62,29 +59,25 @@ export class ChunkRenderer implements IChunkRenderer {
     }
 
     if (update instanceof FieldDataUpdate) {
-      if (this.updates == null) {
+      const existing = this.updates as FieldDataUpdate | null;
+      if (existing == null || update.timestamp > existing.timestamp) {
         this.updates = update;
+
+        if (
+          this.timeUtils.getUnixNow() - this.lastRender >=
+          this.schema.backupInterval
+        ) {
+          return this.clear();
+        }
       }
 
-      const existing = this.updates as FieldDataUpdate;
-      if (update.timestamp > existing.timestamp) {
-        this.updates = update;
-      }
-
-      if (
-        this.timeUtils.getUnixNow() - this.lastRender >=
-        this.schema.backupInterval
-      ) {
-        return this.clear();
-      } else {
-        return okAsync(null);
-      }
+      return okAsync(null);
     }
 
-    (this.updates as VolatileDataUpdate[]).push(update);
-    this.numUpdates++;
+    const recordUpdates = this.updates as VolatileDataUpdate[];
+    recordUpdates.push(update);
     if (
-      this.numUpdates >=
+      recordUpdates.length >=
         (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize ||
       this.timeUtils.getUnixNow() - this.lastRender >=
         this.schema.backupInterval
@@ -98,7 +91,7 @@ export class ChunkRenderer implements IChunkRenderer {
   private _dump(
     updates: VolatileDataUpdate[] | (FieldDataUpdate | null),
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    if (updates == null || this.numUpdates == 0) {
+    if (updates == null || (Array.isArray(updates) && updates.length == 0)) {
       return okAsync(null);
     }
 
