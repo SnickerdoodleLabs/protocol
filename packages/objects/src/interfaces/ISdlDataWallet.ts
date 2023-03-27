@@ -12,6 +12,8 @@ import {
   WalletNFT,
   SiteVisit,
   MarketplaceListing,
+  PagingRequest,
+  PagedResponse,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -30,6 +32,7 @@ import {
   GivenName,
   IpfsCID,
   LanguageCode,
+  MarketplaceTag,
   Signature,
   UnixTimestamp,
   URLString,
@@ -143,12 +146,13 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
 
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, JsonRpcError>;
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError>;
 
-  getListingsTotal(): ResultAsync<number, JsonRpcError>;
+  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, JsonRpcError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,

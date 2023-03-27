@@ -24,7 +24,7 @@ export class MarketplaceService implements IMarketplaceService {
     protected marketplaceRepo: IMarketplaceRepository,
   ) {}
 
-  public getMarketplaceListings(
+  public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
     filterActive = true,

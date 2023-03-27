@@ -261,7 +261,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getMarketplaceListings(
+        return marketplaceService.getMarketplaceListingsByTag(
           pagingReq,
           tag,
           filterActive,

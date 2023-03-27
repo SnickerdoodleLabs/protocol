@@ -26,6 +26,9 @@ import {
   UnixTimestamp,
   URLString,
   MarketplaceListing,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -115,15 +118,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   ): ResultAsync<AccountAddress, unknown> {
     return coreGateway.getReceivingAddress(contractAddress);
   }
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, unknown> {
-    return coreGateway.getMarketplaceListings(count, headAt);
+
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, unknown> {
+    return coreGateway.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<number, unknown> {
-    return coreGateway.getListingsTotal();
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotalByTag(tag);
   }
 
   public getTokenMarketData(
