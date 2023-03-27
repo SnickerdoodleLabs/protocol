@@ -19,6 +19,7 @@ import {
   AccountAddress,
   ChainId,
   TokenAddress,
+  BearerAuthToken,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -165,4 +166,8 @@ export interface ISetReceivingAddressParams {
 
 export interface IGetReceivingAddressParams {
   contractAddress?: EVMContractAddress;
+}
+
+export interface IInitializeDiscordUser {
+  authToken: BearerAuthToken,
 }

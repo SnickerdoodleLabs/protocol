@@ -50,6 +50,7 @@ import { ContainerModule, interfaces } from "inversify";
 
 import {
   AccountIndexerPoller,
+  DiscordPoller,
   BlockchainListener,
 } from "@core/implementations/api/index.js";
 import {
@@ -65,6 +66,8 @@ import {
   CampaignService,
   MarketplaceService,
   IntegrationService,
+  DiscordService,
+  SocialConnectionService
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -93,6 +96,8 @@ import {
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
   PermissionRepository,
+  DiscordRepository,
+  SocialRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -109,6 +114,8 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
+  IDiscordPoller,
+  IDiscordPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -117,6 +124,8 @@ import {
   IAdServiceType,
   ICampaignService,
   ICampaignServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -131,6 +140,8 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
+  ISocialConnectionService,
+  ISocialConnectionServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
@@ -185,6 +196,10 @@ import {
   IDemographicDataRepository,
   IPermissionRepository,
   IPermissionRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -202,6 +217,8 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+
+
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -243,6 +260,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ISiftContractService>(ISiftContractServiceType)
       .to(SiftContractService)
+      .inSingletonScope();
+
+    bind<IDiscordService>(IDiscordServiceType)
+      .to(DiscordService)
+      .inSingletonScope();
+    bind<ISocialConnectionService>(ISocialConnectionServiceType)
+      .to(SocialConnectionService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
@@ -314,6 +338,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
+    bind<IDiscordRepository>(IDiscordRepositoryType)
+      .to(DiscordRepository)
+      .inSingletonScope();
+    bind<ISocialRepository>(ISocialRepositoryType)
+      .to(SocialRepository)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
@@ -339,6 +369,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
+     bind<IDiscordPoller>(IDiscordPollerType)
+      .to(DiscordPoller)
+      .inSingletonScope();
+
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
@@ -391,6 +425,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
+
+
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },

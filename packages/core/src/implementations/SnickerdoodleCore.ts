@@ -82,6 +82,9 @@ import {
   UnauthorizedError,
   PossibleReward,
   BackupFileName,
+  BearerAuthToken,
+  ISdlDiscordMethods,
+  ICoreDiscordMethods,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -114,6 +117,8 @@ import {
   IAdServiceType,
   ICampaignService,
   ICampaignServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -147,6 +152,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
+  public discord : ICoreDiscordMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -278,8 +284,32 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
     };
-  }
 
+    this.discord = {
+      initializeUser: (
+        authToken: BearerAuthToken,
+      ) => {
+        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.initializeUser(authToken);
+      },
+
+      installationUrl: ()=> {
+        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.installationUrl();
+      },
+    
+      getUserProfiles : () => {
+        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.getUserProfiles();
+      },
+
+      getGuildProfiles: () => {
+        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.getGuildProfiles();
+      }
+    }
+  }
+   
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<
@@ -338,7 +368,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   > {
     // Get all of our indexers and initialize them
     // TODO
-
+    console.log("I am core : ")
     const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
       IBlockchainProviderType,
     );
@@ -800,6 +830,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getAccountNFTs(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<WalletNFT[], PersistenceError> {
+    console.log("I am core : ")
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();

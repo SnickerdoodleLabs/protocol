@@ -249,6 +249,11 @@ export const AppContextProvider: FC = ({ children }) => {
     }, 500);
   }, []);
 
+
+  const getSocialMediaAccounts = () => {
+    //return window.sdlDataWallet.get
+  }
+
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
       const _accounts = accounts.map(

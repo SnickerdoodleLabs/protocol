@@ -29,12 +29,12 @@ import {
   IDataWalletPersistence,
   ISocialRepositoryType,
   ISocialRepository,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities/IConfigProvider";
+} from "@core/interfaces/utilities/IConfigProvider.js";
 
 @injectable()
 export class DiscordRepository implements IDiscordRepository {

@@ -16,11 +16,11 @@ import { IDiscordService } from "@core/interfaces/business/IDiscordService.js";
 import {
   IDiscordRepository,
   IDiscordRepositoryType,
-} from "@core/interfaces/data/IDiscordRepository";
+} from "@core/interfaces/data/IDiscordRepository.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities/IConfigProvider";
+} from "@core/interfaces/utilities/IConfigProvider.js";
 
 @injectable()
 export class DiscordService implements IDiscordService {

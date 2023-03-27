@@ -27,6 +27,7 @@ import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinkin
 import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
+import SocialMediaData from "@extension-onboarding/pages/Details/screens/SocialMediaData";
 
 export const OnboardingRoutes = (
   <Route>
@@ -53,6 +54,7 @@ export const AuthFlowRoutes = (
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
+        <Route path={EPaths.SOCIAL_MEDIA_DATA} element={<SocialMediaData />} />
         <Route
           path={EPaths.PERSONAL_INFO}
           element={<DataDashboarPersonalInfo />}

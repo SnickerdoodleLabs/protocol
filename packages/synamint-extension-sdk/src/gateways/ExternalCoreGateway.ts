@@ -30,6 +30,10 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  ISdlDiscordMethods,
+  BearerAuthToken,
+  DiscordProfile,
+  DiscordGuildProfile,
 } from "@snickerdoodlelabs/objects";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
@@ -68,14 +72,35 @@ import {
   IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
+  IInitializeDiscordUser,
 } from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
+  discord : ISdlDiscordMethods;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+    this.discord = {
+      initializeUser : (
+        authToken: BearerAuthToken,
+      ) : ResultAsync<void , JsonRpcError> => {
+        return this._handler.call(
+          EExternalActions.INITIALIZE_DISCORD_USER,
+          { authToken } as IInitializeDiscordUser,
+        );
+      },
+      installationUrl : () :  ResultAsync<URLString, JsonRpcError> => {
+        return this._handler.call(EExternalActions.INSTALLATION_DISCORD_URL)
+      },
+      getUserProfiles :(): ResultAsync<DiscordProfile[], JsonRpcError> => {
+        return this._handler.call(EExternalActions.GET_DISCORD_USER_PROFILES);
+      },
+      getGuildProfiles :(): ResultAsync<DiscordGuildProfile[], JsonRpcError> => {
+        return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
+      }
+    }
   }
 
   public updateRpcEngine(rpcEngine: JsonRpcEngine) {
