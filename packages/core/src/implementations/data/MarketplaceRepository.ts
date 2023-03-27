@@ -26,7 +26,6 @@ import {
   ConsentName,
   ConsentContractError,
   BigNumberString,
-  Listing,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -61,7 +60,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     tag: MarketplaceTag,
     filterActive = true, // make it optional in interface, = true here
   ): ResultAsync<
-    PagedResponse<Listing>,
+    PagedResponse<MarketplaceListing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
     return this.getMarketplaceTagListingsCached(tag).map((listings) => {
@@ -82,7 +81,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   }
 
   public getRecommendationsByListing(
-    listing: Listing,
+    listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
     BlockchainProviderError | UninitializedError | ConsentContractError
@@ -115,7 +114,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   protected getMarketplaceTagListingsCached(
     tag: MarketplaceTag,
   ): ResultAsync<
-    Listing[],
+    MarketplaceListing[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
     return this.configProvider.getConfig().andThen((config) => {
@@ -139,7 +138,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   protected buildCacheForTag(
     tag: MarketplaceTag,
   ): ResultAsync<
-    Listing[],
+    MarketplaceListing[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
     return this.getConsentFactoryContract()
@@ -191,6 +190,6 @@ class MarketplaceTagCache {
   public constructor(
     public tag: MarketplaceTag,
     public cacheTime: UnixTimestamp,
-    public listings: Listing[],
+    public listings: MarketplaceListing[],
   ) {}
 }

@@ -4,7 +4,6 @@ import {
   IMarketplaceRepositoryType,
   IMarketplaceRepository,
 } from "@core/interfaces/data/index.js";
-import { Listing } from "@snickerdoodlelabs/contracts-sdk";
 import {
   UninitializedError,
   BlockchainProviderError,
@@ -30,7 +29,7 @@ export class MarketplaceService implements IMarketplaceService {
     tag: MarketplaceTag,
     filterActive = true,
   ): ResultAsync<
-    PagedResponse<Listing>,
+    PagedResponse<MarketplaceListing>,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
     return this.marketplaceRepo.getMarketplaceListingsByTag(
@@ -50,7 +49,7 @@ export class MarketplaceService implements IMarketplaceService {
   }
 
   public getRecommendationsByListing(
-    listing: Listing,
+    listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
     UninitializedError | BlockchainProviderError | ConsentContractError

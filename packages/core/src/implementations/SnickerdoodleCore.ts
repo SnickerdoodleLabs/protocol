@@ -44,7 +44,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { Listing } from "@snickerdoodlelabs/objects";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -126,6 +125,7 @@ import {
   BackupFileName,
   PagingRequest,
   MarketplaceTag,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -274,7 +274,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return marketplaceService.getListingsTotalByTag(tag);
       },
 
-      getRecommendationsByListing: (listing: Listing) => {
+      getRecommendationsByListing: (listing: MarketplaceListing) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );

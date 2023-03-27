@@ -1,7 +1,4 @@
-import {
-  Listing,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
@@ -151,21 +148,21 @@ export interface IConsentFactoryContract {
   getListingDetail(
     tag: MarketplaceTag,
     slot: BigNumberString,
-  ): ResultAsync<Listing, ConsentFactoryContractError>;
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
 
   getListingsForward(
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError>;
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 
   getListingsBackward(
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError>;
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 
   getTagTotal(
     tag: MarketplaceTag,

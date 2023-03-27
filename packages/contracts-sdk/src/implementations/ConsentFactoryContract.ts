@@ -1,7 +1,6 @@
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import {
   ConsentRoles,
-  Listing,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -14,6 +13,7 @@ import {
   EVMContractAddress,
   IBlockchainError,
   IpfsCID,
+  MarketplaceListing,
   MarketplaceTag,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -455,7 +455,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   public getListingDetail(
     tag: MarketplaceTag,
     slot: BigNumberString,
-  ): ResultAsync<Listing, ConsentFactoryContractError> {
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListing(tag, slot) as Promise<IListingStruct>,
       (e) => {
@@ -466,7 +466,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map((listing) => {
-      return new Listing(
+      return new MarketplaceListing(
         BigNumberString(listing.previous.toString()),
         BigNumberString(listing.next.toString()),
         listing.consentContract,
@@ -483,7 +483,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError> {
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
@@ -500,7 +500,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       },
     ).map(([cids, listings]) => {
       return listings.map((listing, index) => {
-        return new Listing(
+        return new MarketplaceListing(
           BigNumberString(listing.previous.toString()),
           BigNumberString(listing.next.toString()),
           listing.consentContract,
@@ -518,7 +518,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError> {
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
@@ -535,7 +535,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       },
     ).map(([cids, listings]) => {
       return listings.map((listing, index) => {
-        return new Listing(
+        return new MarketplaceListing(
           BigNumberString(listing.previous.toString()),
           BigNumberString(listing.next.toString()),
           listing.consentContract,
@@ -572,7 +572,7 @@ interface IListingStruct {
   timeExpiring: BigNumber;
 }
 
-// I listinStruct { at the place where we're using it, and dont have to export here
+// I listingStruct { at the place where we're using it, and don't have to export here
 
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
 

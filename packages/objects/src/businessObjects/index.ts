@@ -52,5 +52,3 @@ export * from "@objects/businessObjects/rewards/index.js";
 
 export * from "@objects/businessObjects/PagedResponse";
 export * from "@objects/businessObjects/PagingRequest";
-
-export * from "@objects/businessObjects/Listing";

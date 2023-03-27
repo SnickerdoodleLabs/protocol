@@ -7,7 +7,6 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
-  Listing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,7 +16,7 @@ export interface IMarketplaceService {
     tag: MarketplaceTag,
     filterActive?: boolean,
   ): ResultAsync<
-    PagedResponse<Listing>,
+    PagedResponse<MarketplaceListing>,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
 
@@ -29,7 +28,7 @@ export interface IMarketplaceService {
   >;
 
   getRecommendationsByListing(
-    listing: Listing,
+    listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
     UninitializedError | BlockchainProviderError | ConsentContractError
