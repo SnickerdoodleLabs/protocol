@@ -185,7 +185,7 @@ export class BackupManager implements IBackupManager {
 
   public updateField(
     key: EFieldKey,
-    value: object,
+    value: unknown,
   ): ResultAsync<void, PersistenceError> {
     if (!this.fieldRenderers.has(key)) {
       return errAsync(
@@ -196,11 +196,10 @@ export class BackupManager implements IBackupManager {
     const timestamp = this.timeUtils.getUnixNow();
     this.fieldHistory.set(key, timestamp);
 
-    return Serializer.serialize(value).andThen((serializedObj) => {
+    return Serializer.serialize(value).asyncAndThen((serializedObj) => {
       return this.storageUtils
         .write<SerializedObject>(key, serializedObj)
         .andThen(() => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return this.fieldRenderers
             .get(key)!
             .update(

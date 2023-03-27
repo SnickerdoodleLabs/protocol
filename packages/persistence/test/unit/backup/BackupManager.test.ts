@@ -38,7 +38,7 @@ import {
   IChunkRenderer,
   IChunkRendererFactory,
 } from "@persistence/backup/index.js";
-import { FieldIndex } from "@persistence/local/index.js";
+import { FieldIndex, SerializedObject } from "@persistence/local/index.js";
 import {
   IVolatileStorage,
   VolatileTableIndex,
@@ -52,6 +52,8 @@ const recordKey = ERecordKey.ACCOUNT;
 const fieldKey = EFieldKey.ACCEPTED_INVITATIONS;
 const keyPath = "foo";
 const keyValue = "Key Value";
+const newFieldValue = "New Field Value";
+const oldFieldValue = "Old Field Value";
 
 class TestVersionedObject extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -178,7 +180,20 @@ class BackupManagerMocks {
     td.when(
       this.volatileStorage.putObject(
         recordKey,
-        td.matchers.isA(VolatileStorageMetadata),
+        td.matchers.contains({
+          lastUpdate: now,
+          deleted: EBoolean.TRUE,
+        }),
+      ),
+    ).thenReturn(okAsync(undefined));
+
+    td.when(
+      this.volatileStorage.putObject(
+        recordKey,
+        td.matchers.contains({
+          lastUpdate: now,
+          deleted: EBoolean.FALSE,
+        }),
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -212,6 +227,25 @@ class BackupManagerMocks {
         }),
       ),
     ).thenReturn(okAsync(null));
+
+    td.when(
+      this.recordChunkRenderer.update(
+        td.matchers.contains({
+          operation: EDataUpdateOpCode.REMOVE,
+          key: keyValue,
+          timestamp: now,
+          value: td.matchers.isA(TestVersionedObject),
+          version: 1,
+        }),
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      this.storageUtils.write<SerializedObject>(
+        fieldKey,
+        td.matchers.contains({ type: "string", value: newFieldValue }),
+      ),
+    ).thenReturn(okAsync(undefined));
   }
 
   public factory(): IBackupManager {
@@ -329,6 +363,99 @@ describe("BackupManager Tests", () => {
     // Act
     const result = await backupManager
       .addRecord(recordKey, new VolatileStorageMetadata(mocks.testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(0);
+  });
+
+  test("deleteRecord() works and does not render a backup", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .deleteRecord(recordKey, keyValue)
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(0);
+  });
+
+  test("deleteRecord() renders a backup", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    td.when(
+      mocks.recordChunkRenderer.update(
+        td.matchers.contains({
+          operation: EDataUpdateOpCode.REMOVE,
+          key: keyValue,
+          timestamp: now,
+          value: td.matchers.isA(TestVersionedObject),
+          version: 1,
+        }),
+      ),
+    ).thenReturn(okAsync(recordBackup));
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .deleteRecord(recordKey, keyValue)
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(1);
+    expect(backups[0]).toBe(recordBackup);
+  });
+
+  test("deleteRecord() works when data is not available even though the key exists", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks(false);
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .deleteRecord(recordKey, keyValue)
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(0);
+  });
+
+  test("updateField() works and does not render a backup", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .updateField(fieldKey, newFieldValue)
       .andThen(() => {
         return backupManager.getRendered();
       });

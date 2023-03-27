@@ -22,7 +22,7 @@ export interface IBackupManager {
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
-    value: object,
+    value: unknown,
   ): ResultAsync<void, PersistenceError>;
   restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
 
