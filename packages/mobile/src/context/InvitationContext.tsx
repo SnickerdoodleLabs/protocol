@@ -75,7 +75,7 @@ const InvitationContextProvider = ({ children }) => {
                 mobileCore.invitationService
                   .getInvitationMetadataByCID(ipfsCID)
                   .map((metaData) => {
-                    console.log('metaData',metaData)
+                    console.log("MetaData", metaData);
                     setInvitationStatus(true, metaData, _invitation);
                   });
               });

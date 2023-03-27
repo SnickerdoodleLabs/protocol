@@ -90,7 +90,9 @@ const Initial = ({ navigation }) => {
                   .map(() => {
                     console.log(`Account ${accountAddress} removed`);
                     tryUnlock();
-                  });
+                  }).mapErr((e)=>{
+                    return 'Try Unlock Error'
+                  })
               }
               return accountService
                 .unlock(
@@ -112,8 +114,8 @@ const Initial = ({ navigation }) => {
             );
             return accountStorageUtils
               .removeDataWalletAddressFromstorage()
-              .andThen(() => {
-                return okAsync(setUnlockCompleted(EUnlockState.NO_ACCOUNT));
+              .map(() => {
+                return setUnlockCompleted(EUnlockState.NO_ACCOUNT);
               });
           }
           return okAsync(setUnlockCompleted(EUnlockState.NO_ACCOUNT));

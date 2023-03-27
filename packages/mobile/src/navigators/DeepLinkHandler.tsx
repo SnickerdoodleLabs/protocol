@@ -1,14 +1,13 @@
-import { ObjectUtils } from "@snickerdoodlelabs/utils/src/ObjectUtils";
-
+import {
+ObjectUtils
+} from "@snickerdoodlelabs/common-utils";
 import { parse } from "querystring";
-
 import { useEffect, useState } from "react";
 import { Linking } from "react-native";
 import {
   IInvitationParams,
   useInvitationContext,
 } from "../context/InvitationContext";
-
 enum EDeeplink {
   INVITATION,
 }
