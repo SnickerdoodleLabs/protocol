@@ -147,12 +147,12 @@ export class Tokenizer {
   convertVal(type: TokenType, rawVal: string): unknown {
     switch (type) {
       case TokenType.number:
-        return Number(rawVal);
+        return +rawVal;
       case TokenType.boolean:
         return Boolean(rawVal.toLowerCase() == "true");
       case TokenType.string:
         const rawStrippedQuotes = rawVal.slice(1, rawVal.length - 1);
-        return String(rawStrippedQuotes);
+        return rawStrippedQuotes;
       default:
         return rawVal;
     }

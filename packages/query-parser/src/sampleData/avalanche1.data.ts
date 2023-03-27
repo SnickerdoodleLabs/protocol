@@ -11,7 +11,7 @@ export const avalanche1SchemaStr = JSON.stringify({
   business: "Shrapnel",
   queries: {
     q1: {
-      name:"network",
+      name: "network",
       return: "boolean",
       chain: "AVAX",
       contract: {
@@ -47,20 +47,22 @@ export const avalanche1SchemaStr = JSON.stringify({
       return: "array",
     },
   },
-  returns: {
-    r1: {
-      name: "callback",
-      message: "qualified",
+  insights: {
+    i1: {
+      name: "user age range",
+      target: "$q1>30",
+      returns: "'qualified'",
     },
-    r2: {
-      name: "callback",
-      message: "not qualified",
+    i2: {
+      name: "q2",
+      target: "$q2",
+      returns: "'not qualified'",
     },
-    r3: {
+    i3: {
       name: "query_response",
-      query: "q3",
+      conditions: "True",
+      returns: "$q3",
     },
-    url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
   compensations: {
     parameters: {
@@ -82,6 +84,7 @@ export const avalanche1SchemaStr = JSON.stringify({
       name: "Sugar to your coffee",
       image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       description: "10% discount code for Starbucks",
+      requires: "$i1",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress"],
@@ -94,6 +97,7 @@ export const avalanche1SchemaStr = JSON.stringify({
       name: "The CryptoPunk Draw",
       image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
+      requires: "$i2",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -107,6 +111,7 @@ export const avalanche1SchemaStr = JSON.stringify({
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
+      requires: "$i3",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -116,9 +121,5 @@ export const avalanche1SchemaStr = JSON.stringify({
       },
       alternatives: ["c2"],
     },
-  },
-  logic: {
-    returns: ["if($q1and$q2)then$r1else$r2", "$r3"],
-    compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
 });

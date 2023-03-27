@@ -23,16 +23,25 @@ export class ExprParserMocks {
 
   public context: Map<string, ParserContextDataTypes> | null = null;
 
-  public createContext(): ResultAsync<void, Error> {
+  public createContext(): ResultAsync<
+    Map<string, ParserContextDataTypes>,
+    Error
+  > {
     return this.parser.buildAST().andThen((ast) => {
-      this.context = this.parser.context;
-      return okAsync(undefined);
+      return okAsync(this.parser.context);
     });
   }
 
-  public createExprParser(): ResultAsync<ExprParser, Error> {
-    return this.createContext().andThen(() => {
-      return okAsync(new ExprParser(this.context!));
+  public createExprParser(
+    context: Map<string, ParserContextDataTypes> | null,
+  ): ResultAsync<ExprParser, Error> {
+    if (context != null) {
+      this.context = context;
+      return okAsync(new ExprParser(context));
+    }
+    return this.createContext().andThen((context) => {
+      this.context = context;
+      return okAsync(new ExprParser(context));
     });
   }
 }

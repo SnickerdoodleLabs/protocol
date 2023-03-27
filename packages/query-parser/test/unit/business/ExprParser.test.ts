@@ -13,6 +13,7 @@ import {
   AST_ReturnExpr,
   Command_IF,
   ConditionAnd,
+  ConditionE,
   ConditionG,
   ConditionL,
   ConditionLE,
@@ -24,7 +25,7 @@ describe("Postfix to AST", () => {
   test("$r2", () => {
     const mocks = new ExprParserMocks();
     mocks
-      .createExprParser()
+      .createExprParser(null)
       .andThen((exprParser) => {
         const postFix = [new Token(TokenType.query, "$r2", 0)];
         const expr = exprParser.buildAstFromPostfix(postFix);
@@ -39,7 +40,7 @@ describe("Postfix to AST", () => {
   test("$q1$q2andq3or to ast", () => {
     const mocks = new ExprParserMocks();
     mocks
-      .createExprParser()
+      .createExprParser(null)
       .andThen((exprParser) => {
         const postFix = [
           new Token(TokenType.query, "$q1", 0),
@@ -73,7 +74,7 @@ describe("Postfix to AST", () => {
   });
   test("$q2$q3<=$q1and to ast", async () => {
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
     const expr = (await parser.buildAstFromPostfix([
       new Token(TokenType.query, "$q2", 0),
       new Token(TokenType.query, "$q3", 5),
@@ -96,7 +97,7 @@ describe("Postfix to AST", () => {
   });
   test("$q1 10 > to ast", async () => {
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
     const expr = (await parser.buildAstFromPostfix([
       new Token(TokenType.query, "$q1", 0),
       new Token(TokenType.number, 10, 4),
@@ -109,7 +110,7 @@ describe("Postfix to AST", () => {
   });
   test("$q1 10 <= to ast", async () => {
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
     const expr = (await parser.buildAstFromPostfix([
       new Token(TokenType.query, "$q1", 0),
       new Token(TokenType.number, 10, 5),
@@ -123,7 +124,7 @@ describe("Postfix to AST", () => {
   test("$q1, $r1, if", () => {
     const mocks = new ExprParserMocks();
     mocks
-      .createExprParser()
+      .createExprParser(null)
       .andThen((exprParser) => {
         const postFix = [
           new Token(TokenType.query, "$q1", 2),
@@ -152,7 +153,7 @@ describe("Postfix to AST", () => {
   test("$q1, $q2, and, $r1, if", () => {
     const mocks = new ExprParserMocks();
     mocks
-      .createExprParser()
+      .createExprParser(null)
       .andThen((exprParser) => {
         const postFix = [
           new Token(TokenType.query, "$q1", 2),
@@ -185,7 +186,7 @@ describe("Postfix to AST", () => {
   test("$q1, $q2, and, $r1, $r3 if", () => {
     const mocks = new ExprParserMocks();
     mocks
-      .createExprParser()
+      .createExprParser(null)
       .andThen((exprParser) => {
         const postFix = [
           new Token(TokenType.query, "$q1", 2),
@@ -222,7 +223,7 @@ describe("Postfix to AST", () => {
   });
   test("$q1 $q2 < $q3 or to ast", async () => {
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
     const expr = await parser.buildAstFromPostfix([
       new Token(TokenType.query, "$q1", 0),
       new Token(TokenType.query, "$q2", 4),
@@ -250,7 +251,7 @@ describe("Postfix to AST", () => {
   test("($q1and($q2orq3)) to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
     // Action
     const expr = parser.parse("($q1and($q2or$q3))") as AST_Expr;
@@ -271,7 +272,7 @@ describe("Postfix to AST", () => {
   test("$q1>35and$q2<40 to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
     // // Action
     const expr = parser.parse("$q1>35and$q2<40") as AST_ConditionExpr;
@@ -300,7 +301,7 @@ describe("Postfix to AST", () => {
   test("$q1>35and$q1<40and($q2or$q3) to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
-    const parser = (await mocks.createExprParser())._unsafeUnwrap();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
     // // Action
     const expr = parser.parse(
@@ -322,5 +323,49 @@ describe("Postfix to AST", () => {
 
     expect(or.lval!).toEqual(mocks.context!.get("q2"));
     expect(or.rval).toEqual(mocks.context!.get("q3"));
+  });
+
+  test("True to ast", async () => {
+    // Acquire
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
+
+    // // Action
+    const expr = parser.parse("True") as AST_ConditionExpr;
+
+    // Assert
+    expect(expr.source).toBe(true);
+  });
+
+  test.only("True and True to ast", async () => {
+    // Acquire
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
+
+    // // Action
+    const expr = parser.parse("True and True") as AST_ConditionExpr;
+
+    // Assert
+    console.log(expr);
+    expect(expr.source.constructor).toBe(ConditionAnd);
+    const mainAnd = expr.source as ConditionAnd;
+    expect(mainAnd.lval!).toBe(true);
+    expect(mainAnd.rval).toBe(true);
+  });
+
+  test.only("$q3 == 'US'", async () => {
+    // Acquire
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
+
+    // // Action
+    const expr = parser.parse("$q3 == 'US'") as AST_ConditionExpr;
+
+    // Assert
+    console.log(expr);
+    expect(expr.source.constructor).toBe(ConditionE);
+    const cond = expr.source as ConditionE;
+    expect(cond.lval!).toEqual(mocks.context!.get("q3"));
+    expect(cond.rval).toBe("US");
   });
 });

@@ -12,6 +12,7 @@ import {
 } from "@query-parser/implementations/business/Tokenizer.js";
 import {
   AST_Ad,
+  AST_BoolExpr,
   AST_ConditionExpr,
   AST_Expr,
   AST_Query,
@@ -99,6 +100,7 @@ export class ExprParser {
   tokensToAst(tokens: Token[]): AST_Expr | Command {
     const postFix: Array<Token> = this.infixToPostFix(tokens);
     const ast = this.buildAstFromPostfix(postFix);
+    // console.log(ast);
     return ast;
   }
 
@@ -117,6 +119,8 @@ export class ExprParser {
       switch (token.type) {
         // when token is a literal or a variable
         case TokenType.number:
+        case TokenType.string:
+        case TokenType.boolean:
         case TokenType.ad:
         case TokenType.query:
         case TokenType.return:
@@ -271,6 +275,8 @@ export class ExprParser {
       TokenType.boolean,
     ];
 
+    // console.log(postFix);
+
     const expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
@@ -297,7 +303,18 @@ export class ExprParser {
 
     // const expr = expList.pop() as AST_Expr | Command;
 
-    return expList.pop() as AST_Expr | Command;
+    const expr = expList.pop();
+    if (typeof expr === "number") {
+      return new AST_Expr(SDQL_Name("number"), expr as number);
+    }
+    if (typeof expr === "string") {
+      return new AST_Expr(SDQL_Name("string"), expr as string);
+    }
+    if (typeof expr === "boolean") {
+      return new AST_BoolExpr(SDQL_Name("boolean"), expr as boolean);
+    }
+
+    return expr as AST_Expr | Command;
   }
 
   createExp(expList: Array<ParserContextDataTypes>, token: Token): AST_Expr {
@@ -324,6 +341,7 @@ export class ExprParser {
         break;
       case TokenType.number:
       case TokenType.string:
+      case TokenType.boolean:
         return token.val;
       default:
         const err = new ParserError(
