@@ -11,7 +11,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IMarketplaceService {
-  getMarketplaceListings(
+  getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
     filterActive?: boolean,
