@@ -10,6 +10,10 @@ export class Serializer {
     switch (type) {
       case "object":
         return ok(new SerializedObject(type, JSON.stringify(obj)));
+      case "boolean":
+        return ok(
+          new SerializedObject(type, (obj as unknown as boolean).toString()),
+        );
       case "number":
         return ok(
           new SerializedObject(type, (obj as unknown as number).toString()),
@@ -32,6 +36,8 @@ export class Serializer {
       switch (serializedObj.type) {
         case "object":
           return ok(JSON.parse(serializedObj.data) as T);
+        case "boolean":
+          return ok((serializedObj.data === "true") as unknown as T);
         case "number":
           return ok(Number.parseFloat(serializedObj.data) as unknown as T);
         case "string":

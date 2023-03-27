@@ -26,6 +26,8 @@ import {
   EncryptedString,
   InitializationVector,
   Signature,
+  FieldDataUpdate,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { okAsync } from "neverthrow";
@@ -241,9 +243,20 @@ class BackupManagerMocks {
     ).thenReturn(okAsync(null));
 
     td.when(
+      this.fieldChunkRenderer.update(
+        new FieldDataUpdate(
+          fieldKey,
+          JSONString(JSON.stringify(newFieldValue)),
+          now,
+        ),
+      ),
+    ).thenReturn(okAsync(null));
+
+    // StorageUtils ---------------------------------------------------------
+    td.when(
       this.storageUtils.write<SerializedObject>(
         fieldKey,
-        td.matchers.contains({ type: "string", value: newFieldValue }),
+        td.matchers.contains({ type: "string", data: newFieldValue }),
       ),
     ).thenReturn(okAsync(undefined));
   }
