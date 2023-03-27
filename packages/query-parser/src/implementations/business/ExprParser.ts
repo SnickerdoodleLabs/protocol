@@ -268,6 +268,7 @@ export class ExprParser {
       TokenType.compensation,
       TokenType.number,
       TokenType.string,
+      TokenType.boolean,
     ];
 
     const expList: Array<ParserContextDataTypes> = [];

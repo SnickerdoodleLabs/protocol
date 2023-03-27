@@ -1,5 +1,7 @@
 import "reflect-metadata";
 
+import { okAsync } from "neverthrow";
+
 import { Token, TokenType } from "@query-parser/implementations";
 import {
   AST_BlockchainTransactionQuery,
@@ -17,7 +19,6 @@ import {
   ConditionOr,
 } from "@query-parser/interfaces";
 import { ExprParserMocks } from "@query-parser-test/mocks";
-import { okAsync } from "neverthrow";
 
 describe("Postfix to AST", () => {
   test("$r2", () => {
