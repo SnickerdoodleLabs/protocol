@@ -35,7 +35,7 @@ export class Token {
   ) {}
 }
 
-const rules = new Array<[RegExp, TokenType]>(); 
+const rules = new Array<[RegExp, TokenType]>();
 // Order matters. The string rule should be the last one for unambiguous parsing.
 rules.push(
   [/if/y, TokenType.if],
@@ -57,7 +57,7 @@ rules.push(
   [/\$c[0-9]+/y, TokenType.compensation],
   [/\$a[0-9]+/y, TokenType.ad],
   [/\s+/y, TokenType.whitespace],
-  [/\w+/y, TokenType.string],
+  [/["']{1}\w+["']{1}/y, TokenType.string],
 );
 export class Tokenizer {
   /**
@@ -144,14 +144,15 @@ export class Tokenizer {
     }
   }
 
-  convertVal(type: TokenType, rawVal: string) {
+  convertVal(type: TokenType, rawVal: string): unknown {
     switch (type) {
       case TokenType.number:
         return Number(rawVal);
       case TokenType.boolean:
-        return Boolean(rawVal.toLowerCase());
+        return Boolean(rawVal.toLowerCase() == "true");
       case TokenType.string:
-        return String(rawVal);
+        const rawStrippedQuotes = rawVal.slice(1, rawVal.length - 1);
+        return String(rawStrippedQuotes);
       default:
         return rawVal;
     }

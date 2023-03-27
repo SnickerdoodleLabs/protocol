@@ -7,89 +7,107 @@ import {
   TokenType,
 } from "@query-parser/implementations/business/Tokenizer";
 
+function testExpectedValues(expr: string, expectedValues: Array<unknown>) {
+  const tokenizer = new Tokenizer(expr);
+  expect(tokenizer.hasNext()).toBe(true);
+  const gotValues = new Array<number>();
+
+  while (tokenizer.hasNext()) {
+    const token = tokenizer.next();
+    gotValues.push(token.val);
+  }
+
+  console.log(gotValues);
+  expect(gotValues).toEqual(expectedValues);
+
+  expect(tokenizer.hasNext()).toBe(false);
+
+  expect(() => tokenizer.next()).toThrow(new ParserError(0, "no more tokens"));
+}
+
+function testExpectedValuesAndTypes(
+  expr: string,
+  expectedValues: Array<unknown>,
+  expectedTypes: Array<TokenType>,
+) {
+  const tokenizer = new Tokenizer(expr);
+  expect(tokenizer.hasNext()).toBe(true);
+
+  const gotValues = new Array<unknown>();
+  const gotTypes = new Array<TokenType>();
+
+  while (tokenizer.hasNext()) {
+    const token = tokenizer.next();
+    gotValues.push(token.val);
+    gotTypes.push(token.type);
+  }
+
+  expect(gotValues).toEqual(expectedValues);
+  expect(gotTypes).toEqual(expectedTypes);
+
+  expect(tokenizer.hasNext()).toBe(false);
+
+  expect(() => tokenizer.next()).toThrow(new ParserError(0, "no more tokens"));
+}
+
 describe("Tokenizer type tests", () => {
   test("12 is a number", function () {
-    const tokenizer = new Tokenizer("12");
-
-    expect(tokenizer.hasNext()).toBe(true);
-    while (tokenizer.hasNext()) {
-      const token = tokenizer.next();
-      expect(token.val).toBe(12);
-      expect(token.type).toBe(TokenType.number);
-      // console.log("token value", token.val)
-
-      expect(tokenizer.position).toBe(0);
-      expect(tokenizer.hasNext()).toBe(false);
-    }
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    const expr = "12";
+    const expectedValues = [12];
+    const expectedTypes = [TokenType.number];
+    testExpectedValues(expr, expectedValues);
   });
 
   test("12 25 are two numbers", function () {
-    const tokenizer = new Tokenizer("12 25");
-    expect(tokenizer.hasNext()).toBe(true);
-
-    const expectedValues: Array<number> = [12, 25];
-    const gotValues = new Array<number>();
-
-    while (tokenizer.hasNext()) {
-      const token = tokenizer.next();
-      if (token.type === TokenType.number) {
-        gotValues.push(token.val);
-      }
-    }
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    const expr = "12 25";
+    const expectedValues: Array<unknown> = [12, " ", 25];
+    testExpectedValues(expr, expectedValues);
   });
 
   test("> can be identified.", function () {
-    const tokenizer = new Tokenizer("12>25");
-    expect(tokenizer.hasNext()).toBe(true);
-
+    const expr = "12>25";
     const expectedValues = [12, ">", 25];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const gotValues: any[] = [];
-    while (tokenizer.hasNext()) gotValues.push(tokenizer.next().val);
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    testExpectedValues(expr, expectedValues);
   });
 
   test(">, >=, and == do not interfere", function () {
-    const tokenizer = new Tokenizer(">>===");
-    expect(tokenizer.hasNext()).toBe(true);
-
+    const expr = ">>===";
     const expectedValues = [">", ">=", "=="];
+    testExpectedValues(expr, expectedValues);
+  });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const gotValues: any[] = [];
-    while (tokenizer.hasNext()) gotValues.push(tokenizer.next().val);
+  test("'s' 'is' 'string'", function () {
+    const expr = "'s' 'is' 'string'";
+    const expectedValues = ["s", " ", "is", " ", "string"];
+    const expectedTypes = [
+      TokenType.string,
+      TokenType.whitespace,
+      TokenType.string,
+      TokenType.whitespace,
+      TokenType.string,
+    ];
 
-    expect(gotValues).toEqual(expectedValues);
-    expect(tokenizer.hasNext()).toBe(false);
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
+  });
 
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+  test("true or False", function () {
+    const expr = "true or False";
+    const expectedValues = [true, " ", "or", " ", false];
+    const expectedTypes = [
+      TokenType.boolean,
+      TokenType.whitespace,
+      TokenType.or,
+      TokenType.whitespace,
+      TokenType.boolean,
+    ];
+
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   });
 });
 
 describe("Tokenizer expression tests", () => {
   test("if($q1>30)then$r1", function () {
-    const tokenizer = new Tokenizer("if$q1>30then$r1");
-    expect(tokenizer.hasNext()).toBe(true);
+    const expr = "if$q1>30then$r1";
 
     const expectedValues = ["if", "$q1", ">", 30, "then", "$r1"];
     const expectedTypes = [
@@ -101,27 +119,11 @@ describe("Tokenizer expression tests", () => {
       TokenType.return,
     ];
 
-    const gotValues = new Array<any>();
-    const gotTypes = new Array<any>();
-
-    while (tokenizer.hasNext()) {
-      const token = tokenizer.next();
-      gotValues.push(token.val);
-      gotTypes.push(token.type);
-    }
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(gotTypes).toEqual(expectedTypes);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   });
 
   test("if$q1>=30then$r1", function () {
-    const tokenizer = new Tokenizer("if$q1>=30then$r1");
-    expect(tokenizer.hasNext()).toBe(true);
+    const expr = "if$q1>=30then$r1";
 
     const expectedValues = ["if", "$q1", ">=", 30, "then", "$r1"];
     const expectedTypes = [
@@ -133,28 +135,13 @@ describe("Tokenizer expression tests", () => {
       TokenType.return,
     ];
 
-    const gotValues = new Array<any>();
-    const gotTypes = new Array<any>();
-    while (tokenizer.hasNext()) {
-      const token = tokenizer.next();
-      gotValues.push(token.val);
-      gotTypes.push(token.type);
-    }
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(gotTypes).toEqual(expectedTypes);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   });
 
   test("if($q1>30)==($q1<35)then$r1", function () {
-    const tokenizer = new Tokenizer("if($q1>30)==($q1<35)then$r1");
-    expect(tokenizer.hasNext()).toBe(true);
+    const expr = "if($q1>30)==($q1<35)then$r1";
 
-    const expectedValues: Array<any> = [
+    const expectedValues: Array<unknown> = [
       "if",
       "(",
       "$q1",
@@ -171,23 +158,13 @@ describe("Tokenizer expression tests", () => {
       "$r1",
     ];
 
-    const gotValues = new Array<any>();
-
-    while (tokenizer.hasNext()) gotValues.push(tokenizer.next().val);
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    testExpectedValues(expr, expectedValues);
   });
 
   test("if($q1and$q2)then$r1else$r2", function () {
-    const tokenizer = new Tokenizer("if($q1and$q2)then$r1else$r2");
-    expect(tokenizer.hasNext()).toBe(true);
+    const expr = "if($q1and$q2)then$r1else$r2";
 
-    const expectedValues: Array<any> = [
+    const expectedValues: Array<unknown> = [
       "if",
       "(",
       "$q1",
@@ -199,7 +176,7 @@ describe("Tokenizer expression tests", () => {
       "else",
       "$r2",
     ];
-    const expectedTypes: Array<any> = [
+    const expectedTypes: Array<TokenType> = [
       TokenType.if,
       TokenType.parenthesisOpen,
       TokenType.query,
@@ -211,31 +188,11 @@ describe("Tokenizer expression tests", () => {
       TokenType.else,
       TokenType.return,
     ];
-    const gotValues = new Array<any>();
-    const gotTypes = new Array<any>();
-
-    while (tokenizer.hasNext()) {
-      const token = tokenizer.next();
-      gotValues.push(token.val);
-      gotTypes.push(token.type);
-
-      // console.log("token value", token.val)
-    }
-    // console.log("gotValues", gotValues);
-    // console.log("gotTypes", gotTypes);
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(gotTypes).toEqual(expectedTypes);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   });
 
   test("if($q1>35and$q2<40)then$r1else$r2", function () {
-    const tokenizer = new Tokenizer("if($q1>35and$q2<40)then$r1else$r2");
-    expect(tokenizer.hasNext()).toBe(true);
+    const expr = "if($q1>35and$q2<40)then$r1else$r2";
 
     const expectedValues: Array<string | number> = [
       "if",
@@ -269,25 +226,14 @@ describe("Tokenizer expression tests", () => {
       TokenType.else,
       TokenType.return,
     ];
-    const gotValues = new Array<unknown>();
-    const gotTypes = new Array<TokenType>();
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
+  });
 
-    while (tokenizer.hasNext()) {
-      const token = tokenizer.next();
-      gotValues.push(token.val);
-      gotTypes.push(token.type);
+  test("$q3=='US'", function () {
+    const expr = "$q3=='US'";
+    const expectedValues = ["$q3", "==", "US"];
+    const expectedTypes = [TokenType.query, TokenType.eq, TokenType.string];
 
-      // console.log("token value", token.val)
-    }
-    // console.log("gotValues", gotValues);
-    // console.log("gotTypes", gotTypes);
-
-    expect(gotValues).toEqual(expectedValues);
-    expect(gotTypes).toEqual(expectedTypes);
-    expect(tokenizer.hasNext()).toBe(false);
-
-    expect(() => tokenizer.next()).toThrow(
-      new ParserError(0, "no more tokens"),
-    );
+    testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   });
 });
