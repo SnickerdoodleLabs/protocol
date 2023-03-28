@@ -948,7 +948,7 @@ export class ConsentContract implements IConsentContract {
       this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call openOptInDisabled()",
+          "Unable to call getNumberOfStakedTags()",
           "Unknown",
           e,
         );
@@ -963,7 +963,7 @@ export class ConsentContract implements IConsentContract {
       this.contract.getTagArray() as Promise<ITagStruct[]>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call openOptInDisabled()",
+          "Unable to call getTagArray()",
           "Unknown",
           e,
         );
@@ -1029,7 +1029,7 @@ export class ConsentContract implements IConsentContract {
     newStakeAmount: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.newGlobalTag(
+      this.contract.newLocalTagDownstream(
         tag,
         existingStakeAmount,
         newStakeAmount,
