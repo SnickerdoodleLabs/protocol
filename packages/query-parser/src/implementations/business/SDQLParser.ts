@@ -54,12 +54,12 @@ export class SDQLParser {
   public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
-  public logicReturns = new Map<string, AST_Expr | Command>();
-  public logicCompensations = new Map<string, AST_Expr | Command>();
-  public logicAds = new Map<string, AST_Expr | Command>();
-  public returnPermissions = new Map<string, DataPermissions>();
-  public compensationPermissions = new Map<string, DataPermissions>();
-  public adPermissions = new Map<string, DataPermissions>();
+  // public logicReturns = new Map<string, AST_Expr | Command>();
+  // public logicCompensations = new Map<string, AST_Expr | Command>();
+  // public logicAds = new Map<string, AST_Expr | Command>();
+  // public returnPermissions = new Map<string, DataPermissions>();
+  // public compensationPermissions = new Map<string, DataPermissions>();
+  // public adPermissions = new Map<string, DataPermissions>();
 
   public exprParser: ExprParser | null = null;
 
@@ -89,14 +89,10 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
-    return this.parseAds().andThen(() => {
-      return this.parseQueries().andThen(() => {
-        return this.parseReturns().andThen(() => {
-          return this.parseCompensations().andThen(() => {
-            return this.parseLogic().andThen(() => {
-              return this.parsePermissions();
-            });
-          });
+    return this.parseQueries().andThen(() => {
+      return this.parseAds().andThen(() => {
+        return this.parseInsights().andThen(() => {
+          return this.parseCompensations();
         });
       });
     });
@@ -146,7 +142,7 @@ export class SDQLParser {
       this.validateTimeStampExpiry(schema, cid),
       this.validateQuery(schema),
       this.validateCompenstations(schema),
-      this.validateLogic(schema),
+      // this.validateLogic(schema),
     ]).andThen(() => {
       return okAsync(undefined);
     });
@@ -238,6 +234,13 @@ export class SDQLParser {
       for (const key in adsSchema) {
         const adKey = SDQL_Name(key); //'a1'
         const singleAdSchema = adsSchema[key] as ISDQLAd;
+        const adTarget = this.parseExpString(
+          singleAdSchema.target,
+        ) as AST_ConditionExpr;
+        const dataPermissions = this.parseUnifiedDataPermissions([
+          singleAdSchema.target,
+        ]);
+
         const ad = new AST_Ad(
           adKey,
           SDQL_Name(singleAdSchema.name),
@@ -247,7 +250,8 @@ export class SDQLParser {
           singleAdSchema.weight,
           singleAdSchema.expiry,
           singleAdSchema.keywords,
-          new AST_ConditionExpr(SDQL_Name("True"), true),
+          adTarget,
+          dataPermissions,
         );
 
         this.ads.set(adKey, ad);
@@ -327,40 +331,29 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    return okAsync(undefined);
-    try {
-      const insightSchema = this.schema.getInsightSchema();
-      if (!insightSchema) {
-        return okAsync(undefined);
-      }
-      const insightResults: ResultAsync<
-        AST_Insight,
-        DuplicateIdInSchema | QueryFormatError | MissingASTError
-      >[] = [];
-      for (const iName in insightSchema) {
-        // console.log(`parsing insight ${iName}`);
-
-        const name = SDQL_Name(iName);
-        const schema = insightSchema[iName];
-        insightResults.push(this.parseInsight(name, schema));
-      }
-
-      return ResultUtils.combine(insightResults).andThen((insights) => {
-        insights.map((insight) => {
-          this.insights.set(insight.name, insight);
-          this.saveInContext(insight.name, insight);
-        });
-        return okAsync(undefined);
-      });
-    } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+    const insightSchema = this.schema.getInsightSchema();
+    if (!insightSchema) {
+      return okAsync(undefined);
     }
+    const insightResults: ResultAsync<
+      AST_Insight,
+      DuplicateIdInSchema | QueryFormatError | MissingASTError
+    >[] = [];
+    for (const iName in insightSchema) {
+      // console.log(`parsing insight ${iName}`);
+
+      const name = SDQL_Name(iName);
+      const schema = insightSchema[iName];
+      insightResults.push(this.parseInsight(name, schema));
+    }
+
+    return ResultUtils.combine(insightResults).andThen((insights) => {
+      insights.map((insight) => {
+        this.insights.set(insight.name, insight);
+        this.saveInContext(insight.name, insight);
+      });
+      return okAsync(undefined);
+    });
   }
 
   private parseInsight(
@@ -370,12 +363,27 @@ export class SDQLParser {
     AST_Insight,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    return errAsync(new QueryFormatError("hello"));
-
     // 1. build ast from target, requires queries in the context
     // 2. build ast from returns, requires queries in the context
+    const targetAst = this.parseExpString(schema.target);
+    const returnsAst = this.parseExpString(schema.returns);
+    const dataPermissions = this.parseUnifiedDataPermissions([
+      schema.target,
+      schema.returns,
+    ]);
+    return okAsync(
+      new AST_Insight(
+        name,
+        targetAst as AST_ConditionExpr,
+        returnsAst as AST_Expr,
+        dataPermissions,
+      ),
+    );
   }
 
+  /**
+   * @deprecated
+   */
   private parseReturns(): ResultAsync<
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
@@ -492,6 +500,9 @@ export class SDQLParser {
 
   // #region Logic
 
+  /**
+   * @deprecated
+   */
   private parseLogic(): ResultAsync<
     void,
     ParserError | MissingTokenConstructorError | QueryFormatError
@@ -524,6 +535,9 @@ export class SDQLParser {
     // }
   }
 
+  /**
+   * @deprecated
+   */
   private parseLogicExpressions(
     expressions: Array<string>,
   ): Map<string, AST_Expr | Command> {
@@ -542,6 +556,9 @@ export class SDQLParser {
     // throw new Error("Expression Parser not found.");
   }
 
+  /**
+   * @deprecated
+   */
   private parsePermissions(): ResultAsync<
     void,
     ParserError | MissingWalletDataTypeError
@@ -570,15 +587,26 @@ export class SDQLParser {
     // }
   }
 
+
+  /**
+   * @deprecated
+   */
   private parseLogicPermissions(
     expressions: Array<string>,
   ): Map<string, DataPermissions> {
     const permMap = new Map();
     for (const expression of expressions) {
-      const queryDeps = this.parseQueryDependencies(expression);
-      permMap.set(expression, this.queriesToDataPermission(queryDeps));
+      permMap.set(expression, this.parseUnifiedDataPermissions([expression]));
     }
     return permMap;
+  }
+
+  private parseUnifiedDataPermissions(expressions: string[]): DataPermissions {
+    let queryDeps: AST_Query[] = [];
+    for (const expression of expressions) {
+      queryDeps = [...queryDeps, ...this.parseQueryDependencies(expression)];
+    }
+    return this.queriesToDataPermission(queryDeps);
   }
 
   public parseAdDependencies(compensationExpression: string): AST_Ad[] {

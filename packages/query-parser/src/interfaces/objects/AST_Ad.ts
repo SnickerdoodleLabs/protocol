@@ -3,6 +3,7 @@ import {
   SDQL_Name,
   UnixTimestamp,
   EAdDisplayType,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 
 import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
@@ -18,5 +19,6 @@ export class AST_Ad {
     readonly expiry: UnixTimestamp,
     readonly keywords: string[],
     readonly target: AST_ConditionExpr,
+    readonly requiredPermissions: DataPermissions,
   ) {}
 }
