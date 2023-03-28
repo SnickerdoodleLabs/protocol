@@ -257,9 +257,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   public getNumberOfListings(
     tag: MarketplaceTag,
   ): ResultAsync<number, ConsentFactoryContractError> {
-    const key = ethers.utils.keccak256(ethers.utils.toUtf8String(tag));
     return ResultAsync.fromPromise(
-      this.contract.listingTotals(key) as Promise<BigNumber>,
+      this.contract.getTagTotal(tag) as Promise<BigNumber>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getNumberOfListings()",
