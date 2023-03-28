@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   PersistenceError,
   EVMPrivateKey,
@@ -53,8 +58,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private fullRestorePromise: Promise<void>;
   private resolveFullRestore: (() => void) | null = null;
 
-  private recordQueue = new Array<QueuedRecord<VersionedObject>>();
-
   public constructor(
     @inject(IBackupManagerProviderType)
     protected backupManagerProvider: IBackupManagerProvider,
@@ -70,6 +73,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     protected volatileSchemaProvider: IVolatileStorageSchemaProvider,
     @inject(ILocalStorageSchemaProviderType)
     protected fieldSchemaProvider: IFieldSchemaProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -186,13 +190,40 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     tableName: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError> {
-    this.recordQueue.push(
-      new QueuedRecord<T>(tableName, new VolatileStorageMetadata<T>(value)),
-    );
-    this._processRecordQueue().mapErr((e) => {
-      this.logUtils.error("error processing record queue", e);
+    return ResultUtils.combine([
+      this.backupManagerProvider.getBackupManager(),
+      this.waitForUnlock(),
+    ]).andThen(([backupManager]) => {
+      if (tableName == ERecordKey.ACCOUNT) {
+        return this.volatileStorage
+          .putObject(tableName, new VolatileStorageMetadata<T>(value, 0))
+          .map(() => {
+            this.waitForInitialRestore().andThen(() => {
+              return this.volatileStorage
+                .getKey(tableName, value)
+                .andThen((key) => {
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  return this.volatileStorage.getObject(tableName, key!);
+                })
+                .andThen((found) => {
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  if (found!.lastUpdate == 0) {
+                    return backupManager.addRecord(
+                      tableName,
+                      new VolatileStorageMetadata<T>(value),
+                    );
+                  }
+                  return okAsync(undefined);
+                });
+            });
+          });
+      }
+
+      return backupManager.addRecord(
+        tableName,
+        new VolatileStorageMetadata<T>(value),
+      );
     });
-    return okAsync(undefined);
   }
 
   public deleteRecord(
@@ -374,48 +405,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorage.clear().mapErr((error) => {
       return new PersistenceError((error as Error).message, error);
     });
-  }
-
-  private _processRecordQueue(): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
-      .andThen(() => {
-        return ResultUtils.combine(
-          this.recordQueue.map((item) => {
-            return this.volatileStorage
-              .getKey(item.dataType, item.value.data)
-              .andThen((key) => {
-                if (key == null) {
-                  return this._processRecord(item);
-                }
-
-                return this.volatileStorage
-                  .getObject(item.dataType, key)
-                  .andThen((found) => {
-                    if (
-                      found != null &&
-                      deepEqual(found.data, item.value.data)
-                    ) {
-                      return okAsync(undefined);
-                    }
-                    return this._processRecord(item);
-                  });
-              });
-          }),
-        );
-      })
-      .map(() => {});
-  }
-
-  private _processRecord(
-    item: QueuedRecord<VersionedObject>,
-  ): ResultAsync<void, PersistenceError> {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.addRecord(item.dataType, item.value).map(() => {
-          this.recordQueue.splice(this.recordQueue.indexOf(item), 1);
-        });
-      });
   }
 
   private _pollHighPriorityBackups(): ResultAsync<void, PersistenceError> {
