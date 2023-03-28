@@ -367,6 +367,7 @@ const RewardProgramDetails: FC = () => {
       {permissionRequiredRewards?.length > 0 && (
         <Box mt={3}>
           <PossibleRewards
+            consentContractAddress={consentContractAddress}
             type={EPossibleRewardDisplayType.MorePermissionRequiered}
             rewards={permissionRequiredRewards}
           />
@@ -375,6 +376,7 @@ const RewardProgramDetails: FC = () => {
       {collectedRewards?.length > 0 && (
         <Box mt={3}>
           <CollectedRewards
+            consentContractAddress={consentContractAddress}
             rewards={collectedRewards}
             possibleRewards={possibleRewards}
           />
@@ -383,6 +385,7 @@ const RewardProgramDetails: FC = () => {
       {waitingRewards?.length > 0 && (
         <Box mt={3}>
           <PossibleRewards
+            consentContractAddress={consentContractAddress}
             type={EPossibleRewardDisplayType.Waiting}
             rewards={waitingRewards}
           />
@@ -391,6 +394,7 @@ const RewardProgramDetails: FC = () => {
       {programRewards?.length > 0 && (
         <Box mt={3}>
           <PossibleRewards
+            consentContractAddress={consentContractAddress}
             type={EPossibleRewardDisplayType.ProgramRewards}
             rewards={programRewards}
           />

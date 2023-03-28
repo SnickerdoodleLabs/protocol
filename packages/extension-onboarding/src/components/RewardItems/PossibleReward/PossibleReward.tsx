@@ -6,20 +6,30 @@ import { useRewardItemsStyles } from "@extension-onboarding/components/RewardIte
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { Box, Typography } from "@material-ui/core";
-import { EWalletDataType, PossibleReward } from "@snickerdoodlelabs/objects";
+import {
+  EVMContractAddress,
+  EWalletDataType,
+  PossibleReward,
+} from "@snickerdoodlelabs/objects";
 import React from "react";
+import { useNavigate } from "react-router";
+import { useLocation } from "react-router-dom";
 
 interface IPossibleRewardProps {
   reward: PossibleReward;
+  consentContractAddress: EVMContractAddress;
   badgeType?: EBadgeType;
 }
 export default ({
   reward,
+  consentContractAddress,
   badgeType = EBadgeType.None,
 }: IPossibleRewardProps) => {
   const { apiGateway } = useAppContext();
   const classes = useStyles();
   const rewardItemsClasses = useRewardItemsStyles();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const image = (
     <img
@@ -48,6 +58,14 @@ export default ({
       justifyContent="center"
       border="2px solid #F0F0F0"
       borderRadius={4}
+      onClick={() => {
+        navigate(`${pathname}/reward-detail`, {
+          state: {
+            consentContractAddress,
+            reward,
+          },
+        });
+      }}
     >
       <Box width="100%" position="relative">
         {image}

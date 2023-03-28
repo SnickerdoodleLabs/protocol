@@ -31,6 +31,7 @@ import PermissionSelection from "@extension-onboarding/pages/Onboarding/Permissi
 import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySelection";
 import Marketplace from "@extension-onboarding/pages/Details/screens/Marketplace";
 import CategoryDetail from "@extension-onboarding/pages/Details/screens/Marketplace/CategoryDetail";
+import RewardDetail from "@extension-onboarding/pages/Details/screens/RewardDetail";
 
 export const OnboardingRoutes = (
   <Route>
@@ -103,6 +104,18 @@ export const AuthFlowRoutes = (
       <Route
         path={EPaths.MARKETPLACE_CAMPAIGN_DETAIL}
         element={<RewardProgramDetails />}
+      />
+      <Route
+        path={EPaths.MARKETPLACE_REWARD_DETAIL}
+        element={<RewardDetail />}
+      />
+      <Route
+        path={EPaths.MARKETPLACE_REWARD_DETAIL_WITH_TAG}
+        element={<RewardDetail />}
+      />
+      <Route
+        path={EPaths.REWARDS_SUBSCRIPTION_REWARD_DETAIL}
+        element={<RewardDetail />}
       />
       <Route
         path={EPaths.MARKETPLACE_TAG_DETAIL}

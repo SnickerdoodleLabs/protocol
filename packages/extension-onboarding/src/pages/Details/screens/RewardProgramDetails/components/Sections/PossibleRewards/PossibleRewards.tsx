@@ -4,6 +4,7 @@ import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 import {
+  EVMContractAddress,
   EWalletDataType,
   PossibleReward,
   QueryTypePermissionMap,
@@ -18,8 +19,13 @@ declare const window: IWindowWithSdlDataWallet;
 interface IWaitingRewardsProps {
   rewards: PossibleReward[];
   type: EPossibleRewardDisplayType;
+  consentContractAddress: EVMContractAddress;
 }
-const WaitingRewards: FC<IWaitingRewardsProps> = ({ rewards, type }) => {
+const WaitingRewards: FC<IWaitingRewardsProps> = ({
+  rewards,
+  type,
+  consentContractAddress,
+}) => {
   const sectionClasses = useSectionStyles();
   const [defaultPermissions, setDefaultPermissions] = useState<
     EWalletDataType[]
@@ -40,7 +46,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({ rewards, type }) => {
   const getBadge = useCallback(
     (queryDependencies: QueryTypes[]) =>
       queryDependencies
-        .map((dependency) => QueryTypePermissionMap[dependency]!)
+        .map((dependency) => QueryTypePermissionMap.get(dependency)!)
         .every((dataType) => defaultPermissions.includes(dataType))
         ? EBadgeType.Available
         : EBadgeType.MorePermissionRequired,
@@ -89,6 +95,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({ rewards, type }) => {
           return (
             <Grid xs={2} item key={reward.queryCID}>
               <PossibleRewardComponent
+                consentContractAddress={consentContractAddress}
                 badgeType={
                   type === EPossibleRewardDisplayType.ProgramRewards
                     ? getBadge(reward.queryDependencies)

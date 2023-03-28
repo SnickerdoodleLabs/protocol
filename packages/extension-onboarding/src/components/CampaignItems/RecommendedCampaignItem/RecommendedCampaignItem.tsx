@@ -1,6 +1,6 @@
 import { useStyles } from "@extension-onboarding/components/CampaignItems/RecommendedCampaignItem/RecommendedCampaignItem.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import useCampaignItemLogic from "@extension-onboarding/hooks/useCampaignItemLogic";
+import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
@@ -78,7 +78,7 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
     isSubscribed,
     possibleRewards,
     handleSubscribeButton,
-  } = useCampaignItemLogic({ consentContractAddress });
+  } = useCampaignLogic({ consentContractAddress });
 
   const navigate = useNavigate();
 

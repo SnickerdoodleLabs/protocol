@@ -3,7 +3,7 @@ import { useStyles } from "@extension-onboarding/components/CampaignItems/Featur
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
-import useCampaignItemLogic from "@extension-onboarding/hooks/useCampaignItemLogic";
+import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
@@ -34,7 +34,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
     possibleRewards,
     collectedRewards,
     handleSubscribeButton,
-  } = useCampaignItemLogic({ consentContractAddress });
+  } = useCampaignLogic({ consentContractAddress });
 
   const navigate = useNavigate();
   const classes = useStyles();

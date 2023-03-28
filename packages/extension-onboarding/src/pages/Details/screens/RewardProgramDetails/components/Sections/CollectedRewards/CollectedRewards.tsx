@@ -11,6 +11,7 @@ import {
   DirectReward,
   EarnedReward,
   ERewardType,
+  EVMContractAddress,
   EWalletDataType,
   LazyReward,
   PossibleReward,
@@ -23,10 +24,12 @@ interface ICollectedRewardsProps {
   rewards: EarnedReward[];
   // temporary to read permissions
   possibleRewards: PossibleReward[];
+  consentContractAddress: EVMContractAddress;
 }
 const CollectedRewards: FC<ICollectedRewardsProps> = ({
   rewards,
   possibleRewards,
+  consentContractAddress,
 }) => {
   const sectionClasses = useSectionStyles();
   const getRewardComponent = (
@@ -37,6 +40,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
       case reward.type === ERewardType.Web2:
         return (
           <Web2RewardComponent
+            consentContractAddress={consentContractAddress}
             reward={reward as Web2Reward}
             permissions={permissions}
           />
@@ -44,6 +48,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
       case reward.type === ERewardType.Lazy:
         return (
           <LazyRewardComponent
+            consentContractAddress={consentContractAddress}
             reward={reward as LazyReward}
             permissions={permissions}
           />
@@ -51,6 +56,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
       default:
         return (
           <DirectRewardComponent
+            consentContractAddress={consentContractAddress}
             reward={reward as DirectReward}
             permissions={permissions}
           />

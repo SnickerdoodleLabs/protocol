@@ -3,17 +3,30 @@ import { useStyles } from "@extension-onboarding/components/RewardItems/DirectRe
 import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Typography } from "@material-ui/core";
-import { DirectReward, EWalletDataType } from "@snickerdoodlelabs/objects";
+import {
+  DirectReward,
+  EVMContractAddress,
+  EWalletDataType,
+} from "@snickerdoodlelabs/objects";
 import React from "react";
+import { useNavigate } from "react-router";
+import { useLocation } from "react-router-dom";
 
 interface IDirectRewardProps {
   reward: DirectReward;
-  permissions?: EWalletDataType[];
+  consentContractAddress: EVMContractAddress;
+  permissions: EWalletDataType[];
 }
-export default ({ reward, permissions }: IDirectRewardProps) => {
+export default ({
+  reward,
+  permissions,
+  consentContractAddress,
+}: IDirectRewardProps) => {
   const { apiGateway } = useAppContext();
   const classes = useStyles();
   const rewardItemsClasses = useRewardItemsStyles();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const image = (
     <img
@@ -29,6 +42,15 @@ export default ({ reward, permissions }: IDirectRewardProps) => {
       justifyContent="center"
       border="2px solid #F0F0F0"
       borderRadius={4}
+      onClick={() => {
+        navigate(`${pathname}/reward-detail`, {
+          state: {
+            consentContractAddress,
+            reward,
+            permissions,
+          },
+        });
+      }}
     >
       <Box width="100%" position="relative">
         {image}

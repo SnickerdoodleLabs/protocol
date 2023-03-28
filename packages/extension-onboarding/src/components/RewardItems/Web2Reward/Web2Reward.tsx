@@ -3,22 +3,30 @@ import { useStyles } from "@extension-onboarding/components/RewardItems/Web2Rewa
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { Box, Typography } from "@material-ui/core";
-import { EWalletDataType, Web2Reward } from "@snickerdoodlelabs/objects";
+import {
+  EVMContractAddress,
+  EWalletDataType,
+  Web2Reward,
+} from "@snickerdoodlelabs/objects";
 import React from "react";
+import { useNavigate } from "react-router";
+import { useLocation } from "react-router-dom";
 
 interface IWeb2RewardProps {
   reward: Web2Reward;
-  permissions?: EWalletDataType[];
-  badgeType?: EBadgeType;
+  permissions: EWalletDataType[];
+  consentContractAddress: EVMContractAddress;
 }
 export default ({
   reward,
   permissions,
-  badgeType = EBadgeType.None,
+  consentContractAddress,
 }: IWeb2RewardProps) => {
   const { apiGateway } = useAppContext();
   const classes = useStyles();
   const rewardItemsClasses = useRewardItemsStyles();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const image = (
     <img
@@ -38,6 +46,15 @@ export default ({
       borderRadius={12}
       p={3}
       mb={2}
+      onClick={() => {
+        navigate(`${pathname}/reward-detail`, {
+          state: {
+            consentContractAddress,
+            reward,
+            permissions,
+          },
+        });
+      }}
     >
       {image}
 

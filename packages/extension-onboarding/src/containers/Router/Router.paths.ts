@@ -8,10 +8,14 @@ export enum EPaths {
   HOME = "/",
   CAMPAIGNS = "/campaigns",
   MY_REWARDS = "/my-rewards",
+
   MARKETPLACE = "/marketplace",
   MARKETPLACE_CAMPAIGN_DETAIL = "/marketplace/reward-program-detail",
+  MARKETPLACE_REWARD_DETAIL = "/marketplace/reward-program-detail/reward-detail",
   MARKETPLACE_TAG_DETAIL = "/marketplace/:tag",
   MARKETPLACE_CAMPAIGN_DETAIL_WITH_TAG = "/marketplace/:tag/reward-program-detail",
+  MARKETPLACE_REWARD_DETAIL_WITH_TAG = "/marketplace/:tag/reward-program-detail/reward-detail",
+
   MARKETPLACE_CAMPAIGNS = "/campaigns/marketplace",
   MARKETPLACE_COLLECTION = "/rewards/marketplace/:brand",
   MARKETPLACE_REWARD = "/rewards/marketplace/reward",
@@ -20,6 +24,7 @@ export enum EPaths {
   WEB2_SETTINGS = "/settings/web2",
   REWARDS_SUBSCRIPTIONS = "/settings/rewards-subscriptions",
   REWARDS_SUBSCRIPTION_DETAIL = "/settings/rewards-subscriptions/reward-program-detail",
+  REWARDS_SUBSCRIPTION_REWARD_DETAIL = "/settings/rewards-subscriptions/reward-program-detail/reward-detail",
   DATA_PERMISSIONS_SETTING = "/settings/data-permissions",
   SCAM_FILTER_SETTINGS = "/settings/scam-filter",
   TOKENS = "/data-dashboard/tokens",
