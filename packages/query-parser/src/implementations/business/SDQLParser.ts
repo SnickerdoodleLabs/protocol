@@ -1,5 +1,28 @@
 import "reflect-metadata";
 
+import {
+  AdKey,
+  DataPermissions,
+  DuplicateIdInSchema,
+  EWalletDataType,
+  IpfsCID,
+  ISDQLAd,
+  ISDQLCompensationParameters,
+  ISDQLCompensations,
+  ISDQLInsightBlock,
+  MissingASTError,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
+  ParserError,
+  QueryExpiredError,
+  QueryFormatError,
+  SDQL_Name,
+  URLString,
+  Version,
+} from "@snickerdoodlelabs/objects";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import {
   AST,
@@ -20,33 +43,14 @@ import {
   SDQLQueryWrapper,
   AST_ConditionExpr,
 } from "@query-parser/interfaces/index.js";
-import {
-  AdKey,
-  DataPermissions,
-  DuplicateIdInSchema,
-  EWalletDataType,
-  IpfsCID,
-  ISDQLAd,
-  ISDQLCompensationParameters,
-  ISDQLCompensations,
-  MissingASTError,
-  MissingTokenConstructorError,
-  MissingWalletDataTypeError,
-  ParserError,
-  QueryExpiredError,
-  QueryFormatError,
-  SDQL_Name,
-  URLString,
-  Version,
-} from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
   public ads = new Map<SDQL_Name, AST_Ad>();
   public queries = new Map<SDQL_Name, AST_Query>();
+  public insights = new Map<SDQL_Name, AST_Insight>();
   public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
@@ -317,6 +321,59 @@ export class SDQLParser {
     }
 
     // return queries;
+  }
+
+  private parseInsights(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+    return okAsync(undefined);
+    try {
+      const insightSchema = this.schema.getInsightSchema();
+      if (!insightSchema) {
+        return okAsync(undefined);
+      }
+      const insightResults: ResultAsync<
+        AST_Insight,
+        DuplicateIdInSchema | QueryFormatError | MissingASTError
+      >[] = [];
+      for (const iName in insightSchema) {
+        // console.log(`parsing insight ${iName}`);
+
+        const name = SDQL_Name(iName);
+        const schema = insightSchema[iName];
+        insightResults.push(this.parseInsight(name, schema));
+      }
+
+      return ResultUtils.combine(insightResults).andThen((insights) => {
+        insights.map((insight) => {
+          this.insights.set(insight.name, insight);
+          this.saveInContext(insight.name, insight);
+        });
+        return okAsync(undefined);
+      });
+    } catch (err) {
+      if (err instanceof DuplicateIdInSchema) {
+        return errAsync(err as DuplicateIdInSchema);
+      }
+      if (err instanceof QueryFormatError) {
+        return errAsync(err as QueryFormatError);
+      }
+      return errAsync(new QueryFormatError(JSON.stringify(err)));
+    }
+  }
+
+  private parseInsight(
+    name: SDQL_Name,
+    schema: ISDQLInsightBlock,
+  ): ResultAsync<
+    AST_Insight,
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+    return errAsync(new QueryFormatError("hello"));
+
+    // 1. build ast from target, requires queries in the context
+    // 2. build ast from returns, requires queries in the context
   }
 
   private parseReturns(): ResultAsync<

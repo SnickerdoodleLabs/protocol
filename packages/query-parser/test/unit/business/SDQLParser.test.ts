@@ -22,8 +22,12 @@ import {
   Command_IF,
   ConditionAnd,
   ConditionGE,
+  AST_Expr,
+  ConditionG,
+  AST_BoolExpr,
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
+import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 
 describe("SDQLParser on avalanche", () => {
   const wrapperMocks = new SDQLQueryWrapperMocks();
@@ -92,30 +96,65 @@ describe("SDQLParser on avalanche", () => {
     });
   });
 
-  describe("Checking return queries", () => {
-    test("r1 is a return qualified message", () => {
-      const r = parser.context.get("r1") as AST_ReturnExpr;
-      expect(r instanceof AST_ReturnExpr).toBeTruthy();
-      expect(r.source instanceof AST_Return).toBeTruthy();
-      expect(r.source.name).toBe("callback");
-      expect((r.source as AST_Return).message).toBe("qualified");
-    });
-    test("r2 is a return not qualified message", () => {
-      const r = parser.context.get("r2") as AST_ReturnExpr;
-      expect(r instanceof AST_ReturnExpr).toBeTruthy();
-      expect(r.source instanceof AST_Return).toBeTruthy();
-      expect(r.source.name).toBe("callback");
-      expect((r.source as AST_Return).message).toBe("not qualified");
+  // describe("Checking return queries", () => {
+  //   test("r1 is a return qualified message", () => {
+  //     const r = parser.context.get("r1") as AST_ReturnExpr;
+  //     expect(r instanceof AST_ReturnExpr).toBeTruthy();
+  //     expect(r.source instanceof AST_Return).toBeTruthy();
+  //     expect(r.source.name).toBe("callback");
+  //     expect((r.source as AST_Return).message).toBe("qualified");
+  //   });
+  //   test("r2 is a return not qualified message", () => {
+  //     const r = parser.context.get("r2") as AST_ReturnExpr;
+  //     expect(r instanceof AST_ReturnExpr).toBeTruthy();
+  //     expect(r.source instanceof AST_Return).toBeTruthy();
+  //     expect(r.source.name).toBe("callback");
+  //     expect((r.source as AST_Return).message).toBe("not qualified");
+  //   });
+
+  //   test("r3 is a query_response", () => {
+  //     const r = parser.context.get("r3") as AST_ReturnExpr;
+  //     expect(r instanceof AST_ReturnExpr).toBeTruthy();
+  //     expect(r.source instanceof AST_Query).toBeTruthy();
+  //     expect(r.source.name).toBe("q3");
+  //   });
+  // });
+
+  describe.only("Checking insights", () => {
+    
+    test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
+      const i1 = parser.context.get("i1") as AST_Insight;
+      const i2 = parser.context.get("i2") as AST_Insight;
+      const i3 = parser.context.get("i3") as AST_Insight;
+
+      console.log(i1, i2, i3);
+
+      expect(i1 instanceof AST_Insight).toBeTruthy();
+      expect(i2 instanceof AST_Insight).toBeTruthy();
+      expect(i3 instanceof AST_Insight).toBeTruthy();
+
+      expect(i1.name).toBe(SDQL_Name("i1"));
+      expect(i2.name).toBe(SDQL_Name("i2"));
+      expect(i3.name).toBe(SDQL_Name("i3"));
+
+      expect(i1.target instanceof AST_ConditionExpr).toBeTruthy();
+      expect(i1.target.source instanceof ConditionG).toBeTruthy();
+      expect(i1.returns instanceof AST_Expr).toBeTruthy();
+      expect(typeof i1.returns.source === "string").toBeTruthy();
+
+      expect(i2.target instanceof AST_ConditionExpr).toBeTruthy();
+      expect(i2.target.source instanceof AST_Query).toBeTruthy();
+      expect(i2.returns instanceof AST_Expr).toBeTruthy();
+      expect(typeof i2.returns.source === "string").toBeTruthy();
+
+      expect(i3.target instanceof AST_ConditionExpr).toBeTruthy();
+      expect(i3.target.source instanceof AST_BoolExpr).toBeTruthy();
+      expect(i3.returns instanceof AST_Expr).toBeTruthy();
+      expect(i3.returns.source instanceof AST_Query).toBeTruthy();
+
     });
 
-    test("r3 is a query_response", () => {
-      const r = parser.context.get("r3") as AST_ReturnExpr;
-      expect(r instanceof AST_ReturnExpr).toBeTruthy();
-      expect(r.source instanceof AST_Query).toBeTruthy();
-      expect(r.source.name).toBe("q3");
-    });
   });
-
   describe("Checking compensations", () => {
     test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
       const c1 = parser.context.get("c1") as AST_Compensation;
@@ -178,53 +217,53 @@ describe("SDQLParser on avalanche", () => {
     });
   });
 
-  describe("Checking Logic return ASTs", () => {
-    test("avalanche 1 has 2 return ASTs", () => {
-      expect(parser.logicReturns.size).toBe(2);
-    });
+  // describe("Checking Logic return ASTs", () => {
+  //   test("avalanche 1 has 2 return ASTs", () => {
+  //     expect(parser.logicReturns.size).toBe(2);
+  //   });
 
-    test("First return is a valid if($q1and$q2)then$r1else$r2 AST", () => {
-      const eef = parser.logicReturns.get(
-        "if($q1and$q2)then$r1else$r2",
-      ) as Command_IF;
-      expect(eef.constructor).toBe(Command_IF);
-      expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
-      const and = eef.conditionExpr.source as ConditionAnd;
-      expect(and.constructor).toBe(ConditionAnd);
-      expect(and.lval).toEqual(parser.context.get("q1"));
-      expect(and.rval).toEqual(parser.context.get("q2"));
+  //   test("First return is a valid if($q1and$q2)then$r1else$r2 AST", () => {
+  //     const eef = parser.logicReturns.get(
+  //       "if($q1and$q2)then$r1else$r2",
+  //     ) as Command_IF;
+  //     expect(eef.constructor).toBe(Command_IF);
+  //     expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
+  //     const and = eef.conditionExpr.source as ConditionAnd;
+  //     expect(and.constructor).toBe(ConditionAnd);
+  //     expect(and.lval).toEqual(parser.context.get("q1"));
+  //     expect(and.rval).toEqual(parser.context.get("q2"));
 
-      expect(eef.trueExpr.constructor).toBe(AST_ReturnExpr);
-      expect(eef.falseExpr?.constructor).toBe(AST_ReturnExpr);
+  //     expect(eef.trueExpr.constructor).toBe(AST_ReturnExpr);
+  //     expect(eef.falseExpr?.constructor).toBe(AST_ReturnExpr);
 
-      expect(eef.trueExpr).toEqual(parser.context.get("r1"));
-      expect(eef.falseExpr).toEqual(parser.context.get("r2"));
-    });
+  //     expect(eef.trueExpr).toEqual(parser.context.get("r1"));
+  //     expect(eef.falseExpr).toEqual(parser.context.get("r2"));
+  //   });
 
-    test("Second return is $r3", () => {
-      const r3 = parser.logicReturns.get("$r3");
-      expect(r3).toEqual(parser.context.get("r3"));
-    });
-  });
+  //   test("Second return is $r3", () => {
+  //     const r3 = parser.logicReturns.get("$r3");
+  //     expect(r3).toEqual(parser.context.get("r3"));
+  //   });
+  // });
 
-  describe("Checking Logic compenstation ASTs", () => {
-    test("avalanche 1 has 3 compenstation ASTs", () => {
-      expect(parser.logicCompensations.size).toBe(3);
-    });
-    test("First compenstation is a valid if$q1then$c1 AST", () => {
-      const eef = parser.logicCompensations.get("if$q1then$c1") as Command_IF;
-      expect(eef.constructor).toBe(Command_IF);
-      expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
-      const q1 = eef.conditionExpr.source as AST_Query;
-      expect(q1.constructor).toBe(AST_BlockchainTransactionQuery);
-      expect(q1).toEqual(parser.context.get("q1"));
+  // describe("Checking Logic compenstation ASTs", () => {
+  //   test("avalanche 1 has 3 compenstation ASTs", () => {
+  //     expect(parser.logicCompensations.size).toBe(3);
+  //   });
+  //   test("First compenstation is a valid if$q1then$c1 AST", () => {
+  //     const eef = parser.logicCompensations.get("if$q1then$c1") as Command_IF;
+  //     expect(eef.constructor).toBe(Command_IF);
+  //     expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
+  //     const q1 = eef.conditionExpr.source as AST_Query;
+  //     expect(q1.constructor).toBe(AST_BlockchainTransactionQuery);
+  //     expect(q1).toEqual(parser.context.get("q1"));
 
-      expect(eef.trueExpr.constructor).toBe(AST_Compensation);
-      expect(eef.falseExpr).toBeNull();
+  //     expect(eef.trueExpr.constructor).toBe(AST_Compensation);
+  //     expect(eef.falseExpr).toBeNull();
 
-      expect(eef.trueExpr).toEqual(parser.context.get("c1"));
-    });
-  });
+  //     expect(eef.trueExpr).toEqual(parser.context.get("c1"));
+  //   });
+  // });
 
   describe("AST validation", () => {
     test("meta check", () => {

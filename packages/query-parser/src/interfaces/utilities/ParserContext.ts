@@ -8,6 +8,7 @@ import {
   AST_Query,
   AST_ReturnExpr,
 } from "@query-parser/interfaces/objects";
+import { AST_Insight } from "../objects/AST_Insight";
 
 export type ParserContextDataTypes =
   | AST_Query
@@ -18,7 +19,8 @@ export type ParserContextDataTypes =
   | AST_ReturnExpr
   | AST_Compensation
   | AST_Ad
-  | AST_Expr;
+  | AST_Expr
+  | AST_Insight;
 
 export type ConditionOperandTypes =
   | string
@@ -26,6 +28,7 @@ export type ConditionOperandTypes =
   | boolean
   | AST_Expr
   | SDQL_Return
-  | Array<string | number>;
+  | Array<string | number>
+  | AST_Insight;
 
 export type IfOperandTypes = AST_ReturnExpr | AST_CompensationExpr | null;

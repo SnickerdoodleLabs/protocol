@@ -337,7 +337,7 @@ describe("Postfix to AST", () => {
     expect(expr.source).toBe(true);
   });
 
-  test.only("True and True to ast", async () => {
+  test("True and True to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
@@ -346,14 +346,14 @@ describe("Postfix to AST", () => {
     const expr = parser.parse("True and True") as AST_ConditionExpr;
 
     // Assert
-    console.log(expr);
+    // console.log(expr);
     expect(expr.source.constructor).toBe(ConditionAnd);
     const mainAnd = expr.source as ConditionAnd;
     expect(mainAnd.lval!).toBe(true);
     expect(mainAnd.rval).toBe(true);
   });
 
-  test.only("$q3 == 'US'", async () => {
+  test("$q3 == 'US'", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
@@ -362,7 +362,7 @@ describe("Postfix to AST", () => {
     const expr = parser.parse("$q3 == 'US'") as AST_ConditionExpr;
 
     // Assert
-    console.log(expr);
+    // console.log(expr);
     expect(expr.source.constructor).toBe(ConditionE);
     const cond = expr.source as ConditionE;
     expect(cond.lval!).toEqual(mocks.context!.get("q3"));

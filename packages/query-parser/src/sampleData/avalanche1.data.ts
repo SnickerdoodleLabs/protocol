@@ -60,7 +60,7 @@ export const avalanche1SchemaStr = JSON.stringify({
     },
     i3: {
       name: "query_response",
-      conditions: "True",
+      target: "True",
       returns: "$q3",
     },
   },
