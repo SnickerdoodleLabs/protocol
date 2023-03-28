@@ -239,7 +239,6 @@ export class BackupManager implements IBackupManager {
           return this._restoreField(backup.header, unpacked as FieldDataUpdate);
         })
         .andThen(() => {
-          console.log("CHARLIE");
           return this._addRestored(backup);
         });
     });
@@ -304,7 +303,6 @@ export class BackupManager implements IBackupManager {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._addRestored(this.renderedChunks.get(id)!).map(() => {
       this.renderedChunks.delete(id);
       return id;

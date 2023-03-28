@@ -574,4 +574,68 @@ describe("BackupManager Tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
   });
+
+  test("popRendered() works", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    td.when(
+      mocks.recordChunkRenderer.update(
+        td.matchers.contains({
+          operation: EDataUpdateOpCode.UPDATE,
+          key: keyValue,
+          timestamp: now,
+          value: td.matchers.isA(TestVersionedObject),
+          version: 1,
+        }),
+      ),
+    ).thenReturn(okAsync(recordBackup));
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .andThen(() => {
+        return backupManager.popRendered(recordBackupId);
+      })
+      .andThen(() => {
+        return backupManager.getRendered();
+      });
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const backups = result._unsafeUnwrap();
+    expect(backups.length).toBe(0);
+  });
+
+  test("getRestored() works", async () => {
+    // Arrange
+    const mocks = new BackupManagerMocks();
+
+    const restoredBackup = new RestoredBackup(recordBackupId);
+
+    td.when(
+      mocks.volatileStorage.getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS),
+    ).thenReturn(
+      okAsync([
+        // Multiples to makes sure the set works
+        new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE),
+        new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE),
+      ]),
+    );
+
+    const backupManager = mocks.factory();
+
+    // Act
+    const result = await backupManager.getRestored();
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const restored = result._unsafeUnwrap();
+    expect(restored.size).toBe(1);
+    expect(Array.from(restored.values())[0]).toBe(recordBackupId);
+  });
 });
