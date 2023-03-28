@@ -35,6 +35,8 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 
+import jdbc
+
 export class SxTIndexer
   implements IEVMTransactionRepository, IEVMAccountBalanceRepository
 {
@@ -47,6 +49,26 @@ export class SxTIndexer
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    const driverConfig = {
+        url: "jdbc:sxt:thin://api.spaceandtime.app",
+        drivername: "api.spaceandtime.app",
+        minpoolsize: 1,
+        maxpoolsize: 100,
+        user: "andrewstrimaitis",
+        password: "8EwsbZAFudVxbb4ri2d9wh41U+lcfCv/oWF9YwR3IrA=",
+        properties: {}
+    };
+
+    const sforcesqldb = new jdbc(driverConfig);
+    const db = new database(driverConfig);
+
+    return ResultUtils.combine()
+  }
+  
   public getEVMTransactions(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -80,15 +102,6 @@ export class SxTIndexer
         config.etherscanTransactionsBatchSize,
       );
     });
-  }
-
-  public getBalancesForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    
-
-    return ResultUtils.combine()
   }
 
   protected _paginateTransactions(
