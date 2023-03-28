@@ -60,8 +60,8 @@ export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
   private _unlocked = false;
   private defaultPathInfo = {
-    name: "default",
-    path: "data/profiles/dataWallet/default",
+    name: "empty",
+    path: "data/profiles/dataWallet/empty",
   };
   private _profilePathInfo = this.defaultPathInfo;
 
@@ -290,9 +290,15 @@ export class DataWalletProfile {
         const demographic = JSON.parse(content);
 
         return ResultAsync.combine([
-          this.core.setBirthday(demographic.birthday ?? null),
-          this.core.setGender(demographic.gender ?? null),
-          this.core.setLocation(demographic.location ?? null),
+          demographic.birthday != undefined
+            ? this.core.setBirthday(demographic.birthday)
+            : okAsync(undefined),
+          demographic.gender != undefined
+            ? this.core.setGender(demographic.gender)
+            : okAsync(undefined),
+          demographic.location != undefined
+            ? this.core.setLocation(demographic.location)
+            : okAsync(undefined),
           // TODO: add more
         ]);
       })
