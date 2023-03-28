@@ -3,9 +3,11 @@ import { Observable } from "rxjs";
 import {
   LinkedAccount,
   MetatransactionSignatureRequest,
+  PermissionsGrantedEvent,
+  PermissionsRequestedEvent,
   SDQLQueryRequest,
-} from "@objects/businessObjects";
-import { DataWalletAddress } from "@objects/primitives";
+} from "@objects/businessObjects/index.js";
+import { DataWalletAddress, DomainName } from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
@@ -13,4 +15,7 @@ export interface ISnickerdoodleCoreEvents {
   onAccountAdded: Observable<LinkedAccount>;
   onAccountRemoved: Observable<LinkedAccount>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;
+  onPermissionsGranted: Observable<PermissionsGrantedEvent>;
+  onPermissionsRequested: Observable<PermissionsRequestedEvent>;
+  onPermissionsRevoked: Observable<DomainName>;
 }

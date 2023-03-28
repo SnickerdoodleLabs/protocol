@@ -1,35 +1,36 @@
 import {
   DataPermissions,
   EligibleReward,
-  ExpectedReward,
   EvaluationError,
-  InsightString,
-  QueryFormatError,
-  SDQLQuery,
-  QueryIdentifier,
-  IDynamicRewardParameter,
   EVMContractAddress,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
+  ParserError,
+  PossibleReward,
+  QueryFormatError,
+  QueryIdentifier,
+  SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
 
 export interface IQueryParsingEngine {
   getPermittedQueryIdsAndExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress
-  ): ResultAsync<
-    [QueryIdentifier[], ExpectedReward[]],
-    EvaluationError
-  >;
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError>;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
     parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
-    [InsightString[], EligibleReward[]],
+    [IInsights, EligibleReward[]],
     EvaluationError | QueryFormatError
   >;
+  getPossibleRewards(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError>;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");

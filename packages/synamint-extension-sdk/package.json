@@ -1,0 +1,98 @@
+{
+  "name": "@snickerdoodlelabs/synamint-extension-sdk",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [],
+  "author": "okan@snickerdoodlelabs.io",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "!types",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!src",
+    "!tsconfig.json",
+    "!package.base.json",
+    "!package.dev.json",
+    "!package.umd.json"
+  ],
+  "main": "dist/core/index.js",
+  "types": "dist/core/index.d.ts",
+  "exports": {
+    ".": "./dist/core/index.js",
+    "./core": "./dist/core/index.js",
+    "./gateways": "./dist/gateways/index.js",
+    "./content": "./dist/content/index.js",
+    "./port": "./dist/port/index.js",
+    "./shared": "./dist/shared/index.js",
+    "./extensionShared": "./dist/extensionShared/index.js",
+    "./injectables": "./dist/content/injectables/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "gateways": [
+        "./dist/gateways/index.d.ts"
+      ],
+      "core": [
+        "./dist/core/index.d.ts"
+      ],
+      "content": [
+        "./dist/content/index.d.ts"
+      ],
+      "extensionShared": [
+        "./dist/extensionShared/index.d.ts"
+      ],
+      "port": [
+        "./dist/port/index.d.ts"
+      ],
+      "shared": [
+        "./dist/shared/index.d.ts"
+      ],
+      "injectables": [
+        "./dist/content/injectables/index.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "alias": "tsc-alias",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "prebuild": "node scripts/precompile",
+    "clean:build": "npx rimraf build",
+    "bundle:sdk": "yarn prebuild && npx webpack --config webpack.config.umd.js ",
+    "pack:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs",
+    "publish:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm publish --access public && node scripts/generatePackageJson.mjs"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@material-ui/styles": "^4.11.5",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/core": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/persistence": "workspace:^",
+    "@webcomponents/custom-elements": "^1.5.0",
+    "end-of-stream": "^1.4.4",
+    "ethers": "^5.6.6",
+    "extension-port-stream": "^2.0.1",
+    "inversify": "^6.0.1",
+    "json-rpc-engine": "^6.1.0",
+    "json-rpc-middleware-stream": "^3.0.0",
+    "jss": "^10.9.0",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "obj-multiplex": "^1.0.0",
+    "post-message-stream": "^3.0.0",
+    "pump": "^3.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.3.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5",
+    "sass": "^1.55.0",
+    "tldts": "^5.7.89",
+    "uuid": "^8.3.2",
+    "webextension-polyfill": "^0.9.0"
+  }
+}

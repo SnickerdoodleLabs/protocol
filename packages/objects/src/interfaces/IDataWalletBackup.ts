@@ -1,8 +1,6 @@
-import { Brand, make } from "ts-brand";
-
-import { AESEncryptedString } from "@objects/businessObjects";
+import { AESEncryptedString, VersionedObject } from "@objects/businessObjects";
 import { EBackupPriority } from "@objects/enum";
-import { UnixTimestamp } from "@objects/primitives";
+import { UnixTimestamp, VolatileStorageKey } from "@objects/primitives";
 
 export interface IDataWalletBackupHeader {
   hash: string;
@@ -13,7 +11,7 @@ export interface IDataWalletBackupHeader {
 
 export interface IDataWalletBackup {
   header: IDataWalletBackupHeader;
-  blob: AESEncryptedString;
+  blob: AESEncryptedString | BackupBlob;
 }
 
 export enum EDataUpdateOpCode {
@@ -21,17 +19,31 @@ export enum EDataUpdateOpCode {
   REMOVE = 1,
 }
 
-export class DataUpdate {
+export class VolatileDataUpdate {
   public constructor(
-    public value: object,
-    public timestamp: number,
     public operation: EDataUpdateOpCode,
+    public value: VersionedObject | VolatileStorageKey,
+    public timestamp: number,
+    public priority: EBackupPriority,
+    public version?: number,
+  ) {}
+}
+
+export class FieldDataUpdate {
+  public constructor(
+    public key: string,
+    public value: string,
+    public timestamp: number,
     public priority: EBackupPriority,
   ) {}
 }
 
-export type FieldMap = { [key: string]: DataUpdate };
-export type TableMap = { [key: string]: DataUpdate[] };
+export type FieldMap = {
+  [key: string]: FieldDataUpdate;
+};
+export type TableMap = {
+  [key: string]: VolatileDataUpdate[];
+};
 
 export class BackupBlob {
   public constructor(public fields: FieldMap, public records: TableMap) {}

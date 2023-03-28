@@ -26,6 +26,9 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
+  DomainName,
+  UnauthorizedError,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -101,7 +104,9 @@ export interface IAccountService {
     | UnsupportedLanguageError
   >;
 
-  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
+  getAccounts(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError>;
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
@@ -133,7 +138,7 @@ export interface IAccountService {
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError>;
+  ): ResultAsync<number, AccountIndexingError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

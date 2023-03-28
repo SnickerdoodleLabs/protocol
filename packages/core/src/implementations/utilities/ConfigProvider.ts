@@ -83,6 +83,7 @@ export class ConfigProvider
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
@@ -102,14 +103,15 @@ export class ConfigProvider
       4000, // polling interval for consent contracts on control chain
       {
         solana:
-          "https://solana-mainnet.g.alchemy.com/v2/jTt7xNc-M5Tl3myKDWgsKULpB3tR7uDB",
+          "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
         solanaTestnet:
           "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
         polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
       10000,
-      "(localhost|chrome:\/\/)",
+      "(localhost|chrome://)",
+      false,
     );
   }
 
@@ -121,6 +123,9 @@ export class ConfigProvider
     // Change the control chain, have to have new control chain info
     this.config.controlChainId =
       overrides.controlChainId ?? this.config.controlChainId;
+    this.config.defaultGoogleCloudBucket =
+      overrides.defaultGoogleCloudBucket ??
+      this.config.defaultGoogleCloudBucket;
 
     const controlChainInformation = chainConfig.get(this.config.controlChainId);
 
@@ -171,6 +176,7 @@ export class ConfigProvider
       overrides.moralisApiKey ?? this.config.moralisApiKey;
     this.config.nftScanApiKey =
       overrides.nftScanApiKey ?? this.config.nftScanApiKey;
+    this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -187,5 +193,7 @@ export class ConfigProvider
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
     this.config.domainFilter =
       overrides.domainFilter ?? this.config.domainFilter;
+    this.config.enableBackupEncryption =
+      overrides.enableBackupEncryption ?? false;
   }
 }

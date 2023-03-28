@@ -1,10 +1,6 @@
-import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import SearchIcon from "@material-ui/icons/Search";
-import React, { FC, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import {
   ChainId,
   DirectReward,
@@ -13,12 +9,18 @@ import {
   IpfsCID,
   TransactionReceipt,
 } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
 import RewardComponent from "./RewardComponent";
+
 import externalURLIcon from "@extension-onboarding/assets/icons/external-url.svg";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 declare const window: IWindowWithSdlDataWallet;
 
 const MarketPlaceCollection: FC = () => {
-  let { brand } = useParams();
+  const { brand } = useParams();
   const classes = useStyles();
   const onReviewClick = (arg0: EVMContractAddress) => {
     throw new Error("Function not implemented.");
@@ -36,8 +38,10 @@ const MarketPlaceCollection: FC = () => {
         "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
       description: "test",
       chainId: ChainId(1),
-      eoa: "sadsadsa" as EVMAccountAddress,
-      transactionReceipt: "sada" as TransactionReceipt,
+      contractAddress: EVMContractAddress(
+        "0xAc1d7BaBBaeC405cFefe0d22E1648dBF8b0d8545",
+      ),
+      recipientAddress: "sadsadsa" as EVMAccountAddress,
     } as DirectReward,
     {
       queryCID: "test" as IpfsCID,
@@ -46,8 +50,10 @@ const MarketPlaceCollection: FC = () => {
         "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
       description: "test",
       chainId: ChainId(1),
-      eoa: "sadsadsa" as EVMAccountAddress,
-      transactionReceipt: "sada" as TransactionReceipt,
+      contractAddress: EVMContractAddress(
+        "0xAc1d7BaBBaeC405cFefe0d22E1648dBF8b0d8545",
+      ),
+      recipientAddress: "sadsadsa" as EVMAccountAddress,
     } as DirectReward,
     {
       queryCID: "test" as IpfsCID,
@@ -56,8 +62,10 @@ const MarketPlaceCollection: FC = () => {
         "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
       description: "test",
       chainId: ChainId(1),
-      eoa: "sadsadsa" as EVMAccountAddress,
-      transactionReceipt: "sada" as TransactionReceipt,
+      contractAddress: EVMContractAddress(
+        "0xAc1d7BaBBaeC405cFefe0d22E1648dBF8b0d8545",
+      ),
+      recipientAddress: "sadsadsa" as EVMAccountAddress,
     } as DirectReward,
     {
       queryCID: "test" as IpfsCID,
@@ -66,8 +74,10 @@ const MarketPlaceCollection: FC = () => {
         "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
       description: "test",
       chainId: ChainId(1),
-      eoa: "sadsadsa" as EVMAccountAddress,
-      transactionReceipt: "sada" as TransactionReceipt,
+      contractAddress: EVMContractAddress(
+        "0xAc1d7BaBBaeC405cFefe0d22E1648dBF8b0d8545",
+      ),
+      recipientAddress: "sadsadsa" as EVMAccountAddress,
     } as DirectReward,
   ];
 
@@ -322,7 +332,7 @@ const MarketPlaceCollection: FC = () => {
         alignItems="center"
         style={{}}
       >
-       {/*  <SearchIcon />
+        {/*  <SearchIcon />
         <Typography>Search</Typography> */}
       </Box>
       <Box>

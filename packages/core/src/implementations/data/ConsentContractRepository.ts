@@ -1,3 +1,16 @@
+import { IConsentContractRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactoryType,
+  IContractFactory,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -22,20 +35,6 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentContractRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactoryType,
-  IContractFactory,
-} from "@core/interfaces/utilities/factory/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {

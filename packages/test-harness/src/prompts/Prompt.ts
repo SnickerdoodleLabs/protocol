@@ -1,4 +1,4 @@
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
@@ -12,7 +12,7 @@ export abstract class Prompt {
 
   public abstract start(): ResultAsync<void, Error>;
 
-  public get core(): SnickerdoodleCore {
+  public get core(): ISnickerdoodleCore {
     return this.env.core;
   }
   public get mocks(): TestHarnessMocks {

@@ -7,27 +7,15 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   HexString,
-  IDataWalletPersistence,
   InvitationDomain,
   IpfsCID,
   Signature,
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import {
-  dataWalletAddress,
-  dataWalletKey,
-  externalAccountAddress1,
-  consentContractAddress1,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/commonValues.js";
-import {
-  ConfigProviderMock,
-  ContextProviderMock,
-} from "@core-tests/mock/utilities";
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
@@ -35,13 +23,22 @@ import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
-  IMarketplaceRepository,
+  ILinkedAccountRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
+import {
+  dataWalletAddress,
+  consentContractAddress1,
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks/commonValues.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities";
 
 const metatransactionNonce = BigNumberString("nonce");
 const metatransactionValue = BigNumberString("value");
@@ -69,33 +66,31 @@ const invitationDomain = new InvitationDomain(
 
 class InvitationServiceMocks {
   public consentTokenUtils: IConsentTokenUtils;
-  public persistenceRepo: IDataWalletPersistence;
   public consentRepo: IConsentContractRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
-  public marketplaceRepo: IMarketplaceRepository;
   public forwarderRepo: IMetatransactionForwarderRepository;
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: IContextProvider;
   public configProvider: ConfigProviderMock;
   public logUtils: ILogUtils;
+  public accountRepo: ILinkedAccountRepository;
 
   public constructor() {
     this.consentTokenUtils = td.object<IConsentTokenUtils>();
-    this.persistenceRepo = td.object<IDataWalletPersistence>();
     this.consentRepo = td.object<IConsentContractRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.dnsRepository = td.object<IDNSRepository>();
     this.invitationRepo = td.object<IInvitationRepository>();
-    this.marketplaceRepo = td.object<IMarketplaceRepository>();
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.configProvider = new ConfigProviderMock();
     this.logUtils = td.object<ILogUtils>();
+    this.accountRepo = td.object<ILinkedAccountRepository>();
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
@@ -140,18 +135,17 @@ class InvitationServiceMocks {
   public factory(): IInvitationService {
     return new InvitationService(
       this.consentTokenUtils,
-      this.persistenceRepo,
       this.consentRepo,
       this.insightPlatformRepo,
       this.dnsRepository,
       this.invitationRepo,
       this.forwarderRepo,
-      this.marketplaceRepo,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,
       this.configProvider,
       this.logUtils,
+      this.accountRepo,
     );
   }
 }

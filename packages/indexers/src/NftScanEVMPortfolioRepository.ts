@@ -7,6 +7,7 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
+  BlockNumber,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
@@ -38,25 +39,21 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return this.generateQueryConfig(accountAddress)
       .andThen((requestConfig) => {
-        return this.ajaxUtils
-          .get<INftScanResponse>(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(requestConfig.url!),
-            requestConfig,
-          )
-          .andThen((result) => {
-            return this.getPages(chainId, result);
-          });
+        return this.ajaxUtils.get<INftScanResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .map((result) => {
+        return this.getPages(chainId, result);
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
       );
   }
 
-  private getPages(
-    chainId: ChainId,
-    response: INftScanResponse,
-  ): ResultAsync<EVMNFT[], AjaxError> {
+  private getPages(chainId: ChainId, response: INftScanResponse): EVMNFT[] {
     const items: EVMNFT[] = response.data.content.map((token) => {
       return new EVMNFT(
         EVMContractAddress(token.contract_address),
@@ -68,10 +65,12 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
         BigNumberString(token.amount),
         token.name,
         chainId,
+        undefined,
+        UnixTimestamp(Number(token.own_timestamp))
       );
     });
 
-    return okAsync(items);
+    return items;
   }
 
   private generateQueryConfig(

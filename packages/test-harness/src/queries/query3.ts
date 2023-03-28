@@ -9,37 +9,37 @@ export const query3 = {
       name: "Image ad name",
       content: {
         type: "image",
-        src: "https://mycdn.com/img1"
+        src: "https://mycdn.com/img1",
       },
       text: "Example ad text",
       displayType: "banner",
       weight: 100,
       expiry: "2039-11-13T20:20:39Z",
-      keywords: ["muktadir", "charlie", "todd"]
+      keywords: ["muktadir", "charlie", "todd"],
     },
     a2: {
       name: "Second Image ad name",
       content: {
         type: "image",
-        src: "https://mycdn.com/img1"
+        src: "https://mycdn.com/img1",
       },
       text: "Second Example ad text",
       displayType: "banner",
       weight: 10,
       expiry: "2039-11-13T20:20:39Z",
-      keywords: ["messi", "xavi", "iniesta"]
+      keywords: ["messi", "xavi", "iniesta"],
     },
     a3: {
       name: "Third Image ad name",
       content: {
         type: "video",
-        src: "https://mycdn.com/vid1"
+        src: "https://mycdn.com/vid1",
       },
       text: "third Example ad text",
       displayType: "banner",
       weight: 11,
       expiry: "2034-11-13T20:20:39Z",
-      keywords: ["a", "b", "c"]
+      keywords: ["a", "b", "c"],
     },
   },
   queries: {
@@ -51,7 +51,7 @@ export const query3 = {
       },
     },
     q2: {
-      name: "network",
+      name:"network",
       return: "boolean",
       chain: "AVAX",
       contract: {
@@ -83,7 +83,7 @@ export const query3 = {
       recipientAddress: {
         type: "address",
         required: true,
-      }
+      },
     },
     c1: {
       name: "The CryptoPunk Draw",
@@ -135,12 +135,8 @@ export const query3 = {
     },
   },
   logic: {
-    returns: [
-      "$r1", "$r2",
-    ],
-    ads: [
-      "if$q1then$a1", "$a2"
-    ],
+    returns: ["$r1", "$r2"],
+    ads: ["if$q1then$a1", "$a2"],
     compensations: [
       "if$q2then$c1", // Will be expected
       "if$a1then$c2", // Will be expected

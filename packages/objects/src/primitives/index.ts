@@ -1,7 +1,10 @@
 export * from "@objects/primitives/AccountAddress";
+export * from "@objects/primitives/AdKey";
+export * from "@objects/primitives/AdSurfaceId";
 export * from "@objects/primitives/AESKey";
 export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
+export * from "@objects/primitives/BackupFileName";
 export * from "@objects/primitives/Base64String";
 export * from "@objects/primitives/BaseURI";
 export * from "@objects/primitives/BigNumberString";
@@ -27,8 +30,9 @@ export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
 export * from "@objects/primitives/EVMTransactionHash";
 export * from "@objects/primitives/EVMPrivateKey";
-export * from "@objects/primitives/GivenName";
+export * from "@objects/primitives/FamilyName";
 export * from "@objects/primitives/Gender";
+export * from "@objects/primitives/GivenName";
 export * from "@objects/primitives/HexString";
 export * from "@objects/primitives/HexString32";
 export * from "@objects/primitives/InitializationVector";
@@ -37,7 +41,8 @@ export * from "@objects/primitives/IpfsCID";
 export * from "@objects/primitives/JSONString";
 export * from "@objects/primitives/JsonWebToken";
 export * from "@objects/primitives/LanguageCode";
-export * from "@objects/primitives/FamilyName";
+export * from "@objects/primitives/PEMEncodedRSAPrivateKey.js";
+export * from "@objects/primitives/PEMEncodedRSAPublicKey.js";
 export * from "@objects/primitives/ProviderUrl";
 export * from "@objects/primitives/PublicKey";
 export * from "@objects/primitives/QueryIdentifier";
@@ -66,7 +71,10 @@ export * from "@objects/primitives/Web2Credential";
 export * from "@objects/primitives/RewardFunctionParam";
 export * from "@objects/primitives/TransactionReceipt";
 export * from "@objects/primitives/CompensationId";
-export * from "@objects/primitives/AdKey";
 
 export * from "@objects/primitives/CeramicStreamID";
 export * from "@objects/primitives/TransactionHash";
+
+export * from "@objects/primitives/VolatileStorageKey";
+
+export * from "@objects/primitives/QueryTypes.js";

@@ -17,15 +17,24 @@ import {
   SolanaPrivateKey,
   EVMContractAddress,
   InvalidParametersError,
+  RSAKeyPair,
+  KeyGenerationError,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
+  getUUID(): UUID;
   getNonce(nonceSize?: number): ResultAsync<Base64String, never>;
   getTokenId(): ResultAsync<TokenId, never>;
   getTokenIds(quantity: number): ResultAsync<TokenId[], never>;
 
+  /**
+   * Creates a new 4096 bit RSA public/private keypair. There's no way to derive a valid RSA key
+   * via PBKDF2. The resulting keys are PEM encoded but not encrypted
+   */
+  createRSAKeyPair(): ResultAsync<RSAKeyPair, KeyGenerationError>;
   createAESKey(): ResultAsync<AESKey, never>;
   deriveAESKeyFromSignature(
     signature: Signature,
@@ -96,11 +105,11 @@ export interface ICryptoUtils {
   ): ResultAsync<Signature, never>;
 
   hashStringSHA256(message: string): ResultAsync<SHA256Hash, never>;
-  hashStringArgon2(message: string): ResultAsync<Argon2Hash, never>;
-  verifyHashArgon2(
-    hash: Argon2Hash,
-    message: string,
-  ): ResultAsync<boolean, never>;
+  // hashStringArgon2(message: string): ResultAsync<Argon2Hash, never>;
+  // verifyHashArgon2(
+  //   hash: Argon2Hash,
+  //   message: string,
+  // ): ResultAsync<boolean, never>;
 
   xmur3(str: string): () => number;
   sfc32(a: number, b: number, c: number, d: number): () => number;
