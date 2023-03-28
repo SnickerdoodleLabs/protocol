@@ -117,6 +117,7 @@ export class ChunkRenderer implements IChunkRenderer {
               signature,
               this.schema.priority,
               this.schema.name,
+              this.schema instanceof FieldIndex,
             );
 
             if (!this.enableEncryption) {

@@ -204,17 +204,24 @@ export class BackupManager implements IBackupManager {
       );
     }
 
-    const timestamp = Date.now();
-    this.fieldHistory.set(key, timestamp);
+    return ResultUtils.combine([
+      this.storageUtils.read<SerializedObject>(key),
+      Serializer.serialize(value),
+    ]).andThen(([current, newValue]) => {
+      if (current?.data == newValue.data) {
+        return okAsync(undefined);
+      }
 
-    return Serializer.serialize(value).andThen((serializedObj) => {
+      const timestamp = Date.now();
+      this.fieldHistory.set(key, timestamp);
+
       return this.storageUtils
-        .write<SerializedObject>(key, serializedObj)
+        .write<SerializedObject>(key, newValue)
         .andThen(() => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return this.fieldRenderers
             .get(key)!
-            .update(new FieldDataUpdate(key, serializedObj, timestamp))
+            .update(new FieldDataUpdate(key, newValue, timestamp))
             .map((backup) => {
               if (backup != null) {
                 this.renderedChunks.set(backup.header.hash, backup);

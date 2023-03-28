@@ -31,6 +31,7 @@ import {
   Serializer,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import deepEqual from "deep-equal";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -51,6 +52,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   private fullRestorePromise: Promise<void>;
   private resolveFullRestore: (() => void) | null = null;
+
+  private recordQueue = new Array<QueuedRecord<VersionedObject>>();
 
   public constructor(
     @inject(IBackupManagerProviderType)
@@ -183,15 +186,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     tableName: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.backupManagerProvider.getBackupManager(),
-      this.waitForUnlock(),
-    ]).andThen(([backupManager]) => {
-      return backupManager.addRecord(
-        tableName,
-        new VolatileStorageMetadata<T>(value),
-      );
+    this.recordQueue.push(
+      new QueuedRecord<T>(tableName, new VolatileStorageMetadata<T>(value)),
+    );
+    this._processRecordQueue().mapErr((e) => {
+      this.logUtils.error("error processing record queue", e);
     });
+    return okAsync(undefined);
   }
 
   public deleteRecord(
@@ -272,8 +273,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               this.resolveInitRestore!();
               clearTimeout(timeout);
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              this.pollBackups().map(() => this.resolveFullRestore!());
+              this.pollBackups().map(() => {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                this.resolveFullRestore!();
+              });
             })
             .mapErr((e) => {
               this.logUtils.debug("Unable to poll high priority backups", e);
@@ -373,6 +376,48 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  private _processRecordQueue(): ResultAsync<void, PersistenceError> {
+    return this.waitForFullRestore()
+      .andThen(() => {
+        return ResultUtils.combine(
+          this.recordQueue.map((item) => {
+            return this.volatileStorage
+              .getKey(item.dataType, item.value.data)
+              .andThen((key) => {
+                if (key == null) {
+                  return this._processRecord(item);
+                }
+
+                return this.volatileStorage
+                  .getObject(item.dataType, key)
+                  .andThen((found) => {
+                    if (
+                      found != null &&
+                      deepEqual(found.data, item.value.data)
+                    ) {
+                      return okAsync(undefined);
+                    }
+                    return this._processRecord(item);
+                  });
+              });
+          }),
+        );
+      })
+      .map(() => {});
+  }
+
+  private _processRecord(
+    item: QueuedRecord<VersionedObject>,
+  ): ResultAsync<void, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.addRecord(item.dataType, item.value).map(() => {
+          this.recordQueue.splice(this.recordQueue.indexOf(item), 1);
+        });
+      });
+  }
+
   private _pollHighPriorityBackups(): ResultAsync<void, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
@@ -392,4 +437,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .map(() => undefined);
   }
+}
+
+class QueuedRecord<T extends VersionedObject> {
+  public constructor(
+    public dataType: ERecordKey,
+    public value: VolatileStorageMetadata<T>,
+  ) {}
 }

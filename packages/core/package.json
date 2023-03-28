@@ -45,6 +45,7 @@
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/query-parser": "workspace:^",
     "@snickerdoodlelabs/signature-verification": "workspace:^",
+    "deep-equal": "^2.2.0",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "neverthrow": "^5.1.0",

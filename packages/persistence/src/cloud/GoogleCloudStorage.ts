@@ -272,11 +272,12 @@ class ParsedBackupFileName {
     public dataType: StorageKey,
     public timestamp: number,
     public hash: DataWalletBackupID,
+    public isField: boolean,
   ) {}
 
   public render(): string {
     const sanitized = ParsedBackupFileName._sanitizeDataType(this.dataType);
-    return `${this.priority}_${sanitized}_${this.timestamp}_${this.hash}`;
+    return `${this.priority}_${sanitized}_${this.timestamp}_${this.hash}_${this.isField}`;
   }
 
   public static fromHeader(
@@ -287,6 +288,7 @@ class ParsedBackupFileName {
       header.dataType,
       header.timestamp,
       header.hash,
+      header.isField,
     );
   }
 
@@ -297,7 +299,7 @@ class ParsedBackupFileName {
     }
 
     const split = name.split("_");
-    if (split.length != 4) {
+    if (split.length != 5) {
       return null;
     }
 
@@ -306,6 +308,7 @@ class ParsedBackupFileName {
       ParsedBackupFileName._getDataType(split[1]),
       Number.parseInt(split[2]),
       split[3] as DataWalletBackupID,
+      split[4] == "true",
     );
   }
 
