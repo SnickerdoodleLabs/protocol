@@ -36,6 +36,7 @@ export * from "@objects/primitives/GivenName";
 export * from "@objects/primitives/HexString";
 export * from "@objects/primitives/HexString32";
 export * from "@objects/primitives/InitializationVector";
+export * from "@objects/primitives/InsightKey";
 export * from "@objects/primitives/InsightString";
 export * from "@objects/primitives/IpfsCID";
 export * from "@objects/primitives/ISDQLConditionString";

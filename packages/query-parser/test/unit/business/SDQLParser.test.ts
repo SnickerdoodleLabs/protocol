@@ -26,8 +26,8 @@ import {
   ConditionG,
   AST_BoolExpr,
 } from "@query-parser/interfaces";
-import { avalanche1SchemaStr } from "@query-parser/sampleData";
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
+import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
 describe("SDQLParser on avalanche", () => {
   const wrapperMocks = new SDQLQueryWrapperMocks();
@@ -121,7 +121,6 @@ describe("SDQLParser on avalanche", () => {
   // });
 
   describe.only("Checking insights", () => {
-    
     test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
       const i1 = parser.context.get("i1") as AST_Insight;
       const i2 = parser.context.get("i2") as AST_Insight;
@@ -151,9 +150,7 @@ describe("SDQLParser on avalanche", () => {
       expect(i3.target.source instanceof AST_BoolExpr).toBeTruthy();
       expect(i3.returns instanceof AST_Expr).toBeTruthy();
       expect(i3.returns.source instanceof AST_Query).toBeTruthy();
-
     });
-
   });
   describe("Checking compensations", () => {
     test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
@@ -275,21 +272,21 @@ describe("SDQLParser on avalanche", () => {
     });
   });
 
-  describe("Dependency validation", () => {
-    test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
-      // console.log(parser.returnPermissions);
-      const permissions = parser.returnPermissions.get(
-        "if($q1and$q2)then$r1else$r2",
-      );
-      expect(permissions?.EVMTransactions).toBeTruthy();
-      expect(permissions?.Age).toBeTruthy();
-    });
+  // describe("Dependency validation", () => {
+  //   test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
+  //     // console.log(parser.returnPermissions);
+  //     const permissions = parser.returnPermissions.get(
+  //       "if($q1and$q2)then$r1else$r2",
+  //     );
+  //     expect(permissions?.EVMTransactions).toBeTruthy();
+  //     expect(permissions?.Age).toBeTruthy();
+  //   });
 
-    test("$r3 -> q3", () => {
-      // console.log(parser.returnPermissions);
-      const permissions = parser.returnPermissions.get("$r3");
-      const expectedFlags = EWalletDataType.Location;
-      expect(permissions?.Location).toBeTruthy();
-    });
-  });
+  //   test("$r3 -> q3", () => {
+  //     // console.log(parser.returnPermissions);
+  //     const permissions = parser.returnPermissions.get("$r3");
+  //     const expectedFlags = EWalletDataType.Location;
+  //     expect(permissions?.Location).toBeTruthy();
+  //   });
+  // });
 });

@@ -1,3 +1,26 @@
+import {
+  AdKey,
+  CompensationId,
+  DataPermissions,
+  DuplicateIdInSchema,
+  InsightKey,
+  IpfsCID,
+  ISDQLAd,
+  ISDQLCompensations,
+  MissingTokenConstructorError,
+  ParserError,
+  QueryExpiredError,
+  QueryFilteredByPermissions,
+  QueryFormatError,
+  QueryIdentifier,
+  QueryTypes,
+  SDQLString,
+  SDQL_Name,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
 import {
   AST_Ad,
@@ -16,27 +39,6 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/index.js";
-import {
-  AdKey,
-  CompensationId,
-  DataPermissions,
-  DuplicateIdInSchema,
-  IpfsCID,
-  ISDQLAd,
-  ISDQLCompensations,
-  MissingTokenConstructorError,
-  ParserError,
-  QueryExpiredError,
-  QueryFilteredByPermissions,
-  QueryFormatError,
-  QueryIdentifier,
-  QueryTypes,
-  SDQLString,
-  SDQL_Name,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -143,8 +145,9 @@ export class SDQLQueryUtils {
     adKeys: AdKey[],
   ): CompensationId[] {
     const adCompensationIds = new Set<CompensationId>();
+    // parser.compensations.forEach((comAst))
 
-    parser.logicCompensations.forEach((comAst, compExpr) => {
+    parser.requiresCompensations.forEach((comAst, compExpr) => {
       const adDependencies = parser.parseAdDependencies(compExpr);
       if (
         adDependencies.length > 0 && // Is an ad compensation
@@ -205,13 +208,17 @@ export class SDQLQueryUtils {
     });
   }
 
+  /**
+   * @deprecated
+   * compensations no more depend on queries. They depend on insights
+   */
   public getQueryTypeDependencies(
     parser: SDQLParser,
     compId: CompensationId,
   ): QueryTypes[] {
     const queryTypes = new Set<QueryTypes>();
 
-    parser.logicCompensations.forEach((comAst, compExpr) => {
+    parser.requiresCompensations.forEach((comAst, compExpr) => {
       const comIdFromExpression = this.extractCompensationIdFromAst(comAst!);
       if (compId == comIdFromExpression) {
         const adDependencies = parser.parseAdDependencies(compExpr);
@@ -322,7 +329,7 @@ export class SDQLQueryUtils {
       parser.queryIdsToDataPermissions(permittedQueryIds);
     parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
       if (queryPermissions.contains(adPermissions!)) {
-        const adAstExpr = parser.logicAds.get(adLogicExpr);
+        const adAstExpr = parser.targetAds.get(adLogicExpr);
         const adAst = this.getAdAstFromAst(adAstExpr!);
 
         permittedAdKeys.add(AdKey(adAst.key));
@@ -370,45 +377,75 @@ export class SDQLQueryUtils {
 
   private getAllExpectedCompensationsIds(
     parser: SDQLParser,
-    permittedQueryIds: QueryIdentifier[],
+    permittedInsightKeys: InsightKey[],
     permittedAdKeys: AdKey[],
   ): CompensationId[] {
-    const queryCompensations = this.getExpectedCompensationIdsByQueryIds(
-      parser,
-      permittedQueryIds,
-    );
-    const adCompensations = this.getExpectedCompensationIdsByAdKeys(
-      parser,
-      permittedAdKeys,
-    );
 
-    return Array.from(new Set(queryCompensations.concat(adCompensations)));
-  }
-
-  private getExpectedCompensationIdsByQueryIds(
-    parser: SDQLParser,
-    queryIds: string[],
-  ): CompensationId[] {
-    const queryPermissions = parser.queryIdsToDataPermissions(queryIds);
-
-    const queryCompensationIds = new Set<CompensationId>();
-    parser.compensationPermissions.forEach((comPermissions, compExpr) => {
-      const adDependencies = parser.parseAdDependencies(compExpr);
-      if (
-        adDependencies.length == 0 && // Is a query compensation
-        queryPermissions.contains(comPermissions!)
-      ) {
-        const comAst = parser.logicCompensations.get(compExpr);
-        const comIds = this.extractCompensationIdFromAstWithAlternatives(
-          comAst!,
-        );
-
-        comIds.forEach((comId) => queryCompensationIds.add(comId));
-      }
+    const comIds: CompensationId[] = [];
+    parser.requiresCompensations.forEach((compAst, requireStrExpr) => {
+      const requiredInsightKeys = 
     });
+    // const queryCompensations = this.getExpectedCompensationIdsByQueryIds(
+    //   parser,
+    //   permittedInsightIds,
+    // );
+    // const adCompensations = this.getExpectedCompensationIdsByAdKeys(
+    //   parser,
+    //   permittedAdKeys,
+    // );
 
-    return Array.from(queryCompensationIds);
+    // return Array.from(new Set(queryCompensations.concat(adCompensations)));
   }
+
+  // private getExpectedCompensationIdsByQueryIds(
+  //   parser: SDQLParser,
+  //   queryIds: string[],
+  // ): CompensationId[] {
+  //   const queryPermissions = parser.queryIdsToDataPermissions(queryIds);
+
+  //   const queryCompensationIds = new Set<CompensationId>();
+  //   parser.compensationPermissions.forEach((comPermissions, compExpr) => {
+  //     const adDependencies = parser.parseAdDependencies(compExpr);
+  //     if (
+  //       adDependencies.length == 0 && // Is a query compensation
+  //       queryPermissions.contains(comPermissions!)
+  //     ) {
+  //       const comAst = parser.logicCompensations.get(compExpr);
+  //       const comIds = this.extractCompensationIdFromAstWithAlternatives(
+  //         comAst!,
+  //       );
+
+  //       comIds.forEach((comId) => queryCompensationIds.add(comId));
+  //     }
+  //   });
+
+  //   return Array.from(queryCompensationIds);
+  // }
+
+  // private getExpectedCompensationIdsByQueryIds(
+  //   parser: SDQLParser,
+  //   queryIds: string[],
+  // ): CompensationId[] {
+  //   const queryPermissions = parser.queryIdsToDataPermissions(queryIds);
+
+  //   const queryCompensationIds = new Set<CompensationId>();
+  //   parser.compensationPermissions.forEach((comPermissions, compExpr) => {
+  //     const adDependencies = parser.parseAdDependencies(compExpr);
+  //     if (
+  //       adDependencies.length == 0 && // Is a query compensation
+  //       queryPermissions.contains(comPermissions!)
+  //     ) {
+  //       const comAst = parser.logicCompensations.get(compExpr);
+  //       const comIds = this.extractCompensationIdFromAstWithAlternatives(
+  //         comAst!,
+  //       );
+
+  //       comIds.forEach((comId) => queryCompensationIds.add(comId));
+  //     }
+  //   });
+
+  //   return Array.from(queryCompensationIds);
+  // }
 
   private adListContainsAllAdDependencies(
     permittedAdKeys: string[],

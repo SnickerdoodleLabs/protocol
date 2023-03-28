@@ -2,6 +2,7 @@ import {
   ChainId,
   CompensationId,
   ISDQLCallback,
+  ISDQLConditionString,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 
@@ -12,6 +13,7 @@ export class AST_Compensation {
     readonly name: SDQL_Name,
     readonly description: string, // TODO
     readonly requires: AST_RequireExpr,
+    readonly requiresRaw: ISDQLConditionString,
     readonly chainId: ChainId,
     readonly callback: ISDQLCallback,
     readonly alternatives: CompensationId[],

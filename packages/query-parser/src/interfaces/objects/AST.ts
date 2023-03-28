@@ -4,6 +4,8 @@ import {
   Version,
 } from "@snickerdoodlelabs/objects";
 
+import { AST_Insight } from "./AST_Insight";
+
 import { AST_Ad } from "@query-parser/interfaces";
 import { AST_Compensation } from "@query-parser/interfaces/objects/AST_Compensation.js";
 import { AST_Logic } from "@query-parser/interfaces/objects/AST_Logic.js";
@@ -17,9 +19,8 @@ export class AST {
     readonly business: string, //TODO
     readonly ads: Map<SDQL_Name, AST_Ad>,
     readonly queries: Map<SDQL_Name, AST_Query>,
-    readonly returns: AST_Returns | null,
+    readonly insights: Map<SDQL_Name, AST_Insight>,
     readonly compensationParameters: ISDQLCompensationParameters | null,
-    readonly compensations: Map<SDQL_Name, AST_Compensation>,
-    readonly logic: AST_Logic,
+    readonly compensations: Map<SDQL_Name, AST_Compensation>, // readonly logic: AST_Logic,
   ) {}
 }

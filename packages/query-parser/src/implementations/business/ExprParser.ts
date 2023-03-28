@@ -31,6 +31,7 @@ import {
   IfOperandTypes,
   ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
+import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 
 export class ExprParser {
   /**
@@ -478,7 +479,7 @@ export class ExprParser {
 
   // #region parse dependencies only
 
-  getQueryDependencies(exprStr: string): AST_Query[] {
+  public getQueryDependencies(exprStr: string): AST_Query[] {
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
@@ -499,7 +500,7 @@ export class ExprParser {
     return deps;
   }
 
-  getAdDependencies(exprStr: string): AST_Ad[] {
+  public getAdDependencies(exprStr: string): AST_Ad[] {
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
@@ -508,6 +509,22 @@ export class ExprParser {
     tokens.reduce((deps, token) => {
       if (token.type == TokenType.ad) {
         deps.push(this.getExecutableFromContext(token) as AST_Ad);
+      }
+      return deps;
+    }, deps);
+
+    return deps;
+  }
+
+  public getInsightDependencies(exprStr: string): AST_Insight[] {
+    const tokenizer = new Tokenizer(exprStr);
+    const tokens = tokenizer.all();
+
+    const deps: AST_Insight[] = [];
+
+    tokens.reduce((deps, token) => {
+      if (token.type == TokenType.insight) {
+        deps.push(this.getExecutableFromContext(token) as AST_Insight);
       }
       return deps;
     }, deps);
