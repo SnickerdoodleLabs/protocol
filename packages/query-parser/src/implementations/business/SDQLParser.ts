@@ -51,7 +51,7 @@ export class SDQLParser {
   public ads = new Map<SDQL_Name, AST_Ad>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public insights = new Map<SDQL_Name, AST_Insight>();
-  public returns: AST_Returns | null;
+  // public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
   // public logicReturns = new Map<string, AST_Expr | Command>();
@@ -69,7 +69,7 @@ export class SDQLParser {
     readonly schema: SDQLQueryWrapper,
     readonly queryObjectFactory: IQueryObjectFactory,
   ) {
-    this.returns = null;
+    // this.returns = null;
     this.exprParser = new ExprParser(this.context);
   }
 
@@ -667,6 +667,15 @@ export class SDQLParser {
       compensationExpression,
     );
     return Array.from(new Set(queryDependencies));
+  }
+
+  public parseInsightDependencies(
+    compensationExpression: string,
+  ): AST_Insight[] {
+    const insightDeps = this.exprParser!.getInsightDependencies(
+      compensationExpression,
+    );
+    return Array.from(new Set(insightDeps));
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {

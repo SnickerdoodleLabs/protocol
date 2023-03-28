@@ -39,6 +39,7 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/index.js";
+import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -380,21 +381,39 @@ export class SDQLQueryUtils {
     permittedInsightKeys: InsightKey[],
     permittedAdKeys: AdKey[],
   ): CompensationId[] {
-
     const comIds: CompensationId[] = [];
-    parser.requiresCompensations.forEach((compAst, requireStrExpr) => {
-      const requiredInsightKeys = 
-    });
-    // const queryCompensations = this.getExpectedCompensationIdsByQueryIds(
-    //   parser,
-    //   permittedInsightIds,
-    // );
-    // const adCompensations = this.getExpectedCompensationIdsByAdKeys(
-    //   parser,
-    //   permittedAdKeys,
-    // );
+    parser.compensations.forEach((compAst, compKey) => {
+      const requiredInsights = parser.parseInsightDependencies(
+        compAst.requiresRaw,
+      );
+      const requiredAds = parser.parseAdDependencies(compAst.requiresRaw);
 
-    // return Array.from(new Set(queryCompensations.concat(adCompensations)));
+      if (
+        this.hasRequiredInsights(permittedInsightKeys, requiredInsights) &&
+        this.hasRequiredAds(permittedAdKeys, requiredAds)
+      ) {
+        comIds.push(CompensationId(compKey));
+      }
+    });
+    return Array.from(new Set(comIds));
+  }
+
+  private hasRequiredInsights(
+    permittedInsightKeys: InsightKey[],
+    requiredInsights: AST_Insight[],
+  ): boolean {
+    return requiredInsights.every((required) => {
+      permittedInsightKeys.includes(InsightKey(required.name));
+    });
+  }
+
+  private hasRequiredAds(
+    permittedAdKeys: AdKey[],
+    requiredAds: AST_Ad[],
+  ): boolean {
+    return requiredAds.every((required) => {
+      permittedAdKeys.includes(AdKey(required.name));
+    });
   }
 
   // private getExpectedCompensationIdsByQueryIds(
