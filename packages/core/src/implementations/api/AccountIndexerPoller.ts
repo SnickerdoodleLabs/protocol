@@ -39,6 +39,10 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.dataWalletBackupIntervalMS);
 
+      this.logUtils.info(
+        "non-priority backups are successfully downloaded and decrypted.",
+      );
+
       this.persistence.waitForFullRestore().map(() => {
         setInterval(() => {
           this.monitoringService.pollTransactions().mapErr((e) => {

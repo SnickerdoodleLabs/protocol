@@ -882,6 +882,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(accountAddress, signature)
       .andThen((encryptionKey) => {
+        this.logUtils.info("Started Data Wallet Decryption");
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,
           encryptionKey,

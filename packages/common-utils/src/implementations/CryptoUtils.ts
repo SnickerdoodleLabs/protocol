@@ -294,7 +294,7 @@ export class CryptoUtils implements ICryptoUtils {
     } catch (e) {
       // This is not ideal error handling, but is better than nothing. At least
       // we will get some logs
-      console.error(`Error while deciphering encrypted string!`);
+      console.error(`${encrypted} failed to decrypt`);
       console.error(e);
       return okAsync("THIS IS AN ERROR");
     }
