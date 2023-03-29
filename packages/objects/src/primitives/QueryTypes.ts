@@ -6,7 +6,6 @@ export const web2QueryTypes = [
   "birthday",
   "email",
   "location",
-  "browsing_history",
   "url_visited_count",
   "chain_transactions",
 ] as const;
