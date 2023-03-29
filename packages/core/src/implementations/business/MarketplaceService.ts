@@ -1,17 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { IMarketplaceService } from "@core/interfaces/business/index.js";
-import {
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  IMarketplaceRepository,
-  IMarketplaceRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-} from "@core/interfaces/data/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -30,6 +17,20 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IMarketplaceService } from "@core/interfaces/business/index.js";
+import {
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  IMarketplaceRepository,
+  IMarketplaceRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class MarketplaceService implements IMarketplaceService {
@@ -164,7 +165,7 @@ export class MarketplaceService implements IMarketplaceService {
     timeoutMs: number,
   ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
     return this.sdqlQueryRepo
-      .getByCID(queryCid, timeoutMs)
+      .getSDQLQueryByCID(queryCid, timeoutMs)
       .andThen((sdqlQuery) => {
         if (sdqlQuery == null) {
           return okAsync([]);

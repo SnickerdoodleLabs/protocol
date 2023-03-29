@@ -15,6 +15,7 @@ export enum ERecordKey {
   ELIGIBLE_ADS = "SD_EligibleAds",
   AD_SIGNATURES = "SD_AdSignatures",
   RECEIVING_ADDRESSES = "SD_ReceivingAddresses",
+  QUERY_STATUS = "SD_QueryStatus",
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
 }
 

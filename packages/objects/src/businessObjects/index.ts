@@ -33,6 +33,7 @@ export * from "@objects/businessObjects/RestoredBackup.js";
 export * from "@objects/businessObjects/VersionedObject.js";
 export * from "@objects/businessObjects/VolatileStorageMetadata.js";
 export * from "@objects/businessObjects/QueryFilteredByPermissions.js";
+export * from "@objects/businessObjects/QueryStatus.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/RSAKeyPair.js";
