@@ -254,23 +254,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 
-  public getNumberOfListings(
-    tag: MarketplaceTag,
-  ): ResultAsync<number, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.getTagTotal(tag) as Promise<BigNumber>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getNumberOfListings()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((num) => {
-      return num.toNumber();
-    });
-  }
-
   public getListingDuration(): ResultAsync<
     number,
     ConsentFactoryContractError
@@ -321,113 +304,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     );
-  }
-
-  public initializeTag(
-    tag: MarketplaceTag,
-    newHead: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.initializeTag(
-        tag,
-        newHead,
-      ) as Promise<WrappedTransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call initializeTag()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    );
-  }
-
-  public insertUpstream(
-    tag: MarketplaceTag,
-    newSlot: BigNumberString,
-    existingSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.insertUpstream(
-        tag,
-        newSlot,
-        existingSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call insertUpstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
-  public insertDownstream(
-    tag: MarketplaceTag,
-    existingSlot: BigNumberString,
-    newSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.insertUpstream(
-        tag,
-        existingSlot,
-        newSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call insertDownstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
-  public replaceExpiredListing(
-    tag: MarketplaceTag,
-    slot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.replaceExpiredListing(
-        tag,
-        slot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call insertDownstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
-  public removeListing(
-    tag: MarketplaceTag,
-    removedSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.replaceExpiredListing(
-        tag,
-        removedSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call removeListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
   }
 
   public adminRemoveListing(
@@ -498,17 +374,26 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map(([cids, listings]) => {
-      return listings.map((listing, index) => {
-        return new MarketplaceListing(
-          BigNumberString(listing.previous.toString()),
-          BigNumberString(listing.next.toString()),
-          listing.consentContract,
-          UnixTimestamp(listing.timeExpiring.toNumber()),
-          IpfsCID(cids[index]),
-          BigNumberString(listings[index + 1].previous.toString()),
-          tag,
-        );
-      });
+      return listings
+        .map((listing, index) => {
+          return new MarketplaceListing(
+            BigNumberString(listing.previous.toString()),
+            BigNumberString(listing.next.toString()),
+            listing.consentContract,
+            UnixTimestamp(listing.timeExpiring.toNumber()),
+            IpfsCID(cids[index]),
+            listings[index + 1] != null && listing.next.isZero() === false
+              ? BigNumberString(listings[index + 1].previous.toString())
+              : listings[index - 1] != null
+              ? BigNumberString(listings[index - 1].next.toString())
+              : startingSlot,
+            tag,
+          );
+        })
+        .filter((listing) => {
+          // Filter out slots with previous and next zeros
+          return listing.previous != "0" || listing.next != "0";
+        });
     });
   }
 
@@ -533,17 +418,27 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map(([cids, listings]) => {
-      return listings.map((listing, index) => {
-        return new MarketplaceListing(
-          BigNumberString(listing.previous.toString()),
-          BigNumberString(listing.next.toString()),
-          listing.consentContract,
-          UnixTimestamp(listing.timeExpiring?.toNumber()),
-          IpfsCID(cids[index]),
-          BigNumberString(listings[index + 1].previous.toString()),
-          tag,
-        );
-      });
+      return listings
+        .map((listing, index) => {
+          return new MarketplaceListing(
+            BigNumberString(listing.previous.toString()),
+            BigNumberString(listing.next.toString()),
+            listing.consentContract,
+            UnixTimestamp(listing.timeExpiring?.toNumber()),
+            IpfsCID(cids[index]),
+            listings[index + 1] != null &&
+            listing.previous.eq(ethers.constants.MaxUint256) === false
+              ? BigNumberString(listings[index + 1].next.toString())
+              : listings[index - 1] != null
+              ? BigNumberString(listings[index - 1].previous.toString())
+              : startingSlot,
+            tag,
+          );
+        })
+        .filter((listing) => {
+          // Filter out slots with previous and next zeros
+          return listing.previous != "0" || listing.next != "0";
+        });
     });
   }
 
@@ -561,6 +456,28 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       },
     ).map((count) => {
       return count.toNumber();
+    });
+  }
+
+  public getListingsByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    // We get the total number of slots by calling getTagTotal()
+    // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
+    return ResultUtils.combine([
+      this.getTagTotal(tag),
+      this.getListingDetail(
+        tag,
+        BigNumberString(ethers.constants.MaxUint256.toString()),
+      ),
+    ]).andThen(([tagTotal, listingDetail]) => {
+      const lowestRankedListingSlot = listingDetail.previous;
+      return this.getListingsForward(
+        tag,
+        lowestRankedListingSlot,
+        tagTotal,
+        true,
+      );
     });
   }
 }

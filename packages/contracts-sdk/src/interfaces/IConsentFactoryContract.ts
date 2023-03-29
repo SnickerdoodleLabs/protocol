@@ -99,10 +99,6 @@ export interface IConsentFactoryContract {
    */
   getMaxTagsPerListing(): ResultAsync<number, ConsentFactoryContractError>;
 
-  getNumberOfListings(
-    tag: MarketplaceTag,
-  ): ResultAsync<number, ConsentFactoryContractError>;
-
   getListingDuration(): ResultAsync<number, ConsentFactoryContractError>;
 
   setListingDuration(
@@ -111,33 +107,6 @@ export interface IConsentFactoryContract {
 
   setMaxTagsPerListing(
     maxTagsPerListing: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  initializeTag(
-    tag: MarketplaceTag,
-    newHead: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  insertUpstream(
-    tag: MarketplaceTag,
-    newSlot: BigNumberString,
-    existingSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  insertDownstream(
-    tag: MarketplaceTag,
-    existingSlot: BigNumberString,
-    newSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  replaceExpiredListing(
-    tag: MarketplaceTag,
-    slot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  removeListing(
-    tag: MarketplaceTag,
-    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   adminRemoveListing(
@@ -167,4 +136,12 @@ export interface IConsentFactoryContract {
   getTagTotal(
     tag: MarketplaceTag,
   ): ResultAsync<number, ConsentFactoryContractError>;
+
+  /**
+   *  Return the list of marketplace listings of a specific tag
+   * @param tag marketplace tag string
+   */
+  getListingsByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 }
