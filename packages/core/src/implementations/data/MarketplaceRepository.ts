@@ -50,7 +50,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   > {
     return this.getConsentFactoryContract().andThen(
       (consentFactoryContract) => {
-        return consentFactoryContract.getNumberOfListings(tag);
+        return consentFactoryContract.getTagTotal(tag);
       },
     );
   }
@@ -143,31 +143,9 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   > {
     return this.getConsentFactoryContract()
       .andThen((consentFactoryContract) => {
-        return consentFactoryContract
-          .getNumberOfListings(tag)
-          .andThen((totalListings) => {
-            // Get all listings, starting from slot 1
-            return consentFactoryContract.getListingsForward(
-              tag,
-              BigNumberString(ethers.constants.MaxUint256.toString()),
-              totalListings,
-              true,
-            );
-          });
+        return consentFactoryContract.getListingsByTag(tag);
       })
       .map((listings) => {
-        // Remove the first item from the array as it is the MaxUint256's slot that only helps point to the rank 1
-        // This will help avoid misrepresentations in total listings count downstream
-        listings.shift();
-
-        // Update the listings with its slot and tag
-        for (let i = 0; i < listings.length; i++) {
-          listings[i].stakeAmount = BigNumberString(
-            listings[i + 1].next.toString(),
-          );
-          listings[i].tag = tag;
-        }
-
         const cache = new MarketplaceTagCache(
           tag,
           this.timeUtils.getUnixNow(),
