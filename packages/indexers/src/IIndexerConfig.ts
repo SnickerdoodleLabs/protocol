@@ -14,5 +14,7 @@ export interface IIndexerConfig {
     solanaTestnet: string;
     polygon: string;
     polygonMumbai: string;
+    arbitrum: string;
+    optimism: string;
   };
 }
