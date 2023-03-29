@@ -12,14 +12,12 @@ import {
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
-
-import { ResultAsync, okAsync } from "neverthrow";
-
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
 import { PoapRepository } from "@indexers/PoapRepository.js";

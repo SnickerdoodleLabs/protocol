@@ -11,7 +11,9 @@ import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
+import express, { Express, Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import mysql, { Connection, MysqlError } from "mysql";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
@@ -42,7 +44,18 @@ export class DefaultAccountBalances implements IAccountBalances {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
+    const connection: Connection = mysql.createConnection({
+      host: "127.0.0.1",
+      user: "andrewstrimaitis",
+      password: "8EwsbZAFudVxbb4ri2d9wh41U+lcfCv/oWF9YwR3IrA=",
+      database: "SXT",
+      connectionLimit: 10,
+      multipleStatements: true,
+    });
+    console.log("connection: ", connection);
+
     this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
+
     this.ethereum = new EtherscanIndexer(
       configProvider,
       ajaxUtils,

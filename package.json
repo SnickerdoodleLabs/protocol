@@ -190,5 +190,11 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4",
     "webpack-merge": "^5.8.0"
+  },
+  "dependencies": {
+    "@web3auth/base": "^5.1.0",
+    "@web3auth/modal": "^5.1.0",
+    "mysql": "^2.18.1",
+    "typeorm": "^0.3.12"
   }
 }
