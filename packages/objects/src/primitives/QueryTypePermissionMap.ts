@@ -15,4 +15,3 @@ export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   // web3
   ["nft", EWalletDataType.AccountNFTs],
 ]);
-∏
