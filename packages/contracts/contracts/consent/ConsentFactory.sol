@@ -169,7 +169,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         require(existingListing.next < _newSlot, "ConsentFactory: _newSlot is less than existingListing.next");
         
         listings[LLKey][_existingSlot].next = _newSlot;
-        listings[LLKey][_newSlot] = Listing(existingListing.next, _existingSlot, msg.sender, block.timestamp + listingDuration);
+        listings[LLKey][_newSlot] = Listing(_existingSlot, existingListing.next, msg.sender, block.timestamp + listingDuration);
         listings[LLKey][existingListing.next].previous = _newSlot;
 
         listingTotals[LLKey] += 1; 
