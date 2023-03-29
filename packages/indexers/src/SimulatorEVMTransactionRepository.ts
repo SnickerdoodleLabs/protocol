@@ -34,7 +34,7 @@ export class SimulatorEVMTransactionRepository
     const result: EVMNFT[] = [];
     for (let i = 0; i < num; i++) {
       const item = new EVMNFT(
-        EVMContractAddress("EVMContractAddress#" + i),
+        EVMContractAddress("EVMContractAddress#"),
         BigNumberString(`${Math.floor(Math.random() * 1000)}`),
         "erc721",
         accountAddress,

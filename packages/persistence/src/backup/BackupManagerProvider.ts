@@ -24,7 +24,7 @@ import {
 } from "@persistence/IPersistenceConfigProvider.js";
 import {
   IFieldSchemaProvider,
-  ILocalStorageSchemaProviderType,
+  IFieldSchemaProviderType,
 } from "@persistence/local/IFieldSchemaProvider.js";
 import {
   IVolatileStorage,
@@ -49,7 +49,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     protected configProvider: IPersistenceConfigProvider,
     @inject(IVolatileStorageSchemaProviderType)
     protected recordSchemaProvider: IVolatileStorageSchemaProvider,
-    @inject(ILocalStorageSchemaProviderType)
+    @inject(IFieldSchemaProviderType)
     protected fieldSchemaProvider: IFieldSchemaProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(IBackupUtilsType) protected backupUtils: IBackupUtils,

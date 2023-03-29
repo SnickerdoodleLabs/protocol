@@ -9,7 +9,6 @@ import {
   EVMTransaction,
   EVMTransactionHash,
   Gender,
-  DataWalletBackup,
   IpfsCID,
   SiteVisit,
   UnixTimestamp,
@@ -17,12 +16,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
+import { GetBearerToken } from "@test-harness/prompts/GetBearerToken.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
@@ -112,6 +111,8 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "backup inspection", value: "backupInspection" },
       { name: "manual backup", value: "manualBackup" },
       { name: "clear cloud store", value: "clearCloudStore" },
+      new inquirer.Separator(),
+      { name: "Get Bearer Token", value: "getBearerToken" },
     ];
 
     let choices = [
@@ -156,7 +157,7 @@ export class CorePrompt extends DataWalletPrompt {
 
       switch (answers.core) {
         case "NOOP": // this is super important as we have the accept query appearing from another thread
-          return okAsync(undefined);
+          return okAsync<void, never>(undefined);
         case "unlock":
           return this.unlockCore.start();
         case "selectProfile":
@@ -339,8 +340,11 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.postBackups().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
+        case "getBearerToken":
+          const getBearerToken = new GetBearerToken(this.env);
+          return getBearerToken.start();
       }
-      return okAsync(undefined);
+      return okAsync<void, never>(undefined);
     });
   }
 }

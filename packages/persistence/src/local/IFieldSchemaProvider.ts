@@ -7,6 +7,4 @@ export interface IFieldSchemaProvider {
   getLocalStorageSchema(): ResultAsync<Map<EFieldKey, FieldIndex>, never>;
 }
 
-export const ILocalStorageSchemaProviderType = Symbol.for(
-  "IFieldSchemaProvider",
-);
+export const IFieldSchemaProviderType = Symbol.for("IFieldSchemaProvider");

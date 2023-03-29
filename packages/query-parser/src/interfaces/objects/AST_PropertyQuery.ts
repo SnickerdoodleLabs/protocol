@@ -1,19 +1,25 @@
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
-  Condition,
-  ConditionG,
-  ConditionGE,
-  ConditionIn,
-  ConditionL,
-} from "@query-parser/interfaces/objects/condition/index.js";
-import {
-  ESDQLQueryReturn,
   EWalletDataType,
+  ESDQLQueryReturn,
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,
   Web2QueryTypes,
+  ISDQLQueryClause,
+  ISDQLTimestampRange,
 } from "@snickerdoodlelabs/objects";
+
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import {
+  BinaryCondition,
+  ConditionE,
+  ConditionG,
+  ConditionGE,
+  ConditionIn,
+  ConditionL,
+  ConditionLE,
+} from "@query-parser/interfaces/objects/condition/index.js";
+
 import { err, ok, Result } from "neverthrow";
 
 export class AST_PropertyQuery extends AST_Query {
@@ -26,24 +32,25 @@ export class AST_PropertyQuery extends AST_Query {
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,
     readonly property: Web2QueryTypes,
-    readonly conditions: Array<Condition>,
+    readonly conditions: Array<BinaryCondition>,
     // for reading gender
-    readonly enum_keys: Array<string>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    readonly patternProperties: Object,
+    readonly enum_keys ? : Array<string>,
+    readonly patternProperties ? : Record<string , unknown>,
+    readonly timestampRange ? : ISDQLTimestampRange
   ) {
     super(name, returnType);
   }
-  static fromSchema(name: SDQL_Name, schema: any): AST_PropertyQuery {
+  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
 
     return new AST_PropertyQuery(
       name,
       schema.return,
-      schema.name,
+      schema.name as Web2QueryTypes,
       conditions,
       schema.enum_keys,
       schema.patternProperties,
+      schema.timestampRange
     );
   }
 
@@ -63,8 +70,6 @@ export class AST_PropertyQuery extends AST_Query {
         return ok(EWalletDataType.Email);
       case "location":
         return ok(EWalletDataType.Location);
-      case "browsing_history":
-        return ok(EWalletDataType.SiteVisits);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
       case "chain_transactions":
@@ -76,26 +81,36 @@ export class AST_PropertyQuery extends AST_Query {
     }
   }
 
-  static parseConditions(schema: any): Array<Condition> {
-    const conditions = new Array<Condition>();
+  static parseConditions(schema: any): Array<BinaryCondition> {
+    const conditions = new Array<BinaryCondition>();
 
     for (const conditionName in schema) {
       const opName = SDQL_OperatorName(conditionName);
       const rightOperand = schema[conditionName];
       switch (conditionName) {
+        case "g":
+          conditions.push(new ConditionG(opName, null, Number(rightOperand)));
+          break;
         case "ge":
           conditions.push(new ConditionGE(opName, null, Number(rightOperand)));
           break;
         case "l":
           conditions.push(new ConditionL(opName, null, Number(rightOperand)));
           break;
+        case "le":
+          conditions.push(new ConditionLE(opName, null, Number(rightOperand)));
+          break;
+        case "eq":
+          conditions.push(new ConditionE(opName, null, Number(rightOperand)));
+          break;
         case "in":
           conditions.push(
-            new ConditionIn(opName, null, rightOperand as Array<any>),
+            new ConditionIn(
+              opName,
+              null,
+              rightOperand as Array<string | number>,
+            ),
           );
-          break;
-        case "g":
-          conditions.push(new ConditionG(opName, null, Number(rightOperand)));
           break;
       }
     }

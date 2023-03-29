@@ -11,6 +11,7 @@ export * from "@objects/enum/EDataUpdateOpCode.js";
 export * from "@objects/enum/EDataWalletPermission.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EInvitationStatus.js";
+export * from "@objects/enum/EQueryProcessingStatus.js";
 export * from "@objects/enum/EExtensionEvent.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/EScamFilterStatus.js";

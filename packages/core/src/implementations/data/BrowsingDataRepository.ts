@@ -2,11 +2,11 @@ import {
   SiteVisit,
   PersistenceError,
   DomainName,
-  EBackupPriority,
   URLString,
   ClickData,
-  VolatileStorageMetadata,
   ERecordKey,
+  ISDQLTimestampRange,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -43,13 +43,22 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   }
 
   // return a map of URLs
-  public getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
-    PersistenceError
-  > {
+  public getSiteVisitsMap(
+    timestampRange?: ISDQLTimestampRange,
+  ): ResultAsync<Map<URLString, number>, PersistenceError> {
     return this.getSiteVisits().andThen((siteVisits) => {
       const result = new Map<URLString, number>();
       siteVisits.forEach((siteVisit, _i, _arr) => {
+        if (
+          timestampRange &&
+          this.timestampBetweenDates(
+            siteVisit.startTime,
+            siteVisit.endTime,
+            timestampRange,
+          )
+        ) {
+          return;
+        }
         const baseUrl = DomainName(
           siteVisit.domain ? siteVisit.domain : siteVisit.url,
         );
@@ -66,5 +75,30 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
 
   public getClicks(): ResultAsync<ClickData[], PersistenceError> {
     return this.persistence.getAll<ClickData>(ERecordKey.CLICKS);
+  }
+
+  timestampBetweenDates(
+    startTime: UnixTimestamp,
+    endTime: UnixTimestamp,
+    timestampRange: ISDQLTimestampRange,
+  ): boolean {
+    const start = timestampRange.start;
+    const end = timestampRange.end;
+
+    if (start !== "*") {
+      const startTimeStamp = UnixTimestamp(Number(start));
+      if (startTimeStamp > startTime) {
+        return true;
+      }
+    }
+
+    if (end !== "*") {
+      const endTimeStamp = UnixTimestamp(Number(end));
+      if (endTimeStamp < endTime) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

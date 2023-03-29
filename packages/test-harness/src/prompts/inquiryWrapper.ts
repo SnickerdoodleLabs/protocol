@@ -3,9 +3,9 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 export function inquiryWrapper(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  questions: inquirer.QuestionCollection<any>,
+  questions: inquirer.QuestionCollection,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ResultAsync<any, never> {
+): ResultAsync<inquirer.Answers, never> {
   return ResultAsync.fromPromise(inquirer.prompt(questions), (e) => {
     if ((e as any).isTtyError) {
       // Prompt couldn't be rendered in the current environment

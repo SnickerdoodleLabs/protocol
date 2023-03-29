@@ -13,7 +13,6 @@ import {
   VolatileStorageKey,
   VersionedObject,
   VolatileStorageMetadata,
-  JSONString,
   BackupFileName,
   EFieldKey,
   ERecordKey,
@@ -32,7 +31,7 @@ import {
   IVolatileStorageSchemaProviderType,
   IVolatileStorageSchemaProvider,
   IFieldSchemaProvider,
-  ILocalStorageSchemaProviderType,
+  IFieldSchemaProviderType,
   Serializer,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
@@ -70,7 +69,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IVolatileStorageSchemaProviderType)
     protected volatileSchemaProvider: IVolatileStorageSchemaProvider,
-    @inject(ILocalStorageSchemaProviderType)
+    @inject(IFieldSchemaProviderType)
     protected fieldSchemaProvider: IFieldSchemaProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {

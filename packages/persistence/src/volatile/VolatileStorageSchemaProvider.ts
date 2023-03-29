@@ -13,6 +13,8 @@ import {
   TokenInfoMigrator,
   ERecordKey,
   VersionedObject,
+  DomainCredentialMigrator,
+  QueryStatusMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -189,6 +191,30 @@ export class VolatileStorageSchemaProvider
             "contractAddress",
             false,
             new ReceivingAccountMigrator(),
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+          ),
+        ],
+        [
+          ERecordKey.QUERY_STATUS,
+          new VolatileTableIndex(
+            ERecordKey.QUERY_STATUS,
+            "queryCID",
+            false,
+            new QueryStatusMigrator(),
+            EBackupPriority.HIGH,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+          ),
+        ],
+        [
+          ERecordKey.DOMAIN_CREDENTIALS,
+          new VolatileTableIndex(
+            ERecordKey.DOMAIN_CREDENTIALS,
+            "domain",
+            false,
+            new DomainCredentialMigrator(),
             EBackupPriority.NORMAL,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,

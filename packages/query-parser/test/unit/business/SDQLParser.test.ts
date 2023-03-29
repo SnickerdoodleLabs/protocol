@@ -1,14 +1,18 @@
 import "reflect-metadata";
 
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EWalletDataType,
   IpfsCID,
+  SDQLQuery,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 
-import { SDQLQueryWrapperMocks } from "../../mocks";
-
-import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
+import {
+  QueryObjectFactory,
+  SDQLParser,
+  SDQLQueryWrapperFactory,
+} from "@query-parser/implementations";
 import {
   AST,
   AST_BalanceQuery,
@@ -25,9 +29,14 @@ import {
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
+const cid = IpfsCID("0");
+
 describe("SDQLParser on avalanche", () => {
-  const wrapperMocks = new SDQLQueryWrapperMocks();
-  const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+  const timeUtils = new TimeUtils();
+  const sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(timeUtils);
+  const schema = sdqlQueryWrapperFactory.makeWrapper(
+    new SDQLQuery(cid, avalanche1SchemaStr),
+  );
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 

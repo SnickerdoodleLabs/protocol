@@ -1,10 +1,12 @@
 import "reflect-metadata";
 import { IpfsCID, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import { SDQLQueryRepository } from "@core/implementations/data/index.js";
-import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
+import {
+  IDataWalletPersistence,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IConfigProvider,
@@ -27,11 +29,13 @@ class SDQLQueryRepositoryMocks {
   public contextProvider: IContextProvider;
   public configProvider: IConfigProvider;
   public ajaxUtils: AjaxUtilsMock;
+  public persistence: IDataWalletPersistence;
 
   constructor() {
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
     this.ajaxUtils = new AjaxUtilsMock();
+    this.persistence = td.object<IDataWalletPersistence>();
 
     this.ajaxUtils.addGetReturn(
       `${testCoreConfig.ipfsFetchBaseUrl}/${cidString}`,
@@ -41,6 +45,7 @@ class SDQLQueryRepositoryMocks {
 
   public factoryRepository(): ISDQLQueryRepository {
     return new SDQLQueryRepository(
+      this.persistence,
       this.configProvider,
       this.contextProvider,
       this.ajaxUtils,
@@ -49,13 +54,13 @@ class SDQLQueryRepositoryMocks {
 }
 
 describe("SDQLQueryRepository tests", () => {
-  test("getByCID returns text on success", async () => {
+  test("getSDQLQueryByCID returns text on success", async () => {
     // Arrange
     const mocks = new SDQLQueryRepositoryMocks();
     const repo = mocks.factoryRepository();
 
     // Act
-    const result = await repo.getByCID(cidString);
+    const result = await repo.getSDQLQueryByCID(cidString);
 
     // Assert
     expect(result).toBeDefined();
