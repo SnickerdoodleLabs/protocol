@@ -1,103 +1,112 @@
 import { Button, Box } from "@material-ui/core";
-import React, { useMemo, FC, memo, useState, useEffect } from "react";
+import React, {
+  FC,
+  memo,
+  useState,
+  useEffect,
+} from "react";
 
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/SocialMediaDataItem.style";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { IDiscordDataProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { BearerAuthToken, DiscordProfile, Integer, SnowflakeID, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
+import {
+  BearerAuthToken,
+  DiscordProfile,
+} from "@snickerdoodlelabs/objects";
 
-import { ILinkedDiscord, default as DiscordMediaDataItem } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataItem";
+import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataItem";
 
-interface ISocialMediaDataItemProps {
-  provider : IDiscordDataProvider;
-  name : string;
-  icon : string;
-}
-
-interface IDiscordAuthResponse {
-  access_token : string,
-  token_type : string,
-  expires_in : number,
-  refresh_token : string,
-  scope : string
-}
-
-
+import {
+  ILinkedDiscordAccount,
+  ISocialMediaDataItemProps,
+  IDiscordAuthResponse,
+} from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
   provider,
   name,
-  icon
+  icon,
 }: ISocialMediaDataItemProps) => {
-  const { linkedAccounts } = useAppContext();
-  const [discordToken , setDiscordToken] = useState<BearerAuthToken>()
-  const [discordUrl , setDiscordUrl] = useState<URLString>()
+  const [requestData , setRequestData] = useState<boolean>();
+  const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>([]);
+  const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<ILinkedDiscordAccount[]>([]);
 
-  const [discordProfiles , setDiscordProfiles] = useState<DiscordProfile[]>([])  
+  const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
+    provider.getGuildProfiles().map( (guildProfiles) => {
+      const profiles = discordProfiles.reduce<ILinkedDiscordAccount[]>(
+        (profiles, discordProfile) => {
+            profiles.push({
+              name: discordProfile.username,
+              userId: discordProfile.id,
+              avatar: discordProfile.avatar,
+              discriminator: discordProfile.discriminator,
+              servers: guildProfiles,
+              token: discordProfile.authToken,
+            });
+          return profiles;
+        },
+        [],
+      );
+      setLinkedDiscordAccount(profiles)
+    }) 
+  };
 
-  const getInstallationUrl =  () => {
-     provider.installationUrl().map( (discordUrl) =>{
-      if(discordUrl){
-        setDiscordUrl(discordUrl)
-      }
-      
-    })
-  }
-  const getProfiles = (discordProfiles: DiscordProfile[]) => {
-    return discordProfiles.reduce<ILinkedDiscord[]>( (profiles , discordProfile) => {
-      provider.getGuildProfiles().map( (guildProfile) => {
-        profiles.push({
-          name : discordProfile.username,
-          servers : guildProfile
-        })
-      })
-      return profiles;
-    } , []) 
-  }
-  
-
-  useEffect(() => {
-    if(!discordUrl) return;
-    fetch(
-      discordUrl,
-    ).then((res) => {
-      res.json().then((data : IDiscordAuthResponse) => {
-        setDiscordToken(BearerAuthToken(data.access_token));
+  //TODO security! , call should be made from a server not on client 
+  const initializeUser = (code: string) => {
+    const options = new URLSearchParams({
+      client_id: "1089994449830027344",
+      client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: "https://localhost:9005/data-dashboard/social-media-data",
+      scope: "identify guilds",
+    });
+    fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      body: options,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }).then((res) => {
+      res.json().then((data: IDiscordAuthResponse) => {
+        provider.initializeUser({
+          discordAuthToken: BearerAuthToken(data.access_token),
+        }).map( () => {
+            setRequestData(!requestData)
+        });
       });
     });
-    
-  }, [discordUrl]);
+  };
 
   useEffect(() => {
-    if(!discordToken) return;
-    provider.initializeUser({ discordAuthToken : discordToken}).andThen( () => {
-      return provider.getUserProfiles().map( (discordProfiles) => {
-        return setDiscordProfiles(discordProfiles);
-      })
-    })
-    
-  }, [discordToken]);
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get("code");
+    if (code) {
+      initializeUser(code);
+    }
+  }, [JSON.stringify(window.location.search)]);
 
-  //const discordProfilesCached = useMemo(() => getProfiles(discordProfiles), [discordProfiles]);
-  const discordProfilesCached = [{
-    name : "Ozan",
-    servers : [{
-      id : SnowflakeID("test"),
-      name : "rider",
-      permissions : Integer(1),
-      icon : "test",
-      isOwner : false,
-      joinedAt : UnixTimestamp(Date.now()),
-    }]
-  }]
+
+  const getUserProfiles =  () => {
+    provider.getUserProfiles().map( (discordProfiles) => {
+      setDiscordProfiles(discordProfiles)
+    })
+  };
+
+  useEffect( () => {
+    getUserProfiles();
+  } , [requestData])
+
+  useEffect( () => {
+    if(!discordProfiles) return
+    getGuildProfiles(discordProfiles);
+  } , [discordProfiles])
+
   const classes = useStyles();
- 
   return (
     <Box className={classes.accountBoxContainer}>
-      <Box className={classes.providerContainer}>
+      <Box className={`${classes.providerContainer} ${classes.mainProvider}`}>
         <Box>
           <img className={classes.providerLogo} src={icon} />
         </Box>
@@ -107,20 +116,27 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
 
         <Box className={classes.linkAccountContainer}>
           <Button
-            onClick={() => getInstallationUrl()}
             className={classes.linkAccountButton}
+            href="https://discord.com/oauth2/authorize?response_type=code&client_id=1089994449830027344&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=https%3A%2F%2Flocalhost:9005/data-dashboard/social-media-data&prompt=consent"
           >
-           Link Account
+            Link Account
           </Button>
         </Box>
-        {discordProfilesCached.map( (discordProfile) => {
-          //@ts-ignore
-            <DiscordMediaDataItem name={discordProfile.name} servers={discordProfile.servers}   />
-        })}
       </Box>
+      {linkedDiscordAccount.map((discordProfile) => {
+        return (
+          <DiscordMediaDataItem
+            token={discordProfile.token}
+            name={discordProfile.name}
+            servers={discordProfile.servers}
+            avatar={discordProfile.avatar}
+            discriminator={discordProfile.discriminator}
+            userId={discordProfile.userId}
+          />
+        );
+      })}
     </Box>
   );
 };
 
 export default memo(DiscordMediaData);
-

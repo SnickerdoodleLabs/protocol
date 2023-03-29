@@ -31,6 +31,7 @@ import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders";
+import { getProviderList as getSocialMediaProviderList ,ISocialMediaProvider } from "@extension-onboarding/services/socialMediaDataProviders";
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -60,6 +61,7 @@ export interface IAppContext {
   linkedAccounts: ILinkedAccount[];
   isSDLDataWalletDetected: boolean;
   providerList: IProvider[];
+  socialMediaProviderList : ISocialMediaProvider[],
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
   appMode: EAppModes | undefined;
@@ -81,6 +83,7 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [providerList, setProviderList] = useState<IProvider[]>([]);
+  const [socialMediaProviderList, setSocialMediaProviderList] = useState<ISocialMediaProvider[]>([]);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
@@ -245,6 +248,8 @@ export const AppContextProvider: FC = ({ children }) => {
       checkDataWalletAddressAndInitializeApp();
       const providerList = getProviderList();
       setProviderList(providerList);
+      const socialMediaProviderList = getSocialMediaProviderList();
+      setSocialMediaProviderList(socialMediaProviderList)
       setIsLoading(false);
     }, 500);
   }, []);
@@ -283,6 +288,7 @@ export const AppContextProvider: FC = ({ children }) => {
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(),
         providerList,
+        socialMediaProviderList,
         isSDLDataWalletDetected,
         linkedAccounts,
         getUserAccounts,

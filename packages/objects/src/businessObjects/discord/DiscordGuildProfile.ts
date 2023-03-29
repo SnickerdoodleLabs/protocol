@@ -1,6 +1,7 @@
 import { SocialGroupProfile } from "@objects/businessObjects/SocialGroupProfile.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
+  BearerAuthToken,
   ISO8601DateString,
   SocialPrimaryKey,
   UnixTimestamp,
@@ -19,6 +20,8 @@ export class DiscordGuildProfile extends SocialGroupProfile {
     public permissions: Integer,
     public icon: string | null,
     public joinedAt: UnixTimestamp | null,
+    public discordUserProfileId : SnowflakeID,
+    // userId
   ) {
     super(SocialPrimaryKey(`discord-group-${id}`), ESocialType.DISCORD);
   }
@@ -57,6 +60,7 @@ export class DiscordGuildProfileMigrator {
       Integer(data["permissions"] as number),
       data["icon"] as string,
       UnixTimestamp(data["joinedAt"] as number),
+      SnowflakeID(data["id"] as string),
     );
   }
 }

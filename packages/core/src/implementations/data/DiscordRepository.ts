@@ -17,6 +17,7 @@ import {
   EBackupPriority,
   VolatileStorageMetadata,
   ESocialType,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -77,7 +78,7 @@ export class DiscordRepository implements IDiscordRepository {
   ): ResultAsync<IRequestConfig, never> {
     const config: IRequestConfig = {
       headers: {
-        Authorization: `Bearer ${BearerAuthToken}`,
+        Authorization: `Bearer ${authToken}`,
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
         accept: "*/*",
@@ -110,6 +111,7 @@ export class DiscordRepository implements IDiscordRepository {
               response.username,
               response.display_name,
               response.discriminator,
+              response.avatar,
               response.flags,
               authToken,
               UnixTimestamp(0), // TODO fix the authExpiry
@@ -139,6 +141,7 @@ export class DiscordRepository implements IDiscordRepository {
                 profile.permissions,
                 profile.icon,
                 null,
+                SnowflakeID("-1"),// not set yet
               );
             });
 

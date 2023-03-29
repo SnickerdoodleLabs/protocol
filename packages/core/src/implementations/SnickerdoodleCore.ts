@@ -85,6 +85,7 @@ import {
   BearerAuthToken,
   ISdlDiscordMethods,
   ICoreDiscordMethods,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -306,6 +307,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       getGuildProfiles: () => {
         const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getGuildProfiles();
+      },
+      unlinkAccount :( discordProfileId : SnowflakeID) => {
+        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.unlinkAccount(discordProfileId);       
       }
     }
   }

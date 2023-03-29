@@ -65,9 +65,9 @@ export const defaultInsightPlatformBaseUrl = URLString(
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
 const discordConfig = {
-  clientId: "discord-client-id",
+  clientId: "1089994449830027344",
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-  oauthRedirectUrl: URLString("spa-url"),
+  oauthRedirectUrl: URLString("https://localhost:9005/data-dashboard/social-media-data"),
   accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),

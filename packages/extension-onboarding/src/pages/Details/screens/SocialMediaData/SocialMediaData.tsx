@@ -2,7 +2,6 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaData.style";
 import { Box, Typography } from "@material-ui/core";
 import React from "react";
-import { getProviderList } from "@extension-onboarding/services/socialMediaDataProviders";
 import { ESocialMediaProviderKeys } from "@extension-onboarding/constants";
 import DiscordMediaData from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem";
 import { IDiscordDataProvider, ISocialMediaDataProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
@@ -16,9 +15,9 @@ interface ISocialMediaDataItemProps {
 
 export default () => {
   const classes = useStyles();
-  const {} = useAppContext();
+  const {socialMediaProviderList} = useAppContext();
 
-  const getSocialMediaComponent = ({
+  const getSocialMediaComponentGivenProps = ({
     provider,
     name,
     icon,
@@ -39,9 +38,9 @@ export default () => {
         <Box display="flex" mb={1} alignItems="center">
           <Typography className={classes.title}>Social Media Data</Typography>
         </Box>
-        {getProviderList().map(({ icon, name, key, provider }) => (
+        {socialMediaProviderList.map(({ icon, name, key, provider }) => (
           <Box mt={2} mb={2} key={key}>
-            {getSocialMediaComponent({ icon, name, key, provider })}
+            {getSocialMediaComponentGivenProps({ icon, name, key, provider })}
           </Box>
         ))}
       </Box>

@@ -6,6 +6,7 @@ import {
   DiscordProfile,
   OAuthError,
   PersistenceError,
+  SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -45,14 +46,18 @@ export class DiscordService implements IDiscordService {
   public installationUrl(): ResultAsync<URLString, DiscordError> {
     return this.getAPIConfig().andThen((apiConfig) => {
       const url = URLString(
-        `https://discord.com/api/oauth2/authorize?client_id=${
+        `https://discord.com/oauth2/authorize?client_id=${
           apiConfig.clientId
         }&redirect_uri=${encodeURI(
           apiConfig.oauthRedirectUrl,
-        )}&response_type=token&scope=identify%20guilds`, // TODO we can parameterize scope, too.
+        )}&response_type=code&scope=identify%20guilds&prompt=consent`, // TODO we can parameterize scope, too.
       );
       return okAsync(url);
     });
+  }
+
+  unlinkAccount(_discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError> {
+    throw new Error("Method not implemented.");
   }
 
   public isAuthTokenValid(
@@ -72,13 +77,14 @@ export class DiscordService implements IDiscordService {
     // 1. Fetch profile
     // 2. Update profile if exists with the same id
     // 3. Update guilds
+
     return ResultUtils.combine([
       this.discordRepo.fetchUserProfile(authToken),
       this.discordRepo.fetchGuildProfiles(authToken),
     ]).andThen(([userProfile, guildProfiles]) => {
       return ResultUtils.combine([
         this.discordRepo.upsertUserProfile(userProfile),
-        this.discordRepo.upsertGuildProfiles(guildProfiles),
+        this.discordRepo.upsertGuildProfiles(this.addDiscordProfileIdToGuild(guildProfiles , userProfile.id)),
       ]).andThen(() => {
         return okAsync(undefined);
       });
@@ -110,6 +116,13 @@ export class DiscordService implements IDiscordService {
   public getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError> {
     return this.discordRepo.getUserProfiles().map((uProfiles) => {
       return uProfiles.map((uProfile) => uProfile.authToken);
+    });
+  }
+
+  protected addDiscordProfileIdToGuild( discordGuildProfiles  :DiscordGuildProfile[] , discordProfileId : SnowflakeID)  : DiscordGuildProfile[]{
+    return discordGuildProfiles.map( (profile) => {
+      profile.discordUserProfileId = discordProfileId;
+      return profile;
     });
   }
 }

@@ -3,7 +3,8 @@ import {
     ISnickerdoodleCoreType, BearerAuthToken,
     DiscordGuildProfile,
     DiscordProfile,
-    URLString
+    URLString,
+    SnowflakeID
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -48,6 +49,12 @@ export class DiscordRepository implements IDiscordRepository {
     SnickerDoodleCoreError
   > {
     return this.core.discord.getGuildProfiles().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+  unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>{
+    return this.core.discord.unlinkAccount(discordProfileId).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

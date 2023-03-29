@@ -15,6 +15,7 @@ export const discordProfiles = [
     Username("sdmuki"),
     null,
     "5192",
+    null,
     Integer(0),
     BearerAuthToken("f0RhjaxsHvw5HqKLDsnWZdttSIODUg"),
     UnixTimestamp(0),
@@ -25,6 +26,7 @@ export const discordProfiles = [
     Username("sdmuki2"),
     null,
     "5192",
+    null,
     Integer(0),
     BearerAuthToken("INVALID"),
     UnixTimestamp(0),
@@ -78,6 +80,7 @@ export class SocialDataMock {
             profile.permissions,
             profile.icon,
             null,
+            SnowflakeID("-1")
           ),
       ),
     );

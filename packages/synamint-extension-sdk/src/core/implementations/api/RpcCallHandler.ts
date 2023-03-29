@@ -119,6 +119,7 @@ import {
   mapToObj,
   SnickerDoodleCoreError,
   IInitializeDiscordUser,
+  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 
 
@@ -512,6 +513,13 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_DISCORD_USER_PROFILES : {
         return new AsyncRpcResponseSender(
           this.discordService.getUserProfiles(),
+          res,
+        ).call();
+      }
+      case EExternalActions.UNLINK_DISCORD_ACCOUNT : {
+        const {discordProfileId } = params as IUnlinkDiscordAccount;
+        return new AsyncRpcResponseSender(
+          this.discordService.unlinkAccount(discordProfileId),
           res,
         ).call();
       }

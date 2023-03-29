@@ -78,6 +78,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  SnowflakeID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -143,6 +144,12 @@ export interface ICoreDiscordMethods {
   
     getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
     getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+      /**
+     * This method will remove a users discord profile and
+     * discord guild data given their profile id
+     * @param discordProfileId
+     */
+    unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError>;
   
 }
 

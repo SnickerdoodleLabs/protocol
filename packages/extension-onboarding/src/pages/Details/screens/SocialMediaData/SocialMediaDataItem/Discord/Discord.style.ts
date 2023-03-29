@@ -2,14 +2,16 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   accountBoxContainer: {
-    height: "80px",
     border: "1px solid #ECECEC",
     borderRadius: "12px",
+    padding : "24px",
     position: "relative",
   },
-  providerContainer: {
+  providerContainer: { // parent
     display: "flex",
     alignItems: "center",
+    border: "1px solid #ECECEC",
+    borderRadius: "12px",
   },
   providerText: {
     paddingLeft: "24px",
@@ -32,19 +34,26 @@ export const useStyles = makeStyles((theme) => ({
     opacity: "0.6",
   },
   linkAccountContainer: {
-    position: "absolute",
+    marginLeft : "auto",
     right: "20px",
     paddingTop: "10px",
+    marginRight : "20px",
   },
   linkAccountButton: {
-    border: "1px solid #B9B6D3",
+    border: "1px solid red",
     width: "142px",
     height: "42px",
     fontFamily: "'Inter'",
     fontWeight: 500,
     fontSize: "15px",
-    textTransform : "none"
+    textTransform : "none",
+    color  :"red",
   },
+  mainProvider : {
+    border : "none",
+    marginBottom : "16px"
+  },
+ 
   greenTick: { marginLeft: "-15px" },
 }));
 

@@ -17,6 +17,7 @@ export class DiscordProfile extends SocialProfile {
     public username: Username,
     public displayName: string | null,
     public discriminator: string,
+    public avatar : string | null,
     public flags: Integer,
     public authToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
     public authExpiry: UnixTimestamp,
@@ -37,6 +38,7 @@ export interface DiscordProfileAPIResponse {
   id: SnowflakeID;
   username: Username;
   display_name: string | null;
+  avatar: string | null;
   discriminator: string;
   flags: Integer;
 }
@@ -48,6 +50,7 @@ export class DiscordProfileMigrator {
       Username(data["username"] as string),
       data["displayName"] as string,
       data["discriminator"] as string,
+      data["avatar"] as string,
       Integer(data["flags"] as number),
       BearerAuthToken(data["authToken"] as string),
       UnixTimestamp(data["authExpiry"] as number),

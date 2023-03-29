@@ -34,6 +34,7 @@ import {
   BearerAuthToken,
   DiscordProfile,
   DiscordGuildProfile,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
@@ -73,6 +74,7 @@ import {
   IScamFilterPreferences,
   IExternalState,
   IInitializeDiscordUser,
+  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -99,6 +101,12 @@ export class ExternalCoreGateway {
       },
       getGuildProfiles :(): ResultAsync<DiscordGuildProfile[], JsonRpcError> => {
         return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
+      },
+      unlinkAccount : ( discordProfileId : SnowflakeID) => {
+        return this._handler.call(
+          EExternalActions.UNLINK_DISCORD_ACCOUNT,
+          { discordProfileId } as IUnlinkDiscordAccount,
+        );
       }
     }
   }

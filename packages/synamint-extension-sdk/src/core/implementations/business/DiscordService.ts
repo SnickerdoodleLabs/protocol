@@ -2,6 +2,7 @@ import {
     BearerAuthToken,
     DiscordGuildProfile,
     DiscordProfile,
+    SnowflakeID,
     URLString,
   } from "@snickerdoodlelabs/objects";
   import { inject, injectable } from "inversify";
@@ -27,10 +28,13 @@ import {
         return this.discordRepository.installationUrl()
     }
     getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError> {
-        return this.getUserProfiles();
+        return this.discordRepository.getUserProfiles();
     }
     getGuildProfiles(): ResultAsync<DiscordGuildProfile[], SnickerDoodleCoreError> {
-        return this.getGuildProfiles();
+        return this.discordRepository.getGuildProfiles();
+    }
+    unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError> {
+      return this.discordRepository.unlinkAccount(discordProfileId);      
     }
   
     

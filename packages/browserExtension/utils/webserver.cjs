@@ -21,6 +21,7 @@ process.env.__PORTFOLIO_POLLING_INTERVAL__ = "";
 process.env.__TRANSACTION_POLLING_INTERVAL__ = "";
 process.env.__BACKUP_POLLING_INTERVAL__ = "";
 process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
+process.env.__DISCORD_CONFIG__ = '{"clientId":"1089994449830027344","oauthBaseUrl":"https://discord.com/oauth2/authorize","oauthRedirectUrl":"spa-url","accessTokenUrl":"https://localhost:9005/data-dashboard/social-media-data","refreshTokenUrl":"https://discord.com/api/oauth2/authorize","dataAPIUrl":"https://discord.com/api","iconBaseUrl":"https://cdn.discordapp.com/icons","pollInterval":86400000}';
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

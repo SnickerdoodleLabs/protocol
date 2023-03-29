@@ -30,6 +30,7 @@ import {
   BearerAuthToken,
   DiscordProfile,
   DiscordGuildProfile,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -115,6 +116,9 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       getGuildProfiles: () =>{
         return coreGateway.discord.getGuildProfiles()
+      },
+      unlinkAccount : ( discordProfileId : SnowflakeID) => {
+        return coreGateway.discord.unlinkAccount(discordProfileId)
       }
       
     }
