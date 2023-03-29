@@ -94,6 +94,20 @@ export const useStyles = makeStyles((theme) => ({
     border: "none",
     marginBottom: "16px",
   },
-
+  discordGuildNoIcon : {
+    // gg sans actual font
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontWeight: 500,
+    fontSize: "32px",
+    color: "white",
+    background : "black",
+    textAlign: "center",
+    width: "57px",
+    height: "57px",
+  },
+  discordGuildNoIconContainer : {
+    paddingLeft: "24px",
+    paddingTop: "10px",
+  },
   greenTick: { marginLeft: "-15px" },
 }));

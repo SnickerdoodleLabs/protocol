@@ -7,7 +7,6 @@ import DiscordMediaData from "@extension-onboarding/pages/Details/screens/Social
 import { IDiscordDataProvider, ISocialMediaDataProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
 
 interface ISocialMediaDataItemProps {
-  provider: ISocialMediaDataProvider;
   name: string;
   icon: string;
   key: ESocialMediaProviderKeys;
@@ -18,14 +17,13 @@ export default () => {
   const {socialMediaProviderList} = useAppContext();
 
   const getSocialMediaComponentGivenProps = ({
-    provider,
     name,
     icon,
     key,
   }: ISocialMediaDataItemProps) => {
     switch (key) {
       case ESocialMediaProviderKeys.DISCORD:
-        return <DiscordMediaData name={name} icon={icon} provider={provider as IDiscordDataProvider} />;
+        return <DiscordMediaData name={name} icon={icon} />;
 
       default:
         return null;
@@ -38,9 +36,9 @@ export default () => {
         <Box display="flex" mb={1} alignItems="center">
           <Typography className={classes.title}>Social Media Data</Typography>
         </Box>
-        {socialMediaProviderList.map(({ icon, name, key, provider }) => (
+        {socialMediaProviderList.map(({ icon, name, key }) => (
           <Box mt={2} mb={2} key={key}>
-            {getSocialMediaComponentGivenProps({ icon, name, key, provider })}
+            {getSocialMediaComponentGivenProps({ icon, name, key })}
           </Box>
         ))}
       </Box>

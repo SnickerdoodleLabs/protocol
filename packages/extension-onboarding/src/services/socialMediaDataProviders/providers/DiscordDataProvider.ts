@@ -5,9 +5,10 @@ import {
   SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
+  IDiscordAuthResponse,
   IDiscordDataProvider,
   IDiscordMediaDataParams,
 } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
@@ -18,10 +19,18 @@ declare const window: IWindowWithSdlDataWallet;
 
 export class DiscordProvider implements IDiscordDataProvider {
 
-  constructor() {}
-
-  
  
+  constructor() {}
+  //TODO security! , call should be made from a server not on a client ? which we don't have here
+  public getOauthTokenFromDiscord(code: string) : Promise<Response> {
+    return fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      body: this.discordOauthOptions(code),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      }
+    })
+  }
   //SDL Connections
   public getUserProfiles(): ResultAsync<DiscordProfile[], unknown> {
     return window.sdlDataWallet.discord.getUserProfiles().mapErr(() => {
@@ -57,4 +66,13 @@ export class DiscordProvider implements IDiscordDataProvider {
       return errAsync(new Error("Could not get discord guild profiles!"));
     });
   }
+
+  protected discordOauthOptions = (code : string) => new URLSearchParams({
+    client_id: "1089994449830027344",
+    client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+    code,
+    grant_type: "authorization_code",
+    redirect_uri: "https://localhost:9005/data-dashboard/social-media-data",
+    scope: "identify guilds",
+  });
 }

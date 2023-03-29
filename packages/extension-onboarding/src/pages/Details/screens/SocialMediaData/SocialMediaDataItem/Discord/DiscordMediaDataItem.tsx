@@ -6,6 +6,8 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMed
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
 
 import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataServersItem";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { SnowflakeID } from "@snickerdoodlelabs/objects";
 
 const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
   name,
@@ -17,7 +19,19 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
 }: ILinkedDiscordAccount) => {
   const discordImageUrl = "https://cdn.discordapp.com";
   const classes = useStyles();
+  const {discordMediaDataProvider : provider} = useAccountLinkingContext();
+  
+  const unlinkAccount = () => {
+    return provider.unlinkAccount(SnowflakeID(userId))
+  }
 
+  const getDiscordAvatar =  () : string => {
+    return avatar === null
+    ? `${discordImageUrl}/embed/avatars/${
+        Number(discriminator) % 5
+      }.png`
+    : `${discordImageUrl}/avatars/${userId}/${avatar}.png` 
+  }
   return (
     <Box className={classes.discordMediaItemProviderContainer}>
       <Box className={classes.discordMediaItemLinkedAccountContainer}>
@@ -25,11 +39,7 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
           <img
             className={classes.discordIcon}
             src={
-              avatar === null
-                ? `${discordImageUrl}/embed/avatars/${
-                    Number(discriminator) % 5
-                  }.png`
-                : `${discordImageUrl}/avatars/${userId}/${avatar}.png`
+             getDiscordAvatar()
             }
           />
         </Box>
@@ -39,7 +49,7 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
 
         <Box className={classes.linkAccountContainer}>
           <Button
-            //onClick={() => unlinkAccount()}
+            onClick={() => unlinkAccount()}
             className={classes.unlinkAccountButton}
           >
             Unlink Account

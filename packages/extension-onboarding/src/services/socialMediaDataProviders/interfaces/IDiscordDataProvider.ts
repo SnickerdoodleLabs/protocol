@@ -8,4 +8,14 @@ export interface IDiscordDataProvider extends ISocialMediaDataProvider {
   initializeUser(params : IDiscordMediaDataParams) : ResultAsync<void,unknown>;
   unlinkAccount(discordProfileId : SnowflakeID) : ResultAsync<void,unknown>;
   installationUrl(): ResultAsync<URLString, unknown>
+  getOauthTokenFromDiscord(code: string) : Promise<Response>
+}
+
+
+export interface IDiscordAuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
 }

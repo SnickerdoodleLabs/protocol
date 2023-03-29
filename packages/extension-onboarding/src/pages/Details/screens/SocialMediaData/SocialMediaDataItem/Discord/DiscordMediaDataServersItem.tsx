@@ -11,17 +11,21 @@ const DiscordMediaDataItem: FC<IDiscordMediaDataServerItem> = ({
   const discordImageUrl = "https://cdn.discordapp.com";
   const classes = useStyles();
 
+  const getDiscordGuildIcon =  () : string => {
+    return `${discordImageUrl}/icons/${server.id}/${server.icon}.png` 
+  }
+
   return (
     <Box className={classes.discordMediaItemLinkedAccountContainer}>
         <Box >
-        <img
+        {  server.icon ? <img
         className={classes.discordGuildIcon}
         src={
-            `${discordImageUrl}/icons/${server.id}/${server.icon}.png`
+          getDiscordGuildIcon()
         }
-        />
+        /> :<Box className={classes.discordGuildNoIconContainer} > <p className={classes.discordGuildNoIcon} >{server.name[0]}</p> </Box>}
         </Box>
-        <Box>
+        <Box className={classes.discordGuildNoIconContainer}>
           <p className={classes.providerText}>{server.name}</p>
         </Box>
         <Box>

@@ -1,10 +1,5 @@
 import { Button, Box } from "@material-ui/core";
-import React, {
-  FC,
-  memo,
-  useState,
-  useEffect,
-} from "react";
+import React, { FC, memo, useState, useEffect } from "react";
 
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -20,69 +15,66 @@ import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/So
 import {
   ILinkedDiscordAccount,
   ISocialMediaDataItemProps,
-  IDiscordAuthResponse,
 } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
+import {
+  IDiscordAuthResponse,
+} from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
-  provider,
   name,
   icon,
 }: ISocialMediaDataItemProps) => {
-  const [requestData , setRequestData] = useState<boolean>();
+  const [requestData, setRequestData] = useState<boolean>();
   const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>([]);
-  const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<ILinkedDiscordAccount[]>([]);
+  const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<
+    ILinkedDiscordAccount[]
+  >([]);
+  const { discordMediaDataProvider: provider } = useAccountLinkingContext();
 
   const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
-    provider.getGuildProfiles().map( (guildProfiles) => {
+    provider.getGuildProfiles().map((guildProfiles) => {
       const profiles = discordProfiles.reduce<ILinkedDiscordAccount[]>(
         (profiles, discordProfile) => {
-            profiles.push({
-              name: discordProfile.username,
-              userId: discordProfile.id,
-              avatar: discordProfile.avatar,
-              discriminator: discordProfile.discriminator,
-              servers: getDiscordUserProfiles(guildProfiles , discordProfile.id),
-              token: discordProfile.authToken,
-            });
+          profiles.push({
+            name: discordProfile.username,
+            userId: discordProfile.id,
+            avatar: discordProfile.avatar,
+            discriminator: discordProfile.discriminator,
+            servers: getDiscordUserProfiles(guildProfiles, discordProfile.id),
+            token: discordProfile.authToken,
+          });
           return profiles;
         },
         [],
       );
-      setLinkedDiscordAccount(profiles)
-    }) 
+      setLinkedDiscordAccount(profiles);
+    });
   };
 
-  const getDiscordUserProfiles = ( guildProfiles : DiscordGuildProfile[] ,discordProfileId : SnowflakeID ) : DiscordGuildProfile[] => {
-    return guildProfiles.filter( (guildProfile) => {  
-        return guildProfile.discordUserProfileId === discordProfileId
-    })
-  }
-
-  //TODO security! , call should be made from a server not on a client ? which we don't have here
-  const initializeUser = (code: string) => {
-    const options = new URLSearchParams({
-      client_id: "1089994449830027344",
-      client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
-      code,
-      grant_type: "authorization_code",
-      redirect_uri: "https://localhost:9005/data-dashboard/social-media-data",
-      scope: "identify guilds",
+  const getDiscordUserProfiles = (
+    guildProfiles: DiscordGuildProfile[],
+    discordProfileId: SnowflakeID,
+  ): DiscordGuildProfile[] => {
+    return guildProfiles.filter((guildProfile) => {
+      return guildProfile.discordUserProfileId === discordProfileId;
     });
-    fetch("https://discord.com/api/oauth2/token", {
-      method: "POST",
-      body: options,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }).then((res) => {
+  };
+
+  const initializeUser = (code: string) => {
+    provider.getOauthTokenFromDiscord(code).then((res) => {
       res.json().then((data: IDiscordAuthResponse) => {
-        provider.initializeUser({
-          discordAuthToken: BearerAuthToken(data.access_token),
-        }).map( () => {
-            setRequestData(!requestData)
-        });
+        if (data.access_token) {
+          provider
+            .initializeUser({
+              discordAuthToken: BearerAuthToken(data.access_token),
+            })
+            .map(() => {
+              setRequestData(!requestData);
+            });
+        }
       });
     });
   };
@@ -95,21 +87,20 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
     }
   }, [JSON.stringify(window.location.search)]);
 
-
-  const getUserProfiles =  () => {
-    provider.getUserProfiles().map( (discordProfiles) => {
-      setDiscordProfiles(discordProfiles)
-    })
+  const getUserProfiles = () => {
+    provider.getUserProfiles().map((discordProfiles) => {
+      setDiscordProfiles(discordProfiles);
+    });
   };
 
-  useEffect( () => {
+  useEffect(() => {
     getUserProfiles();
-  } , [requestData])
+  }, [requestData]);
 
-  useEffect( () => {
-    if(!discordProfiles) return
+  useEffect(() => {
+    if (!discordProfiles) return;
     getGuildProfiles(discordProfiles);
-  } , [discordProfiles])
+  }, [discordProfiles]);
 
   const classes = useStyles();
   return (
