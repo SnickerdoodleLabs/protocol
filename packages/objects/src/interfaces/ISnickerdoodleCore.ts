@@ -42,6 +42,7 @@ import {
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
+  KeyGenerationError,
   MinimalForwarderContractError,
   PersistenceError,
   QueryFormatError,
@@ -59,6 +60,7 @@ import {
   AdSurfaceId,
   AESKey,
   Age,
+  BackupFileName,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -73,7 +75,9 @@ import {
   HexString,
   HexString32,
   IpfsCID,
+  JsonWebToken,
   LanguageCode,
+  PEMEncodedRSAPublicKey,
   SHA256Hash,
   Signature,
   UnixTimestamp,
@@ -164,6 +168,41 @@ export interface ICoreIntegrationMethods {
     domain: DomainName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
+
+  /**
+   * Returns the public key used to sign JWTs for the requested domain. This should be requested
+   * the first time a data wallet user interacts with a website, and stored for future visits.
+   * This key along with the generated user ID will allow the website to securely verify the
+   * data wallet as returning.
+   * @param domain
+   */
+  getTokenVerificationPublicKey(
+    domain: DomainName,
+  ): ResultAsync<PEMEncodedRSAPublicKey, PersistenceError | KeyGenerationError>;
+
+  /**
+   * Returns a JWT bearer token, customized for the domain. The domain should be provided and
+   * verified by the form factor, and not via a request, as with all other domain params.
+   * The nonce can be any arbitrary data, and will be encoded as a claim in the token. The
+   * purpose of it is to verify possetion of the key and that the token issued is fresh-
+   * it is not a stolen token captured for elsewhere. A unique ID is generated for the domain,
+   * a UUID, and will remain consistent for all interactions with that domain (sub claim in JWT).
+   * This is meant to be the user ID for the data wallet. It is not traceable to the wallet or
+   * between domains. Email and other identifing information is not included in the token.
+   * The JWT will be signed with 4096 bit RSA key that is also generated per-domain. This key is
+   * available via getTokenVerificationPublicKey() and can verify the token if required. The website
+   * can obtain this public key on the first interaction and store it on their own server. Then,
+   * any time a token is presented, they can verify the authenticity of the token for future visits.
+   * @param nonce Any string, provided by the calling page. Included in the "nonce" claim in the token, to protect against replays. Assures a fresh token.
+   * @param domain The domain requesting the token. The token will be customized for the domain.
+   */
+  getBearerToken(
+    nonce: string,
+    domain: DomainName,
+  ): ResultAsync<
+    JsonWebToken,
+    InvalidSignatureError | PersistenceError | KeyGenerationError
+  >;
 }
 
 export interface IAdMethods {
@@ -528,6 +567,10 @@ export interface ISnickerdoodleCore {
   unpackBackupChunk(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
+  fetchBackup(
+    backupHeader: string,
+    sourceDomain?: DomainName,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
 
   getEarnedRewards(
     sourceDomain?: DomainName | undefined,
@@ -656,6 +699,9 @@ export interface ISnickerdoodleCore {
   clearCloudStore(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  listFileNames(
+    sourceDomain?: DomainName,
+  ): ResultAsync<BackupFileName[], PersistenceError>;
 
   getTokenPrice(
     chainId: ChainId,

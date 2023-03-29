@@ -251,6 +251,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
         return integrationService.getPermissions(domain, sourceDomain);
       },
+      getTokenVerificationPublicKey: (domain: DomainName) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.getTokenVerificationPublicKey(domain);
+      },
+      getBearerToken: (nonce: string, domain: DomainName) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.getBearerToken(nonce, domain);
+      },
     };
 
     // Marketplace Methods ---------------------------------------------------------------------------
