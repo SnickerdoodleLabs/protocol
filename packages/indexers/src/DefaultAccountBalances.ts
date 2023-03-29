@@ -48,7 +48,7 @@ export class DefaultAccountBalances implements IAccountBalances {
       ajaxUtils,
       tokenPriceRepo,
       logUtils,
-    );
+    ); 
     this.sim = new SimulatorEVMTransactionRepository();
     this.sol = new SolanaIndexer(
       this.configProvider,
