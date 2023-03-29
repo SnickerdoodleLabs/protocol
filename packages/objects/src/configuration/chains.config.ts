@@ -258,6 +258,42 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api-moonbeam.moonscan.io/"),
     ),
   ],
+  // [
+  //   ChainId(EChain.Arbitrum),
+  //   new ChainInformation(
+  //     "Arbitrum",
+  //     ChainId(EChain.Arbitrum),
+  //     EChain.Arbitrum,
+  //     EChainTechnology.EVM,
+  //     true,
+  //     [],
+  //     10000, // average block mining time
+  //     EIndexer.Arbitrum,
+  //     new NativeCurrencyInformation("ETH", 18, "ETH", "arbitrum"),
+  //     EChainType.Mainnet,
+  //     "https://api.arbiscan.io/api",
+  //     getExplorerUrl,
+  //     URLString("https://api.arbiscan.io/"),
+  //   ),
+  // ],
+  // [
+  //   ChainId(EChain.Optimism),
+  //   new ChainInformation(
+  //     "Optimism",
+  //     ChainId(EChain.Optimism),
+  //     EChain.Optimism,
+  //     EChainTechnology.EVM,
+  //     true,
+  //     [],
+  //     10000, // average block mining time
+  //     EIndexer.Optimism,
+  //     new NativeCurrencyInformation("Ether", 18, "Ether", "optimism"),
+  //     EChainType.Optimism,
+  //     "https://arbiscan.io/api",
+  //     getExplorerUrl,
+  //     URLString("https://arbiscan.io/"),
+  //   ),
+  // ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {

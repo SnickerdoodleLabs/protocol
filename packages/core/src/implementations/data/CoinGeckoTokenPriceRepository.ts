@@ -123,6 +123,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         return this.ajaxUtils
           .get<IMarketDataResponse>(new URL(url))
           .map((response) => {
+            console.log("all coingecko data: ", response);
             return response.map((item) => {
               return new TokenMarketData(
                 item.id,
