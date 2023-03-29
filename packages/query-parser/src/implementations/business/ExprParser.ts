@@ -124,7 +124,7 @@ export class ExprParser {
         case TokenType.boolean:
         case TokenType.ad:
         case TokenType.query:
-        case TokenType.return:
+        // case TokenType.return:
         case TokenType.compensation:
           postFix.push(token);
           break;
@@ -269,7 +269,7 @@ export class ExprParser {
     const exprTypes: Array<TokenType> = [
       TokenType.ad,
       TokenType.query,
-      TokenType.return,
+      // TokenType.return,
       TokenType.compensation,
       TokenType.number,
       TokenType.string,
@@ -336,7 +336,7 @@ export class ExprParser {
     switch (token.type) {
       case TokenType.ad:
       case TokenType.query:
-      case TokenType.return:
+      // case TokenType.return:
       case TokenType.compensation:
         nameStr = token.val.substring(1);
         break;
@@ -488,12 +488,13 @@ export class ExprParser {
     tokens.reduce((deps, token) => {
       if (token.type == TokenType.query) {
         deps.push(this.getExecutableFromContext(token) as AST_Query);
-      } else if (token.type == TokenType.return) {
-        const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
-        if (r.source instanceof AST_Query) {
-          deps.push(r.source);
-        }
       }
+      // else if (token.type == TokenType.return) {
+      //   const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
+      //   if (r.source instanceof AST_Query) {
+      //     deps.push(r.source);
+      //   }
+      // }
       return deps;
     }, deps);
 

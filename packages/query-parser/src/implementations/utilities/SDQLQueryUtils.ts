@@ -161,15 +161,14 @@ export class SDQLQueryUtils {
     const adCompensationIds = new Set<CompensationId>();
     // parser.compensations.forEach((comAst))
 
-    parser.requiresCompensations.forEach((comAst, compExpr) => {
-      const adDependencies = parser.parseAdDependencies(compExpr);
+    parser.compensations.forEach((comAst, compName) => {
+      const adDependencies = parser.parseAdDependencies(comAst.requiresRaw);
       if (
         adDependencies.length > 0 && // Is an ad compensation
         this.adListContainsAllAdDependencies(adKeys, adDependencies)
       ) {
-        const comIds = this.extractCompensationIdFromAstWithAlternatives(
-          comAst!,
-        );
+        const comIds =
+          this.extractCompensationIdFromAstWithAlternatives(comAst);
         comIds.forEach((comId) => adCompensationIds.add(comId));
       }
     });
@@ -232,12 +231,14 @@ export class SDQLQueryUtils {
   ): QueryTypes[] {
     const queryTypes = new Set<QueryTypes>();
 
-    parser.requiresCompensations.forEach((comAst, compExpr) => {
-      const comIdFromExpression = this.extractCompensationIdFromAst(comAst!);
+    parser.compensations.forEach((comAst, compName) => {
+      const comIdFromExpression = this.extractCompensationIdFromAst(comAst);
       if (compId == comIdFromExpression) {
-        const adDependencies = parser.parseAdDependencies(compExpr);
+        const adDependencies = parser.parseAdDependencies(comAst.requiresRaw);
         if (adDependencies.length == 0) {
-          const queryDependencies = parser.parseQueryDependencies(compExpr);
+          const queryDependencies = parser.parseQueryDependencies(
+            comAst.requiresRaw,
+          );
           queryDependencies.forEach((subQuery) => {
             if (subQuery instanceof AST_Web3Query) {
               queryTypes.add(subQuery.type);

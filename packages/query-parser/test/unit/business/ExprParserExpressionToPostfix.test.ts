@@ -9,25 +9,25 @@ import {
 import { ParserContextDataTypes } from "@query-parser/interfaces";
 
 describe("Expressions to Postfix", () => {
-  test("$r1 -> $r1", () => {
-    const tokenizer = new Tokenizer("$r1");
-    const tokens = tokenizer.all();
-    const expectedTokens = [new Token(TokenType.return, "$r1", 0)];
+  // test("$r1 -> $r1", () => {
+  //   const tokenizer = new Tokenizer("$r1");
+  //   const tokens = tokenizer.all();
+  //   const expectedTokens = [new Token(TokenType.return, "$r1", 0)];
 
-    expect(tokens).toEqual(expectedTokens);
+  //   expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, ParserContextDataTypes> = new Map();
+  //   const context: Map<string, ParserContextDataTypes> = new Map();
 
-    const exprParser = new ExprParser(context);
+  //   const exprParser = new ExprParser(context);
 
-    const postfixTokens = exprParser.infixToPostFix(tokens);
-    const expectedPostfixTokens = [new Token(TokenType.return, "$r1", 0)];
+  //   const postfixTokens = exprParser.infixToPostFix(tokens);
+  //   const expectedPostfixTokens = [new Token(TokenType.return, "$r1", 0)];
 
-    // console.log("tokens", tokens);
-    // console.log("postfixTokens", postfixTokens);
+  //   // console.log("tokens", tokens);
+  //   // console.log("postfixTokens", postfixTokens);
 
-    expect(postfixTokens).toEqual(expectedPostfixTokens);
-  });
+  //   expect(postfixTokens).toEqual(expectedPostfixTokens);
+  // });
 
   test("$q1and$q2 -> $q1$q2and", () => {
     const tokenizer = new Tokenizer("$q1and$q2");
@@ -233,78 +233,78 @@ describe("Expressions to Postfix", () => {
     ]);
   });
 
-  test("if$q1and$q2then$r1 -> $q1, $q2, and, r1, if", () => {
-    const tokenizer = new Tokenizer("if$q1and$q2then$r1");
-    const tokens = tokenizer.all();
-    const expectedTokens = [
-      new Token(TokenType.if, "if", 0),
-      new Token(TokenType.query, "$q1", 2),
-      new Token(TokenType.and, "and", 5),
-      new Token(TokenType.query, "$q2", 8),
-      new Token(TokenType.then, "then", 11),
-      new Token(TokenType.return, "$r1", 15),
-    ];
+  // test("if$q1and$q2then$r1 -> $q1, $q2, and, r1, if", () => {
+  //   const tokenizer = new Tokenizer("if$q1and$q2then$r1");
+  //   const tokens = tokenizer.all();
+  //   const expectedTokens = [
+  //     new Token(TokenType.if, "if", 0),
+  //     new Token(TokenType.query, "$q1", 2),
+  //     new Token(TokenType.and, "and", 5),
+  //     new Token(TokenType.query, "$q2", 8),
+  //     new Token(TokenType.then, "then", 11),
+  //     new Token(TokenType.return, "$r1", 15),
+  //   ];
 
-    // console.log("tokens", tokens);
+  //   // console.log("tokens", tokens);
 
-    expect(tokens).toEqual(expectedTokens);
+  //   expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, ParserContextDataTypes> = new Map();
+  //   const context: Map<string, ParserContextDataTypes> = new Map();
 
-    const exprParser = new ExprParser(context);
+  //   const exprParser = new ExprParser(context);
 
-    const postfixTokens = exprParser.infixToPostFix(tokens);
-    const expectedPostfixTokens = [
-      new Token(TokenType.query, "$q1", 2),
-      new Token(TokenType.query, "$q2", 8),
-      new Token(TokenType.and, "and", 5),
-      new Token(TokenType.return, "$r1", 15),
-      new Token(TokenType.if, "if", 0),
-    ];
+  //   const postfixTokens = exprParser.infixToPostFix(tokens);
+  //   const expectedPostfixTokens = [
+  //     new Token(TokenType.query, "$q1", 2),
+  //     new Token(TokenType.query, "$q2", 8),
+  //     new Token(TokenType.and, "and", 5),
+  //     new Token(TokenType.return, "$r1", 15),
+  //     new Token(TokenType.if, "if", 0),
+  //   ];
 
-    // console.log("expectedPostfixTokens", expectedPostfixTokens);
-    // console.log("postfixTokens", postfixTokens);
+  //   // console.log("expectedPostfixTokens", expectedPostfixTokens);
+  //   // console.log("postfixTokens", postfixTokens);
 
-    expect(postfixTokens).toEqual(expectedPostfixTokens);
-  });
+  //   expect(postfixTokens).toEqual(expectedPostfixTokens);
+  // });
 
-  test("if$q1and$q2then$r1else$r2 -> $q1, $q2, and, $r1, $r2, if", () => {
-    const tokenizer = new Tokenizer("if$q1and$q2then$r1else$r2");
-    const tokens = tokenizer.all();
-    const expectedTokens = [
-      new Token(TokenType.if, "if", 0),
-      new Token(TokenType.query, "$q1", 2),
-      new Token(TokenType.and, "and", 5),
-      new Token(TokenType.query, "$q2", 8),
-      new Token(TokenType.then, "then", 11),
-      new Token(TokenType.return, "$r1", 15),
-      new Token(TokenType.else, "else", 18),
-      new Token(TokenType.return, "$r2", 22),
-    ];
+  // test("if$q1and$q2then$r1else$r2 -> $q1, $q2, and, $r1, $r2, if", () => {
+  //   const tokenizer = new Tokenizer("if$q1and$q2then$r1else$r2");
+  //   const tokens = tokenizer.all();
+  //   const expectedTokens = [
+  //     new Token(TokenType.if, "if", 0),
+  //     new Token(TokenType.query, "$q1", 2),
+  //     new Token(TokenType.and, "and", 5),
+  //     new Token(TokenType.query, "$q2", 8),
+  //     new Token(TokenType.then, "then", 11),
+  //     new Token(TokenType.return, "$r1", 15),
+  //     new Token(TokenType.else, "else", 18),
+  //     new Token(TokenType.return, "$r2", 22),
+  //   ];
 
-    // console.log("tokens", tokens);
+  //   // console.log("tokens", tokens);
 
-    expect(tokens).toEqual(expectedTokens);
+  //   expect(tokens).toEqual(expectedTokens);
 
-    const context: Map<string, ParserContextDataTypes> = new Map();
+  //   const context: Map<string, ParserContextDataTypes> = new Map();
 
-    const exprParser = new ExprParser(context);
+  //   const exprParser = new ExprParser(context);
 
-    const postfixTokens = exprParser.infixToPostFix(tokens);
-    const expectedPostfixTokens = [
-      new Token(TokenType.query, "$q1", 2),
-      new Token(TokenType.query, "$q2", 8),
-      new Token(TokenType.and, "and", 5),
-      new Token(TokenType.return, "$r1", 15),
-      new Token(TokenType.return, "$r2", 22),
-      new Token(TokenType.if, "if", 0),
-    ];
+  //   const postfixTokens = exprParser.infixToPostFix(tokens);
+  //   const expectedPostfixTokens = [
+  //     new Token(TokenType.query, "$q1", 2),
+  //     new Token(TokenType.query, "$q2", 8),
+  //     new Token(TokenType.and, "and", 5),
+  //     new Token(TokenType.return, "$r1", 15),
+  //     new Token(TokenType.return, "$r2", 22),
+  //     new Token(TokenType.if, "if", 0),
+  //   ];
 
-    // console.log("expectedPostfixTokens", expectedPostfixTokens);
-    // console.log("postfixTokens", postfixTokens);
+  //   // console.log("expectedPostfixTokens", expectedPostfixTokens);
+  //   // console.log("postfixTokens", postfixTokens);
 
-    expect(postfixTokens).toEqual(expectedPostfixTokens);
-  });
+  //   expect(postfixTokens).toEqual(expectedPostfixTokens);
+  // });
 
   test("if($q1>30)and($q2<35)then$a1 -> $q1 30 > $q2 35 < and $a1 if", () => {
     const tokens = new Tokenizer("if($q1>30)and($q1<35)then$a1").all();

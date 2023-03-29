@@ -55,9 +55,9 @@ export class SDQLParser {
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
   // public logicReturns = new Map<string, AST_Expr | Command>();
-  public requiresCompensations = new Map<string, AST_Expr | Command>();
-  public targetAds = new Map<string, AST_Expr | Command>();
-  public targetInsights = new Map<string, AST_Expr | Command>();
+  // public requiresCompensations = new Map<string, AST_Expr | Command>();
+  // public targetAds = new Map<string, AST_Expr | Command>();
+  // public targetInsights = new Map<string, AST_Expr | Command>();
 
   // public insightPermissions = new Map<string, DataPermissions>();
   // public adPermissions = new Map<string, DataPermissions>();
@@ -237,11 +237,11 @@ export class SDQLParser {
       ads.map((ad) => {
         this.ads.set(ad.name, ad);
         this.saveInContext(ad.name, ad);
-        this.targetAds.set(adsSchema[ad.name].target, ad.target);
-        this.adPermissions.set(
-          adsSchema[ad.name].target,
-          ad.requiredPermissions,
-        );
+        // this.targetAds.set(adsSchema[ad.name].target, ad.target);
+        // this.adPermissions.set(
+        //   adsSchema[ad.name].target,
+        //   ad.requiredPermissions,
+        // );
       });
 
       return okAsync(undefined);
@@ -370,14 +370,14 @@ export class SDQLParser {
       insights.map((insight) => {
         this.insights.set(insight.name, insight);
         this.saveInContext(insight.name, insight);
-        this.targetInsights.set(
-          insightSchema[insight.name].target,
-          insight.target,
-        );
-        this.insightPermissions.set(
-          insightSchema[insight.name].target,
-          insight.requiredPermissions,
-        );
+        // this.targetInsights.set(
+        //   insightSchema[insight.name].target,
+        //   insight.target,
+        // );
+        // this.insightPermissions.set(
+        //   insightSchema[insight.name].target,
+        //   insight.requiredPermissions,
+        // );
       });
       return okAsync(undefined);
     });
@@ -525,10 +525,10 @@ export class SDQLParser {
 
           this.compensations.set(compensation.name, compensation);
           this.saveInContext(cName, compensation);
-          this.requiresCompensations.set(
-            schema.requires,
-            compensation.requires,
-          );
+          // this.requiresCompensations.set(
+          //   schema.requires,
+          //   compensation.requires,
+          // );
         }
       }
 
