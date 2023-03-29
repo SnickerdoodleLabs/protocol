@@ -373,7 +373,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   > {
     // Get all of our indexers and initialize them
     // TODO
-    console.log("I am core : ")
     const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
       IBlockchainProviderType,
     );
@@ -835,7 +834,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getAccountNFTs(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<WalletNFT[], PersistenceError> {
-    console.log("I am core : ")
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
