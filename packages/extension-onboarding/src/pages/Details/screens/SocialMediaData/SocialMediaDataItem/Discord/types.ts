@@ -23,3 +23,6 @@ export interface IDiscordAuthResponse {
     scope: string;
   }
   
+  export interface IDiscordMediaDataServerItem {
+    server : DiscordGuildProfile
+  }

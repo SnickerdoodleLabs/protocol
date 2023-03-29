@@ -4,14 +4,20 @@ export const useStyles = makeStyles((theme) => ({
   accountBoxContainer: {
     border: "1px solid #ECECEC",
     borderRadius: "12px",
-    padding : "24px",
+    padding: "24px",
     position: "relative",
   },
-  providerContainer: { // parent
+  providerContainer: {
+    // parent
     display: "flex",
     alignItems: "center",
     border: "1px solid #ECECEC",
     borderRadius: "12px",
+  },
+  discordLinkedAccountContainer: {
+    display: "flex",
+    alignItems: "center",
+    borderBottom: "1px solid #ECECEC",
   },
   providerText: {
     paddingLeft: "24px",
@@ -34,26 +40,60 @@ export const useStyles = makeStyles((theme) => ({
     opacity: "0.6",
   },
   linkAccountContainer: {
-    marginLeft : "auto",
+    marginLeft: "auto",
     right: "20px",
     paddingTop: "10px",
-    marginRight : "20px",
+    marginRight: "20px",
   },
-  linkAccountButton: {
+  unlinkAccountButton: {
     border: "1px solid red",
     width: "142px",
     height: "42px",
     fontFamily: "'Inter'",
     fontWeight: 500,
     fontSize: "15px",
-    textTransform : "none",
-    color  :"red",
+    textTransform: "none",
+    color: "red",
   },
-  mainProvider : {
-    border : "none",
-    marginBottom : "16px"
+  linkAccountButton: {
+    border: "1px solid #B9B6D3",
+    width: "142px",
+    height: "42px",
+    fontFamily: "'Inter'",
+    fontWeight: 500,
+    fontSize: "15px",
+    textTransform: "none",
   },
- 
+  discordMediaItemProviderContainer: {
+    // parent
+    display: "flex",
+    flexDirection: "column",
+    border: "1px solid #ECECEC",
+    borderRadius: "12px",
+  },
+  discordMediaItemLinkedAccountContainer: {
+    // parent
+    display: "flex",
+    border: "1px solid #ECECEC",
+    borderRadius: "12px",
+    alignItems: "center",
+  },
+  discordIcon: {
+    paddingTop: "15px",
+    paddingLeft: "25px",
+    height: "32px",
+    width: "32px",
+  },
+  discordGuildIcon : {
+    width: "57px",
+    height: "57px",
+    paddingTop: "15px",
+    paddingLeft: "25px",
+  },
+  mainProvider: {
+    border: "none",
+    marginBottom: "16px",
+  },
+
   greenTick: { marginLeft: "-15px" },
 }));
-

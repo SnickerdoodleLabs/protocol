@@ -10,7 +10,9 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMed
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   BearerAuthToken,
+  DiscordGuildProfile,
   DiscordProfile,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 
 import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataItem";
@@ -41,7 +43,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
               userId: discordProfile.id,
               avatar: discordProfile.avatar,
               discriminator: discordProfile.discriminator,
-              servers: guildProfiles,
+              servers: getDiscordUserProfiles(guildProfiles , discordProfile.id),
               token: discordProfile.authToken,
             });
           return profiles;
@@ -52,7 +54,13 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
     }) 
   };
 
-  //TODO security! , call should be made from a server not on client 
+  const getDiscordUserProfiles = ( guildProfiles : DiscordGuildProfile[] ,discordProfileId : SnowflakeID ) : DiscordGuildProfile[] => {
+    return guildProfiles.filter( (guildProfile) => {  
+        return guildProfile.discordUserProfileId === discordProfileId
+    })
+  }
+
+  //TODO security! , call should be made from a server not on a client ? which we don't have here
   const initializeUser = (code: string) => {
     const options = new URLSearchParams({
       client_id: "1089994449830027344",

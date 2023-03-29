@@ -18,49 +18,9 @@ declare const window: IWindowWithSdlDataWallet;
 
 export class DiscordProvider implements IDiscordDataProvider {
 
-  protected _discordImageUrl = "https://cdn.discordapp.com";
-
-  
   constructor() {}
 
-  //Discord Connections
-  protected async getDiscordGuildImage(
-    guildId: string,
-    icon: string,
-    discordToken : string,
-  ): Promise<string> {
-    return fetch(this._discordImageUrl + `/icons/${guildId}/${icon}.png`, {
-      headers: {
-        authorization: `Bearer ${discordToken}`,
-      },
-    })
-      .then((res) => res.blob())
-      .then((blob) => {
-        return URL.createObjectURL(blob);
-      });
-  }
-
-  protected async getDiscordAvatarImages(
-    avatar: string | null,
-    userId: string,
-    discriminator: string,
-    discordToken : string,
-  ): Promise<string> {
-    //if user has no avatar discriminator modulo is used for default avatars
-    const requestUrl =
-      avatar === null
-        ? `/embed/avatars/${Number(discriminator) % 5}`
-        : `/avatars/${userId}/${avatar}.png`;
-    return fetch(requestUrl, {
-      headers: {
-        authorization: `Bearer ${discordToken}`,
-      },
-    })
-      .then((res) => res.blob())
-      .then((blob) => {
-        return URL.createObjectURL(blob);
-      });
-  }
+  
  
   //SDL Connections
   public getUserProfiles(): ResultAsync<DiscordProfile[], unknown> {
