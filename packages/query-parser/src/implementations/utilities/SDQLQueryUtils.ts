@@ -7,6 +7,7 @@ import {
   IpfsCID,
   ISDQLAd,
   ISDQLCompensations,
+  ISDQLInsightBlock,
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
@@ -69,9 +70,11 @@ export class SDQLQueryUtils {
             parser,
             queryIds,
           );
+          const permittedInsightKeys =
+            this.getPermittedInsightKeysByPermittedQueryIds(parser, queryIds);
           const expectedCompensationIds = this.getAllExpectedCompensationsIds(
             parser,
-            queryIds,
+            permittedInsightKeys,
             permittedAdKeys,
           );
           return expectedCompensationIds;
@@ -105,10 +108,19 @@ export class SDQLQueryUtils {
                 parser,
                 permittedAdKeys,
               );
+              const permittedInsightKeys =
+                this.getPermittedInsightKeysByPermittedQueryIds(
+                  parser,
+                  permittedQueryIds,
+                );
+              const eligibleInsightsMap = this.buildEligibleInsightsMap(
+                parser,
+                permittedInsightKeys,
+              );
               const expectedCompensationIds =
                 this.getAllExpectedCompensationsIds(
                   parser,
-                  permittedQueryIds,
+                  permittedInsightKeys,
                   permittedAdKeys,
                 );
               const expectedCompensationsMap =
@@ -120,6 +132,7 @@ export class SDQLQueryUtils {
                 permittedQueryIds,
                 expectedCompensationsMap,
                 eligibleAdsMap,
+                eligibleInsightsMap,
               );
             },
           );
@@ -328,16 +341,31 @@ export class SDQLQueryUtils {
 
     const queryPermissions =
       parser.queryIdsToDataPermissions(permittedQueryIds);
-    parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
-      if (queryPermissions.contains(adPermissions!)) {
-        const adAstExpr = parser.targetAds.get(adLogicExpr);
-        const adAst = this.getAdAstFromAst(adAstExpr!);
 
-        permittedAdKeys.add(AdKey(adAst.key));
+    parser.ads.forEach((adAst, adName) => {
+      if (queryPermissions.contains(adAst.requiredPermissions)) {
+        permittedAdKeys.add(AdKey(adName));
+      }
+    });
+    return Array.from(permittedAdKeys);
+  }
+
+  private getPermittedInsightKeysByPermittedQueryIds(
+    parser: SDQLParser,
+    permittedQueryIds: string[],
+  ): InsightKey[] {
+    const permittedInsightKeys = new Set<InsightKey>();
+
+    const queryPermissions =
+      parser.queryIdsToDataPermissions(permittedQueryIds);
+
+    parser.insights.forEach((insightAst, insightName) => {
+      if (queryPermissions.contains(insightAst.requiredPermissions)) {
+        permittedInsightKeys.add(InsightKey(insightName));
       }
     });
 
-    return Array.from(permittedAdKeys);
+    return Array.from(permittedInsightKeys);
   }
 
   private buildEligibleAdsMap(
@@ -351,10 +379,29 @@ export class SDQLQueryUtils {
       if (!permittedAdKeys.includes(AdKey(adKey))) {
         continue;
       }
-      eligibleAdBlocks[adKey] = adSchema[adKey] as ISDQLCompensations;
+      eligibleAdBlocks[adKey] = adSchema[adKey] as ISDQLAd;
     }
 
     return eligibleAdBlocks;
+  }
+
+  private buildEligibleInsightsMap(
+    parser: SDQLParser,
+    permittedInsightKeys: InsightKey[],
+  ): Map<InsightKey, ISDQLInsightBlock> {
+    const eligibleInsightBlocks: Map<InsightKey, ISDQLInsightBlock> = new Map();
+
+    const insightSchema = parser.schema.getInsightSchema();
+    for (const insightKey in insightSchema) {
+      if (!permittedInsightKeys.includes(InsightKey(insightKey))) {
+        continue;
+      }
+      eligibleInsightBlocks[insightKey] = insightSchema[
+        insightKey
+      ] as ISDQLInsightBlock;
+    }
+
+    return eligibleInsightBlocks;
   }
 
   private buildExpectedCompensationsMap(

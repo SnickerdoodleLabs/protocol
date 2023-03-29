@@ -59,8 +59,8 @@ export class SDQLParser {
   public targetAds = new Map<string, AST_Expr | Command>();
   public targetInsights = new Map<string, AST_Expr | Command>();
 
-  public insightPermissions = new Map<string, DataPermissions>();
-  public adPermissions = new Map<string, DataPermissions>();
+  // public insightPermissions = new Map<string, DataPermissions>();
+  // public adPermissions = new Map<string, DataPermissions>();
 
   public exprParser: ExprParser | null = null;
 
