@@ -114,13 +114,55 @@ export class ConfigProvider
           "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
       },
       {
-        arbitrum_mainnet: "",
-        bsc_mainnet: "",
-        ethereum_mainnet: "",
-        ethereum_testnet: "",
-        polygon_mainnet: "",
-        polygon_mumbai: "",
-        solana_mainnet: "",
+        arbitrum_mainnet: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
+        bsc_mainnet: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
+        ethereum_mainnet: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
+        ethereum_testnet: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
+        polygon_mainnet: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
+        polygon_mumbai: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
+        solana_mainnet: {
+          balances: {
+            native: "",
+            nonnative: "",
+          },
+          nfts: "",
+        },
       },
       10000,
       "(localhost|chrome://)",

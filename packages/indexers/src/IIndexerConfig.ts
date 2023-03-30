@@ -17,13 +17,55 @@ export interface IIndexerConfig {
     arbitrum: string;
     optimism: string;
   };
-  zettablockEndpoints: {
-    arbitrum_mainnet: string;
-    bsc_mainnet: string;
-    ethereum_mainnet: string;
-    ethereum_testnet: string;
-    polygon_mainnet: string;
-    polygon_mumbai: string;
-    solana_mainnet: string;
+  zettablockApis: {
+    arbitrum_mainnet: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
+    bsc_mainnet: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
+    ethereum_mainnet: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
+    ethereum_testnet: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
+    polygon_mainnet: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
+    polygon_mumbai: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
+    solana_mainnet: {
+      balances: {
+        native: string;
+        nonnative: string;
+      };
+      nfts: string;
+    };
   };
 }
