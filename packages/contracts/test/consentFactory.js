@@ -55,6 +55,8 @@ describe("ConsentFactory", () => {
 
   describe("Stake-for-Ranking", function () {
     it("Test basic Marketplace insertion and deletion", async function () {
+      // SCENARIO: User 1 initializes slot 3 => User 2 inserts upstream slot 4 => User 1 removes listing (which removes their slot 3) => User 1 inserts downstream of User 2 on slot 2
+
       // create a couple of consent contracts
       await consentFactory
         .connect(owner)
@@ -149,6 +151,240 @@ describe("ConsentFactory", () => {
         });
 
       expect(await consentFactory.getTagTotal(tag2)).to.eq(2);
+
+      const forwardList = await consentFactory.getListingsForward(
+        tag2,
+        4,
+        4,
+        true,
+      );
+
+      await expect(forwardList[0][0]).to.eq("Listing2");
+      await expect(forwardList[0][1]).to.eq("Listing1");
+      await expect(forwardList[1][0].next).to.eq(slot2);
+      await expect(forwardList[1][1].previous).to.eq(slot4);
+
+      const backwardList = await consentFactory.getListingsBackward(
+        tag2,
+        2,
+        2,
+        true,
+      );
+
+      await expect(backwardList[0][0]).to.eq("Listing1");
+      await expect(backwardList[0][1]).to.eq("Listing2");
+      await expect(backwardList[1][0].previous).to.eq(slot4);
+      await expect(backwardList[1][1].next).to.eq(slot2);
+    });
+
+    it("Insert upstream and test listing getters", async function () {
+      // SCENARIO: User 1 initializes slot 3 => User 2 inserts upstream slot 4
+
+      // create a couple of consent contracts
+      await consentFactory
+        .connect(owner)
+        .createConsent(user1.address, "Listing1", "Brand1")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      await consentFactory
+        .connect(owner)
+        .createConsent(user2.address, "Listing2", "Brand2")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      // get the deployed address by looking up the provided name
+      deployedConsentAddressArray1 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user1.address,
+          0,
+          1,
+        );
+
+      deployedConsentAddressArray2 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user2.address,
+          0,
+          1,
+        );
+
+      // attach the deployed Consent address and check it's uri
+      const deployedConsentInstance1 = consent.attach(
+        deployedConsentAddressArray1[0],
+      );
+      const deployedConsentInstance2 = consent.attach(
+        deployedConsentAddressArray2[0],
+      );
+
+      const slot2 = 2;
+      const slot3 = 3;
+      const slot4 = 4;
+
+      const tag2 = "short-string-2";
+      const tag3 = "short-string-3";
+
+      await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      // initialize a new tag globally from user 1
+      await expect(
+        deployedConsentInstance1.connect(user1).newGlobalTag(tag2, slot3),
+      ).to.revertedWith(
+        "Consent Contract: This tag is already staked by this contract",
+      );
+
+      // user 2 inserts a listing upstream of user 1's listing on the same tag
+      await deployedConsentInstance2
+        .connect(user2)
+        .newLocalTagUpstream(tag2, slot4, slot3)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      await expect(
+        deployedConsentInstance2
+          .connect(user2)
+          .newLocalTagUpstream(tag2, slot3, slot2),
+      ).to.revertedWith(
+        "Consent Contract: This tag is already staked by this contract",
+      );
+
+      expect(await consentFactory.getTagTotal(tag2)).to.eq(2);
+
+      const forwardList = await consentFactory.getListingsForward(
+        tag2,
+        4,
+        4,
+        true,
+      );
+
+      await expect(forwardList[0][0]).to.eq("Listing2");
+      await expect(forwardList[0][1]).to.eq("Listing1");
+      await expect(forwardList[1][0].next).to.eq(slot3);
+      await expect(forwardList[1][1].previous).to.eq(slot4);
+
+      const backwardList = await consentFactory.getListingsBackward(
+        tag2,
+        3,
+        2,
+        true,
+      );
+
+      await expect(backwardList[0][0]).to.eq("Listing1");
+      await expect(backwardList[0][1]).to.eq("Listing2");
+      await expect(backwardList[1][0].previous).to.eq(slot4);
+      await expect(backwardList[1][1].next).to.eq(slot3);
+    });
+
+    it("Insert downstream and test listing getters", async function () {
+      // SCENARIO: User 1 initializes slot 3 => User 2 inserts upstream slot 2
+
+      // create a couple of consent contracts
+      await consentFactory
+        .connect(owner)
+        .createConsent(user1.address, "Listing1", "Brand1")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      await consentFactory
+        .connect(owner)
+        .createConsent(user2.address, "Listing2", "Brand2")
+        .then((tx) => {
+          return tx.wait();
+        });
+
+      // get the deployed address by looking up the provided name
+      deployedConsentAddressArray1 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user1.address,
+          0,
+          1,
+        );
+
+      deployedConsentAddressArray2 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user2.address,
+          0,
+          1,
+        );
+
+      // attach the deployed Consent address and check it's uri
+      const deployedConsentInstance1 = consent.attach(
+        deployedConsentAddressArray1[0],
+      );
+      const deployedConsentInstance2 = consent.attach(
+        deployedConsentAddressArray2[0],
+      );
+
+      const slot2 = 2;
+      const slot3 = 3;
+      const slot4 = 4;
+
+      const tag2 = "short-string-2";
+      const tag3 = "short-string-3";
+
+      await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      // initialize a new tag globally from user 1
+      await expect(
+        deployedConsentInstance1.connect(user1).newGlobalTag(tag2, slot3),
+      ).to.revertedWith(
+        "Consent Contract: This tag is already staked by this contract",
+      );
+
+      // user 2 inserts a listing downstream of user 1's listing on the same tag
+      await deployedConsentInstance2
+        .connect(user2)
+        .newLocalTagDownstream(tag2, slot3, slot2)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+      await expect(
+        deployedConsentInstance2
+          .connect(user2)
+          .newLocalTagUpstream(tag2, slot3, slot2),
+      ).to.revertedWith(
+        "Consent Contract: This tag is already staked by this contract",
+      );
+
+      expect(await consentFactory.getTagTotal(tag2)).to.eq(2);
+
+      const forwardList = await consentFactory.getListingsForward(
+        tag2,
+        3,
+        2,
+        true,
+      );
+
+      await expect(forwardList[0][0]).to.eq("Listing1");
+      await expect(forwardList[0][1]).to.eq("Listing2");
+      await expect(forwardList[1][0].next).to.eq(slot2);
+      await expect(forwardList[1][1].previous).to.eq(slot3);
+
+      const backwardList = await consentFactory.getListingsBackward(
+        tag2,
+        2,
+        2,
+        true,
+      );
+
+      await expect(backwardList[0][0]).to.eq("Listing2");
+      await expect(backwardList[0][1]).to.eq("Listing1");
+      await expect(backwardList[1][0].previous).to.eq(slot3);
+      await expect(backwardList[1][1].next).to.eq(slot2);
     });
 
     it("Test Marketplace expiration mechanics", async function () {
