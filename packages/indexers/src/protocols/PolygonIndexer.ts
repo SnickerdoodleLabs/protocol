@@ -37,7 +37,7 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class PolygonIndexer
   implements IEVMAccountBalanceRepository, IEVMTransactionRepository

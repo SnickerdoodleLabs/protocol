@@ -26,12 +26,12 @@ import mysql, { Connection } from "mysql2";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IIndexerConfig } from "./IIndexerConfig";
+import { IIndexerConfig } from "@indexers/interfaces/IIndexerConfig";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class SpaceAndTimeDB implements IEVMAccountBalanceRepository {
   public constructor(

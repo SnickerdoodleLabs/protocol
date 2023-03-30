@@ -35,7 +35,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class EtherscanNativeBalanceRepository
   implements IEVMAccountBalanceRepository

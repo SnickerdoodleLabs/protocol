@@ -33,7 +33,7 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class OptimismIndexer
   implements IEVMTransactionRepository, IEVMAccountBalanceRepository
@@ -117,7 +117,6 @@ export class OptimismIndexer
 
           return ResultUtils.combine(
             response.result.map((item) => {
-
               return this.tokenPriceRepo
                 .getTokenInfo(chainId, item.TokenAddress)
                 .andThen((info) => {

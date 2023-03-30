@@ -42,7 +42,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class SolanaIndexer
   implements

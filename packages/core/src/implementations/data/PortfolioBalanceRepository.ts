@@ -170,6 +170,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getEtherscanBalanceRepository(),
+      this.accountBalances.getOptimismBalanceRepository(),
     ])
       .andThen(
         ([
@@ -180,6 +181,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           etherscanRepo,
           maticRepo,
           etherscanBalanceRepo,
+          optimismRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -216,6 +218,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             case EIndexer.Binance:
             case EIndexer.Moonbeam:
               return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Optimism:
+              return optimismRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

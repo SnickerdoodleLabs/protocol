@@ -33,7 +33,7 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class EtherscanIndexer
   implements IEVMTransactionRepository, IEVMAccountBalanceRepository

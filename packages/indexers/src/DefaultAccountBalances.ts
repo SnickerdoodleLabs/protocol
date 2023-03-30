@@ -15,17 +15,17 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 // import { ArbitrumIndexer } from "@indexers/ArbitrumIndexer.js";
-import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
+import { EtherscanIndexer } from "@indexers/protocols/EtherscanIndexer.js";
 import { EtherscanNativeBalanceRepository } from "@indexers/EtherscanNativeBalanceRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
-import { OptimismIndexer } from "@indexers/OptimismIndexer.js";
-import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { MoralisEVMPortfolioRepository } from "@indexers/nfts/MoralisEVMPortfolioRepository.js";
+import { OptimismIndexer } from "@indexers/protocols/OptimismIndexer.js";
+import { PolygonIndexer } from "@indexers/protocols/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
+import { SolanaIndexer } from "@indexers/protocols/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {

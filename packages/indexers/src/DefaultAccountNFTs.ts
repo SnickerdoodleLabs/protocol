@@ -16,15 +16,15 @@ import { injectable, inject } from "inversify";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
-import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
-import { PoapRepository } from "@indexers/PoapRepository.js";
+import { MoralisEVMPortfolioRepository } from "@indexers/nfts/MoralisEVMPortfolioRepository.js";
+import { NftScanEVMPortfolioRepository } from "@indexers/nfts/NftScanEVMPortfolioRepository.js";
+import { PoapRepository } from "@indexers/nfts/PoapRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
+import { SolanaIndexer } from "@indexers/protocols/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {
