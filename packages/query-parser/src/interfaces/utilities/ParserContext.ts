@@ -7,8 +7,8 @@ import {
   AST_Expr,
   AST_Query,
   AST_ReturnExpr,
+  AST_Insight,
 } from "@query-parser/interfaces/objects";
-import { AST_Insight } from "../objects/AST_Insight";
 
 export type ParserContextDataTypes =
   | AST_Query

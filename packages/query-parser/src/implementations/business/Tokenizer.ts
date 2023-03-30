@@ -120,7 +120,13 @@ export class Tokenizer {
       // if false, do nothing
     }
 
-    const err = new ParserError(this.position, "No matching tokens found");
+    const err = new ParserError(
+      this.position,
+      `No matching tokens found at ${this.exprStr.slice(
+        0,
+        this.position,
+      )} @@@ ${this.exprStr.slice(this.position)}`,
+    );
     // console.error(err);
     throw err;
   }

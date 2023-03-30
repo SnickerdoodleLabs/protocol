@@ -281,6 +281,7 @@ export class ExprParser {
     const expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
+      // console.log(`processing token: ${token.type}, ${token.val}`);
       if (exprTypes.includes(token.type)) {
         const executable = this.getExecutableFromContext(token);
         expList.push(executable);

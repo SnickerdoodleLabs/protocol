@@ -1,6 +1,7 @@
 export * from "@query-parser/interfaces/objects/AST_Contract.js";
 export * from "@query-parser/interfaces/objects/AST.js";
 export * from "@query-parser/interfaces/objects/AST_Logic.js";
+export * from "@query-parser/interfaces/objects/AST_Insight.js";
 export * from "@query-parser/interfaces/objects/AST_Expr.js";
 export * from "@query-parser/interfaces/objects/Command.js";
 export * from "@query-parser/interfaces/objects/Command_IF.js";

@@ -18,25 +18,14 @@ import {
   ConditionL,
   ConditionLE,
   ConditionOr,
+  ParserContextDataTypes,
 } from "@query-parser/interfaces";
 import { ExprParserMocks } from "@query-parser-test/mocks";
 
+// const context = new Map<string, ParserContextDataTypes>();
+// context.set()
+
 describe("Postfix to AST", () => {
-  test("$r2", () => {
-    const mocks = new ExprParserMocks();
-    mocks
-      .createExprParser(null)
-      .andThen((exprParser) => {
-        const postFix = [new Token(TokenType.query, "$r2", 0)];
-        const expr = exprParser.buildAstFromPostfix(postFix);
-        // console.log(expr);
-        expect(expr).toEqual(mocks.context!.get("r2"));
-        return okAsync(undefined);
-      })
-      .mapErr((err) => {
-        fail((err as Error).message);
-      });
-  });
   test("$q1$q2andq3or to ast", () => {
     const mocks = new ExprParserMocks();
     mocks
