@@ -14,6 +14,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+// import { ArbitrumIndexer } from "@indexers/ArbitrumIndexer.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import { EtherscanNativeBalanceRepository } from "@indexers/EtherscanNativeBalanceRepository.js";
 import {
@@ -21,6 +22,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
+import { OptimismIndexer } from "@indexers/OptimismIndexer.js";
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
@@ -33,6 +35,8 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
   protected etherscan: IEVMAccountBalanceRepository;
+  // protected arbitrum: IEVMAccountBalanceRepository;
+  protected optimism: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -68,6 +72,32 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    // this.arbitrum = new ArbitrumIndexer(
+    //   this.configProvider,
+    //   this.ajaxUtils,
+    //   this.tokenPriceRepo,
+    //   this.logUtils,
+    // );
+    this.optimism = new OptimismIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+  }
+
+  // public getArbitrumBalanceRepository(): ResultAsync<
+  //   IEVMAccountBalanceRepository,
+  //   never
+  // > {
+  //   return okAsync(this.arbitrum);
+  // }
+
+  public getOptimismBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.optimism);
   }
 
   public getEtherscanBalanceRepository(): ResultAsync<

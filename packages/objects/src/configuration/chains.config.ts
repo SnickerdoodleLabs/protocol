@@ -276,24 +276,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   //     URLString("https://api.arbiscan.io/"),
   //   ),
   // ],
-  // [
-  //   ChainId(EChain.Optimism),
-  //   new ChainInformation(
-  //     "Optimism",
-  //     ChainId(EChain.Optimism),
-  //     EChain.Optimism,
-  //     EChainTechnology.EVM,
-  //     true,
-  //     [],
-  //     10000, // average block mining time
-  //     EIndexer.Optimism,
-  //     new NativeCurrencyInformation("Ether", 18, "Ether", "optimism"),
-  //     EChainType.Optimism,
-  //     "https://arbiscan.io/api",
-  //     getExplorerUrl,
-  //     URLString("https://arbiscan.io/"),
-  //   ),
-  // ],
+  [
+    ChainId(EChain.Optimism),
+    new ChainInformation(
+      "Optimism",
+      ChainId(EChain.Optimism),
+      EChain.Optimism,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Optimism,
+      new NativeCurrencyInformation("Ether", 18, "Ether", "optimism"),
+      EChainType.Mainnet,
+      "https://api-optimistic.etherscan.io/api",
+      getExplorerUrl,
+      URLString("https://api-optimistic.etherscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {

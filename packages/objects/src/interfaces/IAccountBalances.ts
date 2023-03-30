@@ -24,6 +24,14 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
+  // getArbitrumBalanceRepository(): ResultAsync<
+  //   IEVMAccountBalanceRepository,
+  //   never
+  // >;
+  getOptimismBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
 }
 
 export const IAccountBalancesType = Symbol.for("IAccountBalances");

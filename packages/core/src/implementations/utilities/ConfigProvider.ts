@@ -113,6 +113,7 @@ export class ConfigProvider
         optimism:
           "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
       },
+      "8EwsbZAFudVxbb4ri2d9wh41U+lcfCv/oWF9YwR3IrA=",
       {
         arbitrum_mainnet: {
           balances: {
