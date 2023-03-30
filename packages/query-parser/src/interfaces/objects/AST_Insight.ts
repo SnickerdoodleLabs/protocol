@@ -1,4 +1,9 @@
-import { DataPermissions, ISDQLConditionString, ISDQLExpressionString, SDQL_Name } from "@snickerdoodlelabs/objects";
+import {
+  DataPermissions,
+  ISDQLConditionString,
+  ISDQLExpressionString,
+  SDQL_Name,
+} from "@snickerdoodlelabs/objects";
 
 import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr.js";
 import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";

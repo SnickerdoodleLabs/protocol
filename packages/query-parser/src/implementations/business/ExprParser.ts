@@ -315,6 +315,13 @@ export class ExprParser {
     if (typeof expr === "boolean") {
       return new AST_BoolExpr(SDQL_Name("boolean"), expr as boolean);
     }
+    if (
+      expr instanceof AST_Query ||
+      expr instanceof AST_Ad ||
+      expr instanceof AST_Insight
+    ) {
+      return new AST_Expr(expr.name, expr);
+    }
 
     return expr as AST_Expr | Command;
   }

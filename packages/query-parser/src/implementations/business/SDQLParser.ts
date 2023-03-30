@@ -42,6 +42,8 @@ import {
   ParserContextDataTypes,
   SDQLQueryWrapper,
   AST_ConditionExpr,
+  AST_BoolExpr,
+  Condition,
 } from "@query-parser/interfaces/index.js";
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr";
@@ -275,7 +277,7 @@ export class SDQLParser {
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
     try {
-      const adTarget = this.parseExpString(
+      const adTarget = this.parseTargetExpString(
         singleAdSchema.target,
       ) as AST_ConditionExpr;
       const dataPermissions = this.parseUnifiedDataPermissions([
@@ -400,7 +402,7 @@ export class SDQLParser {
     try {
       // 1. build ast from target, requires queries in the context
       // 2. build ast from returns, requires queries in the context
-      const targetAst = this.parseExpString(schema.target);
+      const targetAst = this.parseTargetExpString(schema.target);
       const returnsAst = this.parseExpString(schema.returns);
       const dataPermissions = this.parseUnifiedDataPermissions([
         schema.target,
@@ -590,6 +592,29 @@ export class SDQLParser {
       lrs.set(expStr, exp);
     }
     return lrs;
+  }
+
+  public parseTargetExpString(target: string): AST_ConditionExpr {
+    const ast = this.parseExpString(target);
+    if (ast instanceof AST_ConditionExpr) {
+      return ast;
+    }
+    if (ast instanceof AST_BoolExpr) {
+      return new AST_ConditionExpr(
+        ast.name,
+        ast.source == null ? false : ast.source,
+      );
+      // return ast;
+    }
+    if (ast instanceof AST_Expr && ast.source instanceof AST_Query) {
+      return new AST_ConditionExpr(ast.name, ast.source);
+    }
+    if (ast instanceof Condition) {
+      return new AST_ConditionExpr(ast.name, ast);
+    }
+    throw new QueryFormatError(
+      `wrong AST type for target expression: ${JSON.stringify(ast)}`,
+    );
   }
 
   public parseExpString(expStr: string): AST_Expr | Command {

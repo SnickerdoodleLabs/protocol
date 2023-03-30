@@ -123,12 +123,12 @@ describe("SDQLParser on avalanche", () => {
   // });
 
   describe.only("Checking insights", () => {
-    test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
+    test("it has 3 insights (i1, i2, i3)", () => {
       const i1 = parser.context.get("i1") as AST_Insight;
       const i2 = parser.context.get("i2") as AST_Insight;
       const i3 = parser.context.get("i3") as AST_Insight;
 
-      console.log(i1, i2, i3);
+      // console.log(i1, i2, i3);
 
       expect(i1 instanceof AST_Insight).toBeTruthy();
       expect(i2 instanceof AST_Insight).toBeTruthy();
@@ -149,7 +149,7 @@ describe("SDQLParser on avalanche", () => {
       expect(typeof i2.returns.source === "string").toBeTruthy();
 
       expect(i3.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(i3.target.source instanceof AST_BoolExpr).toBeTruthy();
+      expect(typeof i3.target.source == "boolean").toBeTruthy();
       expect(i3.returns instanceof AST_Expr).toBeTruthy();
       expect(i3.returns.source instanceof AST_Query).toBeTruthy();
     });
