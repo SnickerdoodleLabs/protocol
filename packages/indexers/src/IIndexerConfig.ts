@@ -17,4 +17,13 @@ export interface IIndexerConfig {
     arbitrum: string;
     optimism: string;
   };
+  zettablockEndpoints: {
+    arbitrum_mainnet: string;
+    bsc_mainnet: string;
+    ethereum_mainnet: string;
+    ethereum_testnet: string;
+    polygon_mainnet: string;
+    polygon_mumbai: string;
+    solana_mainnet: string;
+  };
 }

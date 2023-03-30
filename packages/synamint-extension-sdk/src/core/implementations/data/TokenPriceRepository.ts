@@ -1,6 +1,3 @@
-import { ITokenPriceRepository } from "@synamint-extension-sdk/core/interfaces/data";
-import { IErrorUtils, IErrorUtilsType } from "@synamint-extension-sdk/core/interfaces/utilities";
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 import { ITimeUtilsType, ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ChainId,
@@ -13,6 +10,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { id, inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { ITokenPriceRepository } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()
 export class TokenPriceRepository implements ITokenPriceRepository {

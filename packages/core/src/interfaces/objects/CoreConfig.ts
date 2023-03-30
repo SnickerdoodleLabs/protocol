@@ -45,6 +45,15 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       arbitrum: string;
       optimism: string;
     },
+    public zettablockEndpoints: {
+      arbitrum_mainnet: string;
+      bsc_mainnet: string;
+      ethereum_mainnet: string;
+      ethereum_testnet: string;
+      polygon_mainnet: string;
+      polygon_mumbai: string;
+      solana_mainnet: string;
+    },
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,

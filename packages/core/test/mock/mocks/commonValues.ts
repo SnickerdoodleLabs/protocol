@@ -96,6 +96,15 @@ export const testCoreConfig = new CoreConfig(
     arbitrum: "",
     optimism: "",
   }, // alchemy endpoints
+  {
+    arbitrum_mainnet: "",
+    bsc_mainnet: "",
+    ethereum_mainnet: "",
+    ethereum_testnet: "",
+    polygon_mainnet: "",
+    polygon_mumbai: "",
+    solana_mainnet: "",
+  },
   10000,
   "(localhost|chrome://)",
   false,

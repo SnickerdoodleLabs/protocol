@@ -1,0 +1,97 @@
+import { Metaplex } from "@metaplex-foundation/js";
+import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  AccountIndexingError,
+  AjaxError,
+  ChainId,
+  EVMAccountAddress,
+  EVMTransaction,
+  IEVMAccountBalanceRepository,
+  IEVMTransactionRepository,
+  TokenBalance,
+  TickerSymbol,
+  BigNumberString,
+  EChainTechnology,
+  EVMContractAddress,
+  ITokenPriceRepositoryType,
+  ITokenPriceRepository,
+  EVMTransactionHash,
+  UnixTimestamp,
+  getChainInfoByChainId,
+  getEtherscanBaseURLForChain,
+} from "@snickerdoodlelabs/objects";
+import { Connection } from "@solana/web3.js";
+import { ethers } from "ethers";
+import { inject } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoinP } from "url-join-ts";
+
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@indexers/IIndexerConfigProvider.js";
+
+export class ZettablockIndexer implements IEVMAccountBalanceRepository {
+  private _connections?: ResultAsync<ZettablockClients, never>;
+
+  public constructor(
+    @inject(IIndexerConfigProviderType)
+    protected configProvider: IIndexerConfigProvider,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
+  ) {}
+
+  public getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return okAsync([]);
+  }
+
+  private _getConnectionForEndpoint(
+    endpoint: string,
+  ): ResultAsync<[Connection, Metaplex], never> {
+    const connection = new Connection(endpoint);
+    const metaplex = new Metaplex(connection);
+    return okAsync([connection, metaplex]);
+  }
+
+  private _getConnections(): ResultAsync<ZettablockClients, never> {
+    if (this._connections) {
+      return this._connections;
+    }
+
+    this._connections = this.configProvider.getConfig().andThen((config) => {
+      return ResultUtils.combine([
+        this._getConnectionForEndpoint(config.alchemyEndpoints.solana),
+        this._getConnectionForEndpoint(config.alchemyEndpoints.solanaTestnet),
+      ]).map(([mainnet, testnet]) => {
+        return {
+          mainnet,
+          testnet,
+        };
+      });
+    });
+
+    return this._connections;
+  }
+}
+
+interface IEtherscanBlockNumberResponse {
+  status: string;
+  message: string;
+  result: BigNumberString;
+}
+
+interface ZettablockClients {
+  mainnet: [Connection, Metaplex];
+  testnet: [Connection, Metaplex];
+}

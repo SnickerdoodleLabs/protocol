@@ -113,6 +113,15 @@ export class ConfigProvider
         optimism:
           "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
       },
+      {
+        arbitrum_mainnet: "",
+        bsc_mainnet: "",
+        ethereum_mainnet: "",
+        ethereum_testnet: "",
+        polygon_mainnet: "",
+        polygon_mumbai: "",
+        solana_mainnet: "",
+      },
       10000,
       "(localhost|chrome://)",
       false,
