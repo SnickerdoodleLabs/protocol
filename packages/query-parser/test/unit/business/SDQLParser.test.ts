@@ -41,7 +41,9 @@ describe("SDQLParser on avalanche", () => {
     if (astRes.isOk()) {
       ast = astRes.value;
     } else {
-      fail(astRes.error.message);
+      // fail(astRes.error.message);
+      console.error(astRes.error.message);
+      expect(1).toBe(2);
     }
   });
 

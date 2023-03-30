@@ -57,7 +57,11 @@ rules.push(
   [/\$c[0-9]+/y, TokenType.compensation],
   [/\$a[0-9]+/y, TokenType.ad],
   [/\s+/y, TokenType.whitespace],
-  [/["']{1}\w+["']{1}/y, TokenType.string],
+  // [/["']{1}.*["']{1}/y, TokenType.string],
+  // [/'{1}.*(?<=\\)'{1}/y, TokenType.string], //match unescaped character.
+  // [/["']{1}[A-Za-z0-9_ ]*["']{1}/y, TokenType.string],
+  [/'{1}[A-Za-z0-9_ ]*'{1}/y, TokenType.string],
+  [/"{1}[A-Za-z0-9_ ]*"{1}/y, TokenType.string],
 );
 export class Tokenizer {
   /**
@@ -122,10 +126,9 @@ export class Tokenizer {
 
     const err = new ParserError(
       this.position,
-      `No matching tokens found at ${this.exprStr.slice(
-        0,
-        this.position,
-      )} @@@ ${this.exprStr.slice(this.position)}`,
+      `No matching tokens found at ${this.exprStr.slice(this.position)} of ${
+        this.exprStr
+      }`,
     );
     // console.error(err);
     throw err;

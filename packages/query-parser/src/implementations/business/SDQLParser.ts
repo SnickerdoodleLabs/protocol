@@ -216,6 +216,25 @@ export class SDQLParser {
   }
   // #endregion
 
+  protected transformError(
+    err: Error,
+  ): DuplicateIdInSchema | QueryFormatError | MissingASTError {
+    if (err instanceof DuplicateIdInSchema) {
+      return err as DuplicateIdInSchema;
+    }
+    if (err instanceof QueryFormatError) {
+      return err as QueryFormatError;
+    }
+    if (err instanceof ParserError) {
+      return new QueryFormatError(err.message);
+    }
+    let stringified = JSON.stringify(err);
+    if (stringified.length < 4) {
+      stringified = err.message;
+    }
+    return new QueryFormatError(stringified);
+  }
+
   // #region non-logic
   private parseAds(): ResultAsync<
     void,
@@ -278,13 +297,7 @@ export class SDQLParser {
       );
       return okAsync(ad);
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(this.transformError(err as Error));
     }
   }
 
@@ -333,13 +346,7 @@ export class SDQLParser {
 
       return okAsync(undefined);
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(this.transformError(err as Error));
     }
 
     // return queries;
@@ -410,13 +417,7 @@ export class SDQLParser {
         ),
       );
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(this.transformError(err as Error));
     }
   }
 
@@ -534,13 +535,7 @@ export class SDQLParser {
 
       return okAsync(undefined);
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(this.transformError(err as Error));
     }
   }
   // #endregion

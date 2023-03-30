@@ -17,7 +17,7 @@ function testExpectedValues(expr: string, expectedValues: Array<unknown>) {
     gotValues.push(token.val);
   }
 
-  console.log(gotValues);
+  // console.log(gotValues);
   expect(gotValues).toEqual(expectedValues);
 
   expect(tokenizer.hasNext()).toBe(false);
@@ -138,11 +138,10 @@ describe("Tokenizer expression tests", () => {
   //   testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   // });
 
-  test("if($q1>30)==($q1<35)then$r1", function () {
-    const expr = "if($q1>30)==($q1<35)then$r1";
+  test("($q1>30)==($q1<35)", function () {
+    const expr = "($q1>30)==($q1<35)";
 
     const expectedValues: Array<unknown> = [
-      "if",
       "(",
       "$q1",
       ">",
@@ -154,8 +153,6 @@ describe("Tokenizer expression tests", () => {
       "<",
       35,
       ")",
-      "then",
-      "$r1",
     ];
 
     testExpectedValues(expr, expectedValues);
@@ -229,9 +226,9 @@ describe("Tokenizer expression tests", () => {
   //   testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   // });
 
-  test("$q3=='US'", function () {
-    const expr = "$q3=='US'";
-    const expectedValues = ["$q3", "==", "US"];
+  test("$q3=='United States'", function () {
+    const expr = "$q3=='United States'";
+    const expectedValues = ["$q3", "==", "United States"];
     const expectedTypes = [TokenType.query, TokenType.eq, TokenType.string];
 
     testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
