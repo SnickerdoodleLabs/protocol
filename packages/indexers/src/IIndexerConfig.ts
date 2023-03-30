@@ -17,6 +17,7 @@ export interface IIndexerConfig {
     arbitrum: string;
     optimism: string;
   };
+  sxtEndpoint: string;
   zettablockApis: {
     arbitrum_mainnet: {
       balances: {

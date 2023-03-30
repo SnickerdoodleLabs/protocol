@@ -96,6 +96,7 @@ export const testCoreConfig = new CoreConfig(
     arbitrum: "",
     optimism: "",
   }, // alchemy endpoints
+  "XSR7MtiRo10HxB5WT0eTcYdydoSchyPmp3FKMnIO/c0=",
   {
     arbitrum_mainnet: {
       balances: {

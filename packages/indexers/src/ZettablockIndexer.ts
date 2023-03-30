@@ -24,6 +24,7 @@ import {
   UnixTimestamp,
   getChainInfoByChainId,
   getEtherscanBaseURLForChain,
+  chainConfig,
 } from "@snickerdoodlelabs/objects";
 import { Connection } from "@solana/web3.js";
 import { ethers } from "ethers";
@@ -53,6 +54,10 @@ export class ZettablockIndexer implements IEVMAccountBalanceRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      const chain = chainConfig.get(chainId)!;
+      const values = config.zettablockApis.values();
+    })
     return okAsync([]);
   }
 
@@ -62,26 +67,6 @@ export class ZettablockIndexer implements IEVMAccountBalanceRepository {
     const connection = new Connection(endpoint);
     const metaplex = new Metaplex(connection);
     return okAsync([connection, metaplex]);
-  }
-
-  private _getConnections(): ResultAsync<ZettablockClients, never> {
-    if (this._connections) {
-      return this._connections;
-    }
-
-    this._connections = this.configProvider.getConfig().andThen((config) => {
-      return ResultUtils.combine([
-        this._getConnectionForEndpoint(config.alchemyEndpoints.solana),
-        this._getConnectionForEndpoint(config.alchemyEndpoints.solanaTestnet),
-      ]).map(([mainnet, testnet]) => {
-        return {
-          mainnet,
-          testnet,
-        };
-      });
-    });
-
-    return this._connections;
   }
 }
 

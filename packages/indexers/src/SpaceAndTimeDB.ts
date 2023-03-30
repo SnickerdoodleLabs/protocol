@@ -26,6 +26,8 @@ import mysql, { Connection } from "mysql2";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IIndexerConfig } from "./IIndexerConfig";
+
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -42,29 +44,26 @@ export class SpaceAndTimeDB implements IEVMAccountBalanceRepository {
   ) {}
 
   protected getConnection(): ResultAsync<mysql.Connection, never> {
-    console.log("connection parameters: ", {
-      host: "localhost",
-      user: "andrewstrimatis",
-      database: "mysql",
-      password: "XSR7MtiRo10HxB5WT0eTcYdydoSchyPmp3FKMnIO/c0=",
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("connection parameters: ", {
+        host: "localhost",
+        user: "andrewstrimatis",
+        database: "mysql",
+        password: config.sxtEndpoint,
+      });
+      const connection = mysql.createConnection({
+        host: "localhost",
+        user: "andrewstrimatis",
+        database: "mysql",
+        password: "XSR7MtiRo10HxB5WT0eTcYdydoSchyPmp3FKMnIO/c0=",
+      });
+      this.logUtils.info("connection established: ", connection);
+      const connect = connection.connect.bind(connection);
+      console.log("connection connect: ", connect);
+      connection.execute = connection.query.bind(connection);
+      console.log("connection execute: ", connection);
+      return okAsync(connection);
     });
-
-    const connection = mysql.createConnection({
-      host: "localhost",
-      user: "andrewstrimatis",
-      database: "mysql",
-      password: "XSR7MtiRo10HxB5WT0eTcYdydoSchyPmp3FKMnIO/c0=",
-    });
-
-    console.log("connection established: ", connection);
-
-    const connect = connection.connect.bind(connection);
-    console.log("connection connect: ", connect);
-
-    connection.execute = connection.query.bind(connection);
-    console.log("connection execute: ", connection);
-
-    return okAsync(connection);
   }
 
   public getBalancesForAccount(
@@ -75,34 +74,84 @@ export class SpaceAndTimeDB implements IEVMAccountBalanceRepository {
       this.configProvider.getConfig(),
       this.getConnection(),
     ]).map(async ([config, connection]) => {
+      return ResultUtils.combine([
+        this.getNativeBalance(config, connection, chainId, accountAddress),
+        this.getNonNativeBalance(config, connection, chainId, accountAddress),
+      ]).map(([nativeBalance, nonNativeBalance]) => {
+        return [nativeBalance, ...nonNativeBalance];
+      });
+    });
+  }
+
+  protected getNativeBalance(
+    config: IIndexerConfig,
+    connection: mysql.Connection,
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.getConnection(),
+    ]).map(async ([config, connection]) => {
       const chain = chainConfig.get(chainId)!;
-      const connect = connection.connect.bind(connection);
-      await connect();
+      // const connect = connection.connect.bind(connection);
+      // await connect();
 
       const balance = await new Promise((resolve, reject) => {
         connection.query(
           `SELECT SUM(VALUE) FROM ${chain.name}.ERC20_APPROVAL WHERE CONTRACT_ADDRESS = ${accountAddress}`,
-          (err, res) => {
-            if (err != null) {
-              reject(err);
-            }
-            resolve(res);
-          },
+          // (err, res) => {
+          //   if (err != null) {
+          //     reject(err);
+          //   }
+          //   resolve(res);
+          // },
         );
       });
-      return balance;
 
-      // const nativeBalance = new TokenBalance(
-      //   EChainTechnology.Solana,
-      //   TickerSymbol("SOL"),
-      //   chainId,
-      //   null,
-      //   accountAddress,
-      //   BigNumberString(BigNumber.from(balance).toString()),
-      //   getChainInfoByChainId(chainId).nativeCurrency.decimals,
-      // );
-
-      return okAsync([nativeBalance]);
+      const nativeBalance = new TokenBalance(
+        EChainTechnology.EVM,
+        TickerSymbol("SOL"),
+        chainId,
+        null,
+        accountAddress,
+        BigNumberString(BigNumber.from(balance).toString()),
+        getChainInfoByChainId(chainId).nativeCurrency.decimals,
+      );
     });
+  }
+
+  protected getNonNativeBalance(
+    config: IIndexerConfig,
+    connection: mysql.Connection,
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    const chain = chainConfig.get(chainId)!;
+    const connect = connection.connect.bind(connection);
+    // await connect();
+
+    /* TODO */
+    const balance = await new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT SUM(VALUE) FROM ${chain.name}.ERC20_APPROVAL WHERE CONTRACT_ADDRESS = ${accountAddress}`,
+        (err, res) => {
+          if (err != null) {
+            reject(err);
+          }
+          resolve(res);
+        },
+      );
+    });
+
+    const nativeBalance = new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("SOL"),
+      chainId,
+      null,
+      accountAddress,
+      BigNumberString(BigNumber.from(balance).toString()),
+      getChainInfoByChainId(chainId).nativeCurrency.decimals,
+    );
   }
 }

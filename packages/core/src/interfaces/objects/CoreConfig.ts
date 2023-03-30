@@ -45,6 +45,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       arbitrum: string;
       optimism: string;
     },
+    public sxtEndpoint: string,
     public zettablockApis: {
       arbitrum_mainnet: {
         balances: {
