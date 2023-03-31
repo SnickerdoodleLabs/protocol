@@ -16,7 +16,8 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
   discriminator,
   userId,
   openUnlinkModal,
-  selectAccountToRemove,
+  setAccountIdToRemove,
+  setAccountNameToRemove
 }: ILinkedDiscordAccount) => {
   const discordImageUrl = "https://cdn.discordapp.com";
   const classes = useStyles();
@@ -59,7 +60,8 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
         <Box className={classes.linkAccountContainer}>
           <Button
             onClick={() => {
-              selectAccountToRemove(userId);
+              setAccountNameToRemove(`${name}#${discriminator}`)
+              setAccountIdToRemove(userId);
               openUnlinkModal(true);
             }}
             className={classes.unlinkAccountButton}

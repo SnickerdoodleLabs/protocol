@@ -6,7 +6,8 @@ export interface ILinkedDiscordAccount {
     userId : string,
     avatar : string | null,
     openUnlinkModal : React.Dispatch<React.SetStateAction<boolean>>,
-    selectAccountToRemove : React.Dispatch<React.SetStateAction<string>>,
+    setAccountIdToRemove : React.Dispatch<React.SetStateAction<string>>,
+    setAccountNameToRemove : React.Dispatch<React.SetStateAction<string>>,
     discriminator : string
     servers : DiscordGuildProfile[],
   }

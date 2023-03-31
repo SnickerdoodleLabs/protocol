@@ -140,7 +140,7 @@ export const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   discordGuildName: {
-    fontFamily: "Roboto",
+    fontFamily: "'Space Grotesk', sans-serif",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "27px",
@@ -151,7 +151,7 @@ export const useStyles = makeStyles((theme) => ({
 
   },
   discordGuildMemberText: {
-    fontFamily: "Roboto",
+    fontFamily: "'Space Grotesk', sans-serif",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "18px",

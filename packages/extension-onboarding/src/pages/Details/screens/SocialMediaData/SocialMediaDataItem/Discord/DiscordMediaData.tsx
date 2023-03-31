@@ -35,6 +35,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
   const { discordMediaDataProvider: provider } = useAccountLinkingContext();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+  const [selectedAccountName, setSelectedAccountName] = useState<string>("");
 
   const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
     provider.getGuildProfiles().map((guildProfiles) => {
@@ -47,7 +48,8 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
             discriminator: discordProfile.discriminator,
             servers: getDiscordUserProfiles(guildProfiles, discordProfile.id),
             openUnlinkModal : setIsModalOpen,
-            selectAccountToRemove : setSelectedAccountId
+            setAccountIdToRemove : setSelectedAccountId,
+            setAccountNameToRemove : setSelectedAccountName
           });
           return profiles;
         },
@@ -110,6 +112,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
     <>
     {isModalOpen && (
       <DiscordUnlinkingModal
+      profileName={selectedAccountName}
         closeModal={() => {
           setIsModalOpen(false);
         }}
@@ -148,7 +151,8 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
             avatar={discordProfile.avatar}
             discriminator={discordProfile.discriminator}
             userId={discordProfile.userId}
-            selectAccountToRemove={setSelectedAccountId}
+            setAccountIdToRemove={setSelectedAccountId}
+            setAccountNameToRemove={setSelectedAccountName}
           />
         );
       })}

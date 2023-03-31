@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   title: {
-    fontFamily: "Roboto",
+    fontFamily:"Inter",
     fontSize: "30px",
     fontWeight: 500,
     lineHeight: "38px",

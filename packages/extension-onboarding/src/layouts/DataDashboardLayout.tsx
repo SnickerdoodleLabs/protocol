@@ -14,9 +14,8 @@ const useStyles = makeStyles((theme) => ({
     color: "#232039",
   },
   title: {
-    fontFamily: "'Shrikhand'",
-    fontStyle: "italic",
-    fontWeight: 400,
+    fontFamily:"Inter",
+    fontWeight: 500,
     fontSize: "30px",
     lineHeight: "38px",
     color: "#101828",
