@@ -60,14 +60,6 @@ export class ZettablockIndexer implements IEVMAccountBalanceRepository {
     // })
     return okAsync([]);
   }
-
-  private _getConnectionForEndpoint(
-    endpoint: string,
-  ): ResultAsync<[Connection, Metaplex], never> {
-    const connection = new Connection(endpoint);
-    const metaplex = new Metaplex(connection);
-    return okAsync([connection, metaplex]);
-  }
 }
 
 interface IEtherscanBlockNumberResponse {

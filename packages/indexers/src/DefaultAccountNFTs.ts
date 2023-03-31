@@ -23,7 +23,7 @@ import { ResultAsync, okAsync } from "neverthrow";
 import { MoralisEVMPortfolioRepository } from "@indexers/nfts/MoralisEVMPortfolioRepository.js";
 import { NftScanEVMPortfolioRepository } from "@indexers/nfts/NftScanEVMPortfolioRepository.js";
 import { PoapRepository } from "@indexers/nfts/PoapRepository.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/protocols/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/protocols/SolanaIndexer.js";
 
 @injectable()

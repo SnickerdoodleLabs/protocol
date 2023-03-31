@@ -21,7 +21,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { PolygonIndexer } from "@indexers/protocols/PolygonIndexer.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/protocols/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/protocols/SolanaIndexer.js";
 import { OptimismIndexer } from "@indexers/protocols/OptimismIndexer.js";
 

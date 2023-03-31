@@ -94,7 +94,8 @@ export class OptimismIndexer
       const url = new URL(
         urlJoinP(baseURL, ["api"], {
           module: "account",
-          action: "addresstokenbalance",
+          // action: "addresstokenbalance",
+          action: "balance",
           address: accountAddress,
           page: 1,
           offset: 1000,
@@ -105,6 +106,7 @@ export class OptimismIndexer
       return this.ajaxUtils
         .get<IEtherscanTokenBalanceResponse>(url)
         .andThen((response) => {
+          console.log("Inside Optimism response: ", response);
           if (response.status != "1") {
             this.logUtils.warning(
               "error fetching erc20 balances from etherscan",
@@ -294,6 +296,7 @@ export class OptimismIndexer
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("Optimism config.etherscanApiKeys: ", config.etherscanApiKeys);
       if (!config.etherscanApiKeys.has(chain)) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),

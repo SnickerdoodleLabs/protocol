@@ -76,6 +76,8 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `100`: Gnosis
 - `56`: Binance Mainnet
 - `1284`: Moonbeam Mainnet
+- `10`: Optimism Mainnet
+- `42161`: Arbitrum Mainnet
 - `*`: all supported networks
 
 #### chain (required for blockchain transaction queries)

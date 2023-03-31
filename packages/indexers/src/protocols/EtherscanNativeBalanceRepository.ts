@@ -58,12 +58,14 @@ export class EtherscanNativeBalanceRepository
       this._getBlockExplorerUrl(chainId),
     ]).andThen(([apiKey, explorerUrl]) => {
       const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+      console.log("ChainID:" + chainId + " url: ", url);
       return this.ajaxUtils
-        .get<IGnosisscanBalanceResponse>(
+        .get<IEtherscanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(url!),
         )
         .map((balanceResponse) => {
+          console.log("balanceResponse: " + balanceResponse);
           const tokenBalances: TokenBalance[] = [];
           const chainInfo = getChainInfoByChainId(chainId);
           tokenBalances.push(
@@ -77,6 +79,7 @@ export class EtherscanNativeBalanceRepository
               chainInfo.nativeCurrency.decimals,
             ),
           );
+          console.log("tokenBalances: " + tokenBalances);
           return tokenBalances;
         });
     });
@@ -101,6 +104,7 @@ export class EtherscanNativeBalanceRepository
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("etherscan Api Keys: ", config.etherscanApiKeys);
       if (!config.etherscanApiKeys.has(chain)) {
         this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
@@ -113,40 +117,7 @@ export class EtherscanNativeBalanceRepository
   }
 }
 
-enum urlAction {
-  balance = "balance",
-  tokentx = "tokentx",
-  tokennfttx = "tokennfttx",
-}
-
-interface IGnosisscanTransactionResponse {
-  status: string;
-  message: string;
-  result: IGnosisscanRawTx[];
-}
-
-interface IGnosisscanRawTx {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: number;
-  from: string;
-  to: string;
-  value: string;
-  gas: BigNumberString;
-  gasPrice: BigNumberString;
-  contractAddress: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  confirmations: string;
-  tokenID?: string;
-  transactionIndex: string;
-  tokenName: string;
-  tokenSymbol: string;
-}
-
-interface IGnosisscanBalanceResponse {
+interface IEtherscanBalanceResponse {
   status: string;
   message: string;
   result: BigNumberString;

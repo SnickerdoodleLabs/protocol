@@ -210,6 +210,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as SolanaAccountAddress,
               );
             case EIndexer.Ethereum:
+              return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Gnosis:
             case EIndexer.Binance:
             case EIndexer.Moonbeam:
@@ -383,6 +387,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Arbitrum:
+              return okAsync([]);
+            case EIndexer.Optimism:
+              return okAsync([]);
             default:
               return errAsync(
                 new AccountIndexingError(

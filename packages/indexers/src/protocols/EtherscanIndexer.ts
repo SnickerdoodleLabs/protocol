@@ -100,6 +100,7 @@ export class EtherscanIndexer
           apikey: apiKey,
         }),
       );
+      console.log("Ethereum url: ", url);
 
       return this.ajaxUtils
         .get<IEtherscanTokenBalanceResponse>(url)
