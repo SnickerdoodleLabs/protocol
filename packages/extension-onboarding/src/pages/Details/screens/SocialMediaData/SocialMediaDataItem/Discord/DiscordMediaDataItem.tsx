@@ -15,16 +15,11 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
   avatar,
   discriminator,
   userId,
-  token,
+  openUnlinkModal,
+  selectAccountToRemove,
 }: ILinkedDiscordAccount) => {
   const discordImageUrl = "https://cdn.discordapp.com";
   const classes = useStyles();
-  const {discordMediaDataProvider : provider} = useAccountLinkingContext();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  
-  const unlinkAccount = () => {
-    return provider.unlink(SnowflakeID(userId))
-  }
 
   const getDiscordAvatar =  () : string => {
     return avatar === null
@@ -63,7 +58,10 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
 
         <Box className={classes.linkAccountContainer}>
           <Button
-            onClick={() => unlinkAccount()}
+            onClick={() => {
+              selectAccountToRemove(userId);
+              openUnlinkModal(true);
+            }}
             className={classes.unlinkAccountButton}
           >
             Unlink Account

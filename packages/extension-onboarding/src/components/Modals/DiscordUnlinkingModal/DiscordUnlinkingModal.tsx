@@ -1,18 +1,17 @@
 import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Button, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import React, { FC } from "react";
 
 interface IDiscordUnlinkingModal {
   closeModal: () => void;
+  unlinkAccount : () => void;
 }
 const DiscordUnlinkingModal: FC<IDiscordUnlinkingModal> = ({
   closeModal,
+  unlinkAccount,
 }: IDiscordUnlinkingModal) => {
-  const { detectedProviders, unDetectedProviders, onProviderConnectClick } =
-    useAccountLinkingContext();
+
 
   const classes = useStyles();
   return (
@@ -51,7 +50,7 @@ const DiscordUnlinkingModal: FC<IDiscordUnlinkingModal> = ({
           <Box display="flex" marginLeft="auto">
             <Button
               onClick={() => {
-                closeModal();
+                unlinkAccount();
               }}
               className={classes.button}
             >

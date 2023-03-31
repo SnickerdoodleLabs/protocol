@@ -33,7 +33,8 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
     ILinkedDiscordAccount[]
   >([]);
   const { discordMediaDataProvider: provider } = useAccountLinkingContext();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
 
   const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
     provider.getGuildProfiles().map((guildProfiles) => {
@@ -45,7 +46,8 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
             avatar: discordProfile.avatar,
             discriminator: discordProfile.discriminator,
             servers: getDiscordUserProfiles(guildProfiles, discordProfile.id),
-            token: discordProfile.authToken,
+            openUnlinkModal : setIsModalOpen,
+            selectAccountToRemove : setSelectedAccountId
           });
           return profiles;
         },
@@ -111,6 +113,12 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
         closeModal={() => {
           setIsModalOpen(false);
         }}
+        unlinkAccount={
+          () => {
+            provider.unlink(SnowflakeID(selectedAccountId))
+          }
+        }
+
       />
     )}
     <Box className={classes.accountBoxContainer}>
@@ -134,12 +142,13 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
       {linkedDiscordAccount.map((discordProfile) => {
         return (
           <DiscordMediaDataItem
-            token={discordProfile.token}
+            openUnlinkModal={setIsModalOpen}
             name={discordProfile.name}
             servers={discordProfile.servers}
             avatar={discordProfile.avatar}
             discriminator={discordProfile.discriminator}
             userId={discordProfile.userId}
+            selectAccountToRemove={setSelectedAccountId}
           />
         );
       })}
