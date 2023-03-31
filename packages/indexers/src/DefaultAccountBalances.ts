@@ -15,17 +15,17 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 // import { ArbitrumIndexer } from "@indexers/ArbitrumIndexer.js";
-import { EtherscanNativeBalanceRepository } from "@indexers/protocols/EtherscanNativeBalanceRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/nfts/MoralisEVMPortfolioRepository.js";
 import { EtherscanIndexer } from "@indexers/protocols/EtherscanIndexer.js";
+import { EtherscanNativeBalanceRepository } from "@indexers/protocols/EtherscanNativeBalanceRepository.js";
 import { OptimismIndexer } from "@indexers/protocols/OptimismIndexer.js";
 import { PolygonIndexer } from "@indexers/protocols/PolygonIndexer.js";
-import { SolanaIndexer } from "@indexers/protocols/SolanaIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/protocols/SimulatorEVMTransactionRepository.js";
+import { SolanaIndexer } from "@indexers/protocols/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -37,6 +37,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected etherscan: IEVMAccountBalanceRepository;
   // protected arbitrum: IEVMAccountBalanceRepository;
   protected optimism: IEVMAccountBalanceRepository;
+  // protected spaceAndTime: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -84,6 +85,12 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    // this.spaceAndTime = new SpaceAndTimeDB(
+    //   this.configProvider,
+    //   this.ajaxUtils,
+    //   this.tokenPriceRepo,
+    //   this.logUtils,
+    // );
   }
 
   // public getArbitrumBalanceRepository(): ResultAsync<
@@ -91,6 +98,13 @@ export class DefaultAccountBalances implements IAccountBalances {
   //   never
   // > {
   //   return okAsync(this.arbitrum);
+  // }
+
+  // public getSpaceandTimeBalanceRepository(): ResultAsync<
+  //   IEVMAccountBalanceRepository,
+  //   never
+  // > {
+  //   return okAsync(this.spaceAndTime);
   // }
 
   public getOptimismBalanceRepository(): ResultAsync<

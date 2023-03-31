@@ -171,6 +171,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getEtherscanBalanceRepository(),
       this.accountBalances.getOptimismBalanceRepository(),
+      // this.accountBalances.getSpaceandTimeBalanceRepository(),
     ])
       .andThen(
         ([
@@ -182,6 +183,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           maticRepo,
           etherscanBalanceRepo,
           optimismRepo,
+          // sxtRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {

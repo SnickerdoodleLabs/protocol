@@ -17,17 +17,13 @@ import {
   TickerSymbol,
   BigNumberString,
   getChainInfoByChainId,
-  isAccountValidForChain,
-  chainConfig,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject } from "inversify";
-import mysql, { Connection } from "mysql2";
+import mysql from "mysql2";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IIndexerConfig } from "@indexers/interfaces/IIndexerConfig";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -70,26 +66,7 @@ export class SpaceAndTimeDB implements IEVMAccountBalanceRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.getConnection(),
-    ])
-      .map(async ([config, connection]) => {
-        return ResultUtils.combine([
-          this.getNonNativeBalances(
-            config,
-            connection,
-            chainId,
-            accountAddress,
-          ),
-          this.getNativeBalance(config, connection, chainId, accountAddress),
-        ]).map(([nonNativeBalances, nativeBalance]) => {
-          return [nativeBalance, ...nonNativeBalances];
-        });
-      })
-      .andThen((balances) => {
-        return balances;
-      });
+    return okAsync([]);
   }
 
   protected getNativeBalance(
@@ -98,39 +75,6 @@ export class SpaceAndTimeDB implements IEVMAccountBalanceRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
-    // return ResultUtils.combine([
-    //   this.configProvider.getConfig(),
-    //   this.getConnection(),
-    // ]).map(async ([config, connection]) => {
-    //   const chain = chainConfig.get(chainId)!;
-    //   // const connect = connection.connect.bind(connection);
-    //   // await connect();
-
-    //   // const balance = await new Promise((resolve, reject) => {
-    //   //   connection.query(
-    //   //     `SELECT SUM(VALUE) FROM ${chain.name}.ERC20_APPROVAL WHERE CONTRACT_ADDRESS = ${accountAddress}`,
-    //   //     // (err, res) => {
-    //   //     //   if (err != null) {
-    //   //     //     reject(err);
-    //   //     //   }
-    //   //     //   resolve(res);
-    //   //     // },
-    //   //   );
-    //   // });
-    //   const balance = "1";
-
-    //   const nativeBalance = new TokenBalance(
-    //     EChainTechnology.EVM,
-    //     TickerSymbol("SOL"),
-    //     chainId,
-    //     null,
-    //     accountAddress,
-    //     BigNumberString(BigNumber.from(balance).toString()),
-    //     getChainInfoByChainId(chainId).nativeCurrency.decimals,
-    //   );
-    //   return okAsync(nativeBalance);
-    // });
-
     const balance = "1";
     const nativeBalance = new TokenBalance(
       EChainTechnology.EVM,
@@ -150,22 +94,6 @@ export class SpaceAndTimeDB implements IEVMAccountBalanceRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    // const chain = chainConfig.get(chainId)!;
-    // const connect = connection.connect.bind(connection);
-    // // await connect();
-    // /* TODO */
-    // const balance = await new Promise((resolve, reject) => {
-    //   connection.query(
-    //     `SELECT SUM(VALUE) FROM ${chain.name}.ERC20_APPROVAL WHERE CONTRACT_ADDRESS = ${accountAddress}`,
-    //     (err, res) => {
-    //       if (err != null) {
-    //         reject(err);
-    //       }
-    //       resolve(res);
-    //     },
-    //   );
-    // });
-
     const balance = "1";
     const nativeBalance = new TokenBalance(
       EChainTechnology.EVM,

@@ -32,6 +32,11 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
+
+  // getSpaceandTimeBalanceRepository(): ResultAsync<
+  //   IEVMAccountBalanceRepository,
+  //   never
+  // >;
 }
 
 export const IAccountBalancesType = Symbol.for("IAccountBalances");
