@@ -7920,9 +7920,9 @@ __metadata:
   linkType: hard
 
 "@webcomponents/custom-elements@npm:^1.5.0":
-  version: 1.5.1
-  resolution: "@webcomponents/custom-elements@npm:1.5.1"
-  checksum: 25bd660edeb48e8cdf0a94b4161308bca02dda233316792c16d448fdeee214119e58b45d67a3ae091234cea0e227e42784f732ae9178597feb9d0e8d7fd25166
+  version: 1.6.0
+  resolution: "@webcomponents/custom-elements@npm:1.6.0"
+  checksum: 503d81a8dba0bc5982ad7d0c7bf5b0e69021c98dc33e942b9a0bc872d707ac030d0d00d38afdb576ab7c01c3c3fe0395543681c58ad52000bbbe8240a0645271
   languageName: node
   linkType: hard
 
@@ -14066,9 +14066,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.284":
-  version: 1.4.346
-  resolution: "electron-to-chromium@npm:1.4.346"
-  checksum: b488b5ff819df86bc240844ca9c0801b8b8aa3af23f60362ac3386563a8d344a91c5507bf228164d93c017e739ac2e6c6b22c50fe7239084aba2e66634463d41
+  version: 1.4.347
+  resolution: "electron-to-chromium@npm:1.4.347"
+  checksum: 87b60c906d6252f848f44f65f76f0d44614fbea0ad47f2e46efa069a5adb947f6e31d5a285f9433f0ba420ab70c2091951c455d6c9a12533652a5cfaad23e72d
   languageName: node
   linkType: hard
 

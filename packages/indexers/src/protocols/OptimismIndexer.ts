@@ -154,6 +154,7 @@ export class OptimismIndexer
               apikey: apiKey,
             }),
           );
+          console.log("Inside Optimism url 2: ", url);
 
           return this.ajaxUtils
             .get<IEtherscanNativeBalanceResponse>(url)
@@ -167,6 +168,7 @@ export class OptimismIndexer
                 BigNumberString(response.result),
                 getChainInfoByChainId(chainId).nativeCurrency.decimals,
               );
+              console.log("Inside Optimism native balance: ", url);
               return [nativeBalance, ...balances];
             });
         });
