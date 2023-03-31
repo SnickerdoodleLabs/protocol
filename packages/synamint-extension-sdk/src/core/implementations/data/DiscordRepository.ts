@@ -53,8 +53,8 @@ export class DiscordRepository implements IDiscordRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>{
-    return this.core.discord.unlinkAccount(discordProfileId).mapErr((error) => {
+  unlink( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>{
+    return this.core.discord.unlink(discordProfileId).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

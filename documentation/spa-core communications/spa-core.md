@@ -149,7 +149,7 @@ export class RpcCallHandler implements IRpcCallHandler {
 
 ```
 
-3. Now we will add our new methods to the gateway that spa uses to make calls. Since we added an external action we will use the  [ExternalCoreGateway](./../../packages/core/src/gateways/ExternalCoreGateway.ts) methods. Before that we will have to add new interfaces though. [ISdlDataWallet](./../../packages/objects/src/interfaces/ISdlDataWallet.ts), this is the main interface for the communication methods and the type of the injected object that the data wallet makes. SPA will use theses methods when making a call.
+3. Now we will add our new methods to the gateway that spa uses to make calls. Since we added an external action we will use the  [ExternalCoreGateway](./../../packages/synamint-extension-sdk/src/gateways/ExternalCoreGateway.ts) methods. Before that we will have to add new interfaces though. [ISdlDataWallet](./../../packages/objects/src/interfaces/ISdlDataWallet.ts), this is the main interface for the communication methods and the type of the injected object that the data wallet makes. SPA will use theses methods when making a call.
 
 ```
 type JsonRpcError = unknown;

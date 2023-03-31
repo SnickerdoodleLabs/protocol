@@ -75,12 +75,12 @@ export class SocialDataMock {
         (profile) =>
           new DiscordGuildProfile(
             profile.id,
+            SnowflakeID("-1"),
             profile.name,
             profile.owner,
             profile.permissions,
             profile.icon,
             null,
-            SnowflakeID("-1")
           ),
       ),
     );

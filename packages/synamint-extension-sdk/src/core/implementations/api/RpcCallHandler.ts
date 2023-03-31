@@ -519,7 +519,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.UNLINK_DISCORD_ACCOUNT : {
         const {discordProfileId } = params as IUnlinkDiscordAccount;
         return new AsyncRpcResponseSender(
-          this.discordService.unlinkAccount(discordProfileId),
+          this.discordService.unlink(discordProfileId),
           res,
         ).call();
       }

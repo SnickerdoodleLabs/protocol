@@ -37,8 +37,8 @@ export class DiscordProvider implements IDiscordDataProvider {
       return errAsync(new Error("Could not get discord user profiles!"));
     });
   }
-  public unlinkAccount(discordProfileId : SnowflakeID) : ResultAsync<void,unknown> {
-    return window.sdlDataWallet.discord.unlinkAccount(discordProfileId).mapErr(() => {
+  public unlink(discordProfileId : SnowflakeID) : ResultAsync<void,unknown> {
+    return window.sdlDataWallet.discord.unlink(discordProfileId).mapErr(() => {
       return errAsync(new Error("Could not get unlink discord profile!"));
     });
   }

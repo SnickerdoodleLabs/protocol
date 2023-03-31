@@ -117,8 +117,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getGuildProfiles: () =>{
         return coreGateway.discord.getGuildProfiles()
       },
-      unlinkAccount : ( discordProfileId : SnowflakeID) => {
-        return coreGateway.discord.unlinkAccount(discordProfileId)
+      unlink : ( discordProfileId : SnowflakeID) => {
+        return coreGateway.discord.unlink(discordProfileId)
       }
       
     }

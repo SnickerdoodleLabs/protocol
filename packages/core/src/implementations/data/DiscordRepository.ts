@@ -136,12 +136,13 @@ export class DiscordRepository implements IDiscordRepository {
             const guildProfiles = response.map((profile) => {
               return new DiscordGuildProfile(
                 profile.id,
+                SnowflakeID("-1"),// not set yet
                 profile.name,
                 profile.owner,
                 profile.permissions,
                 profile.icon,
                 null,
-                SnowflakeID("-1"),// not set yet
+
               );
             });
 

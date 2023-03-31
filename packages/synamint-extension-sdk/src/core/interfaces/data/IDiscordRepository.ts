@@ -9,7 +9,7 @@ export interface IDiscordRepository {
     installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError>
     getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError>;
     getGuildProfiles(): ResultAsync<DiscordGuildProfile[], SnickerDoodleCoreError>;
-    unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>;
+    unlink( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>;
 }
 
 export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");

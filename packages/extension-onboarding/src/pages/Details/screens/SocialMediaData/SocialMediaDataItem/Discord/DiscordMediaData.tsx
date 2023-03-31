@@ -9,7 +9,7 @@ import {
   DiscordProfile,
   SnowflakeID,
 } from "@snickerdoodlelabs/objects";
-
+import DiscordUnlinkingModal from "@extension-onboarding/components/Modals/DiscordUnlinkingModal";
 import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataItem";
 
 import {
@@ -33,6 +33,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
     ILinkedDiscordAccount[]
   >([]);
   const { discordMediaDataProvider: provider } = useAccountLinkingContext();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
 
   const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
     provider.getGuildProfiles().map((guildProfiles) => {
@@ -100,17 +101,25 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
   useEffect(() => {
     if (!discordProfiles) return;
     getGuildProfiles(discordProfiles);
-  }, [discordProfiles]);
+  }, [discordProfiles ]);
 
   const classes = useStyles();
   return (
+    <>
+    {isModalOpen && (
+      <DiscordUnlinkingModal
+        closeModal={() => {
+          setIsModalOpen(false);
+        }}
+      />
+    )}
     <Box className={classes.accountBoxContainer}>
       <Box className={`${classes.providerContainer} ${classes.mainProvider}`}>
         <Box>
           <img className={classes.providerLogo} src={icon} />
         </Box>
         <Box>
-          <p className={classes.providerText}>{name}</p>
+          <p className={classes.providerText}>{name} testing</p>
         </Box>
 
         <Box className={classes.linkAccountContainer}>
@@ -135,6 +144,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
         );
       })}
     </Box>
+    </>
   );
 };
 

@@ -102,7 +102,7 @@ export class ExternalCoreGateway {
       getGuildProfiles :(): ResultAsync<DiscordGuildProfile[], JsonRpcError> => {
         return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
       },
-      unlinkAccount : ( discordProfileId : SnowflakeID) => {
+      unlink : ( discordProfileId : SnowflakeID) => {
         return this._handler.call(
           EExternalActions.UNLINK_DISCORD_ACCOUNT,
           { discordProfileId } as IUnlinkDiscordAccount,

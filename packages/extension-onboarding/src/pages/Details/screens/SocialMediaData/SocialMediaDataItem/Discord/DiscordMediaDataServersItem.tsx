@@ -16,6 +16,7 @@ const DiscordMediaDataItem: FC<IDiscordMediaDataServerItem> = ({
   }
 
   return (
+    
     <Box className={classes.discordMediaItemLinkedAccountContainer}>
         <Box >
         {  server.icon ? <img
@@ -26,11 +27,11 @@ const DiscordMediaDataItem: FC<IDiscordMediaDataServerItem> = ({
         /> :<Box className={classes.discordGuildNoIconContainer} > <p className={classes.discordGuildNoIcon} >{server.name[0]}</p> </Box>}
         </Box>
         <Box className={classes.discordGuildNoIconContainer}>
-          <p className={classes.providerText}>{server.name}</p>
+          <p className={classes.discordGuildName}>{server.name}</p>
+       
+          <p className={classes.discordGuildMemberText}>{server.isOwner ? "Owner" : "Member"}</p>
         </Box>
-        <Box>
-          <p className={classes.providerText}>{server.isOwner ? "Owner" : "Member"}</p>
-        </Box>
+        
     </Box>
   );
 };

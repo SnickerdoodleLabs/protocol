@@ -149,7 +149,7 @@ export interface ICoreDiscordMethods {
      * discord guild data given their profile id
      * @param discordProfileId
      */
-    unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError>;
+    unlink( discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError>;
   
 }
 

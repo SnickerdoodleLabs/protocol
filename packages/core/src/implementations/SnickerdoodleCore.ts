@@ -308,9 +308,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getGuildProfiles();
       },
-      unlinkAccount :( discordProfileId : SnowflakeID) => {
+      unlink :( discordProfileId : SnowflakeID) => {
         const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.unlinkAccount(discordProfileId);       
+        return discordService.unlink(discordProfileId);       
       }
     }
   }

@@ -33,8 +33,8 @@ import {
     getGuildProfiles(): ResultAsync<DiscordGuildProfile[], SnickerDoodleCoreError> {
         return this.discordRepository.getGuildProfiles();
     }
-    unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError> {
-      return this.discordRepository.unlinkAccount(discordProfileId);      
+    unlink( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError> {
+      return this.discordRepository.unlink(discordProfileId);      
     }
   
     

@@ -26,7 +26,7 @@ export interface IDiscordService extends IOAuthService {
   // ): ResultAsync<DiscordGuildProfile[], DiscordError>;
   getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError>;
   poll(): ResultAsync<void, DiscordError | PersistenceError>;
-  unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError>;
+  unlink( discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
 export const IDiscordServiceType = Symbol.for("IDiscordService");

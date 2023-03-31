@@ -196,6 +196,6 @@ export interface ISdlDiscordMethods {
    * discord guild data given their profile id
    * @param discordProfileId
    */
-    unlinkAccount( discordProfileId : SnowflakeID): ResultAsync<void, JsonRpcError>;
+    unlink( discordProfileId : SnowflakeID): ResultAsync<void, JsonRpcError>;
 
 }

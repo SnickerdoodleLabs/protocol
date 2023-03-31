@@ -13,6 +13,9 @@ export const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     border: "1px solid #ECECEC",
     borderRadius: "12px",
+    background: "#FFFFFF",
+
+
   },
   discordLinkedAccountContainer: {
     display: "flex",
@@ -25,6 +28,15 @@ export const useStyles = makeStyles((theme) => ({
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
     fontSize: "20px",
+  },
+  serversText: {
+    paddingLeft: "24px",
+    paddingTop: "10px",
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontWeight: 500,
+    fontSize: "20px",
+    boxShadow: "inset 0px -1px 0px #F0F0F0",
+    margin : "20px",
   },
   providerLogo: {
     paddingTop: "15px",
@@ -70,23 +82,28 @@ export const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     border: "1px solid #ECECEC",
     borderRadius: "12px",
+    marginBottom: "20px",
   },
   discordMediaItemLinkedAccountContainer: {
     // parent
+    flex: "1 1 0px",
     display: "flex",
-    border: "1px solid #ECECEC",
-    borderRadius: "12px",
     alignItems: "center",
+    boxShadow: "inset 0px -1px 0px #F0F0F0",
+    padding: "0px 10px 10px 0px",
+    background: "#FFFFFF",
+    margin : "0px 10px 0px 10px",
+    gap: "22px",
   },
   discordIcon: {
     paddingTop: "15px",
     paddingLeft: "25px",
-    height: "32px",
-    width: "32px",
+    height: "50px",
+    width: "50px",
   },
-  discordGuildIcon : {
-    width: "57px",
-    height: "57px",
+  discordGuildIcon: {
+    width: "70px",
+    height: "70px",
     paddingTop: "15px",
     paddingLeft: "25px",
   },
@@ -94,20 +111,52 @@ export const useStyles = makeStyles((theme) => ({
     border: "none",
     marginBottom: "16px",
   },
-  discordGuildNoIcon : {
+  discordGuildNoIcon: {
     // gg sans actual font
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
-    fontSize: "32px",
+    fontSize: "42px",
     color: "white",
-    background : "black",
+    background: "black",
     textAlign: "center",
-    width: "57px",
-    height: "57px",
+    width: "70px",
+    height: "70px",
   },
-  discordGuildNoIconContainer : {
+  discordGuildNoIconContainer: {
     paddingLeft: "24px",
     paddingTop: "10px",
+  },
+  discordGuildsContainerRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    width: "100%",
+    flexWrap: "wrap",
+  },
+  discordGuildsContainerColumn: {
+    display: "flex",
+    flexdDirection: "column",
+    flexBasis: "100%",
+    flex: 1,
+  },
+  discordGuildName: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "27px",
+    lineHeight: "27px",
+    letterSpacing: "0em",
+    textAlign: "left",
+    color: "#212121",
+
+  },
+  discordGuildMemberText: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "18px",
+    lineHeight: "160%",
+    color: "#9E9E9E",
   },
   greenTick: { marginLeft: "-15px" },
 }));

@@ -56,7 +56,8 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-  unlinkAccount(_discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError> {
+
+  unlink(_discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError> {
     throw new Error("Method not implemented.");
   }
 

@@ -1,13 +1,13 @@
 import { Button, Box } from "@material-ui/core";
-import React, { FC, memo } from "react";
+import React, { FC, memo, useState } from "react";
 
-import { useAppContext } from "@extension-onboarding/context/App";
+
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
 
 import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataServersItem";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { SnowflakeID } from "@snickerdoodlelabs/objects";
+import { DiscordGuildProfile, SnowflakeID } from "@snickerdoodlelabs/objects";
 
 const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
   name,
@@ -20,9 +20,10 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
   const discordImageUrl = "https://cdn.discordapp.com";
   const classes = useStyles();
   const {discordMediaDataProvider : provider} = useAccountLinkingContext();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   
   const unlinkAccount = () => {
-    return provider.unlinkAccount(SnowflakeID(userId))
+    return provider.unlink(SnowflakeID(userId))
   }
 
   const getDiscordAvatar =  () : string => {
@@ -32,6 +33,19 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
       }.png`
     : `${discordImageUrl}/avatars/${userId}/${avatar}.png` 
   }
+
+  const getDiscordGuildRow = (guildProfiles : DiscordGuildProfile[])  => {
+    const discordGuildRows: React.ReactElement[] = [];
+    for(let i = 0; i< guildProfiles.length;i+=2){
+      if(i+1 >= guildProfiles.length){
+        discordGuildRows.push(<Box className={classes.discordGuildsContainerRow}><DiscordMediaDataServersItem server={guildProfiles[i]}/></Box>)
+      }else{
+        discordGuildRows.push(<Box className={classes.discordGuildsContainerRow}><DiscordMediaDataServersItem server={guildProfiles[i]}/><DiscordMediaDataServersItem server={guildProfiles[i+1]}/></Box>)
+      }
+    }
+    return discordGuildRows;
+  }
+
   return (
     <Box className={classes.discordMediaItemProviderContainer}>
       <Box className={classes.discordMediaItemLinkedAccountContainer}>
@@ -57,10 +71,12 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
         </Box>
       </Box>
       <Box>
-        <p className={classes.providerText}>Servers</p>
-        {servers.map( (server) => {
-          return (<DiscordMediaDataServersItem server={server}/>)
-        })}
+      <p className={classes.serversText}>Servers</p>
+      </Box>
+
+      <Box className={classes.discordGuildsContainerRow}>
+        
+        {getDiscordGuildRow(servers)}
       </Box>
     </Box>
   );

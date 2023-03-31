@@ -15,13 +15,12 @@ export class DiscordGuildProfile extends SocialGroupProfile {
 
   public constructor(
     public id: SnowflakeID,
+    public discordUserProfileId : SnowflakeID,
     public name: string,
     public isOwner: boolean,
     public permissions: Integer,
     public icon: string | null,
     public joinedAt: UnixTimestamp | null,
-    public discordUserProfileId : SnowflakeID,
-    // userId
   ) {
     super(SocialPrimaryKey(`discord-group-${id}`), ESocialType.DISCORD);
   }
@@ -55,12 +54,12 @@ export class DiscordGuildProfileMigrator {
   public factory(data: Record<string, unknown>): DiscordGuildProfile {
     return new DiscordGuildProfile(
       SnowflakeID(data["id"] as string),
+      SnowflakeID(data["discordUserProfileId"] as string),
       Username(data["name"] as string),
       data["isOwner"] as boolean,
       Integer(data["permissions"] as number),
       data["icon"] as string,
       UnixTimestamp(data["joinedAt"] as number),
-      SnowflakeID(data["id"] as string),
     );
   }
 }
