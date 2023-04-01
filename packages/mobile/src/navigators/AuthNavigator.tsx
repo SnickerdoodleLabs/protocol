@@ -7,6 +7,7 @@ import Onboarding from "../screens/Onboarding";
 import Initial from "../screens/Initial";
 import StarterTour from "../components/StarterTour/StarterTour";
 import StarterTour2 from "../components/StarterTour/StarterTour2";
+import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
 
 const Stack = createStackNavigator();
 
@@ -21,8 +22,15 @@ function AuthNavigator() {
         headerBackTitleVisible: false,
         headerTintColor: 'white',
       }} */
-      initialRouteName={ROUTES.INITIAL}
+      initialRouteName={ROUTES.COMPONENT_TEST}
     >
+      <Stack.Screen
+        name={ROUTES.COMPONENT_TEST}
+        component={OnboardingMain}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name={ROUTES.INITIAL}
         component={Initial}

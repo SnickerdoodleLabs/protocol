@@ -8,4 +8,6 @@ export default {
   ONBOARDING: "Onboarding",
   STARTER_TOUR: "Starter_Tour",
   STARTER_TOUR2: "Starter_Tour2",
+  COMPONENT_TEST: "Component_Test",
+
 };
