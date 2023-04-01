@@ -1,3 +1,4 @@
+import { CountryCode, Gender, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import React, { useState } from "react";
 import {
   View,
@@ -7,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface Country {
@@ -94,19 +96,25 @@ const DropdownInput = ({
 };
 
 const MyComponent = () => {
+  const { mobileCore } = useAppContext();
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const handleCountryPress = (country: Country) => {
+    mobileCore.piiService.setLocation(country.code as CountryCode);
     setSelectedCountry(country);
   };
 
   const handleGenderPress = (gender: string) => {
+    mobileCore.piiService.setGender(gender.toLowerCase() as Gender);
     setSelectedGender(gender);
   };
 
   const handleYearPress = (year: string) => {
+    mobileCore.piiService.setBirthday(
+      (Date.parse(`${year}-01-01T00:00:00Z`) / 1000) as UnixTimestamp,
+    );
     setSelectedYear(year);
   };
 

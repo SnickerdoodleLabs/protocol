@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,13 @@ import {
   Animated,
   TouchableOpacity,
 } from "react-native";
+import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import PieChart from "../Custom/PieChart";
 import MyComponent from "./Mycomponent";
 import OnboardingItem from "./OnboardingItem";
 import Permission from "./Permission";
+import { useAppContext } from "../../context/AppContextProvider";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
@@ -20,6 +22,14 @@ const ITEM_WIDTH = width;
 const OnboardingMain = () => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef();
+  const { onWCButtonClicked } = useAccountLinkingContext();
+  const { isUnlocked } = useAppContext();
+
+  useEffect(() => {
+    if (isUnlocked) {
+      handleNextButtonPress();
+    }
+  }, [isUnlocked]);
 
   const handlePrevButtonPress = () => {
     // Scroll to the previous image
@@ -139,7 +149,7 @@ const OnboardingMain = () => {
             borderRadius: normalizeWidth(100),
           }}
           onPress={() => {
-            handleNextButtonPress();
+            onWCButtonClicked();
           }}
         >
           <Text
@@ -227,7 +237,7 @@ const OnboardingMain = () => {
           </Text>
         </TouchableOpacity>
       ),
-      component: <Permission />,
+      component: <PieChart data={data2} />,
       backButton: true,
     },
     {
@@ -264,7 +274,7 @@ const OnboardingMain = () => {
           </Text>
         </TouchableOpacity>
       ),
-      component: <PieChart data={data2} />,
+      component: <Permission />,
       backButton: true,
     },
   ];

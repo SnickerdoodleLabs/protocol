@@ -15,6 +15,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  HexString32,
   Invitation,
   IpfsCID,
   ISnickerdoodleCore,
@@ -52,6 +53,10 @@ import {
   IAccountStorageRepository,
   IAccountStorageRepositoryType,
 } from "../interfaces/data/IAccountStorageRepository";
+import {
+  IDataPermissionsRepository,
+  IDataPermissionsRepositoryType,
+} from "../interfaces/data/IDataPermissionsRepository";
 import { coreConfig } from "../interfaces/objects/Config";
 
 import { mobileCoreModule } from "./MobileCore.module";
@@ -65,6 +70,7 @@ export class MobileCore {
   public accountService: IAccountService;
   public tokenPriceService: ITokenPriceService;
   public piiService: IPIIService;
+  public dataPermissionUtils: IDataPermissionsRepository;
   constructor() {
     this.iocContainer = new Container();
     this.iocContainer.load(...[mobileCoreModule]);
@@ -76,6 +82,73 @@ export class MobileCore {
       new NullCloudStorage(),
     );
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
+
+    this.dataPermissionUtils = {
+      defaultFlags: this.iocContainer.get<IDataPermissionsRepository>(
+        IDataPermissionsRepositoryType,
+      ).defaultFlags,
+      applyDefaultPermissionsOption:
+        this.iocContainer.get<IDataPermissionsRepository>(
+          IDataPermissionsRepositoryType,
+        ).applyDefaultPermissionsOption,
+      DefaultDataPermissions: this.iocContainer.get<IDataPermissionsRepository>(
+        IDataPermissionsRepositoryType,
+      ).DefaultDataPermissions,
+
+      getPermissions: () => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        return _dataPermissionUtils.getPermissions();
+      },
+      setPermissions: (walletDataTypes: EWalletDataType[]) => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        _dataPermissionUtils.setPermissions(walletDataTypes);
+      },
+      setApplyDefaultPermissionsOption: (option: boolean) => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        return _dataPermissionUtils.setApplyDefaultPermissionsOption(option);
+      },
+      setDefaultFlagsWithDataTypes: (dataTypes: EWalletDataType[]) => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        return _dataPermissionUtils.setDefaultFlagsWithDataTypes(dataTypes);
+      },
+      setDefaultFlagsToAll: () => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        return _dataPermissionUtils.setDefaultFlagsToAll();
+      },
+      generateDataPermissionsClassWithDataTypes: (
+        dataTypes: EWalletDataType[],
+      ) => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        return _dataPermissionUtils.generateDataPermissionsClassWithDataTypes(
+          dataTypes,
+        );
+      },
+      getDataTypesFromFlagsString: (flags: HexString32) => {
+        const _dataPermissionUtils =
+          this.iocContainer.get<IDataPermissionsRepository>(
+            IDataPermissionsRepositoryType,
+          );
+        return _dataPermissionUtils.getDataTypesFromFlagsString(flags);
+      },
+    };
 
     this.invitationService = {
       checkInvitationStatus: (invitation: Invitation) => {
@@ -332,6 +405,7 @@ export class MobileCore {
       },
     };
   }
+
   public getCore() {
     return this.core;
   }

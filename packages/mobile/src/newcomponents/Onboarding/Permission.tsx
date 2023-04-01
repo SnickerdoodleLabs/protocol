@@ -1,8 +1,41 @@
-import { Age } from "@snickerdoodlelabs/objects";
-import React, { useState } from "react";
+import { Age, EWalletDataType } from "@snickerdoodlelabs/objects";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Switch } from "react-native";
+import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
+
+const PERMISSION_NAMES = {
+  [EWalletDataType.Gender]: "Gender",
+  [EWalletDataType.Birthday]: "Birthday",
+  [EWalletDataType.Location]: "Location",
+  [EWalletDataType.SiteVisits]: "Sites Visited",
+  [EWalletDataType.EVMTransactions]: "Transaction History",
+  [EWalletDataType.AccountBalances]: "Token Balances",
+  [EWalletDataType.AccountNFTs]: "NFTs",
+  // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
+};
+
+const PERMISSIONS = [
+  {
+    title: "Web2 Data",
+    dataTypes: [
+      EWalletDataType.Gender,
+      EWalletDataType.Birthday,
+      EWalletDataType.Location,
+      EWalletDataType.SiteVisits,
+    ],
+  },
+  {
+    title: "Web3 Data",
+    dataTypes: [
+      EWalletDataType.EVMTransactions,
+      EWalletDataType.AccountBalances,
+      EWalletDataType.AccountNFTs,
+      // EWalletDataType.LatestBlockNumber,
+    ],
+  },
+];
 
 const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
   return (
@@ -15,9 +48,25 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
           >
             <Text>{item.name}</Text>
             <CustomSwitch
-              value={item.state}
+              value={item.state.status}
               onValueChange={() => {
-                item.setState(!item.state);
+                if (!item.state.status) {
+                  console.log("myITems", item);
+                  item.setPermissions((prevItems) => [
+                    ...prevItems,
+                    item.ewalletType,
+                  ]);
+                } else {
+                  const newItems = item.permissions.filter(
+                    (val) => val != item.ewalletType,
+                  );
+                  console.log("newItems", newItems);
+                  item.setPermissions(newItems);
+                }
+                item.setState({
+                  walletDataType: item.walletDataType,
+                  status: !item.state.status,
+                });
               }}
             />
           </View>
@@ -28,47 +77,163 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
 };
 
 const Permission = () => {
+  const { mobileCore } = useAppContext();
+
+  interface IPermissionStateProps {
+    walletDataType: EWalletDataType;
+    status: boolean;
+  }
+
   // Personal Info
-  const [age, setAge] = useState<boolean>(false);
-  const [gender, setGender] = useState<boolean>(false);
-  const [location, setLocation] = useState<boolean>(false);
-  const [siteVisited, setSiteVisited] = useState<boolean>(false);
+  const [age, setAge] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.Age,
+    status: false,
+  });
+  const [gender, setGender] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.Gender,
+    status: false,
+  });
+  const [location, setLocation] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.Location,
+    status: false,
+  });
+  const [siteVisited, setSiteVisited] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.SiteVisits,
+    status: false,
+  });
   // Crypto Accounts
-  const [nfts, setNFTs] = useState<boolean>();
-  const [tokenBalance, setTokenBalance] = useState<boolean>();
-  const [transactionHistory, setTransactionHistory] = useState<boolean>();
+  const [nfts, setNFTs] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.AccountNFTs,
+    status: false,
+  });
+  const [tokenBalance, setTokenBalance] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.AccountBalances,
+    status: false,
+  });
+  const [transactionHistory, setTransactionHistory] =
+    useState<IPermissionStateProps>({
+      walletDataType: EWalletDataType.EVMTransactions,
+      status: false,
+    });
   // Discord
-  const [discord, setDiscord] = useState<boolean>();
+  const [discord, setDiscord] = useState<IPermissionStateProps>({
+    walletDataType: 11,
+    status: false,
+  });
+  const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
+  React.useEffect(() => {
+    mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
+      setPermissions(permission);
+    });
+  }, []);
+
+  useEffect(() => {
+    permissions.map((perm) => {
+      if (age.walletDataType === perm) {
+        setAge({ walletDataType: perm, status: true });
+      }
+      if (gender.walletDataType === perm) {
+        setGender({ walletDataType: perm, status: true });
+      }
+      if (location.walletDataType === perm) {
+        setLocation({ walletDataType: perm, status: true });
+      }
+      if (siteVisited.walletDataType === perm) {
+        setSiteVisited({ walletDataType: perm, status: true });
+      }
+      if (nfts.walletDataType === perm) {
+        setNFTs({ walletDataType: perm, status: true });
+      }
+      if (tokenBalance.walletDataType === perm) {
+        setTokenBalance({ walletDataType: perm, status: true });
+      }
+      if (transactionHistory.walletDataType === perm) {
+        setTransactionHistory({ walletDataType: perm, status: true });
+      }
+    });
+    mobileCore.dataPermissionUtils.setPermissions(permissions);
+  }, [permissions]);
+
   return (
     <View style={styles.container}>
       <ToggleRow
         title="Personal Info"
         perms={[
-          { name: "Age", state: age, setState: setAge },
-          { name: "Gender", state: gender, setState: setGender },
-          { name: "Location", state: location, setState: setLocation },
-          { name: "Sites Visited", state: siteVisited, setState: setSiteVisited },
+          {
+            name: "Age",
+            state: age,
+            setState: setAge,
+            ewalletType: EWalletDataType.Age,
+            permissions,
+            setPermissions,
+          },
+          {
+            name: "Gender",
+            state: gender,
+            setState: setGender,
+            ewalletType: EWalletDataType.Gender,
+            permissions,
+            setPermissions,
+          },
+          {
+            name: "Location",
+            state: location,
+            setState: setLocation,
+            ewalletType: EWalletDataType.Location,
+            permissions,
+            setPermissions,
+          },
+          {
+            name: "Sites Visited",
+            state: siteVisited,
+            setState: setSiteVisited,
+            ewalletType: EWalletDataType.SiteVisits,
+            permissions,
+            setPermissions,
+          },
         ]}
       />
       <ToggleRow
         title="Crypto Accounts"
         perms={[
-          { name: "NFTs", state: nfts, setState: setNFTs },
+          {
+            name: "NFTs",
+            state: nfts,
+            setState: setNFTs,
+            ewalletType: EWalletDataType.AccountNFTs,
+            permissions,
+            setPermissions,
+          },
           {
             name: "Token Balance",
             state: tokenBalance,
             setState: setTokenBalance,
+            ewalletType: EWalletDataType.AccountBalances,
+            permissions,
+            setPermissions,
           },
           {
             name: "Transaction History",
             state: transactionHistory,
             setState: setTransactionHistory,
+            ewalletType: EWalletDataType.EVMTransactions,
+            permissions,
+            setPermissions,
           },
         ]}
       />
       <ToggleRow
         title="Social Media"
-        perms={[{ name: "Discord", state: discord, setState: setDiscord }]}
+        perms={[
+          {
+            name: "Discord",
+            state: discord,
+            setState: setDiscord,
+            ewalletType: 11,
+            permissions,
+            setPermissions,
+          },
+        ]}
       />
     </View>
   );
