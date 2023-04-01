@@ -171,6 +171,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getEtherscanBalanceRepository(),
       this.accountBalances.getOptimismBalanceRepository(),
+      this.accountBalances.getZettablockBalanceRepository(),
+      this.accountBalances.getAlchemyBalanceRepository(),
       // this.accountBalances.getSpaceandTimeBalanceRepository(),
     ])
       .andThen(
@@ -183,6 +185,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           maticRepo,
           etherscanBalanceRepo,
           optimismRepo,
+          zettablock,
+          alchemyRepo,
           // sxtRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
@@ -195,36 +199,38 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           }
 
           switch (chainInfo.indexer) {
+            /* Simulator Cases */
             case EIndexer.EVM:
-            case EIndexer.Polygon:
-              return evmRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
             case EIndexer.Simulator:
               return simulatorRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            
+            /* Alchemy cases */
             case EIndexer.Solana:
-              return solRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as SolanaAccountAddress,
-              );
+              // return solRepo.getBalancesForAccount(
+              //   chainId,
+              //   accountAddress as SolanaAccountAddress,
+              // );
             case EIndexer.Ethereum:
-              return etherscanRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
+              // return etherscanRepo.getBalancesForAccount(
+              //   chainId,
+              //   accountAddress as EVMAccountAddress,
+              // );
+            case EIndexer.Arbitrum:
+            case EIndexer.Optimism:
+                return alchemyRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                );
+
+            /* Etherscan cases */
+            case EIndexer.Polygon:
             case EIndexer.Gnosis:
             case EIndexer.Binance:
             case EIndexer.Moonbeam:
               return etherscanBalanceRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Optimism:
-              return optimismRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

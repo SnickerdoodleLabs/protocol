@@ -14,8 +14,8 @@ export interface IIndexerConfig {
     solanaTestnet: string;
     polygon: string;
     polygonMumbai: string;
-    arbitrum: string;
-    optimism: string;
+    Arbitrum: string;
+    Optimism: string;
   };
   sxtEndpoint: string;
   zettablockApis: {

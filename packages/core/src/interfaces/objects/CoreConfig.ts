@@ -42,8 +42,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       solanaTestnet: string;
       polygon: string;
       polygonMumbai: string;
-      arbitrum: string;
-      optimism: string;
+      Arbitrum: string;
+      Optimism: string;
     },
     public sxtEndpoint: string,
     public zettablockApis: {

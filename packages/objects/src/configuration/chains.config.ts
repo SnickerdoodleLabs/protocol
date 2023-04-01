@@ -308,7 +308,7 @@ export function getChainInfoByChain(chain: EChain): ChainInformation {
 export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   // console.log("chainConfig: ", chainConfig);
   const chainInfo = chainConfig.get(chainId);
-  console.log("chainId: ", chainId + " and chainInfo: ", chainInfo);
+  // console.log("chainId: ", chainId + " and chainInfo: ", chainInfo);
   if (chainInfo == null) {
     throw new Error(`Unknown chain id ${chainId}`);
   }

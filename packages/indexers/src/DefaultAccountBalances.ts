@@ -20,6 +20,8 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/nfts/MoralisEVMPortfolioRepository.js";
+import { ZettablockIndexer } from "@indexers/partnerships/ZettablockIndexer.js";
+import { AlchemyIndexer } from "@indexers/protocols/AlchemyIndexer.js";
 import { EtherscanIndexer } from "@indexers/protocols/EtherscanIndexer.js";
 import { EtherscanNativeBalanceRepository } from "@indexers/protocols/EtherscanNativeBalanceRepository.js";
 import { OptimismIndexer } from "@indexers/protocols/OptimismIndexer.js";
@@ -38,6 +40,8 @@ export class DefaultAccountBalances implements IAccountBalances {
   // protected arbitrum: IEVMAccountBalanceRepository;
   protected optimism: IEVMAccountBalanceRepository;
   // protected spaceAndTime: IEVMAccountBalanceRepository;
+  protected zettablock: IEVMAccountBalanceRepository;
+  protected alchemy: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -85,12 +89,24 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.zettablock = new ZettablockIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
     // this.spaceAndTime = new SpaceAndTimeDB(
     //   this.configProvider,
     //   this.ajaxUtils,
     //   this.tokenPriceRepo,
     //   this.logUtils,
     // );
+    this.alchemy = new AlchemyIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
   }
 
   // public getArbitrumBalanceRepository(): ResultAsync<
@@ -107,11 +123,25 @@ export class DefaultAccountBalances implements IAccountBalances {
   //   return okAsync(this.spaceAndTime);
   // }
 
+  public getZettablockBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.zettablock);
+  }
+
+  public getAlchemyBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.alchemy);
+  }
+
   public getOptimismBalanceRepository(): ResultAsync<
     IEVMAccountBalanceRepository,
     never
   > {
-    return okAsync(this.optimism);
+    return okAsync(this.alchemy);
   }
 
   public getEtherscanBalanceRepository(): ResultAsync<

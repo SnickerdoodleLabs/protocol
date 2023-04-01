@@ -110,10 +110,10 @@ export class ConfigProvider
           "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
         polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
-        arbitrum:
+        Arbitrum:
           "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
-        optimism:
-          "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+        Optimism: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+        // "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
       },
       "8EwsbZAFudVxbb4ri2d9wh41U+lcfCv/oWF9YwR3IrA=",
       {

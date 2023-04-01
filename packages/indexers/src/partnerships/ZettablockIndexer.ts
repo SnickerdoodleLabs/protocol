@@ -56,8 +56,13 @@ export class ZettablockIndexer implements IEVMAccountBalanceRepository {
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     // return this.configProvider.getConfig().andThen((config) => {
     //   const chain = chainConfig.get(chainId)!;
-    //   const values = config.zettablockApis.values();
-    // })
+    //   // const values = config.zettablockApis.values();
+    //   return this.ajaxUtils
+    //     .get(config.zettablockApis.ethereum_mainnet.balances.native)
+    //     .andThen((balance) => {
+
+    //     });
+    // });
     return okAsync([]);
   }
 }

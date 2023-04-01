@@ -33,6 +33,15 @@ export interface IAccountBalances {
     never
   >;
 
+  getAlchemyBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
+
+  getZettablockBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
   // getSpaceandTimeBalanceRepository(): ResultAsync<
   //   IEVMAccountBalanceRepository,
   //   never

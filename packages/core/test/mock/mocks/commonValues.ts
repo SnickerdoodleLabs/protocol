@@ -93,8 +93,8 @@ export const testCoreConfig = new CoreConfig(
     solanaTestnet: "",
     polygon: "",
     polygonMumbai: "",
-    arbitrum: "",
-    optimism: "",
+    Arbitrum: "",
+    Optimism: "",
   }, // alchemy endpoints
   "XSR7MtiRo10HxB5WT0eTcYdydoSchyPmp3FKMnIO/c0=",
   {
