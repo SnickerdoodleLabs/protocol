@@ -304,6 +304,9 @@ class BackupManagerMocks {
         td.matchers.contains({ type: "string", data: newFieldValue }),
       ),
     ).thenReturn(okAsync(undefined));
+    td.when(this.storageUtils.read<SerializedObject>(fieldKey)).thenReturn(
+      okAsync(new SerializedObject("string", oldFieldValue)),
+    );
 
     // BackupUtils -----------------------------------------------------------
     // Backup verifies by default
