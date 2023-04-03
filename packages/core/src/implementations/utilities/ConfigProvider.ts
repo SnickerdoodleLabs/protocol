@@ -68,6 +68,7 @@ export class ConfigProvider
 
     const discordConfig = {
       clientId: "discord-client-id",
+      clientSecret: "discord-client-secret",
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString("spa-url"),
       accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),

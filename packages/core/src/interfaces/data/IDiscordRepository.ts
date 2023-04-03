@@ -5,16 +5,31 @@ import {
   DiscordGuildProfile,
   PersistenceError,
   URLString,
+  DiscordAccessToken,
+  AjaxError,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IDiscordRepository {
+  isAuthTokenValid(
+    accessToken: DiscordAccessToken,
+  ): ResultAsync<boolean, DiscordError>;
+
+  getAccessToken(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<DiscordAccessToken, DiscordError>;
+
+  refreshAuthToken(
+    refreshToken: BearerAuthToken,
+  ): ResultAsync<DiscordAccessToken, DiscordError>;
+
   fetchUserProfile(
-    authToken: BearerAuthToken,
+    accessToken: DiscordAccessToken,
   ): ResultAsync<DiscordProfile, DiscordError>;
 
   fetchGuildProfiles(
-    authToken: BearerAuthToken,
+    accessToken: DiscordAccessToken,
   ): ResultAsync<DiscordGuildProfile[], DiscordError>;
 
   upsertUserProfile(

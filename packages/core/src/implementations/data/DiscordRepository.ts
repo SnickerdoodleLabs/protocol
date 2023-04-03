@@ -2,6 +2,8 @@ import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
   IRequestConfig,
+  ITimeUtilsType,
+  ITimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   BearerAuthToken,
@@ -18,6 +20,10 @@ import {
   VolatileStorageMetadata,
   ESocialType,
   SnowflakeID,
+  OAuthAuthorizationCode,
+  DiscordAccessTokenAPIResponse,
+  DiscordAccessToken,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -46,6 +52,8 @@ export class DiscordRepository implements IDiscordRepository {
     protected persistence: IDataWalletPersistence,
     @inject(ISocialRepositoryType)
     protected socialRepository: ISocialRepository,
+    @inject(ITimeUtilsType)
+    protected timeUtils: ITimeUtils,
   ) {}
 
   protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
@@ -61,6 +69,12 @@ export class DiscordRepository implements IDiscordRepository {
     return okAsync(undefined);
   }
 
+  protected tokenUrl(): ResultAsync<URLString, DiscordError> {
+    return this.getAPIConfig().andThen((apiConfig) => {
+      return okAsync(URLString(urlJoin(apiConfig.dataAPIUrl, "/oauth2/token")));
+    });
+  }
+
   protected meUrl(): ResultAsync<URLString, DiscordError> {
     return this.getAPIConfig().andThen((apiConfig) => {
       return okAsync(URLString(urlJoin(apiConfig.dataAPIUrl, "/users/@me")));
@@ -71,6 +85,26 @@ export class DiscordRepository implements IDiscordRepository {
     return this.meUrl().andThen((meUrl) => {
       return okAsync(URLString(urlJoin(meUrl, "/guilds")));
     });
+  }
+
+  protected tokenAPICallBaseConfig() {
+    return this.getAPIConfig().andThen((apiConfig) => {
+      return okAsync({
+        client_id: apiConfig.clientId,
+        client_secret: apiConfig.clientSecret,
+        redirect_uri: apiConfig.oauthRedirectUrl,
+      });
+    });
+  }
+
+  protected factoryAccessToken(apiResponse: DiscordAccessTokenAPIResponse) {
+    return new DiscordAccessToken(
+      apiResponse.access_token,
+      apiResponse.refresh_token,
+      UnixTimestamp(
+        Number(this.timeUtils.getUnixNowMS()) + apiResponse.expires_in,
+      ),
+    );
   }
 
   protected getRequestConfig(
@@ -88,71 +122,116 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public isAuthTokenValid(
-    authToken: BearerAuthToken,
-  ): ResultAsync<void, DiscordError> {
-    throw new Error("Method not implemented.");
+    accessToken: DiscordAccessToken,
+  ): ResultAsync<boolean, DiscordError> {
+    return okAsync(
+      Number(this.timeUtils.getUnixNowMS) > Number(accessToken.expire_date),
+    );
   }
   public refreshAuthToken(
     refreshToken: BearerAuthToken,
-  ): ResultAsync<void, DiscordError> {
-    throw new Error("Method not implemented.");
+  ): ResultAsync<DiscordAccessToken, DiscordError> {
+    return ResultUtils.combine([
+      this.tokenAPICallBaseConfig(),
+      this.tokenUrl(),
+    ]).andThen(([tokenBaseConfig, tokenUrl]) => {
+      return this.ajaxUtil
+        .post<DiscordAccessTokenAPIResponse>(new URL(tokenUrl), {
+          ...tokenBaseConfig,
+          grant_type: "refresh_token",
+          refresh_token: refreshToken,
+        })
+        .andThen((response) => {
+          return okAsync(this.factoryAccessToken(response));
+        })
+        .orElse((error) => {
+          return errAsync(new DiscordError(error.message));
+        });
+    });
+  }
+
+  public getAccessToken(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<DiscordAccessToken, DiscordError> {
+    return ResultUtils.combine([
+      this.tokenAPICallBaseConfig(),
+      this.tokenUrl(),
+    ]).andThen(([tokenBaseConfig, tokenUrl]) => {
+      return this.ajaxUtil
+        .post<DiscordAccessTokenAPIResponse>(new URL(tokenUrl), {
+          ...tokenBaseConfig,
+          grant_type: "authorization_code",
+          code: code,
+        })
+        .andThen((response) => {
+          return okAsync(this.factoryAccessToken(response));
+        })
+        .orElse((error) => {
+          return errAsync(new DiscordError(error.message));
+        });
+    });
   }
 
   public fetchUserProfile(
-    authToken: BearerAuthToken,
+    accessToken: DiscordAccessToken,
   ): ResultAsync<DiscordProfile, DiscordError> {
-    return this.getRequestConfig(authToken).andThen((reqConfig) => {
-      return this.meUrl().andThen((meUrl) => {
-        return this.ajaxUtil
-          .get<DiscordProfileAPIResponse>(new URL(meUrl), reqConfig)
-          .andThen((response) => {
-            const profile = new DiscordProfile(
-              response.id,
-              response.username,
-              response.display_name,
-              response.discriminator,
-              response.avatar,
-              response.flags,
-              authToken,
-              UnixTimestamp(0), // TODO fix the authExpiry
-            );
-            return okAsync(profile);
-          })
-          .orElse((error) => {
-            return errAsync(new DiscordError(error.message));
-          });
-      });
-    });
+    return this.getRequestConfig(accessToken.access_token).andThen(
+      (reqConfig) => {
+        return this.meUrl().andThen((meUrl) => {
+          return this.ajaxUtil
+            .get<DiscordProfileAPIResponse>(new URL(meUrl), reqConfig)
+            .andThen((response) => {
+              const profile = new DiscordProfile(
+                response.id,
+                response.username,
+                response.display_name,
+                response.discriminator,
+                response.avatar,
+                response.flags,
+                accessToken,
+              );
+              return okAsync(profile);
+            })
+            .orElse((error) => {
+              return errAsync(new DiscordError(error.message));
+            });
+        });
+      },
+    );
   }
 
   public fetchGuildProfiles(
-    authToken: BearerAuthToken,
+    accessToken: DiscordAccessToken,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
-    return this.getRequestConfig(authToken).andThen((reqConfig) => {
-      return this.meGuildUrl().andThen((meGuildUrl) => {
-        return this.ajaxUtil
-          .get<DiscordGuildProfileAPIResponse[]>(new URL(meGuildUrl), reqConfig)
-          .andThen((response) => {
-            const guildProfiles = response.map((profile) => {
-              return new DiscordGuildProfile(
-                profile.id,
-                SnowflakeID("-1"),// not set yet
-                profile.name,
-                profile.owner,
-                profile.permissions,
-                profile.icon,
-                null,
+    return this.getRequestConfig(accessToken.access_token).andThen(
+      (reqConfig) => {
+        return this.meGuildUrl().andThen((meGuildUrl) => {
+          return this.ajaxUtil
+            .get<DiscordGuildProfileAPIResponse[]>(
+              new URL(meGuildUrl),
+              reqConfig,
+            )
+            .andThen((response) => {
+              const guildProfiles = response.map((profile) => {
+                return new DiscordGuildProfile(
+                  profile.id,
+                  SnowflakeID("-1"), // not set yet
+                  profile.name,
+                  profile.owner,
+                  profile.permissions,
+                  profile.icon,
+                  null,
+                );
+              });
 
-              );
+              return okAsync(guildProfiles);
+            })
+            .orElse((error) => {
+              return errAsync(new DiscordError(error.message));
             });
-
-            return okAsync(guildProfiles);
-          })
-          .orElse((error) => {
-            return errAsync(new DiscordError(error.message));
-          });
-      });
-    });
+        });
+      },
+    );
   }
 
   public upsertUserProfile(

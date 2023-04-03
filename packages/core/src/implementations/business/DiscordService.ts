@@ -1,9 +1,11 @@
 import {
   BearerAuthToken,
+  DiscordAccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
+  OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
   SnowflakeID,
@@ -56,40 +58,50 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-
-  unlink(_discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-
-  public isAuthTokenValid(
-    authToken: BearerAuthToken,
-  ): ResultAsync<void, DiscordError> {
-    throw new Error("Method not implemented.");
-  }
-  public refreshAuthToken(
-    refreshToken: BearerAuthToken,
-  ): ResultAsync<void, DiscordError> {
-    throw new Error("Method not implemented.");
-  }
-
-  public initializeUser(
-    authToken: BearerAuthToken,
+  unlink(
+    _discordProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
-    // 1. Fetch profile
-    // 2. Update profile if exists with the same id
-    // 3. Update guilds
+    throw new Error("Method not implemented.");
+  }
 
-    return ResultUtils.combine([
-      this.discordRepo.fetchUserProfile(authToken),
-      this.discordRepo.fetchGuildProfiles(authToken),
-    ]).andThen(([userProfile, guildProfiles]) => {
-      return ResultUtils.combine([
-        this.discordRepo.upsertUserProfile(userProfile),
-        this.discordRepo.upsertGuildProfiles(this.addDiscordProfileIdToGuild(guildProfiles , userProfile.id)),
-      ]).andThen(() => {
-        return okAsync(undefined);
-      });
+  public initializeUserWithAuthorizationCode(code: OAuthAuthorizationCode) {
+    return this.discordRepo.getAccessToken(code).andThen((accessToken) => {
+      return this.initializeUser(accessToken);
     });
+  }
+
+  protected initializeUser(
+    accessToken: DiscordAccessToken,
+  ): ResultAsync<void, DiscordError | PersistenceError> {
+    // 1. Check auth token expritaion status if expired refresh
+    // 2. Fetch profile
+    // 3. Update profile if exists with the same id
+    // 4. Update guilds
+
+    return this.discordRepo
+      .isAuthTokenValid(accessToken)
+      .andThen((isValid) => {
+        if (isValid) {
+          return okAsync(accessToken);
+        }
+        return this.discordRepo.refreshAuthToken(accessToken.refresh_token);
+      })
+      .andThen((accessToken) => {
+        return ResultUtils.combine([
+          this.discordRepo.fetchUserProfile(accessToken),
+          this.discordRepo.fetchGuildProfiles(accessToken),
+        ]).andThen(([userProfile, guildProfiles]) => {
+          return ResultUtils.combine([
+            this.discordRepo.upsertUserProfile(userProfile),
+            this.discordRepo.upsertGuildProfiles(
+              this.addDiscordProfileIdToGuild(guildProfiles, userProfile.id),
+            ),
+          ]).andThen(() => {
+            return okAsync(undefined);
+          });
+        });
+      });
+
     // throw new Error("Method not implemented.");
   }
 
@@ -106,22 +118,28 @@ export class DiscordService implements IDiscordService {
 
   public poll(): ResultAsync<void, DiscordError | PersistenceError> {
     // First we need to find the authkeys for discord
-    return this.getAuthTokens().andThen((authTokens) => {
-      const results = authTokens.map((authToken) =>
-        this.initializeUser(authToken),
+    return this.getAccessTokens().andThen((accessTokens) => {
+      const results = accessTokens.map((accessToken) =>
+        this.initializeUser(accessToken),
       );
       return ResultUtils.combine(results).andThen(() => okAsync(undefined));
     });
   }
 
-  public getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError> {
+  protected getAccessTokens(): ResultAsync<
+    DiscordAccessToken[],
+    PersistenceError
+  > {
     return this.discordRepo.getUserProfiles().map((uProfiles) => {
-      return uProfiles.map((uProfile) => uProfile.authToken);
+      return uProfiles.map((uProfile) => uProfile.accessToken);
     });
   }
 
-  protected addDiscordProfileIdToGuild( discordGuildProfiles  :DiscordGuildProfile[] , discordProfileId : SnowflakeID)  : DiscordGuildProfile[]{
-    return discordGuildProfiles.map( (profile) => {
+  protected addDiscordProfileIdToGuild(
+    discordGuildProfiles: DiscordGuildProfile[],
+    discordProfileId: SnowflakeID,
+  ): DiscordGuildProfile[] {
+    return discordGuildProfiles.map((profile) => {
       profile.discordUserProfileId = discordProfileId;
       return profile;
     });
