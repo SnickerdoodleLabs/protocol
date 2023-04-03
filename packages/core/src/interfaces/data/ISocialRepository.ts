@@ -8,37 +8,37 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ISocialRepository {
-  upsertProfile(
-    discordProfile: SocialProfile,
+  upsertProfile<T extends SocialProfile>(
+    socialProfile: T,
   ): ResultAsync<void, PersistenceError>;
 
-  getProfiles(
+  getProfiles<T extends SocialProfile>(
     type: ESocialType,
-  ): ResultAsync<SocialProfile[], PersistenceError>;
+  ): ResultAsync<T[], PersistenceError>;
 
   getProfileByPK<T extends SocialProfile>(
     pKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError>;
 
-  upsertGroupProfiles(
-    groupProfiles: SocialGroupProfile[],
+  upsertGroupProfiles<T extends SocialGroupProfile>(
+    groupProfiles: T[],
   ): ResultAsync<void, PersistenceError>;
 
-  upsertGroupProfile(
-    groupProfiles: SocialGroupProfile,
+  upsertGroupProfile<T extends SocialGroupProfile>(
+    groupProfiles: T,
   ): ResultAsync<void, PersistenceError>;
 
-  getGroupProfiles(
+  getGroupProfiles<T extends SocialGroupProfile>(
     type: ESocialType,
-  ): ResultAsync<SocialGroupProfile[], PersistenceError>;
+  ): ResultAsync<T[], PersistenceError>;
 
   getGroupProfilesByOwnerId<T extends SocialGroupProfile>(
     ownerId: SocialPrimaryKey,
   ): ResultAsync<T[], PersistenceError>;
 
-  getGroupProfileByPK(
+  getGroupProfileByPK<T extends SocialGroupProfile>(
     pKey: SocialPrimaryKey,
-  ): ResultAsync<SocialGroupProfile | null, PersistenceError>;
+  ): ResultAsync<T | null, PersistenceError>;
 
   deleteProfile(pKey: SocialPrimaryKey): ResultAsync<void, PersistenceError>;
   deleteGroupProfile(

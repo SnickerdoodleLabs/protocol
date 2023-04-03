@@ -80,7 +80,19 @@ class DiscordRepositoryMock {
 
     td.when(
       this.socialRepository.getGroupProfiles(ESocialType.DISCORD),
-    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles());
+    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles(null));
+
+    td.when(
+      this.socialRepository.getProfileByPK(td.matchers.anything()),
+    ).thenReturn(okAsync(discordProfiles[0]));
+
+    td.when(
+      this.socialRepository.deleteProfile(td.matchers.anything()),
+    ).thenReturn(okAsync(undefined));
+
+    td.when(
+      this.socialRepository.deleteGroupProfile(td.matchers.anything()),
+    ).thenReturn(okAsync(undefined));
   }
 
   public factory(): IDiscordRepository {
@@ -113,7 +125,7 @@ describe("DiscordRepository discord API fetch tests", () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
     const expectedProfiles = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles()
+      await mocks.socialDataMocks.getDiscordGuildProfiles(null)
     )._unsafeUnwrap();
 
     // Act
@@ -166,7 +178,7 @@ describe("DiscordRepository persistence tests", () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
     const guildProfiles = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles()
+      await mocks.socialDataMocks.getDiscordGuildProfiles(null)
     )._unsafeUnwrap();
 
     // Action
@@ -180,7 +192,7 @@ describe("DiscordRepository persistence tests", () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
     const expectedData = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles()
+      await mocks.socialDataMocks.getDiscordGuildProfiles(null)
     )._unsafeUnwrap();
 
     // Act
@@ -190,5 +202,26 @@ describe("DiscordRepository persistence tests", () => {
     expect(result.isOk()).toBeTruthy();
     const gotData = result._unsafeUnwrap();
     expect(gotData).toEqual(expectedData);
+  });
+
+  test("delete user profile", async () => {
+    // Arrange
+    const mocks = new DiscordRepositoryMock();
+    const repository = mocks.factory();
+    const discordProfiles = (
+      await mocks.socialDataMocks.getDiscordProfiles()
+    )._unsafeUnwrap();
+    const uProfile = discordProfiles[0];
+    const guildProfiles = (
+      await mocks.socialDataMocks.getDiscordGuildProfiles(uProfile.id)
+    )._unsafeUnwrap();
+
+    // Action
+    const resultU = await repository.upsertUserProfile(uProfile);
+    const resultG = await repository.upsertGuildProfiles(guildProfiles);
+    const result = await repository.deleteProfile(uProfile.id);
+
+    // Assert 1
+    expect(result.isOk()).toBeTruthy();
   });
 });

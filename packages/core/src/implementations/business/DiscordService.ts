@@ -59,7 +59,7 @@ export class DiscordService implements IDiscordService {
   unlink(
     _discordProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
-    throw new Error("Method not implemented.");
+    return this.discordRepo.deleteProfile(_discordProfileId);
   }
 
   public isAuthTokenValid(

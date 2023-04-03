@@ -193,7 +193,10 @@ export class DiscordRepository implements IDiscordRepository {
     // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
     return this.getProfileById(id).andThen((uProfile) => {
       if (uProfile == null) {
-        return okAsync(undefined);
+        // return okAsync(undefined);
+        return errAsync(
+          new PersistenceError(`Discord Profile #${id} does not exist`),
+        );
       }
       return this.deleteUserData(uProfile);
     });
@@ -202,18 +205,21 @@ export class DiscordRepository implements IDiscordRepository {
   private deleteUserData(
     uProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
-    const ownerId = uProfile.pKey;
-    const guildProfilesResult =
-      this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
-        ownerId,
-      );
+    return this.socialRepository.deleteProfile(uProfile.pKey).andThen(() => {
+      const ownerId = uProfile.pKey;
+      const guildProfilesResult =
+        this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
+          ownerId,
+        );
 
-    return guildProfilesResult.andThen((guildProfiles) => {
-      const res = guildProfiles.map((guildProfile) => {
-        return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
+      return guildProfilesResult.andThen((guildProfiles) => {
+        const res = guildProfiles.map((guildProfile) => {
+          return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
+        });
+        return ResultUtils.combine(res).map(() => {});
       });
-      return ResultUtils.combine(res).map(() => {});
     });
+
     // return okAsync(undefined);
   }
   // public deleteGroupProfile(

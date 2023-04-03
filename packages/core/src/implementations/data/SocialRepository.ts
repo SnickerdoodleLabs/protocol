@@ -47,12 +47,12 @@ export class SocialRepository implements ISocialRepository {
     protected persistence: IDataWalletPersistence,
   ) {}
 
-  public upsertProfile(
-    socialProfile: SocialProfile,
+  public upsertProfile<T extends SocialProfile>(
+    socialProfile: T,
   ): ResultAsync<void, PersistenceError> {
     return this.persistence.updateRecord(
       ERecordKey.SOCIAL_PROFILE,
-      new VolatileStorageMetadata<SocialProfile>(
+      new VolatileStorageMetadata<T>(
         EBackupPriority.NORMAL,
         socialProfile,
         socialProfile.getVersion(),
@@ -60,10 +60,10 @@ export class SocialRepository implements ISocialRepository {
     );
   }
 
-  public getProfiles(
+  public getProfiles<T extends SocialProfile>(
     type: ESocialType,
-  ): ResultAsync<SocialProfile[], PersistenceError> {
-    return this.persistence.getAllByIndex<SocialProfile>(
+  ): ResultAsync<T[], PersistenceError> {
+    return this.persistence.getAllByIndex<T>(
       ERecordKey.SOCIAL_PROFILE,
       "type",
       type,
@@ -79,20 +79,33 @@ export class SocialRepository implements ISocialRepository {
     );
   }
 
-  public upsertGroupProfiles(
-    groupProfiles: SocialGroupProfile[],
+  public upsertGroupProfiles<T extends SocialGroupProfile>(
+    groupProfiles: T[],
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine(
       groupProfiles.map((gProfile) => {
-        return this.upsertGroupProfile(gProfile);
+        return this.upsertGroupProfile<T>(gProfile);
       }),
     ).map(() => {});
   }
 
-  public getGroupProfiles(
+  public upsertGroupProfile<T extends SocialGroupProfile>(
+    gProfile: T,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.updateRecord(
+      ERecordKey.SOCIAL_GROUP,
+      new VolatileStorageMetadata<T>(
+        EBackupPriority.NORMAL,
+        gProfile,
+        gProfile.getVersion(),
+      ),
+    );
+  }
+
+  public getGroupProfiles<T extends SocialGroupProfile>(
     type: ESocialType,
-  ): ResultAsync<SocialGroupProfile[], PersistenceError> {
-    return this.persistence.getAllByIndex<SocialGroupProfile>(
+  ): ResultAsync<T[], PersistenceError> {
+    return this.persistence.getAllByIndex<T>(
       ERecordKey.SOCIAL_GROUP,
       "type",
       type,
@@ -109,28 +122,16 @@ export class SocialRepository implements ISocialRepository {
     );
   }
 
-  public getGroupProfileByPK(
+  public getGroupProfileByPK<T extends SocialGroupProfile>(
     pKey: SocialPrimaryKey,
-  ): ResultAsync<SocialGroupProfile | null, PersistenceError> {
-    return this.persistence.getObject<SocialGroupProfile>(
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.persistence.getObject<T>(
       ERecordKey.SOCIAL_GROUP,
       pKey,
       EBackupPriority.NORMAL,
     );
   }
 
-  public upsertGroupProfile(
-    gProfile: SocialGroupProfile,
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.SOCIAL_GROUP,
-      new VolatileStorageMetadata<SocialGroupProfile>(
-        EBackupPriority.NORMAL,
-        gProfile,
-        gProfile.getVersion(),
-      ),
-    );
-  }
   deleteProfile(pKey: SocialPrimaryKey): ResultAsync<void, PersistenceError> {
     return this.persistence.deleteRecord(
       ERecordKey.SOCIAL_PROFILE,
