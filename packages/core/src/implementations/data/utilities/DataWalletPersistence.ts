@@ -335,22 +335,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.getRestored();
-      })
-      .andThen((restored) => {
-        return this.cloudStorage.pollBackups(restored);
-      })
-      .andThen((backups) => {
-        return ResultUtils.combine(
-          backups.map((backup) => {
-            return this.restoreBackup(backup);
-          }),
-        );
-      })
-      .map(() => undefined);
+    return this.postBackups(true).andThen(() => {
+      return this.backupManagerProvider
+        .getBackupManager()
+        .andThen((backupManager) => {
+          return backupManager.getRestored();
+        })
+        .andThen((restored) => {
+          return this.cloudStorage.pollBackups(restored);
+        })
+        .andThen((backups) => {
+          return ResultUtils.combine(
+            backups.map((backup) => {
+              return this.restoreBackup(backup);
+            }),
+          );
+        })
+        .map(() => undefined);
+    });
   }
 
   public unpackBackupChunk(

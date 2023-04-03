@@ -289,7 +289,7 @@ export class MockVolatileStorageSchemaProvider
             false,
             new EarnedRewardMigrator(),
             EBackupPriority.NORMAL,
-            dataWalletBackupIntervalMS,
+            0,
             backupChunkSizeTarget,
             [["type", false]],
           ),

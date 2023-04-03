@@ -142,7 +142,7 @@ export class VolatileStorageSchemaProvider
             false,
             new EarnedRewardMigrator(),
             EBackupPriority.NORMAL,
-            config.dataWalletBackupIntervalMS,
+            0, // instant push
             config.backupChunkSizeTarget,
             [["type", false]],
           ),
