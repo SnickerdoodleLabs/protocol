@@ -5,38 +5,6 @@ import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
 
-const PERMISSION_NAMES = {
-  [EWalletDataType.Gender]: "Gender",
-  [EWalletDataType.Birthday]: "Birthday",
-  [EWalletDataType.Location]: "Location",
-  [EWalletDataType.SiteVisits]: "Sites Visited",
-  [EWalletDataType.EVMTransactions]: "Transaction History",
-  [EWalletDataType.AccountBalances]: "Token Balances",
-  [EWalletDataType.AccountNFTs]: "NFTs",
-  // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
-};
-
-const PERMISSIONS = [
-  {
-    title: "Web2 Data",
-    dataTypes: [
-      EWalletDataType.Gender,
-      EWalletDataType.Birthday,
-      EWalletDataType.Location,
-      EWalletDataType.SiteVisits,
-    ],
-  },
-  {
-    title: "Web3 Data",
-    dataTypes: [
-      EWalletDataType.EVMTransactions,
-      EWalletDataType.AccountBalances,
-      EWalletDataType.AccountNFTs,
-      // EWalletDataType.LatestBlockNumber,
-    ],
-  },
-];
-
 const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
   return (
     <View style={styles.row}>
