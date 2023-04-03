@@ -18,6 +18,7 @@ import {
   VolatileStorageMetadata,
   ESocialType,
   SnowflakeID,
+  SocialPrimaryKey,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -25,13 +26,13 @@ import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
+import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   ISocialRepositoryType,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -136,13 +137,12 @@ export class DiscordRepository implements IDiscordRepository {
             const guildProfiles = response.map((profile) => {
               return new DiscordGuildProfile(
                 profile.id,
-                SnowflakeID("-1"),// not set yet
+                SnowflakeID("-1"), // not set yet
                 profile.name,
                 profile.owner,
                 profile.permissions,
                 profile.icon,
                 null,
-
               );
             });
 
@@ -167,15 +167,60 @@ export class DiscordRepository implements IDiscordRepository {
     ) as ResultAsync<DiscordProfile[], PersistenceError>;
   }
 
+  public getProfileById(
+    id: SnowflakeID,
+  ): ResultAsync<DiscordProfile | null, PersistenceError> {
+    const pKey = SocialPrimaryKey(`discord-${id}`); // Should be in a Utils class.
+    return this.socialRepository.getProfileByPK<DiscordProfile>(pKey);
+  }
+
   public upsertGuildProfiles(
     guildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
     return this.socialRepository.upsertGroupProfiles(guildProfiles);
   }
 
-  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError> {
+  public getGuildProfiles(): ResultAsync<
+    DiscordGuildProfile[],
+    PersistenceError
+  > {
     return this.socialRepository.getGroupProfiles(
       ESocialType.DISCORD,
     ) as ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  }
+  public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
+    // 1. find the profile
+    // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
+    return this.getProfileById(id).andThen((uProfile) => {
+      if (uProfile == null) {
+        return okAsync(undefined);
+      }
+
+      return this.deleteUserData(uProfile);
+    });
+  }
+
+  private deleteUserData(
+    uProfile: DiscordProfile,
+  ): ResultAsync<void, PersistenceError | unknown> {
+    const ownerId = uProfile.pKey;
+    const guildProfilesResult =
+      this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
+        ownerId,
+      );
+
+    return guildProfilesResult.andThen((guildProfiles) => {
+      const res = guildProfiles.map((guildProfile) => {
+        return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
+      });
+      return ResultUtils.combine(res).map(() => {});
+    });
+    // return okAsync(undefined);
+  }
+  public deleteGroupProfile(
+    id: SnowflakeID,
+  ): ResultAsync<void, PersistenceError> {
+    const pKey = SocialPrimaryKey(`discord-group-${id}`); // Should be in a Utils class.
+    return okAsync(undefined);
   }
 }

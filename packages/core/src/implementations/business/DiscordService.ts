@@ -56,8 +56,9 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-
-  unlink(_discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError> {
+  unlink(
+    _discordProfileId: SnowflakeID,
+  ): ResultAsync<void, DiscordError | PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
@@ -85,7 +86,9 @@ export class DiscordService implements IDiscordService {
     ]).andThen(([userProfile, guildProfiles]) => {
       return ResultUtils.combine([
         this.discordRepo.upsertUserProfile(userProfile),
-        this.discordRepo.upsertGuildProfiles(this.addDiscordProfileIdToGuild(guildProfiles , userProfile.id)),
+        this.discordRepo.upsertGuildProfiles(
+          this.addDiscordProfileIdToGuild(guildProfiles, userProfile.id),
+        ),
       ]).andThen(() => {
         return okAsync(undefined);
       });
@@ -120,8 +123,11 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-  protected addDiscordProfileIdToGuild( discordGuildProfiles  :DiscordGuildProfile[] , discordProfileId : SnowflakeID)  : DiscordGuildProfile[]{
-    return discordGuildProfiles.map( (profile) => {
+  protected addDiscordProfileIdToGuild(
+    discordGuildProfiles: DiscordGuildProfile[],
+    discordProfileId: SnowflakeID,
+  ): DiscordGuildProfile[] {
+    return discordGuildProfiles.map((profile) => {
       profile.discordUserProfileId = discordProfileId;
       return profile;
     });

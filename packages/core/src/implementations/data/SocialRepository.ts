@@ -19,6 +19,8 @@ import {
   SocialProfile,
   ESocialType,
   SocialGroupProfile,
+  VolatileStorageDataKey,
+  SocialPrimaryKey,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
@@ -26,12 +28,12 @@ import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
+import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -67,6 +69,15 @@ export class SocialRepository implements ISocialRepository {
       type,
     );
   }
+  public getProfileByPK<T extends SocialProfile>(
+    pKey: SocialPrimaryKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.persistence.getObject<T>(
+      ERecordKey.SOCIAL_PROFILE,
+      pKey,
+      EBackupPriority.NORMAL,
+    );
+  }
 
   public upsertGroupProfiles(
     groupProfiles: SocialGroupProfile[],
@@ -88,6 +99,26 @@ export class SocialRepository implements ISocialRepository {
     );
   }
 
+  public getGroupProfilesByOwnerId<T extends SocialGroupProfile>(
+    ownerId: SocialPrimaryKey,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.persistence.getAllByIndex<T>(
+      ERecordKey.SOCIAL_GROUP,
+      "ownerId",
+      ownerId,
+    );
+  }
+
+  public getGroupProfileByPK(
+    pKey: SocialPrimaryKey,
+  ): ResultAsync<SocialGroupProfile | null, PersistenceError> {
+    return this.persistence.getObject<SocialGroupProfile>(
+      ERecordKey.SOCIAL_GROUP,
+      pKey,
+      EBackupPriority.NORMAL,
+    );
+  }
+
   public upsertGroupProfile(
     gProfile: SocialGroupProfile,
   ): ResultAsync<void, PersistenceError> {
@@ -98,6 +129,22 @@ export class SocialRepository implements ISocialRepository {
         gProfile,
         gProfile.getVersion(),
       ),
+    );
+  }
+  deleteProfile(pKey: SocialPrimaryKey): ResultAsync<void, PersistenceError> {
+    return this.persistence.deleteRecord(
+      ERecordKey.SOCIAL_PROFILE,
+      pKey,
+      EBackupPriority.NORMAL,
+    );
+  }
+  deleteGroupProfile(
+    pKey: SocialPrimaryKey,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.deleteRecord(
+      ERecordKey.SOCIAL_GROUP,
+      pKey,
+      EBackupPriority.NORMAL,
     );
   }
 }

@@ -5,6 +5,8 @@ import {
   DiscordGuildProfile,
   PersistenceError,
   URLString,
+  SocialPrimaryKey,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -22,12 +24,17 @@ export interface IDiscordRepository {
   ): ResultAsync<void, PersistenceError>;
 
   getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
+  getProfileById(
+    id: SnowflakeID,
+  ): ResultAsync<DiscordProfile | null, PersistenceError>;
 
   upsertGuildProfiles(
     guildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError>;
 
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
+  deleteGroupProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
 }
 
 export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");
