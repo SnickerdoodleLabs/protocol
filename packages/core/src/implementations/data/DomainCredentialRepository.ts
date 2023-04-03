@@ -32,7 +32,6 @@ export class DomainCredentialRepository implements IDomainCredentialRepository {
     return this.persistence.updateRecord(
       ERecordKey.DOMAIN_CREDENTIALS,
       domainCredential,
-      DomainCredential.CURRENT_VERSION,
     );
   }
 }

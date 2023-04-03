@@ -134,7 +134,7 @@ export class BackupManager implements IBackupManager {
                 key,
                 value.lastUpdate,
                 value.data,
-                value.data.getVersion(),
+                value.version,
               ),
             )
             .map((backup) => {

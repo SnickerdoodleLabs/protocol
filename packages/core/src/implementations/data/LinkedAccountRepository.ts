@@ -99,7 +99,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
         return this.persistence.updateRecord<EarnedReward>(
           ERecordKey.EARNED_REWARDS,
           reward,
-          EarnedReward.CURRENT_VERSION,
         );
       }),
     ).map(() => undefined);
@@ -140,11 +139,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.ACCOUNT,
-      linkedAccount,
-      LinkedAccount.CURRENT_VERSION,
-    );
+    return this.persistence.updateRecord(ERecordKey.ACCOUNT, linkedAccount);
   }
 
   public removeAccount(
@@ -180,7 +175,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       return this.persistence.updateRecord(
         ERecordKey.RECEIVING_ADDRESSES,
         new ReceivingAccount(contractAddress, receivingAddress),
-        ReceivingAccount.CURRENT_VERSION,
       );
     }
 

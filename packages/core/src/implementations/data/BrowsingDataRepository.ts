@@ -33,11 +33,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
       siteVisits.map((visit: SiteVisit) => {
         const url = parse(visit.url);
         visit.domain = url.domain ? DomainName(url.domain) : undefined;
-        return this.persistence.updateRecord(
-          ERecordKey.SITE_VISITS,
-          visit,
-          SiteVisit.CURRENT_VERSION,
-        );
+        return this.persistence.updateRecord(ERecordKey.SITE_VISITS, visit);
       }),
     ).map(() => undefined);
   }
@@ -74,11 +70,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.CLICKS,
-      click,
-      ClickData.CURRENT_VERSION,
-    );
+    return this.persistence.updateRecord(ERecordKey.CLICKS, click);
   }
 
   public getClicks(): ResultAsync<ClickData[], PersistenceError> {

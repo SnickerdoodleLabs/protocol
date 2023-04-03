@@ -177,11 +177,7 @@ export class TransactionHistoryRepository
 
     return ResultUtils.combine(
       transactions.map((tx) => {
-        return this.persistence.updateRecord(
-          ERecordKey.TRANSACTIONS,
-          tx,
-          ChainTransaction.CURRENT_VERSION,
-        );
+        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
       }),
     ).andThen(() => okAsync(undefined));
   }

@@ -187,12 +187,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateRecord<T extends VersionedObject>(
     tableName: ERecordKey,
     value: T,
-    version: number,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
+      this.volatileSchemaProvider.getCurrentVersionForTable(tableName),
       this.waitForUnlock(),
-    ]).andThen(([backupManager]) => {
+    ]).andThen(([backupManager, version]) => {
       if (tableName == ERecordKey.ACCOUNT) {
         return this.volatileStorage
           .putObject(tableName, new VolatileStorageMetadata<T>(value, 0))

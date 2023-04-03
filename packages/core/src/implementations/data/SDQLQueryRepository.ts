@@ -77,7 +77,6 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
         return this.persistence.updateRecord(
           ERecordKey.QUERY_STATUS,
           queryStatus,
-          QueryStatus.CURRENT_VERSION,
         );
       }),
     ).map(() => {});

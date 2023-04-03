@@ -24,7 +24,7 @@ import {
   VersionedObject,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, LocalStorageUtils } from "@snickerdoodlelabs/utils";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -179,6 +179,20 @@ export class MockLocalStorageSchemaProvider implements IFieldSchemaProvider {
 export class MockVolatileStorageSchemaProvider
   implements IVolatileStorageSchemaProvider
 {
+  getCurrentVersionForTable(
+    tableName: ERecordKey,
+  ): ResultAsync<number, PersistenceError> {
+    return this.getVolatileStorageSchema().andThen((schema) => {
+      if (!schema.has(tableName)) {
+        return errAsync(
+          new PersistenceError("no schema present for table", tableName),
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return okAsync(schema.get(tableName)!.migrator.getCurrentVersion());
+    });
+  }
+
   getVolatileStorageSchema(): ResultAsync<
     Map<ERecordKey, VolatileTableIndex<VersionedObject>>,
     never
