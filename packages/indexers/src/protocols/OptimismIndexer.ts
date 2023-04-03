@@ -53,12 +53,15 @@ export class OptimismIndexer
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    console.log("inside Optimism Indexer");
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this._getEtherscanApiKey(chainId),
       this._getBlockNumber(chainId, startTime),
       this._getBlockNumber(chainId, endTime),
     ]).andThen(([config, apiKey, fromBlock, toBlock]) => {
+      console.log("inside Optimism Indexer");
+
       const params = {
         module: "account",
         action: "txlist",
@@ -116,63 +119,20 @@ export class OptimismIndexer
             return okAsync([]);
           }
           console.log("Inside Optimism response: ", response);
-
-          return ResultUtils.combine(
-            response.result.map((item) => {
-              return this.tokenPriceRepo
-                .getTokenInfo(chainId, item.TokenAddress)
-                .andThen((info) => {
-                  if (info == null) {
-                    return okAsync(undefined);
-                  }
-
-                  return okAsync(
-                    new TokenBalance(
-                      EChainTechnology.EVM,
-                      TickerSymbol(item.TokenSymbol),
-                      chainId,
-                      EVMContractAddress(item.TokenAddress),
-                      accountAddress,
-                      BigNumberString(item.TokenQuantity),
-                      Number.parseInt(item.TokenDivisor),
-                    ),
-                  );
-                });
-            }),
-          ).andThen((balances) => {
-            console.log("Inside Optimism balances: ", balances);
-            return okAsync(
-              balances.filter((x) => x != undefined) as TokenBalance[],
-            );
-          });
-        })
-        .andThen((balances) => {
-          const url = new URL(
-            urlJoinP(baseURL, ["api"], {
-              module: "account",
-              action: "balance",
-              address: accountAddress,
-              tag: "latest",
-              apikey: apiKey,
-            }),
+          const balances: TokenBalance[] = [];
+          balances.push(
+            new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol("OPT"),
+              chainId,
+              EVMContractAddress("0x4200000000000000000000000000000000000042"),
+              accountAddress,
+              BigNumberString(response.result.toString()),
+              Number.parseInt("18"),
+            ),
           );
-          console.log("Inside Optimism url 2: ", url);
-
-          return this.ajaxUtils
-            .get<IEtherscanNativeBalanceResponse>(url)
-            .map((response) => {
-              const nativeBalance = new TokenBalance(
-                EChainTechnology.EVM,
-                TickerSymbol("ETH"),
-                chainId,
-                null,
-                accountAddress,
-                BigNumberString(response.result),
-                getChainInfoByChainId(chainId).nativeCurrency.decimals,
-              );
-              console.log("Inside Optimism native balance: ", url);
-              return [nativeBalance, ...balances];
-            });
+          console.log("balances: ", balances);
+          return okAsync(balances);
         });
     });
   }
@@ -296,12 +256,18 @@ export class OptimismIndexer
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log("Optimism config.etherscanApiKeys: ", config.etherscanApiKeys);
+      console.log(
+        "Optimism config.etherscanApiKeys: ",
+        config.etherscanApiKeys,
+      );
       if (!config.etherscanApiKeys.has(chain)) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
+      console.log("passed error Optimism Indexer");
+
+      console.log("get chain: ", config.etherscanApiKeys.get(chain)!);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return okAsync(config.etherscanApiKeys.get(chain)!);
     });

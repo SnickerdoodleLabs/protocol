@@ -206,26 +206,20 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
-            
+
             /* Alchemy cases */
             case EIndexer.Solana:
-              // return solRepo.getBalancesForAccount(
-              //   chainId,
-              //   accountAddress as SolanaAccountAddress,
-              // );
+              return solRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
             case EIndexer.Ethereum:
-              // return etherscanRepo.getBalancesForAccount(
-              //   chainId,
-              //   accountAddress as EVMAccountAddress,
-              // );
+              return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Arbitrum:
             case EIndexer.Optimism:
-                return alchemyRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                );
-
-            /* Etherscan cases */
             case EIndexer.Polygon:
             case EIndexer.Gnosis:
             case EIndexer.Binance:

@@ -65,9 +65,11 @@ export class EtherscanNativeBalanceRepository
           new URL(url!),
         )
         .map((balanceResponse) => {
-          console.log("balanceResponse: " + balanceResponse);
+          console.log("balanceResponse: " + JSON.stringify(balanceResponse));
           const tokenBalances: TokenBalance[] = [];
           const chainInfo = getChainInfoByChainId(chainId);
+          console.log("chainInfo: " + JSON.stringify(chainInfo));
+
           tokenBalances.push(
             new TokenBalance(
               EChainTechnology.EVM,
@@ -79,7 +81,7 @@ export class EtherscanNativeBalanceRepository
               chainInfo.nativeCurrency.decimals,
             ),
           );
-          console.log("tokenBalances: " + tokenBalances);
+          console.log("tokenBalances: " + tokenBalances.toString());
           return tokenBalances;
         });
     });

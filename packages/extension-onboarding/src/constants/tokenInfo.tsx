@@ -22,8 +22,8 @@ export const tokenInfoObj: ITokenInfo = {
   xDAI: { displayName: "xDAI", iconSrc: gnosisCircle },
   BNB: { displayName: "Binance", iconSrc: binanceCircle },
   GLMR: { displayName: "Moonbeam", iconSrc: moonbeamCircle },
-  OPT: { displayName: "Moonbeam", iconSrc: moonbeamCircle },
-  ARB: { displayName: "Moonbeam", iconSrc: moonbeamCircle },
+  OPT: { displayName: "Optimism", iconSrc: optimismCircle },
+  ARB: { displayName: "Arbitrum", iconSrc: arbitrumCircle },
 };
 
 export const stableCoins = [

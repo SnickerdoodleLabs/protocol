@@ -141,7 +141,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   > {
-    return okAsync(this.alchemy);
+    return okAsync(this.optimism);
   }
 
   public getEtherscanBalanceRepository(): ResultAsync<
