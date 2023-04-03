@@ -96,6 +96,7 @@ export class BackupManagerProviderMocks {
           false,
           this.timeUtils,
           this.backupUtils,
+          new MockVolatileStorageSchemaProvider(),
         );
       });
     });
