@@ -28,7 +28,11 @@ export class AdDataRepository implements IAdDataRepository {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine(
       ads.map((ad) => {
-        return this.persistence.updateRecord(ERecordKey.ELIGIBLE_ADS, ad);
+        return this.persistence.updateRecord(
+          ERecordKey.ELIGIBLE_ADS,
+          ad,
+          EligibleAd.CURRENT_VERSION,
+        );
       }),
     ).map(() => {});
   }
@@ -42,7 +46,11 @@ export class AdDataRepository implements IAdDataRepository {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine(
       adSigList.map((adSig) => {
-        return this.persistence.updateRecord(ERecordKey.AD_SIGNATURES, adSig);
+        return this.persistence.updateRecord(
+          ERecordKey.AD_SIGNATURES,
+          adSig,
+          AdSignature.CURRENT_VERSION,
+        );
       }),
     ).map(() => undefined);
   }

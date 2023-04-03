@@ -179,7 +179,7 @@ export class BackupManager implements IBackupManager {
                       key,
                       timestamp,
                       found.data,
-                      found.data.getVersion(),
+                      found.version,
                     ),
                   )
                   .map((backup) => {
@@ -397,6 +397,7 @@ export class BackupManager implements IBackupManager {
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
         new RestoredBackup(DataWalletBackupID(backup.header.hash)),
+        RestoredBackup.CURRENT_VERSION,
       ),
     );
   }

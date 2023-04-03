@@ -76,7 +76,10 @@ describe("Bundle", () => {
 
     await backupManager.addRecord(
       ERecordKey.ELIGIBLE_ADS,
-      new VolatileStorageMetadata<EligibleAd>(testAd),
+      new VolatileStorageMetadata<EligibleAd>(
+        testAd,
+        EligibleAd.CURRENT_VERSION,
+      ),
     );
 
     const wrappedAdList =

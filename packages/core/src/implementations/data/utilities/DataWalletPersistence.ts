@@ -187,6 +187,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateRecord<T extends VersionedObject>(
     tableName: ERecordKey,
     value: T,
+    version: number,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
@@ -208,7 +209,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                   if (found!.lastUpdate == 0) {
                     return backupManager.addRecord(
                       tableName,
-                      new VolatileStorageMetadata<T>(value),
+                      new VolatileStorageMetadata<T>(value, version),
                     );
                   }
                   return okAsync(undefined);
@@ -219,7 +220,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       return backupManager.addRecord(
         tableName,
-        new VolatileStorageMetadata<T>(value),
+        new VolatileStorageMetadata<T>(value, version),
       );
     });
   }

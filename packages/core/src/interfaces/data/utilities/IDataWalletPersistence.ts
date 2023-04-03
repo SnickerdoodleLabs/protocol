@@ -39,6 +39,7 @@ export interface IDataWalletPersistence {
   updateRecord<T extends VersionedObject>(
     tableName: ERecordKey,
     value: T,
+    version: number,
   ): ResultAsync<void, PersistenceError>;
   deleteRecord(
     tableName: ERecordKey,
