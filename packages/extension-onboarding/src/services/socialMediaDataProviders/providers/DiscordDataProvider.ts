@@ -7,29 +7,26 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   IDiscordAuthResponse,
   IDiscordDataProvider,
   IDiscordMediaDataParams,
 } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 
-
 export class DiscordProvider implements IDiscordDataProvider {
-
- 
   constructor() {}
   //TODO security! , call should be made from a server not on a client ? which we don't have here
-  public getOauthTokenFromDiscord(code: string) : Promise<Response> {
+  public getOauthTokenFromDiscord(code: string): Promise<Response> {
     return fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       body: this.discordOauthOptions(code),
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-      }
-    })
+      },
+    });
   }
   //SDL Connections
   public getUserProfiles(): ResultAsync<DiscordProfile[], unknown> {
@@ -37,12 +34,12 @@ export class DiscordProvider implements IDiscordDataProvider {
       return errAsync(new Error("Could not get discord user profiles!"));
     });
   }
-  public unlink(discordProfileId : SnowflakeID) : ResultAsync<void,unknown> {
+  public unlink(discordProfileId: SnowflakeID): ResultAsync<void, unknown> {
     return window.sdlDataWallet.discord.unlink(discordProfileId).mapErr(() => {
       return errAsync(new Error("Could not get unlink discord profile!"));
     });
   }
-  
+
   public initializeUser(
     params: IDiscordMediaDataParams,
   ): ResultAsync<void, unknown> {
@@ -67,12 +64,13 @@ export class DiscordProvider implements IDiscordDataProvider {
     });
   }
 
-  protected discordOauthOptions = (code : string) => new URLSearchParams({
-    client_id: "1089994449830027344",
-    client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
-    code,
-    grant_type: "authorization_code",
-    redirect_uri: "https://localhost:9005/data-dashboard/social-media-data",
-    scope: "identify guilds",
-  });
+  protected discordOauthOptions = (code: string) =>
+    new URLSearchParams({
+      client_id: "1089994449830027344",
+      client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: "https://localhost:9005/data-dashboard/social-media-data",
+      scope: "identify guilds",
+    });
 }
