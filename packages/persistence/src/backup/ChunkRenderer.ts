@@ -44,6 +44,19 @@ export class ChunkRenderer implements IChunkRenderer {
     this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
   }
 
+  public checkInterval(): ResultAsync<
+    DataWalletBackup | null,
+    PersistenceError
+  > {
+    if (
+      this.timeUtils.getUnixNowMS() - this.lastRender >=
+      this.schema.backupInterval
+    ) {
+      return this.clear();
+    }
+    return okAsync(null);
+  }
+
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {
     const deepcopy = JSON.parse(JSON.stringify(this.updates)) as
       | VolatileDataUpdate[]
