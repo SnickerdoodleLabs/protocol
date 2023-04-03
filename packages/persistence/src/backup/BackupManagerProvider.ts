@@ -86,6 +86,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         config.enableBackupEncryption,
         this.timeUtils,
         this.backupUtils,
+        this.recordSchemaProvider,
       );
     });
 

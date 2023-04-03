@@ -46,6 +46,7 @@ import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
 import { FieldIndex, Serializer } from "@persistence/local/index.js";
 import {
   IVolatileStorage,
+  IVolatileStorageSchemaProvider,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
@@ -70,6 +71,7 @@ export class BackupManager implements IBackupManager {
     protected enableEncryption: boolean,
     protected timeUtils: ITimeUtils,
     protected backupUtils: IBackupUtils,
+    protected schemaProvider: IVolatileStorageSchemaProvider,
   ) {
     tables.forEach((schema) => {
       if (schema.priority != EBackupPriority.DISABLED) {
@@ -125,23 +127,27 @@ export class BackupManager implements IBackupManager {
             return okAsync(undefined);
           }
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return this.tableRenderers
-            .get(tableName)!
-            .update(
-              new VolatileDataUpdate(
-                EDataUpdateOpCode.UPDATE,
-                key,
-                value.lastUpdate,
-                value.data,
-                value.version,
-              ),
-            )
-            .map((backup) => {
-              if (backup != null) {
-                this.renderedChunks.set(backup.header.hash, backup);
-              }
-              return undefined;
+          return this.schemaProvider
+            .getCurrentVersionForTable(tableName)
+            .andThen((version) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.tableRenderers
+                .get(tableName)!
+                .update(
+                  new VolatileDataUpdate(
+                    EDataUpdateOpCode.UPDATE,
+                    key,
+                    value.lastUpdate,
+                    value.data,
+                    version,
+                  ),
+                )
+                .map((backup) => {
+                  if (backup != null) {
+                    this.renderedChunks.set(backup.header.hash, backup);
+                  }
+                  return undefined;
+                });
             });
         });
       });
@@ -170,23 +176,27 @@ export class BackupManager implements IBackupManager {
             return this.volatileStorage
               .putObject(tableName, found)
               .andThen(() => {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return this.tableRenderers
-                  .get(tableName)!
-                  .update(
-                    new VolatileDataUpdate(
-                      EDataUpdateOpCode.REMOVE,
-                      key,
-                      timestamp,
-                      found.data,
-                      found.version,
-                    ),
-                  )
-                  .map((backup) => {
-                    if (backup != null) {
-                      this.renderedChunks.set(backup?.header.hash, backup);
-                    }
-                    return undefined;
+                return this.schemaProvider
+                  .getCurrentVersionForTable(tableName)
+                  .andThen((version) => {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    return this.tableRenderers
+                      .get(tableName)!
+                      .update(
+                        new VolatileDataUpdate(
+                          EDataUpdateOpCode.REMOVE,
+                          key,
+                          timestamp,
+                          found.data,
+                          version,
+                        ),
+                      )
+                      .map((backup) => {
+                        if (backup != null) {
+                          this.renderedChunks.set(backup?.header.hash, backup);
+                        }
+                        return undefined;
+                      });
                   });
               });
           });
