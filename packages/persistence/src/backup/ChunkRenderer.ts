@@ -21,8 +21,7 @@ import { VolatileTableIndex } from "@persistence/volatile/index.js";
 
 export class ChunkRenderer implements IChunkRenderer {
   private updates: VolatileDataUpdate[] | FieldDataUpdate | null;
-
-  private lastRender;
+  private lastRender: number;
 
   public constructor(
     public schema: IStorageIndex,
@@ -37,11 +36,12 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    return this._dump(this.updates).map((result) => {
-      this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
-      this.lastRender = this.timeUtils.getUnixNow();
-      return result;
-    });
+    const deepcopy = JSON.parse(JSON.stringify(this.updates)) as
+      | VolatileDataUpdate[]
+      | (FieldDataUpdate | null);
+    this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
+    this.lastRender = this.timeUtils.getUnixNow();
+    return this._dump(deepcopy);
   }
 
   public update(

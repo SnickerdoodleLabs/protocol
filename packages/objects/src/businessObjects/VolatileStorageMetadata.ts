@@ -10,6 +10,7 @@ export const VolatileStorageMetadataIndexes: [string, boolean][] = [
 export class VolatileStorageMetadata<T extends VersionedObject> {
   public constructor(
     public data: T,
+    public version: number,
     public lastUpdate: UnixTimestamp,
     public deleted: EBoolean = EBoolean.FALSE,
   ) {}

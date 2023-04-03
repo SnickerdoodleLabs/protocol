@@ -119,7 +119,7 @@ export class BackupManager implements IBackupManager {
                 key,
                 value.lastUpdate,
                 value.data,
-                value.data.getVersion(),
+                value.version,
               ),
             )
             .map((backup) => {
@@ -163,7 +163,7 @@ export class BackupManager implements IBackupManager {
                       key,
                       timestamp,
                       found.data,
-                      found.data.getVersion(),
+                      found.version,
                     ),
                   )
                   .map((backup) => {
@@ -270,6 +270,7 @@ export class BackupManager implements IBackupManager {
 
           const metadata = new VolatileStorageMetadata<VersionedObject>(
             update.value,
+            update.version,
             update.timestamp,
             update.operation == EDataUpdateOpCode.REMOVE
               ? EBoolean.TRUE
@@ -299,8 +300,26 @@ export class BackupManager implements IBackupManager {
     return okAsync(undefined);
   }
 
-  public getRendered(): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return okAsync(Array.from(this.renderedChunks.values()));
+  public getRendered(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    if (!force) {
+      return okAsync(Array.from(this.renderedChunks.values()));
+    }
+
+    return ResultUtils.combine(
+      [...this.tableRenderers.values(), ...this.fieldRenderers.values()].map(
+        (renderer) => {
+          return renderer.clear().map((chunk) => {
+            if (chunk != null) {
+              this.renderedChunks.set(chunk.header.hash, chunk);
+            }
+          });
+        },
+      ),
+    ).andThen(() => {
+      return okAsync(Array.from(this.renderedChunks.values()));
+    });
   }
 
   public popRendered(
@@ -383,6 +402,7 @@ export class BackupManager implements IBackupManager {
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
         new RestoredBackup(DataWalletBackupID(backup.header.hash)),
+        RestoredBackup.CURRENT_VERSION,
         this.timeUtils.getUnixNow(),
       ),
     );

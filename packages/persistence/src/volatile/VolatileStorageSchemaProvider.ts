@@ -15,9 +15,10 @@ import {
   VersionedObject,
   DomainCredentialMigrator,
   QueryStatusMigrator,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import {
   IPersistenceConfigProvider,
@@ -34,6 +35,20 @@ export class VolatileStorageSchemaProvider
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
   ) {}
+
+  public getCurrentVersionForTable(
+    tableName: ERecordKey,
+  ): ResultAsync<number, PersistenceError> {
+    return this.getVolatileStorageSchema().andThen((schema) => {
+      if (!schema.has(tableName)) {
+        return errAsync(
+          new PersistenceError("no schema present for table", tableName),
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return okAsync(schema.get(tableName)!.migrator.getCurrentVersion());
+    });
+  }
 
   public getVolatileStorageSchema(): ResultAsync<
     Map<ERecordKey, VolatileTableIndex<VersionedObject>>,

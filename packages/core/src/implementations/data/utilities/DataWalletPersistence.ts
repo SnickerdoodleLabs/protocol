@@ -191,13 +191,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
+      this.volatileSchemaProvider.getCurrentVersionForTable(tableName),
       this.waitForUnlock(),
-    ]).andThen(([backupManager]) => {
+    ]).andThen(([backupManager, version]) => {
       if (tableName == ERecordKey.ACCOUNT) {
         return this.volatileStorage
           .putObject(
             tableName,
-            new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
+            new VolatileStorageMetadata<T>(value, version, UnixTimestamp(0)),
           )
           .map(() => {
             this.waitForInitialRestore().andThen(() => {
@@ -214,6 +215,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                       tableName,
                       new VolatileStorageMetadata<T>(
                         value,
+                        version,
                         this.timeUtils.getUnixNow(),
                       ),
                     );
@@ -226,7 +228,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       return backupManager.addRecord(
         tableName,
-        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
+        new VolatileStorageMetadata<T>(
+          value,
+          version,
+          this.timeUtils.getUnixNow(),
+        ),
       );
     });
   }
@@ -379,11 +385,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorage.listFileNames();
   }
 
-  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+  public postBackups(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.getRendered().andThen((chunks) => {
+        return backupManager.getRendered(force).andThen((chunks) => {
           return ResultUtils.combine(
             chunks.map((chunk) => {
               return this.cloudStorage
