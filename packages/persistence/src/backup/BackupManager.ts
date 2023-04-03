@@ -317,7 +317,7 @@ export class BackupManager implements IBackupManager {
   public getRendered(
     force?: boolean,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    if (force) {
+    if (!force) {
       return okAsync(Array.from(this.renderedChunks.values()));
     }
 
