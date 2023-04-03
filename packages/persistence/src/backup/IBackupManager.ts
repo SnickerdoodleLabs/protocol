@@ -24,14 +24,17 @@ export interface IBackupManager {
     key: EFieldKey,
     value: object,
   ): ResultAsync<void, PersistenceError>;
-  restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
 
-  getRendered(): ResultAsync<DataWalletBackup[], PersistenceError>;
+  restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
+  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+
+  getRendered(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackup[], PersistenceError>;
   popRendered(
     id: DataWalletBackupID,
   ): ResultAsync<DataWalletBackupID, PersistenceError>;
 
-  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
   unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;

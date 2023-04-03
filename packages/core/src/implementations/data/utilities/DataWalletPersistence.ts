@@ -373,11 +373,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorage.listFileNames();
   }
 
-  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+  public postBackups(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.getRendered().andThen((chunks) => {
+        return backupManager.getRendered(force).andThen((chunks) => {
           return ResultUtils.combine(
             chunks.map((chunk) => {
               return this.cloudStorage

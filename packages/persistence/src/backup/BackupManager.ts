@@ -314,8 +314,26 @@ export class BackupManager implements IBackupManager {
     return okAsync(undefined);
   }
 
-  public getRendered(): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return okAsync(Array.from(this.renderedChunks.values()));
+  public getRendered(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    if (force) {
+      return okAsync(Array.from(this.renderedChunks.values()));
+    }
+
+    return ResultUtils.combine(
+      [...this.tableRenderers.values(), ...this.fieldRenderers.values()].map(
+        (renderer) => {
+          return renderer.clear().map((chunk) => {
+            if (chunk != null) {
+              this.renderedChunks.set(chunk.header.hash, chunk);
+            }
+          });
+        },
+      ),
+    ).andThen(() => {
+      return okAsync(Array.from(this.renderedChunks.values()));
+    });
   }
 
   public popRendered(
