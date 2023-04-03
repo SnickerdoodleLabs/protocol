@@ -1,5 +1,6 @@
 export * from "@objects/enum/EAdContentType.js";
 export * from "@objects/enum/EBackupPriority.js";
+export * from "@objects/enum/EBoolean.js";
 export * from "@objects/enum/EChain.js";
 export * from "@objects/enum/EChainTechnology.js";
 export * from "@objects/enum/EChainType.js";
@@ -10,6 +11,7 @@ export * from "@objects/enum/EDataUpdateOpCode.js";
 export * from "@objects/enum/EDataWalletPermission.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EInvitationStatus.js";
+export * from "@objects/enum/EQueryProcessingStatus.js";
 export * from "@objects/enum/EExtensionEvent.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/EScamFilterStatus.js";

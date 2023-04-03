@@ -4,12 +4,16 @@ import {
   MillisecondTimestamp,
   MissingASTError,
   QueryFormatError,
+  SDQLQuery,
+  SDQLString,
 } from "@snickerdoodlelabs/objects";
 import "reflect-metadata";
 
-import { SDQLQueryWrapperMocks } from "../../mocks";
-
-import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
+import {
+  QueryObjectFactory,
+  SDQLParser,
+} from "@query-parser/implementations/business/index.js";
+import { SDQLQueryWrapperFactory } from "@query-parser/implementations/utilities/index.js";
 
 const cid = IpfsCID("0");
 const timeUtils = new TimeUtils();
@@ -20,51 +24,55 @@ const pastTimeISO = timeUtils.getISO8601TimeString(
   MillisecondTimestamp(Date.now() - 1000 * 60 * 60 * 24),
 );
 const currentTimeISO = timeUtils.getISO8601TimeString();
+const queryWrapperFactory = new SDQLQueryWrapperFactory(timeUtils);
 
 describe.only("Schema context validation", () => {
   test("invalid return query", async () => {
-    const schemaStr = JSON.stringify({
-      version: 0.1,
-      description:
-        "Intractions with the Avalanche blockchain for 15-year and older individuals",
-      business: "Shrapnel",
-      timestamp: currentTimeISO,
-      expiry: futureTimeISO,
-      queries: {
-        q2: {
-          name: "age",
-          return: "boolean",
-          conditions: {
-            ge: 15,
+    const schemaStr = SDQLString(
+      JSON.stringify({
+        version: 0.1,
+        description:
+          "Intractions with the Avalanche blockchain for 15-year and older individuals",
+        business: "Shrapnel",
+        timestamp: currentTimeISO,
+        expiry: futureTimeISO,
+        queries: {
+          q2: {
+            name: "age",
+            return: "boolean",
+            conditions: {
+              ge: 15,
+            },
           },
         },
-      },
-      returns: {
-        r1: {
-          name: "callback",
-          message: "qualified",
+        returns: {
+          r1: {
+            name: "callback",
+            message: "qualified",
+          },
+          r2: {
+            name: "query_response",
+            query: "q0",
+          },
         },
-        r2: {
-          name: "query_response",
-          query: "q0",
+
+        compensations: {
+          c1: {
+            description: "10% discount code for Starbucks",
+            callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+          },
         },
-      },
 
-      compensations: {
-        c1: {
-          description: "10% discount code for Starbucks",
-          callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+        logic: {
+          returns: [],
+          compensations: [],
         },
-      },
+      }),
+    );
 
-      logic: {
-        returns: [],
-        compensations: [],
-      },
-    });
-
-    const mocks = new SDQLQueryWrapperMocks();
-    const schema = mocks.makeQueryWrapper(schemaStr);
+    const schema = queryWrapperFactory.makeWrapper(
+      new SDQLQuery(cid, schemaStr),
+    );
     const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
     const res = await parser.buildAST();
@@ -81,48 +89,51 @@ describe.only("Schema context validation", () => {
     }
   });
   test("invalid return schema", async () => {
-    const schemaStr = JSON.stringify({
-      version: 0.1,
-      description:
-        "Intractions with the Avalanche blockchain for 15-year and older individuals",
-      business: "Shrapnel",
-      timestamp: currentTimeISO,
-      expiry: futureTimeISO,
-      queries: {
-        q2: {
-          name: "age",
-          return: "boolean",
-          conditions: {
-            ge: 15,
+    const schemaStr = SDQLString(
+      JSON.stringify({
+        version: 0.1,
+        description:
+          "Intractions with the Avalanche blockchain for 15-year and older individuals",
+        business: "Shrapnel",
+        timestamp: currentTimeISO,
+        expiry: futureTimeISO,
+        queries: {
+          q2: {
+            name: "age",
+            return: "boolean",
+            conditions: {
+              ge: 15,
+            },
           },
         },
-      },
-      returns: {
-        r1: {
-          name: "callback",
-          message: "qualified",
+        returns: {
+          r1: {
+            name: "callback",
+            message: "qualified",
+          },
+          r2: {
+            name: "query_response",
+            invalid: "invalid",
+          },
         },
-        r2: {
-          name: "query_response",
-          invalid: "invalid",
+
+        compensations: {
+          c1: {
+            description: "10% discount code for Starbucks",
+            callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+          },
         },
-      },
 
-      compensations: {
-        c1: {
-          description: "10% discount code for Starbucks",
-          callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+        logic: {
+          returns: [],
+          compensations: [],
         },
-      },
+      }),
+    );
 
-      logic: {
-        returns: [],
-        compensations: [],
-      },
-    });
-
-    const mocks = new SDQLQueryWrapperMocks();
-    const schema = mocks.makeQueryWrapper(schemaStr);
+    const schema = queryWrapperFactory.makeWrapper(
+      new SDQLQuery(cid, schemaStr),
+    );
     const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
     const res = await parser.buildAST();

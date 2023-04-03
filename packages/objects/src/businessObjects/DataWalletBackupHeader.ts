@@ -12,5 +12,6 @@ export class DataWalletBackupHeader {
     public signature: Signature,
     public priority: EBackupPriority,
     public dataType: StorageKey,
+    public isField: boolean,
   ) {}
 }

@@ -123,6 +123,7 @@ const recordBackup = new DataWalletBackup(
     Signature("signature"),
     EBackupPriority.NORMAL,
     recordKey,
+    false,
   ),
   [
     new VolatileDataUpdate(

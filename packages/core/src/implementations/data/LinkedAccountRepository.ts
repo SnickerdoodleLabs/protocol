@@ -1,20 +1,16 @@
 import {
   AccountAddress,
-  BlockNumber,
   DomainName,
   EarnedReward,
-  EBackupPriority,
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
   Invitation,
-  LatestBlock,
   LinkedAccount,
   PersistenceError,
   ReceivingAccount,
   Signature,
   TokenId,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -137,32 +133,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       .getField<EVMContractAddress[]>(EFieldKey.REJECTED_COHORTS)
       .map((raw) => {
         return raw ?? [];
-      });
-  }
-
-  public setLatestBlockNumber(
-    contractAddress: EVMContractAddress,
-    blockNumber: BlockNumber,
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.LATEST_BLOCK,
-      new LatestBlock(contractAddress, blockNumber),
-    );
-  }
-
-  public getLatestBlockNumber(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<BlockNumber, PersistenceError> {
-    return this.persistence
-      .getObject<LatestBlock>(
-        ERecordKey.LATEST_BLOCK,
-        contractAddress.toString(),
-      )
-      .map((block) => {
-        if (block == null) {
-          return BlockNumber(-1);
-        }
-        return block.block;
       });
   }
 

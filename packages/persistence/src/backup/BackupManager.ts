@@ -188,24 +188,33 @@ export class BackupManager implements IBackupManager {
       );
     }
 
-    const timestamp = this.timeUtils.getUnixNow();
-    this.fieldHistory.set(key, timestamp);
+    return Serializer.serialize(value)
+      .asyncAndThen((newValue) => {
+        return this.storageUtils
+          .read<SerializedObject>(key)
+          .andThen((current) => {
+            if (current?.data == newValue.data) {
+              return okAsync(undefined);
+            }
 
-    return Serializer.serialize(value).asyncAndThen((serializedObj) => {
-      return this.storageUtils
-        .write<SerializedObject>(key, serializedObj)
-        .andThen(() => {
-          return this.fieldRenderers
-            .get(key)!
-            .update(new FieldDataUpdate(key, serializedObj, timestamp))
-            .map((backup) => {
-              if (backup != null) {
-                this.renderedChunks.set(backup.header.hash, backup);
-              }
-              return undefined;
-            });
-        });
-    });
+            const timestamp = this.timeUtils.getUnixNow();
+            this.fieldHistory.set(key, timestamp);
+
+            return this.storageUtils
+              .write<SerializedObject>(key, newValue)
+              .andThen(() => {
+                return this.fieldRenderers
+                  .get(key)!
+                  .update(new FieldDataUpdate(key, newValue, timestamp));
+              });
+          });
+      })
+      .map((backup) => {
+        if (backup != null) {
+          this.renderedChunks.set(backup.header.hash, backup);
+        }
+        return undefined;
+      });
   }
 
   public restore(

@@ -38,8 +38,8 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `gender`: access to the gender of the DW user
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
-- `balance`: accesses the balance of the DW user per chain
-- `nft`: accesses the aggregated nft holdings data of the user
+- `url_visited_count`: access to the browsing history of the DW user
+- `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain. For a list of supported chains see [here](/documentation/sdql/README.md#chain-required-for-blockchain-transaction-queries).
 
 #### return (required)
 The return sub-keyword specifies the object type that will be returned by a query. Supported types include:
@@ -81,8 +81,12 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 #### chain (required for blockchain transaction queries)
 This sub-keyword is used in conjunction with the `network` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a blockchain transaction should be run against. The following *chains* are supported:
 
-- `ETH`: the Ethereum network
-- `AVAX`: the Avalanche network
+- ETH: the Ethereum network
+- AVAX: the Avalanche network 
+- MATIC: the Polygon network
+- xDAI: the Gnosis network
+- BNB: the Binance network
+- GLMR: the Moonbeam network
 
 #### contract (required for network queries)
 The contract sub-keyword is used in conjunction with the `network` sub-keyword. Specifying a contract indicates that the query is interrogating whether any accounts linked to a data wallet have made transactions meeting the following required characteristics:

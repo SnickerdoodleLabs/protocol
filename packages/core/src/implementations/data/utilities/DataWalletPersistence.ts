@@ -13,11 +13,11 @@ import {
   VolatileStorageKey,
   VersionedObject,
   VolatileStorageMetadata,
-  JSONString,
   BackupFileName,
   EFieldKey,
   ERecordKey,
   SerializedObject,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -32,7 +32,7 @@ import {
   IVolatileStorageSchemaProviderType,
   IVolatileStorageSchemaProvider,
   IFieldSchemaProvider,
-  ILocalStorageSchemaProviderType,
+  IFieldSchemaProviderType,
   Serializer,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
@@ -70,7 +70,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IVolatileStorageSchemaProviderType)
     protected volatileSchemaProvider: IVolatileStorageSchemaProvider,
-    @inject(ILocalStorageSchemaProviderType)
+    @inject(IFieldSchemaProviderType)
     protected fieldSchemaProvider: IFieldSchemaProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {
@@ -193,6 +193,37 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.getBackupManager(),
       this.waitForUnlock(),
     ]).andThen(([backupManager]) => {
+      if (tableName == ERecordKey.ACCOUNT) {
+        return this.volatileStorage
+          .putObject(
+            tableName,
+            new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
+          )
+          .map(() => {
+            this.waitForInitialRestore().andThen(() => {
+              return this.volatileStorage
+                .getKey(tableName, value)
+                .andThen((key) => {
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  return this.volatileStorage.getObject(tableName, key!);
+                })
+                .andThen((found) => {
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  if (found!.lastUpdate == 0) {
+                    return backupManager.addRecord(
+                      tableName,
+                      new VolatileStorageMetadata<T>(
+                        value,
+                        this.timeUtils.getUnixNow(),
+                      ),
+                    );
+                  }
+                  return okAsync(undefined);
+                });
+            });
+          });
+      }
+
       return backupManager.addRecord(
         tableName,
         new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
@@ -278,8 +309,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               this.resolveInitRestore!();
               clearTimeout(timeout);
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              this.pollBackups().map(() => this.resolveFullRestore!());
+              this.pollBackups().map(() => {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                this.resolveFullRestore!();
+              });
             })
             .mapErr((e) => {
               this.logUtils.debug("Unable to poll high priority backups", e);
@@ -398,4 +431,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .map(() => undefined);
   }
+}
+
+class QueuedRecord<T extends VersionedObject> {
+  public constructor(
+    public dataType: ERecordKey,
+    public value: VolatileStorageMetadata<T>,
+  ) {}
 }
