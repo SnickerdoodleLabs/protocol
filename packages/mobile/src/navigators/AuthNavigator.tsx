@@ -8,25 +8,17 @@ import Initial from "../screens/Initial";
 import StarterTour from "../components/StarterTour/StarterTour";
 import StarterTour2 from "../components/StarterTour/StarterTour2";
 import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
+import Marketplace from "../newcomponents/Marketplace/Marketplace";
+import CardDetails from "../newcomponents/Marketplace/CardDetails";
 
 const Stack = createStackNavigator();
 
 function AuthNavigator() {
   return (
-    <Stack.Navigator
-      // This is for the general header e.t.c
-      /*    screenOptions={{
-        headerStyle: {
-          backgroundColor: COLORS.primary,
-        },
-        headerBackTitleVisible: false,
-        headerTintColor: 'white',
-      }} */
-      initialRouteName={ROUTES.COMPONENT_TEST}
-    >
+    <Stack.Navigator initialRouteName={ROUTES.COMPONENT_TEST}>
       <Stack.Screen
         name={ROUTES.COMPONENT_TEST}
-        component={OnboardingMain}
+        component={Marketplace}
         options={{
           headerShown: false,
         }}
@@ -52,7 +44,6 @@ function AuthNavigator() {
           headerShown: false,
         }}
       />
-
       <Stack.Screen
         name={ROUTES.IMAGE_CAROUSEL}
         component={ImageCarousel}
@@ -74,6 +65,15 @@ function AuthNavigator() {
         options={{
           headerBackTitleVisible: false,
           headerTransparent: true,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.CARD_DETAILS}
+        component={CardDetails}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title:false
         }}
       />
     </Stack.Navigator>
