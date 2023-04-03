@@ -195,14 +195,13 @@ export class DiscordRepository implements IDiscordRepository {
       if (uProfile == null) {
         return okAsync(undefined);
       }
-
       return this.deleteUserData(uProfile);
     });
   }
 
   private deleteUserData(
     uProfile: DiscordProfile,
-  ): ResultAsync<void, PersistenceError | unknown> {
+  ): ResultAsync<void, PersistenceError> {
     const ownerId = uProfile.pKey;
     const guildProfilesResult =
       this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
@@ -217,10 +216,10 @@ export class DiscordRepository implements IDiscordRepository {
     });
     // return okAsync(undefined);
   }
-  public deleteGroupProfile(
-    id: SnowflakeID,
-  ): ResultAsync<void, PersistenceError> {
-    const pKey = SocialPrimaryKey(`discord-group-${id}`); // Should be in a Utils class.
-    return okAsync(undefined);
-  }
+  // public deleteGroupProfile(
+  //   id: SnowflakeID,
+  // ): ResultAsync<void, PersistenceError> {
+  //   const pKey = SocialPrimaryKey(`discord-group-${id}`); // Should be in a Utils class.
+  //   return okAsync(undefined);
+  // }
 }

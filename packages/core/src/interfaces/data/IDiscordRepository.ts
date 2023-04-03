@@ -34,7 +34,7 @@ export interface IDiscordRepository {
 
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
   deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
-  deleteGroupProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
+  // deleteGroupProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
 }
 
 export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");
