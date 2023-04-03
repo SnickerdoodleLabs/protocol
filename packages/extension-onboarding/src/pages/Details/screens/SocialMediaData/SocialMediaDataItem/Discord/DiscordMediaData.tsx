@@ -66,6 +66,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
   };
 
   const initializeUser = (code: string) => {
+    console.log("DiscordMediaData: initializeUser with code", code);
     provider.getOauthTokenFromDiscord(code).then((res) => {
       res.json().then((data: IDiscordAuthResponse) => {
         if (data.access_token) {

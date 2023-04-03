@@ -44,6 +44,10 @@ export class DiscordProvider implements IDiscordDataProvider {
     params: IDiscordMediaDataParams,
   ): ResultAsync<void, unknown> {
     const { discordAuthToken } = params;
+    console.log(
+      "DiscordProvider: initializeUser with discordAuthToken",
+      discordAuthToken,
+    );
     if (discordAuthToken) {
       return window.sdlDataWallet.discord.initializeUser(discordAuthToken);
     }
