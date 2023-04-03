@@ -103,6 +103,10 @@ const consentBeacon = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
   } else {
     return "";
   }
@@ -139,6 +143,10 @@ const consentFactory = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
   } else {
     return "";
   }
@@ -172,6 +180,10 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "binance") {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
     return "";
   } else {
     return "";
@@ -207,6 +219,10 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "binance") {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
     return "";
   } else {
     return "";

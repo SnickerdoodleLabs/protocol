@@ -98,6 +98,8 @@ export class ConfigProvider
         [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
         [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
         [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
+        [ChainId(10), "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3"],
+        [ChainId(42161), "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV"],
       ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
