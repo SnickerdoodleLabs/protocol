@@ -17,7 +17,7 @@ export class DiscordProfile extends SocialProfile {
     public username: Username,
     public displayName: string | null,
     public discriminator: string,
-    public avatar : string | null,
+    public avatar: string | null,
     public flags: Integer,
     public authToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
     public authExpiry: UnixTimestamp,

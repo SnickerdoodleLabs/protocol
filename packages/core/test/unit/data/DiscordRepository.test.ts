@@ -83,8 +83,18 @@ class DiscordRepositoryMock {
     ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles(null));
 
     td.when(
-      this.socialRepository.getProfileByPK(td.matchers.anything()),
+      this.socialRepository.getProfileByPK<DiscordProfile>(
+        td.matchers.anything(),
+      ),
     ).thenReturn(okAsync(discordProfiles[0]));
+
+    td.when(
+      this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
+        td.matchers.anything(),
+      ),
+    ).thenReturn(
+      this.socialDataMocks.getDiscordGuildProfiles(discordProfiles[0].id),
+    );
 
     td.when(
       this.socialRepository.deleteProfile(td.matchers.anything()),
@@ -104,14 +114,14 @@ describe("DiscordRepository discord API fetch tests", () => {
   test("fetchUserProfile", async () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
-    const service = mocks.factory();
+    const repository = mocks.factory();
     const discordProfiles = (
       await mocks.socialDataMocks.getDiscordProfiles()
     )._unsafeUnwrap();
     const expectedProfile = discordProfiles[0];
 
     // Act
-    const result = await service.fetchUserProfile(expectedProfile.authToken);
+    const result = await repository.fetchUserProfile(expectedProfile.authToken);
 
     // Assert
     expect(result).toBeDefined();

@@ -73,7 +73,7 @@ export class SocialDataMock {
     discordProfileId: SnowflakeID | null,
   ): ResultAsync<DiscordGuildProfile[], never> {
     if (discordProfileId == null) {
-      discordProfileId = SnowflakeID(-1);
+      discordProfileId = SnowflakeID("-1");
     }
     return okAsync(
       discordGuildProfileAPIResponses.map(

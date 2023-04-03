@@ -112,7 +112,7 @@ export class DiscordRepository implements IDiscordRepository {
               response.username,
               response.display_name,
               response.discriminator,
-              response.avatar,
+              response.avatar ?? null,
               response.flags,
               authToken,
               UnixTimestamp(0), // TODO fix the authExpiry
@@ -158,13 +158,13 @@ export class DiscordRepository implements IDiscordRepository {
   public upsertUserProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
-    return this.socialRepository.upsertProfile(discordProfile);
+    return this.socialRepository.upsertProfile<DiscordProfile>(discordProfile);
   }
 
   public getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    return this.socialRepository.getProfiles(
+    return this.socialRepository.getProfiles<DiscordProfile>(
       ESocialType.DISCORD,
-    ) as ResultAsync<DiscordProfile[], PersistenceError>;
+    );
   }
 
   public getProfileById(
@@ -177,16 +177,18 @@ export class DiscordRepository implements IDiscordRepository {
   public upsertGuildProfiles(
     guildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
-    return this.socialRepository.upsertGroupProfiles(guildProfiles);
+    return this.socialRepository.upsertGroupProfiles<DiscordGuildProfile>(
+      guildProfiles,
+    );
   }
 
   public getGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     PersistenceError
   > {
-    return this.socialRepository.getGroupProfiles(
+    return this.socialRepository.getGroupProfiles<DiscordGuildProfile>(
       ESocialType.DISCORD,
-    ) as ResultAsync<DiscordGuildProfile[], PersistenceError>;
+    );
   }
   public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
     // 1. find the profile
