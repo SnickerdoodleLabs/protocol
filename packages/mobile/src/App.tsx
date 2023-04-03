@@ -24,6 +24,7 @@ import EventContextProvider from "./context/EventContextProvider";
 import AuthNavigator from "./navigators/AuthNavigator";
 import InvitationContextProvider from "./context/InvitationContext";
 import DeepLinkHandler from "./navigators/DeepLinkHandler";
+import BottomTabNavigator from "./navigators/BottomTabNavigator";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -67,7 +68,7 @@ const App = () => {
               }}
             >
               <AccountLinkingContextProvider>
-                <AuthNavigator />
+               <BottomTabNavigator />
               </AccountLinkingContextProvider>
             </WalletConnectProvider>
           </InvitationContextProvider>
