@@ -1,4 +1,10 @@
-import { ChainId, ProviderUrl, URLString } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  DiscordConfig,
+  ProviderUrl,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import { urlJoin } from "url-join-ts";
 
 import {
   EPlatform,
@@ -31,8 +37,7 @@ declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
 declare const __ENABLE_BACKUP_ENCRYPTION__: string;
 
-declare const __DISCORD_CLIENT_ID: string;
-declare const __DISCORD_CLIENT_SECRET: string;
+declare const __DISCORD_CONFIG__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -51,19 +56,27 @@ class ConfigProvider implements IConfigProvider {
         return ChainId(Number.parseInt(chain));
       });
 
+    console.log("__DISCORD_CONFIG__", __DISCORD_CONFIG__);
+
+    // if (typeof __DISCORD_CONFIG__ !== "undefined" && !!__DISCORD_CONFIG__) {
+    // }
+
     const discordOverrides = {
-      clientId:
-        typeof __DISCORD_CLIENT_ID !== "undefined" && !!__DISCORD_CLIENT_ID
-          ? __DISCORD_CLIENT_ID
-          : URLString("no-discord-client-id"),
-      clientSecret:
-        typeof __DISCORD_CLIENT_SECRET !== "undefined" &&
-        !!__DISCORD_CLIENT_SECRET
-          ? __DISCORD_CLIENT_SECRET
-          : URLString("no-discord-client-secret"),
-      oauthRedirectUrl: URLString(
-        `${window.location.origin}/data-dashboard/social-media-data`,
-      ),
+      // clientId:
+      //   typeof __DISCORD_CLIENT_ID !== "undefined" && !!__DISCORD_CLIENT_ID
+      //     ? __DISCORD_CLIENT_ID
+      //     : "no-discord-client-id",
+      // clientSecret:
+      //   typeof __DISCORD_CLIENT_SECRET !== "undefined" &&
+      //   !!__DISCORD_CLIENT_SECRET
+      //     ? __DISCORD_CLIENT_SECRET
+      //     : "no-discord-client-secret",
+      oauthRedirectUrl:
+        typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
+          ? URLString(
+              urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
+            )
+          : URLString("no-redirect-url"),
     };
 
     this.extensionConfig = new ExtensionConfig(
@@ -145,6 +158,9 @@ class ConfigProvider implements IConfigProvider {
         ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
         : false,
       discordOverrides,
+      // typeof __DISCORD_CONFIG__ !== "undefined" && !!__DISCORD_CONFIG__
+      //   ? (JSON.parse(__DISCORD_CONFIG__) as Partial<DiscordConfig>)
+      //   : {},
     );
   }
   public getConfig() {

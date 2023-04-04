@@ -189,6 +189,7 @@ var options = {
       __ENABLE_BACKUP_ENCRYPTION__: JSON.stringify(
         process.env.__ENABLE_BACKUP_ENCRYPTION__,
       ),
+      __DISCORD_CONFIG__: JSON.stringify(process.env.__DISCORD_CONFIG__)
     }),
     new CopyWebpackPlugin({
       patterns: [

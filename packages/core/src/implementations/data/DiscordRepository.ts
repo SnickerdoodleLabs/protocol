@@ -91,6 +91,23 @@ export class DiscordRepository implements IDiscordRepository {
         client_secret: apiConfig.clientSecret,
         redirect_uri: apiConfig.oauthRedirectUrl,
       });
+
+      // return this.configProvider.getConfig().andThen((config) => {
+      //   if (!config.discord) {
+      //     return errAsync(new DiscordError("Discord configuration not found!"));
+      //   }
+      //   // const redirectURL = URLString(
+      //   //   urlJoin(
+      //   //     config.onboa,
+      //   //     "/data-dashboard/social-media-data",
+      //   //   ), // TODO, find a way to set this
+      //   // );
+      //   return okAsync({
+      //     client_id: config.discord.clientId,
+      //     client_secret: config.discord.clientSecret,
+      //     redirect_uri: redirectURL,
+      //   });
+      // });
     });
   }
 
@@ -181,6 +198,7 @@ export class DiscordRepository implements IDiscordRepository {
           return okAsync(this.factoryAccessToken(response));
         })
         .orElse((error) => {
+          console.log(error);
           return errAsync(new DiscordError(error.message));
         });
     });

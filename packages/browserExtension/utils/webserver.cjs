@@ -15,19 +15,36 @@ process.env.__NFTSCAN_API_KEY__ = "";
 process.env.__POAP_API_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
 process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
-process.env.__DOMAIN_FILTER__ = "(localhost|chrome:\/\/)";
+process.env.__DOMAIN_FILTER__ = "(localhost|chrome://)";
 process.env.__GOOGLE_CLOUD_BUCKET__ = "ceramic-replacement-bucket";
 process.env.__PORTFOLIO_POLLING_INTERVAL__ = "";
 process.env.__TRANSACTION_POLLING_INTERVAL__ = "";
 process.env.__BACKUP_POLLING_INTERVAL__ = "";
 process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
-process.env.__DISCORD_CONFIG__ = '{"clientId":"1089994449830027344", "client_secret": "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ","oauthBaseUrl":"https://discord.com/oauth2/authorize","oauthRedirectUrl":"spa-url","accessTokenUrl":"https://localhost:9005/data-dashboard/social-media-data","refreshTokenUrl":"https://discord.com/api/oauth2/authorize","dataAPIUrl":"https://discord.com/api","iconBaseUrl":"https://cdn.discordapp.com/icons","pollInterval":86400000}';
+
+process.env.__DISCORD_CONFIG__ = JSON.stringify({
+  clientId: "1089994449830027344",
+  client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+  oauthRedirectUrl: `${process.env.__ONBOARDING_URL__}/data-dashboard/social-media-data`,
+  pollInterval: 86400000,
+});
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
   config = require("../webpack.config.cjs"),
   env = require("./env.cjs"),
   path = require("path");
+
+
+
+
+
+
+
+
+
+
+
 
 config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
   config.plugins || [],
