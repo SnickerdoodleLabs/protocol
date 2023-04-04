@@ -1,14 +1,16 @@
+import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import {
-  IDiscordInitParams,
-  ISocialMediaProvider,
-} from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import {
+  BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
   SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+export type IDiscordInitParams = {
+  discordAuthToken?: BearerAuthToken;
+};
 
 export interface IDiscordProvider extends ISocialMediaProvider {
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], unknown>;

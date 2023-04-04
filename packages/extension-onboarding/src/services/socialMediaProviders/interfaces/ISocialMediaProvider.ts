@@ -1,8 +1,5 @@
-import {
-  BearerAuthToken,
-  DiscordProfile,
-  URLString,
-} from "@snickerdoodlelabs/objects";
+import { IDiscordInitParams } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { DiscordProfile, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ISocialMediaProvider {
@@ -13,7 +10,3 @@ export interface ISocialMediaProvider {
 
 export type ISocialMediaInitParams = IDiscordInitParams;
 export type ISocialMediaProfileTypes = DiscordProfile;
-
-export type IDiscordInitParams = {
-  discordAuthToken?: BearerAuthToken;
-};

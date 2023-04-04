@@ -4,7 +4,7 @@ import React, { FC, memo } from "react";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 
-import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/DiscordServerItem";
+import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordServerItem";
 import { DiscordGuildProfile } from "@snickerdoodlelabs/objects";
 
 const DiscordAccountItem: FC<ILinkedDiscordAccount> = ({

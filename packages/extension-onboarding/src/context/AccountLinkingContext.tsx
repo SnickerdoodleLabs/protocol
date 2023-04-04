@@ -23,7 +23,7 @@ import {
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { IDiscordProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/providers";
+import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
 
 declare const window: IWindowWithSdlDataWallet;
 
