@@ -31,6 +31,9 @@ declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
 declare const __ENABLE_BACKUP_ENCRYPTION__: string;
 
+declare const __DISCORD_CLIENT_ID: string;
+declare const __DISCORD_CLIENT_SECRET: string;
+
 const ONE_MINUTE_MS = 60000;
 
 class ConfigProvider implements IConfigProvider {
@@ -47,6 +50,21 @@ class ConfigProvider implements IConfigProvider {
       .map((chain) => {
         return ChainId(Number.parseInt(chain));
       });
+
+    const discordOverrides = {
+      clientId:
+        typeof __DISCORD_CLIENT_ID !== "undefined" && !!__DISCORD_CLIENT_ID
+          ? __DISCORD_CLIENT_ID
+          : URLString("no-discord-client-id"),
+      clientSecret:
+        typeof __DISCORD_CLIENT_SECRET !== "undefined" &&
+        !!__DISCORD_CLIENT_SECRET
+          ? __DISCORD_CLIENT_SECRET
+          : URLString("no-discord-client-secret"),
+      oauthRedirectUrl: URLString(
+        `${window.location.origin}/data-dashboard/social-media-data`,
+      ),
+    };
 
     this.extensionConfig = new ExtensionConfig(
       typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
@@ -126,6 +144,7 @@ class ConfigProvider implements IConfigProvider {
       !!__ENABLE_BACKUP_ENCRYPTION__
         ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
         : false,
+      discordOverrides,
     );
   }
   public getConfig() {

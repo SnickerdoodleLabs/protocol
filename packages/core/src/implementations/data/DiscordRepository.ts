@@ -154,12 +154,29 @@ export class DiscordRepository implements IDiscordRepository {
       this.tokenAPICallBaseConfig(),
       this.tokenUrl(),
     ]).andThen(([tokenBaseConfig, tokenUrl]) => {
+      const requestConfig: IRequestConfig = {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+          accept: "*/*",
+        },
+      };
+      const data = {
+        ...tokenBaseConfig,
+        grant_type: "authorization_code",
+        code: code,
+        scope: "identify guilds",
+      };
+      console.log("Discord getAccessToken");
+      console.log(requestConfig);
+      console.log(data);
       return this.ajaxUtil
-        .post<DiscordOAuth2TokensAPIResponse>(new URL(tokenUrl), {
-          ...tokenBaseConfig,
-          grant_type: "authorization_code",
-          code: code,
-        })
+        .post<DiscordOAuth2TokensAPIResponse>(
+          new URL(tokenUrl),
+          data,
+          requestConfig,
+        )
         .andThen((response) => {
           return okAsync(this.factoryAccessToken(response));
         })

@@ -71,8 +71,8 @@ export class ConfigProvider
       clientSecret: "discord-client-secret",
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString("spa-url"),
-      accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
-      refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      accessTokenUrl: URLString("https://discord.com/api/oauth2/token"),
+      refreshTokenUrl: URLString("https://discord.com/api/oauth2/token"),
       dataAPIUrl: URLString("https://discord.com/api"),
       iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
@@ -208,5 +208,12 @@ export class ConfigProvider
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =
       overrides.enableBackupEncryption ?? false;
+
+    const discordConfig = {
+      ...this.config.discord,
+      ...overrides.discordOverrides,
+    };
+
+    this.config.discord = discordConfig;
   }
 }
