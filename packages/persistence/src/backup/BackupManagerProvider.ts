@@ -93,6 +93,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.timeUtils,
         this.backupUtils,
         this.chunkRendererFactory,
+        this.recordSchemaProvider,
       );
     });
 

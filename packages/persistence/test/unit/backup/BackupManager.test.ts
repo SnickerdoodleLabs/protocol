@@ -44,9 +44,10 @@ import {
   IChunkRenderer,
   IChunkRendererFactory,
 } from "@persistence/backup/index.js";
-import { FieldIndex } from "@persistence/local/index.js";
+import { FieldIndex, IFieldSchemaProvider } from "@persistence/local/index.js";
 import {
   IVolatileStorage,
+  IVolatileStorageSchemaProvider,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
 
@@ -148,6 +149,7 @@ class BackupManagerMocks {
   public chunkRendererFactory: IChunkRendererFactory;
   public recordChunkRenderer: IChunkRenderer;
   public fieldChunkRenderer: IChunkRenderer;
+  public schemaProvider: IVolatileStorageSchemaProvider;
 
   public constructor(
     protected existingObject = true,
@@ -161,6 +163,7 @@ class BackupManagerMocks {
     this.chunkRendererFactory = td.object<IChunkRendererFactory>();
     this.recordChunkRenderer = td.object<IChunkRenderer>();
     this.fieldChunkRenderer = td.object<IChunkRenderer>();
+    this.schemaProvider = td.object<IVolatileStorageSchemaProvider>();
 
     // TimeUtils ---------------------------------------------------
     td.when(this.timeUtils.getUnixNow()).thenReturn(now as never); // Seriously, I don't know why the as never is needed; some strange typing issue in testdouble dealing with ts-brand
@@ -181,7 +184,7 @@ class BackupManagerMocks {
         okAsync(
           new VolatileStorageMetadata(
             new TestVersionedObject(keyValue, 0),
-            versionNumber,
+
             UnixTimestamp(0),
             EBoolean.FALSE,
           ),
@@ -239,7 +242,7 @@ class BackupManagerMocks {
         td.matchers.contains(
           new VolatileStorageMetadata(
             new RestoredBackup(recordBackupId),
-            versionNumber,
+
             now,
             EBoolean.FALSE,
           ),
@@ -290,6 +293,8 @@ class BackupManagerMocks {
       ),
     ).thenReturn(okAsync(null));
 
+    td.when(this.recordChunkRenderer.checkInterval()).thenReturn(okAsync(null));
+
     td.when(
       this.fieldChunkRenderer.update(
         new FieldDataUpdate(
@@ -299,6 +304,8 @@ class BackupManagerMocks {
         ),
       ),
     ).thenReturn(okAsync(null));
+
+    td.when(this.fieldChunkRenderer.checkInterval()).thenReturn(okAsync(null));
 
     // StorageUtils ---------------------------------------------------------
     td.when(
@@ -324,6 +331,11 @@ class BackupManagerMocks {
     td.when(
       this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     ).thenReturn(dataWalletAddress as never);
+
+    // SchemaProvider
+    td.when(
+      this.schemaProvider.getCurrentVersionForTable(recordKey),
+    ).thenReturn(okAsync(versionNumber));
   }
 
   public factory(): IBackupManager {
@@ -338,6 +350,7 @@ class BackupManagerMocks {
       this.timeUtils,
       this.backupUtils,
       this.chunkRendererFactory,
+      this.schemaProvider,
     );
   }
 }
@@ -351,10 +364,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(
-        recordKey,
-        new VolatileStorageMetadata(testRecord, versionNumber, now),
-      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -386,10 +396,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(
-        recordKey,
-        new VolatileStorageMetadata(testRecord, versionNumber, now),
-      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -426,10 +433,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(
-        recordKey,
-        new VolatileStorageMetadata(testRecord, versionNumber, now),
-      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -449,10 +453,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(
-        recordKey,
-        new VolatileStorageMetadata(testRecord, versionNumber, now),
-      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.getRendered();
       });
@@ -584,7 +585,7 @@ describe("BackupManager Tests", () => {
       okAsync(
         new VolatileStorageMetadata(
           restoredBackup,
-          versionNumber,
+
           now,
           EBoolean.FALSE,
         ),
@@ -621,10 +622,7 @@ describe("BackupManager Tests", () => {
 
     // Act
     const result = await backupManager
-      .addRecord(
-        recordKey,
-        new VolatileStorageMetadata(testRecord, versionNumber, now),
-      ) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
+      .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
         return backupManager.popRendered(recordBackupId);
       })
@@ -652,13 +650,13 @@ describe("BackupManager Tests", () => {
         // Multiples to makes sure the set works
         new VolatileStorageMetadata(
           restoredBackup,
-          versionNumber,
+
           now,
           EBoolean.FALSE,
         ),
         new VolatileStorageMetadata(
           restoredBackup,
-          versionNumber,
+
           now,
           EBoolean.FALSE,
         ),

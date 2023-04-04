@@ -198,7 +198,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return this.volatileStorage
           .putObject(
             tableName,
-            new VolatileStorageMetadata<T>(value, version, UnixTimestamp(0)),
+            new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
           )
           .map(() => {
             this.waitForInitialRestore().andThen(() => {
@@ -215,7 +215,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                       tableName,
                       new VolatileStorageMetadata<T>(
                         value,
-                        version,
                         this.timeUtils.getUnixNow(),
                       ),
                     );
@@ -230,7 +229,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         tableName,
         new VolatileStorageMetadata<T>(
           value,
-          version,
           this.timeUtils.getUnixNow(),
         ),
       );
@@ -347,22 +345,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.getRestored();
-      })
-      .andThen((restored) => {
-        return this.cloudStorage.pollBackups(restored);
-      })
-      .andThen((backups) => {
-        return ResultUtils.combine(
-          backups.map((backup) => {
-            return this.restoreBackup(backup);
-          }),
-        );
-      })
-      .map(() => undefined);
+    return this.postBackups(true).andThen(() => {
+      return this.backupManagerProvider
+        .getBackupManager()
+        .andThen((backupManager) => {
+          return backupManager.getRestored();
+        })
+        .andThen((restored) => {
+          return this.cloudStorage.pollBackups(restored);
+        })
+        .andThen((backups) => {
+          return ResultUtils.combine(
+            backups.map((backup) => {
+              return this.restoreBackup(backup);
+            }),
+          );
+        })
+        .map(() => undefined);
+    });
   }
 
   public unpackBackupChunk(
