@@ -67,7 +67,6 @@ import {
   MarketplaceService,
   IntegrationService,
   DiscordService,
-  SocialMediaService
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -140,8 +139,6 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
-  ISocialMediaService,
-  ISocialConnectionServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
@@ -218,8 +215,6 @@ import {
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
-
-
 export const snickerdoodleCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -264,9 +259,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
-      .inSingletonScope();
-    bind<ISocialMediaService>(ISocialConnectionServiceType)
-      .to(SocialMediaService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
@@ -369,10 +361,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
-     bind<IDiscordPoller>(IDiscordPollerType)
+    bind<IDiscordPoller>(IDiscordPollerType)
       .to(DiscordPoller)
       .inSingletonScope();
-
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
@@ -425,8 +416,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
-
-
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },

@@ -9,7 +9,4 @@ export * from "@core/implementations/business/MonitoringService.js";
 export * from "@core/implementations/business/ProfileService.js";
 export * from "@core/implementations/business/QueryService.js";
 export * from "@core/implementations/business/SiftContractService.js";
-export * from "@core/implementations/business/SocialMediaService.js";
-
-
 export * from "@core/implementations/business/utilities/index.js";
