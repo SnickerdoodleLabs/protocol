@@ -27,10 +27,19 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
+  BackupUtils,
+  FieldSchemaProvider,
   IBackupManagerProvider,
   IBackupManagerProviderType,
+  IBackupUtils,
+  IBackupUtilsType,
+  IFieldSchemaProvider,
+  IFieldSchemaProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+  VolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -62,7 +71,6 @@ import {
   QueryParsingEngine,
   QueryService,
   SiftContractService,
-  CampaignService,
   MarketplaceService,
   IntegrationService,
 } from "@core/implementations/business/index.js";
@@ -93,6 +101,7 @@ import {
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
   PermissionRepository,
+  DomainCredentialRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -115,8 +124,6 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -185,6 +192,8 @@ import {
   IDemographicDataRepository,
   IPermissionRepository,
   IPermissionRepositoryType,
+  IDomainCredentialRepositoryType,
+  IDomainCredentialRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -235,9 +244,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
-    bind<ICampaignService>(ICampaignServiceType)
-      .to(CampaignService)
-      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -276,6 +282,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
       .inSingletonScope();
+    bind<IDomainCredentialRepository>(IDomainCredentialRepositoryType)
+      .to(DomainCredentialRepository)
+      .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
       .inSingletonScope();
@@ -313,6 +322,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
+      .inSingletonScope();
+    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
+    bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
+      .to(VolatileStorageSchemaProvider)
+      .inSingletonScope();
+    bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
+      .to(FieldSchemaProvider)
       .inSingletonScope();
 
     // Utilities

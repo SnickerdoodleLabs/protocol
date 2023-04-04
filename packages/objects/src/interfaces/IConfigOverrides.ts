@@ -1,6 +1,3 @@
-import { MapModelTypes } from "@glazed/types";
-
-import { ModelTypes } from "@objects/interfaces";
 import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
 
 export interface IConfigOverrides {
@@ -18,7 +15,6 @@ export interface IConfigOverrides {
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
-  ceramicModelAliases?: MapModelTypes<ModelTypes, string>;
   ceramicNodeURL?: URLString;
   controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;

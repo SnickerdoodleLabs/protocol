@@ -320,12 +320,13 @@ This query determines if a US-based user has received an ERC-721 token on the Et
             }
         },
         "q3": {
-            "name": "browsing_history",
-            "return": "boolean",
-            "conditions": {
-                "has": {
-                    "https://www.crabada.com": 30,
-                    "https://www.uniswap.org": 5
+            "name": "url_visited_count",
+            "return": "object",
+            "object_schema": {
+                "patternProperties": {
+                    "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
+                        "type": "integer"
+                    }
                 }
             }
         }

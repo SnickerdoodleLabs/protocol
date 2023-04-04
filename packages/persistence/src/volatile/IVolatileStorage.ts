@@ -16,14 +16,15 @@ export interface IVolatileStorage {
     name: string,
     obj: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError>;
-  removeObject(
+  removeObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
 
   getObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
+    _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
     name: string,
@@ -35,6 +36,7 @@ export interface IVolatileStorage {
   getAll<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
+    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   getAllKeys<T>(
     name: string,

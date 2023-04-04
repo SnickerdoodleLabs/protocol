@@ -1,24 +1,5 @@
 import "reflect-metadata";
 
-import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
-import {
-  AST,
-  AST_Ad,
-  AST_BalanceQuery,
-  AST_Compensation,
-  AST_Expr,
-  AST_Logic,
-  AST_Web3Query,
-  AST_PropertyQuery,
-  AST_Query,
-  AST_Return,
-  AST_ReturnExpr,
-  AST_Returns,
-  Command,
-  IQueryObjectFactory,
-  ParserContextDataTypes,
-  SDQLQueryWrapper,
-} from "@query-parser/interfaces/index.js";
 import {
   AdKey,
   DataPermissions,
@@ -40,6 +21,26 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
+import {
+  AST,
+  AST_Ad,
+  AST_BalanceQuery,
+  AST_Compensation,
+  AST_Expr,
+  AST_Logic,
+  AST_Web3Query,
+  AST_PropertyQuery,
+  AST_Query,
+  AST_Return,
+  AST_ReturnExpr,
+  AST_Returns,
+  Command,
+  IQueryObjectFactory,
+  ParserContextDataTypes,
+  SDQLQueryWrapper,
+} from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
