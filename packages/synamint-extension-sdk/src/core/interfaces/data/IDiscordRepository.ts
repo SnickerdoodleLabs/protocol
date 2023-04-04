@@ -1,16 +1,17 @@
-import { ResultAsync } from "neverthrow";
-
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 import {
   BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
+  OAuthAuthorizationCode,
   SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 export interface IDiscordRepository {
-  initializeUser(
-    authToken: BearerAuthToken,
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError>;
   getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError>;

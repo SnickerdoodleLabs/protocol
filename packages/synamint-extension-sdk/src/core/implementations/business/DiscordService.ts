@@ -2,6 +2,7 @@ import {
   BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
+  OAuthAuthorizationCode,
   SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -21,24 +22,29 @@ export class DiscordService implements IDiscordService {
     @inject(IDiscordRepositoryType)
     protected discordRepository: IDiscordRepository,
   ) {}
-  initializeUser(
-    authToken: BearerAuthToken,
+
+  public initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.discordRepository.initializeUser(authToken);
+    return this.discordRepository.initializeUserWithAuthorizationCode(code);
   }
-  installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError> {
+
+  public installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError> {
     return this.discordRepository.installationUrl();
   }
-  getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError> {
+  public getUserProfiles(): ResultAsync<
+    DiscordProfile[],
+    SnickerDoodleCoreError
+  > {
     return this.discordRepository.getUserProfiles();
   }
-  getGuildProfiles(): ResultAsync<
+  public getGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     SnickerDoodleCoreError
   > {
     return this.discordRepository.getGuildProfiles();
   }
-  unlink(
+  public unlink(
     discordProfileId: SnowflakeID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.discordRepository.unlink(discordProfileId);

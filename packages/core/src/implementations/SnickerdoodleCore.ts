@@ -86,6 +86,7 @@ import {
   ISdlDiscordMethods,
   ICoreDiscordMethods,
   SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -153,7 +154,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
-  public discord : ICoreDiscordMethods;
+  public discord: ICoreDiscordMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -287,34 +288,37 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
 
     this.discord = {
-      initializeUser: (
-        authToken: BearerAuthToken,
-      ) => {
-        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.initializeUser(authToken);
+      initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
+        const discordService =
+          this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.initializeUserWithAuthorizationCode(code);
       },
 
-      installationUrl: ()=> {
-        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+      installationUrl: () => {
+        const discordService =
+          this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.installationUrl();
       },
-    
-      getUserProfiles : () => {
-        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+
+      getUserProfiles: () => {
+        const discordService =
+          this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getUserProfiles();
       },
 
       getGuildProfiles: () => {
-        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        const discordService =
+          this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getGuildProfiles();
       },
-      unlink :( discordProfileId : SnowflakeID) => {
-        const discordService = this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.unlink(discordProfileId);       
-      }
-    }
+      unlink: (discordProfileId: SnowflakeID) => {
+        const discordService =
+          this.iocContainer.get<IDiscordService>(IDiscordServiceType);
+        return discordService.unlink(discordProfileId);
+      },
+    };
   }
-   
+
   public getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<
