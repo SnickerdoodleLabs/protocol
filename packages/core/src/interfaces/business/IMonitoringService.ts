@@ -3,6 +3,7 @@ import {
   PersistenceError,
   AccountIndexingError,
   AjaxError,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,6 +18,7 @@ export interface IMonitoringService {
     PersistenceError | AccountIndexingError | AjaxError
   >;
   pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, PersistenceError>;
 }
 

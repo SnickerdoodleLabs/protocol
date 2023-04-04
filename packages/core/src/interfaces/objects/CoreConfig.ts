@@ -5,7 +5,6 @@ import {
   ChainId,
   ChainInformation,
   ControlChainInformation,
-  ModelTypes,
   URLString,
   ECurrencyCode,
   EChain,
@@ -31,7 +30,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public nftScanApiKey: string,
     public poapApiKey: string,
     public dnsServerAddress: URLString,
-    public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanApiKeys: Map<ChainId, string>,
@@ -46,5 +44,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
+    public backupHeartbeatIntervalMS: number,
   ) {}
 }

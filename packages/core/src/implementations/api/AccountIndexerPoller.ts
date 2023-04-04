@@ -45,6 +45,12 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
             this.logUtils.error(e);
           });
         }, config.accountIndexingPollingIntervalMS);
+
+        setInterval(() => {
+          this.monitoringService.postBackups().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.backupHeartbeatIntervalMS);
       });
     });
   }

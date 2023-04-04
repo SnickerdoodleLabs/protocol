@@ -2,6 +2,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
@@ -13,14 +15,25 @@ import { BackupManager } from "@persistence/backup/BackupManager.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
 import {
+  IBackupUtils,
+  IBackupUtilsType,
+} from "@persistence/backup/IBackupUtils.js";
+import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
 import {
+  IFieldSchemaProvider,
+  IFieldSchemaProviderType,
+} from "@persistence/local/IFieldSchemaProvider.js";
+import {
   IVolatileStorage,
   IVolatileStorageType,
 } from "@persistence/volatile/index.js";
-import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
+import {
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+} from "@persistence/volatile/IVolatileStorageSchemaProvider.js";
 
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
@@ -34,6 +47,12 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
+    @inject(IVolatileStorageSchemaProviderType)
+    protected recordSchemaProvider: IVolatileStorageSchemaProvider,
+    @inject(IFieldSchemaProviderType)
+    protected fieldSchemaProvider: IFieldSchemaProvider,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(IBackupUtilsType) protected backupUtils: IBackupUtils,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -51,22 +70,23 @@ export class BackupManagerProvider implements IBackupManagerProvider {
       return this.backupManager;
     }
 
-    const schema = volatileStorageSchema.filter((schema) => {
-      return !schema.disableBackup;
-    });
-
     this.backupManager = ResultUtils.combine([
       this.waitForUnlock(),
       this.configProvider.getConfig(),
-    ]).map(([key, config]) => {
+      this.recordSchemaProvider.getVolatileStorageSchema(),
+      this.fieldSchemaProvider.getLocalStorageSchema(),
+    ]).map(([key, config, recordSchema, fieldSchema]) => {
       return new BackupManager(
         key,
-        schema,
-        this.volatileStorage,
+        Array.from(recordSchema.values()),
+        Array.from(fieldSchema.values()),
         this.cryptoUtils,
+        this.volatileStorage,
         this.storageUtils,
-        config.backupChunkSizeTarget,
         config.enableBackupEncryption,
+        this.timeUtils,
+        this.backupUtils,
+        this.recordSchemaProvider,
       );
     });
 

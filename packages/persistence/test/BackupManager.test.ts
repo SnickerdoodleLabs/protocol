@@ -1,5 +1,4 @@
 import "reflect-metadata";
-
 import {
   AdContent,
   EAdContentType,
@@ -10,12 +9,11 @@ import {
   UnixTimestamp,
   AdKey,
   EVMContractAddress,
-  EBackupPriority,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
-import { ERecordKey } from "@persistence/ELocalStorageKey";
 
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {
@@ -79,7 +77,6 @@ describe("Bundle", () => {
     await backupManager.addRecord(
       ERecordKey.ELIGIBLE_ADS,
       new VolatileStorageMetadata<EligibleAd>(
-        EBackupPriority.NORMAL,
         testAd,
         EligibleAd.CURRENT_VERSION,
       ),
