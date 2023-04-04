@@ -5,5 +5,4 @@ export interface DiscordConfig extends OAuthConfig {
   dataAPIUrl: URLString;
   iconBaseUrl: URLString;
   pollInterval: number;
-  clientSecret: string;
 }

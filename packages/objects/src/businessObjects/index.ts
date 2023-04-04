@@ -25,6 +25,7 @@ export * from "@objects/businessObjects/MarketplaceListing";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest";
 export * from "@objects/businessObjects/NftHoldings";
 export * from "@objects/businessObjects/OptInInfo";
+export * from "@objects/businessObjects/OAuth2Tokens";
 export * from "@objects/businessObjects/PageInvitation";
 export * from "@objects/businessObjects/PolygonTransaction";
 export * from "@objects/businessObjects/PortfolioUpdate";

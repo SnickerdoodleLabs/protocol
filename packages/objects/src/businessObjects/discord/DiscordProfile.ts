@@ -1,4 +1,4 @@
-import { DiscordAccessToken } from "@objects/businessObjects/discord/DiscordAccessToken";
+import { OAuth2Tokens } from "@objects/businessObjects/OAuth2Tokens.js";
 import { SocialProfile } from "@objects/businessObjects/SocialProfile.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
@@ -20,7 +20,7 @@ export class DiscordProfile extends SocialProfile {
     public discriminator: string,
     public avatar: string | null,
     public flags: Integer,
-    public accessToken: DiscordAccessToken,
+    public oauth2Tokens: OAuth2Tokens,
   ) {
     super(SocialPrimaryKey(`discord-${id}`), ESocialType.DISCORD);
   }
@@ -52,7 +52,7 @@ export class DiscordProfileMigrator {
       data["discriminator"] as string,
       data["avatar"] as string,
       Integer(data["flags"] as number),
-      data["accessToken"] as DiscordAccessToken,
+      data["oauth2Tokens"] as OAuth2Tokens,
     );
   }
 }

@@ -21,8 +21,8 @@ import {
   ESocialType,
   SnowflakeID,
   OAuthAuthorizationCode,
-  DiscordAccessTokenAPIResponse,
-  DiscordAccessToken,
+  DiscordOAuth2TokensAPIResponse,
+  OAuth2Tokens,
   AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { ERecordKey } from "@snickerdoodlelabs/persistence";
@@ -31,13 +31,13 @@ import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
+import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   ISocialRepositoryType,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IConfigProvider,
   IConfigProviderType,
