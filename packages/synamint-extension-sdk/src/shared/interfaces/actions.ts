@@ -21,6 +21,7 @@ import {
   TokenAddress,
   BearerAuthToken,
   SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -170,8 +171,8 @@ export interface IGetReceivingAddressParams {
 }
 
 export interface IInitializeDiscordUser {
-  authToken: BearerAuthToken,
+  code: OAuthAuthorizationCode;
 }
 export interface IUnlinkDiscordAccount {
-  discordProfileId: SnowflakeID,
+  discordProfileId: SnowflakeID;
 }

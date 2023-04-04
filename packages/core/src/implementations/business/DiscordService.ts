@@ -141,7 +141,7 @@ export class DiscordService implements IDiscordService {
 
   public poll(): ResultAsync<void, DiscordError | PersistenceError> {
     // First we need to find the authkeys for discord
-    return this.getAccessTokens().andThen((oauth2TokensArr) => {
+    return this.getOAuth2Tokens().andThen((oauth2TokensArr) => {
       const results = oauth2TokensArr.map((oauth2Tokens) =>
         this.initializeUser(oauth2Tokens),
       );
@@ -149,7 +149,7 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-  protected getAccessTokens(): ResultAsync<OAuth2Tokens[], PersistenceError> {
+  public getOAuth2Tokens(): ResultAsync<OAuth2Tokens[], PersistenceError> {
     return this.discordRepo.getUserProfiles().map((uProfiles) => {
       return uProfiles.map((uProfile) => uProfile.oauth2Tokens);
     });

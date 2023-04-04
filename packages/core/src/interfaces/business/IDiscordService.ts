@@ -5,6 +5,7 @@ import {
   PersistenceError,
   SnowflakeID,
   OAuthAuthorizationCode,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -20,6 +21,7 @@ export interface IDiscordService extends IOAuthService {
   unlink(
     userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError>;
+  getOAuth2Tokens(): ResultAsync<OAuth2Tokens[], PersistenceError>;
 }
 
 export const IDiscordServiceType = Symbol.for("IDiscordService");

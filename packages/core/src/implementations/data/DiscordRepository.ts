@@ -99,7 +99,7 @@ export class DiscordRepository implements IDiscordRepository {
       apiResponse.access_token,
       apiResponse.refresh_token,
       UnixTimestamp(
-        Number(this.timeUtils.getUnixNowMS()) + apiResponse.expires_in,
+        Number(this.timeUtils.getUnixNow()) + apiResponse.expires_in,
       ),
     );
   }

@@ -48,6 +48,8 @@ class DiscordRepositoryMock {
   protected repository: IDiscordRepository;
   protected socialRepository: ISocialRepository;
   public socialDataMocks: SocialDataMock;
+  public timeUtils = new TimeUtils();
+
   public constructor() {
     this.socialDataMocks = new SocialDataMock();
     this.ajaxUtil = new AjaxUtilsMock();
@@ -59,6 +61,7 @@ class DiscordRepositoryMock {
       this.configProvider,
       this.persistence,
       this.socialRepository,
+      this.timeUtils,
     );
 
     // --- ajaxUtil td --------------------------------
@@ -121,7 +124,9 @@ describe("DiscordRepository discord API fetch tests", () => {
     const expectedProfile = discordProfiles[0];
 
     // Act
-    const result = await repository.fetchUserProfile(expectedProfile.authToken);
+    const result = await repository.fetchUserProfile(
+      expectedProfile.oauth2Tokens,
+    );
 
     // Assert
     expect(result).toBeDefined();
@@ -140,7 +145,7 @@ describe("DiscordRepository discord API fetch tests", () => {
 
     // Act
     const result = await repository.fetchGuildProfiles(
-      discordProfiles[0].authToken,
+      discordProfiles[0].oauth2Tokens,
     );
 
     // Assert

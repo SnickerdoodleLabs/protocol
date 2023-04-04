@@ -35,7 +35,11 @@ import {
   DiscordProfile,
   DiscordGuildProfile,
   SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   SnickerDoodleCoreError,
@@ -76,39 +80,38 @@ import {
   IInitializeDiscordUser,
   IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
-  discord : ISdlDiscordMethods;
+  discord: ISdlDiscordMethods;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
     this.discord = {
-      initializeUser : (
-        authToken: BearerAuthToken,
-      ) : ResultAsync<void , JsonRpcError> => {
-        return this._handler.call(
-          EExternalActions.INITIALIZE_DISCORD_USER,
-          { authToken } as IInitializeDiscordUser,
-        );
+      initializeUserWithAuthorizationCode: (
+        code: OAuthAuthorizationCode,
+      ): ResultAsync<void, JsonRpcError> => {
+        return this._handler.call(EExternalActions.INITIALIZE_DISCORD_USER, {
+          code,
+        } as IInitializeDiscordUser);
       },
-      installationUrl : () :  ResultAsync<URLString, JsonRpcError> => {
-        return this._handler.call(EExternalActions.INSTALLATION_DISCORD_URL)
+      installationUrl: (): ResultAsync<URLString, JsonRpcError> => {
+        return this._handler.call(EExternalActions.INSTALLATION_DISCORD_URL);
       },
-      getUserProfiles :(): ResultAsync<DiscordProfile[], JsonRpcError> => {
+      getUserProfiles: (): ResultAsync<DiscordProfile[], JsonRpcError> => {
         return this._handler.call(EExternalActions.GET_DISCORD_USER_PROFILES);
       },
-      getGuildProfiles :(): ResultAsync<DiscordGuildProfile[], JsonRpcError> => {
+      getGuildProfiles: (): ResultAsync<
+        DiscordGuildProfile[],
+        JsonRpcError
+      > => {
         return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
       },
-      unlink : ( discordProfileId : SnowflakeID) => {
-        return this._handler.call(
-          EExternalActions.UNLINK_DISCORD_ACCOUNT,
-          { discordProfileId } as IUnlinkDiscordAccount,
-        );
-      }
-    }
+      unlink: (discordProfileId: SnowflakeID) => {
+        return this._handler.call(EExternalActions.UNLINK_DISCORD_ACCOUNT, {
+          discordProfileId,
+        } as IUnlinkDiscordAccount);
+      },
+    };
   }
 
   public updateRpcEngine(rpcEngine: JsonRpcEngine) {
