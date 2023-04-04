@@ -3,6 +3,7 @@ import { ERewardType } from "@objects/enum";
 import {
   ChainId,
   EVMAccountAddress,
+  EVMContractAddress,
   IpfsCID,
   RewardFunctionParam,
   URLString,
@@ -15,7 +16,8 @@ export class LazyReward extends EarnedReward {
     readonly image: IpfsCID | null,
     readonly description: string,
     readonly chainId: ChainId,
-    readonly eoa: EVMAccountAddress,
+    readonly contractAddress: EVMContractAddress,
+    readonly recipientAddress: EVMAccountAddress,
     readonly functionName: string,
     readonly functionParams: RewardFunctionParam[],
   ) {

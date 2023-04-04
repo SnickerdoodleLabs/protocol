@@ -1,4 +1,27 @@
 import {
+  IProfileService,
+  IProfileServiceType,
+} from "@core/interfaces/business/IProfileService.js";
+import {
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+  IQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+} from "@core/interfaces/data/index.js";
+import {
   Age,
   CountryCode,
   EvalNotImplementedError,
@@ -8,48 +31,20 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
-  AST_Expr,
-  AST_Web3Query,
+  AST_BlockchainTransactionQuery,
+  AST_NftQuery,
   AST_PropertyQuery,
   AST_Query,
-  Condition,
+  BinaryCondition,
   ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
   ConditionLE,
-  AST_BlockchainTransactionQuery,
-  AST_NftQuery,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import {
-  IProfileService,
-  IProfileServiceType,
-} from "@core/interfaces/business/IProfileService.js";
-import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
-
-import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
-import {
-  IBrowsingDataRepository,
-  IBrowsingDataRepositoryType,
-  ITransactionHistoryRepository,
-  ITransactionHistoryRepositoryType,
-  IDemographicDataRepository,
-  IDemographicDataRepositoryType,
-} from "@core/interfaces/data/index.js";
-
-import {
-  IBlockchainTransactionQueryEvaluator,
-  IBlockchainTransactionQueryEvaluatorType,
-  INftQueryEvaluator,
-  INftQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -136,9 +131,11 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
-              for (const key of q.enum_keys) {
-                if (key == gender) {
-                  return okAsync(SDQL_Return(gender));
+              if(q.enum_keys){
+                for (const key of q.enum_keys) {
+                  if (key == gender) {
+                    return okAsync(SDQL_Return(gender));
+                  }
                 }
               }
               return okAsync(SDQL_Return(Gender("unknown")));
@@ -148,7 +145,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         });
       case "url_visited_count":
         return this.browsingDataRepo
-          .getSiteVisitsMap()
+          .getSiteVisitsMap(q.timestampRange)
           .andThen((url_visited_count) => {
             return okAsync(SDQL_Return(url_visited_count));
           });
@@ -165,7 +162,7 @@ export class QueryEvaluator implements IQueryEvaluator {
 
   public evalPropertyConditon(
     propertyVal: Age | CountryCode | null,
-    condition: Condition,
+    condition: BinaryCondition,
   ): SDQL_Return {
     if (propertyVal == null) {
       // const err = new Error("In evalPropertyConditon, propertyVal is null!");
@@ -174,55 +171,30 @@ export class QueryEvaluator implements IQueryEvaluator {
       return SDQL_Return(null);
     }
     //console.log(`Evaluating property condition ${condition} against ${propertyVal}`);
-    let val: number | AST_Expr = 0;
+    // let val: number | AST_Expr = 0;
+    const rVal = condition.rval;
+    if (rVal == null) {
+      return SDQL_Return(null);
+    }
     if (condition instanceof ConditionGE) {
-      val = condition.rval;
-      //console.log("PropertyVal is: ", propertyVal);
-      //console.log("Val is: ", val);
-      //console.log("Return should be: ", propertyVal >= val);
-      return SDQL_Return(propertyVal >= val);
-      //return okAsync(SDQL_Return(propertyVal >= val));
+      return SDQL_Return(propertyVal >= rVal);
     } else if (condition instanceof ConditionG) {
-      val = condition.rval;
-      //console.log("PropertyVal is: ", propertyVal);
-      //console.log("Val is: ", val);
-      //console.log("Return should be: ", propertyVal > val);
-      return SDQL_Return(propertyVal > val);
-      //return okAsync(SDQL_Return(propertyVal > val));
+      return SDQL_Return(propertyVal > rVal);
     } else if (condition instanceof ConditionL) {
-      val = condition.rval;
-      // console.log("PropertyVal is: ", propertyVal);
-      // console.log("Val is: ", val);
-      // console.log("Return should be: ", propertyVal < val);
-      return SDQL_Return(propertyVal < val);
-      //return okAsync(SDQL_Return(propertyVal < val));
+      return SDQL_Return(propertyVal < rVal);
     } else if (condition instanceof ConditionE) {
-      val = condition.rval;
-      //console.log("PropertyVal is: ", propertyVal);
-      //console.log("Val is: ", val);
-      //console.log("Return should be: ", propertyVal == val);
-      return SDQL_Return(propertyVal == val);
-      //return okAsync(SDQL_Return(propertyVal == val));
+      return SDQL_Return(propertyVal == rVal);
     } else if (condition instanceof ConditionLE) {
-      val = condition.rval;
-      return SDQL_Return(propertyVal <= val);
-      //return okAsync(SDQL_Return(propertyVal <= val));
+      return SDQL_Return(propertyVal <= rVal);
     } else if (condition instanceof ConditionIn) {
-      // console.log("In Condition IN");
       const find_val = condition.lval;
-      // console.log("Looking for: ", find_val);
-      const in_values = condition.rvals;
-      // console.log("Within: ", in_values);
+      const in_values = rVal as Array<string | number>;
       for (let i = 0; i < in_values.length; i++) {
         if (find_val == in_values[i]) {
-          // console.log("Found: ", find_val);
           return SDQL_Return(true);
-          //return okAsync(SDQL_Return(true));
         }
       }
-      // console.log("Did not Find: ", find_val);
       return SDQL_Return(false);
-      //return okAsync(SDQL_Return(false));
     }
 
     console.error(`EvalNotImplementedError ${condition.constructor.name}`);

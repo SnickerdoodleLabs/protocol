@@ -10,39 +10,43 @@ import {
 import {
   AjaxError,
   ConsentError,
+  ConsentToken,
+  EligibleReward,
+  EQueryProcessingStatus,
   EvaluationError,
   EVMContractAddress,
-  InsightString,
+  EVMPrivateKey,
+  ExpectedReward,
+  IDynamicRewardParameter,
+  IInsights,
   IpfsCID,
   IPFSError,
+  LinkedAccount,
   QueryFormatError,
-  UninitializedError,
-  EligibleReward,
+  QueryIdentifier,
+  QueryStatus,
+  RequestForData,
   SDQLQuery,
   SDQLQueryRequest,
-  ConsentToken,
   ServerRewardError,
-  IDynamicRewardParameter,
-  LinkedAccount,
-  QueryIdentifier,
-  ExpectedReward,
-  EVMPrivateKey,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
+import {
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  SDQLQueryWrapper,
+} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
-
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -84,50 +88,92 @@ export class QueryService implements IQueryService {
     protected cryptoUtils: ICryptoUtils,
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
+    @inject(ISDQLQueryWrapperFactoryType)
+    protected sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory,
   ) {}
 
   public onQueryPosted(
-    consentContractAddress: EVMContractAddress,
-    queryCID: IpfsCID,
+    requestForData: RequestForData,
   ): ResultAsync<void, EvaluationError> {
-    // Get the IPFS data for the query. This is just "Get the query";
-    // Cache
-    // if (!this.safeUpdateQueryContractMap(queryCID, consentContractAddress)) {
-    //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryCID}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryCID)}`)); ))
-    // }
+    /**
+     * TODO
+     * This method, for Ads Flow, will no longer process insights immediately. It will process the
+     * query to do Demographic Targetting for any included ads, and add those ads to the list
+     * of EligibleAds. It will create a QueryStatus object and persist that as well, to track the
+     * progress of the query.
+     *
+     * Insights will be processed after 3 main triggers: 1. core.reportAdShown(), which will check
+     * if there are any remaining EligibleAds for the query. If none exist, process insights.
+     * 2. core.completeShowingAds(), which will immediately mark the query as ready for insights,
+     * returning any ads that have been watches already.
+     * 3. Via a timer, which will watch for SDQLQueries that are about to expire. Expiring queries
+     * should be processed and returned as is, as long as at least a single reward is eligible.
+     */
+    // Create a new QueryStatus for tracking the query.
     return ResultUtils.combine([
-      this.getQueryByCID(queryCID),
+      this.getQueryByCID(requestForData.requestedCID),
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.accountRepo.getAccounts(),
-      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
-    ]).andThen(([query, context, config, accounts, consentToken]) => {
+      this.consentTokenUtils.getCurrentConsentToken(
+        requestForData.consentContractAddress,
+      ),
+    ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
+      // Check and make sure a consent token exists
       if (consentToken == null) {
-        return errAsync(new EvaluationError(`Consent token not found!`));
+        // Record the query as having been received, but ignore it
+        return this.sdqlQueryRepo
+          .upsertQueryStatus([
+            new QueryStatus(
+              requestForData.consentContractAddress,
+              requestForData.requestedCID,
+              requestForData.blockNumber,
+              EQueryProcessingStatus.NoConsentToken,
+              queryWrapper.expiry,
+            ),
+          ])
+          .andThen(() => {
+            return errAsync(new EvaluationError(`Consent token not found!`));
+          });
       }
-      return this.dataWalletUtils
-        .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
-        .andThen((optInKey) => {
-          return this.queryParsingEngine
-            .getPermittedQueryIdsAndExpectedRewards(
-              query,
+
+      // Now we will record the query as having been recieved; it is now at the start of the processing pipeline
+      // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
+      // should grow significantly
+      return this.sdqlQueryRepo
+        .upsertQueryStatus([
+          new QueryStatus(
+            requestForData.consentContractAddress,
+            requestForData.requestedCID,
+            requestForData.blockNumber,
+            EQueryProcessingStatus.Recieved,
+            queryWrapper.expiry,
+          ),
+        ])
+        .andThen(() => {
+          return ResultUtils.combine([
+            this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+              queryWrapper.sdqlQuery,
               consentToken.dataPermissions,
-              consentContractAddress,
-            )
-            .andThen(([permittedQueryIds, expectedRewards]) => {
-            
-              return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-                consentToken,
-                optInKey,
-                consentContractAddress,
-                query,
-                accounts,
-                context,
-                config,
-                permittedQueryIds,
-                expectedRewards,
-              );
-            });
+              requestForData.consentContractAddress,
+            ),
+            this.dataWalletUtils.deriveOptInPrivateKey(
+              requestForData.consentContractAddress,
+              context.dataWalletKey!,
+            ),
+          ]).andThen(([[permittedQueryIds, expectedRewards], optInKey]) => {
+            return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+              consentToken,
+              optInKey,
+              requestForData.consentContractAddress,
+              queryWrapper.sdqlQuery,
+              accounts,
+              context,
+              config,
+              permittedQueryIds,
+              expectedRewards,
+            );
+          });
         });
     });
   }
@@ -214,8 +260,8 @@ export class QueryService implements IQueryService {
 
   protected getQueryByCID(
     queryId: IpfsCID,
-  ): ResultAsync<SDQLQuery, AjaxError | IPFSError> {
-    return this.sdqlQueryRepo.getByCID(queryId).andThen((query) => {
+  ): ResultAsync<SDQLQueryWrapper, AjaxError | IPFSError> {
+    return this.sdqlQueryRepo.getSDQLQueryByCID(queryId).andThen((query) => {
       if (query == null) {
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
         // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
@@ -226,7 +272,7 @@ export class QueryService implements IQueryService {
         );
       }
 
-      return okAsync(query);
+      return okAsync(this.sdqlQueryWrapperFactory.makeWrapper(query));
     });
   }
 
@@ -270,7 +316,6 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
-      
       return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
           this.queryParsingEngine.handleQuery(
@@ -283,8 +328,7 @@ export class QueryService implements IQueryService {
             context.dataWalletKey!,
           ),
         ]).andThen(([maps, optInKey]) => {
-          
-          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const maps2 = maps as [IInsights, EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
 

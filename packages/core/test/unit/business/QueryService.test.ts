@@ -1,9 +1,10 @@
 import "reflect-metadata";
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ITimeUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
-
-import { QueryService } from "@core/implementations/business/index.js";
-
 import {
   AjaxError,
   EligibleReward,
@@ -22,39 +23,37 @@ import {
   HexString32,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  IInsights,
 } from "@snickerdoodlelabs/objects";
+import {
+  avalanche1SchemaStr,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import * as td from "testdouble";
 
+import { QueryService } from "@core/implementations/business/index.js";
 import {
   IConsentTokenUtils,
   IQueryParsingEngine,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
-
 import {
   IConsentContractRepository,
   ILinkedAccountRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
-
-import { errAsync, okAsync } from "neverthrow";
-
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IConfigProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
-
-import * as td from "testdouble";
-
 import {
   dataWalletKey,
   dataWalletAddress,
   defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks";
+} from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
@@ -64,11 +63,16 @@ const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
-const insights: InsightString[] = [
-  InsightString("Hello1"),
-  InsightString("Hello2"),
-];
-const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
+const insights = {
+  queries: {},
+  returns: {
+    "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
+    $r3: InsightString("Hello2"),
+  },
+} as IInsights;
+const insightsError = {
+  returns: {},
+} as IInsights;
 const rewards: EligibleReward[] = [];
 const tokenId = TokenId(BigInt(0));
 
@@ -97,6 +101,8 @@ class QueryServiceMocks {
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
   public accountRepo: ILinkedAccountRepository;
+  public timeUtils: ITimeUtils;
+  public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
 
   public consentToken = new ConsentToken(
     consentContractAddress,
@@ -116,6 +122,8 @@ class QueryServiceMocks {
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.accountRepo = td.object<ILinkedAccountRepository>();
+    this.timeUtils = new TimeUtils();
+    this.sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(this.timeUtils);
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -140,7 +148,7 @@ class QueryServiceMocks {
       ),
     ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
 
-    td.when(this.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
+    td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     );
     td.when(
@@ -176,6 +184,7 @@ class QueryServiceMocks {
       this.configProvider,
       this.cryptoUtils,
       this.accountRepo,
+      this.sdqlQueryWrapperFactory,
     );
   }
 }
@@ -236,7 +245,7 @@ describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
+    td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     ); // QQ: MAKES A LOT OF SENSE
     td.when(mocks.contextProvider.getContext()).thenReturn(
@@ -279,6 +288,7 @@ describe("processRewardsPreview tests", () => {
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
+          td.matchers.anything(),
         ),
       ),
     );
@@ -293,7 +303,7 @@ describe("processRewardsPreview tests", () => {
       ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
-      mocks.sdqlQueryRepo.getByCID(queryCID),
+      mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID),
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
       //QQ: We just mocked sdqlQueryRepo.getByCID(queryId).

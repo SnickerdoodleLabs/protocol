@@ -1,6 +1,6 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { injectable, inject } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {

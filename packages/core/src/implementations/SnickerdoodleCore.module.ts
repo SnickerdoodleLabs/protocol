@@ -1,4 +1,158 @@
 import {
+  AccountIndexerPoller,
+  BlockchainListener,
+} from "@core/implementations/api/index.js";
+import {
+  AccountService,
+  AdService,
+  ConsentTokenUtils,
+  InvitationService,
+  MonitoringService,
+  ProfileService,
+  QueryParsingEngine,
+  QueryService,
+  SiftContractService,
+  MarketplaceService,
+  IntegrationService,
+} from "@core/implementations/business/index.js";
+import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
+import {
+  BalanceQueryEvaluator,
+  BlockchainTransactionQueryEvaluator,
+  NftQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+} from "@core/implementations/business/utilities/query/index.js";
+import {
+  AdDataRepository,
+  BrowsingDataRepository,
+  LinkedAccountRepository,
+  PortfolioBalanceRepository,
+  TransactionHistoryRepository,
+  DemographicDataRepository,
+  AdContentRepository,
+  ConsentContractRepository,
+  CrumbsRepository,
+  DataWalletPersistence,
+  DNSRepository,
+  InvitationRepository,
+  MarketplaceRepository,
+  MetatransactionForwarderRepository,
+  SDQLQueryRepository,
+  SiftContractRepository,
+  CoinGeckoTokenPriceRepository,
+  PermissionRepository,
+  DomainCredentialRepository,
+} from "@core/implementations/data/index.js";
+import {
+  ContractFactory,
+  QueryFactories,
+} from "@core/implementations/utilities/factory/index.js";
+import {
+  BlockchainProvider,
+  ConfigProvider,
+  ContextProvider,
+  DataWalletUtils,
+} from "@core/implementations/utilities/index.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IMonitoringService,
+  IMonitoringServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+  IQueryEvaluator,
+  IQueryEvaluatorType,
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
+  IQueryRepository,
+  IQueryRepositoryType,
+  IPermissionUtils,
+  IPermissionUtilsType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IAdContentRepository,
+  IAdRepositoryType,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ICrumbsRepository,
+  ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  IDNSRepository,
+  IDNSRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
+  IMarketplaceRepository,
+  IMarketplaceRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+  ISiftContractRepository,
+  ISiftContractRepositoryType,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IBrowsingDataRepositoryType,
+  IBrowsingDataRepository,
+  ILinkedAccountRepositoryType,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepositoryType,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepositoryType,
+  ITransactionHistoryRepository,
+  IDemographicDataRepositoryType,
+  IDemographicDataRepository,
+  IPermissionRepository,
+  IPermissionRepositoryType,
+  IDomainCredentialRepositoryType,
+  IDomainCredentialRepository,
+} from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+  IQueryFactories,
+  IQueryFactoriesType,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
+import {
   AxiosAjaxUtils,
   CryptoUtils,
   IAxiosAjaxUtils,
@@ -48,144 +202,6 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
 
-import {
-  AccountIndexerPoller,
-  BlockchainListener,
-} from "@core/implementations/api/index.js";
-import {
-  AccountService,
-  AdService,
-  BalanceQueryEvaluator,
-  ConsentTokenUtils,
-  InvitationService,
-  MonitoringService,
-  BlockchainTransactionQueryEvaluator,
-  NftQueryEvaluator,
-  ProfileService,
-  QueryEvaluator,
-  QueryParsingEngine,
-  QueryRepository,
-  QueryService,
-  SiftContractService,
-} from "@core/implementations/business/index.js";
-import {
-  AdDataRepository,
-  BrowsingDataRepository,
-  LinkedAccountRepository,
-  PortfolioBalanceRepository,
-  TransactionHistoryRepository,
-  DemographicDataRepository,
-  AdContentRepository,
-  ConsentContractRepository,
-  CrumbsRepository,
-  DataWalletPersistence,
-  DNSRepository,
-  InvitationRepository,
-  MarketplaceRepository,
-  MetatransactionForwarderRepository,
-  SDQLQueryRepository,
-  SiftContractRepository,
-  CoinGeckoTokenPriceRepository,
-} from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
-import {
-  BlockchainProvider,
-  ConfigProvider,
-  ContextProvider,
-  DataWalletUtils,
-} from "@core/implementations/utilities/index.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMonitoringService,
-  IMonitoringServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
-  IBlockchainTransactionQueryEvaluator,
-  IBlockchainTransactionQueryEvaluatorType,
-  INftQueryEvaluator,
-  INftQueryEvaluatorType,
-  IQueryEvaluator,
-  IQueryEvaluatorType,
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-  IQueryRepository,
-  IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IAdContentRepository,
-  IAdRepositoryType,
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ICrumbsRepository,
-  ICrumbsRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-  IDNSRepository,
-  IDNSRepositoryType,
-  IInvitationRepository,
-  IInvitationRepositoryType,
-  IMarketplaceRepository,
-  IMarketplaceRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMetatransactionForwarderRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IBrowsingDataRepositoryType,
-  IBrowsingDataRepository,
-  ILinkedAccountRepositoryType,
-  ILinkedAccountRepository,
-  IPortfolioBalanceRepositoryType,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepositoryType,
-  ITransactionHistoryRepository,
-  IDemographicDataRepositoryType,
-  IDemographicDataRepository,
-} from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
-
 export const snickerdoodleCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -204,8 +220,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(AccountService)
       .inSingletonScope();
 
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
+      .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
+      .inSingletonScope();
+    bind<IMarketplaceService>(IMarketplaceServiceType)
+      .to(MarketplaceService)
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
@@ -221,6 +243,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
       .to(ConsentTokenUtils)
+      .inSingletonScope();
+    bind<IPermissionUtils>(IPermissionUtilsType)
+      .to(PermissionUtils)
       .inSingletonScope();
     bind<IQueryParsingEngine>(IQueryParsingEngineType)
       .to(QueryParsingEngine)
@@ -246,6 +271,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     );
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
+      .inSingletonScope();
+    bind<IDomainCredentialRepository>(IDomainCredentialRepositoryType)
+      .to(DomainCredentialRepository)
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
@@ -281,6 +309,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IDemographicDataRepository>(IDemographicDataRepositoryType)
       .to(DemographicDataRepository)
+      .inSingletonScope();
+    bind<IPermissionRepository>(IPermissionRepositoryType)
+      .to(PermissionRepository)
       .inSingletonScope();
 
     // Utilities

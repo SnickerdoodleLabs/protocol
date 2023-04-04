@@ -51,10 +51,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
         "q2": {
             "name": "age",
-            "return": "boolean",
-            "conditions": {
-                "ge": 15
-            }
+            "return": "number"
         },
         "q3": {
             "name": "location",
@@ -275,7 +272,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             ],
             "compensations": [
                 "if$q1then$c1",
-                "if$q2then$c2",
+                "if$q2>15then$c2",
                 "if$q3then$c3",
                 "if$q4then$c2",
                 "if$q5then$c2",
@@ -323,12 +320,13 @@ This query determines if a US-based user has received an ERC-721 token on the Et
             }
         },
         "q3": {
-            "name": "browsing_history",
-            "return": "boolean",
-            "conditions": {
-                "has": {
-                    "https://www.crabada.com": 30,
-                    "https://www.uniswap.org": 5
+            "name": "url_visited_count",
+            "return": "object",
+            "object_schema": {
+                "patternProperties": {
+                    "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
+                        "type": "integer"
+                    }
                 }
             }
         }
@@ -364,5 +362,33 @@ This query determines if a US-based user has received an ERC-721 token on the Et
             "if$q3then$c2"
         ]
     }
+}
+```
+
+## Query that publishes an ad targeting users of age in [30, 35]
+
+```
+{
+  "version": 0.1,
+  "timestamp": "2021-11-13T20:20:39",
+  "expiry": "2022-11-13T20:20:39",
+  "description": "Query that publishes an ad targeting users of age in [30, 35] ",
+  "business": "The Imaginary Company",
+  "queries": {
+    "q1": {
+      "name": "age",
+      "return": "number"
+    }
+  },
+  "compensations": {
+    "c1": {
+      "description": "Ticket to heaven",
+      "callback": "https://418e-64-85-231-39.ngrok.io/starbucks"
+    }
+  },
+  "logic": {
+    "ads": ["if($q1>=30)and($q1<=35)then$a1"],
+    "compensations": ["if$a1then$c1"]
+  }
 }
 ```

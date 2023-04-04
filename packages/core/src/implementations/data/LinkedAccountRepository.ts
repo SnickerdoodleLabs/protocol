@@ -167,35 +167,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       });
   }
 
-  public setLatestBlockNumber(
-    contractAddress: EVMContractAddress,
-    blockNumber: BlockNumber,
-  ): ResultAsync<void, PersistenceError> {
-    const metadata = new VolatileStorageMetadata<LatestBlock>(
-      EBackupPriority.NORMAL,
-      new LatestBlock(contractAddress, blockNumber),
-      LatestBlock.CURRENT_VERSION,
-    );
-    return this.persistence.updateRecord(ERecordKey.LATEST_BLOCK, metadata);
-  }
-
-  public getLatestBlockNumber(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<BlockNumber, PersistenceError> {
-    return this.persistence
-      .getObject<LatestBlock>(
-        ERecordKey.LATEST_BLOCK,
-        contractAddress.toString(),
-        EBackupPriority.NORMAL,
-      )
-      .map((block) => {
-        if (block == null) {
-          return BlockNumber(-1);
-        }
-        return block.block;
-      });
-  }
-
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
