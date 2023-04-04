@@ -24,7 +24,6 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
   name,
   icon,
 }: ISocialMediaDataItemProps) => {
-  const [requestData, setRequestData] = useState<boolean>();
   const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>([]);
   const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<
     ILinkedDiscordAccount[]
@@ -75,7 +74,8 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
               discordAuthToken: BearerAuthToken(data.access_token),
             })
             .map(() => {
-              setRequestData(!requestData);
+              window.history.replaceState(null, "", window.location.pathname);
+              getUserProfiles();
             });
         }
       });
@@ -98,12 +98,12 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
 
   useEffect(() => {
     getUserProfiles();
-  }, [requestData]);
+  }, []);
 
   useEffect(() => {
     if (!discordProfiles) return;
     getGuildProfiles(discordProfiles);
-  }, [discordProfiles]);
+  }, [JSON.stringify(discordProfiles)]);
 
   const classes = useStyles();
   return (
@@ -115,7 +115,10 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
             setIsModalOpen(false);
           }}
           unlinkAccount={() => {
-            provider.unlink(SnowflakeID(selectedAccountId));
+            provider.unlink(SnowflakeID(selectedAccountId)).map(() => {
+              getUserProfiles();
+              setIsModalOpen(false);
+            });
           }}
         />
       )}
@@ -131,7 +134,7 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
           <Box className={classes.linkAccountContainer}>
             <Button
               className={classes.linkAccountButton}
-              href="https://discord.com/oauth2/authorize?response_type=code&client_id=1089994449830027344&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=https%3A%2F%2Flocalhost:9005/data-dashboard/social-media-data&prompt=consent"
+              href={`https://discord.com/oauth2/authorize?response_type=code&client_id=1089994449830027344&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=${window.location.origin}/data-dashboard/social-media-data&prompt=consent`}
             >
               Link Account
             </Button>

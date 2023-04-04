@@ -74,7 +74,7 @@ export class DiscordProvider implements IDiscordDataProvider {
       client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
       code,
       grant_type: "authorization_code",
-      redirect_uri: "https://localhost:9005/data-dashboard/social-media-data",
+      redirect_uri: `${window.location.origin}/data-dashboard/social-media-data`,
       scope: "identify guilds",
     });
 }
