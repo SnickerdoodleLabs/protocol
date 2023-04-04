@@ -11,7 +11,7 @@ import DiscordUnlinkingModal from "@extension-onboarding/components/Modals/Disco
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
-import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/DiscordMediaDataItem";
+import DiscordAccountItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { IDiscordAuthResponse } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
@@ -132,7 +132,7 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
         </Box>
         {linkedDiscordAccount.map((discordProfile) => {
           return (
-            <DiscordMediaDataItem
+            <DiscordAccountItem
               openUnlinkModal={setIsModalOpen}
               name={discordProfile.name}
               servers={discordProfile.servers}

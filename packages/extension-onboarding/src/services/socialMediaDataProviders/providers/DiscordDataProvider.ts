@@ -5,18 +5,17 @@ import {
   SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
 
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
-  IDiscordAuthResponse,
-  IDiscordDataProvider,
   IDiscordMediaDataParams,
+  IDiscordProvider,
 } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
 
 declare const window: IWindowWithSdlDataWallet;
 
-export class DiscordProvider implements IDiscordDataProvider {
+export class DiscordProvider implements IDiscordProvider {
   constructor() {}
   //TODO security! , call should be made from a server not on a client ? which we don't have here
   public getOauthTokenFromDiscord(code: string): Promise<Response> {

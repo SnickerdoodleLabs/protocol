@@ -22,7 +22,7 @@ import {
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordDataProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
+import { IDiscordProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
 import { DiscordProvider } from "@extension-onboarding/services/socialMediaDataProviders/providers";
 
 declare const window: IWindowWithSdlDataWallet;
@@ -31,7 +31,7 @@ interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
   walletConnect: IProvider | null;
-  discordMediaDataProvider: IDiscordDataProvider;
+  discordMediaDataProvider: IDiscordProvider;
   onProviderConnectClick: (
     providerObj: IProvider,
   ) => ResultAsync<void, unknown>;
@@ -78,7 +78,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const discordMediaDataProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
       return provider.key === ESocialMediaProviderKeys.DISCORD;
-    })?.provider ?? new DiscordProvider()) as IDiscordDataProvider;
+    })?.provider ?? new DiscordProvider()) as IDiscordProvider;
   }, [socialMediaProviderList.length]);
 
   useEffect(() => {

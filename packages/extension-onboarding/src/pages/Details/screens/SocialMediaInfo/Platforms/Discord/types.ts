@@ -11,6 +11,6 @@ export interface ILinkedDiscordAccount {
   servers: DiscordGuildProfile[];
 }
 
-export interface IDiscordMediaDataServerItem {
+export interface IDiscordServerItem {
   server: DiscordGuildProfile;
 }
