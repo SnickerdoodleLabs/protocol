@@ -9,11 +9,11 @@ import { ResultAsync } from "neverthrow";
 import {
   IDiscordService,
   IDiscordServiceType,
-  ISocialConnectionService,
+  ISocialMediaService,
 } from "@core/interfaces/business/index.js";
 
 @injectable()
-export class SocialConnectionService implements ISocialConnectionService {
+export class SocialMediaService implements ISocialMediaService {
   constructor(
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,

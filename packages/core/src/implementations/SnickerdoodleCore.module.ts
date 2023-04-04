@@ -67,7 +67,7 @@ import {
   MarketplaceService,
   IntegrationService,
   DiscordService,
-  SocialConnectionService
+  SocialMediaService
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -140,7 +140,7 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
-  ISocialConnectionService,
+  ISocialMediaService,
   ISocialConnectionServiceType,
 } from "@core/interfaces/business/index.js";
 import {
@@ -265,8 +265,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
-    bind<ISocialConnectionService>(ISocialConnectionServiceType)
-      .to(SocialConnectionService)
+    bind<ISocialMediaService>(ISocialConnectionServiceType)
+      .to(SocialMediaService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)

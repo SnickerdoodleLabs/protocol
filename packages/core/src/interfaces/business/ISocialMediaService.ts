@@ -5,7 +5,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface ISocialConnectionService {
+export interface ISocialMediaService {
   getDiscordProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
 
   getDiscordGuildProfiles(): ResultAsync<
