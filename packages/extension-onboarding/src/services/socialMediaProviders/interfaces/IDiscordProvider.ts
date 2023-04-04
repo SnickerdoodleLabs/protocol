@@ -1,7 +1,7 @@
 import {
-  IDiscordMediaDataParams,
-  ISocialMediaDataProvider,
-} from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
+  IDiscordInitParams,
+  ISocialMediaProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import {
   DiscordGuildProfile,
   DiscordProfile,
@@ -10,10 +10,10 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IDiscordProvider extends ISocialMediaDataProvider {
+export interface IDiscordProvider extends ISocialMediaProvider {
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], unknown>;
   getUserProfiles(): ResultAsync<DiscordProfile[], unknown>;
-  initializeUser(params: IDiscordMediaDataParams): ResultAsync<void, unknown>;
+  initializeUser(params: IDiscordInitParams): ResultAsync<void, unknown>;
   unlink(discordProfileId: SnowflakeID): ResultAsync<void, unknown>;
   installationUrl(): ResultAsync<URLString, unknown>;
   getOauthTokenFromDiscord(code: string): Promise<Response>;

@@ -5,17 +5,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface ISocialMediaDataProvider {
+export interface ISocialMediaProvider {
   getUserProfiles(): ResultAsync<ISocialMediaProfileTypes[], unknown>;
-  initializeUser(
-    params: ISocialMediaDataInitParams,
-  ): ResultAsync<void, unknown>;
+  initializeUser(params: ISocialMediaInitParams): ResultAsync<void, unknown>;
   installationUrl(): ResultAsync<URLString, unknown>;
 }
 
-export type ISocialMediaDataInitParams = IDiscordMediaDataParams;
+export type ISocialMediaInitParams = IDiscordInitParams;
 export type ISocialMediaProfileTypes = DiscordProfile;
 
-export type IDiscordMediaDataParams = {
+export type IDiscordInitParams = {
   discordAuthToken?: BearerAuthToken;
 };

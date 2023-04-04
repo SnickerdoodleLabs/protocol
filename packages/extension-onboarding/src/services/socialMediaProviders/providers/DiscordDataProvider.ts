@@ -9,9 +9,9 @@ import { errAsync, ResultAsync } from "neverthrow";
 
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
-  IDiscordMediaDataParams,
+  IDiscordInitParams,
   IDiscordProvider,
-} from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -40,7 +40,7 @@ export class DiscordProvider implements IDiscordProvider {
   }
 
   public initializeUser(
-    params: IDiscordMediaDataParams,
+    params: IDiscordInitParams,
   ): ResultAsync<void, unknown> {
     const { discordAuthToken } = params;
     console.log(

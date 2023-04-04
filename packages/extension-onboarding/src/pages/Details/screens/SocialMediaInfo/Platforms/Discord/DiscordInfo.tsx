@@ -14,7 +14,7 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMed
 import DiscordAccountItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordAuthResponse } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
+import { IDiscordAuthResponse } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 declare const window: IWindowWithSdlDataWallet;
 

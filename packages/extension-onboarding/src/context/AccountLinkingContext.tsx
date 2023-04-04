@@ -22,8 +22,8 @@ import {
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
-import { DiscordProvider } from "@extension-onboarding/services/socialMediaDataProviders/providers";
+import { IDiscordProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/providers";
 
 declare const window: IWindowWithSdlDataWallet;
 
