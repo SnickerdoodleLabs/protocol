@@ -1,11 +1,10 @@
+import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { EVMNFT } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 import { useNavigate } from "react-router";
-
-import MediaRenderer from "./MediaRenderer";
 
 export interface IEVMNFTItemProps {
   item: EVMNFT;

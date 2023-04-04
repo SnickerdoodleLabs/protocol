@@ -20,6 +20,7 @@ import {
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -28,74 +29,15 @@ export enum EDisplayMode {
   TESTNET,
 }
 
-const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
-  chainConfig.values(),
-).reduce(
-  (acc, chainInfo) => {
-    if (chainInfo.type === EChainType.Mainnet) {
-      acc.mainnetSupportedChainIds = [
-        ...acc.mainnetSupportedChainIds,
-        chainInfo.chainId,
-      ];
-    } else if (chainInfo.type === EChainType.Testnet) {
-      acc.testnetSupportedChainIds = [
-        ...acc.testnetSupportedChainIds,
-        chainInfo.chainId,
-      ];
-    }
-    return acc;
-  },
-  { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
-    mainnetSupportedChainIds: ChainId[];
-    testnetSupportedChainIds: ChainId[];
-  },
-);
-
 export default () => {
   const classes = useStyles();
-  const { linkedAccounts } = useAppContext();
-  const [isNFTsLoading, setIsNFTsLoading] = useState(true);
-  const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
-  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
+  const { accountNFTs, accountTestnetNFTs, isNFTsLoading } =
+    useDashboardContext();
   const [accountSelect, setAccountSelect] = useState<AccountAddress>();
   const [chainSelect, setChainSelect] = useState<ChainId>();
   const [displayMode, setDisplayMode] = useState<EDisplayMode>(
     EDisplayMode.MAINNET,
   );
-  useEffect(() => {
-    if (linkedAccounts.length) {
-      setIsNFTsLoading(true);
-      initializeNfts();
-    }
-  }, [linkedAccounts.length]);
-
-  const initializeNfts = () => {
-    window.sdlDataWallet
-      .getAccountNFTs()
-      .mapErr((e) => {
-        setIsNFTsLoading(false);
-      })
-      .map((result) => {
-        const structeredNfts = result.reduce(
-          (acc, item) => {
-            const isMainnetItem = mainnetSupportedChainIds.includes(item.chain);
-            if (isMainnetItem) {
-              acc.mainnetNfts = [...acc.mainnetNfts, item];
-            } else {
-              acc.testnetNfts = [...acc.testnetNfts, item];
-            }
-            return acc;
-          },
-          { mainnetNfts: [], testnetNfts: [] } as {
-            mainnetNfts: WalletNFT[];
-            testnetNfts: WalletNFT[];
-          },
-        );
-        setAccountNFTs(structeredNfts.mainnetNfts);
-        setAccountTestnetNFTs(structeredNfts.testnetNfts);
-        setIsNFTsLoading(false);
-      });
-  };
 
   const nftsToRender: WalletNFT[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {

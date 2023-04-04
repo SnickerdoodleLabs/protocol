@@ -1,6 +1,10 @@
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { EContentType, INFT, INFTEventField } from "@extension-onboarding/objects";
+import {
+  EContentType,
+  INFT,
+  INFTEventField,
+} from "@extension-onboarding/objects";
 
 const emptytNft: INFT = {
   name: null,
@@ -15,11 +19,9 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
-  public static getParsedNFT = (
-    metadataString: string,
-  ): ResultAsync<INFT, never> => {
+  public static getParsedNFT = (metadataString: string): INFT => {
     if (!metadataString) {
-      return okAsync(emptytNft);
+      return emptytNft;
     }
     let metadataObj = null;
     try {
@@ -29,9 +31,9 @@ export class NftMetadataParseUtils {
       metadataObj = null;
     }
     if (!metadataObj) {
-      return okAsync(emptytNft);
+      return emptytNft;
     }
-    return okAsync({
+    return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
       imageUrl: this.getImageUrl(metadataString),
@@ -41,7 +43,7 @@ export class NftMetadataParseUtils {
       contentUrls: this.getContentUrls(metadataObj),
       attributes: this.getAttributes(metadataObj),
       event: this.getEventInfo(metadataObj),
-    } as INFT);
+    } as INFT;
   };
 
   private static getImageUrl(metadataString: string) {
@@ -105,6 +107,7 @@ export class NftMetadataParseUtils {
       metadataObj.hasOwnProperty("end_date")
     ) {
       return {
+        id: metadataObj.id,
         eventUrl: metadataObj.event_url,
         country: metadataObj.country,
         city: metadataObj.city,

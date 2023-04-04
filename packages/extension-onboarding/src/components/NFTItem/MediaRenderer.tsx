@@ -20,9 +20,7 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     if (!metadataString) {
       setNftData(null);
     }
-    NftMetadataParseUtils.getParsedNFT(metadataString!).map((res) => {
-      setNftData(res);
-    });
+    setNftData(NftMetadataParseUtils.getParsedNFT(metadataString!));
   };
 
   if (!metadataString) {
