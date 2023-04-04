@@ -1,10 +1,13 @@
-import { IDiscordInitParams } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 import { DiscordProfile, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { IDiscordInitParams } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+
 export interface ISocialMediaProvider {
   getUserProfiles(): ResultAsync<ISocialMediaProfileTypes[], unknown>;
-  initializeUser(params: ISocialMediaInitParams): ResultAsync<void, unknown>;
+  initializeUserWithAuthorizationCode(
+    params: ISocialMediaInitParams,
+  ): ResultAsync<void, unknown>;
   installationUrl(): ResultAsync<URLString, unknown>;
 }
 

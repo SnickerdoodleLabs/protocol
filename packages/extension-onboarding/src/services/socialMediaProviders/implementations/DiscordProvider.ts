@@ -52,7 +52,7 @@ export class DiscordProvider implements IDiscordProvider {
         code,
       );
     }
-    return errAsync(new Error("No discord token exists!"));
+    return errAsync(new Error("No discord code exists!"));
   }
 
   public installationUrl(): ResultAsync<URLString, unknown> {
