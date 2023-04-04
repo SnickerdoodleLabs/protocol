@@ -3,6 +3,7 @@ import {
   BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
+  OAuthAuthorizationCode,
   SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import React, { FC, memo, useEffect, useState } from "react";
@@ -57,20 +58,28 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
 
   const initializeUser = (code: string) => {
     console.log("DiscordMediaData: initializeUser with code", code);
-    provider.getOauthTokenFromDiscord(code).then((res) => {
-      res.json().then((data: IDiscordAuthResponse) => {
-        if (data.access_token) {
-          provider
-            .initializeUser({
-              discordAuthToken: BearerAuthToken(data.access_token),
-            })
-            .map(() => {
-              window.history.replaceState(null, "", window.location.pathname);
-              getUserProfiles();
-            });
-        }
+    provider
+      .initializeUserWithAuthorizationCode({
+        code: OAuthAuthorizationCode(code),
+      })
+      .map(() => {
+        window.history.replaceState(null, "", window.location.pathname);
+        getUserProfiles();
       });
-    });
+    // provider.getOauthTokenFromDiscord(code).then((res) => {
+    //   res.json().then((data: IDiscordAuthResponse) => {
+    //     if (data.access_token) {
+    //       provider
+    //         .initializeUser({
+    //           discordAuthToken: BearerAuthToken(data.access_token),
+    //         })
+    //         .map(() => {
+    //           window.history.replaceState(null, "", window.location.pathname);
+    //           getUserProfiles();
+    //         });
+    //     }
+    //   });
+    // });
   };
 
   useEffect(() => {
