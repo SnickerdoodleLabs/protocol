@@ -103,25 +103,22 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
     this.discord = {
-      initializeUser : (
-        authToken: BearerAuthToken,
-      ) => {
-        return coreGateway.discord.initializeUser(authToken)
+      initializeUser: (authToken: BearerAuthToken) => {
+        return coreGateway.discord.initializeUser(authToken);
       },
-      installationUrl : () => {
-        return coreGateway.discord.installationUrl()
+      installationUrl: () => {
+        return coreGateway.discord.installationUrl();
       },
-      getUserProfiles : () => {
-        return coreGateway.discord.getUserProfiles()
+      getUserProfiles: () => {
+        return coreGateway.discord.getUserProfiles();
       },
-      getGuildProfiles: () =>{
-        return coreGateway.discord.getGuildProfiles()
+      getGuildProfiles: () => {
+        return coreGateway.discord.getGuildProfiles();
       },
-      unlink : ( discordProfileId : SnowflakeID) => {
-        return coreGateway.discord.unlink(discordProfileId)
-      }
-      
-    }
+      unlink: (discordProfileId: SnowflakeID) => {
+        return coreGateway.discord.unlink(discordProfileId);
+      },
+    };
     eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
@@ -353,8 +350,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
     return coreGateway.getSiteVisitsMap();
   }
-
-  
 }
 
 export const DataWalletProxy = new _DataWalletProxy();

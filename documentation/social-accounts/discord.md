@@ -8,4 +8,4 @@ flowchart TD
 ``` 
 
 # Discord Service
-Discord public api is served through the SocialAccountService.
+Discord public api is served through the SocialMediaService.
