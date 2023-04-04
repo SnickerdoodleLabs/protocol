@@ -1,4 +1,3 @@
-import { IOAuthService } from "@core/interfaces/utilities/IOAuthService";
 import {
   DiscordProfile,
   DiscordError,
@@ -9,6 +8,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { IOAuthService } from "@core/interfaces/utilities/IOAuthService";
+
 export interface IDiscordService extends IOAuthService {
   initializeUserWithAuthorizationCode(
     code: OAuthAuthorizationCode,
@@ -17,7 +18,7 @@ export interface IDiscordService extends IOAuthService {
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
   poll(): ResultAsync<void, DiscordError | PersistenceError>;
   unlink(
-    discordProfileId: SnowflakeID,
+    userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
