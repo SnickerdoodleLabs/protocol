@@ -9,7 +9,6 @@ import {
   EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IBackupManager {
   addRecord<T extends VersionedObject>(
@@ -22,7 +21,7 @@ export interface IBackupManager {
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
-    value: object,
+    value: unknown,
   ): ResultAsync<void, PersistenceError>;
 
   restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
