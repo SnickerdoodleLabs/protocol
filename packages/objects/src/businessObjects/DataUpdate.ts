@@ -1,10 +1,6 @@
 import { SerializedObject, VersionedObject } from "@objects/businessObjects";
 import { EDataUpdateOpCode, EFieldKey } from "@objects/enum";
-import {
-  JSONString,
-  UnixTimestamp,
-  VolatileStorageKey,
-} from "@objects/primitives";
+import { UnixTimestamp, VolatileStorageKey } from "@objects/primitives";
 
 export type DataUpdate = VolatileDataUpdate | FieldDataUpdate;
 

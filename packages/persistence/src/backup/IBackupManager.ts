@@ -9,7 +9,6 @@ import {
   EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IBackupManager {
   addRecord<T extends VersionedObject>(

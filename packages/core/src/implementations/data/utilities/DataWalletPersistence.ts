@@ -191,9 +191,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
-      this.volatileSchemaProvider.getCurrentVersionForTable(tableName),
       this.waitForUnlock(),
-    ]).andThen(([backupManager, version]) => {
+    ]).andThen(([backupManager]) => {
       if (tableName == ERecordKey.ACCOUNT) {
         return this.volatileStorage
           .putObject(
@@ -227,10 +226,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       return backupManager.addRecord(
         tableName,
-        new VolatileStorageMetadata<T>(
-          value,
-          this.timeUtils.getUnixNow(),
-        ),
+        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
       );
     });
   }
@@ -439,11 +435,4 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .map(() => undefined);
   }
-}
-
-class QueuedRecord<T extends VersionedObject> {
-  public constructor(
-    public dataType: ERecordKey,
-    public value: VolatileStorageMetadata<T>,
-  ) {}
 }

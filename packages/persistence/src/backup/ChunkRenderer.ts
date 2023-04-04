@@ -21,7 +21,7 @@ import { VolatileTableIndex } from "@persistence/volatile/index.js";
 
 export class ChunkRenderer implements IChunkRenderer {
   private updates: VolatileDataUpdate[] | FieldDataUpdate | null;
-  private lastRender: number;
+  private lastRender: UnixTimestamp;
 
   public constructor(
     public schema: IStorageIndex,
