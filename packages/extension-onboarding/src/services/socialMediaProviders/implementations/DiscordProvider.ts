@@ -39,16 +39,18 @@ export class DiscordProvider implements IDiscordProvider {
     });
   }
 
-  public initializeUser(
+  public initializeUserWithAuthorizationCode(
     params: IDiscordInitParams,
   ): ResultAsync<void, unknown> {
-    const { discordAuthToken } = params;
+    const { code } = params;
     console.log(
-      "DiscordProvider: initializeUser with discordAuthToken",
-      discordAuthToken,
+      "DiscordProvider: initializeUserWithAuthorizationCode with code",
+      code,
     );
-    if (discordAuthToken) {
-      return window.sdlDataWallet.discord.initializeUser(discordAuthToken);
+    if (code) {
+      return window.sdlDataWallet.discord.initializeUserWithAuthorizationCode(
+        code,
+      );
     }
     return errAsync(new Error("No discord token exists!"));
   }

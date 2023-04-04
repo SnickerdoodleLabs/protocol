@@ -31,6 +31,7 @@ import {
   DiscordProfile,
   DiscordGuildProfile,
   SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -103,8 +104,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
     this.discord = {
-      initializeUser: (authToken: BearerAuthToken) => {
-        return coreGateway.discord.initializeUser(authToken);
+      initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
+        return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
       installationUrl: () => {
         return coreGateway.discord.installationUrl();
