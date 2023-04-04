@@ -330,6 +330,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountNFTs.getEtherscanNftRepository(),
       this.accountNFTs.getNftScanRepository(),
       this.accountNFTs.getPoapRepository(),
+      this.accountNFTs.getAlchemyRepository(),
     ])
       .andThen(
         ([
@@ -341,6 +342,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           etherscanMRepo,
           nftScanRepo,
           poapRepo,
+          alchemyRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -354,10 +356,14 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
             case EIndexer.Polygon:
-              return evmRepo.getTokensForAccount(
+              return alchemyRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            // return evmRepo.getTokensForAccount(
+            //   chainId,
+            //   accountAddress as EVMAccountAddress,
+            // );
             case EIndexer.Simulator:
               return simulatorRepo.getTokensForAccount(
                 chainId,

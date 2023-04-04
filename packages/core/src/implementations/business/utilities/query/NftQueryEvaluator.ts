@@ -58,61 +58,54 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     return this.walletNftsToNftHoldings(filteredNfts);
   }
 
- 
-  private walletNftsToNftHoldings(walletNfts : WalletNFT[]) :NftHoldings {
-    return walletNfts.reduce<NftHoldings>( (  nftholdings , nft  ) => {
-     
+  private walletNftsToNftHoldings(walletNfts: WalletNFT[]): NftHoldings {
+    return walletNfts.reduce<NftHoldings>((nftholdings, nft) => {
       const chain = this.chainGuard(nft.chain);
-      const nftHolding = this.walletNftToNftHolding(chain , nft);
+      const nftHolding = this.walletNftToNftHolding(chain, nft);
 
-      if(nftholdings[chain]){
-        const elementIndex = nftholdings[
-          nftHolding.chain
-        ]?.findIndex(
-          ({ tokenAddress }) =>
-            tokenAddress === nftHolding.tokenAddress,
+      if (nftholdings[chain]) {
+        const elementIndex = nftholdings[nftHolding.chain]?.findIndex(
+          ({ tokenAddress }) => tokenAddress === nftHolding.tokenAddress,
         );
 
         if (elementIndex !== undefined && elementIndex > -1) {
-          nftholdings[nftHolding.chain]![
-            elementIndex
-          ].amount += nftHolding.amount;
+          nftholdings[nftHolding.chain]![elementIndex].amount +=
+            nftHolding.amount;
         } else {
-          nftholdings[
-            nftHolding.chain
-          ]?.push(nftHolding);
+          nftholdings[nftHolding.chain]?.push(nftHolding);
         }
-
       } else {
         nftholdings[chain] = [nftHolding];
       }
 
-     return nftholdings
-      
-    } , {})
+      return nftholdings;
+    }, {});
   }
 
-  private walletNftToNftHolding( chain : keyof typeof EChain | "not registered" , nft : WalletNFT) : NftHolding {
+  private walletNftToNftHolding(
+    chain: keyof typeof EChain | "not registered",
+    nft: WalletNFT,
+  ): NftHolding {
     if (nft instanceof EVMNFT) {
-      return new NftHolding(chain  , nft.token , Number(nft.amount) , nft.name);
-   }else{
-      return new NftHolding(chain , nft.token , 1 , nft.name);
-   }
+      return new NftHolding(chain, nft.token, Number(nft.amount), nft.name);
+    } else {
+      return new NftHolding(chain, nft.token, 1, nft.name);
+    }
   }
 
-   //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing 
-  private chainGuard( chain : any) : keyof typeof EChain | "not registered" {
-    if(this.isValidChain(EChain[chain])){
-      chain =  EChain[chain];
+  //Type guard https://www.typescriptlang.org/docs/handbook/2/narrowing.html#typeof-type-guards, needed for narrowing
+  private chainGuard(chain: any): keyof typeof EChain | "not registered" {
+    if (this.isValidChain(EChain[chain])) {
+      chain = EChain[chain];
     } else {
       chain = "not registered";
     }
     return chain;
   }
-  
-  private isValidChain(chain: string): chain is keyof typeof EChain  {
+
+  private isValidChain(chain: string): chain is keyof typeof EChain {
     return chain in EChain;
-}
+  }
 
   private filterNfts(
     walletNfts: WalletNFT[],
@@ -188,7 +181,6 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   }
 }
 
-
 export type NftHoldings = {
-	[chain in keyof typeof EChain | "not registered"]?: NftHolding[]
+  [chain in keyof typeof EChain | "not registered"]?: NftHolding[];
 };

@@ -12,14 +12,13 @@ import {
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 
+import { AlchemyIndexer } from "@indexers/AlchemyIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
-
-import { ResultAsync, okAsync } from "neverthrow";
-
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
 import { PoapRepository } from "@indexers/PoapRepository.js";
@@ -34,6 +33,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
   protected poapRepo: PoapRepository;
+  protected alchemy: IEVMNftRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -54,6 +54,16 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.alchemy = new AlchemyIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+  }
+
+  public getAlchemyRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.alchemy);
   }
 
   public getPoapRepository(): ResultAsync<IEVMNftRepository, never> {
