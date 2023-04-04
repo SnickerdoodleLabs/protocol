@@ -24,6 +24,7 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
+  getAlchemyRepository(): ResultAsync<IEVMAccountBalanceRepository, never>;
 }
 
 export const IAccountBalancesType = Symbol.for("IAccountBalances");
