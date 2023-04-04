@@ -6,53 +6,51 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  EVMTransaction,
+  IEVMTransactionRepository,
+  EChainTechnology,
+  TickerSymbol,
+  getChainInfoByChainId,
+  EVMTransactionHash,
+  UnixTimestamp,
+  getEtherscanBaseURLForChain,
+  PolygonTransaction,
+  EPolygonTransactionType,
   AccountIndexingError,
   AjaxError,
   ChainId,
-  SolanaAccountAddress,
   TokenBalance,
-  SolanaTransaction,
-  EChain,
   URLString,
   SolanaTokenAddress,
   BigNumberString,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
-  TickerSymbol,
-  SolanaCollection,
-  getChainInfoByChainId,
   getChainInfoByChain,
   EVMAccountAddress,
-  EVMContractAddress,
-  IEVMTransactionRepository,
   IEVMAccountBalanceRepository,
-  IEVMNftRepository,
-  EVMTransaction,
-  EVMNFT,
+  EVMContractAddress,
+  EChain,
+  HexString,
 } from "@snickerdoodlelabs/objects";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import {
-  Connection,
-  PublicKey,
-  LAMPORTS_PER_SOL,
-  GetProgramAccountsFilter,
-} from "@solana/web3.js";
-import { Network, Alchemy } from "alchemy-sdk";
+import { Connection } from "@solana/web3.js";
+import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
+import converter from "hex2dec";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 
-export class AlchemyIndexer
-  implements IEVMTransactionRepository, IEVMAccountBalanceRepository
-{
-  private _connections?: ResultAsync<SolClients, never>;
-  private;
+export class AlchemyIndexer implements IEVMAccountBalanceRepository {
+  private _metadataCache = new Map<
+    `${EVMContractAddress}-${ChainId}`,
+    TokenMetadataResponse
+  >();
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -63,190 +61,122 @@ export class AlchemyIndexer
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  private getConnection(
+  protected _getEtherscanApiKey(
+    chain: ChainId,
+  ): ResultAsync<string, AccountIndexingError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      if (!config.etherscanApiKeys.has(chain)) {
+        return errAsync(
+          new AccountIndexingError("no etherscan api key for chain: ", chain),
+        );
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return okAsync(config.etherscanApiKeys.get(chain)!);
+    });
+  }
+
+  private _getAlchemyConfig(
+    chain: ChainId,
+  ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Inside getAlchemyclient chain: ", chain);
+      switch (chain) {
+        case ChainId(EChain.Arbitrum):
+          return okAsync({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+          });
+        case ChainId(EChain.Polygon):
+          return okAsync({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+          });
+        case ChainId(EChain.Mumbai):
+          return okAsync({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+          });
+        default:
+          return errAsync(
+            new AccountIndexingError("no alchemy app for chainId", chain),
+          );
+      }
+    });
+  }
+
+  private getNativeBalance(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<Alchemy, never> {
-    const chain = getChainInfoByChain(chainId);
-    console.log("chain: ", chain);
-    return this.configProvider.getConfig().andThen((config) => {
-      const key = config.alchemyEndpoints[chain.name.toString()];
-      console.log("config.alchemyEndpoints: ", config.alchemyEndpoints);
-      console.log("chain.name: ", chain.name);
-      console.log("key: ", key);
-      const settings = {
-        apiKey: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
-        network: Network.OPT_MAINNET,
-      };
-      const alchemy = new Alchemy(settings);
-      console.log("alchemy connection; ", alchemy);
-      return okAsync(alchemy);
-      //   const latestBlock = alchemy.core.getBlockNumber();
-      //   const nfts = alchemy.nft.getNftsForOwner(accountAddress);
-      //   console.log("nfts: ", nfts);
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this._getAlchemyConfig(chainId),
+      this.configProvider.getConfig(),
+    ]).andThen(([alchemySettings, config]) => {
+      const chainInfo = getChainInfoByChainId(chainId);
+      const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      return this.ajaxUtils
+        .post<IAlchemyNativeBalanceResponse>(
+          new URL(url),
+          JSON.stringify(alchemySettings),
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        )
+        .andThen((response) => {
+          const weiValue = parseInt(response.result, 16);
+          return okAsync(
+            new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol("ETH"),
+              chainId,
+              null,
+              accountAddress,
+              BigNumberString(BigNumber.from(weiValue).toString()),
+              18,
+            ),
+          );
+        });
     });
+  }
+
+  private getNonNativeBalance(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return okAsync([]);
   }
 
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this.getConnection(chainId, accountAddress)
-      .map(async (alchemy: Alchemy) => {
-        console.log("alchemy: ", alchemy);
-        const balances = alchemy.core.getTokenBalances(
-          "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
-        );
-        return balances;
-      })
-      .andThen((balances) => {
-        console.log("balances: ", balances);
-        const alchemyBalances: TokenBalance[] = [];
-        return okAsync(alchemyBalances);
-      });
-  }
-
-  public getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
-  }
-
-  public getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return okAsync([]);
-  }
-
-  public getSolanaTransactions(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
-    return okAsync([]); //TODO
-  }
-
-  private _getConnectionForChainId(
-    chainId: ChainId,
-  ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
-    return this._getConnections().andThen((connections) => {
-      switch (chainId) {
-        case ChainId(EChain.Solana):
-          return okAsync(connections.mainnet);
-        case ChainId(EChain.SolanaTestnet):
-          return okAsync(connections.testnet);
-        default:
-          return errAsync(
-            new AccountIndexingError("invalid chain id for solana"),
-          );
-      }
-    });
-  }
-
-  private _getConnections(): ResultAsync<SolClients, never> {
-    if (this._connections) {
-      return this._connections;
-    }
-
-    this._connections = this.configProvider.getConfig().andThen((config) => {
-      return ResultUtils.combine([
-        this._getConnectionForEndpoint(config.alchemyEndpoints.solana),
-        this._getConnectionForEndpoint(config.alchemyEndpoints.solanaTestnet),
-      ]).map(([mainnet, testnet]) => {
-        return {
-          mainnet,
-          testnet,
-        };
-      });
-    });
-
-    return this._connections;
-  }
-
-  private _getConnectionForEndpoint(
-    endpoint: string,
-  ): ResultAsync<[Connection, Metaplex], never> {
-    const connection = new Connection(endpoint);
-    const metaplex = new Metaplex(connection);
-    return okAsync([connection, metaplex]);
-  }
-
-  private _getParsedAccounts(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-  ) {
     return ResultUtils.combine([
-      this._getConnectionForChainId(chainId),
-      this._getFilters(accountAddress),
-    ]).map(async ([[conn], filters]) => {
-      const accounts = await conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
-        filters: filters,
-      });
-      const balances = accounts.map((account) => {
-        return account;
-      });
-      return balances;
+      this.getNonNativeBalance(chainId, accountAddress),
+      this.getNativeBalance(chainId, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
     });
   }
-
-  private _getFilters(
-    accountAddress: SolanaAccountAddress,
-  ): ResultAsync<GetProgramAccountsFilter[], never> {
-    const filters: GetProgramAccountsFilter[] = [
-      {
-        dataSize: 165, //size of account (bytes)
-      },
-      {
-        memcmp: {
-          offset: 32, //location of our query in the account (bytes)
-          bytes: accountAddress, //our search criteria, a base58 encoded string
-        },
-      },
-    ];
-    return okAsync(filters);
-  }
-
-  private _lamportsToSol(lamports: number): BigNumberString {
-    return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
-  }
 }
 
-interface SolClients {
-  mainnet: [Connection, Metaplex];
-  testnet: [Connection, Metaplex];
+interface IAlchemyNativeBalanceResponse {
+  status: string;
+  message: string;
+  result: HexString;
 }
 
-type ISolscanBalanceResponse = {
-  tokenAddress: SolanaTokenAddress;
-  tokenAmount: {
-    amount: BigNumberString;
-    decimals: number;
-    uiAmount: number;
-    uiAmountString: BigNumberString;
-  };
-  tokenAccount: string;
-  tokenName: string;
-  tokenIcon: URLString;
-  rentEpoch: number;
-  lamports: number;
-}[];
-
-type IAlchemyBalanceResponse = {
+interface alchemyAjaxSettings {
   id: number;
   jsonrpc: string;
-  result: {
-    context: {
-      slot: number;
-    };
-    value: {
-      amount: string;
-      decimals: number;
-      uiAmountString: string;
-    };
-  };
-};
+  method: string;
+  params: string[];
+}

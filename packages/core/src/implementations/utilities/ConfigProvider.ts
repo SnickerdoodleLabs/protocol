@@ -112,7 +112,8 @@ export class ConfigProvider
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
         Arbitrum:
           "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
-        Optimism: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+        Optimism:
+          "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
         // "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
       },
       "8EwsbZAFudVxbb4ri2d9wh41U+lcfCv/oWF9YwR3IrA=",

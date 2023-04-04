@@ -219,6 +219,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Arbitrum:
+              return alchemyRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Optimism:
             case EIndexer.Polygon:
             case EIndexer.Gnosis:
