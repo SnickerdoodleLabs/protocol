@@ -18,7 +18,7 @@ import { IDiscordAuthResponse } from "@extension-onboarding/services/socialMedia
 
 declare const window: IWindowWithSdlDataWallet;
 
-const DiscordMediaData: FC<ISocialMediaPlatformProps> = ({
+const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
   name,
   icon,
 }: ISocialMediaPlatformProps) => {
@@ -31,36 +31,29 @@ const DiscordMediaData: FC<ISocialMediaPlatformProps> = ({
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [selectedAccountName, setSelectedAccountName] = useState<string>("");
 
-  const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
-    provider.getGuildProfiles().map((guildProfiles) => {
-      const profiles = discordProfiles.reduce<ILinkedDiscordAccount[]>(
-        (profiles, discordProfile) => {
-          profiles.push({
-            name: discordProfile.username,
-            userId: discordProfile.id,
-            avatar: discordProfile.avatar,
-            discriminator: discordProfile.discriminator,
-            servers: getDiscordUserProfiles(guildProfiles, discordProfile.id),
-            openUnlinkModal: setIsModalOpen,
-            setAccountIdToRemove: setSelectedAccountId,
-            setAccountNameToRemove: setSelectedAccountName,
-          });
-          return profiles;
-        },
-        [],
-      );
-      setLinkedDiscordAccount(profiles);
-    });
-  };
-
-  const getDiscordUserProfiles = (
-    guildProfiles: DiscordGuildProfile[],
-    discordProfileId: SnowflakeID,
-  ): DiscordGuildProfile[] => {
-    return guildProfiles.filter((guildProfile) => {
-      return guildProfile.discordUserProfileId === discordProfileId;
-    });
-  };
+  const getGuildProfiles = (discordProfiles: DiscordProfile[]) =>
+    provider.getGuildProfiles().map((guildProfiles) =>
+      setLinkedDiscordAccount(
+        discordProfiles.reduce<ILinkedDiscordAccount[]>(
+          (profiles, discordProfile) => [
+            ...profiles,
+            {
+              name: discordProfile.username,
+              userId: discordProfile.id,
+              avatar: discordProfile.avatar,
+              discriminator: discordProfile.discriminator,
+              servers: guildProfiles.filter(
+                (profile) => profile.discordUserProfileId === discordProfile.id,
+              ),
+              openUnlinkModal: setIsModalOpen,
+              setAccountIdToRemove: setSelectedAccountId,
+              setAccountNameToRemove: setSelectedAccountName,
+            },
+          ],
+          [],
+        ),
+      ),
+    );
 
   const initializeUser = (code: string) => {
     console.log("DiscordMediaData: initializeUser with code", code);
@@ -81,18 +74,17 @@ const DiscordMediaData: FC<ISocialMediaPlatformProps> = ({
   };
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const code = queryParams.get("code");
-    if (code) {
-      initializeUser(code);
+    const code = new URLSearchParams(window.location.search).get("code");
+    if (!code) {
+      return;
     }
+    initializeUser(code);
   }, [JSON.stringify(window.location.search)]);
 
-  const getUserProfiles = () => {
-    provider.getUserProfiles().map((discordProfiles) => {
-      setDiscordProfiles(discordProfiles);
-    });
-  };
+  const getUserProfiles = () =>
+    provider
+      .getUserProfiles()
+      .map((discordProfiles) => setDiscordProfiles(discordProfiles));
 
   useEffect(() => {
     getUserProfiles();
@@ -157,4 +149,4 @@ const DiscordMediaData: FC<ISocialMediaPlatformProps> = ({
   );
 };
 
-export default memo(DiscordMediaData);
+export default memo(DiscordInfo);
