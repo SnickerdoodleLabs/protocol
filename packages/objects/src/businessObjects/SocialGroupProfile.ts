@@ -11,15 +11,23 @@ import { SocialPrimaryKey } from "@objects/primitives/index.js";
 
 export abstract class SocialGroupProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
-  public constructor(public pKey: SocialPrimaryKey, public type: ESocialType) {
+  public constructor(
+    public pKey: SocialPrimaryKey,
+    public type: ESocialType,
+    public ownerId: SocialPrimaryKey,
+  ) {
     super();
   }
 }
 
 export class InvalidSocialGroupProfile extends SocialGroupProfile {
   public static CURRENT_VERSION = 1;
-  public constructor(public pKey: SocialPrimaryKey, public type: ESocialType) {
-    super(pKey, type);
+  public constructor(
+    public pKey: SocialPrimaryKey,
+    public type: ESocialType,
+    public ownerId: SocialPrimaryKey,
+  ) {
+    super(pKey, type, ownerId);
   }
   public getVersion(): number {
     return DiscordGuildProfile.CURRENT_VERSION;
@@ -47,6 +55,7 @@ export class SocialGroupProfileMigrator extends VersionedObjectMigrator<SocialGr
     return new InvalidSocialGroupProfile(
       SocialPrimaryKey(data["pKey"] as string),
       ESocialType[data["type"] as string],
+      SocialPrimaryKey(data["ownerId"] as string),
     );
   }
 

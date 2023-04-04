@@ -4,10 +4,13 @@ export const useStyles = makeStyles((theme) => ({
   container: {
     "& .MuiDialog-paper": {
       borderRadius: 12,
-      maxWidth: 537,
+      maxWidth: 640,
     },
   },
-  exclamationIcon: {},
+  exclamationIcon: {
+    width: 35,
+    height: 35,
+  },
   title: {
     color: "#212121",
     fontSize: 22.78,
@@ -23,6 +26,7 @@ export const useStyles = makeStyles((theme) => ({
   codeContainer: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     border: "1px solid #D9D9D9",
     borderRadius: "8px",
     fontWeight: 700,
@@ -30,7 +34,41 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "33px",
     lineHeight: "39px",
     width: "100px",
-    height: "63px",
+    height: "64px",
+  },
+  otpInput: {
+    marginRight: 8,
+    width: 64,
+    height: 64,
+    fontSize: 33,
+    textAlign: "center",
+    border: "1px solid",
+    borderColor: (props: any) => {
+      if (props.isSuccess) {
+        return "#54A858";
+      }
+      if (props.isError) {
+        return "#D32F2F";
+      }
+      return "#D0D5DD";
+    },
+    color: (props: any) => {
+      if (props.isSuccess) {
+        return "#54A858";
+      }
+      if (props.isError) {
+        return "#D32F2F";
+      }
+      return "#000";
+    },
+    borderRadius: 8,
+    "&:focus": {
+      outline: "none",
+      fontSize: 33,
+    },
+    "&::placeholder": {
+      color: "#D0D5DD",
+    },
   },
   codeInputFields: {
     "& input[type=number]": {
@@ -51,7 +89,6 @@ export const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     padding: "8px",
     gap: "8px",
-
   },
 
   codeTextInput: {
@@ -84,9 +121,9 @@ export const useStyles = makeStyles((theme) => ({
     fontFamily: "'Space Grotesk'",
     fontStyle: "normal",
     fontWeight: 500,
-    fontSize: "18px",
+    fontSize: "14px",
     lineHeight: "20px",
-    color: "#232039",
+    color: "#616161",
   },
   button: {
     border: "1px solid red",
@@ -118,8 +155,17 @@ export const useStyles = makeStyles((theme) => ({
   },
   typeCodeContainer: {
     display: "flex",
-    flex: "1 1 0px",
-    alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+    width: "100%",
+  },
+  successText: {
+    color: "#54A858",
+    fontSize: 14,
+    lineHeight: "20px",
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 14,
+    lineHeight: "20px",
   },
 }));

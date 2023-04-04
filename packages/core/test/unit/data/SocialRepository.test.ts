@@ -84,11 +84,11 @@ class SocialRepositoryMock {
         "type",
         td.matchers.anything(),
       ),
-    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles());
+    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles(null));
   }
 
   public getDiscordGuildProfiles(): ResultAsync<DiscordGuildProfile[], never> {
-    return this.socialDataMocks.getDiscordGuildProfiles();
+    return this.socialDataMocks.getDiscordGuildProfiles(null);
   }
 
   public getDiscordProfiles(): ResultAsync<DiscordProfile[], never> {
