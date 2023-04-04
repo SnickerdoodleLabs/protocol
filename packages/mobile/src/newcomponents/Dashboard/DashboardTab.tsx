@@ -1,0 +1,81 @@
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import Tokens from "./Tokens/Tokens";
+
+const Tab = ({ item, isActive }: any) => {
+  return (
+    <View>
+      <Text
+        style={[styles.tabText, { color: isActive ? "#645997" : "#9E9E9E" }]}
+        key={item}
+      >
+        {item.title}
+      </Text>
+      {isActive && <View style={styles.tabUnderline} />}
+    </View>
+  );
+};
+
+const Tabs = ({ data, activeTab, setActiveTab }: any) => {
+  return (
+    <View style={{ width: "70%", paddingTop: normalizeHeight(30) }}>
+      <View style={styles.tabsContainer}>
+        {data.map((item: any) => {
+          return (
+            <TouchableOpacity
+              onPress={() => {
+                setActiveTab(item.title);
+              }}
+            >
+              <Tab
+                key={item.key}
+                item={item}
+                isActive={activeTab === item.title ? true : false}
+              />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+const DashboardTab = () => {
+  const [activeTab, setActiveTab] = React.useState("Tokens");
+
+  return (
+    <View>
+      <Tabs
+        data={[
+          { key: "1", component: "1", title: "Tokens" },
+          { key: "2", component: "1", title: "NFT's" },
+          { key: "3", component: "1", title: "Personal Info" },
+        ]}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+      <Tokens />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  tabsContainer: {
+    justifyContent: "space-between",
+    flex: 1,
+    flexDirection: "row",
+  },
+  tabUnderline: {
+    width: "100%",
+    height: 3,
+    backgroundColor: "#645997",
+    marginTop: 5,
+  },
+  tabText: {
+    fontSize: normalizeWidth(18),
+    fontWeight: "600",
+  },
+});
+
+export default DashboardTab;
