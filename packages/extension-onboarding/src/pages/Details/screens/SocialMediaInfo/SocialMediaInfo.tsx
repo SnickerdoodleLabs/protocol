@@ -1,12 +1,11 @@
+import { ESocialMediaProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaData.style";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/SocialMediaInfo.style";
+import DiscordMediaData from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { Box, Typography } from "@material-ui/core";
 import React from "react";
-import { ESocialMediaProviderKeys } from "@extension-onboarding/constants";
-import DiscordMediaData from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem";
-import { IDiscordDataProvider, ISocialMediaDataProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
 
-interface ISocialMediaDataItemProps {
+interface ISocialMediaInfoProps {
   name: string;
   icon: string;
   key: ESocialMediaProviderKeys;
@@ -14,13 +13,13 @@ interface ISocialMediaDataItemProps {
 
 export default () => {
   const classes = useStyles();
-  const {socialMediaProviderList} = useAppContext();
+  const { socialMediaProviderList } = useAppContext();
 
   const getSocialMediaComponentGivenProps = ({
     name,
     icon,
     key,
-  }: ISocialMediaDataItemProps) => {
+  }: ISocialMediaInfoProps) => {
     switch (key) {
       case ESocialMediaProviderKeys.DISCORD:
         return <DiscordMediaData name={name} icon={icon} />;

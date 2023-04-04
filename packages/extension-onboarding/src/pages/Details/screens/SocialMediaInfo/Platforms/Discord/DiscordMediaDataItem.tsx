@@ -2,10 +2,10 @@ import { Button, Box } from "@material-ui/core";
 import React, { FC, memo, useState } from "react";
 
 
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
-import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
+import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 
-import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataServersItem";
+import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/DiscordMediaDataServersItem";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { DiscordGuildProfile, SnowflakeID } from "@snickerdoodlelabs/objects";
 

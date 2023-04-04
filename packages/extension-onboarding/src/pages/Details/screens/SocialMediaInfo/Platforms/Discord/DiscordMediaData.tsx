@@ -1,29 +1,27 @@
-import { Button, Box } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
 import {
   BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
   SnowflakeID,
 } from "@snickerdoodlelabs/objects";
-import React, { FC, memo, useState, useEffect } from "react";
+import React, { FC, memo, useEffect, useState } from "react";
 
 import DiscordUnlinkingModal from "@extension-onboarding/components/Modals/DiscordUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
-import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataItem";
-import {
-  ILinkedDiscordAccount,
-  ISocialMediaDataItemProps,
-} from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
+import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
+import DiscordMediaDataItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/DiscordMediaDataItem";
+import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { IDiscordAuthResponse } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
 
 declare const window: IWindowWithSdlDataWallet;
 
-const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
+const DiscordMediaData: FC<ISocialMediaPlatformProps> = ({
   name,
   icon,
-}: ISocialMediaDataItemProps) => {
+}: ISocialMediaPlatformProps) => {
   const [discordProfiles, setDiscordProfiles] = useState<DiscordProfile[]>([]);
   const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<
     ILinkedDiscordAccount[]

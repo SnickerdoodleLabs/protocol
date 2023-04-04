@@ -2,8 +2,8 @@ import { Button, Box } from "@material-ui/core";
 import React, { FC, memo } from "react";
 
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
-import { IDiscordMediaDataServerItem } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
+import { IDiscordMediaDataServerItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 
 const DiscordMediaDataItem: FC<IDiscordMediaDataServerItem> = ({
   server
