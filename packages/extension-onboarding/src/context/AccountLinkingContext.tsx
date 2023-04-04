@@ -11,7 +11,10 @@ import React, {
 
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import { ESocialMediaProviderKeys, EWalletProviderKeys } from "@extension-onboarding/constants";
+import {
+  ESocialMediaProviderKeys,
+  EWalletProviderKeys,
+} from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import {
   ELoadingIndicatorType,
@@ -19,8 +22,8 @@ import {
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordDataProvider } from "@extension-onboarding/services/socialMediaDataProviders/interfaces";
-import { DiscordProvider } from "@extension-onboarding/services/socialMediaDataProviders/providers";
+import { IDiscordProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -28,7 +31,7 @@ interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
   walletConnect: IProvider | null;
-  discordMediaDataProvider : IDiscordDataProvider; 
+  discordMediaDataProvider: IDiscordProvider;
   onProviderConnectClick: (
     providerObj: IProvider,
   ) => ResultAsync<void, unknown>;
@@ -39,8 +42,12 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
 );
 
 export const AccountLinkingContextProvider: FC = ({ children }) => {
-  const { providerList, linkedAccounts, isSDLDataWalletDetected, socialMediaProviderList } =
-    useAppContext();
+  const {
+    providerList,
+    linkedAccounts,
+    isSDLDataWalletDetected,
+    socialMediaProviderList,
+  } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
   const { detectedProviders, unDetectedProviders, walletConnect } =
@@ -68,15 +75,11 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       );
     }, [providerList.length]);
 
-
-    const  discordMediaDataProvider   =
-    useMemo(() => {
-      return (socialMediaProviderList.find(
-        (provider) => { 
-          return provider.key === ESocialMediaProviderKeys.DISCORD
-        }
-      )?.provider ?? new DiscordProvider()) as IDiscordDataProvider;
-    }, [socialMediaProviderList.length]);
+  const discordMediaDataProvider = useMemo(() => {
+    return (socialMediaProviderList.find((provider) => {
+      return provider.key === ESocialMediaProviderKeys.DISCORD;
+    })?.provider ?? new DiscordProvider()) as IDiscordProvider;
+  }, [socialMediaProviderList.length]);
 
   useEffect(() => {
     setLoadingStatus(false);

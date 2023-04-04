@@ -15,14 +15,18 @@ export class DiscordGuildProfile extends SocialGroupProfile {
 
   public constructor(
     public id: SnowflakeID,
-    public discordUserProfileId : SnowflakeID,
+    public discordUserProfileId: SnowflakeID, // this should be translated to ownerId
     public name: string,
     public isOwner: boolean,
     public permissions: Integer,
     public icon: string | null,
     public joinedAt: UnixTimestamp | null,
   ) {
-    super(SocialPrimaryKey(`discord-group-${id}`), ESocialType.DISCORD);
+    super(
+      SocialPrimaryKey(`discord-group-${id}`),
+      ESocialType.DISCORD,
+      SocialPrimaryKey(`discord-${discordUserProfileId}`),
+    );
   }
 
   public deriveKey(id: SnowflakeID): SocialPrimaryKey {

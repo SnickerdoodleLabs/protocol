@@ -16,18 +16,15 @@ import {
   DiscordProfileAPIResponse,
   DiscordGuildProfileAPIResponse,
   PersistenceError,
-  EBackupPriority,
-  VolatileStorageMetadata,
   ESocialType,
   SnowflakeID,
   OAuthAuthorizationCode,
-  DiscordOAuth2TokensAPIResponse,
   OAuth2Tokens,
-  AjaxError,
+  SocialPrimaryKey,
+  DiscordOAuth2TokensAPIResponse,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
@@ -97,8 +94,8 @@ export class DiscordRepository implements IDiscordRepository {
     });
   }
 
-  protected factoryAccessToken(apiResponse: DiscordAccessTokenAPIResponse) {
-    return new DiscordAccessToken(
+  protected factoryAccessToken(apiResponse: DiscordOAuth2TokensAPIResponse) {
+    return new OAuth2Tokens(
       apiResponse.access_token,
       apiResponse.refresh_token,
       UnixTimestamp(
@@ -122,21 +119,21 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public isAuthTokenValid(
-    accessToken: DiscordAccessToken,
+    accessToken: OAuth2Tokens,
   ): ResultAsync<boolean, DiscordError> {
     return okAsync(
-      Number(this.timeUtils.getUnixNowMS) > Number(accessToken.expire_date),
+      Number(this.timeUtils.getUnixNow()) > Number(accessToken.expiry),
     );
   }
   public refreshAuthToken(
     refreshToken: BearerAuthToken,
-  ): ResultAsync<DiscordAccessToken, DiscordError> {
+  ): ResultAsync<OAuth2Tokens, DiscordError> {
     return ResultUtils.combine([
       this.tokenAPICallBaseConfig(),
       this.tokenUrl(),
     ]).andThen(([tokenBaseConfig, tokenUrl]) => {
       return this.ajaxUtil
-        .post<DiscordAccessTokenAPIResponse>(new URL(tokenUrl), {
+        .post<DiscordOAuth2TokensAPIResponse>(new URL(tokenUrl), {
           ...tokenBaseConfig,
           grant_type: "refresh_token",
           refresh_token: refreshToken,
@@ -152,13 +149,13 @@ export class DiscordRepository implements IDiscordRepository {
 
   public getAccessToken(
     code: OAuthAuthorizationCode,
-  ): ResultAsync<DiscordAccessToken, DiscordError> {
+  ): ResultAsync<OAuth2Tokens, DiscordError> {
     return ResultUtils.combine([
       this.tokenAPICallBaseConfig(),
       this.tokenUrl(),
     ]).andThen(([tokenBaseConfig, tokenUrl]) => {
       return this.ajaxUtil
-        .post<DiscordAccessTokenAPIResponse>(new URL(tokenUrl), {
+        .post<DiscordOAuth2TokensAPIResponse>(new URL(tokenUrl), {
           ...tokenBaseConfig,
           grant_type: "authorization_code",
           code: code,
@@ -173,9 +170,9 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public fetchUserProfile(
-    accessToken: DiscordAccessToken,
+    oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordProfile, DiscordError> {
-    return this.getRequestConfig(accessToken.access_token).andThen(
+    return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
       (reqConfig) => {
         return this.meUrl().andThen((meUrl) => {
           return this.ajaxUtil
@@ -188,7 +185,7 @@ export class DiscordRepository implements IDiscordRepository {
                 response.discriminator,
                 response.avatar,
                 response.flags,
-                accessToken,
+                oauth2Tokens,
               );
               return okAsync(profile);
             })
@@ -201,9 +198,9 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public fetchGuildProfiles(
-    accessToken: DiscordAccessToken,
+    oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
-    return this.getRequestConfig(accessToken.access_token).andThen(
+    return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
       (reqConfig) => {
         return this.meGuildUrl().andThen((meGuildUrl) => {
           return this.ajaxUtil
@@ -237,24 +234,76 @@ export class DiscordRepository implements IDiscordRepository {
   public upsertUserProfile(
     discordProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
-    return this.socialRepository.upsertProfile(discordProfile);
+    return this.socialRepository.upsertProfile<DiscordProfile>(discordProfile);
   }
 
   public getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError> {
-    return this.socialRepository.getProfiles(
+    return this.socialRepository.getProfiles<DiscordProfile>(
       ESocialType.DISCORD,
-    ) as ResultAsync<DiscordProfile[], PersistenceError>;
+    );
+  }
+
+  public getProfileById(
+    id: SnowflakeID,
+  ): ResultAsync<DiscordProfile | null, PersistenceError> {
+    const pKey = SocialPrimaryKey(`discord-${id}`); // Should be in a Utils class.
+    return this.socialRepository.getProfileByPK<DiscordProfile>(pKey);
   }
 
   public upsertGuildProfiles(
     guildProfiles: DiscordGuildProfile[],
   ): ResultAsync<void, PersistenceError> {
-    return this.socialRepository.upsertGroupProfiles(guildProfiles);
+    return this.socialRepository.upsertGroupProfiles<DiscordGuildProfile>(
+      guildProfiles,
+    );
   }
 
-  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError> {
-    return this.socialRepository.getGroupProfiles(
+  public getGuildProfiles(): ResultAsync<
+    DiscordGuildProfile[],
+    PersistenceError
+  > {
+    return this.socialRepository.getGroupProfiles<DiscordGuildProfile>(
       ESocialType.DISCORD,
-    ) as ResultAsync<DiscordGuildProfile[], PersistenceError>;
+    );
   }
+  public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
+    // 1. find the profile
+    // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
+    return this.getProfileById(id).andThen((uProfile) => {
+      if (uProfile == null) {
+        // return okAsync(undefined);
+        return errAsync(
+          new PersistenceError(`Discord Profile #${id} does not exist`),
+        );
+      }
+      return this.deleteUserData(uProfile);
+    });
+  }
+
+  private deleteUserData(
+    uProfile: DiscordProfile,
+  ): ResultAsync<void, PersistenceError> {
+    return this.socialRepository.deleteProfile(uProfile.pKey).andThen(() => {
+      const ownerId = uProfile.pKey;
+      const guildProfilesResult =
+        this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
+          ownerId,
+        );
+
+      return guildProfilesResult.andThen((guildProfiles) => {
+        const res = guildProfiles.map((guildProfile) => {
+          return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
+        });
+        return ResultUtils.combine(res).map(() => {});
+      });
+    });
+
+    // return okAsync(undefined);
+  }
+  // public deleteGroupProfile(
+  //   id: SnowflakeID,
+  // ): ResultAsync<void, PersistenceError> {
+  //   const pKey = SocialPrimaryKey(`discord-group-${id}`); // Should be in a Utils class.
+  //   return okAsync(undefined);
+  // }
 }

@@ -69,13 +69,18 @@ export class SocialDataMock {
   public getDiscordProfiles(): ResultAsync<DiscordProfile[], never> {
     return okAsync(discordProfiles);
   }
-  public getDiscordGuildProfiles(): ResultAsync<DiscordGuildProfile[], never> {
+  public getDiscordGuildProfiles(
+    discordProfileId: SnowflakeID | null,
+  ): ResultAsync<DiscordGuildProfile[], never> {
+    if (discordProfileId == null) {
+      discordProfileId = SnowflakeID("-1");
+    }
     return okAsync(
       discordGuildProfileAPIResponses.map(
         (profile) =>
           new DiscordGuildProfile(
             profile.id,
-            SnowflakeID("-1"),
+            discordProfileId!,
             profile.name,
             profile.owner,
             profile.permissions,

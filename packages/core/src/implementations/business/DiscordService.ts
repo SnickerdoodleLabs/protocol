@@ -1,10 +1,10 @@
 import {
   BearerAuthToken,
-  DiscordAccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
+  OAuth2Tokens,
   OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
@@ -59,19 +59,42 @@ export class DiscordService implements IDiscordService {
   }
 
   unlink(
-    _discordProfileId: SnowflakeID,
+    userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
+    return this.discordRepo.deleteProfile(userProfileId);
+  }
+
+  public isAuthTokenValid(
+    authToken: BearerAuthToken,
+  ): ResultAsync<void, DiscordError> {
+    throw new Error("Method not implemented.");
+  }
+  public refreshAuthToken(
+    refreshToken: BearerAuthToken,
+  ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }
 
   public initializeUserWithAuthorizationCode(code: OAuthAuthorizationCode) {
-    return this.discordRepo.getAccessToken(code).andThen((accessToken) => {
-      return this.initializeUser(accessToken);
+    return this.discordRepo.getAccessToken(code).andThen((oauth2Tokens) => {
+      return this.initializeUser(oauth2Tokens);
+      // return ResultUtils.combine([
+      //   this.discordRepo.fetchUserProfile(oauth2Tokens),
+      //   this.discordRepo.fetchGuildProfiles(oauth2Tokens),
+      // ]).andThen(([userProfile, guildProfiles]) => {
+      //   return ResultUtils.combine([
+      //     this.discordRepo.upsertUserProfile(userProfile),
+      //     this.discordRepo.upsertGuildProfiles(
+      //       this.addDiscordProfileIdToGuild(guildProfiles, userProfile.id),
+      //     ),
+      //   ]).andThen(() => {
+      //     return okAsync(undefined);
+      //   });
     });
   }
 
   protected initializeUser(
-    accessToken: DiscordAccessToken,
+    oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<void, DiscordError | PersistenceError> {
     // 1. Check auth token expritaion status if expired refresh
     // 2. Fetch profile
@@ -79,17 +102,17 @@ export class DiscordService implements IDiscordService {
     // 4. Update guilds
 
     return this.discordRepo
-      .isAuthTokenValid(accessToken)
+      .isAuthTokenValid(oauth2Tokens)
       .andThen((isValid) => {
         if (isValid) {
-          return okAsync(accessToken);
+          return okAsync(oauth2Tokens);
         }
-        return this.discordRepo.refreshAuthToken(accessToken.refresh_token);
+        return this.discordRepo.refreshAuthToken(oauth2Tokens.refreshToken);
       })
-      .andThen((accessToken) => {
+      .andThen((oauth2Tokens) => {
         return ResultUtils.combine([
-          this.discordRepo.fetchUserProfile(accessToken),
-          this.discordRepo.fetchGuildProfiles(accessToken),
+          this.discordRepo.fetchUserProfile(oauth2Tokens),
+          this.discordRepo.fetchGuildProfiles(oauth2Tokens),
         ]).andThen(([userProfile, guildProfiles]) => {
           return ResultUtils.combine([
             this.discordRepo.upsertUserProfile(userProfile),
@@ -118,20 +141,17 @@ export class DiscordService implements IDiscordService {
 
   public poll(): ResultAsync<void, DiscordError | PersistenceError> {
     // First we need to find the authkeys for discord
-    return this.getAccessTokens().andThen((accessTokens) => {
-      const results = accessTokens.map((accessToken) =>
-        this.initializeUser(accessToken),
+    return this.getAccessTokens().andThen((oauth2TokensArr) => {
+      const results = oauth2TokensArr.map((oauth2Tokens) =>
+        this.initializeUser(oauth2Tokens),
       );
       return ResultUtils.combine(results).andThen(() => okAsync(undefined));
     });
   }
 
-  protected getAccessTokens(): ResultAsync<
-    DiscordAccessToken[],
-    PersistenceError
-  > {
+  protected getAccessTokens(): ResultAsync<OAuth2Tokens[], PersistenceError> {
     return this.discordRepo.getUserProfiles().map((uProfiles) => {
-      return uProfiles.map((uProfile) => uProfile.accessToken);
+      return uProfiles.map((uProfile) => uProfile.oauth2Tokens);
     });
   }
 
