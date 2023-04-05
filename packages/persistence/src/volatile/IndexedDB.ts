@@ -342,7 +342,7 @@ export class IndexedDB {
             let request: IDBRequest<VolatileStorageMetadata<T>[]>;
             if (index == undefined) {
               const indexObj: IDBIndex = store.index("deleted");
-              request = indexObj.getAll();
+              request = indexObj.getAll(EBoolean.FALSE);
             } else {
               // const indexObj: IDBIndex = store.index(this._getIndexName(index));
               // request = indexObj.getAll(query);
