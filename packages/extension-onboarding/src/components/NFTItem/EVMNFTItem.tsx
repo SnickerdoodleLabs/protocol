@@ -24,25 +24,32 @@ export const EVMNFTItem: FC<IEVMNFTItemProps> = ({
         flexDirection="column"
         borderRadius={12}
         p={1.5}
-        onClick={() =>
-          navigate(EPaths.NFT_DETAIL, {
-            state: {
-              item,
-              metadataString: item.metadata
-                ? JSON.stringify(item.metadata)
-                : null,
-            },
-          })
-        }
       >
-        <MediaRenderer
-          metadataString={item.metadata ? JSON.stringify(item.metadata) : null}
-        />
-        <Box my={3}>
-          <Typography className={classes.nftName}>
-            {item?.name || "_"}
-          </Typography>
+        <Box mt={1.5} mb={3}>
+          <Typography className={classes.name}>{item?.name || "_"}</Typography>
         </Box>
+        <Box display="flex" justifyContent="center" mb={1.5}>
+          <MediaRenderer
+            metadataString={
+              item.metadata ? JSON.stringify(item.metadata) : null
+            }
+          />
+        </Box>
+        <Typography
+          className={classes.review}
+          onClick={() =>
+            navigate(EPaths.NFT_DETAIL, {
+              state: {
+                item,
+                metadataString: item.metadata
+                  ? JSON.stringify(item.metadata)
+                  : null,
+              },
+            })
+          }
+        >
+          Review
+        </Typography>
       </Box>
     </Grid>
   );

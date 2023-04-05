@@ -86,7 +86,7 @@ export const DashboardContextProvider: FC = ({ children }) => {
 
             if (isPopap) {
               acc.poapNfts = [...acc.poapNfts, item as EVMNFT];
-              return acc;
+            //   return acc;
             }
             if (isMainnetItem) {
               acc.mainnetNfts = [...acc.mainnetNfts, item];

@@ -26,9 +26,9 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
   if (!metadataString) {
     return (
       <img
-        width="100%"
-        height={140}
-        style={{ borderRadius: "8px", objectFit: "cover" }}
+        width={160}
+        height={160}
+        style={{ borderRadius: 80, objectFit: "cover" }}
         src={placeholder}
       />
     );
@@ -38,9 +38,9 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     <>
       {nftData && (
         <img
-          width="100%"
-          height={140}
-          style={{ borderRadius: "8px", objectFit: "cover" }}
+          width={160}
+          height={160}
+          style={{ borderRadius: 80, objectFit: "cover" }}
           src={nftData.imageUrl || placeholder}
         />
       )}
