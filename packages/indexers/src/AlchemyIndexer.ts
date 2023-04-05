@@ -20,6 +20,8 @@ import {
   EVMContractAddress,
   EChain,
   HexString,
+  EVMNFT,
+  IEVMNftRepository,
 } from "@snickerdoodlelabs/objects";
 import { TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
@@ -32,7 +34,9 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 
-export class AlchemyIndexer implements IEVMAccountBalanceRepository {
+export class AlchemyIndexer
+  implements IEVMAccountBalanceRepository, IEVMNftRepository
+{
   private _metadataCache = new Map<
     `${EVMContractAddress}-${ChainId}`,
     TokenMetadataResponse
@@ -66,6 +70,7 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
     chain: ChainId,
   ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("within _getAlchemyConfig: ", chain);
       switch (chain) {
         case ChainId(EChain.Arbitrum):
           return okAsync({
@@ -111,8 +116,11 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
       this._getAlchemyConfig(chainId),
       this.configProvider.getConfig(),
     ]).andThen(([alchemySettings, config]) => {
+      console.log("alchemySettings: ", alchemySettings);
       const chainInfo = getChainInfoByChainId(chainId);
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      console.log("url: ", url);
+
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(
           new URL(url),
@@ -125,6 +133,7 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
         )
         .andThen((response) => {
           const weiValue = parseInt(response.result, 16);
+          console.log("weiValue: ", weiValue);
           return okAsync(
             new TokenBalance(
               EChainTechnology.EVM,
@@ -155,8 +164,17 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
       this.getNonNativeBalance(chainId, accountAddress),
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+      console.log("nativeBalance: ", nativeBalance);
+
       return [nativeBalance, ...nonNativeBalance];
     });
+  }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMNFT[], never> {
+    return okAsync([]);
   }
 }
 
