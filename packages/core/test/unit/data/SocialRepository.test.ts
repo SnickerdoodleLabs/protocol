@@ -18,8 +18,8 @@ import {
   SocialProfile,
   UnixTimestamp,
   Username,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { okAsync, ResultAsync } from "neverthrow";
 import { async } from "rxjs";
 import * as td from "testdouble";
