@@ -25,6 +25,9 @@ export class DiscordPoller implements IDiscordPoller {
 
   initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
+      this.logUtils.debug(
+        `Initializing Discord Poller with ${config.discord.pollInterval} MS`,
+      );
       setInterval(() => {
         this.monitoringService.pollDiscord().mapErr((e) => {
           this.logUtils.error(e);
