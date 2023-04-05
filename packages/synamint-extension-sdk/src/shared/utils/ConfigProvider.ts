@@ -55,8 +55,6 @@ class ConfigProvider implements IConfigProvider {
         return ChainId(Number.parseInt(chain));
       });
 
-    console.log("__DISCORD_CONFIG__", __DISCORD_CONFIG__);
-
     const oauthRedirectUrl =
       typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
         ? URLString(
