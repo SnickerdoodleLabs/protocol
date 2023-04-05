@@ -7684,6 +7684,7 @@ __metadata:
     babel-plugin-transform-typescript-metadata: ^0.3.2
     babel-preset-react-app: ^10.0.1
     base64-js: ^1.5.1
+    bn.js: ^5.2.1
     browserify-zlib: ^0.2.0
     buffer: ^6.0.3
     console-browserify: ^1.2.0
@@ -7701,6 +7702,7 @@ __metadata:
     inversify: ^6.0.1
     inversify-inject-decorators: ^3.1.0
     jest: ^26.6.3
+    jsonwebtoken: ^9.0.0
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.3.0
     lottie-react-native: ^5.1.4
@@ -7730,6 +7732,7 @@ __metadata:
     react-native-linear-gradient: ^2.6.2
     react-native-multiple-select: ^0.5.12
     react-native-os: ^1.2.6
+    react-native-pager-view: ^6.2.0
     react-native-paper: ^4.12.5
     react-native-qrcode-svg: 6.0.6
     react-native-quick-crypto: ^0.5.0
@@ -7739,6 +7742,7 @@ __metadata:
     react-native-screens: ^3.18.2
     react-native-select-dropdown: ^3.3.0
     react-native-svg: 9.6.4
+    react-native-tab-view: ^3.5.1
     react-native-tcp: ^3.3.2
     react-native-track-player: ^3.2.0
     react-native-udp: ^2.7.0
@@ -34029,6 +34033,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-pager-view@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "react-native-pager-view@npm:6.2.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 3006fe29f008d472ebfb654922302d138b08f56e7796627263424b5e91a3169dd9d0c450b5396efffd88d511197c5006180430a2b687d2d827926b324f8fb947
+  languageName: node
+  linkType: hard
+
 "react-native-paper@npm:^4.12.5":
   version: 4.12.5
   resolution: "react-native-paper@npm:4.12.5"
@@ -34165,6 +34179,19 @@ __metadata:
     react: "*"
     react-native: ">=0.50.0"
   checksum: 6b62cf6dc6b6e1f434d643d4b1de8d01469f3ab50985e79b1c3a77c743cb5e830b04b7765dd791af7cdcce1245ebc8dba86380ee6c6849532ba9d4d2be8fc532
+  languageName: node
+  linkType: hard
+
+"react-native-tab-view@npm:^3.5.1":
+  version: 3.5.1
+  resolution: "react-native-tab-view@npm:3.5.1"
+  dependencies:
+    use-latest-callback: ^0.1.5
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-pager-view: "*"
+  checksum: 22213e8bde3b0e16631d290a3da146789dcad461dbdc424cf6448c683a2d75c12abbae5aa329c83788123f6dd0865b451ba57848856483607327fb5fdad2fe12
   languageName: node
   linkType: hard
 

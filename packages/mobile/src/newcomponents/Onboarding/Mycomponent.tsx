@@ -1,5 +1,5 @@
 import { CountryCode, Gender, UnixTimestamp } from "@snickerdoodlelabs/objects";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,18 +10,12 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import { countries } from "../../services/interfaces/objects/Countries";
 
 interface Country {
-  name: string;
-  code: string;
+  label: string;
+  value: string;
 }
-
-const countries: Country[] = [
-  { name: "United States", code: "US" },
-  { name: "Canada", code: "CA" },
-  { name: "Mexico", code: "MX" },
-  // Add more countries here
-];
 
 const genders: string[] = ["Male", "Female", "Non-binary"];
 
@@ -77,14 +71,14 @@ const DropdownInput = ({
           <ScrollView>
             {options.map((option: string | Country) => (
               <TouchableOpacity
-                key={typeof option === "string" ? option : option.code}
+                key={typeof option === "string" ? option : option.value}
                 onPress={() => handlePress(option)}
                 style={styles.dropdownOption}
               >
                 <Text style={styles.dropdownOptionText}>
                   {typeof option === "string"
                     ? option
-                    : `${option.name} (${option.code})`}
+                    : `${option.label} (${option.value})`}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -98,10 +92,36 @@ const DropdownInput = ({
 const MyComponent = () => {
   const { mobileCore } = useAppContext();
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<any | null>(null);
+  const [selectedYear, setSelectedYear] = useState<any | null>(null);
 
-  const handleCountryPress = (country: Country) => {
+  useEffect(() => {
+    mobileCore.piiService.getLocation().map((res) => {
+      if (res) {
+        const country = countries.filter((country) => country.value === res);
+        setSelectedCountry({
+          label: country[0].label,
+          value: country[0].value,
+        });
+      }
+    });
+
+    mobileCore.piiService.getGender().map((res) => {
+      if (res) {
+        setSelectedGender(res);
+      }
+    });
+
+    mobileCore.piiService.getBirthday().map((res) => {
+      if (res) {
+        const date = new Date(res * 1000); // multiply by 1000 to convert from seconds to milliseconds
+        const year = date.getUTCFullYear(); // get the year in UTC
+        setSelectedYear(year);
+      }
+    });
+  }, [mobileCore]);
+
+  const handleCountryPress = (country: any) => {
     mobileCore.piiService.setLocation(country.code as CountryCode);
     setSelectedCountry(country);
   };
@@ -124,7 +144,7 @@ const MyComponent = () => {
         label="Country"
         selectedValue={
           selectedCountry
-            ? `${selectedCountry.name} (${selectedCountry.code})`
+            ? `${selectedCountry.label} (${selectedCountry.value})`
             : null
         }
         options={countries}
