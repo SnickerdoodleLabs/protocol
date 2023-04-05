@@ -1,6 +1,7 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletBackup,
@@ -53,7 +54,7 @@ export class BackupUtils implements IBackupUtils {
     blob: BackupBlob | EncryptedBackupBlob,
   ): ResultAsync<DataWalletBackupID, never> {
     return this.cryptoUtils
-      .hashStringSHA256(JSON.stringify(blob))
+      .hashStringSHA256(ObjectUtils.serialize(blob))
       .map((hash) => {
         return DataWalletBackupID(
           hash.toString().replace(new RegExp("/", "g"), "-"),
@@ -65,7 +66,7 @@ export class BackupUtils implements IBackupUtils {
     hash: string,
     timestamp: number,
   ): string {
-    return JSON.stringify({
+    return ObjectUtils.serialize({
       hash: hash,
       timestamp: timestamp,
     });

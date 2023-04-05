@@ -1,4 +1,8 @@
-import { ICryptoUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ITimeUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   BackupBlob,
   DataUpdate,
@@ -49,7 +53,7 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    const deepcopy = JSON.parse(JSON.stringify(this.updates)) as
+    const deepcopy = ObjectUtils.toGenericObject(this.updates) as unknown as
       | VolatileDataUpdate[]
       | (FieldDataUpdate | null);
     this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
@@ -134,7 +138,7 @@ export class ChunkRenderer implements IChunkRenderer {
               .deriveAESKeyFromEVMPrivateKey(this.privateKey)
               .andThen((aesKey) => {
                 return this.cryptoUtils
-                  .encryptString(JSON.stringify(updates), aesKey)
+                  .encryptString(ObjectUtils.serialize(updates), aesKey)
                   .map((encryptedBlob) => {
                     return new DataWalletBackup(header, encryptedBlob);
                   });

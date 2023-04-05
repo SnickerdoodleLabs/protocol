@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ICryptoUtils, ITimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ITimeUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletAddress,
   VersionedObjectMigrator,
@@ -24,6 +24,7 @@ import {
   EBoolean,
   DataWalletBackupHeader,
   SerializedObject,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -363,8 +364,8 @@ export class BackupManager implements IBackupManager {
   public unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    return this._unpackBlob(backup.blob).andThen((backupBlob) => {
-      return okAsync(JSON.stringify(backupBlob));
+    return this._unpackBlob(backup.blob).map((backupBlob) => {
+      return ObjectUtils.serialize(backupBlob);
     });
   }
 
@@ -406,7 +407,7 @@ export class BackupManager implements IBackupManager {
         );
       })
       .map((unencrypted) => {
-        return JSON.parse(unencrypted) as BackupBlob;
+        return ObjectUtils.deserialize<BackupBlob>(JSONString(unencrypted));
       });
   }
 
