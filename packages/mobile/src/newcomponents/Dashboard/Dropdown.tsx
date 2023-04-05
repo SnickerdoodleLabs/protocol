@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { normalizeWidth } from "../../themes/Metrics";
@@ -11,23 +11,37 @@ type DropdownItem = {
 type DropdownProps = {
   items: DropdownItem[];
   defaultLabel?: string;
-  onSelect: (value: string) => void;
+  onSelect: (value: DropdownItem) => void;
+  selected: string;
 };
 
 const Dropdown: React.FC<DropdownProps> = ({
   items,
   defaultLabel,
   onSelect,
+  selected,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(
-    defaultLabel || items[0].label,
-  );
+  const [selectedItem, setSelectedItem] = useState(selected);
+  useEffect(() => {
+    if (selected) {
+      const selectedText = `${selected?.slice(
+        0,
+        6,
+      )}...........................${selected.slice(38, 42)}`;
+      setSelectedItem(selectedText);
+    }
+  }, [selected, items]);
 
   const handleSelect = (item: DropdownItem) => {
-    setSelectedItem(item.label);
+    setSelectedItem(
+      `${item.label?.slice(0, 6)}...........................${item.label?.slice(
+        38,
+        42,
+      )}`,
+    );
     setIsOpen(false);
-    onSelect(item.value);
+    onSelect(item);
   };
 
   return (
@@ -56,7 +70,10 @@ const Dropdown: React.FC<DropdownProps> = ({
                 index + 1 != items.length && { borderBottomWidth: 0.2 },
               ]}
             >
-              <Text>{item.label}</Text>
+              <Text>
+                {item.label?.slice(0, 8)}...........................
+                {item.label?.slice(36, 42)}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>

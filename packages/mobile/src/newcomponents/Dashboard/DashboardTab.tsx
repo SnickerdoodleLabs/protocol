@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Tokens from "./Tokens/Tokens";
+import { IDashboardChildrenProps } from "./Dashboard";
+import NFTs from "./NFTs/NFTs";
 
 const Tab = ({ item, isActive }: any) => {
   return (
@@ -19,7 +21,7 @@ const Tab = ({ item, isActive }: any) => {
 
 const Tabs = ({ data, activeTab, setActiveTab }: any) => {
   return (
-    <View style={{ width: "70%", paddingTop: normalizeHeight(30) }}>
+    <View style={{ width: "35%", paddingTop: normalizeHeight(30) }}>
       <View style={styles.tabsContainer}>
         {data.map((item: any) => {
           return (
@@ -41,21 +43,23 @@ const Tabs = ({ data, activeTab, setActiveTab }: any) => {
   );
 };
 
-const DashboardTab = () => {
+const DashboardTab = ({ data }: IDashboardChildrenProps) => {
   const [activeTab, setActiveTab] = React.useState("Tokens");
-
+  useEffect(() => {
+    console.log("data", data);
+  }, [data]);
   return (
     <View>
       <Tabs
         data={[
           { key: "1", component: "1", title: "Tokens" },
           { key: "2", component: "1", title: "NFT's" },
-          { key: "3", component: "1", title: "Personal Info" },
         ]}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-      <Tokens />
+      {activeTab === "Tokens" && <Tokens data={data} />}
+      {activeTab === "NFT's" && <NFTs data={data} />}
     </View>
   );
 };
