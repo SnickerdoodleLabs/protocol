@@ -275,7 +275,9 @@ export class IndexedDB {
       return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
           const store = tx.objectStore(name);
-          const request = store.get(key);
+          const volatileKey = this._getFieldPath(key);
+          console.log(`searching with key: ${volatileKey}`);
+          const request = store.get(this._getFieldPath(key));
           request.onsuccess = (event) => {
             tx.commit();
             resolve(request.result);
@@ -342,7 +344,7 @@ export class IndexedDB {
             let request: IDBRequest<VolatileStorageMetadata<T>[]>;
             if (index == undefined) {
               const indexObj: IDBIndex = store.index("deleted");
-              request = indexObj.getAll();
+              request = indexObj.getAll(EBoolean.FALSE);
             } else {
               // const indexObj: IDBIndex = store.index(this._getIndexName(index));
               // request = indexObj.getAll(query);
@@ -395,7 +397,11 @@ export class IndexedDB {
         return ResultAsync.fromPromise(
           promise,
           (e) => new PersistenceError("error getting all", e),
-        );
+        ).map((result) => {
+          return result.filter((x) => {
+            return x.deleted == EBoolean.FALSE;
+          });
+        }); // TODO filter out deleted objects.
       });
     });
   }
