@@ -6,6 +6,8 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Onboarding from "../screens/Onboarding";
 import Marketplace from "../newcomponents/Marketplace/Marketplace";
 import AuthNavigator from "./AuthNavigator";
+import Dashboard from "../newcomponents/Dashboard/Dashboard";
+import Settings from "../newcomponents/Settings/Settings";
 
 const Tab = createBottomTabNavigator();
 const BottomTabNavigator = () => {
@@ -15,36 +17,36 @@ const BottomTabNavigator = () => {
         headerShown: true,
         tabBarIcon: ({ color, size, focused }) => {
           let iconName = "empty";
-          if (route.name == ROUTES.COMPONENT_TEST) {
+          if (route.name == ROUTES.HOME) {
             iconName = focused ? "home" : "home-outline";
           }
-          if (route.name === ROUTES.WALLET) {
-            iconName = focused ? "wallet" : "wallet-outline";
+          if (route.name === ROUTES.DASHBOARD) {
+            iconName = focused ? "stats-chart" : "stats-chart-outline";
           }
-          if (route.name === ROUTES.SIGN) {
-            iconName = focused ? "person" : "person-outline";
+          if (route.name === ROUTES.SETTINGS) {
+            iconName = focused ? "settings" : "settings-outline";
           }
           return <Icon name={iconName} size={22} color={COLORS.primary} />;
         },
       })}
     >
       <Tab.Screen
-        name={ROUTES.COMPONENT_TEST}
+        name={ROUTES.HOME}
         component={AuthNavigator}
         options={{
           headerShown: false,
         }}
       />
       <Tab.Screen
-        name={ROUTES.WALLET}
-        component={AuthNavigator}
+        name={ROUTES.DASHBOARD}
+        component={Dashboard}
         options={{
           headerShown: false,
         }}
       />
       <Tab.Screen
-        name={ROUTES.SIGN}
-        component={AuthNavigator}
+        name={ROUTES.SETTINGS}
+        component={Settings}
         options={{
           headerShown: false,
         }}
