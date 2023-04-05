@@ -8,53 +8,33 @@ import {
   Text,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import CardItem from "./CardItem";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import { useAppContext } from "../../context/AppContextProvider";
+import { IpfsCID } from "@snickerdoodlelabs/objects";
 
-const testData = [
-  {
-    id: "1",
-    component: (
-      <CardItem
-        imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
-        title="Ugly Sweater NFT"
-        description="Limited."
-      />
-    ),
-  },
-  {
-    id: "1",
-    component: (
-      <CardItem
-        imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
-        title="Ugly Sweater NFT"
-        description="Limited."
-      />
-    ),
-  },
-  {
-    id: "1",
-    component: (
-      <CardItem
-        imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
-        title="Ugly Sweater NFT"
-        description="Limited."
-      />
-    ),
-  },
-  {
-    id: "1",
-    component: (
-      <CardItem
-        imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
-        title="Ugly Sweater NFT"
-        description="Limited."
-      />
-    ),
-  },
-];
 const Marketplace = () => {
+  const { mobileCore } = useAppContext();
+  const [listings, setListings] = React.useState<IpfsCID[]>([]);
+  const [myRewards, setMyRewards] = React.useState([]);
+
+  useEffect(() => {
+    mobileCore
+      .getCore()
+      .marketplace.getMarketplaceListings()
+      .map((listing) => {
+        setListings(listing.cids);
+      });
+  }, []);
+
+  useEffect(() => {
+    mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {
+      console.log("earnedRewards", earnedRewards);
+      return setMyRewards(earnedRewards);
+    });
+  }, []);
+
   return (
     <ScrollView>
       <SafeAreaView style={{ marginHorizontal: normalizeWidth(20) }}>
@@ -101,10 +81,9 @@ const Marketplace = () => {
         </View>
         <View>
           <View>
-            <Text>test</Text>
             <FlatList
               style={{ marginLeft: -normalizeWidth(10) }}
-              data={testData}
+              data={myRewards}
               renderItem={({ item, index }) => (
                 <View
                   style={[
@@ -112,10 +91,15 @@ const Marketplace = () => {
                     (index + 1) % 2 === 0 && { marginLeft: normalizeWidth(20) },
                   ]}
                 >
-                  {item.component}
+                  <CardItem
+                    imageSource={""}
+                    title={""}
+                    description={""}
+                    cid={item}
+                  />
                 </View>
               )}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item}
               contentContainerStyle={{
                 padding: 10,
                 justifyContent: "space-between",
@@ -140,7 +124,7 @@ const Marketplace = () => {
             <Text style={styles.sectionTitle}>Available Rewards</Text>
           </View>
           <View>
-            <Button title="See All" />
+            <Button color="#5D4F97" title="See All" />
           </View>
         </View>
         <View>
@@ -156,7 +140,7 @@ const Marketplace = () => {
           >
             <FlatList
               style={{ marginLeft: -normalizeWidth(10) }}
-              data={testData}
+              data={listings}
               renderItem={({ item, index }) => (
                 <View
                   style={[
@@ -164,10 +148,15 @@ const Marketplace = () => {
                     (index + 1) % 2 === 0 && { marginLeft: normalizeWidth(15) },
                   ]}
                 >
-                  {item.component}
+                  <CardItem
+                    imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
+                    title="Ugly Sweater NFT"
+                    description="Limited."
+                    cid={item}
+                  />
                 </View>
               )}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item}
               contentContainerStyle={{
                 padding: 10,
                 justifyContent: "space-between",

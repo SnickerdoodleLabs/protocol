@@ -10,28 +10,58 @@ import {
 import { ROUTES } from "../../constants";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
+import { IpfsCID } from "@snickerdoodlelabs/objects";
 
 interface CardItemProps {
   imageSource: string;
   title: string;
   description: string;
+  cid: IpfsCID;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
   imageSource,
   title,
   description,
+  cid,
 }) => {
   const navigation = useNavigation();
+  const [rewardItem, setRewardItem] = React.useState<any>();
+
+  useEffect(() => {
+    fetch(`https://cloudflare-ipfs.com/ipfs/${cid}`).then((res) => {
+      res.json().then((data) => {
+        setRewardItem(data);
+        console.log("rewardItem2", data);
+      });
+    });
+  }, [cid]);
+
+  const ipfsParse = (ipfs: string) => {
+    let a;
+    if (ipfs) {
+      a = ipfs.replace("ipfs://", "");
+    }
+    return `https://cloudflare-ipfs.com/ipfs/${a}`;
+  };
+
+  useEffect(() => {
+    console.log("rewardItemBu", rewardItem);
+  }, [rewardItem]);
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate(ROUTES.CARD_DETAILS)}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate(ROUTES.CARD_DETAILS, rewardItem)}
+    >
       <View style={styles.card}>
         <View style={styles.cardContent}>
-          <Image source={{ uri: imageSource }} style={styles.cardImage} />
+          <Image
+            source={{ uri: ipfsParse(rewardItem?.image) }}
+            style={styles.cardImage}
+          />
           <View>
-            <Text style={styles.cardTitle}>{title}</Text>
-            <Text style={styles.cardDescription}>{description}</Text>
+            <Text style={styles.cardTitle}>{rewardItem?.name}</Text>
+            <Text style={styles.cardDescription}>Limited Collection</Text>
           </View>
         </View>
       </View>

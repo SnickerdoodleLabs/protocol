@@ -1,5 +1,6 @@
 import {
   Image,
+  Linking,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -7,8 +8,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import { useNavigation } from "@react-navigation/native";
+import { useLayoutContext } from "../../context/LayoutContext";
+import { okAsync } from "neverthrow";
+import {
+  BigNumberString,
+  DomainName,
+  EInvitationStatus,
+  EVMContractAddress,
+  Invitation,
+  Signature,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
+import { useAppContext } from "../../context/AppContextProvider";
 
 interface ICardDetailsProps {
   image: any;
@@ -30,35 +44,131 @@ const data: ICardDetailsProps = {
 
 const testData = [data, data, data];
 
+export interface IInvitationParams {
+  consentAddress: EVMContractAddress | undefined;
+  tokenId: BigNumberString | undefined;
+  signature: Signature | undefined;
+}
+
 export const LineBreaker = () => {
   return <View style={styles.lineBreaker} />;
 };
 
-const CardDetails = () => {
+const ipfsParse = (ipfs: string) => {
+  let a;
+  if (ipfs) {
+    a = ipfs.replace("ipfs://", "");
+  }
+  return `https://cloudflare-ipfs.com/ipfs/${a}`;
+};
+
+export const isValidURL = (url: string) => {
+  const regexpUrl = /(https?|ipfs)/i;
+  return !!regexpUrl.test(url);
+};
+
+const CardDetails = ({ navigation, route }) => {
+  const { setInvitationStatus } = useLayoutContext();
+  const [invitationParams, setInvitationParams] =
+    React.useState<IInvitationParams>();
+
+  const rewardItem = route.params;
+  const { mobileCore } = useAppContext();
+
+  const getTokenId = (tokenId: BigNumberString | undefined) => {
+    if (tokenId) {
+      return okAsync(TokenId(BigInt(tokenId)));
+    }
+    return mobileCore.getCyrptoUtils().getTokenId();
+  };
+
+  const checkInvitationStatus = (consentAddress, tokenId, signature) => {
+    console.warn("CHECKING INVITATION");
+    const invitationService = mobileCore.invitationService;
+    let _invitation: Invitation;
+
+    getTokenId(tokenId).andThen((tokenId) => {
+      _invitation = {
+        consentContractAddress: consentAddress as EVMContractAddress,
+        domain: DomainName(""),
+        tokenId,
+        businessSignature: (signature as Signature) ?? null,
+      };
+      return invitationService
+        .checkInvitationStatus(_invitation)
+        .map((status) => {
+          console.log("INVITATION STATUS", status);
+          if (status === EInvitationStatus.New) {
+            mobileCore.invitationService
+              .getConsentContractCID(
+                invitationParams?.consentAddress as EVMContractAddress,
+              )
+              .map((ipfsCID) => {
+                mobileCore.invitationService
+                  .getInvitationMetadataByCID(ipfsCID)
+                  .map((metaData) => {
+                    console.log("MetaData", metaData);
+                    setInvitationStatus(true, metaData, _invitation);
+                  });
+              });
+          } else {
+            setInvitationParams(undefined);
+          }
+        })
+        .mapErr((e) => {
+          console.error("INVITATION STATUS ERROR", e);
+          setInvitationParams(undefined);
+        });
+    });
+  };
+
+  const onClaimClick = (url: string) => {
+    if (!url) {
+      return null;
+    }
+    const isURL = isValidURL(url);
+    if (isURL) {
+      return Linking.openURL(url).catch((err) =>
+        console.error("An error occurred", err),
+      );
+    } else {
+      return checkInvitationStatus(url, null, null);
+    }
+  };
+
   return (
     <ScrollView style={{ backgroundColor: "white" }}>
       <SafeAreaView>
         <View style={{ alignItems: "center" }}>
-          <Image style={styles.image} source={{ uri: data.image }} />
-          <Text style={styles.title}>{data.title}</Text>
-          <Text style={styles.subTitle}>Created By {data.company}</Text>
+          <Image
+            style={styles.image}
+            source={{ uri: ipfsParse(rewardItem?.image) }}
+          />
+          <Text style={styles.title}>{rewardItem?.name}</Text>
+          <Text style={styles.subTitle}>
+            Created By{" "}
+            {
+              rewardItem?.attributes?.filter(
+                (attribute) => attribute?.trait_type === "createdBy",
+              )[0].value
+            }
+          </Text>
           <LineBreaker />
-          <Text style={styles.claimed}>{data.claimed}</Text>
-          <Text style={styles.peopleClaimed}>People Claimed</Text>
+         {/*  <Text style={styles.claimed}>{data.claimed}</Text>
+          <Text style={styles.peopleClaimed}>People Claimed</Text> */}
           <View style={styles.descriptionContainer}>
             <Text style={styles.descriptionTitle}>Description</Text>
             <View style={{ marginVertical: normalizeHeight(20) }}>
               <LineBreaker />
             </View>
-            <Text style={styles.company}>{data.company}</Text>
-            <Text style={styles.description}>
-              An icon evolves. Introducing the P.F.D – Personal Flotation
-              Device. True to its aesthetic roots, but elevated with a meta
-              twist. Watch the three stripes float as you inflate above the
-              floor, away from nasty blimps and rug pulls. Don’t wait until it’s
-              too late. Everyone needs a Mae West, and this one’s a true virtual
-              life saver: the life vest of the metaverse.
+            <Text style={styles.company}>
+              {
+                rewardItem?.attributes?.filter(
+                  (attribute) => attribute?.trait_type === "createdBy",
+                )[0].value
+              }
             </Text>
+            <Text style={styles.description}>{rewardItem?.description}</Text>
             <View
               style={{ flexDirection: "row", marginTop: 50, marginBottom: 20 }}
             >
@@ -82,44 +192,29 @@ const CardDetails = () => {
             <View style={{ marginVertical: normalizeHeight(20) }}>
               <LineBreaker />
             </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Image
-                source={require("../../assets/images/browserData-renting.png")}
-              />
-              <Text style={{ marginLeft: normalizeWidth(12) }}>
-                Token Balance Data
-              </Text>
-            </View>
 
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: normalizeHeight(20),
-              }}
-            >
-              <Image
-                source={require("../../assets/images/gender-renting.png")}
-              />
-              <Text style={{ marginLeft: normalizeWidth(12) }}>
-                Token Balance Data
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: normalizeHeight(20),
-              }}
-            >
-              <Image
-                source={require("../../assets/images/tokenBalance-renting.png")}
-              />
-              <Text style={{ marginLeft: normalizeWidth(12) }}>
-                Token Balance Data
-              </Text>
-            </View>
+            {rewardItem?.attributes
+              ?.filter(
+                (attribute) => attribute?.trait_type === "requiredPermissions",
+              )[0]
+              .value.map((permission) => {
+                return (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: normalizeHeight(15),
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/images/browserData-renting.png")}
+                    />
+                    <Text style={{ marginLeft: normalizeWidth(12) }}>
+                      {permission}
+                    </Text>
+                  </View>
+                );
+              })}
           </View>
 
           <View style={[styles.descriptionContainer, { marginTop: 24 }]}>
@@ -128,27 +223,33 @@ const CardDetails = () => {
             <View style={{ marginVertical: normalizeHeight(20) }}>
               <LineBreaker />
             </View>
-            {testData.map((val, index) => {
-              return (
-                <View>
-                  <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
-                    Year
-                  </Text>
-                  <Text
-                    style={[
-                      styles.subTitle,
-                      { fontWeight: "700", marginTop: normalizeHeight(8) },
-                    ]}
-                  >
-                    2022
-                  </Text>
-
+            {rewardItem?.attributes
+              ?.filter(
+                (attribute) =>
+                  attribute?.trait_type !== "requiredPermissions" &&
+                  attribute?.trait_type !== "createdBy",
+              )
+              .map((test, index) => {
+                return (
                   <View>
-                    {index + 1 !== testData.length && <LineBreaker />}
+                    <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
+                      {test.trait_type.toUpperCase()}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.subTitle,
+                        { fontWeight: "700", marginTop: normalizeHeight(8) },
+                      ]}
+                    >
+                      {test.value}
+                    </Text>
+
+                    <View>
+                      {index + 1 !== testData.length && <LineBreaker />}
+                    </View>
                   </View>
-                </View>
-              );
-            })}
+                );
+              })}
           </View>
           <TouchableOpacity
             style={{
@@ -156,10 +257,12 @@ const CardDetails = () => {
               width: normalizeWidth(380),
               height: normalizeHeight(58),
               borderRadius: normalizeWidth(100),
-              marginVertical:normalizeHeight(15),
+              marginVertical: normalizeHeight(15),
               justifyContent: "center",
             }}
-            onPress={() => {}}
+            onPress={() => {
+              onClaimClick(rewardItem.external_url);
+            }}
           >
             <Text
               style={{
