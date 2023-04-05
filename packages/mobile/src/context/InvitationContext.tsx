@@ -59,9 +59,10 @@ const InvitationContextProvider = ({ children }) => {
       _invitation = {
         consentContractAddress: consentAddress as EVMContractAddress,
         domain: DomainName(""),
-        tokenId,
+        tokenId,  
         businessSignature: (signature as Signature) ?? null,
       };
+      console.log("invitation", _invitation);
       return invitationService
         .checkInvitationStatus(_invitation)
         .map((status) => {

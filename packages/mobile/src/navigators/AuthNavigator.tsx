@@ -11,6 +11,12 @@ import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
 import Marketplace from "../newcomponents/Marketplace/Marketplace";
 import CardDetails from "../newcomponents/Marketplace/CardDetails";
 import Dashboard from "../newcomponents/Dashboard/Dashboard";
+import Settings from "../newcomponents/Settings/Settings";
+import CryptoSettings from "../newcomponents/Settings/CryptoSettings";
+import PersonalSettings from "../newcomponents/Settings/PersonalSettings";
+import RewardsSettings from "../newcomponents/Settings/RewardsSettings";
+import Permission from "../newcomponents/Onboarding/Permission";
+import PermissionSettings from "../newcomponents/Settings/PermissionSettings";
 
 const Stack = createStackNavigator();
 
@@ -22,6 +28,63 @@ function AuthNavigator() {
         component={Dashboard}
         options={{
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.DASHBOARD}
+        component={Dashboard}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.HOME}
+        component={Marketplace}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.SETTINGS}
+        component={Settings}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.CRYPTO_SETTINGS}
+        component={CryptoSettings}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: true,
+          title: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.PERSONAL_SETTINGS}
+        component={PersonalSettings}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: true,
+          title: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.PERMISSION_SETTINGS}
+        component={PermissionSettings}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: true,
+          title: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.REWARDS_SETTINGS}
+        component={RewardsSettings}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: true,
+          title: false,
         }}
       />
       <Stack.Screen
@@ -51,6 +114,7 @@ function AuthNavigator() {
         options={{
           headerBackTitleVisible: false,
           headerTransparent: true,
+          title: false,
         }}
       />
       <Stack.Screen

@@ -2,6 +2,7 @@ import {
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
@@ -49,10 +50,10 @@ export class MemoryVolatileStorage implements IVolatileStorage {
   public removeObject(
     name: string,
     key: string,
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<VolatileStorageMetadata<any> | null, PersistenceError> {
     console.log("removeObject");
     AsyncStorage.removeItem(name);
-    return okAsync(undefined);
+    return okAsync(null);
   }
 
   public getObject<T>(
