@@ -142,7 +142,7 @@ export class DiscordRepository implements IDiscordRepository {
     const expiry = accessToken.expiry as number;
     console.log("curTime", curTime);
     console.log("expiry", expiry);
-    return okAsync(curTime > expiry);
+    return okAsync(curTime < expiry);
   }
 
   public refreshAuthToken(
