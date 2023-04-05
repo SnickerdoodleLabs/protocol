@@ -48,7 +48,7 @@ const Initial = ({ navigation }) => {
 
   useEffect(() => {
     if (allChecksCompleted) {
-      navigation.replace(isUnlocked ? "Component_Test" : "Onboarding");
+      navigation.replace(isUnlocked ? "Home" : "Onboarding");
     }
   }, [allChecksCompleted, isUnlocked]);
 

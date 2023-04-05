@@ -10,4 +10,11 @@ export default {
   STARTER_TOUR2: "Starter_Tour2",
   COMPONENT_TEST: "Component_Test",
   CARD_DETAILS: "Card_Details",
+  SETTINGS: "Settings",
+  CRYPTO_SETTINGS: "Crypto_Settings",
+  PERSONAL_SETTINGS: "Personal_Settings",
+  REWARDS_SETTINGS: "Rewards_Settings",
+  PERMISSION_SETTINGS: "Permission_Settings",
+  HOME: "Home",
+  DASHBOARD: "Dashboard",
 };
