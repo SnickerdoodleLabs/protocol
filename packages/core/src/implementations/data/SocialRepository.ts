@@ -96,10 +96,12 @@ export class SocialRepository implements ISocialRepository {
     return this.persistence.getObject<T>(ERecordKey.SOCIAL_GROUP, pKey);
   }
 
-  deleteProfile(pKey: SocialPrimaryKey): ResultAsync<void, PersistenceError> {
+  public deleteProfile(
+    pKey: SocialPrimaryKey,
+  ): ResultAsync<void, PersistenceError> {
     return this.persistence.deleteRecord(ERecordKey.SOCIAL_PROFILE, pKey);
   }
-  deleteGroupProfile(
+  public deleteGroupProfile(
     pKey: SocialPrimaryKey,
   ): ResultAsync<void, PersistenceError> {
     return this.persistence.deleteRecord(ERecordKey.SOCIAL_GROUP, pKey);
