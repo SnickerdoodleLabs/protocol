@@ -108,7 +108,6 @@ export class ConfigProvider
       },
       10000,
       "(localhost|chrome://)",
-      false,
       false, // enable backup encryption
       120000, // backup placement heartbeat
       discordConfig,

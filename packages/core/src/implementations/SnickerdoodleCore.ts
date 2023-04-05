@@ -15,153 +15,6 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
-import {
-  DefaultAccountBalances,
-  DefaultAccountIndexers,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
-import {
-  Age,
-  AjaxError,
-  BlockchainProviderError,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  ConsentError,
-  ConsentFactoryContractError,
-  CountryCode,
-  CrumbsContractError,
-  DataPermissions,
-  DomainName,
-  EInvitationStatus,
-  EmailAddressString,
-  EvaluationError,
-  EVMContractAddress,
-  TransactionFilter,
-  FamilyName,
-  Gender,
-  GivenName,
-  HexString32,
-  IAccountBalancesType,
-  IAccountIndexingType,
-  IAccountNFTsType,
-  IConfigOverrides,
-  DataWalletBackup,
-  WalletNFT,
-  InvalidParametersError,
-  InvalidSignatureError,
-  Invitation,
-  IOpenSeaMetadata,
-  IpfsCID,
-  IPFSError,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreEvents,
-  LanguageCode,
-  MinimalForwarderContractError,
-  PageInvitation,
-  PersistenceError,
-  QueryFormatError,
-  SDQLQuery,
-  SiftContractError,
-  Signature,
-  SiteVisit,
-  UninitializedError,
-  UnixTimestamp,
-  UnsupportedLanguageError,
-  URLString,
-  EScamFilterStatus,
-  ChainTransaction,
-  EChain,
-  LinkedAccount,
-  AccountAddress,
-  DataWalletAddress,
-  EarnedReward,
-  TokenAddress,
-  TokenBalance,
-  IDynamicRewardParameter,
-  ChainId,
-  DataWalletBackupID,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-  AccountIndexingError,
-  TokenInfo,
-  TokenMarketData,
-  TransactionPaymentCounter,
-  EDataWalletPermission,
-  ICoreMarketplaceMethods,
-  ICoreIntegrationMethods,
-  EligibleAd,
-  AdSignature,
-  UnauthorizedError,
-  PossibleReward,
-  BackupFileName,
-  BearerAuthToken,
-  ISdlDiscordMethods,
-  ICoreDiscordMethods,
-  SnowflakeID,
-  OAuthAuthorizationCode,
-  IAdMethods,
-  AdKey,
-  AdSurfaceId,
-  SHA256Hash,
-} from "@snickerdoodlelabs/objects";
-import {
-  ICloudStorage,
-  ICloudStorageType,
-  IVolatileStorage,
-  IVolatileStorageType,
-  IndexedDBVolatileStorage,
-  GoogleCloudStorage,
-} from "@snickerdoodlelabs/persistence";
-import {
-  IStorageUtils,
-  IStorageUtilsType,
-  LocalStorageUtils,
-} from "@snickerdoodlelabs/utils";
-import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
   IDiscordService,
   IDiscordServiceType,
   IIntegrationService,
@@ -191,6 +44,13 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { DefaultAccountIndexers, DefaultAccountBalances, DefaultAccountNFTs } from "@snickerdoodlelabs/indexers";
+import { AccountAddress, AccountIndexingError, AdKey, AdSignature, AdSurfaceId, Age, AjaxError, BackupFileName, BlockchainProviderError, ChainId, ChainTransaction, ConsentContractError, ConsentContractRepositoryError, ConsentError, ConsentFactoryContractError, CountryCode, CrumbsContractError, DataPermissions, DataWalletAddress, DataWalletBackup, DataWalletBackupID, DomainName, EarnedReward, EChain, EDataWalletPermission, EInvitationStatus, EligibleAd, EmailAddressString, EScamFilterStatus, EvaluationError, EVMContractAddress, FamilyName, Gender, GivenName, HexString32, IAccountBalancesType, IAccountIndexingType, IAccountNFTsType, IAdMethods, IConfigOverrides, ICoreDiscordMethods, ICoreIntegrationMethods, ICoreMarketplaceMethods, IDynamicRewardParameter, InvalidParametersError, InvalidSignatureError, Invitation, IOpenSeaMetadata, IpfsCID, IPFSError, ISnickerdoodleCore, ISnickerdoodleCoreEvents, ITokenPriceRepository, ITokenPriceRepositoryType, LanguageCode, LinkedAccount, MinimalForwarderContractError, OAuthAuthorizationCode, PageInvitation, PersistenceError, QueryFormatError, SDQLQuery, SHA256Hash, SiftContractError, Signature, SiteVisit, SnowflakeID, TokenAddress, TokenBalance, TokenInfo, TokenMarketData, TransactionFilter, TransactionPaymentCounter, UnauthorizedError, UninitializedError, UnixTimestamp, UnsupportedLanguageError, URLString, WalletNFT } from "@snickerdoodlelabs/objects";
+import { IVolatileStorage, ICloudStorage, ICloudStorageType, GoogleCloudStorage, IVolatileStorageType, IndexedDBVolatileStorage } from "@snickerdoodlelabs/persistence";
+import { IStorageUtils, IStorageUtilsType, LocalStorageUtils } from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -374,6 +234,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.unlink(discordProfileId);
+      }
+    }
     // Ads Methods ---------------------------------------------------------------------------
     this.ads = {
       getAd: (adSurfaceId: AdSurfaceId) => {

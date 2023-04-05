@@ -106,7 +106,10 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     index: VolatileStorageKey,
     query: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this.indexedDB.getAllByIndex<T>(name, index, query);
+    return this._getIDB().andThen((db) =>
+      db.getAllByIndex<T>(name, index, query),
+    );
+    // return this.indexedDB.getAllByIndex<T>(name, index, query);
   }
 
   public getAllKeys<T>(

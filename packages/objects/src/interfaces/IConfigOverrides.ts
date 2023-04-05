@@ -1,7 +1,6 @@
 import { MapModelTypes } from "@glazed/types";
 
 import { DiscordConfig } from "@objects/businessObjects";
-import { ModelTypes } from "@objects/interfaces";
 import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
 
 export interface IConfigOverrides {

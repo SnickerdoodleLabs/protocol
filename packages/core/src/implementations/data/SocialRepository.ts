@@ -1,13 +1,13 @@
 import {
   EBackupPriority,
   ESocialType,
+  ERecordKey,
   PersistenceError,
   SocialGroupProfile,
   SocialPrimaryKey,
   SocialProfile,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -33,13 +33,9 @@ export class SocialRepository implements ISocialRepository {
   public upsertProfile<T extends SocialProfile>(
     socialProfile: T,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
+    return this.persistence.updateRecord<T>(
       ERecordKey.SOCIAL_PROFILE,
-      new VolatileStorageMetadata<T>(
-        EBackupPriority.NORMAL,
-        socialProfile,
-        socialProfile.getVersion(),
-      ),
+      socialProfile,
     );
   }
 
@@ -55,11 +51,7 @@ export class SocialRepository implements ISocialRepository {
   public getProfileByPK<T extends SocialProfile>(
     pKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.persistence.getObject<T>(
-      ERecordKey.SOCIAL_PROFILE,
-      pKey,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getObject<T>(ERecordKey.SOCIAL_PROFILE, pKey);
   }
 
   public upsertGroupProfiles<T extends SocialGroupProfile>(
@@ -75,14 +67,7 @@ export class SocialRepository implements ISocialRepository {
   public upsertGroupProfile<T extends SocialGroupProfile>(
     gProfile: T,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.SOCIAL_GROUP,
-      new VolatileStorageMetadata<T>(
-        EBackupPriority.NORMAL,
-        gProfile,
-        gProfile.getVersion(),
-      ),
-    );
+    return this.persistence.updateRecord<T>(ERecordKey.SOCIAL_GROUP, gProfile);
   }
 
   public getGroupProfiles<T extends SocialGroupProfile>(
@@ -108,27 +93,15 @@ export class SocialRepository implements ISocialRepository {
   public getGroupProfileByPK<T extends SocialGroupProfile>(
     pKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.persistence.getObject<T>(
-      ERecordKey.SOCIAL_GROUP,
-      pKey,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getObject<T>(ERecordKey.SOCIAL_GROUP, pKey);
   }
 
   deleteProfile(pKey: SocialPrimaryKey): ResultAsync<void, PersistenceError> {
-    return this.persistence.deleteRecord(
-      ERecordKey.SOCIAL_PROFILE,
-      pKey,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.deleteRecord(ERecordKey.SOCIAL_PROFILE, pKey);
   }
   deleteGroupProfile(
     pKey: SocialPrimaryKey,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.deleteRecord(
-      ERecordKey.SOCIAL_GROUP,
-      pKey,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.deleteRecord(ERecordKey.SOCIAL_GROUP, pKey);
   }
 }

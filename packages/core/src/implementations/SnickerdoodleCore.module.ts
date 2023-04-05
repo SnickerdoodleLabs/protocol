@@ -133,8 +133,6 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
   IDiscordService,
   IDiscordServiceType,
   IIntegrationService,
