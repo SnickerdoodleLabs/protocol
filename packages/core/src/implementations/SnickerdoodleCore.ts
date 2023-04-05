@@ -113,6 +113,7 @@ import {
   IBlockchainListener,
   IBlockchainListenerType,
   IDiscordPoller,
+  IDiscordPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
