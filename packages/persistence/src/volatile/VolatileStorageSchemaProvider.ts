@@ -16,6 +16,8 @@ import {
   DomainCredentialMigrator,
   QueryStatusMigrator,
   PersistenceError,
+  SocialProfileMigrator,
+  SocialGroupProfileMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -26,8 +28,6 @@ import {
 } from "@persistence/IPersistenceConfigProvider.js";
 import { IVolatileStorageSchemaProvider } from "@persistence/volatile/IVolatileStorageSchemaProvider.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
-import { SocialProfileMigrator } from "packages/objects/src/businessObjects/SocialProfile";
-import { SocialGroupProfileMigrator } from "packages/objects/src/businessObjects/SocialGroupProfile";
 
 @injectable()
 export class VolatileStorageSchemaProvider
