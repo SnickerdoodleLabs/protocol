@@ -140,8 +140,8 @@ export class DiscordRepository implements IDiscordRepository {
   ): ResultAsync<boolean, DiscordError> {
     const curTime = this.timeUtils.getUnixNow() as number;
     const expiry = accessToken.expiry as number;
-    console.log("curTime", curTime);
-    console.log("expiry", expiry);
+    // console.log("curTime", curTime);
+    // console.log("expiry", expiry);
     return okAsync(curTime < expiry);
   }
 
@@ -182,23 +182,16 @@ export class DiscordRepository implements IDiscordRepository {
           accept: "*/*",
         },
       };
-      // const data = new URLSearchParams({
-      //   client_id: "1089994449830027344",
-      //   client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
-      //   code,
-      //   grant_type: "authorization_code",
-      //   redirect_uri: `${window.location.origin}/data-dashboard/social-media-data`,
-      //   scope: "identify guilds",
-      // });
+
       const data = new URLSearchParams({
         ...tokenBaseConfig,
         grant_type: "authorization_code",
         code: code,
         scope: "identify guilds",
       });
-      console.log("Discord getAccessToken");
-      console.log(requestConfig);
-      console.log(data);
+      // console.log("Discord getAccessToken");
+      // console.log(requestConfig);
+      // console.log(data);
       return this.ajaxUtil
         .post<DiscordOAuth2TokensAPIResponse>(
           new URL(tokenUrl),
@@ -220,7 +213,7 @@ export class DiscordRepository implements IDiscordRepository {
   public fetchUserProfile(
     oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordProfile, DiscordError> {
-    console.log("fetchUserProfile with ", oauth2Tokens.accessToken);
+    // console.log("fetchUserProfile with ", oauth2Tokens.accessToken);
     return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
       (reqConfig) => {
         return this.meUrl().andThen((meUrl) => {
@@ -250,7 +243,7 @@ export class DiscordRepository implements IDiscordRepository {
   public fetchGuildProfiles(
     oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
-    console.log("fetchGuildProfiles with ", oauth2Tokens.accessToken);
+    // console.log("fetchGuildProfiles with ", oauth2Tokens.accessToken);
     return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
       (reqConfig) => {
         return this.meGuildUrl().andThen((meGuildUrl) => {
