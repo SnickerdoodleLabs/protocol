@@ -13,14 +13,6 @@ export default () => {
 
   return (
     <Box>
-      <Box mb={3}>
-        <Box mb={1}>
-          <Typography className={classes.title}>POAPs</Typography>
-        </Box>
-        <Typography className={classes.description}>
-          Your POAPs, from linked accounts and newly earned rewards.
-        </Typography>
-      </Box>
       {isNFTsLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
           <CircularProgress />
@@ -38,9 +30,15 @@ export default () => {
                 alignItems="center"
                 width="100%"
                 display="flex"
+                flexDirection="column"
                 pt={8}
               >
                 <img style={{ width: 255, height: "auto" }} src={emptyNfts} />
+                <Box mt={2}>
+                  <Typography className={classes.description}>
+                    You don't have any POAPs.
+                  </Typography>
+                </Box>
               </Box>
             </Box>
           )}

@@ -54,6 +54,14 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
         flexDirection="column"
         borderRadius={12}
         p={1.5}
+        onClick={() =>
+          navigate(EPaths.NFT_DETAIL, {
+            state: {
+              item,
+              metadataString: metadata ? JSON.stringify(metadata) : null,
+            },
+          })
+        }
       >
         {!isLoading && (
           <MediaRenderer
@@ -65,19 +73,6 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
             {item?.name || "_"}
           </Typography>
         </Box>
-        <Typography
-          className={classes.review}
-          onClick={() =>
-            navigate(EPaths.NFT_DETAIL, {
-              state: {
-                item,
-                metadataString: metadata ? JSON.stringify(metadata) : null,
-              },
-            })
-          }
-        >
-          Review
-        </Typography>
       </Box>
     </Grid>
   );
