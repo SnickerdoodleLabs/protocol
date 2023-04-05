@@ -275,9 +275,7 @@ export class IndexedDB {
       return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
           const store = tx.objectStore(name);
-          const volatileKey = this._getFieldPath(key);
-          console.log(`searching with key: ${volatileKey}`);
-          const request = store.get(this._getFieldPath(key));
+          const request = store.get(key);
           request.onsuccess = (event) => {
             tx.commit();
             resolve(request.result);
