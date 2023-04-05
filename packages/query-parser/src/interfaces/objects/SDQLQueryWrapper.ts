@@ -68,7 +68,9 @@ export class SDQLQueryWrapper {
     if (this.internalObj.timestamp == null) {
       return null;
     }
-    return UnixTimestamp(Date.parse(this.internalObj.timestamp));
+    return UnixTimestamp(
+      Math.floor(Date.parse(this.internalObj.timestamp) / 1000),
+    );
   }
 
   public get expiry(): UnixTimestamp {
@@ -77,16 +79,16 @@ export class SDQLQueryWrapper {
       return UnixTimestamp(0);
     }
 
-    const timestamp = Date.parse(this.internalObj.expiry);
-    // console.log(`expiry: ${this.internalObj.expiry} converted to timestamp ${timestamp}`);
-    return UnixTimestamp(timestamp);
+    return UnixTimestamp(
+      Math.floor(Date.parse(this.internalObj.expiry) / 1000),
+    );
   }
 
   public isExpired(): boolean {
     if (!this.expiry) {
       return true;
     }
-    return Date.now() > this.expiry;
+    return this.timeUtils.getUnixNow() > this.expiry;
   }
 
   public get description(): string {

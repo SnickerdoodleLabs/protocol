@@ -20,12 +20,14 @@ import {
   IAccountBalancesType,
   IAccountNFTs,
   IAccountNFTsType,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -244,6 +246,20 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           e,
         );
         return okAsync([]);
+      })
+      .map((tokenBalances) => {
+        // Apprently the tokenBalance.balance can return as in invalid
+        // BigNumber (blank or null), so we'll just correct any possible issue
+        // here.
+        return tokenBalances.map((tokenBalance) => {
+          try {
+            BigNumber.from(tokenBalance.balance);
+          } catch (e) {
+            // Can't convert to bignumber, set it to 0
+            tokenBalance.balance = BigNumberString("0");
+          }
+          return tokenBalance;
+        });
       });
   }
 

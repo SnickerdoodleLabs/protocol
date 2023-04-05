@@ -4,9 +4,8 @@ import {
 } from "@objects/businessObjects/VersionedObject";
 import { DataWalletBackupID } from "@objects/primitives";
 
-const CURRENT_VERSION = 1;
-
 export class RestoredBackup extends VersionedObject {
+  public static CURRENT_VERSION = 1;
   public constructor(public id: DataWalletBackupID) {
     super();
   }
@@ -18,7 +17,7 @@ export class RestoredBackup extends VersionedObject {
 
 export class RestoredBackupMigrator extends VersionedObjectMigrator<RestoredBackup> {
   public getCurrentVersion(): number {
-    return CURRENT_VERSION;
+    return RestoredBackup.CURRENT_VERSION;
   }
 
   protected factory(data: Record<string, unknown>): RestoredBackup {

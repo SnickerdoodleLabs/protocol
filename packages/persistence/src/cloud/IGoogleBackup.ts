@@ -1,5 +1,4 @@
-import { ModelAliases } from "@glazed/types";
-import { ChainId, ModelTypes, URLString } from "@snickerdoodlelabs/objects";
+import { URLString } from "@snickerdoodlelabs/objects";
 
 export interface IGoogleFileBackup {
   kind: string;

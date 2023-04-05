@@ -72,7 +72,7 @@ import {
   IAccountIndexingType,
   IAccountNFTsType,
   IConfigOverrides,
-  IDataWalletBackup,
+  DataWalletBackup,
   WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -961,7 +961,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public restoreBackup(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
@@ -973,7 +973,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public fetchBackup(
     backupHeader: string,
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
@@ -991,7 +991,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   // and to fetch a specific chunk and decrypt it.
   public unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(

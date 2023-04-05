@@ -33,4 +33,4 @@ export enum EFieldKey {
   DOMAIN_PERMISSIONS = "SD_DomainPermissions",
 }
 
-export type LocalStorageKey = EFieldKey | ERecordKey;
+export type StorageKey = EFieldKey | ERecordKey;

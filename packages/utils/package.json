@@ -34,6 +34,7 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "inversify": "^5.1.1",
     "neverthrow": "^5.1.0"

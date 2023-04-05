@@ -14,6 +14,7 @@ import {
   ChainTransaction,
   SolanaAccountAddress,
   isAccountValidForChain,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -203,5 +204,9 @@ export class MonitoringService implements IMonitoringService {
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.persistence.pollBackups();
+  }
+
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.persistence.postBackups();
   }
 }

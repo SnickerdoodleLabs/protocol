@@ -1,7 +1,5 @@
 import "reflect-metadata";
 
-import * as crypto from "crypto";
-
 import { Storage } from "@google-cloud/storage";
 import { AxiosAjaxUtils, CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
