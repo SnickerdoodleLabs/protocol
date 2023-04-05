@@ -26,6 +26,8 @@ import {
 } from "@persistence/IPersistenceConfigProvider.js";
 import { IVolatileStorageSchemaProvider } from "@persistence/volatile/IVolatileStorageSchemaProvider.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
+import { SocialProfileMigrator } from "packages/objects/src/businessObjects/SocialProfile";
+import { SocialGroupProfileMigrator } from "packages/objects/src/businessObjects/SocialGroupProfile";
 
 @injectable()
 export class VolatileStorageSchemaProvider
@@ -233,6 +235,35 @@ export class VolatileStorageSchemaProvider
             EBackupPriority.NORMAL,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
+          ),
+        ],
+        [
+          ERecordKey.SOCIAL_PROFILE,
+          new VolatileTableIndex(
+            ERecordKey.SOCIAL_PROFILE,
+            "pKey",
+            false,
+            new SocialProfileMigrator(),
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+            [["type", false]],
+          ),
+        ],
+        [
+          ERecordKey.SOCIAL_GROUP,
+          new VolatileTableIndex(
+            ERecordKey.SOCIAL_GROUP,
+            "pKey",
+            false,
+            new SocialGroupProfileMigrator(),
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+            [
+              ["type", false],
+              ["ownerId", false],
+            ],
           ),
         ],
       ]);
