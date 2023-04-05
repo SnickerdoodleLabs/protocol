@@ -12,6 +12,7 @@ import {
   PossibleReward,
   QueryExpiredError,
   QueryFormatError,
+  RequestForData,
   SDQLQuery,
   ServerRewardError,
   UninitializedError,
@@ -20,8 +21,7 @@ import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
   onQueryPosted(
-    consentContractAddress: EVMContractAddress,
-    queryCID: IpfsCID,
+    requestForData: RequestForData,
   ): ResultAsync<
     void,
     | ConsentContractError

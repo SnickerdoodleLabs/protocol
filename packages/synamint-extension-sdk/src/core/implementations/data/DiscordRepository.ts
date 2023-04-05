@@ -1,20 +1,20 @@
 import {
-    ISnickerdoodleCore,
-    ISnickerdoodleCoreType, BearerAuthToken,
-    DiscordGuildProfile,
-    DiscordProfile,
-    URLString,
-    SnowflakeID
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
+  BearerAuthToken,
+  DiscordGuildProfile,
+  DiscordProfile,
+  URLString,
+  SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+import { IDiscordRepository } from "@synamint-extension-sdk/core/interfaces/data";
 import {
-    IDiscordRepository
-} from "@synamint-extension-sdk/core/interfaces/data";
-import {
-    IErrorUtils,
-    IErrorUtilsType
+  IErrorUtils,
+  IErrorUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
@@ -24,27 +24,33 @@ export class DiscordRepository implements IDiscordRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-  initializeUser(
-    authToken: BearerAuthToken,
+
+  public initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.discord.initializeUser(authToken).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.discord
+      .initializeUserWithAuthorizationCode(code)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
-  installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError> {
+  public installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError> {
     return this.core.discord.installationUrl().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError> {
+  public getUserProfiles(): ResultAsync<
+    DiscordProfile[],
+    SnickerDoodleCoreError
+  > {
     return this.core.discord.getUserProfiles().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getGuildProfiles(): ResultAsync<
+  public getGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],
     SnickerDoodleCoreError
   > {
@@ -53,7 +59,9 @@ export class DiscordRepository implements IDiscordRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  unlink( discordProfileId : SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>{
+  public unlink(
+    discordProfileId: SnowflakeID,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.discord.unlink(discordProfileId).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

@@ -16,34 +16,11 @@ import { DiscordService } from "@core/implementations/business/DiscordService";
 import { IDiscordService } from "@core/interfaces/business";
 import { IDiscordRepository } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import { discordProfiles } from "@core-tests/mock/mocks/SocialDataMock";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-
-const discordProfiles = [
-  new DiscordProfile(
-    SnowflakeID("1074825823787425833"),
-    Username("sdmuki"),
-    null,
-    "5192",
-    null,
-    Integer(0),
-    BearerAuthToken("f0RhjaxsHvw5HqKLDsnWZdttSIODUg"),
-    UnixTimestamp(0),
-  ),
-
-  new DiscordProfile(
-    SnowflakeID("INVALID--SnowflakeID"),
-    Username("sdmuki2"),
-    null,
-    "5192",
-    null,
-    Integer(0),
-    BearerAuthToken("INVALID"),
-    UnixTimestamp(0),
-  ),
-];
 
 class DiscordServiceMocks {
   public configProvider: IConfigProvider;
@@ -65,14 +42,14 @@ class DiscordServiceMocks {
   > {
     return okAsync(
       discordProfiles.map((uProfile) => {
-        uProfile.authExpiry = this.timeUtils.getUnixNowMS();
+        uProfile.oauth2Tokens.expiry = this.timeUtils.getUnixNow();
         return uProfile;
       }),
     );
   }
 
   public getDiscordAuthTokens() {
-    return discordProfiles.map((uProfile) => uProfile.authToken);
+    return discordProfiles.map((uProfile) => uProfile.oauth2Tokens.accessToken);
   }
 
   public factory(): IDiscordService {
@@ -88,7 +65,7 @@ describe("DiscordService tests", () => {
     const expected = mocks.getDiscordAuthTokens();
 
     // Act
-    const result = await service.getAuthTokens();
+    const result = await service.getOAuth2Tokens();
 
     // Assert
     expect(result).toBeDefined();

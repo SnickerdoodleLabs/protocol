@@ -122,8 +122,6 @@ import {
   IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 
-
-
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
@@ -492,32 +490,32 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
       case EExternalActions.INITIALIZE_DISCORD_USER: {
-        const { authToken } = params as IInitializeDiscordUser;
+        const { code } = params as IInitializeDiscordUser;
         return new AsyncRpcResponseSender(
-          this.discordService.initializeUser(authToken),
+          this.discordService.initializeUserWithAuthorizationCode(code),
           res,
         ).call();
       }
-      case EExternalActions.INSTALLATION_DISCORD_URL : {
+      case EExternalActions.INSTALLATION_DISCORD_URL: {
         return new AsyncRpcResponseSender(
           this.discordService.installationUrl(),
           res,
-        ).call();  
+        ).call();
       }
-      case EExternalActions.GET_DISCORD_GUILD_PROFILES : {
+      case EExternalActions.GET_DISCORD_GUILD_PROFILES: {
         return new AsyncRpcResponseSender(
           this.discordService.getGuildProfiles(),
           res,
         ).call();
       }
-      case EExternalActions.GET_DISCORD_USER_PROFILES : {
+      case EExternalActions.GET_DISCORD_USER_PROFILES: {
         return new AsyncRpcResponseSender(
           this.discordService.getUserProfiles(),
           res,
         ).call();
       }
-      case EExternalActions.UNLINK_DISCORD_ACCOUNT : {
-        const {discordProfileId } = params as IUnlinkDiscordAccount;
+      case EExternalActions.UNLINK_DISCORD_ACCOUNT: {
+        const { discordProfileId } = params as IUnlinkDiscordAccount;
         return new AsyncRpcResponseSender(
           this.discordService.unlink(discordProfileId),
           res,

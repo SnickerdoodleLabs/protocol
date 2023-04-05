@@ -219,6 +219,23 @@ describe("CryptoUtils tests", () => {
     expect(key1 == key2).toBeFalsy();
   });
 
+  test("createRSAKeyPair returns 2 PEM encoded keys", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // Act
+    const result = await utils.createRSAKeyPair();
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const keyPair = result._unsafeUnwrap();
+    // I have no way to validate the key is anything
+    expect(keyPair.privateKey).toBeDefined();
+    expect(keyPair.publicKey).toBeDefined();
+  });
+
   test("createAESKey returns 32 bytes as 44 characters of base64", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();

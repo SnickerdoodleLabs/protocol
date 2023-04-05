@@ -1,32 +1,27 @@
 import {
-  BearerAuthToken,
   DiscordProfile,
   DiscordError,
   DiscordGuildProfile,
-  OAuthError,
   PersistenceError,
   SnowflakeID,
+  OAuthAuthorizationCode,
+  OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IOAuthService } from "@core/interfaces/utilities/IOAuthService";
 
 export interface IDiscordService extends IOAuthService {
-  initializeUser(
-    authToken: BearerAuthToken,
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
   ): ResultAsync<void, DiscordError | PersistenceError>;
   getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
-  // getUserProfile(
-  //   authToken: BearerAuthToken,
-  // ): ResultAsync<DiscordProfile, DiscordError>;
-
-  // getGuildProfiles(
-  //   authToken: BearerAuthToken,
-  // ): ResultAsync<DiscordGuildProfile[], DiscordError>;
-  getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError>;
   poll(): ResultAsync<void, DiscordError | PersistenceError>;
-  unlink( discordProfileId : SnowflakeID): ResultAsync<void, DiscordError | PersistenceError>;
+  unlink(
+    userProfileId: SnowflakeID,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
+  getOAuth2Tokens(): ResultAsync<OAuth2Tokens[], PersistenceError>;
 }
 
 export const IDiscordServiceType = Symbol.for("IDiscordService");

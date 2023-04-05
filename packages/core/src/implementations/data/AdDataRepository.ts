@@ -4,8 +4,8 @@ import {
   EBackupPriority,
   AdSignature,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -28,24 +28,13 @@ export class AdDataRepository implements IAdDataRepository {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine(
       ads.map((ad) => {
-        return this.persistence.updateRecord(
-          ERecordKey.ELIGIBLE_ADS,
-          new VolatileStorageMetadata<EligibleAd>(
-            EBackupPriority.NORMAL,
-            ad,
-            EligibleAd.CURRENT_VERSION,
-          ),
-        );
+        return this.persistence.updateRecord(ERecordKey.ELIGIBLE_ADS, ad);
       }),
     ).map(() => {});
   }
 
   public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
-    return this.persistence.getAll<EligibleAd>(
-      ERecordKey.ELIGIBLE_ADS,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getAll<EligibleAd>(ERecordKey.ELIGIBLE_ADS);
   }
 
   public saveAdSignatures(
@@ -53,23 +42,12 @@ export class AdDataRepository implements IAdDataRepository {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine(
       adSigList.map((adSig) => {
-        return this.persistence.updateRecord(
-          ERecordKey.AD_SIGNATURES,
-          new VolatileStorageMetadata<AdSignature>(
-            EBackupPriority.NORMAL,
-            adSig,
-            AdSignature.CURRENT_VERSION,
-          ),
-        );
+        return this.persistence.updateRecord(ERecordKey.AD_SIGNATURES, adSig);
       }),
     ).map(() => undefined);
   }
 
   public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
-    return this.persistence.getAll<AdSignature>(
-      ERecordKey.AD_SIGNATURES,
-      undefined,
-      EBackupPriority.NORMAL,
-    );
+    return this.persistence.getAll<AdSignature>(ERecordKey.AD_SIGNATURES);
   }
 }

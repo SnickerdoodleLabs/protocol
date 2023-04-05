@@ -7,6 +7,7 @@ export * from "@core/implementations/data/CrumbsRepository.js";
 export * from "@core/implementations/data/DemographicDataRepository.js";
 export * from "@core/implementations/data/DiscordRepository.js";
 export * from "@core/implementations/data/DNSRepository.js";
+export * from "@core/implementations/data/DomainCredentialRepository.js";
 export * from "@core/implementations/data/InvitationRepository.js";
 export * from "@core/implementations/data/LinkedAccountRepository.js";
 export * from "@core/implementations/data/MarketplaceRepository.js";

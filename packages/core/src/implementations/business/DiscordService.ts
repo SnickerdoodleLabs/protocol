@@ -4,6 +4,8 @@ import {
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
+  OAuth2Tokens,
+  OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
   SnowflakeID,
@@ -57,9 +59,9 @@ export class DiscordService implements IDiscordService {
   }
 
   unlink(
-    _discordProfileId: SnowflakeID,
+    userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
-    return this.discordRepo.deleteProfile(_discordProfileId);
+    return this.discordRepo.deleteProfile(userProfileId);
   }
 
   public isAuthTokenValid(
@@ -73,26 +75,62 @@ export class DiscordService implements IDiscordService {
     throw new Error("Method not implemented.");
   }
 
-  public initializeUser(
-    authToken: BearerAuthToken,
+  public initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
   ): ResultAsync<void, DiscordError | PersistenceError> {
-    // 1. Fetch profile
-    // 2. Update profile if exists with the same id
-    // 3. Update guilds
-
-    return ResultUtils.combine([
-      this.discordRepo.fetchUserProfile(authToken),
-      this.discordRepo.fetchGuildProfiles(authToken),
-    ]).andThen(([userProfile, guildProfiles]) => {
-      return ResultUtils.combine([
-        this.discordRepo.upsertUserProfile(userProfile),
-        this.discordRepo.upsertGuildProfiles(
-          this.addDiscordProfileIdToGuild(guildProfiles, userProfile.id),
-        ),
-      ]).andThen(() => {
-        return okAsync(undefined);
-      });
+    return this.discordRepo.getAccessToken(code).andThen((oauth2Tokens) => {
+      return this.initializeUser(oauth2Tokens);
+      // return ResultUtils.combine([
+      //   this.discordRepo.fetchUserProfile(oauth2Tokens),
+      //   this.discordRepo.fetchGuildProfiles(oauth2Tokens),
+      // ]).andThen(([userProfile, guildProfiles]) => {
+      //   return ResultUtils.combine([
+      //     this.discordRepo.upsertUserProfile(userProfile),
+      //     this.discordRepo.upsertGuildProfiles(
+      //       this.addDiscordProfileIdToGuild(guildProfiles, userProfile.id),
+      //     ),
+      //   ]).andThen(() => {
+      //     return okAsync(undefined);
+      //   });
     });
+  }
+
+  protected initializeUser(
+    oauth2Tokens: OAuth2Tokens,
+  ): ResultAsync<void, DiscordError | PersistenceError> {
+    // 1. Check auth token expritaion status if expired refresh
+    // 2. Fetch profile
+    // 3. Update profile if exists with the same id
+    // 4. Update guilds
+
+    // console.log("Initializing user with ", oauth2Tokens);
+
+    return this.discordRepo
+      .isAuthTokenValid(oauth2Tokens)
+      .andThen((isValid) => {
+        if (isValid) {
+          return okAsync(oauth2Tokens);
+        }
+        // console.log("Tokens are invalid. Refreshing");
+        return this.discordRepo.refreshAuthToken(oauth2Tokens.refreshToken);
+      })
+      .andThen((oauth2Tokens) => {
+        // console.log("Tokens are valid");
+        return ResultUtils.combine([
+          this.discordRepo.fetchUserProfile(oauth2Tokens),
+          this.discordRepo.fetchGuildProfiles(oauth2Tokens),
+        ]).andThen(([userProfile, guildProfiles]) => {
+          return ResultUtils.combine([
+            this.discordRepo.upsertUserProfile(userProfile),
+            this.discordRepo.upsertGuildProfiles(
+              this.addDiscordProfileIdToGuild(guildProfiles, userProfile.id),
+            ),
+          ]).andThen(() => {
+            return okAsync(undefined);
+          });
+        });
+      });
+
     // throw new Error("Method not implemented.");
   }
 
@@ -109,17 +147,17 @@ export class DiscordService implements IDiscordService {
 
   public poll(): ResultAsync<void, DiscordError | PersistenceError> {
     // First we need to find the authkeys for discord
-    return this.getAuthTokens().andThen((authTokens) => {
-      const results = authTokens.map((authToken) =>
-        this.initializeUser(authToken),
+    return this.getOAuth2Tokens().andThen((oauth2TokensArr) => {
+      const results = oauth2TokensArr.map((oauth2Tokens) =>
+        this.initializeUser(oauth2Tokens),
       );
       return ResultUtils.combine(results).andThen(() => okAsync(undefined));
     });
   }
 
-  public getAuthTokens(): ResultAsync<BearerAuthToken[], PersistenceError> {
+  public getOAuth2Tokens(): ResultAsync<OAuth2Tokens[], PersistenceError> {
     return this.discordRepo.getUserProfiles().map((uProfiles) => {
-      return uProfiles.map((uProfile) => uProfile.authToken);
+      return uProfiles.map((uProfile) => uProfile.oauth2Tokens);
     });
   }
 

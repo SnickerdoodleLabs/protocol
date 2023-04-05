@@ -1,3 +1,4 @@
+import { OAuth2Tokens } from "@objects/businessObjects/OAuth2Tokens.js";
 import { SocialProfile } from "@objects/businessObjects/SocialProfile.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
@@ -19,8 +20,7 @@ export class DiscordProfile extends SocialProfile {
     public discriminator: string,
     public avatar: string | null,
     public flags: Integer,
-    public authToken: BearerAuthToken, // We can support multiple profiles with auth token saved in profile
-    public authExpiry: UnixTimestamp,
+    public oauth2Tokens: OAuth2Tokens,
   ) {
     super(SocialPrimaryKey(`discord-${id}`), ESocialType.DISCORD);
   }
@@ -52,8 +52,7 @@ export class DiscordProfileMigrator {
       data["discriminator"] as string,
       data["avatar"] as string,
       Integer(data["flags"] as number),
-      BearerAuthToken(data["authToken"] as string),
-      UnixTimestamp(data["authExpiry"] as number),
+      data["oauth2Tokens"] as OAuth2Tokens,
     );
   }
 }

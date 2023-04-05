@@ -33,6 +33,7 @@ import {
   GivenName,
   IpfsCID,
   LanguageCode,
+  OAuthAuthorizationCode,
   Signature,
   SnowflakeID,
   UnixTimestamp,
@@ -167,19 +168,17 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
 
-
-  discord : ISdlDiscordMethods
- 
+  discord: ISdlDiscordMethods;
 }
 
 export interface ISdlDiscordMethods {
   /**
- * This method will upsert a users discord profile and
- * discord guild data given a token which will come from discord api
- * @param authToken
- */
-  initializeUser(
-    authToken: BearerAuthToken,
+   * This method will upsert a users discord profile and
+   * discord guild data given a token which will come from discord api
+   * @param authToken
+   */
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
   ): ResultAsync<void, JsonRpcError>;
 
   /**
@@ -187,15 +186,14 @@ export interface ISdlDiscordMethods {
    * call to be made. If user gives consent token can be used
    * to initialize the user
    */
-  installationUrl(): ResultAsync<URLString, JsonRpcError>
+  installationUrl(): ResultAsync<URLString, JsonRpcError>;
 
   getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], JsonRpcError>;
-    /**
+  /**
    * This method will remove a users discord profile and
    * discord guild data given their profile id
    * @param discordProfileId
    */
-    unlink( discordProfileId : SnowflakeID): ResultAsync<void, JsonRpcError>;
-
+  unlink(discordProfileId: SnowflakeID): ResultAsync<void, JsonRpcError>;
 }

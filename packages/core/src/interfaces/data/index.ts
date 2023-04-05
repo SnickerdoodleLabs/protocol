@@ -5,6 +5,7 @@ export * from "@core/interfaces/data/ICrumbsRepository.js";
 export * from "@core/interfaces/data/IDemographicDataRepository.js";
 export * from "@core/interfaces/data/IDNSRepository.js";
 export * from "@core/interfaces/data/IDiscordRepository.js";
+export * from "@core/interfaces/data/IDomainCredentialRepository.js";
 export * from "@core/interfaces/data/IInvitationRepository.js";
 export * from "@core/interfaces/data/ILinkedAccountRepository.js";
 export * from "@core/interfaces/data/IMarketplaceRepository.js";

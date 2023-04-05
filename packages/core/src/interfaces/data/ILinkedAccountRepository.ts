@@ -85,14 +85,6 @@ export interface ILinkedAccountRepository {
   addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError>;
-
-  setLatestBlockNumber(
-    contractAddress: EVMContractAddress,
-    blockNumber: BlockNumber,
-  ): ResultAsync<void, PersistenceError>;
-  getLatestBlockNumber(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<BlockNumber, PersistenceError>;
 }
 
 export const ILinkedAccountRepositoryType = Symbol.for(

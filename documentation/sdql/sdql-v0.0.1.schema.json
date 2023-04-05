@@ -36,7 +36,6 @@
                 "nft",
                 "age",
                 "location",
-                "browsing_history",
                 "gender",
                 "url_visited_count",
                 "chain_transactions",
@@ -254,9 +253,6 @@
                     },
                     {
                       "const": "location"
-                    },
-                    {
-                      "const": "browsing_history"
                     }
                   ]
                 }
