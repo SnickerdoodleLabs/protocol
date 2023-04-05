@@ -1,8 +1,7 @@
-import { Button, Box } from "@material-ui/core";
-import { DiscordGuildProfile, SnowflakeID } from "@snickerdoodlelabs/objects";
-import React, { FC, memo, useState } from "react";
+import { Button, Box, Grid, Avatar, Typography } from "@material-ui/core";
+import { DiscordGuildProfile } from "@snickerdoodlelabs/objects";
+import React, { FC, memo } from "react";
 
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/Discord.style";
 import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/DiscordMediaDataServersItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaData/SocialMediaDataItem/Discord/types";
@@ -48,16 +47,30 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
   };
 
   return (
-    <Box className={classes.discordMediaItemProviderContainer}>
-      <Box className={classes.discordMediaItemLinkedAccountContainer}>
-        <Box>
-          <img className={classes.discordIcon} src={getDiscordAvatar()} />
-        </Box>
-        <Box>
-          <p className={classes.providerText}>{`${name}#${discriminator}`}</p>
-        </Box>
-
-        <Box className={classes.linkAccountContainer}>
+    <Grid
+      container
+      direction="row"
+      className={classes.discordMediaItemProviderContainer}
+    >
+      <Grid
+        item
+        xs={12}
+        container
+        direction="row"
+        className={classes.discordMediaItemLinkedAccountContainer}
+      >
+        <Grid item xs={10}>
+          <Box display="flex" alignItems="center">
+            <Avatar>
+              <img alt="Natacha" src={getDiscordAvatar()} height={40} />
+            </Avatar>
+            <Typography
+              variant="body1"
+              className={classes.providerText}
+            >{`${name}#${discriminator}`}</Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={2}>
           <Button
             onClick={() => {
               setAccountNameToRemove(`${name}#${discriminator}`);
@@ -68,16 +81,29 @@ const DiscordMediaDataItem: FC<ILinkedDiscordAccount> = ({
           >
             Unlink Account
           </Button>
-        </Box>
-      </Box>
-      <Box>
-        <p className={classes.serversText}>Servers</p>
-      </Box>
-
-      <Box className={classes.discordGuildsContainerRow}>
-        {getDiscordGuildRow(servers)}
-      </Box>
-    </Box>
+        </Grid>
+      </Grid>
+      <Grid item container>
+        <Grid item xs={12}>
+          <Box
+            display="flex"
+            alignItems="center"
+            className={classes.serversTextBox}
+          >
+            {servers ? (
+              <Typography variant="h5" className={classes.serversText}>
+                Servers
+              </Typography>
+            ) : (
+              <p></p>
+            )}
+          </Box>
+        </Grid>
+        <Grid item className={classes.discordGuildRow}>
+          {getDiscordGuildRow(servers)}
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };
 

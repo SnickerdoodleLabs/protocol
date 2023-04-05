@@ -1,4 +1,4 @@
-import { Button, Box } from "@material-ui/core";
+import { Button, Box, Grid, Typography } from "@material-ui/core";
 import {
   BearerAuthToken,
   DiscordGuildProfile,
@@ -122,39 +122,41 @@ const DiscordMediaData: FC<ISocialMediaDataItemProps> = ({
           }}
         />
       )}
-      <Box className={classes.accountBoxContainer}>
-        <Box className={`${classes.providerContainer} ${classes.mainProvider}`}>
-          <Box>
+      <Grid container className={`${classes.accountBoxContainer}`} spacing={3}>
+        <Grid item container direction="row" alignItems="center">
+          <Grid item xs={1}>
             <img className={classes.providerLogo} src={icon} />
-          </Box>
-          <Box>
-            <p className={classes.providerText}>{name} testing</p>
-          </Box>
+          </Grid>
+          <Grid item xs={9} justifyContent="flex-start" alignItems="center">
+            <p className={classes.providerText}>{name}</p>
+          </Grid>
 
-          <Box className={classes.linkAccountContainer}>
+          <Grid item xs={2} justifyContent="center" alignItems="center">
             <Button
-              className={classes.linkAccountButton}
+              variant="outlined"
               href={`https://discord.com/oauth2/authorize?response_type=code&client_id=1089994449830027344&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=${window.location.origin}/data-dashboard/social-media-data&prompt=consent`}
             >
               Link Account
             </Button>
-          </Box>
-        </Box>
-        {linkedDiscordAccount.map((discordProfile) => {
-          return (
-            <DiscordMediaDataItem
-              openUnlinkModal={setIsModalOpen}
-              name={discordProfile.name}
-              servers={discordProfile.servers}
-              avatar={discordProfile.avatar}
-              discriminator={discordProfile.discriminator}
-              userId={discordProfile.userId}
-              setAccountIdToRemove={setSelectedAccountId}
-              setAccountNameToRemove={setSelectedAccountName}
-            />
-          );
-        })}
-      </Box>
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          {linkedDiscordAccount.map((discordProfile) => {
+            return (
+              <DiscordMediaDataItem
+                openUnlinkModal={setIsModalOpen}
+                name={discordProfile.name}
+                servers={discordProfile.servers}
+                avatar={discordProfile.avatar}
+                discriminator={discordProfile.discriminator}
+                userId={discordProfile.userId}
+                setAccountIdToRemove={setSelectedAccountId}
+                setAccountNameToRemove={setSelectedAccountName}
+              />
+            );
+          })}
+        </Grid>
+      </Grid>
     </>
   );
 };

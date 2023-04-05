@@ -5,6 +5,7 @@ export const useStyles = makeStyles((theme) => ({
     "& .MuiDialog-paper": {
       borderRadius: 12,
       maxWidth: 640,
+      padding: "24px",
     },
   },
   exclamationIcon: {
@@ -21,7 +22,8 @@ export const useStyles = makeStyles((theme) => ({
     color: "#212121",
     fontSize: "18px",
     fontWeight: 700,
-    fontFamily: "Space Grotesk",
+    fontFamily: "Roboto",
+    lineHeight: "150%",
   },
   codeContainer: {
     display: "flex",
@@ -35,6 +37,7 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "39px",
     width: "100px",
     height: "64px",
+    gap: "4px",
   },
   otpInput: {
     marginRight: 8,
@@ -107,8 +110,12 @@ export const useStyles = makeStyles((theme) => ({
   description: {
     color: "##5D5A74",
     fontSize: 16,
-    fontWeight: 500,
-    fontFamily: "Space Grotesk",
+    fontWeight: 400,
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    textAlign: "left",
+    lineHeight: "19px",
+    marginRight: "50px",
   },
   primaryButton: {
     background: "#D32F2F !important",
@@ -162,10 +169,12 @@ export const useStyles = makeStyles((theme) => ({
     color: "#54A858",
     fontSize: 14,
     lineHeight: "20px",
+    marginTop: "6px",
   },
   errorText: {
     color: "#D32F2F",
     fontSize: 14,
     lineHeight: "20px",
+    marginTop: "6px",
   },
 }));

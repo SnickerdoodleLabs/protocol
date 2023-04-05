@@ -38,7 +38,7 @@ export default () => {
     <Grid container spacing={3}>
       <Grid item xs={12}>
         {socialMediaProviderList.map(({ icon, name, key }) => (
-          <Box key={key}>
+          <Box key={key} padding={3}>
             {getSocialMediaComponentGivenProps({ icon, name, key })}
           </Box>
         ))}

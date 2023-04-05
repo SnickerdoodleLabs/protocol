@@ -1,8 +1,15 @@
-import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
+import { Box, Typography, Collapse } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import clsx from "clsx";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
@@ -12,12 +19,6 @@ import {
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { Box, Typography, Collapse } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import clsx from "clsx";
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 export interface ISubroute {
   title: string;

@@ -4,7 +4,7 @@ export const useStyles = makeStyles((theme) => ({
   accountBoxContainer: {
     border: "1px solid #ECECEC",
     borderRadius: "12px",
-    padding: "24px",
+    padding: "12px",
     position: "relative",
   },
   providerContainer: {
@@ -14,8 +14,6 @@ export const useStyles = makeStyles((theme) => ({
     border: "1px solid #ECECEC",
     borderRadius: "12px",
     background: "#FFFFFF",
-
-
   },
   discordLinkedAccountContainer: {
     display: "flex",
@@ -23,20 +21,23 @@ export const useStyles = makeStyles((theme) => ({
     borderBottom: "1px solid #ECECEC",
   },
   providerText: {
-    paddingLeft: "24px",
-    paddingTop: "10px",
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 500,
-    fontSize: "20px",
+    marginLeft: "12px",
+    fontFamily: "public-sans",
+  },
+  serversTextBox: {
+    boxShadow: "inset 0px -1px 0px #F0F0F0",
+    marginTop: "22px",
   },
   serversText: {
     paddingLeft: "24px",
     paddingTop: "10px",
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: "public-sans",
     fontWeight: 500,
-    fontSize: "20px",
-    boxShadow: "inset 0px -1px 0px #F0F0F0",
-    margin : "20px",
+
+    margin: "20px",
+  },
+  serversTextContainer: {
+    marginTop: "22px",
   },
   providerLogo: {
     paddingTop: "15px",
@@ -78,11 +79,9 @@ export const useStyles = makeStyles((theme) => ({
   },
   discordMediaItemProviderContainer: {
     // parent
-    display: "flex",
-    flexDirection: "column",
     border: "1px solid #ECECEC",
     borderRadius: "12px",
-    marginBottom: "20px",
+    marginTop: "22px",
   },
   discordMediaItemLinkedAccountContainer: {
     // parent
@@ -90,10 +89,10 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     boxShadow: "inset 0px -1px 0px #F0F0F0",
-    padding: "0px 10px 10px 0px",
+
     background: "#FFFFFF",
-    margin : "0px 10px 0px 10px",
-    gap: "22px",
+
+    padding: "24px",
   },
   discordIcon: {
     paddingTop: "15px",
@@ -110,6 +109,10 @@ export const useStyles = makeStyles((theme) => ({
   mainProvider: {
     border: "none",
     marginBottom: "16px",
+  },
+  discordGuildRow: {
+    // gg sans actual font
+    width: "100%",
   },
   discordGuildNoIcon: {
     // gg sans actual font
@@ -140,15 +143,12 @@ export const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   discordGuildName: {
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: "roboto",
     fontStyle: "normal",
     fontWeight: 500,
-    fontSize: "27px",
-    lineHeight: "27px",
-    letterSpacing: "0em",
+    lineHeight: "160%",
     textAlign: "left",
     color: "#212121",
-
   },
   discordGuildMemberText: {
     fontFamily: "'Space Grotesk', sans-serif",
