@@ -75,7 +75,9 @@ export class DiscordService implements IDiscordService {
     throw new Error("Method not implemented.");
   }
 
-  public initializeUserWithAuthorizationCode(code: OAuthAuthorizationCode) {
+  public initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<void, DiscordError | PersistenceError> {
     return this.discordRepo.getAccessToken(code).andThen((oauth2Tokens) => {
       return this.initializeUser(oauth2Tokens);
       // return ResultUtils.combine([
@@ -101,15 +103,19 @@ export class DiscordService implements IDiscordService {
     // 3. Update profile if exists with the same id
     // 4. Update guilds
 
+    console.log("Initializing user with ", oauth2Tokens);
+
     return this.discordRepo
       .isAuthTokenValid(oauth2Tokens)
       .andThen((isValid) => {
         if (isValid) {
           return okAsync(oauth2Tokens);
         }
+        console.log("Tokens are invalid. Refreshing");
         return this.discordRepo.refreshAuthToken(oauth2Tokens.refreshToken);
       })
       .andThen((oauth2Tokens) => {
+        console.log("Tokens are valid");
         return ResultUtils.combine([
           this.discordRepo.fetchUserProfile(oauth2Tokens),
           this.discordRepo.fetchGuildProfiles(oauth2Tokens),

@@ -138,10 +138,13 @@ export class DiscordRepository implements IDiscordRepository {
   public isAuthTokenValid(
     accessToken: OAuth2Tokens,
   ): ResultAsync<boolean, DiscordError> {
-    return okAsync(
-      Number(this.timeUtils.getUnixNow()) > Number(accessToken.expiry),
-    );
+    const curTime = this.timeUtils.getUnixNow() as number;
+    const expiry = accessToken.expiry as number;
+    console.log("curTime", curTime);
+    console.log("expiry", expiry);
+    return okAsync(curTime > expiry);
   }
+
   public refreshAuthToken(
     refreshToken: BearerAuthToken,
   ): ResultAsync<OAuth2Tokens, DiscordError> {
@@ -179,12 +182,20 @@ export class DiscordRepository implements IDiscordRepository {
           accept: "*/*",
         },
       };
-      const data = {
+      // const data = new URLSearchParams({
+      //   client_id: "1089994449830027344",
+      //   client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+      //   code,
+      //   grant_type: "authorization_code",
+      //   redirect_uri: `${window.location.origin}/data-dashboard/social-media-data`,
+      //   scope: "identify guilds",
+      // });
+      const data = new URLSearchParams({
         ...tokenBaseConfig,
         grant_type: "authorization_code",
         code: code,
         scope: "identify guilds",
-      };
+      });
       console.log("Discord getAccessToken");
       console.log(requestConfig);
       console.log(data);
@@ -195,11 +206,13 @@ export class DiscordRepository implements IDiscordRepository {
           requestConfig,
         )
         .andThen((response) => {
+          console.log("response", response);
           return okAsync(this.factoryAccessToken(response));
         })
         .orElse((error) => {
           console.log(error);
-          return errAsync(new DiscordError(error.message));
+          console.log(error.src);
+          return errAsync(new DiscordError(error.message, error.src));
         });
     });
   }
@@ -207,6 +220,7 @@ export class DiscordRepository implements IDiscordRepository {
   public fetchUserProfile(
     oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordProfile, DiscordError> {
+    console.log("fetchUserProfile with ", oauth2Tokens.accessToken);
     return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
       (reqConfig) => {
         return this.meUrl().andThen((meUrl) => {
@@ -225,6 +239,7 @@ export class DiscordRepository implements IDiscordRepository {
               return okAsync(profile);
             })
             .orElse((error) => {
+              console.log(error.src);
               return errAsync(new DiscordError(error.message));
             });
         });
@@ -235,6 +250,7 @@ export class DiscordRepository implements IDiscordRepository {
   public fetchGuildProfiles(
     oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
+    console.log("fetchGuildProfiles with ", oauth2Tokens.accessToken);
     return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
       (reqConfig) => {
         return this.meGuildUrl().andThen((meGuildUrl) => {
@@ -259,6 +275,7 @@ export class DiscordRepository implements IDiscordRepository {
               return okAsync(guildProfiles);
             })
             .orElse((error) => {
+              console.log(error.src);
               return errAsync(new DiscordError(error.message));
             });
         });

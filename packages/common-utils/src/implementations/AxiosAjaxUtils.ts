@@ -51,7 +51,8 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
       this.instance.post(url.toString(), data, config),
-      (e) => new AjaxError(`Unable to post ${url}`, e),
+      (e) =>
+        new AjaxError(`Unable to post ${url}, reason: ${JSON.stringify(e)}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
     });
