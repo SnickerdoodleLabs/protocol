@@ -1,5 +1,5 @@
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IDiscordPoller } from "@core/interfaces/api/index.js";
@@ -13,6 +13,8 @@ import {
   IConfigProviderType,
   IConfigProvider,
 } from "@core/interfaces/utilities/index.js";
+
+@injectable()
 export class DiscordPoller implements IDiscordPoller {
   public constructor(
     @inject(IMonitoringServiceType)
@@ -23,6 +25,9 @@ export class DiscordPoller implements IDiscordPoller {
 
   initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
+      this.logUtils.debug(
+        `Initializing Discord Poller with ${config.discord.pollInterval} MS`,
+      );
       setInterval(() => {
         this.monitoringService.pollDiscord().mapErr((e) => {
           this.logUtils.error(e);

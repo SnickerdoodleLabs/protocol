@@ -181,10 +181,25 @@ export class DataWalletProfile {
   }
 
   protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
+    const discordConfig = {
+      clientId: "1089994449830027344",
+      clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+      oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+      oauthRedirectUrl: URLString(
+        "https://localhost:9005/data-dashboard/social-media-data",
+      ),
+      accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      dataAPIUrl: URLString("https://discord.com/api"),
+      iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+      pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
+    };
+
     const core = new SnickerdoodleCore(
       {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
+        discordOverrides: discordConfig,
       } as IConfigOverrides,
       undefined,
       mocks.fakeDBVolatileStorage,

@@ -1,4 +1,9 @@
-import { PersistenceError, SerializedObject } from "@snickerdoodlelabs/objects";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  JSONString,
+  PersistenceError,
+  SerializedObject,
+} from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { err, ok, Result } from "neverthrow";
 
@@ -9,7 +14,7 @@ export class Serializer {
     const type = typeof obj;
     switch (type) {
       case "object":
-        return ok(new SerializedObject(type, JSON.stringify(obj)));
+        return ok(new SerializedObject(type, ObjectUtils.serialize(obj)));
       case "boolean":
         return ok(
           new SerializedObject(type, (obj as unknown as boolean).toString()),
@@ -35,7 +40,7 @@ export class Serializer {
     try {
       switch (serializedObj.type) {
         case "object":
-          return ok(JSON.parse(serializedObj.data) as T);
+          return ok(ObjectUtils.deserialize<T>(JSONString(serializedObj.data)));
         case "boolean":
           return ok((serializedObj.data === "true") as unknown as T);
         case "number":
