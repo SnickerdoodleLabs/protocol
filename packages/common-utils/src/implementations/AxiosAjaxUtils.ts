@@ -31,7 +31,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
 
   public get<T>(url: URL, config?: IRequestConfig): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.get(url.toString(), config),
+      this.instance.get(this.stripTrailingSlash(url.toString()), config),
       (e) => new AjaxError(`Unable to get ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -50,9 +50,8 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.post(url.toString(), data, config),
-      (e) =>
-        new AjaxError(`Unable to post ${url}, reason: ${JSON.stringify(e)}`, e),
+      this.instance.post(this.stripTrailingSlash(url.toString()), data, config),
+      (e) => new AjaxError(`Unable to post ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
     });
@@ -70,7 +69,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.put(url.toString(), data, config),
+      this.instance.put(this.stripTrailingSlash(url.toString()), data, config),
       (e) => new AjaxError(`Unable to put ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -82,7 +81,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.delete(url.toString(), config),
+      this.instance.delete(this.stripTrailingSlash(url.toString()), config),
       (e) => new AjaxError(`Unable to delete ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -93,5 +92,9 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     this.instance.defaults.headers.common = {
       authorization: `Bearer ${token}`,
     };
+  }
+
+  private stripTrailingSlash(url: string) {
+    return url.endsWith("/") ? url.slice(0, -1) : url;
   }
 }

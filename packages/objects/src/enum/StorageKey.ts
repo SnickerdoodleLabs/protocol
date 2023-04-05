@@ -17,6 +17,8 @@ export enum ERecordKey {
   RECEIVING_ADDRESSES = "SD_ReceivingAddresses",
   SOCIAL_PROFILE = "SD_SocialProfile",
   SOCIAL_GROUP = "SD_SocialGroup",
+  QUERY_STATUS = "SD_QueryStatus",
+  DOMAIN_CREDENTIALS = "SD_DomainCredentials",
 }
 
 export enum EFieldKey {
@@ -33,4 +35,4 @@ export enum EFieldKey {
   DOMAIN_PERMISSIONS = "SD_DomainPermissions",
 }
 
-export type LocalStorageKey = EFieldKey | ERecordKey;
+export type StorageKey = EFieldKey | ERecordKey;

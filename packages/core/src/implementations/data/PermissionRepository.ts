@@ -2,9 +2,9 @@ import {
   DomainName,
   EBackupPriority,
   EDataWalletPermission,
+  EFieldKey,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
-import { EFieldKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -25,10 +25,7 @@ export class PermissionRepository implements IPermissionRepository {
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError> {
     return this.persistence
-      .getField<DomainPermissions>(
-        EFieldKey.DOMAIN_PERMISSIONS,
-        EBackupPriority.HIGH,
-      )
+      .getField<DomainPermissions>(EFieldKey.DOMAIN_PERMISSIONS)
       .map((domainPermissions) => {
         if (domainPermissions == null) {
           return [];
@@ -49,10 +46,7 @@ export class PermissionRepository implements IPermissionRepository {
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError> {
     return this.persistence
-      .getField<DomainPermissions>(
-        EFieldKey.DOMAIN_PERMISSIONS,
-        EBackupPriority.HIGH,
-      )
+      .getField<DomainPermissions>(EFieldKey.DOMAIN_PERMISSIONS)
       .andThen((domainPermissions) => {
         if (domainPermissions == null) {
           domainPermissions = {};
@@ -63,7 +57,6 @@ export class PermissionRepository implements IPermissionRepository {
         return this.persistence.updateField(
           EFieldKey.DOMAIN_PERMISSIONS,
           domainPermissions,
-          EBackupPriority.HIGH,
         );
       });
   }

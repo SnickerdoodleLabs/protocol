@@ -1,4 +1,5 @@
 import {
+  EBoolean,
   PersistenceError,
   VersionedObject,
   VolatileStorageDataKey,
@@ -67,6 +68,10 @@ export class IndexedDB {
               keyPathObj,
             );
 
+            VolatileStorageMetadataIndexes.forEach(([name, unique]) => {
+              objectStore.createIndex(name, name, { unique: unique });
+            });
+
             if (storeInfo.indexBy) {
               storeInfo.indexBy.forEach(([name, unique]) => {
                 if (Array.isArray(name)) {
@@ -82,10 +87,6 @@ export class IndexedDB {
                   const path = this._getFieldPath(name);
                   objectStore.createIndex(path, path, { unique: unique });
                 }
-              });
-
-              VolatileStorageMetadataIndexes.forEach(([name, unique]) => {
-                objectStore.createIndex(name, name, { unique: unique });
               });
             }
           });
@@ -220,41 +221,47 @@ export class IndexedDB {
       .map(() => {});
   }
 
-  public removeObject(
+  public removeObject<T extends VersionedObject>(
     name: string,
     key: string,
-  ): ResultAsync<void, PersistenceError> {
-    return this.initialize().andThen((db) => {
-      return this.getTransaction(name, "readwrite").andThen((tx) => {
-        const promise = new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new PersistenceError("timeout"));
-          }, 1000);
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
+    return this.getObject<T>(name, key).andThen((found) => {
+      if (found == null) {
+        return okAsync(null);
+      }
 
-          try {
-            const store = tx.objectStore(name);
-            const request = store.delete(key);
-            request.onsuccess = (event) => {
-              clearTimeout(timeout);
-              tx.commit();
-              resolve(undefined);
-            };
-            request.onerror = (event) => {
+      return this.initialize().andThen((db) => {
+        return this.getTransaction(name, "readwrite").andThen((tx) => {
+          const promise = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new PersistenceError("timeout"));
+            }, 1000);
+
+            try {
+              const store = tx.objectStore(name);
+              const request = store.delete(key);
+              request.onsuccess = (event) => {
+                clearTimeout(timeout);
+                tx.commit();
+                resolve(undefined);
+              };
+              request.onerror = (event) => {
+                clearTimeout(timeout);
+                tx.abort();
+                reject(new PersistenceError("error updating object store"));
+              };
+            } catch (e) {
               clearTimeout(timeout);
               tx.abort();
-              reject(new PersistenceError("error updating object store"));
-            };
-          } catch (e) {
-            clearTimeout(timeout);
-            tx.abort();
-            reject(new PersistenceError("error removing object", e));
-          }
-        });
+              reject(new PersistenceError("error removing object", e));
+            }
+          });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => new PersistenceError("error removing object", e),
-        ).andThen(() => okAsync(undefined));
+          return ResultAsync.fromPromise(
+            promise,
+            (e) => new PersistenceError("error removing object", e),
+          ).andThen(() => okAsync(found));
+        });
       });
     });
   }
@@ -262,6 +269,7 @@ export class IndexedDB {
   public getObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
+    _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
@@ -281,7 +289,17 @@ export class IndexedDB {
         return ResultAsync.fromPromise(
           promise,
           (e) => new PersistenceError("error getting object", e),
-        ).map((result) => result as VolatileStorageMetadata<T>);
+        ).map((result) => {
+          const obj = result as VolatileStorageMetadata<T>;
+          if (
+            obj != null &&
+            (obj.deleted != EBoolean.TRUE || _includeDeleted)
+          ) {
+            return obj;
+          } else {
+            return null;
+          }
+        });
       });
     });
   }
@@ -314,6 +332,7 @@ export class IndexedDB {
   public getAll<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
+    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
@@ -322,10 +341,15 @@ export class IndexedDB {
             const store = tx.objectStore(name);
             let request: IDBRequest<VolatileStorageMetadata<T>[]>;
             if (index == undefined) {
-              request = store.getAll();
-            } else {
-              const indexObj: IDBIndex = store.index(this._getIndexName(index));
+              const indexObj: IDBIndex = store.index("deleted");
               request = indexObj.getAll();
+            } else {
+              // const indexObj: IDBIndex = store.index(this._getIndexName(index));
+              // request = indexObj.getAll(query);
+              // TODO: fix when we go to SQLite
+              throw new PersistenceError(
+                "getting all by index query no longer supported",
+              );
             }
 
             request.onsuccess = (event) => {
@@ -388,10 +412,15 @@ export class IndexedDB {
           const store = tx.objectStore(name);
           let request: IDBRequest<any[]>;
           if (index == undefined) {
-            request = store.getAllKeys(query, count);
+            const indexObj: IDBIndex = store.index("deleted");
+            request = indexObj.getAllKeys(EBoolean.FALSE, count);
           } else {
-            const indexObj: IDBIndex = store.index(this._getIndexName(index));
-            request = indexObj.getAllKeys(query, count);
+            // TODO: fix when we go to SQLite
+            throw new PersistenceError(
+              "getting keys by index query no longer supported",
+            );
+            // const indexObj: IDBIndex = store.index(this._getIndexName(index));
+            // request = indexObj.getAllKeys(query, count);
           }
 
           request.onsuccess = (event) => {

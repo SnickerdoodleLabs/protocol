@@ -15,6 +15,7 @@ import {
   SolanaAccountAddress,
   isAccountValidForChain,
   DiscordError,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -204,11 +205,9 @@ export class MonitoringService implements IMonitoringService {
     );
   }
 
-  public pollBackups(): ResultAsync<void, PersistenceError> {
-    return this.persistence.pollBackups();
-  }
-
   public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
     return this.discordService.poll();
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.persistence.postBackups();
   }
 }

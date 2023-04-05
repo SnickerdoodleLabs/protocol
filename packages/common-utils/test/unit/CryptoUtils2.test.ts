@@ -7,35 +7,7 @@ import {
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
-describe("CryptoUtils tests", () => {
-  test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
-    // Arrange
-    const mocks = new CryptoUtilsMocks();
-    const utils = mocks.factoryCryptoUtils();
-
-    const messageToSign = "Phoebe is cute!";
-
-    // Act
-    const privateKeyResult = await utils.createEthereumPrivateKey();
-    const privateKey = privateKeyResult._unsafeUnwrap();
-    const signatureResult = await utils.signMessage(messageToSign, privateKey);
-    const signature = signatureResult._unsafeUnwrap();
-
-    const result = await utils.deriveAESKeyFromSignature(
-      signature,
-      HexString("0x00123456789abcdf"),
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const key = result._unsafeUnwrap();
-    expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
-    expect(Buffer.from(key, "base64").byteLength).toBe(32);
-    expect(key.length).toBe(44);
-    expect(key).toBe("TzhWa2if/TUOC4wWz7Cfn1CoPGbx2AqhnAOZxge/hZg==");
-  });
-
+describe("CryptoUtils Tests 2", () => {
   test("signMessage() works", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();

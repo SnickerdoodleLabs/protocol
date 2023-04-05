@@ -3,6 +3,45 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -33,7 +72,7 @@ import {
   IAccountIndexingType,
   IAccountNFTsType,
   IConfigOverrides,
-  IDataWalletBackup,
+  DataWalletBackup,
   WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -87,6 +126,10 @@ import {
   ICoreDiscordMethods,
   SnowflakeID,
   OAuthAuthorizationCode,
+  IAdMethods,
+  AdKey,
+  AdSurfaceId,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -155,6 +198,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
   public discord: ICoreDiscordMethods;
+  public ads: IAdMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -222,6 +266,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
+    // Integration Methods ---------------------------------------------------------------------------
     this.integration = {
       grantPermissions: (
         permissions: EDataWalletPermission[],
@@ -256,8 +301,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
         return integrationService.getPermissions(domain, sourceDomain);
       },
+      getTokenVerificationPublicKey: (domain: DomainName) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.getTokenVerificationPublicKey(domain);
+      },
+      getBearerToken: (nonce: string, domain: DomainName) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.getBearerToken(nonce, domain);
+      },
     };
 
+    // Marketplace Methods ---------------------------------------------------------------------------
     this.marketplace = {
       getMarketplaceListings: (
         count?: number | undefined,
@@ -278,9 +336,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         contractAddresses: EVMContractAddress[],
         timeoutMs?: number,
       ) => {
-        const campaignService =
-          this.iocContainer.get<ICampaignService>(ICampaignServiceType);
-        return campaignService.getPossibleRewards(
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getPossibleRewards(
           contractAddresses,
           timeoutMs ?? 3000,
         );
@@ -315,6 +374,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.unlink(discordProfileId);
+    // Ads Methods ---------------------------------------------------------------------------
+    this.ads = {
+      getAd: (adSurfaceId: AdSurfaceId) => {
+        throw new Error("Unimplemented");
+      },
+      reportAdShown: (
+        queryCID: IpfsCID,
+        consentContractAddress: EVMContractAddress,
+        key: AdKey,
+        adSurfaceId: AdSurfaceId,
+        contentHash: SHA256Hash,
+      ) => {
+        throw new Error("Unimplemented");
+      },
+      completeShowingAds: (queryCID: IpfsCID) => {
+        throw new Error("Unimplemented");
       },
     };
   }
@@ -963,7 +1038,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public restoreBackup(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<void, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
@@ -975,7 +1050,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public fetchBackup(
     backupHeader: string,
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
@@ -993,7 +1068,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   // and to fetch a specific chunk and decrypt it.
   public unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<string, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(

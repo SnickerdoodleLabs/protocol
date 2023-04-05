@@ -1,3 +1,14 @@
+import {
+  EWalletDataType,
+  ESDQLQueryReturn,
+  MissingWalletDataTypeError,
+  SDQL_Name,
+  SDQL_OperatorName,
+  Web2QueryTypes,
+  ISDQLQueryClause,
+  ISDQLTimestampRange,
+} from "@snickerdoodlelabs/objects";
+
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
   BinaryCondition,
@@ -8,14 +19,7 @@ import {
   ConditionL,
   ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
-import {
-  ESDQLQueryReturn,
-  EWalletDataType,
-  MissingWalletDataTypeError,
-  SDQL_Name,
-  SDQL_OperatorName,
-  Web2QueryTypes,
-} from "@snickerdoodlelabs/objects";
+
 import { err, ok, Result } from "neverthrow";
 
 export class AST_PropertyQuery extends AST_Query {
@@ -30,22 +34,23 @@ export class AST_PropertyQuery extends AST_Query {
     readonly property: Web2QueryTypes,
     readonly conditions: Array<BinaryCondition>,
     // for reading gender
-    readonly enum_keys: Array<string>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    readonly patternProperties: Object,
+    readonly enum_keys ? : Array<string>,
+    readonly patternProperties ? : Record<string , unknown>,
+    readonly timestampRange ? : ISDQLTimestampRange
   ) {
     super(name, returnType);
   }
-  static fromSchema(name: SDQL_Name, schema: any): AST_PropertyQuery {
+  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
 
     return new AST_PropertyQuery(
       name,
       schema.return,
-      schema.name,
+      schema.name as Web2QueryTypes,
       conditions,
       schema.enum_keys,
       schema.patternProperties,
+      schema.timestampRange
     );
   }
 
@@ -65,8 +70,6 @@ export class AST_PropertyQuery extends AST_Query {
         return ok(EWalletDataType.Email);
       case "location":
         return ok(EWalletDataType.Location);
-      case "browsing_history":
-        return ok(EWalletDataType.SiteVisits);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
       case "chain_transactions":
