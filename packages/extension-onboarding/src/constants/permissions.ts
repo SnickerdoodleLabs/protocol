@@ -32,11 +32,9 @@ export const PERMISSIONS = [
     ],
   },
   {
-    title : "Social Media",
-    dataTypes : [
-      EWalletDataType.Discord
-    ]
-  }
+    title: "Social Data",
+    dataTypes: [EWalletDataType.Discord],
+  },
 ];
 
 export const PERMISSION_DESCRIPTIONS = {
@@ -51,5 +49,5 @@ export const PERMISSION_DESCRIPTIONS = {
   [EWalletDataType.AccountNFTs]:
     "NFT projects you interact with and/or currently own accross different blockchain networks",
   [EWalletDataType.Discord]:
-    "Server name,  server icon, server ownership information"
+    "Server name,  server icon, server ownership information",
 };

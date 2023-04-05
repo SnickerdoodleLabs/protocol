@@ -32,7 +32,6 @@ const PERMISSIONS = [
       EWalletDataType.Birthday,
       EWalletDataType.Location,
       EWalletDataType.SiteVisits,
-      EWalletDataType.Discord,
     ],
   },
   {
@@ -43,6 +42,10 @@ const PERMISSIONS = [
       EWalletDataType.AccountNFTs,
       // EWalletDataType.LatestBlockNumber,
     ],
+  },
+  {
+    title: "Social Data",
+    dataTypes: [EWalletDataType.Discord],
   },
 ];
 
