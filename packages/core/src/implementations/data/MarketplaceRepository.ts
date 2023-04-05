@@ -67,7 +67,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
       const page = pagingReq.page;
       const pageSize = pagingReq.pageSize;
       // slice the array based on pages response
-      const startingIndex = (page - 1) * pageSize - 1;
+      const startingIndex = (page - 1) * pageSize;
       const endingIndex = page * pageSize - 1;
       const slicedArr = listings.slice(startingIndex, endingIndex);
 
