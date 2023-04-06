@@ -236,7 +236,7 @@ export interface IConsentContract {
    * for given derived opt-in address.
    * @param optInAddress Opt-in contract address
    */
-  getTokenIdByOptInAddress(
+  getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
   ): ResultAsync<TokenId | null, ConsentContractError>;
 

@@ -193,7 +193,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
           "consentContractRepo getTokenIdForOptedInCampaign derivedAddress " +
             derivedAddress,
         );
-        return consentContract.getTokenIdByOptInAddress(derivedAddress);
+        return consentContract.getLatestTokenIdByOptInAddress(derivedAddress);
       });
   }
 

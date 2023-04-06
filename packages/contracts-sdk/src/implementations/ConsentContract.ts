@@ -675,7 +675,7 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
-  public getTokenIdByOptInAddress(
+  public getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
   ): ResultAsync<TokenId | null, ConsentContractError> {
     return this.queryFilter(
