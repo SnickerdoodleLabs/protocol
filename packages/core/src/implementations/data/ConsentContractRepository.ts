@@ -1,7 +1,7 @@
 import { IConsentContractRepository } from "@core/interfaces/data/index.js";
 import {
-  IContractFactoryType,
   IContractFactory,
+  IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -14,23 +14,23 @@ import {
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
-  BlockchainProviderError,
-  EVMAccountAddress,
-  EVMContractAddress,
-  UninitializedError,
-  ConsentToken,
-  ConsentContractError,
   AjaxError,
+  BlockchainProviderError,
+  ConsentContractError,
   ConsentContractRepositoryError,
   ConsentFactoryContractError,
+  ConsentToken,
   DataPermissions,
+  EVMAccountAddress,
+  EVMContractAddress,
   HexString,
-  TokenId,
-  URLString,
   IpfsCID,
-  Signature,
   OptInInfo,
+  Signature,
+  TokenId,
   TokenUri,
+  UninitializedError,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -161,6 +161,39 @@ export class ConsentContractRepository implements IConsentContractRepository {
       })
       .map((numberOfTokens) => {
         return numberOfTokens > 0;
+      });
+  }
+
+  public getTokenIdForOptedInCampaign(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        if (context.dataWalletKey == null) {
+          return errAsync(
+            new UninitializedError(
+              "No data wallet key provided and core uninitialized in isAddressOptedIn",
+            ),
+          );
+        }
+        return ResultUtils.combine([
+          this.getConsentContract(consentContractAddress),
+          this.dataWalletUtils.deriveOptInAccountAddress(
+            consentContractAddress,
+            context.dataWalletKey,
+          ),
+        ]);
+      })
+      .andThen(([consentContract, derivedAddress]) => {
+        this.logUtils.debug(
+          "consentContractRepo getTokenIdForOptedInCampaign derivedAddress " +
+            derivedAddress,
+        );
+        return consentContract.getTokenIdByOptInAddress(derivedAddress);
       });
   }
 

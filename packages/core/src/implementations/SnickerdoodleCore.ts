@@ -499,6 +499,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     });
   }
 
+  public removeInvitation(
+    contract: EVMContractAddress,
+  ): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.removeAcceptedInvitationsByContractAddress(contract);
+  }
+
   public checkInvitationStatus(
     invitation: Invitation,
     sourceDomain: DomainName | undefined = undefined,

@@ -73,6 +73,12 @@ export interface IConsentContractRepository {
     | AjaxError
   >;
 
+  getTokenIdForOptedInCampaign(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  >;
   getConsentContracts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<

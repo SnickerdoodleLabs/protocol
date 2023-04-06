@@ -52,6 +52,7 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -631,6 +632,14 @@ export class AccountService implements IAccountService {
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.clearCloudStore();
+  }
+
+  public removeAcceptedInvitationsByContractAddress(
+    addressToRemove: EVMContractAddress,
+  ): ResultAsync<void, PersistenceError> {
+    return this.accountRepo.removeAcceptedInvitationsByContractAddress([
+      addressToRemove,
+    ]);
   }
 
   protected addCrumb(
