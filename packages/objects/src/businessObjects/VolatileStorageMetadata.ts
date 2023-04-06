@@ -1,5 +1,6 @@
-import { VersionedObject } from "@objects/businessObjects/VersionedObject";
-import { EBoolean } from "@objects/enum";
+import { VersionedObject } from "@objects/businessObjects/VersionedObject.js";
+import { EBoolean } from "@objects/enum/index.js";
+import { UnixTimestamp } from "@objects/primitives/index.js";
 
 export const VolatileStorageDataKey = "data";
 export const VolatileStorageMetadataIndexes: [string, boolean][] = [
@@ -9,7 +10,7 @@ export const VolatileStorageMetadataIndexes: [string, boolean][] = [
 export class VolatileStorageMetadata<T extends VersionedObject> {
   public constructor(
     public data: T,
-    public lastUpdate: number = Date.now(),
+    public lastUpdate: UnixTimestamp,
     public deleted: EBoolean = EBoolean.FALSE,
   ) {}
 }

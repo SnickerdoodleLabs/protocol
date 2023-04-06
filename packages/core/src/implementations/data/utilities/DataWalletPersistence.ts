@@ -17,6 +17,7 @@ import {
   EFieldKey,
   ERecordKey,
   SerializedObject,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -190,12 +191,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
-      this.volatileSchemaProvider.getCurrentVersionForTable(tableName),
       this.waitForUnlock(),
-    ]).andThen(([backupManager, version]) => {
+    ]).andThen(([backupManager]) => {
       if (tableName == ERecordKey.ACCOUNT) {
         return this.volatileStorage
-          .putObject(tableName, new VolatileStorageMetadata<T>(value, 0))
+          .putObject(
+            tableName,
+            new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
+          )
           .map(() => {
             this.waitForInitialRestore().andThen(() => {
               return this.volatileStorage
@@ -209,7 +212,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                   if (found!.lastUpdate == 0) {
                     return backupManager.addRecord(
                       tableName,
-                      new VolatileStorageMetadata<T>(value, version),
+                      new VolatileStorageMetadata<T>(
+                        value,
+                        this.timeUtils.getUnixNow(),
+                      ),
                     );
                   }
                   return okAsync(undefined);
@@ -220,7 +226,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       return backupManager.addRecord(
         tableName,
-        new VolatileStorageMetadata<T>(value, version),
+        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
       );
     });
   }
@@ -429,11 +435,4 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .map(() => undefined);
   }
-}
-
-class QueuedRecord<T extends VersionedObject> {
-  public constructor(
-    public dataType: ERecordKey,
-    public value: VolatileStorageMetadata<T>,
-  ) {}
 }

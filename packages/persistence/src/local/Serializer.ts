@@ -1,22 +1,34 @@
-import { PersistenceError, SerializedObject } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  JSONString,
+  PersistenceError,
+  SerializedObject,
+} from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
+import { err, ok, Result } from "neverthrow";
 
 export class Serializer {
   public static serialize<T>(
     obj: T,
-  ): ResultAsync<SerializedObject, PersistenceError> {
+  ): Result<SerializedObject, PersistenceError> {
     const type = typeof obj;
     switch (type) {
       case "object":
-        return okAsync(new SerializedObject(type, JSON.stringify(obj)));
+        return ok(new SerializedObject(type, ObjectUtils.serialize(obj)));
+      case "boolean":
+        return ok(
+          new SerializedObject(type, (obj as unknown as boolean).toString()),
+        );
       case "number":
-        return okAsync(
+        return ok(
           new SerializedObject(type, (obj as unknown as number).toString()),
         );
       case "string":
-        return okAsync(new SerializedObject(type, obj as unknown as string));
+        return ok(new SerializedObject(type, obj as unknown as string));
+      case "bigint":
+        return ok(new SerializedObject(type, BigNumber.from(obj).toString()));
       default:
-        return errAsync(
+        return err(
           new PersistenceError("unsupported data type for serialization", type),
         );
     }
@@ -24,17 +36,23 @@ export class Serializer {
 
   public static deserialize<T>(
     serializedObj: SerializedObject,
-  ): ResultAsync<T, PersistenceError> {
+  ): Result<T, PersistenceError> {
     try {
       switch (serializedObj.type) {
         case "object":
-          return okAsync(JSON.parse(serializedObj.data) as T);
+          return ok(ObjectUtils.deserialize<T>(JSONString(serializedObj.data)));
+        case "boolean":
+          return ok((serializedObj.data === "true") as unknown as T);
         case "number":
-          return okAsync(Number.parseFloat(serializedObj.data) as unknown as T);
+          return ok(Number.parseFloat(serializedObj.data) as unknown as T);
         case "string":
-          return okAsync(serializedObj.data as unknown as T);
+          return ok(serializedObj.data as unknown as T);
+        case "bigint":
+          return ok(
+            BigNumber.from(serializedObj.data).toBigInt() as unknown as T,
+          );
         default:
-          return errAsync(
+          return err(
             new PersistenceError(
               "invalid data type for deserialization",
               serializedObj.type,
@@ -42,7 +60,7 @@ export class Serializer {
           );
       }
     } catch (e) {
-      return errAsync(new PersistenceError("error deserializing object", e));
+      return err(new PersistenceError("error deserializing object", e));
     }
   }
 }

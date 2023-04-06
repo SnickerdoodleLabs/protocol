@@ -19,6 +19,10 @@ import {
   IBackupUtilsType,
 } from "@persistence/backup/IBackupUtils.js";
 import {
+  IChunkRendererFactory,
+  IChunkRendererFactoryType,
+} from "@persistence/backup/IChunkRendererFactory.js";
+import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
@@ -53,6 +57,8 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     protected fieldSchemaProvider: IFieldSchemaProvider,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
     @inject(IBackupUtilsType) protected backupUtils: IBackupUtils,
+    @inject(IChunkRendererFactoryType)
+    protected chunkRendererFactory: IChunkRendererFactory,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -86,6 +92,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         config.enableBackupEncryption,
         this.timeUtils,
         this.backupUtils,
+        this.chunkRendererFactory,
         this.recordSchemaProvider,
       );
     });
