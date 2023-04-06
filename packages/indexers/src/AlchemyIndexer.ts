@@ -134,19 +134,28 @@ export class AlchemyIndexer
         .andThen((response) => {
           const weiValue = parseInt(response.result, 16);
           console.log("weiValue: ", weiValue);
-          console.log("weiValue: ", BigNumber.from(weiValue.to));
+        //   console.log(
+        //     "BigNumber.from(weiValue).toString(): ",
+        //     weiValue.toString(),
+        //   );
+        //   console.log(
+        //     "BigNumber.from(weiValue).toString(): ",
+        //     BigNumber.from(weiValue).toString(),
+        //   );
 
-          return okAsync(
-            new TokenBalance(
-              EChainTechnology.EVM,
-              TickerSymbol(chainInfo.nativeCurrency.symbol),
-              chainId,
-              null,
-              accountAddress,
-              BigNumberString(weiValue.toString()),
-              getChainInfoByChainId(chainId).nativeCurrency.decimals,
-            ),
+          const balance = new TokenBalance(
+            EChainTechnology.EVM,
+            TickerSymbol(chainInfo.nativeCurrency.symbol),
+            chainId,
+            null,
+            accountAddress,
+            BigNumberString(BigNumber.from(weiValue).toString()),
+            getChainInfoByChainId(chainId).nativeCurrency.decimals,
           );
+
+          console.log("balance: ", balance);
+
+          return okAsync(balance);
         });
     });
   }
@@ -168,7 +177,7 @@ export class AlchemyIndexer
     ]).map(([nonNativeBalance, nativeBalance]) => {
       console.log("nativeBalance: ", nativeBalance);
       return [nativeBalance];
-    //   return [nativeBalance, ...nonNativeBalance];
+      //   return [nativeBalance, ...nonNativeBalance];
     });
   }
 
