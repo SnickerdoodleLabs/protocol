@@ -19,6 +19,7 @@ export enum EPaths {
   SCAM_FILTER_SETTINGS = "/settings/scam-filter",
   TOKENS = "/data-dashboard/tokens",
   NFTS = "/data-dashboard/nfts",
+  POAP_NFTS = "/data-dashboard/poap-nfts",
   BROWSER_ACTIVITY = "/data-dashboard/browser-activity",
   SOCIAL_MEDIA_DATA = "/data-dashboard/social-media-data",
   PERSONAL_INFO = "/data-dashboard/personal-info",
