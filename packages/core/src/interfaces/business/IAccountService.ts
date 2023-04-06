@@ -120,9 +120,7 @@ export interface IAccountService {
     TransactionPaymentCounter[],
     PersistenceError
   >;
-  removeAcceptedInvitationsByContractAddress(
-    addressToRemove: EVMContractAddress,
-  ): ResultAsync<void, PersistenceError>;
+
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;

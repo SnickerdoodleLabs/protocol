@@ -231,9 +231,15 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
+  /**
+   * Returns the tokenId of latest opt-in contract the user has 
+   * for given derived opt-in address.
+   * @param optInAddress Opt-in contract address
+   */
   getTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
   ): ResultAsync<TokenId | null, ConsentContractError>;
+
   /**
    * Disables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract

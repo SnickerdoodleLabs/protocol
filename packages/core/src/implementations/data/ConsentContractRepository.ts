@@ -164,7 +164,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getTokenIdForOptedInCampaign(
+  public getLatestConsentTokenId(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     TokenId | null,

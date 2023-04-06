@@ -634,14 +634,6 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.clearCloudStore();
   }
 
-  public removeAcceptedInvitationsByContractAddress(
-    addressToRemove: EVMContractAddress,
-  ): ResultAsync<void, PersistenceError> {
-    return this.accountRepo.removeAcceptedInvitationsByContractAddress([
-      addressToRemove,
-    ]);
-  }
-
   protected addCrumb(
     languageCode: LanguageCode,
     encryptedDataWalletKey: AESEncryptedString,

@@ -143,7 +143,7 @@ export class InvitationService implements IInvitationService {
             // There's no known accepted invitation
             // Get latest opt-in tokenId from chain, and restore Invitation in the persistence
             return this.consentRepo
-              .getTokenIdForOptedInCampaign(invitation.consentContractAddress)
+              .getLatestConsentTokenId(invitation.consentContractAddress)
               .andThen((tokenIdOrNull) => {
                 return this.accountRepo
                   .addAcceptedInvitations([

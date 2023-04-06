@@ -379,10 +379,6 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
-  removeInvitation(
-    contract: EVMContractAddress,
-  ): ResultAsync<void, PersistenceError>;
-
   /**
    * This method checks the status of the invitation in relationship to the data wallet.
    * An invitation may be either "New" (haven't dealt with it one way or the other),
