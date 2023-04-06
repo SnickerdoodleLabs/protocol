@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { JSONString } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
-import { okAsync, ResultAsync } from "neverthrow";
-
-export class ObjectUtils {
-=======
 import {
   CursorPagedResponse,
   PagedResponse,
@@ -39,7 +32,6 @@ export class ObjectUtils {
     }, {});
   }
 
->>>>>>> feature/ObjectUtils
   static serialize(obj: unknown): JSONString {
     return JSONString(
       JSON.stringify(obj, (key, value) => {
@@ -101,9 +93,6 @@ export class ObjectUtils {
       return value;
     });
   }
-<<<<<<< HEAD
-}
-=======
 
   static toGenericObject(obj: unknown): Record<string, unknown> {
     return ObjectUtils.deserialize(ObjectUtils.serialize(obj));
@@ -226,4 +215,3 @@ export class ObjectUtils {
     return array.filter(notEmpty);
   }
 }
->>>>>>> feature/ObjectUtils

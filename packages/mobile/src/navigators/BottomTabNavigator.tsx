@@ -5,11 +5,18 @@ import { COLORS, ROUTES } from "../constants";
 import Icon from "react-native-vector-icons/Ionicons";
 import Onboarding from "../screens/Onboarding";
 import Marketplace from "../newcomponents/Marketplace/Marketplace";
-import AuthNavigator from "./AuthNavigator";
 import Dashboard from "../newcomponents/Dashboard/Dashboard";
 import Settings from "../newcomponents/Settings/Settings";
+import {
+  DashboardStack,
+  MarketplaceStack,
+  SettingStack,
+} from "./AuthNavigator";
+import { createStackNavigator } from "@react-navigation/stack";
+import CardDetails from "../newcomponents/Marketplace/CardDetails";
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
@@ -32,21 +39,21 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen
         name={ROUTES.HOME}
-        component={AuthNavigator}
+        component={MarketplaceStack}
         options={{
           headerShown: false,
         }}
       />
       <Tab.Screen
         name={ROUTES.DASHBOARD}
-        component={Dashboard}
+        component={DashboardStack}
         options={{
           headerShown: false,
         }}
       />
       <Tab.Screen
         name={ROUTES.SETTINGS}
-        component={Settings}
+        component={SettingStack}
         options={{
           headerShown: false,
         }}

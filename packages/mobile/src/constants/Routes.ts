@@ -10,6 +10,7 @@ export default {
   STARTER_TOUR2: "Starter_Tour2",
   COMPONENT_TEST: "Component_Test",
   CARD_DETAILS: "Card_Details",
+  NFT_DETAILS: "Nft_Details",
   SETTINGS: "Settings",
   CRYPTO_SETTINGS: "Crypto_Settings",
   PERSONAL_SETTINGS: "Personal_Settings",

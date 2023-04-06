@@ -12,10 +12,7 @@ export default function NFTs({ data }) {
   }, [data]);
   const NFTs = ({ navigation }: any) => {
     return (
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate(ROUTES.IMAGE_CAROUSEL, { NFTs: data.nfts.images })
-        }
+      <View
         style={{
           paddingHorizontal: 10,
           flexDirection: "row",
@@ -31,24 +28,33 @@ export default function NFTs({ data }) {
               justifyContent: "space-between",
             }}
           >
-            {data?.nfts?.images?.map((data) => (
+            {data?.nfts?.images?.map((image) => (
               <View style={{ paddingBottom: 10 }}>
-                <Image
-                  key={data}
-                  style={{
-                    width: normalizeWidth(180),
-                    height: normalizeHeight(180),
-                    borderRadius: 15,
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate(ROUTES.NFT_DETAILS, {
+                      data: data?.nfts?.mainObjects,
+                      image,
+                    });
                   }}
-                  source={{
-                    uri: data,
-                  }}
-                />
+                >
+                  <Image
+                    key={image}
+                    style={{
+                      width: normalizeWidth(180),
+                      height: normalizeHeight(180),
+                      borderRadius: 15,
+                    }}
+                    source={{
+                      uri: image,
+                    }}
+                  />
+                </TouchableOpacity>
               </View>
             ))}
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
   return (

@@ -1,4 +1,4 @@
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils/src/implementations/ObjectUtils";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";

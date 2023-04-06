@@ -13,11 +13,13 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
 import RadioButton from "../Custom/RadioButton";
+import { useNavigation } from "@react-navigation/native";
 
 export default function CryptoSettings() {
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
   const [selected, setSelected] = React.useState<string>(linkedAccounts[0]);
+  const navigation = useNavigation();
 
   const handleSelect = (value: string) => {
     setSelected(value);
@@ -31,6 +33,13 @@ export default function CryptoSettings() {
       }}
     >
       <SafeAreaView>
+      {/*   <Icon
+          name="arrow-back-outline"
+          size={40}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        /> */}
         <Text
           style={{
             fontWeight: "700",

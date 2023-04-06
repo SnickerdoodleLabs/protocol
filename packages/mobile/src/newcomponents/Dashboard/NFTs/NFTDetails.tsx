@@ -9,9 +9,9 @@ import {
   View,
 } from "react-native";
 import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
-import { useLayoutContext } from "../../context/LayoutContext";
+import { useLayoutContext } from "../../../context/LayoutContext";
 import { okAsync } from "neverthrow";
 import {
   BigNumberString,
@@ -22,7 +22,7 @@ import {
   Signature,
   TokenId,
 } from "@snickerdoodlelabs/objects";
-import { useAppContext } from "../../context/AppContextProvider";
+import { useAppContext } from "../../../context/AppContextProvider";
 
 interface ICardDetailsProps {
   image: any;
@@ -43,12 +43,12 @@ const data: ICardDetailsProps = {
 };
 
 const permissionImage = {
-  Gender: require("../../assets/images/renting-gender.png"),
-  Age: require("../../assets/images/renting-birthday.png"),
-  "Country of Residence": require("../../assets/images/renting-location.png"),
-  "Browser history (most visited URLs)": require("../../assets/images/renting-siteVisited.png"),
-  "Decentralized applications you've interacted with": require("../../assets/images/renting-transaction.png"),
-  "Aggregated token holdings and NFT collections": require("../../assets/images/renting-nfts.png"),
+  Gender: require("../../../assets/images/renting-gender.png"),
+  Age: require("../../../assets/images/renting-birthday.png"),
+  "Country of Residence": require("../../../assets/images/renting-location.png"),
+  "Browser history (most visited URLs)": require("../../../assets/images/renting-siteVisited.png"),
+  "Decentralized applications you've interacted with": require("../../../assets/images/renting-transaction.png"),
+  "Aggregated token holdings and NFT collections": require("../../../assets/images/renting-nfts.png"),
 };
 
 const testData = [data, data, data];
@@ -76,13 +76,26 @@ export const isValidURL = (url: string) => {
   return !!regexpUrl.test(url);
 };
 
-const CardDetails = ({ navigation, route }) => {
+const NFTDetails = ({ navigation, route }) => {
   const { setInvitationStatus } = useLayoutContext();
   const [invitationParams, setInvitationParams] =
     React.useState<IInvitationParams>();
 
+  const [nftData, setNFTData] = React.useState();
+
   const rewardItem = route.params;
   const { mobileCore } = useAppContext();
+
+  useEffect(() => {
+    console.log("NFTDETAILS", rewardItem);
+    const parsed = rewardItem?.data?.filter(
+      (item) =>
+        ipfsParse(item?.normalized_metadata?.image) === rewardItem?.image,
+    );
+    console.log("parsed", parsed);
+    setNFTData(parsed?.[0]);
+    console.log("JSONMETADATA", JSON.parse(parsed?.[0].metadata));
+  }, []);
 
   const getTokenId = (tokenId: BigNumberString | undefined) => {
     if (tokenId) {
@@ -150,9 +163,11 @@ const CardDetails = ({ navigation, route }) => {
         <View style={{ alignItems: "center" }}>
           <Image
             style={styles.image}
-            source={{ uri: ipfsParse(rewardItem?.image) }}
+            source={{
+              uri: ipfsParse(nftData?.normalized_metadata?.image),
+            }}
           />
-          <Text style={styles.title}>{rewardItem?.name}</Text>
+          <Text style={styles.title}>{nftData?.name}</Text>
           <Text style={styles.subTitle}>
             Created By{" "}
             {
@@ -163,7 +178,7 @@ const CardDetails = ({ navigation, route }) => {
           </Text>
           <LineBreaker />
           {/*  <Text style={styles.claimed}>{data.claimed}</Text>
-          <Text style={styles.peopleClaimed}>People Claimed</Text> */}
+            <Text style={styles.peopleClaimed}>People Claimed</Text> */}
           <View style={styles.descriptionContainer}>
             <Text style={styles.descriptionTitle}>Description</Text>
             <View style={{ marginVertical: normalizeHeight(20) }}>
@@ -176,51 +191,19 @@ const CardDetails = ({ navigation, route }) => {
                 )[0].value
               }
             </Text>
-            <Text style={styles.description}>{rewardItem?.description}</Text>
+            <Text style={styles.description}>
+              {nftData?.normalized_metadata?.description}
+            </Text>
             <View
               style={{ flexDirection: "row", marginTop: 50, marginBottom: 20 }}
             >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Image
-                  source={require("../../assets/images/etherscan-logo.png")}
-                />
-                <Text style={{ marginLeft: 5 }}>Etherscan</Text>
-              </View>
-
               <View style={styles.linkContainer}>
-                <Image source={require("../../assets/images/ipfs-logo.png")} />
+                <Image
+                  source={require("../../../assets/images/ipfs-logo.png")}
+                />
                 <Text style={{ marginLeft: 5 }}>IPFS</Text>
               </View>
             </View>
-          </View>
-
-          <View style={[styles.descriptionContainer, { marginTop: 24 }]}>
-            <Text style={styles.descriptionTitle}>To Claim This Reward</Text>
-            <Text style={styles.subTitle2}>You are renting your:</Text>
-            <View style={{ marginVertical: normalizeHeight(20) }}>
-              <LineBreaker />
-            </View>
-
-            {rewardItem?.attributes
-              ?.filter(
-                (attribute) => attribute?.trait_type === "requiredPermissions",
-              )[0]
-              .value.map((permission) => {
-                return (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginBottom: normalizeHeight(15),
-                    }}
-                  >
-                    <Image source={permissionImage[permission]} />
-                    <Text style={{ marginLeft: normalizeWidth(12) }}>
-                      {permission}
-                    </Text>
-                  </View>
-                );
-              })}
           </View>
 
           <View style={[styles.descriptionContainer, { marginTop: 24 }]}>
@@ -229,70 +212,41 @@ const CardDetails = ({ navigation, route }) => {
             <View style={{ marginVertical: normalizeHeight(20) }}>
               <LineBreaker />
             </View>
-            {rewardItem?.attributes
-              ?.filter(
-                (attribute) =>
-                  attribute?.trait_type !== "requiredPermissions" &&
-                  attribute?.trait_type !== "createdBy",
-              )
-              .map((test, index) => {
-                return (
-                  <View>
-                    <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
-                      {test.trait_type.toUpperCase()}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.subTitle,
-                        { fontWeight: "700", marginTop: normalizeHeight(8) },
-                      ]}
-                    >
-                      {test.value}
-                    </Text>
+            {nftData?.normalized_metadata.attributes.map((data, index) => {
+              return (
+                <View>
+                  <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
+                    {data.trait_type.toUpperCase()}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.subTitle,
+                      { fontWeight: "700", marginTop: normalizeHeight(8) },
+                    ]}
+                  >
+                    {data.value}
+                  </Text>
 
-                    <View>
-                      {index + 1 !== testData.length && <LineBreaker />}
-                    </View>
+                  <View>
+                    {index + 1 !== testData.length && <LineBreaker />}
                   </View>
-                );
-              })}
+                </View>
+              );
+            })}
           </View>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#6E62A6",
-              width: normalizeWidth(380),
-              height: normalizeHeight(58),
-              borderRadius: normalizeWidth(100),
-              marginVertical: normalizeHeight(15),
-              justifyContent: "center",
-            }}
-            onPress={() => {
-              onClaimClick(rewardItem.external_url);
-            }}
-          >
-            <Text
-              style={{
-                textAlign: "center",
-                color: "white",
-                fontWeight: "700",
-                fontSize: normalizeWidth(16),
-              }}
-            >
-              Claim Reward
-            </Text>
-          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </ScrollView>
   );
 };
 
-export default CardDetails;
+export default NFTDetails;
 
 const styles = StyleSheet.create({
   image: {
     width: normalizeWidth(380),
     height: normalizeHeight(380),
+    borderRadius: normalizeWidth(40),
   },
   title: {
     fontWeight: "700",
@@ -348,7 +302,6 @@ const styles = StyleSheet.create({
     fontSize: normalizeWidth(14),
     lineHeight: normalizeHeight(20),
     color: "#616161",
-    marginTop: normalizeHeight(20),
   },
   subTitle2: {
     marginVertical: normalizeHeight(8),
@@ -359,6 +312,5 @@ const styles = StyleSheet.create({
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 30,
   },
 });

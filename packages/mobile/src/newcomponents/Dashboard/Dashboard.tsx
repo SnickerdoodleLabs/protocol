@@ -173,125 +173,127 @@ const Dashboard = () => {
     }
   };
   return (
-    <ScrollView style={{ backgroundColor: "white" }}>
-      <SafeAreaView style={{ marginHorizontal: normalizeWidth(20) }}>
-        <View style={styles.containerBox}>
-          <Text style={styles.title}>My Data Dashboard</Text>
-          <TouchableOpacity
-            onPress={toggleSidebar}
-            style={styles.dropdownContainer}
-          >
-            <Icon name="funnel-outline" size={normalizeWidth(20)} />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            alignItems: "center",
-            zIndex: 999,
-            marginTop: normalizeHeight(20),
-          }}
-        >
-          <Dropdown
-            items={pickerLinkedAccounts}
-            onSelect={onSelect}
-            selected={selectedAccount}
-          />
-        </View>
-        <DashboardTab
-          data={{
-            nfts: myNFTs,
-            tokens: myTokens,
-            totalBalance: totalVal,
-            selectedAccount,
-            setSelectedAccount,
-            isMainnet,
-            pickerLinkedAccounts,
-          }}
-        />
-        {isOpen && (
-          <Animated.View style={[styles.sidebar, { width: animatedWidth }]}>
-            <View
-              style={{
-                marginTop: 80,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
+    <SafeAreaView style={{ backgroundColor: "white" }}>
+      <ScrollView style={{ backgroundColor: "white" }}>
+        <SafeAreaView style={{ marginHorizontal: normalizeWidth(20) }}>
+          <View style={styles.containerBox}>
+            <Text style={styles.title}>My Data Dashboard</Text>
+            <TouchableOpacity
+              onPress={toggleSidebar}
+              style={styles.dropdownContainer}
             >
-              <Icon
-                name="close"
-                size={normalizeWidth(30)}
-                onPress={() => {
-                  setIsOpen(false);
-                }}
-              />
-              <Text
+              <Icon name="funnel-outline" size={normalizeWidth(20)} />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              alignItems: "center",
+              zIndex: 999,
+              marginTop: normalizeHeight(20),
+            }}
+          >
+            <Dropdown
+              items={pickerLinkedAccounts}
+              onSelect={onSelect}
+              selected={selectedAccount}
+            />
+          </View>
+          <DashboardTab
+            data={{
+              nfts: myNFTs,
+              tokens: myTokens,
+              totalBalance: totalVal,
+              selectedAccount,
+              setSelectedAccount,
+              isMainnet,
+              pickerLinkedAccounts,
+            }}
+          />
+          {isOpen && (
+            <Animated.View style={[styles.sidebar, { width: animatedWidth }]}>
+              <View
                 style={{
-                  fontSize: normalizeWidth(24),
-                  fontWeight: "700",
-                  color: "#424242",
-                  marginLeft: normalizeWidth(20),
+                  marginTop: 80,
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
-                Filter Options
-              </Text>
-            </View>
-            <View style={styles.borderBox}>
-              <Text
-                style={{
-                  fontStyle: "normal",
-                  fontWeight: "700",
-                  fontSize: normalizeWidth(20),
-                  lineHeight: normalizeHeight(29),
-                  color: "#212121",
-                }}
-              >
-                Account
-              </Text>
-
-              <View style={{ marginTop: normalizeHeight(42) }}>
-                <RadioButton
-                  label="All"
-                  checked={selected === "All"}
-                  onPress={() => handleSelect("All")}
+                <Icon
+                  name="close"
+                  size={normalizeWidth(30)}
+                  onPress={() => {
+                    setIsOpen(false);
+                  }}
                 />
-                {linkedAccounts.map((account) => {
-                  return (
-                    <RadioButton
-                      label={`${account?.slice(
-                        0,
-                        6,
-                      )}...........................${account?.slice(36, 42)}`}
-                      checked={selectedAccount === account}
-                      onPress={() => handleSelect(account)}
-                    />
-                  );
-                })}
+                <Text
+                  style={{
+                    fontSize: normalizeWidth(24),
+                    fontWeight: "700",
+                    color: "#424242",
+                    marginLeft: normalizeWidth(20),
+                  }}
+                >
+                  Filter Options
+                </Text>
               </View>
-            </View>
+              <View style={styles.borderBox}>
+                <Text
+                  style={{
+                    fontStyle: "normal",
+                    fontWeight: "700",
+                    fontSize: normalizeWidth(20),
+                    lineHeight: normalizeHeight(29),
+                    color: "#212121",
+                  }}
+                >
+                  Account
+                </Text>
 
-            <View style={styles.borderBox}>
-              <Text
-                style={{
-                  fontStyle: "normal",
-                  fontWeight: "700",
-                  fontSize: normalizeWidth(20),
-                  lineHeight: normalizeHeight(29),
-                  color: "#212121",
-                  marginBottom: normalizeHeight(20),
-                }}
-              >
-                Chains
-              </Text>
-              <MultiSelect
-                options={options}
-                handleSelectChain={handleSelectChain}
-                selectedChains={selectedChains}
-              />
-            </View>
-          </Animated.View>
-        )}
-      </SafeAreaView>
-    </ScrollView>
+                <View style={{ marginTop: normalizeHeight(42) }}>
+                  <RadioButton
+                    label="All"
+                    checked={selected === "All"}
+                    onPress={() => handleSelect("All")}
+                  />
+                  {linkedAccounts.map((account) => {
+                    return (
+                      <RadioButton
+                        label={`${account?.slice(
+                          0,
+                          6,
+                        )}...........................${account?.slice(36, 42)}`}
+                        checked={selectedAccount === account}
+                        onPress={() => handleSelect(account)}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View style={styles.borderBox}>
+                <Text
+                  style={{
+                    fontStyle: "normal",
+                    fontWeight: "700",
+                    fontSize: normalizeWidth(20),
+                    lineHeight: normalizeHeight(29),
+                    color: "#212121",
+                    marginBottom: normalizeHeight(20),
+                  }}
+                >
+                  Chains
+                </Text>
+                <MultiSelect
+                  options={options}
+                  handleSelectChain={handleSelectChain}
+                  selectedChains={selectedChains}
+                />
+              </View>
+            </Animated.View>
+          )}
+        </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

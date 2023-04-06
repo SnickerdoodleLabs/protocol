@@ -30,146 +30,152 @@ const Marketplace = () => {
 
   useEffect(() => {
     mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {
-      console.log("earnedRewards", earnedRewards);
+      console.log("earnedRewards2", earnedRewards);
       return setMyRewards(earnedRewards);
     });
   }, []);
 
   return (
-    <ScrollView>
-      <SafeAreaView style={{ marginHorizontal: normalizeWidth(20) }}>
-        <Text style={styles.title}>Rewards Marketplace</Text>
-        <View style={styles.banner}>
-          <Image
-            style={styles.bannerImage}
-            source={require("../../assets/images/marketplaceBanner.png")}
-          />
-        </View>
-
-        <View style={{ alignItems: "center" }}>
-          <View>
-            <Text style={styles.subtitle}>Join Snickerdoodle</Text>
-          </View>
-          <View>
-            <Text style={styles.description}>
-              Sign in with the crypto wallet of your choice. Link more accounts
-              and see all your asset information in one place.
-            </Text>
-          </View>
-        </View>
-        {/* My Rewards */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <View>
-            <Text style={styles.sectionTitle}>My Rewards</Text>
-          </View>
-          <View>
-            <Button color="#5D4F97" title="See All" />
-          </View>
-        </View>
-        <View>
-          <View>
-            <Text style={styles.sectionDescription}>
-              Your NFTs, from linked accounts and newly earned rewards.
-            </Text>
-          </View>
-        </View>
-        <View>
-          <View>
-            <FlatList
-              style={{ marginLeft: -normalizeWidth(10) }}
-              data={myRewards}
-              renderItem={({ item, index }) => (
-                <View
-                  style={[
-                    { marginTop: normalizeWidth(20) },
-                    (index + 1) % 2 === 0 && { marginLeft: normalizeWidth(20) },
-                  ]}
-                >
-                  <CardItem
-                    imageSource={""}
-                    title={""}
-                    description={""}
-                    cid={item}
-                  />
-                </View>
-              )}
-              keyExtractor={(item) => item}
-              contentContainerStyle={{
-                padding: 10,
-                justifyContent: "space-between",
-                flexDirection: "row",
-                flexWrap: "wrap",
-              }}
-              numColumns={2}
+    <SafeAreaView style={{ backgroundColor: "white" }}>
+      <ScrollView>
+        <SafeAreaView style={{ marginHorizontal: normalizeWidth(20) }}>
+          <Text style={styles.title}>Rewards Marketplace</Text>
+          <View style={styles.banner}>
+            <Image
+              style={styles.bannerImage}
+              source={require("../../assets/images/marketplaceBanner.png")}
             />
           </View>
-        </View>
-        {/* My Rewards */}
 
-        {/* Available Rewards */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <View>
-            <Text style={styles.sectionTitle}>Available Rewards</Text>
+          <View style={{ alignItems: "center" }}>
+            <View>
+              <Text style={styles.subtitle}>Join Snickerdoodle</Text>
+            </View>
+            <View>
+              <Text style={styles.description}>
+                Sign in with the crypto wallet of your choice. Link more
+                accounts and see all your asset information in one place.
+              </Text>
+            </View>
           </View>
-          <View>
-            <Button color="#5D4F97" title="See All" />
-          </View>
-        </View>
-        <View>
-          <View>
-            <Text style={styles.sectionDescription}>
-              Your NFTs, from linked accounts and newly earned rewards.
-            </Text>
-          </View>
-        </View>
-        <View>
+          {/* My Rewards */}
           <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
           >
-            <FlatList
-              style={{ marginLeft: -normalizeWidth(10) }}
-              data={listings}
-              renderItem={({ item, index }) => (
-                <View
-                  style={[
-                    { marginTop: normalizeWidth(15) },
-                    (index + 1) % 2 === 0 && { marginLeft: normalizeWidth(15) },
-                  ]}
-                >
-                  <CardItem
-                    imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
-                    title="Ugly Sweater NFT"
-                    description="Limited."
-                    cid={item}
-                  />
-                </View>
-              )}
-              keyExtractor={(item) => item}
-              contentContainerStyle={{
-                padding: 10,
-                justifyContent: "space-between",
-                flexDirection: "row",
-                flexWrap: "wrap",
-              }}
-              numColumns={2}
-            />
+            <View>
+              <Text style={styles.sectionTitle}>My Rewards</Text>
+            </View>
+            <View>
+              <Button color="#5D4F97" title="See All" />
+            </View>
           </View>
-        </View>
-        {/* Available Rewards */}
-      </SafeAreaView>
-    </ScrollView>
+          <View>
+            <View>
+              <Text style={styles.sectionDescription}>
+                Your NFTs, from linked accounts and newly earned rewards.
+              </Text>
+            </View>
+          </View>
+          <View>
+            <View>
+              <FlatList
+                style={{ marginLeft: -normalizeWidth(10) }}
+                data={myRewards}
+                renderItem={({ item, index }) => (
+                  <View
+                    style={[
+                      { marginTop: normalizeWidth(20) },
+                      (index + 1) % 2 === 0 && {
+                        marginLeft: normalizeWidth(20),
+                      },
+                    ]}
+                  >
+                    <CardItem
+                      imageSource={""}
+                      title={""}
+                      description={""}
+                      cid={item}
+                    />
+                  </View>
+                )}
+                keyExtractor={(item) => item}
+                contentContainerStyle={{
+                  padding: 10,
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                }}
+                numColumns={2}
+              />
+            </View>
+          </View>
+          {/* My Rewards */}
+
+          {/* Available Rewards */}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <View>
+              <Text style={styles.sectionTitle}>Available Rewards</Text>
+            </View>
+            <View>
+              <Button color="#5D4F97" title="See All" />
+            </View>
+          </View>
+          <View>
+            <View>
+              <Text style={styles.sectionDescription}>
+                Your NFTs, from linked accounts and newly earned rewards.
+              </Text>
+            </View>
+          </View>
+          <View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <FlatList
+                style={{ marginLeft: -normalizeWidth(10) }}
+                data={listings}
+                renderItem={({ item, index }) => (
+                  <View
+                    style={[
+                      { marginTop: normalizeWidth(15) },
+                      (index + 1) % 2 === 0 && {
+                        marginLeft: normalizeWidth(15),
+                      },
+                    ]}
+                  >
+                    <CardItem
+                      imageSource="https://www.cnet.com/a/img/resize/e547a2e4388fcc5ab560f821ac170a59b9fb0143/hub/2021/12/13/d319cda7-1ddd-4855-ac55-9dcd9ce0f6eb/unnamed.png?auto=webp&fit=crop&height=1200&width=1200"
+                      title="Ugly Sweater NFT"
+                      description="Limited."
+                      cid={item}
+                    />
+                  </View>
+                )}
+                keyExtractor={(item) => item}
+                contentContainerStyle={{
+                  padding: 10,
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                }}
+                numColumns={2}
+              />
+            </View>
+          </View>
+          {/* Available Rewards */}
+        </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

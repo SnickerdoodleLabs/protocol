@@ -97,6 +97,7 @@ const MyComponent = () => {
 
   useEffect(() => {
     mobileCore.piiService.getLocation().map((res) => {
+      console.log("res", res);
       if (res) {
         const country = countries.filter((country) => country.value === res);
         setSelectedCountry({
@@ -122,7 +123,7 @@ const MyComponent = () => {
   }, [mobileCore]);
 
   const handleCountryPress = (country: any) => {
-    mobileCore.piiService.setLocation(country.code as CountryCode);
+    mobileCore.piiService.setLocation(country.value as CountryCode);
     setSelectedCountry(country);
   };
 
