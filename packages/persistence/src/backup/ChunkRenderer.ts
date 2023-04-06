@@ -35,7 +35,7 @@ export class ChunkRenderer implements IChunkRenderer {
     protected privateKey: EVMPrivateKey,
     protected timeUtils: ITimeUtils,
   ) {
-    this.lastRender = timeUtils.getUnixNow();
+    this.lastRender = UnixTimestamp(-1);
     this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
   }
 
@@ -43,6 +43,10 @@ export class ChunkRenderer implements IChunkRenderer {
     DataWalletBackup | null,
     PersistenceError
   > {
+    if (this.lastRender == -1) {
+      this.lastRender = this.timeUtils.getUnixNow();
+    }
+
     if (
       this.timeUtils.getUnixNow() - this.lastRender >=
       this.schema.backupInterval
@@ -79,13 +83,7 @@ export class ChunkRenderer implements IChunkRenderer {
       const existing = this.updates as FieldDataUpdate | null;
       if (existing == null || update.timestamp > existing.timestamp) {
         this.updates = update;
-
-        if (
-          this.timeUtils.getUnixNow() - this.lastRender >=
-          this.schema.backupInterval
-        ) {
-          return this.clear();
-        }
+        return this.checkInterval();
       }
 
       return okAsync(null);
@@ -95,13 +93,11 @@ export class ChunkRenderer implements IChunkRenderer {
     recordUpdates.push(update);
     if (
       recordUpdates.length >=
-        (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize ||
-      this.timeUtils.getUnixNow() - this.lastRender >=
-        this.schema.backupInterval
+      (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize
     ) {
       return this.clear();
     } else {
-      return okAsync(null);
+      return this.checkInterval();
     }
   }
 
