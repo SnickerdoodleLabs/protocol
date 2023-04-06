@@ -133,7 +133,7 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
           <Grid item xs={2} justifyContent="center" alignItems="center">
             <Button
               variant="outlined"
-              href={`https://discord.com/oauth2/authorize?response_type=code&client_id=1089994449830027344&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=${window.location.origin}/data-dashboard/social-media-data&prompt=consent`}
+              href={`https://discord.com/oauth2/authorize?response_type=code&client_id=1093307083102887996&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=${window.location.origin}/data-dashboard/social-media-data&prompt=consent`}
             >
               Link Account
             </Button>

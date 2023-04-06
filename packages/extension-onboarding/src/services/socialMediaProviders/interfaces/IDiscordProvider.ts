@@ -22,7 +22,6 @@ export interface IDiscordProvider extends ISocialMediaProvider {
   ): ResultAsync<void, unknown>;
   unlink(discordProfileId: SnowflakeID): ResultAsync<void, unknown>;
   installationUrl(): ResultAsync<URLString, unknown>;
-  getOauthTokenFromDiscord(code: string): Promise<Response>;
 }
 
 export interface IDiscordAuthResponse {

@@ -25,7 +25,6 @@ process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
 process.env.__DISCORD_CONFIG__ = JSON.stringify({
   clientId: "1089994449830027344",
   client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
-  oauthRedirectUrl: `${process.env.__ONBOARDING_URL__}/data-dashboard/social-media-data`,
   pollInterval: 86400000,
 });
 
@@ -34,17 +33,6 @@ var WebpackDevServer = require("webpack-dev-server"),
   config = require("../webpack.config.cjs"),
   env = require("./env.cjs"),
   path = require("path");
-
-
-
-
-
-
-
-
-
-
-
 
 config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
   config.plugins || [],

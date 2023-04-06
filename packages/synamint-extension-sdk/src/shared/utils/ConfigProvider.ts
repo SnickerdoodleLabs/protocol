@@ -36,7 +36,6 @@ declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
 declare const __ENABLE_BACKUP_ENCRYPTION__: string;
-
 declare const __DISCORD_CONFIG__: string;
 
 const ONE_MINUTE_MS = 60000;
@@ -56,28 +55,14 @@ class ConfigProvider implements IConfigProvider {
         return ChainId(Number.parseInt(chain));
       });
 
-    console.log("__DISCORD_CONFIG__", __DISCORD_CONFIG__);
-
-    // if (typeof __DISCORD_CONFIG__ !== "undefined" && !!__DISCORD_CONFIG__) {
-    // }
-
-    const discordOverrides = {
-      // clientId:
-      //   typeof __DISCORD_CLIENT_ID !== "undefined" && !!__DISCORD_CLIENT_ID
-      //     ? __DISCORD_CLIENT_ID
-      //     : "no-discord-client-id",
-      // clientSecret:
-      //   typeof __DISCORD_CLIENT_SECRET !== "undefined" &&
-      //   !!__DISCORD_CLIENT_SECRET
-      //     ? __DISCORD_CLIENT_SECRET
-      //     : "no-discord-client-secret",
-      oauthRedirectUrl:
-        typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
-          ? URLString(
-              urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-            )
-          : URLString("no-redirect-url"),
-    };
+    const oauthRedirectUrl =
+      typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
+        ? URLString(
+            urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
+          )
+        : URLString(
+            "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
+          );
 
     this.extensionConfig = new ExtensionConfig(
       typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
@@ -157,10 +142,15 @@ class ConfigProvider implements IConfigProvider {
       !!__ENABLE_BACKUP_ENCRYPTION__
         ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
         : false,
-      discordOverrides,
-      // typeof __DISCORD_CONFIG__ !== "undefined" && !!__DISCORD_CONFIG__
-      //   ? (JSON.parse(__DISCORD_CONFIG__) as Partial<DiscordConfig>)
-      //   : {},
+
+      typeof __DISCORD_CONFIG__ !== "undefined" && !!__DISCORD_CONFIG__
+        ? ({
+            ...JSON.parse(__DISCORD_CONFIG__),
+            oauthRedirectUrl,
+          } as Partial<DiscordConfig>)
+        : ({
+            oauthRedirectUrl,
+          } as Partial<DiscordConfig>),
     );
   }
   public getConfig() {
