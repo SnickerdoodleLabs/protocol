@@ -92,20 +92,16 @@ Components are namely [subueries](</documentation/sdql/components/SUBQUERIES.md>
 
 ```mermaid
 stateDiagram-v2
-  Subqueries --> Insights: Target
-  Subqueries --> Insights: Evaluate
-  Subqueries --> Ads: Target
-  Ads --> Compensations: Evaluate
-  Insights --> Compensations: Evaluate
+  Insights --> Subqueries: Use for\ntargeting
+  Insights --> Subqueries: Use for\nevaluation
+  Ads --> Subqueries: Use for\ntargeting
+  Compensations --> Insights: Use for\nevaluation
+  Compensations --> Ads: Use for\nevaluation
 ```
 
 ## Components - Subqueries
 
-Subqueries allow manipulation of end-user data at the client side. This is the only query component businesses can use to 
-- Target data wallets depending on end-user data
-- Gather insights from targeted users' data
-
-> Subqueries never expose raw data from data wallets.
+Subqueries allow manipulation of end-user data at the client side. 
 
 Following is a query that represents end users' unexposed age information.
 ```JSON
@@ -116,12 +112,30 @@ Following is a query that represents end users' unexposed age information.
   }
 }
 ```
+
+This is the only query component businesses can use to 
+- Target data wallets depending on end-user data
+- Gather insights from targeted users' data
+
+> Subqueries never expose raw data from data wallets.
+
+
 Businesses can combine different kinds of queries in an offer to accomplish targeting and data manipulation at the client side without seeing the raw data.
 
 ## Components - Insights
 
+An insight refers to user data manipulated at client side. Insights reference to a combination of subqueries to create different aggregations as insights.
 
-
+Following is an insight that represents end users' unexposed age information.
+```JSON
+{
+  "i1": {
+    "name": "age",
+    "target": "$balance.ETH > 10",
+    "returns": "$tx()",
+  }
+}
+```
 
 
 [TODO]: <> (
