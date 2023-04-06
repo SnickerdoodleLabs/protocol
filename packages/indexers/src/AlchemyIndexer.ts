@@ -112,12 +112,12 @@ export class AlchemyIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    const chainInfo = getChainInfoByChainId(chainId);
     return ResultUtils.combine([
       this._getAlchemyConfig(chainId),
       this.configProvider.getConfig(),
     ]).andThen(([alchemySettings, config]) => {
       console.log("alchemySettings: ", alchemySettings);
-      const chainInfo = getChainInfoByChainId(chainId);
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
       console.log("url: ", url);
 
@@ -134,15 +134,17 @@ export class AlchemyIndexer
         .andThen((response) => {
           const weiValue = parseInt(response.result, 16);
           console.log("weiValue: ", weiValue);
+          console.log("weiValue: ", BigNumber.from(weiValue.to));
+
           return okAsync(
             new TokenBalance(
               EChainTechnology.EVM,
-              TickerSymbol("ETH"),
+              TickerSymbol(chainInfo.nativeCurrency.symbol),
               chainId,
               null,
               accountAddress,
-              BigNumberString(BigNumber.from(weiValue).toString()),
-              18,
+              BigNumberString(weiValue.toString()),
+              getChainInfoByChainId(chainId).nativeCurrency.decimals,
             ),
           );
         });
@@ -165,8 +167,8 @@ export class AlchemyIndexer
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
       console.log("nativeBalance: ", nativeBalance);
-
-      return [nativeBalance, ...nonNativeBalance];
+      return [nativeBalance];
+    //   return [nativeBalance, ...nonNativeBalance];
     });
   }
 
