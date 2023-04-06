@@ -102,9 +102,6 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
   > {
-    console.log("ZÜRTEN tokenIdOrNull");
-    console.log(tokenIdOrNull);
-
     let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
       this.accountRepo.getRejectedCohorts(),
