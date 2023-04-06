@@ -18,6 +18,7 @@ import RewardReview from "@extension-onboarding/pages/Details/screens/Marketplac
 import MarketplaceRewardsTemp from "@extension-onboarding/pages/Details/screens/MarketplaceRewardsTemp";
 import NFTDetails from "@extension-onboarding/pages/Details/screens/NFTDetails";
 import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
+import PoapNFTs from "@extension-onboarding/pages/Details/screens/PoapNFTs";
 import OnChainIfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
 import Rewards from "@extension-onboarding/pages/Details/screens/Rewards";
@@ -52,6 +53,7 @@ export const AuthFlowRoutes = (
       <Route element={<DataDashBoardLayout />}>
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
+        <Route path={EPaths.POAP_NFTS} element={<PoapNFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
         <Route
           path={EPaths.PERSONAL_INFO}
