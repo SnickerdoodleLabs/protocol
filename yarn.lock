@@ -5919,6 +5919,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/utils@workspace:packages/utils"
   dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     inversify: ^5.1.1
     neverthrow: ^5.1.0
