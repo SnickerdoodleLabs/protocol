@@ -144,9 +144,6 @@ export default () => {
             Most Visited Domains
           </Typography>
         </Box>
-        <Typography className={classes.description}>
-          List of your most visited domains.
-        </Typography>
       </Box>
       {siteVisits && (
         <Box display="flex" flexDirection="row-reverse">

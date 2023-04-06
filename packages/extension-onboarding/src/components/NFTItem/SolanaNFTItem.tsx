@@ -55,15 +55,15 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
         borderRadius={12}
         p={1.5}
       >
-        {!isLoading && (
-          <MediaRenderer
-            metadataString={metadata ? JSON.stringify(metadata) : null}
-          />
-        )}
-        <Box my={3}>
-          <Typography className={classes.nftName}>
-            {item?.name || "_"}
-          </Typography>
+        <Box mt={1.5} mb={3}>
+          <Typography className={classes.name}>{item?.name || "_"}</Typography>
+        </Box>
+        <Box display="flex" justifyContent="center" mb={1.5}>
+          {!isLoading && (
+            <MediaRenderer
+              metadataString={metadata ? JSON.stringify(metadata) : null}
+            />
+          )}
         </Box>
         <Typography
           className={classes.review}
