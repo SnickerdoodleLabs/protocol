@@ -15,34 +15,38 @@ const DiscordServerItem: FC<IDiscordServerItem> = ({
   };
 
   return (
-    <Grid
-      container
-      xs={6}
-      className={classes.discordMediaItemLinkedAccountContainer}
-    >
-      <Box>
+    <Box display="flex" alignItems="center">
+      <Box mr={2}>
         {server.icon ? (
           <img
-            className={classes.discordGuildIcon}
+            className={classes.discordGuildImg}
             src={getDiscordGuildIcon()}
           />
         ) : (
-          <Box className={classes.discordGuildNoIconContainer}>
-            {" "}
-            <p className={classes.discordGuildNoIcon}>{server.name[0]}</p>{" "}
+          <Box
+            bgcolor="#000"
+            alignItems="center"
+            justifyContent="center"
+            width={57}
+            height={57}
+          >
+            <Typography className={classes.guildIconPlaceholder}>
+              {server.name[0]}
+            </Typography>
           </Box>
         )}
       </Box>
-      <Box className={classes.discordGuildNoIconContainer}>
-        <Typography variant="h5" className={classes.discordGuildName}>
-          {server.name}
-        </Typography>
-
-        <Typography variant="body1" className={classes.discordGuildMemberText}>
+      <Box>
+        <Box mb={0.5}>
+          <Typography className={classes.discordGuildName}>
+            {server.name}
+          </Typography>
+        </Box>
+        <Typography className={classes.discordGuildMemberText}>
           {server.isOwner ? "Owner" : "Member"}
         </Typography>
       </Box>
-    </Grid>
+    </Box>
   );
 };
 

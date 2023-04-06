@@ -1,21 +1,18 @@
-import { Avatar, Box, Button, Grid, Typography } from "@material-ui/core";
-import { DiscordGuildProfile } from "@snickerdoodlelabs/objects";
-import React, { FC, memo } from "react";
-
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import DiscordMediaDataServersItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordServerItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
+import { Box, Button, Grid, Typography } from "@material-ui/core";
+import React, { FC, memo } from "react";
 
-const DiscordAccountItem: FC<ILinkedDiscordAccount> = ({
-  name,
-  servers,
-  avatar,
-  discriminator,
-  userId,
-  openUnlinkModal,
-  setAccountIdToRemove,
-  setAccountNameToRemove,
-}: ILinkedDiscordAccount) => {
+interface IDiscordAccountItemProps {
+  item: ILinkedDiscordAccount;
+  handleUnlinkClick: () => void;
+}
+
+const DiscordAccountItem: FC<IDiscordAccountItemProps> = ({
+  item: { avatar, userId, discriminator, servers, name },
+  handleUnlinkClick,
+}: IDiscordAccountItemProps) => {
   const discordImageUrl = "https://cdn.discordapp.com";
   const classes = useStyles();
 
@@ -25,85 +22,47 @@ const DiscordAccountItem: FC<ILinkedDiscordAccount> = ({
       : `${discordImageUrl}/avatars/${userId}/${avatar}.png`;
   };
 
-  const getDiscordGuildRow = (guildProfiles: DiscordGuildProfile[]) => {
-    const discordGuildRows: React.ReactElement[] = [];
-    for (let i = 0; i < guildProfiles.length; i += 2) {
-      if (i + 1 >= guildProfiles.length) {
-        discordGuildRows.push(
-          <Box className={classes.discordGuildsContainerRow}>
-            <DiscordMediaDataServersItem server={guildProfiles[i]} />
-          </Box>,
-        );
-      } else {
-        discordGuildRows.push(
-          <Box className={classes.discordGuildsContainerRow}>
-            <DiscordMediaDataServersItem server={guildProfiles[i]} />
-            <DiscordMediaDataServersItem server={guildProfiles[i + 1]} />
-          </Box>,
-        );
-      }
-    }
-    return discordGuildRows;
-  };
-
   return (
-    <Grid
-      container
-      direction="row"
-      className={classes.discordMediaItemProviderContainer}
-    >
-      <Grid
-        item
-        xs={12}
-        container
-        direction="row"
-        className={classes.discordMediaItemLinkedAccountContainer}
-      >
-        <Grid item xs={10}>
-          <Box display="flex" alignItems="center">
-            <Avatar>
-              <img alt="Natacha" src={getDiscordAvatar()} height={40} />
-            </Avatar>
+    <Box mt={3} borderRadius={12} border="1px solid #D7D5D5" p={3}>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Box display="flex" alignItems="center">
+          <img
+            src={getDiscordAvatar()}
+            height={32}
+            style={{ borderRadius: "50%" }}
+          />
+          <Box ml={1.5}>
             <Typography
-              variant="body1"
-              className={classes.providerText}
+              className={classes.accountName}
             >{`${name}#${discriminator}`}</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={2}>
+        </Box>
+        <Box>
           <Button
-            onClick={() => {
-              setAccountNameToRemove(`${name}#${discriminator}`);
-              setAccountIdToRemove(userId);
-              openUnlinkModal(true);
-            }}
+            onClick={handleUnlinkClick}
             className={classes.unlinkAccountButton}
           >
             Unlink Account
           </Button>
-        </Grid>
-      </Grid>
-      <Grid item container>
-        <Grid item xs={12}>
-          <Box
-            display="flex"
-            alignItems="center"
-            className={classes.serversTextBox}
-          >
-            {servers ? (
-              <Typography variant="h5" className={classes.serversText}>
-                Servers
-              </Typography>
-            ) : (
-              <p></p>
-            )}
-          </Box>
-        </Grid>
-        <Grid item className={classes.discordGuildRow}>
-          {getDiscordGuildRow(servers)}
-        </Grid>
-      </Grid>
-    </Grid>
+        </Box>
+      </Box>
+      <Box mt={2} mb={3} className={classes.divider} />
+      <Box px={2.5}>
+        {servers.length > 0 && (
+          <>
+            <Typography className={classes.guildsTitle}>Servers</Typography>
+            <Box my={2} />
+            <Grid spacing={3} container>
+              {servers.map((server, index) => (
+                <Grid key={index} item xs={6}>
+                  <DiscordMediaDataServersItem server={server} />
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )}
+      </Box>
+    </Box>
   );
 };
 

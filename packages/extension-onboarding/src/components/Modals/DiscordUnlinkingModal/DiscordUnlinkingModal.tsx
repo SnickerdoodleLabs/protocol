@@ -1,3 +1,5 @@
+import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
+import { useStyles } from "@extension-onboarding/components/Modals/DiscordUnlinkingModal/DiscordUnlinkingModal.style";
 import {
   Box,
   Button,
@@ -9,10 +11,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import clsx from "clsx";
 import React, { FC, useMemo, useState } from "react";
-
-import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
-import { useStyles } from "@extension-onboarding/components/Modals/DiscordUnlinkingModal/DiscordUnlinkingModal.style";
 
 interface IDiscordUnlinkingModal {
   profileName: string;
@@ -102,112 +102,88 @@ const DiscordUnlinkingModal: FC<IDiscordUnlinkingModal> = ({
       maxWidth="xs"
       className={classes.container}
     >
-      <Grid container>
-        <Grid item xs={12}>
-          <Box display="flex" justifyContent="space-between">
-            <Typography className={classes.title}>Unlink Account</Typography>
-            <IconButton
-              disableFocusRipple
-              disableRipple
-              disableTouchRipple
-              aria-label="close"
-              onClick={closeModal}
-            >
-              <CloseIcon />
-            </IconButton>
+      <Box p={3}>
+        <Box
+          display="flex"
+          alignItems="flex-start"
+          justifyContent="space-between"
+        >
+          <Typography className={classes.title}>Unlink Account</Typography>
+
+          <CloseIcon className={classes.pointer} onClick={closeModal} />
+        </Box>
+
+        <Box display="flex" justifyContent="center">
+          <img className={classes.exclamationIcon} src={ExclamationIcon} />
+        </Box>
+        <Box mt={3} display="flex" justifyContent="center">
+          <Typography className={classes.subTitle}>
+            This will permanently unlink your account
+          </Typography>
+        </Box>
+        <Box mt={2} mb={5} display="flex" justifyContent="flex-start">
+          <Typography className={classes.description}>
+            Are you sure that you want to unlink your
+            <span className={clsx(classes.subTitle, classes.uppercase)}>
+              {` ${profileName} `}
+            </span>
+            account? If you are sure, you can continue the process by typing the
+            code below.
+          </Typography>
+        </Box>
+        <Box display="flex">
+          <Box mr={3}>
+            <Typography className={classes.label}>Code</Typography>
+            <Box mt={1} className={classes.codeContainer}>
+              {code}
+            </Box>
           </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container>
-            <Grid item xs={12}>
-              <Box display="flex" justifyContent="center">
-                <img
-                  className={classes.exclamationIcon}
-                  src={ExclamationIcon}
+          <Box>
+            <Typography className={classes.label}>
+              Please type the code here
+            </Typography>
+            <Box mt={1} className={classes.codeTextInputContainer}>
+              {otp?.map((data, index) => (
+                <input
+                  className={classes.otpInput}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  autoFocus={index === 0}
+                  name="otp"
+                  onPaste={(e) => handlePaste(e)}
+                  maxLength={1}
+                  value={data}
+                  onKeyDown={(e) => handleKeyPress(e)}
+                  onChange={(e) => handleChange(e.target, index)}
                 />
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <Box mt={3} display="flex" justifyContent="center">
-                <Typography className={classes.subTitle}>
-                  This will permanently unlink your account
-                </Typography>
-              </Box>
-              <Box mt={2} mb={5} display="flex" justifyContent="flex-start">
-                <Typography className={classes.description}>
-                  Are you sure that you want to unlink your
-                  <Box component="span" className={classes.subTitle}>
-                    {` ${profileName} `}
-                  </Box>
-                  account? If you are sure, you can continue the process by
-                  typing the code below.
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} direction="row">
-              <Grid container>
-                <Box mr={3}>
-                  <Typography className={classes.label}>Code</Typography>
-                  <Box mt={1} className={classes.codeContainer}>
-                    {code}
-                  </Box>
-                </Box>
-                <Box>
-                  <Typography className={classes.label}>
-                    Please type the code here
-                  </Typography>
-                  <Box mt={1} className={classes.codeTextInputContainer}>
-                    {otp?.map((data, index) => (
-                      <input
-                        className={classes.otpInput}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        autoFocus={index === 0}
-                        name="otp"
-                        onPaste={(e) => handlePaste(e)}
-                        maxLength={1}
-                        value={data}
-                        onKeyDown={(e) => handleKeyPress(e)}
-                        onChange={(e) => handleChange(e.target, index)}
-                      />
-                    ))}
-                  </Box>
-                  {isError && (
-                    <Typography className={classes.errorText}>
-                      This code does not match
-                    </Typography>
-                  )}
-                  {isSuccess && (
-                    <Typography className={classes.successText}>
-                      Code is successfully matched
-                    </Typography>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Box
-            display="flex"
-            marginLeft="auto"
-            mt={3}
-            justifyContent="flex-end"
-          >
-            <Button onClick={closeModal} className={classes.button}>
-              Cancel
-            </Button>
-            <Button
-              disabled={!isSuccess}
-              onClick={unlinkAccount}
-              className={classes.unlinkAccountButton}
-            >
-              Unlink Account
-            </Button>
+              ))}
+            </Box>
+            {isError && (
+              <Typography className={classes.errorText}>
+                This code does not match
+              </Typography>
+            )}
+            {isSuccess && (
+              <Typography className={classes.successText}>
+                Code is successfully matched
+              </Typography>
+            )}
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+        <Box display="flex" marginLeft="auto" mt={3} justifyContent="flex-end">
+          <Button onClick={closeModal} className={classes.button}>
+            Cancel
+          </Button>
+          <Button
+            disabled={!isSuccess}
+            onClick={unlinkAccount}
+            className={classes.unlinkAccountButton}
+          >
+            Unlink Account
+          </Button>
+        </Box>
+      </Box>
     </Dialog>
   );
 };

@@ -1,21 +1,19 @@
-import { Box, Button, Grid } from "@material-ui/core";
-import {
-  BearerAuthToken,
-  DiscordGuildProfile,
-  DiscordProfile,
-  OAuthAuthorizationCode,
-  SnowflakeID,
-} from "@snickerdoodlelabs/objects";
-import React, { FC, memo, useEffect, useState } from "react";
-
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import DiscordUnlinkingModal from "@extension-onboarding/components/Modals/DiscordUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
 import DiscordAccountItem from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordAuthResponse } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { Box, Button, Typography } from "@material-ui/core";
+import {
+  DiscordProfile,
+  OAuthAuthorizationCode,
+  SnowflakeID,
+} from "@snickerdoodlelabs/objects";
+import React, { FC, memo, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -27,59 +25,42 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
   const [linkedDiscordAccount, setLinkedDiscordAccount] = useState<
     ILinkedDiscordAccount[]
   >([]);
+  const { setAlert } = useNotificationContext();
   const { discordMediaDataProvider: provider } = useAccountLinkingContext();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
-  const [selectedAccountName, setSelectedAccountName] = useState<string>("");
+  const [selectedProfile, setSelectedProfile] = useState<ILinkedDiscordAccount>(
+    {} as ILinkedDiscordAccount,
+  );
 
-  const getGuildProfiles = (discordProfiles: DiscordProfile[]) =>
+  const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
     provider.getGuildProfiles().map((guildProfiles) =>
       setLinkedDiscordAccount(
-        discordProfiles.reduce<ILinkedDiscordAccount[]>(
-          (profiles, discordProfile) => [
-            ...profiles,
-            {
-              name: discordProfile.username,
-              userId: discordProfile.id,
-              avatar: discordProfile.avatar,
-              discriminator: discordProfile.discriminator,
-              servers: guildProfiles.filter(
-                (profile) => profile.discordUserProfileId === discordProfile.id,
-              ),
-              openUnlinkModal: setIsModalOpen,
-              setAccountIdToRemove: setSelectedAccountId,
-              setAccountNameToRemove: setSelectedAccountName,
-            },
-          ],
-          [],
-        ),
+        discordProfiles.map((discordProfile) => ({
+          name: discordProfile.username,
+          userId: discordProfile.id,
+          avatar: discordProfile.avatar,
+          discriminator: discordProfile.discriminator,
+          servers: guildProfiles.filter(
+            (profile) => profile.discordUserProfileId === discordProfile.id,
+          ),
+        })),
       ),
     );
+  };
 
   const initializeUser = (code: string) => {
-    console.log("DiscordMediaData: initializeUser with code", code);
     provider
       .initializeUserWithAuthorizationCode({
         code: OAuthAuthorizationCode(code),
       })
       .map(() => {
         window.history.replaceState(null, "", window.location.pathname);
+        setAlert({
+          severity: EAlertSeverity.SUCCESS,
+          message: "Your account has successfully been linked. ",
+        });
         getUserProfiles();
       });
-    // provider.getOauthTokenFromDiscord(code).then((res) => {
-    //   res.json().then((data: IDiscordAuthResponse) => {
-    //     if (data.access_token) {
-    //       provider
-    //         .initializeUser({
-    //           discordAuthToken: BearerAuthToken(data.access_token),
-    //         })
-    //         .map(() => {
-    //           window.history.replaceState(null, "", window.location.pathname);
-    //           getUserProfiles();
-    //         });
-    //     }
-    //   });
-    // });
   };
 
   useEffect(() => {
@@ -90,10 +71,11 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
     initializeUser(code);
   }, [JSON.stringify(window.location.search)]);
 
-  const getUserProfiles = () =>
+  const getUserProfiles = () => {
     provider
       .getUserProfiles()
       .map((discordProfiles) => setDiscordProfiles(discordProfiles));
+  };
 
   useEffect(() => {
     getUserProfiles();
@@ -109,51 +91,59 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
     <>
       {isModalOpen && (
         <DiscordUnlinkingModal
-          profileName={selectedAccountName}
+          profileName={`${selectedProfile.name}#${selectedProfile.discriminator}`}
           closeModal={() => {
             setIsModalOpen(false);
           }}
           unlinkAccount={() => {
-            provider.unlink(SnowflakeID(selectedAccountId)).map(() => {
+            provider.unlink(SnowflakeID(selectedProfile.userId)).map(() => {
               getUserProfiles();
               setIsModalOpen(false);
             });
           }}
         />
       )}
-      <Grid container className={`${classes.accountBoxContainer}`} spacing={3}>
-        <Grid item container direction="row" alignItems="center">
-          <Grid item xs={1}>
+      <Box
+        p={3}
+        display="flex"
+        border="1px solid #ECECEC"
+        borderRadius={12}
+        flexDirection="column"
+      >
+        <Box
+          alignItems="center"
+          display="flex"
+          width="100%"
+          justifyContent="space-between"
+        >
+          <Box alignItems="center" display="flex">
             <img className={classes.providerLogo} src={icon} />
-          </Grid>
-          <Grid item xs={9} justifyContent="flex-start" alignItems="center">
-            <p className={classes.providerText}>{name}</p>
-          </Grid>
-
-          <Grid item xs={2} justifyContent="center" alignItems="center">
+            <Box ml={2} justifyContent="flex-start" alignItems="center">
+              <Typography className={classes.providerName}>{name}</Typography>
+            </Box>
+          </Box>
+          <Box justifyContent="center" alignItems="center">
             <Button
               variant="outlined"
               href={`https://discord.com/oauth2/authorize?response_type=code&client_id=1093307083102887996&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=${window.location.origin}/data-dashboard/social-media-data&prompt=consent`}
             >
               Link Account
             </Button>
-          </Grid>
-        </Grid>
-        {linkedDiscordAccount.map((discordProfile) => {
+          </Box>
+        </Box>
+        {linkedDiscordAccount.map((discordProfile, index) => {
           return (
             <DiscordAccountItem
-              openUnlinkModal={setIsModalOpen}
-              name={discordProfile.name}
-              servers={discordProfile.servers}
-              avatar={discordProfile.avatar}
-              discriminator={discordProfile.discriminator}
-              userId={discordProfile.userId}
-              setAccountIdToRemove={setSelectedAccountId}
-              setAccountNameToRemove={setSelectedAccountName}
+              key={index}
+              handleUnlinkClick={() => {
+                setIsModalOpen(true);
+                setSelectedProfile(discordProfile);
+              }}
+              item={discordProfile}
             />
           );
         })}
-      </Grid>
+      </Box>
     </>
   );
 };

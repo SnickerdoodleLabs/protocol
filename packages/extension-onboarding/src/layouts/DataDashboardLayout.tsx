@@ -1,9 +1,8 @@
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { memo, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 
 const useStyles = makeStyles((theme) => ({
   subtitle: {
@@ -15,8 +14,9 @@ const useStyles = makeStyles((theme) => ({
     color: "#232039",
   },
   title: {
-    fontFamily: "Inter",
-    fontWeight: 500,
+    fontFamily: "'Shrikhand'",
+    fontStyle: "italic",
+    fontWeight: 400,
     fontSize: "30px",
     lineHeight: "38px",
     color: "#101828",

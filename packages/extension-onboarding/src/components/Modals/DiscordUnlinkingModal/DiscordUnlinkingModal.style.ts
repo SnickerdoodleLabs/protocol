@@ -5,12 +5,17 @@ export const useStyles = makeStyles((theme) => ({
     "& .MuiDialog-paper": {
       borderRadius: 12,
       maxWidth: 640,
-      padding: "24px",
     },
   },
   exclamationIcon: {
     width: 35,
     height: 35,
+  },
+  uppercase: {
+    textTransform: "uppercase",
+  },
+  pointer: {
+    cursor: "pointer",
   },
   title: {
     color: "#212121",
@@ -22,7 +27,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#212121",
     fontSize: "18px",
     fontWeight: 700,
-    fontFamily: "Roboto",
+    fontFamily: "Space Grotesk",
     lineHeight: "150%",
   },
   codeContainer: {
@@ -111,7 +116,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "##5D5A74",
     fontSize: 16,
     fontWeight: 400,
-    fontFamily: "Roboto",
+    fontFamily: "Space Grotesk",
     fontStyle: "normal",
     textAlign: "left",
     lineHeight: "19px",
