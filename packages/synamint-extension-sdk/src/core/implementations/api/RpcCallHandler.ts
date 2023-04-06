@@ -1,6 +1,7 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
@@ -36,6 +37,7 @@ import {
   URLString,
   SiteVisit,
   MarketplaceListing,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -116,10 +118,70 @@ import {
   IGetReceivingAddressParams,
   mapToObj,
   SnickerDoodleCoreError,
+  IExternalState,
 } from "@synamint-extension-sdk/shared";
+
+class ExternalActionHandler<TParams> {
+  public constructor(
+    public action: EExternalActions,
+    public handler: (params: TParams) => ResultAsync<unknown, unknown>,
+  ) {}
+
+  public async execute(
+    params: TParams,
+    res: PendingJsonRpcResponse<unknown>,
+  ): Promise<void> {
+    await this.handler(params!)
+      .mapErr((err) => {
+        res.error = err as Error;
+      })
+      .map((result) => {
+        if (typeof result === typeof undefined) {
+          res.result = DEFAULT_RPC_SUCCESS_RESULT;
+        } else {
+          res.result = ObjectUtils.toGenericObject(result);
+        }
+      });
+  }
+}
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
+  protected rpcCalls: ExternalActionHandler<any>[] = [
+    new ExternalActionHandler<IUnlockParams>(
+      EExternalActions.UNLOCK,
+      (params) => {
+        return this.accountService.unlock(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+    new ExternalActionHandler<IAddAccountParams>(
+      EExternalActions.ADD_ACCOUNT,
+      (params) => {
+        return this.accountService.addAccount(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+    new ExternalActionHandler<IAddAccountParams>(
+      EExternalActions.ADD_ACCOUNT,
+      (params) => {
+        return this.accountService.addAccount(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+  ];
   constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ITokenPriceServiceType)
@@ -147,345 +209,339 @@ export class RpcCallHandler implements IRpcCallHandler {
   ) {
     const { method, params } = req;
 
-    switch (method) {
-      case EExternalActions.UNLOCK: {
-        const { accountAddress, signature, chain, languageCode } =
-          params as IUnlockParams;
-        return new AsyncRpcResponseSender(
-          this.unlock(accountAddress, signature, chain, languageCode),
-          res,
-        ).call();
-      }
-      case EExternalActions.ADD_ACCOUNT: {
-        const { accountAddress, signature, chain, languageCode } =
-          params as IAddAccountParams;
-        return new AsyncRpcResponseSender(
-          this.addAccount(accountAddress, signature, chain, languageCode),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_UNLOCK_MESSAGE: {
-        const { languageCode } = params as IGetUnlockMessageParams;
-        return new AsyncRpcResponseSender(
-          this.getUnlockMessage(languageCode),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_EARNED_REWARDS: {
-        return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
-      }
-      case EExternalActions.GET_ACCOUNTS:
-      case EInternalActions.GET_ACCOUNTS: {
-        return new AsyncRpcResponseSender(this.getAccounts(), res).call();
-      }
-      case EExternalActions.GET_TOKEN_PRICE: {
-        const { chainId, address, timestamp } = params as IGetTokenPriceParams;
-        return new AsyncRpcResponseSender(
-          this.getTokenPrice(chainId, address, timestamp),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_TOKEN_MARKET_DATA: {
-        const { ids } = params as IGetTokenMarketDataParams;
-        return new AsyncRpcResponseSender(
-          this.getTokenMarketData(ids),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_TOKEN_INFO: {
-        const { chainId, contractAddress } = params as IGetTokenInfoParams;
-        return new AsyncRpcResponseSender(
-          this.getTokenInfo(chainId, contractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_ACCOUNT_BALANCES:
-      case EInternalActions.GET_ACCOUNT_BALANCES: {
-        return new AsyncRpcResponseSender(
-          this.getAccountBalances(),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_ACCOUNT_NFTS:
-      case EInternalActions.GET_ACCOUNT_NFTS: {
-        return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
-      }
-      case EExternalActions.SET_GIVEN_NAME: {
-        const { givenName } = params as ISetGivenNameParams;
-        return new AsyncRpcResponseSender(
-          this.setGivenName(givenName),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_EMAIL: {
-        const { email } = params as ISetEmailParams;
-        return new AsyncRpcResponseSender(this.setEmail(email), res).call();
-      }
-      case EExternalActions.SET_FAMILY_NAME: {
-        const { familyName } = params as ISetFamilyNameParams;
-        return new AsyncRpcResponseSender(
-          this.setFamilyName(familyName),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_BIRTHDAY: {
-        const { birthday } = params as ISetBirthdayParams;
-        return new AsyncRpcResponseSender(
-          this.setBirthday(birthday),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_GENDER: {
-        const { gender } = params as ISetGenderParams;
-        return new AsyncRpcResponseSender(this.setGender(gender), res).call();
-      }
-      case EExternalActions.SET_LOCATION: {
-        const { location } = params as ISetLocationParams;
-        return new AsyncRpcResponseSender(
-          this.setLocation(location),
-          res,
-        ).call();
-      }
+    // Find the action
+    const externalActionHandler = this.rpcCalls.find((rpc) => {
+      return rpc.action == method;
+    });
 
-      case EExternalActions.GET_AGE: {
-        return new AsyncRpcResponseSender(this.getAge(), res).call();
-      }
-      case EInternalActions.GET_GIVEN_NAME:
-      case EExternalActions.GET_GIVEN_NAME: {
-        return new AsyncRpcResponseSender(this.getGivenName(), res).call();
-      }
-      case EInternalActions.GET_EMAIL:
-      case EExternalActions.GET_EMAIL: {
-        return new AsyncRpcResponseSender(this.getEmail(), res).call();
-      }
-      case EInternalActions.GET_FAMILY_NAME:
-      case EExternalActions.GET_FAMILY_NAME: {
-        return new AsyncRpcResponseSender(this.getFamilyName(), res).call();
-      }
-      case EExternalActions.GET_BIRTHDAY: {
-        return new AsyncRpcResponseSender(this.getBirthday(), res).call();
-      }
-      case EExternalActions.GET_GENDER: {
-        return new AsyncRpcResponseSender(this.getGender(), res).call();
-      }
-      case EExternalActions.GET_LOCATION: {
-        return new AsyncRpcResponseSender(this.getLocation(), res).call();
-      }
-      case EExternalActions.GET_SITE_VISITS: {
-        return new AsyncRpcResponseSender(this.getSiteVisits(), res).call();
-      }
-      case EExternalActions.GET_SITE_VISITS_MAP: {
-        return new AsyncRpcResponseSender(this.getSiteVisitsMap(), res).call();
-      }
-      case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
-        return new AsyncRpcResponseSender(
-          this.getAcceptedInvitationsCID(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_DEFAULT_RECEIVING_ACCOUNT: {
-        const { receivingAddress } =
-          params as ISetDefaultReceivingAddressParams;
-        return new AsyncRpcResponseSender(
-          this.setDefaultReceivingAddress(receivingAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_RECEIVING_ACCOUNT: {
-        const { contractAddress, receivingAddress } =
-          params as ISetReceivingAddressParams;
-        return new AsyncRpcResponseSender(
-          this.setReceivingAddress(contractAddress, receivingAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_RECEIVING_ACCOUNT: {
-        const { contractAddress } = params as IGetReceivingAddressParams;
-        return new AsyncRpcResponseSender(
-          this.getReceivingAddress(contractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_INVITATION_METADATA_BY_CID: {
-        const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
-        return new AsyncRpcResponseSender(
-          this.getInvitationMetadataByCID(ipfsCID),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.CHECK_INVITATION_STATUS: {
-        const { signature, consentAddress, tokenId } =
-          params as ICheckInvitationStatusParams;
-        return new AsyncRpcResponseSender(
-          this.checkInvitationStatus(consentAddress, signature, tokenId),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
-        const { count, headAt } = params as IGetMarketplaceListingsParams;
-        return new AsyncRpcResponseSender(
-          this.getMarketplaceListings(count, headAt),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.GET_LISTING_TOTAL: {
-        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
-      }
-
-      case EExternalActions.GET_CONTRACT_CID: {
-        const { consentAddress } = params as IGetConsentContractCIDParams;
-        return new AsyncRpcResponseSender(
-          this.getConsentContractCID(consentAddress),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.UNLINK_ACCOUNT: {
-        const { accountAddress, chain, languageCode, signature } =
-          params as IUnlinkAccountParams;
-        return new AsyncRpcResponseSender(
-          this.unlinkAccount(accountAddress, signature, chain, languageCode),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.LEAVE_COHORT: {
-        const { consentContractAddress } = params as ILeaveCohortParams;
-        return new AsyncRpcResponseSender(
-          this.leaveCohort(consentContractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
-        const { domain, path } = params as IGetInvitationWithDomainParams;
-        return new AsyncRpcResponseSender(
-          this.getInvitationsByDomain(domain, path),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_AVAILABLE_INVITATIONS_CID: {
-        return new AsyncRpcResponseSender(
-          this.getAvailableInvitationsCID(),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_AGREEMENT_PERMISSIONS: {
-        const { consentContractAddress } =
-          params as IGetAgreementPermissionsParams;
-        return new AsyncRpcResponseSender(
-          this.getAgreementPermissions(consentContractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_DEFAULT_PERMISSIONS: {
-        return new AsyncRpcResponseSender(
-          this.getDefaultPermissions(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_DEFAULT_PERMISSIONS: {
-        const { dataTypes } =
-          params as ISetDefaultPermissionsWithDataTypesParams;
-        return new AsyncRpcResponseSender(
-          this.setDefaultPermissionsWithDataTypes(dataTypes),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL: {
-        return new AsyncRpcResponseSender(
-          this.setDefaultPermissionsToAll(),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION: {
-        return new AsyncRpcResponseSender(
-          this.getApplyDefaultPermissionOptions(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION: {
-        const { option } = params as ISetApplyDefaultPermissionsParams;
-        return new AsyncRpcResponseSender(
-          this.setApplyDefaultPermissionOptions(option),
-          res,
-        ).call();
-      }
-      case EExternalActions.ACCEPT_INVITATION_BY_UUID: {
-        const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
-        return new AsyncRpcResponseSender(
-          this.acceptInvitationByUUID(dataTypes, id),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
-        return new AsyncRpcResponseSender(
-          this.getScamFilterSettings(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
-        const { isScamFilterActive, showMessageEveryTime } =
-          params as IScamFilterSettingsParams;
-        return new AsyncRpcResponseSender(
-          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
-          res,
-        ).call();
-      }
-      case EExternalActions.ACCEPT_INVITATION: {
-        const {
-          dataTypes,
-          consentContractAddress,
-          tokenId,
-          businessSignature,
-        } = params as IAcceptInvitationParams;
-        return new AsyncRpcResponseSender(
-          this.acceptInvitation(
+    if (externalActionHandler == null) {
+      // It might be one of the special actions
+      switch (method) {
+        case EExternalActions.GET_UNLOCK_MESSAGE: {
+          const { languageCode } = params as IGetUnlockMessageParams;
+          return new AsyncRpcResponseSender(
+            this.getUnlockMessage(languageCode),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_EARNED_REWARDS: {
+          return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
+        }
+        case EExternalActions.GET_ACCOUNTS:
+        case EInternalActions.GET_ACCOUNTS: {
+          return new AsyncRpcResponseSender(this.getAccounts(), res).call();
+        }
+        case EExternalActions.GET_TOKEN_PRICE: {
+          const { chainId, address, timestamp } = params as IGetTokenPriceParams;
+          return new AsyncRpcResponseSender(
+            this.getTokenPrice(chainId, address, timestamp),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_TOKEN_MARKET_DATA: {
+          const { ids } = params as IGetTokenMarketDataParams;
+          return new AsyncRpcResponseSender(
+            this.getTokenMarketData(ids),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_TOKEN_INFO: {
+          const { chainId, contractAddress } = params as IGetTokenInfoParams;
+          return new AsyncRpcResponseSender(
+            this.getTokenInfo(chainId, contractAddress),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_ACCOUNT_BALANCES:
+        case EInternalActions.GET_ACCOUNT_BALANCES: {
+          return new AsyncRpcResponseSender(
+            this.getAccountBalances(),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_ACCOUNT_NFTS:
+        case EInternalActions.GET_ACCOUNT_NFTS: {
+          return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
+        }
+        case EExternalActions.SET_GIVEN_NAME: {
+          const { givenName } = params as ISetGivenNameParams;
+          return new AsyncRpcResponseSender(
+            this.setGivenName(givenName),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_EMAIL: {
+          const { email } = params as ISetEmailParams;
+          return new AsyncRpcResponseSender(this.setEmail(email), res).call();
+        }
+        case EExternalActions.SET_FAMILY_NAME: {
+          const { familyName } = params as ISetFamilyNameParams;
+          return new AsyncRpcResponseSender(
+            this.setFamilyName(familyName),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_BIRTHDAY: {
+          const { birthday } = params as ISetBirthdayParams;
+          return new AsyncRpcResponseSender(
+            this.setBirthday(birthday),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_GENDER: {
+          const { gender } = params as ISetGenderParams;
+          return new AsyncRpcResponseSender(this.setGender(gender), res).call();
+        }
+        case EExternalActions.SET_LOCATION: {
+          const { location } = params as ISetLocationParams;
+          return new AsyncRpcResponseSender(
+            this.setLocation(location),
+            res,
+          ).call();
+        }
+  
+        case EExternalActions.GET_AGE: {
+          return new AsyncRpcResponseSender(this.getAge(), res).call();
+        }
+        case EInternalActions.GET_GIVEN_NAME:
+        case EExternalActions.GET_GIVEN_NAME: {
+          return new AsyncRpcResponseSender(this.getGivenName(), res).call();
+        }
+        case EInternalActions.GET_EMAIL:
+        case EExternalActions.GET_EMAIL: {
+          return new AsyncRpcResponseSender(this.getEmail(), res).call();
+        }
+        case EInternalActions.GET_FAMILY_NAME:
+        case EExternalActions.GET_FAMILY_NAME: {
+          return new AsyncRpcResponseSender(this.getFamilyName(), res).call();
+        }
+        case EExternalActions.GET_BIRTHDAY: {
+          return new AsyncRpcResponseSender(this.getBirthday(), res).call();
+        }
+        case EExternalActions.GET_GENDER: {
+          return new AsyncRpcResponseSender(this.getGender(), res).call();
+        }
+        case EExternalActions.GET_LOCATION: {
+          return new AsyncRpcResponseSender(this.getLocation(), res).call();
+        }
+        case EExternalActions.GET_SITE_VISITS: {
+          return new AsyncRpcResponseSender(this.getSiteVisits(), res).call();
+        }
+        case EExternalActions.GET_SITE_VISITS_MAP: {
+          return new AsyncRpcResponseSender(this.getSiteVisitsMap(), res).call();
+        }
+        case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
+          return new AsyncRpcResponseSender(
+            this.getAcceptedInvitationsCID(),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_DEFAULT_RECEIVING_ACCOUNT: {
+          const { receivingAddress } =
+            params as ISetDefaultReceivingAddressParams;
+          return new AsyncRpcResponseSender(
+            this.setDefaultReceivingAddress(receivingAddress),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_RECEIVING_ACCOUNT: {
+          const { contractAddress, receivingAddress } =
+            params as ISetReceivingAddressParams;
+          return new AsyncRpcResponseSender(
+            this.setReceivingAddress(contractAddress, receivingAddress),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_RECEIVING_ACCOUNT: {
+          const { contractAddress } = params as IGetReceivingAddressParams;
+          return new AsyncRpcResponseSender(
+            this.getReceivingAddress(contractAddress),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_INVITATION_METADATA_BY_CID: {
+          const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
+          return new AsyncRpcResponseSender(
+            this.getInvitationMetadataByCID(ipfsCID),
+            res,
+          ).call();
+        }
+  
+        case EExternalActions.CHECK_INVITATION_STATUS: {
+          const { signature, consentAddress, tokenId } =
+            params as ICheckInvitationStatusParams;
+          return new AsyncRpcResponseSender(
+            this.checkInvitationStatus(consentAddress, signature, tokenId),
+            res,
+          ).call();
+        }
+  
+        case EExternalActions.GET_MARKETPLACE_LISTINGS: {
+          const { count, headAt } = params as IGetMarketplaceListingsParams;
+          return new AsyncRpcResponseSender(
+            this.getMarketplaceListings(count, headAt),
+            res,
+          ).call();
+        }
+  
+        case EExternalActions.GET_LISTING_TOTAL: {
+          return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
+        }
+  
+        case EExternalActions.GET_CONTRACT_CID: {
+          const { consentAddress } = params as IGetConsentContractCIDParams;
+          return new AsyncRpcResponseSender(
+            this.getConsentContractCID(consentAddress),
+            res,
+          ).call();
+        }
+  
+        case EExternalActions.UNLINK_ACCOUNT: {
+          const { accountAddress, chain, languageCode, signature } =
+            params as IUnlinkAccountParams;
+          return new AsyncRpcResponseSender(
+            this.unlinkAccount(accountAddress, signature, chain, languageCode),
+            res,
+          ).call();
+        }
+  
+        case EExternalActions.LEAVE_COHORT: {
+          const { consentContractAddress } = params as ILeaveCohortParams;
+          return new AsyncRpcResponseSender(
+            this.leaveCohort(consentContractAddress),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
+          const { domain, path } = params as IGetInvitationWithDomainParams;
+          return new AsyncRpcResponseSender(
+            this.getInvitationsByDomain(domain, path),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_AVAILABLE_INVITATIONS_CID: {
+          return new AsyncRpcResponseSender(
+            this.getAvailableInvitationsCID(),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_AGREEMENT_PERMISSIONS: {
+          const { consentContractAddress } =
+            params as IGetAgreementPermissionsParams;
+          return new AsyncRpcResponseSender(
+            this.getAgreementPermissions(consentContractAddress),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_DEFAULT_PERMISSIONS: {
+          return new AsyncRpcResponseSender(
+            this.getDefaultPermissions(),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_DEFAULT_PERMISSIONS: {
+          const { dataTypes } =
+            params as ISetDefaultPermissionsWithDataTypesParams;
+          return new AsyncRpcResponseSender(
+            this.setDefaultPermissionsWithDataTypes(dataTypes),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL: {
+          return new AsyncRpcResponseSender(
+            this.setDefaultPermissionsToAll(),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION: {
+          return new AsyncRpcResponseSender(
+            this.getApplyDefaultPermissionOptions(),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION: {
+          const { option } = params as ISetApplyDefaultPermissionsParams;
+          return new AsyncRpcResponseSender(
+            this.setApplyDefaultPermissionOptions(option),
+            res,
+          ).call();
+        }
+        case EExternalActions.ACCEPT_INVITATION_BY_UUID: {
+          const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
+          return new AsyncRpcResponseSender(
+            this.acceptInvitationByUUID(dataTypes, id),
+            res,
+          ).call();
+        }
+        case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
+          return new AsyncRpcResponseSender(
+            this.getScamFilterSettings(),
+            res,
+          ).call();
+        }
+        case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
+          const { isScamFilterActive, showMessageEveryTime } =
+            params as IScamFilterSettingsParams;
+          return new AsyncRpcResponseSender(
+            this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
+            res,
+          ).call();
+        }
+        case EExternalActions.ACCEPT_INVITATION: {
+          const {
             dataTypes,
             consentContractAddress,
             tokenId,
             businessSignature,
-          ),
-          res,
-        ).call();
+          } = params as IAcceptInvitationParams;
+          return new AsyncRpcResponseSender(
+            this.acceptInvitation(
+              dataTypes,
+              consentContractAddress,
+              tokenId,
+              businessSignature,
+            ),
+            res,
+          ).call();
+        }
+        case EExternalActions.REJECT_INVITATION: {
+          const { id } = params as IRejectInvitationParams;
+          return new AsyncRpcResponseSender(
+            this.rejectInvitation(id),
+            res,
+          ).call();
+        }
+        case EExternalActions.CHECK_URL: {
+          const { domain } = params as ICheckURLParams;
+          return new AsyncRpcResponseSender(this.checkURL(domain), res).call();
+        }
+        case EExternalActions.CLOSE_TAB: {
+          sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
+          return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
+        }
+        case EExternalActions.GET_STATE:
+          return (res.result = this.contextProvider.getExterenalState());
+  
+        case EInternalActions.GET_STATE:
+          return (res.result = this.contextProvider.getInternalState());
+        // TODO move it to correct place
+        case EExternalActions.GET_DATA_WALLET_ADDRESS:
+          return (res.result = this.contextProvider
+            .getAccountContext()
+            .getAccount());
+        case EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED:
+        case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
+          return new AsyncRpcResponseSender(
+            this.accountService.isDataWalletAddressInitialized(),
+            res,
+          ).call();
+        }
+        default:
+          return next();
       }
-      case EExternalActions.REJECT_INVITATION: {
-        const { id } = params as IRejectInvitationParams;
-        return new AsyncRpcResponseSender(
-          this.rejectInvitation(id),
-          res,
-        ).call();
-      }
-      case EExternalActions.CHECK_URL: {
-        const { domain } = params as ICheckURLParams;
-        return new AsyncRpcResponseSender(this.checkURL(domain), res).call();
-      }
-      case EExternalActions.CLOSE_TAB: {
-        sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
-        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
-      }
-      case EExternalActions.GET_STATE:
-        return (res.result = this.contextProvider.getExterenalState());
-
-      case EInternalActions.GET_STATE:
-        return (res.result = this.contextProvider.getInternalState());
-      // TODO move it to correct place
-      case EExternalActions.GET_DATA_WALLET_ADDRESS:
-        return (res.result = this.contextProvider
-          .getAccountContext()
-          .getAccount());
-      case EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED:
-      case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
-        return new AsyncRpcResponseSender(
-          this.accountService.isDataWalletAddressInitialized(),
-          res,
-        ).call();
-      }
-      default:
-        return next();
     }
+
+    return externalActionHandler.execute(params, res);
   }
 
   private getInvitationsByDomain(
@@ -700,27 +756,6 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.scamFilterService.checkURL(domain);
   }
 
-  private unlock(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.unlock(account, signature, chain, languageCode);
-  }
-  private addAccount(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.addAccount(
-      account,
-      signature,
-      chain,
-      languageCode,
-    );
-  }
   private unlinkAccount(
     account: AccountAddress,
     signature: Signature,
