@@ -55,9 +55,25 @@ Following offer asks for if "people who are older than 30 years of age have inte
 
 # Actors
 
-Synamint offers are meant to be built by businesses, using a registered insight platform. Insight platforms may come with different offer-building mechanisms depending on what businesses need, as long as the resulting offer file is valid.
+Synamint offers are meant to be created by businesses, using a registered insight platform. Insight platforms may come with different offer-building mechanisms depending on what businesses need, as long as the resulting offer file is valid.
 
-Consumers of the offers are the data wallets. The core library used by data wallets actively listens to the chain for occurances of **requestForData** events, which will contain an IPFS CID for the corresponding offer content. Core is also responsible for handling the Synamint offer, including fetching it, parsing it, evaluating it against user data, storing the targeted ads; and sending the **response** to an insight platform.
+Consumers of the offers are the data wallets. The core library used by data wallets actively listens to the chain for occurances of **requestForData** events, which will contain an IPFS CID for the corresponding offer content. Core is also responsible for handling the Synamint offer, including fetching it, parsing it, evaluating it against user data, storing the targeted ads; and sending **responses** to an insight platform.
+
+
+```mermaid
+stateDiagram-v2
+  Requester: Requester
+  IP: Insight Platform
+  DW: Data Wallet
+  Requester --> IP: 1- Builds offer
+  IP --> Ipfs: 2- Publishes Offer
+  IP --> Chain: 2- Publishes Event
+  Chain --> DW: Listens 
+  Ipfs --> DW: 3- Fetches offer
+  DW --> IP: 4- Interacts, evaluates\n and sends response
+  IP --> DW: 5- Optionally\nyields\nrewards
+  IP --> Requester: 5- Optionally builds insights
+```
 
 
 # Capabilities
@@ -69,6 +85,44 @@ An offer can represent any combination of asking provable questions on personal 
 A synamint offer will be evaluated against raw user data at the client-side; but an answer to an offer, that is an insight, will never expose the raw data to outside of data wallet.
 
 # Components
+
+Synamint offers consist of metadata and components. Components are the main elements of evaluation. They introduce a flexible data, effort, and value exchange mechanism between data wallets and businesses.
+
+Components are namely [subueries](</documentation/sdql/components/SUBQUERIES.md>), [insights](</documentation/sdql/components/INSIGHTS.md>), [ads](</documentation/sdql/components/ADS.md>), and [compensations](</documentation/sdql/components/COMPENSATIONS.md>). Components have a clear topology among themselves, which directly determines the evaluation result combined with user data and effort.
+
+```mermaid
+stateDiagram-v2
+  Subqueries --> Insights: Target
+  Subqueries --> Insights: Evaluate
+  Subqueries --> Ads: Target
+  Ads --> Compensations: Evaluate
+  Insights --> Compensations: Evaluate
+```
+
+## Components - Subqueries
+
+Subqueries allow manipulation of end-user data at the client side. This is the only query component businesses can use to 
+- Target data wallets depending on end-user data
+- Gather insights from targeted users' data
+
+> Subqueries never expose raw data from data wallets.
+
+Following is a query that represents end users' unexposed age information.
+```JSON
+{
+  "q1": {
+    "name": "age",
+    "return": "number"
+  }
+}
+```
+Businesses can combine different kinds of queries in an offer to accomplish targeting and data manipulation at the client side without seeing the raw data.
+
+## Components - Insights
+
+
+
+
 
 [TODO]: <> (
   Briefly introduce subq, insights, ads and compensations.
