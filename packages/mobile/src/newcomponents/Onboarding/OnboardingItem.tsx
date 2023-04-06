@@ -11,6 +11,7 @@ import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
 import Video from "react-native-video";
 import VideoPlayer from "../VideoPlayer";
 import Icon from "react-native-vector-icons/Ionicons";
+import { ScrollView } from "react-native-gesture-handler";
 
 interface OnboardingItemProps {
   item: {
@@ -33,75 +34,83 @@ export default function OnboardingItem({
   const { width, height } = Dimensions.get("window");
   const ITEM_WIDTH = width;
   return (
-    <SafeAreaView
-      style={{ zIndex: 999, alignItems: "center", justifyContent: "center" }}
-    >
-      <View
-        style={{
-          paddingHorizontal: normalizeWidth(18),
-          marginTop: normalizeHeight(10),
-          height: normalizeHeight(item?.asset?.height ?? 0),
-        }}
-      >
-        {item.asset && item.asset.type === "image" ? (
-          <Image
-            style={{ flex: 1, resizeMode: "contain" }}
-            source={item?.asset?.source}
-          />
-        ) : (
-          <VideoPlayer source={item.asset?.source} />
-        )}
-      </View>
-      <View>
-        <View
+    <SafeAreaView style={{height:'78%'}}>
+      <ScrollView>
+        <SafeAreaView
           style={{
-            marginTop: item?.asset?.height! > 0 ? normalizeHeight(60) : 20,
+            zIndex: 999,
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Text
+          <View
             style={{
-              textAlign: "center",
-              fontWeight: "700",
-              fontSize: normalizeWidth(24),
-              color: "#4E4676",
-              lineHeight: normalizeWidth(29),
+              paddingHorizontal: normalizeWidth(18),
+              marginTop: normalizeHeight(10),
+              height: normalizeHeight(item?.asset?.height ?? 0),
             }}
           >
-            {item.title}
-          </Text>
-        </View>
-        <View style={{ marginTop: normalizeHeight(12) }}>
-          <Text
-            style={{
-              textAlign: "center",
-              fontWeight: "400",
-              color: "#616161",
-              fontSize: normalizeWidth(16),
-              lineHeight: normalizeWidth(23),
-            }}
-          >
-            {item.description}
-          </Text>
-        </View>
-        {item.component && item.component}
-        {item.backButton && (
-          <TouchableOpacity
-            style={{ position: "absolute", left: 0, top: 20 }}
-            onPress={() => {
-              scrollViewRef.current?.scrollTo({
-                x: scrollX._value - ITEM_WIDTH,
-                animated: true,
-              });
-            }}
-          >
-            <Icon
-              name="arrow-back-outline"
-              size={normalizeWidth(30)}
-              color="#9E9E9E"
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+            {item.asset && item.asset.type === "image" ? (
+              <Image
+                style={{ flex: 1, resizeMode: "contain" }}
+                source={item?.asset?.source}
+              />
+            ) : (
+              <VideoPlayer source={item.asset?.source} />
+            )}
+          </View>
+          <View>
+            <View
+              style={{
+                marginTop: item?.asset?.height! > 0 ? normalizeHeight(60) : 20,
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontWeight: "700",
+                  fontSize: normalizeWidth(24),
+                  color: "#4E4676",
+                  lineHeight: normalizeWidth(29),
+                }}
+              >
+                {item.title}
+              </Text>
+            </View>
+            <View style={{ marginTop: normalizeHeight(12) }}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontWeight: "400",
+                  color: "#616161",
+                  fontSize: normalizeWidth(16),
+                  lineHeight: normalizeWidth(23),
+                }}
+              >
+                {item.description}
+              </Text>
+            </View>
+            {item.component && item.component}
+            {item.backButton && (
+              <TouchableOpacity
+                style={{ position: "absolute", left: 0, top: 20 }}
+                onPress={() => {
+                  scrollViewRef.current?.scrollTo({
+                    x: scrollX._value - ITEM_WIDTH,
+                    animated: true,
+                  });
+                }}
+              >
+                <Icon
+                  name="arrow-back-outline"
+                  size={normalizeWidth(30)}
+                  color="#9E9E9E"
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+        </SafeAreaView>
+      </ScrollView>
     </SafeAreaView>
   );
 }

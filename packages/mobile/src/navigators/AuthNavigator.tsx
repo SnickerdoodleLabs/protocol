@@ -148,6 +148,16 @@ export function MarketplaceStack() {
           title: false,
         }}
       />
+          <Stack.Screen
+        name={ROUTES.ONBOARDING}
+        component={OnboardingMain}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+        }}
+      />
       <Stack.Screen
         name={ROUTES.CARD_DETAILS}
         component={CardDetails}

@@ -15,6 +15,8 @@ import MyComponent from "./Mycomponent";
 import OnboardingItem from "./OnboardingItem";
 import Permission from "./Permission";
 import { useAppContext } from "../../context/AppContextProvider";
+import { useNavigation } from "@react-navigation/native";
+import { ROUTES } from "../../constants";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
@@ -24,6 +26,7 @@ const OnboardingMain = () => {
   const scrollViewRef = useRef();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { isUnlocked } = useAppContext();
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (isUnlocked) {
@@ -203,78 +206,50 @@ const OnboardingMain = () => {
       component: <MyComponent />,
       backButton: false,
     },
+
     {
       id: 5,
       asset: {
         type: "image",
-        source: require("../../assets/images/more-info.png"),
+        source: require("../../assets/images/welcome_snickerdoodle.png"),
         height: 0,
       },
       title: `Set Your Data Permissions`,
       description: `Choose your data  permissions to control what\n information you share.`,
       button: (
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#6E62A6",
-            width: normalizeWidth(380),
-            height: normalizeHeight(58),
-            borderRadius: normalizeWidth(100),
-            justifyContent: "center",
-          }}
-          onPress={() => {
-            handleNextButtonPress();
-          }}
-        >
-          <Text
+        <View>
+          <TouchableOpacity
             style={{
-              textAlign: "center",
-              color: "white",
-              fontWeight: "700",
-              fontSize: normalizeWidth(16),
+              backgroundColor: "#6E62A6",
+              width: normalizeWidth(380),
+              height: normalizeHeight(58),
+              borderRadius: normalizeWidth(100),
+              justifyContent: "center",
+            }}
+            onPress={() => {
+              {
+                isUnlocked && navigation.replace(ROUTES.HOME);
+              }
             }}
           >
-            Next
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={{
+                textAlign: "center",
+                color: "white",
+                fontWeight: "700",
+                fontSize: normalizeWidth(16),
+              }}
+            >
+              Go To Wallet
+            </Text>
+          </TouchableOpacity>
+        </View>
       ),
-      component: <PieChart data={data2} />,
-      backButton: true,
-    },
-    {
-      id: 6,
-      asset: {
-        type: "image",
-        source: require("../../assets/images/more-info.png"),
-        height: 0,
-      },
-      title: `Set Your Data Permissions`,
-      description: `Choose your data  permissions to control what\n information you share.`,
-      button: (
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#6E62A6",
-            width: normalizeWidth(380),
-            height: normalizeHeight(58),
-            borderRadius: normalizeWidth(100),
-            justifyContent: "center",
-          }}
-          onPress={() => {
-            handleNextButtonPress();
-          }}
-        >
-          <Text
-            style={{
-              textAlign: "center",
-              color: "white",
-              fontWeight: "700",
-              fontSize: normalizeWidth(16),
-            }}
-          >
-            Next
-          </Text>
-        </TouchableOpacity>
+      component: (
+        <>
+          <Permission />
+        </>
       ),
-      component: <Permission />,
       backButton: true,
     },
   ];

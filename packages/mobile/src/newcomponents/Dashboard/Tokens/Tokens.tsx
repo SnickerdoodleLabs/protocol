@@ -4,9 +4,34 @@ import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { IDashboardChildrenProps } from "../Dashboard";
 import TokenItem from "./TokenItem";
 import PieChart from "../../Custom/PieChart";
+import Pie from "react-native-pie";
+import tinycolor from "tinycolor2";
+
+export function generateShades(baseColor: string, numShades: number): string[] {
+  const shades: string[] = [];
+  for (let i = 1; i <= numShades; i++) {
+    const shade = tinycolor(baseColor)
+      .darken(i * 5)
+      .toString();
+    shades.push(shade);
+  }
+  return shades;
+}
 
 export default function Tokens({ data }: IDashboardChildrenProps) {
   const [groupedTokens, setGroupedTokens] = React.useState([]);
+
+  const dataPie = (baseColor: string, data2: any) => {
+    const data = [];
+    const colors = generateShades(baseColor, Object.keys(groupedTokens).length);
+    Object.keys(groupedTokens).map((tickerSymbol, index) => {
+      const group = groupedTokens[tickerSymbol];
+      const totalQuote = group.totalQuote;
+      const percentage = (totalQuote / data2?.totalBalance) * 100;
+      data.push({ percentage: percentage, color: colors[index] });
+    });
+    return data;
+  };
   useEffect(() => {
     console.log("tokens", data.tokens.flat());
     const groupedTokens = data.tokens.flat().reduce((accumulator, token) => {
@@ -20,7 +45,8 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
       accumulator[token.contract_ticker_symbol].totalQuote += token.quote;
       return accumulator;
     }, {});
-    console.log("groupedTokens", groupedTokens);
+    console.log("groupedTokens22", groupedTokens);
+    console.log("grp33", Object.keys(groupedTokens));
 
     setGroupedTokens(groupedTokens);
   }, [data]);
@@ -39,10 +65,12 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
       </View>
 
       <View style={styles.borderBox}>
-        <Text style={[styles.text3, { height: 200 }]}>
-          Token Value Breakdown
-        </Text>
-        <PieChart data={[30, 20, 50]} width={200} height={200} />
+        <Text style={[styles.text3, {}]}>Token Value Breakdown</Text>
+        <Pie
+          radius={80}
+          sections={dataPie("#AFAADB", data)}
+          strokeCap={"butt"}
+        />
       </View>
 
       <View style={styles.borderBox}>
