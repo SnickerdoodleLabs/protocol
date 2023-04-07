@@ -1,29 +1,93 @@
 import React from "react";
-import { View } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import { View, Text } from "react-native";
+import { PieChart } from "react-native-svg-charts";
+import { Text as SvgText } from "react-native-svg";
 
-const PieChart = ({ data, width, height }) => {
-  const total = data.reduce((sum, value) => sum + value, 0);
-  const angles = data.map((value) => (value / total) * Math.PI * 2);
+export interface SliceData {
+  key: number;
+  value: number;
+  svg: object;
+  label: string;
+}
 
-  let startAngle = 0;
-  return (
-    <View>
-      <Svg width={width} height={height}>
-        {angles.map((angle, index) => {
-          const endAngle = startAngle + angle;
-          const x1 = Math.cos(startAngle);
-          const y1 = Math.sin(startAngle);
-          const x2 = Math.cos(endAngle);
-          const y2 = Math.sin(endAngle);
-          const largeArcFlag = angle > Math.PI ? 1 : 0;
-          const d = `M 0 0 L ${x1} ${y1} A 1 1 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
-          startAngle = endAngle;
-          return <Path key={index} d={d} fill={`rgb(255,${index * 50},0)`} />;
-        })}
-      </Svg>
-    </View>
-  );
-};
+interface Props {
+  data: SliceData[];
+}
 
-export default PieChart;
+class PieChartComponent extends React.PureComponent<Props> {
+  render() {
+    const { data } = this.props;
+
+    const Labels = ({ slices }: { slices: any[] }) => {
+      return slices.map((slice, index) => {
+        const { labelCentroid, data } = slice;
+        return (
+          <SvgText
+            key={index}
+            x={labelCentroid[0]}
+            y={labelCentroid[1]}
+            fill={"white"}
+            textAnchor={"middle"}
+            alignmentBaseline={"middle"}
+            fontSize={12}
+            fontWeight={"bold"}
+          >
+            {data.label}
+          </SvgText>
+        );
+      });
+    };
+
+    return (
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View>
+          <PieChart
+            style={{ width: 200, height: 250 }}
+            data={data}
+            innerRadius={0}
+            outerRadius={"90%"}
+          >
+            <Labels />
+          </PieChart>
+        </View>
+        <View style={{ marginTop: -30, marginLeft: 20 }}>
+          {data.map((item) => (
+            <View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: item.svg.fill,
+                    borderRadius: 100,
+                    marginTop: 8,
+                  }}
+                ></View>
+                <Text
+                  key={item.key}
+                  style={{
+                    fontSize: 12,
+                    paddingLeft: 5,
+                    color: "#757575",
+                    fontWeight: "500",
+                    marginTop: 8,
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </View>
+              <Text
+                key={item.key}
+                style={{ fontSize: 16, fontWeight: "500", marginTop: 8 }}
+              >
+                {`${item.value.toFixed(2)}%`}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  }
+}
+
+export default PieChartComponent;
