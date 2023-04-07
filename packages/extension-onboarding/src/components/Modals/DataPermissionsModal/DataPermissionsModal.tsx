@@ -84,7 +84,7 @@ const DataPermissionsModal: FC = () => {
                 </Box>
                 {item.dataTypes.map((dataType, index) => {
                   return (
-                    <Box key={index}>
+                    <Box key={index} mb={2}>
                       <FormControlLabel
                         className={classes.switchLabel}
                         control={

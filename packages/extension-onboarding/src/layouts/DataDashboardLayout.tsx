@@ -46,6 +46,7 @@ const LINKS: ILink[] = [
   { path: EPaths.NFTS, title: "NFTs" },
   { path: EPaths.POAP_NFTS, title: "POAPs" },
   { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
+  { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
   { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
 ];
 

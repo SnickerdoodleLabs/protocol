@@ -17,4 +17,5 @@ export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/EScamFilterStatus.js";
 export * from "@objects/enum/ESDQLQueryReturn.js";
 export * from "@objects/enum/ERewardType.js";
+export * from "@objects/enum/ESocialType.js";
 export * from "@objects/enum/StorageKey.js";
