@@ -1,4 +1,9 @@
-import { ChainId, ProviderUrl, URLString } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  DiscordConfig,
+  ProviderUrl,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 
 import {
   EManifestVersion,
@@ -29,5 +34,6 @@ export class ExtensionConfig {
     public transactionPollingIntervalMS?: number,
     public backupPollingIntervalMS?: number,
     public enableBackupEncryption?: boolean,
+    public discordOverrides?: Partial<DiscordConfig>,
   ) {}
 }

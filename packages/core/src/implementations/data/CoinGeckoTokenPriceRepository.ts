@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -9,6 +11,7 @@ import {
   EBackupPriority,
   EChain,
   ECurrencyCode,
+  ERecordKey,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -20,7 +23,6 @@ import {
   URLString,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -50,6 +52,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this._nativeIds = new Map();
     chainConfig.forEach((value) => {
@@ -92,14 +95,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   }
 
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
-    return this.persistence.updateRecord(
-      ERecordKey.COIN_INFO,
-      new VolatileStorageMetadata<TokenInfo>(
-        EBackupPriority.NORMAL,
-        info,
-        TokenInfo.CURRENT_VERSION,
-      ),
-    );
+    return this.persistence.updateRecord(ERecordKey.COIN_INFO, info);
   }
 
   public getTokenMarketData(
@@ -178,7 +174,15 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           contractAddress,
         ]);
       })
-      .mapErr((e) => new AccountIndexingError("error fetching token info", e));
+      .mapErr((e) => {
+        this.logUtils.error(
+          "error fetching token info",
+          chainId,
+          contractAddress,
+          e,
+        );
+        return new AccountIndexingError("error fetching token info", e);
+      });
   }
 
   public getTokenPrice(
@@ -296,11 +300,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                     results.push(
                       this.persistence.updateRecord(
                         ERecordKey.COIN_INFO,
-                        new VolatileStorageMetadata(
-                          EBackupPriority.NORMAL,
-                          tokenInfo,
-                          TokenInfo.CURRENT_VERSION,
-                        ),
+                        tokenInfo,
                       ),
                     );
                   }

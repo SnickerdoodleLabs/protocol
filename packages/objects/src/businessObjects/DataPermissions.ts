@@ -77,6 +77,9 @@ export class DataPermissions {
   public get LatestBlockNumber(): boolean {
     return this.getFlag(EWalletDataType.LatestBlockNumber);
   }
+  public get Discord(): boolean {
+    return this.getFlag(EWalletDataType.Discord);
+  }
 
   public getFlag(flagNumber: number): boolean {
     // Convert the flags hex string to a Uint8Array

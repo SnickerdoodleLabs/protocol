@@ -468,9 +468,6 @@ export default () => {
         <Box mb={0.5}>
           <Typography className={classes.title}>Tokens</Typography>
         </Box>
-        <Typography className={classes.description}>
-          Your tokens, from linked accounts and newly earned rewards.
-        </Typography>
       </Box>
       {isBalancesLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={10}>

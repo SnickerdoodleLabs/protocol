@@ -1,6 +1,7 @@
 import CoinbaseIcon from "@extension-onboarding/assets/icons/coinbase.svg";
 import MetamaskIcon from "@extension-onboarding/assets/icons/metamask.svg";
 import PhantomIcon from "@extension-onboarding/assets/icons/phantom.svg";
+
 import WalleConnectIcon from "@extension-onboarding/assets/icons/wallet-connect.svg";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import {

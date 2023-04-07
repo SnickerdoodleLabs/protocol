@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
+		"module": "ES2022",
 		"paths": {
 			"@utils/*": [
 			  "./packages/utils/src/*"
@@ -13,6 +14,9 @@
 		  },
 	},
 	"references": [
+		{
+			"path": "../common-utils"
+		},
 		{
 			"path": "../objects"
 		}

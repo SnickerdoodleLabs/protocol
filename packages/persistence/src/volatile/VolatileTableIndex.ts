@@ -1,16 +1,24 @@
 import {
+  EBackupPriority,
+  ERecordKey,
   VersionedObject,
   VersionedObjectMigrator,
 } from "@snickerdoodlelabs/objects";
 
-export class VolatileTableIndex<T extends VersionedObject> {
+import { IStorageIndex } from "@persistence/IStorageIndex.js";
+
+export class VolatileTableIndex<T extends VersionedObject>
+  implements IStorageIndex
+{
   public static DEFAULT_KEY = "id";
   public constructor(
-    public name: string,
+    public name: ERecordKey,
     public keyPath: string | string[],
     public autoIncrement: boolean = false,
     public migrator: VersionedObjectMigrator<T>,
+    public priority: EBackupPriority,
+    public backupInterval: number,
+    public maxChunkSize: number,
     public indexBy?: [string | string[], boolean][],
-    public disableBackup: boolean = false,
   ) {}
 }
