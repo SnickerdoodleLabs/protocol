@@ -161,6 +161,7 @@
     "metro-react-native-babel-preset": "^0.59.0",
     "monaco-editor-webpack-plugin": "2.0.0",
     "mysql2": "^3.2.0",
+    "mysql": "^2.18.1",
     "os-browserify": "^0.3.0",
     "postcss": "^8.2.4",
     "postcss-loader": "^4.2.0",
