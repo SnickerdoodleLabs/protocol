@@ -3,7 +3,7 @@ import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IStorageUtils } from "@utils/IStorageUtils";
+import { IStorageUtils } from "@utils/IStorageUtils.js";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 interface Dictionary<T> {

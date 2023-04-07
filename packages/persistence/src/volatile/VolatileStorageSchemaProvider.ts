@@ -140,7 +140,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.EARNED_REWARDS,
           new VolatileTableIndex(
             ERecordKey.EARNED_REWARDS,
-            "queryCID",
+            ["queryCID", "name", "contractAddress", "chainId"],
             false,
             new EarnedRewardMigrator(),
             EBackupPriority.NORMAL,
