@@ -6,13 +6,21 @@ import {
   WalletNFT,
   TokenBalance,
 } from "@snickerdoodlelabs/objects";
-import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
-import {
-  EInternalActions,
-  IInternalState,
-} from "@synamint-extension-sdk/shared";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
+
+import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
+import {
+  GetAccountBalancesParams,
+  GetAccountNFTsParams,
+  GetAccountsParams,
+  GetEmailParams,
+  GetFamilyNameParams,
+  GetGivenNameParams,
+  GetInternalStateParams,
+  IInternalState,
+  IsDataWalletAddressInitializedParams,
+} from "@synamint-extension-sdk/shared";
 
 export class InternalCoreGateway {
   protected _handler: CoreHandler;
@@ -25,29 +33,27 @@ export class InternalCoreGateway {
   }
 
   public getState(): ResultAsync<IInternalState, JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_STATE);
+    return this._handler.call(new GetInternalStateParams());
   }
   public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_ACCOUNTS);
+    return this._handler.call(new GetAccountsParams());
   }
   public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_ACCOUNT_BALANCES);
+    return this._handler.call(new GetAccountBalancesParams());
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_ACCOUNT_NFTS);
+    return this._handler.call(new GetAccountNFTsParams());
   }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {
-    return this._handler.call(
-      EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
-    );
+    return this._handler.call(new IsDataWalletAddressInitializedParams());
   }
   public getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_FAMILY_NAME);
+    return this._handler.call(new GetFamilyNameParams());
   }
   public getGivenName(): ResultAsync<GivenName | null, JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_GIVEN_NAME);
+    return this._handler.call(new GetGivenNameParams());
   }
   public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {
-    return this._handler.call(EInternalActions.GET_EMAIL);
+    return this._handler.call(new GetEmailParams());
   }
 }

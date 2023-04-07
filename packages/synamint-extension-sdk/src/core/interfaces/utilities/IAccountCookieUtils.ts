@@ -1,5 +1,3 @@
-import { IUnlockParams } from "@synamint-extension-sdk/shared/interfaces/actions";
-import { ExtensionCookieError } from "@synamint-extension-sdk/shared/objects/errors";
 import {
   Signature,
   LanguageCode,
@@ -8,6 +6,9 @@ import {
   DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { UnlockParams } from "@synamint-extension-sdk/shared/interfaces/actions";
+import { ExtensionCookieError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface IAccountCookieUtils {
   writeAccountInfoToCookie(
@@ -22,7 +23,7 @@ export interface IAccountCookieUtils {
   ): ResultAsync<void, ExtensionCookieError>;
 
   readAccountInfoFromCookie(): ResultAsync<
-    IUnlockParams[],
+    UnlockParams[],
     ExtensionCookieError
   >;
   writeDataWalletAddressToCookie(
