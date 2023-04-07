@@ -234,6 +234,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    bind<IDiscordPoller>(IDiscordPollerType)
+      .to(DiscordPoller)
+      .inSingletonScope();
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
       .inSingletonScope();
@@ -381,9 +384,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
-      .inSingletonScope();
-    bind<IDiscordPoller>(IDiscordPollerType)
-      .to(DiscordPoller)
       .inSingletonScope();
 
     // Utilites/factory

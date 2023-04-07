@@ -7,6 +7,8 @@ import {
   UnixTimestamp,
   DiscordGuildProfile,
   OAuth2Tokens,
+  DiscordAccessToken,
+  DiscordRefreshToken,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -19,8 +21,8 @@ export const discordProfiles = [
     null,
     Integer(0),
     new OAuth2Tokens(
-      BearerAuthToken("f0RhjaxsHvw5HqKLDsnWZdttSIODUg"),
-      BearerAuthToken("my-refresh-token"),
+      DiscordAccessToken("f0RhjaxsHvw5HqKLDsnWZdttSIODUg"),
+      DiscordRefreshToken("my-refresh-token"),
       UnixTimestamp(0),
     ),
   ),
@@ -33,8 +35,8 @@ export const discordProfiles = [
     null,
     Integer(0),
     new OAuth2Tokens(
-      BearerAuthToken("INVALID"),
-      BearerAuthToken("my-refresh-token"),
+      DiscordAccessToken("INVALID"),
+      DiscordRefreshToken("my-refresh-token"),
       UnixTimestamp(0),
     ),
   ),

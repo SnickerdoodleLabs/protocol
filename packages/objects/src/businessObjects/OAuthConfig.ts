@@ -1,4 +1,4 @@
-import { URLString } from "@objects/primitives/URLString";
+import { URLString } from "@objects/primitives/URLString.js";
 
 export interface OAuthConfig {
   clientId: string;

@@ -1,27 +1,29 @@
 import {
-  IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
   IRequestConfig,
-  ITimeUtilsType,
   ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   BearerAuthToken,
-  DiscordProfile,
+  DiscordAccessToken,
+  DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
-  URLString,
-  DiscordConfig,
-  UnixTimestamp,
-  DiscordProfileAPIResponse,
   DiscordGuildProfileAPIResponse,
-  PersistenceError,
-  ESocialType,
-  SnowflakeID,
-  OAuthAuthorizationCode,
-  OAuth2Tokens,
-  SocialPrimaryKey,
   DiscordOAuth2TokensAPIResponse,
+  DiscordProfile,
+  DiscordProfileAPIResponse,
+  DiscordRefreshToken,
+  ESocialType,
+  OAuth2Tokens,
+  OAuthAuthorizationCode,
+  PersistenceError,
+  SnowflakeID,
+  SocialPrimaryKey,
+  UnixTimestamp,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -30,10 +32,10 @@ import { urlJoin } from "url-join-ts";
 
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
-  IDataWalletPersistenceType,
   IDataWalletPersistence,
-  ISocialRepositoryType,
+  IDataWalletPersistenceType,
   ISocialRepository,
+  ISocialRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
@@ -53,100 +55,14 @@ export class DiscordRepository implements IDiscordRepository {
     protected timeUtils: ITimeUtils,
   ) {}
 
-  protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      if (!config.discord) {
-        return errAsync(new DiscordError("Discord configuration not found!"));
-      }
-      return okAsync(config.discord);
-    });
-  }
-
-  protected makeAPICall(apiUrl: URLString): ResultAsync<unknown, DiscordError> {
-    return okAsync(undefined);
-  }
-
-  protected tokenUrl(): ResultAsync<URLString, DiscordError> {
-    return this.getAPIConfig().andThen((apiConfig) => {
-      return okAsync(URLString(urlJoin(apiConfig.dataAPIUrl, "/oauth2/token")));
-    });
-  }
-
-  protected meUrl(): ResultAsync<URLString, DiscordError> {
-    return this.getAPIConfig().andThen((apiConfig) => {
-      return okAsync(URLString(urlJoin(apiConfig.dataAPIUrl, "/users/@me")));
-    });
-  }
-
-  protected meGuildUrl(): ResultAsync<URLString, DiscordError> {
-    return this.meUrl().andThen((meUrl) => {
-      return okAsync(URLString(urlJoin(meUrl, "/guilds")));
-    });
-  }
-
-  protected tokenAPICallBaseConfig() {
-    return this.getAPIConfig().andThen((apiConfig) => {
-      return okAsync({
-        client_id: apiConfig.clientId,
-        client_secret: apiConfig.clientSecret,
-        redirect_uri: apiConfig.oauthRedirectUrl,
-      });
-
-      // return this.configProvider.getConfig().andThen((config) => {
-      //   if (!config.discord) {
-      //     return errAsync(new DiscordError("Discord configuration not found!"));
-      //   }
-      //   // const redirectURL = URLString(
-      //   //   urlJoin(
-      //   //     config.onboa,
-      //   //     "/data-dashboard/social-media-data",
-      //   //   ), // TODO, find a way to set this
-      //   // );
-      //   return okAsync({
-      //     client_id: config.discord.clientId,
-      //     client_secret: config.discord.clientSecret,
-      //     redirect_uri: redirectURL,
-      //   });
-      // });
-    });
-  }
-
-  protected factoryAccessToken(apiResponse: DiscordOAuth2TokensAPIResponse) {
-    return new OAuth2Tokens(
-      apiResponse.access_token,
-      apiResponse.refresh_token,
-      UnixTimestamp(
-        Number(this.timeUtils.getUnixNow()) + apiResponse.expires_in,
-      ),
-    );
-  }
-
-  protected getRequestConfig(
-    authToken: BearerAuthToken,
-  ): ResultAsync<IRequestConfig, never> {
-    const config: IRequestConfig = {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-        accept: "*/*",
-      },
-    };
-    return okAsync(config);
-  }
-
   public isAuthTokenValid(
-    accessToken: OAuth2Tokens,
-  ): ResultAsync<boolean, DiscordError> {
-    const curTime = this.timeUtils.getUnixNow() as number;
-    const expiry = accessToken.expiry as number;
-    // console.log("curTime", curTime);
-    // console.log("expiry", expiry);
-    return okAsync(curTime < expiry);
+    oAuth2Tokens: OAuth2Tokens,
+  ): ResultAsync<boolean, never> {
+    return okAsync(this.timeUtils.getUnixNow() < oAuth2Tokens.expiry);
   }
 
   public refreshAuthToken(
-    refreshToken: BearerAuthToken,
+    refreshToken: DiscordRefreshToken,
   ): ResultAsync<OAuth2Tokens, DiscordError> {
     return ResultUtils.combine([
       this.tokenAPICallBaseConfig(),
@@ -158,12 +74,8 @@ export class DiscordRepository implements IDiscordRepository {
           grant_type: "refresh_token",
           refresh_token: refreshToken,
         })
-        .andThen((response) => {
-          return okAsync(this.factoryAccessToken(response));
-        })
-        .orElse((error) => {
-          return errAsync(new DiscordError(error.message));
-        });
+        .map(this.factoryAccessToken)
+        .mapErr((error) => new DiscordError(error.message));
     });
   }
 
@@ -213,67 +125,58 @@ export class DiscordRepository implements IDiscordRepository {
   public fetchUserProfile(
     oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordProfile, DiscordError> {
-    // console.log("fetchUserProfile with ", oauth2Tokens.accessToken);
-    return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
-      (reqConfig) => {
-        return this.meUrl().andThen((meUrl) => {
-          return this.ajaxUtil
-            .get<DiscordProfileAPIResponse>(new URL(meUrl), reqConfig)
-            .andThen((response) => {
-              const profile = new DiscordProfile(
-                response.id,
-                response.username,
-                response.display_name,
-                response.discriminator,
-                response.avatar,
-                response.flags,
-                oauth2Tokens,
-              );
-              return okAsync(profile);
-            })
-            .orElse((error) => {
-              console.log(error.src);
-              return errAsync(new DiscordError(error.message));
-            });
+    return this.meUrl().andThen((meUrl) => {
+      return this.ajaxUtil
+        .get<DiscordProfileAPIResponse>(
+          new URL(meUrl),
+          this.getRequestConfig(oauth2Tokens.accessToken),
+        )
+        .map(
+          (response) =>
+            new DiscordProfile(
+              response.id,
+              response.username,
+              response.display_name,
+              response.discriminator,
+              response.avatar,
+              response.flags,
+              oauth2Tokens,
+            ),
+        )
+        .mapErr((error) => {
+          console.log(error.src);
+          return new DiscordError(error.message);
         });
-      },
-    );
+    });
   }
 
   public fetchGuildProfiles(
     oauth2Tokens: OAuth2Tokens,
   ): ResultAsync<DiscordGuildProfile[], DiscordError> {
-    // console.log("fetchGuildProfiles with ", oauth2Tokens.accessToken);
-    return this.getRequestConfig(oauth2Tokens.accessToken).andThen(
-      (reqConfig) => {
-        return this.meGuildUrl().andThen((meGuildUrl) => {
-          return this.ajaxUtil
-            .get<DiscordGuildProfileAPIResponse[]>(
-              new URL(meGuildUrl),
-              reqConfig,
-            )
-            .andThen((response) => {
-              const guildProfiles = response.map((profile) => {
-                return new DiscordGuildProfile(
-                  profile.id,
-                  SnowflakeID("-1"), // not set yet
-                  profile.name,
-                  profile.owner,
-                  profile.permissions,
-                  profile.icon,
-                  null,
-                );
-              });
-
-              return okAsync(guildProfiles);
-            })
-            .orElse((error) => {
-              console.log(error.src);
-              return errAsync(new DiscordError(error.message));
-            });
+    return this.meGuildUrl().andThen((meGuildUrl) => {
+      return this.ajaxUtil
+        .get<DiscordGuildProfileAPIResponse[]>(
+          new URL(meGuildUrl),
+          this.getRequestConfig(oauth2Tokens.accessToken),
+        )
+        .map((response) =>
+          response.map((profile) => {
+            return new DiscordGuildProfile(
+              profile.id,
+              SnowflakeID("-1"), // not set yet
+              profile.name,
+              profile.owner,
+              profile.permissions,
+              profile.icon,
+              null,
+            );
+          }),
+        )
+        .mapErr((error) => {
+          console.log(error.src);
+          return new DiscordError(error.message);
         });
-      },
-    );
+    });
   }
 
   public upsertUserProfile(
@@ -311,6 +214,7 @@ export class DiscordRepository implements IDiscordRepository {
       ESocialType.DISCORD,
     );
   }
+
   public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
     // 1. find the profile
     // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
@@ -325,30 +229,79 @@ export class DiscordRepository implements IDiscordRepository {
     });
   }
 
+  protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      if (!config.discord) {
+        return errAsync(new DiscordError("Discord configuration not found!"));
+      }
+      return okAsync(config.discord);
+    });
+  }
+
+  protected tokenUrl(): ResultAsync<URLString, DiscordError> {
+    return this.getAPIConfig().map((apiConfig) =>
+      URLString(urlJoin(apiConfig.dataAPIUrl, "/oauth2/token")),
+    );
+  }
+
+  protected meUrl(): ResultAsync<URLString, DiscordError> {
+    return this.getAPIConfig().map((apiConfig) =>
+      URLString(urlJoin(apiConfig.dataAPIUrl, "/users/@me")),
+    );
+  }
+
+  protected meGuildUrl(): ResultAsync<URLString, DiscordError> {
+    return this.meUrl().map((meUrl) => URLString(urlJoin(meUrl, "/guilds")));
+  }
+
+  protected tokenAPICallBaseConfig() {
+    return this.getAPIConfig().map((apiConfig) => {
+      return {
+        client_id: apiConfig.clientId,
+        client_secret: apiConfig.clientSecret,
+        redirect_uri: apiConfig.oauthRedirectUrl,
+      };
+    });
+  }
+
+  protected factoryAccessToken(apiResponse: DiscordOAuth2TokensAPIResponse) {
+    return new OAuth2Tokens(
+      apiResponse.access_token,
+      apiResponse.refresh_token,
+      UnixTimestamp(
+        Number(this.timeUtils.getUnixNow()) + apiResponse.expires_in,
+      ),
+    );
+  }
+
+  protected getRequestConfig(authToken: DiscordAccessToken): IRequestConfig {
+    return {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+        accept: "*/*",
+      },
+    };
+  }
+
   private deleteUserData(
     uProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
-    return this.socialRepository.deleteProfile(uProfile.pKey).andThen(() => {
-      const ownerId = uProfile.pKey;
-      const guildProfilesResult =
-        this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
-          ownerId,
+    return this.socialRepository
+      .deleteProfile(uProfile.pKey)
+      .andThen(() => {
+        return this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
+          uProfile.pKey,
         );
-
-      return guildProfilesResult.andThen((guildProfiles) => {
-        const res = guildProfiles.map((guildProfile) => {
-          return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
-        });
-        return ResultUtils.combine(res).map(() => {});
-      });
-    });
-
-    // return okAsync(undefined);
+      })
+      .andThen((guildProfiles) => {
+        return ResultUtils.combine(
+          guildProfiles.map((guildProfile) => {
+            return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
+          }),
+        );
+      })
+      .map(() => {});
   }
-  // public deleteGroupProfile(
-  //   id: SnowflakeID,
-  // ): ResultAsync<void, PersistenceError> {
-  //   const pKey = SocialPrimaryKey(`discord-group-${id}`); // Should be in a Utils class.
-  //   return okAsync(undefined);
-  // }
 }

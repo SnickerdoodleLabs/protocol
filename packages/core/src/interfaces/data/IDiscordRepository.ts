@@ -1,21 +1,18 @@
 import {
-  BearerAuthToken,
-  DiscordProfile,
   DiscordError,
   DiscordGuildProfile,
-  PersistenceError,
-  URLString,
-  AjaxError,
-  OAuthAuthorizationCode,
-  SocialPrimaryKey,
-  SnowflakeID,
+  DiscordProfile,
+  DiscordRefreshToken,
   OAuth2Tokens,
+  OAuthAuthorizationCode,
+  PersistenceError,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IDiscordRepository {
   isAuthTokenValid(
-    accessToken: OAuth2Tokens,
+    oAuth2Tokens: OAuth2Tokens,
   ): ResultAsync<boolean, DiscordError>;
 
   getAccessToken(
@@ -23,7 +20,7 @@ export interface IDiscordRepository {
   ): ResultAsync<OAuth2Tokens, DiscordError>;
 
   refreshAuthToken(
-    refreshToken: BearerAuthToken,
+    refreshToken: DiscordRefreshToken,
   ): ResultAsync<OAuth2Tokens, DiscordError>;
 
   fetchUserProfile(
