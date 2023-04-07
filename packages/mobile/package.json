@@ -102,6 +102,7 @@
     "react-native-screens": "^3.18.2",
     "react-native-select-dropdown": "^3.3.0",
     "react-native-svg": "9.6.4",
+    "react-native-svg-charts": "^5.4.0",
     "react-native-tab-view": "^3.5.1",
     "react-native-tcp": "^3.3.2",
     "react-native-track-player": "^3.2.0",
