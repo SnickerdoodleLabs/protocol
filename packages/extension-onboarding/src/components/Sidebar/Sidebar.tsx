@@ -1,8 +1,8 @@
-import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
@@ -44,7 +44,9 @@ export const routes: IRoute[] = [
     subroutes: [
       { path: EPaths.TOKENS, title: "Tokens" },
       { path: EPaths.NFTS, title: "NFTs" },
+      { path: EPaths.POAP_NFTS, title: "POAPs" },
       { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
+      { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
       { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
   },

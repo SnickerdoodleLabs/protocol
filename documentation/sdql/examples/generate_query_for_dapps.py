@@ -1,61 +1,56 @@
 # %%
 import pandas as pd
+from wand.image import Image
+import io
 import re
 from urllib.parse import urlparse
 import json
 import os
 import requests
-
-chain_lookup = {
-    "avalanche": "Avalanche",
-    "ethereum": "Ethereum",
-    "polygon": "Polygon",
-    "binance-smart-chain": "Binance",
-    "arbitrum": "Arbitrum",
-    "optimism": "Optimism",
-}
-
-chain_id = {
-    "Polygon": "137",
-    "Ethereum": "1",
-    "Avalanche": "43114",
-    "Arbitrum": "42161",
-    "Solana": "-1",
-    "Optimism": "10",
-    "Gnosis": "100",
-    "Binance": "56",
-    "Moonbeam": "1284"
-}
-
-chain_acronym = {
-    "Polygon": "MATIC",
-    "Ethereum": "ETH",
-    "Avalanche": "AVAX",
-    "Arbitrum": "ARB",
-    "Solana": "SOL",
-    "Optimism": "OP",
-    "Gnosis": "xDAI",
-    "Binance": "BNB",
-    "Moonbeam": "GLMR"
-}
+from constants import (chain_lookup, 
+                       chain_id, 
+                       chain_acronym, 
+                       api_key, 
+                       project_id)
 
 def get_domain(website):
     t = urlparse(website).netloc
     return '.'.join(t.split('.')[-2:])
 
+def download_and_save_logo(url, logo_path):
+    response = requests.get(url)
+    if response.status_code == 200:
+        if not os.path.exists(logo_path):
+            os.mkdir(logo_path)
+
+        if url.endswith(".svg"):
+            svg_bytes = io.BytesIO(response.content)
+            with Image(blob=svg_bytes, format='svg') as img:
+                img.format = 'jpeg'
+                img.save(filename= os.path.join(logo_path, 'logo.jpg'))
+        else:
+            with open(os.path.join(logo_path, 'logo.jpg'), 'wb') as handler:
+                handler.write(response.content)
+    else:
+        print(f"failed to download {logo_path}")
 
 def get_dapp_data(address, chain, path, output):
     try:
-        url = f"https://api.dappradar.com/ajz9xm40x3yvium3/dapps/smart-contract/{address}?chain={chain}"
-        headers = {"X-BLOBR-KEY": "25GCuResCFPuskCH3XERUvm0gqf7Mr2T"}
+        url = f"https://api.dappradar.com/{project_id}/dapps/smart-contract/{address}?chain={chain}"
+        headers = {"X-BLOBR-KEY": api_key}
         response = requests.get(url, headers=headers)
 
         response = json.loads(response.text)
         if response['success']:
             results = response['results'][0]
             name = results['name']
-            categories = [category.capitalize()
-                          for category in results['categories']]
+            domain = get_domain(results['website'])
+
+            description = re.sub('[^A-Za-z0-9\ \.\,]+','', results['description'] )
+
+            categories = ' - '.join([category.capitalize()
+                          for category in results['categories']])
+            
             if name in output:
                 if chain in output[name]:
                     output[name][chain]['Utility Contract Address'].append(
@@ -63,31 +58,26 @@ def get_dapp_data(address, chain, path, output):
                 else:
                     output[name][chain] = {
                         'Utility Contract Address': [address],
-                        'Project/Dapp Website': get_domain(results['website']),
-                        'App Type': ' - '.join(categories),
-                        'Description': results['description']
+                        'Project/Dapp Website': domain,
+                        'App Type': categories,
+                        'Description': description
                     }
 
             else:
                 output[name] = {
                     chain: {
                         'Utility Contract Address': [address],
-                        'Project/Dapp Website': get_domain(results['website']),
-                        'App Type': ' - '.join(categories),
-                        'Description': results['description']
+                        'Project/Dapp Website': domain,
+                        'App Type': categories,
+                        'Description': description
                     }
                 }
 
-            img_data = requests.get(results['logo']).content
-
             logo_path = os.path.join(path, address)
-            if not os.path.exists(logo_path):
-                os.mkdir(logo_path)
-            with open(os.path.join(logo_path, 'logo.jpg'), 'wb') as handler:
-                handler.write(img_data)
+            download_and_save_logo(results['logo'], logo_path)
+            
     except:
         print(address, chain)
-
 
 def generate_query(filename, path):
     queries = []
@@ -100,7 +90,7 @@ def generate_query(filename, path):
         chain = dapps.loc[i, 'Chain']
         for address in addresses:
             q = '{{ name: "network",\nreturn: "object",\nobject_schema:{{\nproperties:{{networkid:{{type: "integer"}},\naddress:{{type: "string", \npattern: "^0x[a-fA-F0-9]{{40}}$", }}, \nreturn:{{type: "boolean" }},}},\nrequired:["networkid", "address", "return" ],}},\nchain:"{1}", \ncontract:{{ networkid:"{2}",\naddress: "{0}", \nfunction: "Transfer",\ndirection: "to",\ntimestampRange: {{\nstart: 0, \nend: "<this should be populated with epoch time>", }},}},}}'.format(
-                address.strip(), chain_acronym[chain], chain_id[chain])
+                 address.strip(), chain_acronym[chain], chain_id[chain])
             r = '{{ name: "query_response",query: "q{0}"}}'.format(ind)
             l = '"$r{0}"'.format(ind)
 
@@ -168,10 +158,12 @@ def build_data_sheet(filename, path):
 def get_all_dapp_details(path, logos_path):
     output = {}
     for chain in chain_lookup:
-        addresses = pd.read_csv(os.path.join(path, chain+'.csv'))
-        for i in range(len(addresses)):
-            address = addresses.iloc[i]['address']
-            get_dapp_data(address, chain, logos_path, output)
+        file = os.path.join(path, chain+'.csv')
+        if os.path.exists(file): 
+            addresses = pd.read_csv(file)
+            for i in range(len(addresses)):
+                address = addresses.iloc[i]['address']
+                get_dapp_data(address, chain, logos_path, output)
     return output
 
 
@@ -188,17 +180,39 @@ def store_all_dapp_details(details, dapp_filename):
 
     pd.DataFrame(dapps).to_csv(dapp_filename, index=False)
 
+def add_missing_dapps(dapp_filename, missing_dapps_filename, path):
+    missing_dapps = pd.read_csv(missing_dapps_filename)
+
+    for i in range(len(missing_dapps)):
+        logo = missing_dapps.loc[i,'Logo']
+        addresses = missing_dapps.loc[i,'Utility Contract Address']
+        for address in addresses.split(','):
+            logo_path = os.path.join(path, address)
+            download_and_save_logo(logo, logo_path)
+
+    missing_dapps.drop(columns='Logo', inplace = True)
+    dapps = pd.read_csv(dapp_filename)
+
+    dapps = pd.concat([dapps, missing_dapps], sort=False)
+    dapps = dapps.drop_duplicates()
+    pd.DataFrame(dapps).to_csv(dapp_filename, index=False)
+
 
 if __name__ == "__main__":
     input_dir = './addresses'
     output_dir = './output'
+    
+    missing_dapps_filename = os.path.join(input_dir, 'missing_dapps.csv')
     dapp_filename = os.path.join(output_dir, 'dapps.csv')
-    logos_path = os.path.join(output_dir, './dapp_logos')
+    logos_path = os.path.join(output_dir, 'dapp_logos')
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
     if not os.path.exists(logos_path):
         os.mkdir(logos_path)
 
     data = get_all_dapp_details(input_dir, logos_path)
     store_all_dapp_details(data, dapp_filename)
+    add_missing_dapps(dapp_filename, missing_dapps_filename, logos_path)
 
     generate_query(dapp_filename, output_dir)
     build_data_sheet(dapp_filename, output_dir)

@@ -52,6 +52,7 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,

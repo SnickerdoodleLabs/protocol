@@ -10,11 +10,8 @@ import {
   PersistenceError,
   QueryStatus,
   EVMContractAddress,
-  VolatileStorageMetadata,
-  EBackupPriority,
-  EligibleAd,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -54,11 +51,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   ): ResultAsync<QueryStatus[], PersistenceError> {
     // TODO: Make this more efficient in the future
     return this.persistence
-      .getAll<QueryStatus>(
-        ERecordKey.QUERY_STATUS,
-        undefined,
-        EBackupPriority.HIGH,
-      )
+      .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
       .map((queryStatii) => {
         // Just in case the contract addresses get the cases mixed up
         const lowerConsentContractAddress =
@@ -83,11 +76,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
       queryStatii.map((queryStatus) => {
         return this.persistence.updateRecord(
           ERecordKey.QUERY_STATUS,
-          new VolatileStorageMetadata<QueryStatus>(
-            EBackupPriority.HIGH,
-            queryStatus,
-            EligibleAd.CURRENT_VERSION,
-          ),
+          queryStatus,
         );
       }),
     ).map(() => {});
