@@ -47,6 +47,18 @@ const Initial = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+    return () =>
+      navigation.getParent()?.setOptions({
+        tabBarStyle: undefined,
+      });
+  }, [navigation]);
+
+  useEffect(() => {
     if (allChecksCompleted) {
       navigation.replace(isUnlocked ? "Home" : "Onboarding");
     }
@@ -90,9 +102,10 @@ const Initial = ({ navigation }) => {
                   .map(() => {
                     console.log(`Account ${accountAddress} removed`);
                     tryUnlock();
-                  }).mapErr((e)=>{
-                    return 'Try Unlock Error'
                   })
+                  .mapErr((e) => {
+                    return "Try Unlock Error";
+                  });
               }
               return accountService
                 .unlock(
