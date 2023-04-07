@@ -134,14 +134,6 @@ export class AlchemyIndexer
         .andThen((response) => {
           const weiValue = parseInt(response.result, 16);
           console.log("weiValue: ", weiValue);
-        //   console.log(
-        //     "BigNumber.from(weiValue).toString(): ",
-        //     weiValue.toString(),
-        //   );
-        //   console.log(
-        //     "BigNumber.from(weiValue).toString(): ",
-        //     BigNumber.from(weiValue).toString(),
-        //   );
 
           const balance = new TokenBalance(
             EChainTechnology.EVM,

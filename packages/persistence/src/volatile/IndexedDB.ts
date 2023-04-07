@@ -134,6 +134,13 @@ export class IndexedDB {
     mode: IDBTransactionMode,
   ): ResultAsync<IDBTransaction, PersistenceError> {
     return this.initialize().andThen((db) => {
+      console.log("Transaction name: ", name);
+      console.log("Transaction mode: ", mode);
+      console.log(
+        "Transaction db.transaction(name, mode): ",
+        db.transaction(name, mode),
+      );
+
       return okAsync(db.transaction(name, mode));
       // return okAsync(tx.objectStore(name));
     });
