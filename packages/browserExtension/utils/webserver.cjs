@@ -21,12 +21,10 @@ process.env.__PORTFOLIO_POLLING_INTERVAL__ = "";
 process.env.__TRANSACTION_POLLING_INTERVAL__ = "";
 process.env.__BACKUP_POLLING_INTERVAL__ = "";
 process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
+process.env.__DISCORD_CLIENT_ID__ = "1089994449830027344";
+process.env.__DISCORD_CLIENT_KEY__ = "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ";
+process.env.__DISCORD_POLL_INTERVAL__ = "86400000";
 
-process.env.__DISCORD_CONFIG__ = JSON.stringify({
-  clientId: "1089994449830027344",
-  client_secret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
-  pollInterval: 86400000,
-});
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
