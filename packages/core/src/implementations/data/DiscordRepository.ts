@@ -86,37 +86,28 @@ export class DiscordRepository implements IDiscordRepository {
       this.tokenAPICallBaseConfig(),
       this.tokenUrl(),
     ]).andThen(([tokenBaseConfig, tokenUrl]) => {
-      const requestConfig: IRequestConfig = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-          accept: "*/*",
-        },
-      };
-
-      const data = new URLSearchParams({
-        ...tokenBaseConfig,
-        grant_type: "authorization_code",
-        code: code,
-        scope: "identify guilds",
-      });
-      // console.log("Discord getAccessToken");
-      // console.log(requestConfig);
-      // console.log(data);
       return this.ajaxUtil
         .post<DiscordOAuth2TokensAPIResponse>(
           new URL(tokenUrl),
-          data,
-          requestConfig,
+          new URLSearchParams({
+            ...tokenBaseConfig,
+            grant_type: "authorization_code",
+            code: code,
+            scope: "identify guilds",
+          }),
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+              accept: "*/*",
+            },
+          } as IRequestConfig,
         )
         .andThen((response) => {
-          console.log("response", response);
           return okAsync(this.factoryAccessToken(response));
         })
         .orElse((error) => {
-          console.log(error);
-          console.log(error.src);
           return errAsync(new DiscordError(error.message, error.src));
         });
     });
@@ -214,7 +205,6 @@ export class DiscordRepository implements IDiscordRepository {
     // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
     return this.getProfileById(id).andThen((uProfile) => {
       if (uProfile == null) {
-        // return okAsync(undefined);
         return errAsync(
           new PersistenceError(`Discord Profile #${id} does not exist`),
         );
