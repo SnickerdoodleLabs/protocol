@@ -1,14 +1,11 @@
-import { TypedDataDomain } from "@ethersproject/abstract-signer";
-import { MapModelTypes } from "@glazed/types";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ChainId,
   ChainInformation,
   ControlChainInformation,
-  URLString,
-  ECurrencyCode,
-  EChain,
   DiscordConfig,
+  ECurrencyCode,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 

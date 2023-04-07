@@ -1,5 +1,3 @@
-import { MapModelTypes } from "@glazed/types";
-
 import { DiscordConfig } from "@objects/businessObjects";
 import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
 

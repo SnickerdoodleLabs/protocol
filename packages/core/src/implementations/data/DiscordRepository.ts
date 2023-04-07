@@ -6,7 +6,6 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  BearerAuthToken,
   DiscordAccessToken,
   DiscordConfig,
   DiscordError,

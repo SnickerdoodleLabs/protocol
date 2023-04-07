@@ -82,8 +82,8 @@ import {
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
+  public discord: ISdlDiscordMethods;
   protected _handler: CoreHandler;
-  discord: ISdlDiscordMethods;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
     this.discord = {

@@ -1,14 +1,14 @@
 import {
-  DiscordProfile,
-  SnowflakeID,
-  Username,
-  Integer,
-  BearerAuthToken,
-  UnixTimestamp,
-  DiscordGuildProfile,
-  OAuth2Tokens,
   DiscordAccessToken,
+  DiscordGuildProfile,
+  DiscordProfile,
   DiscordRefreshToken,
+  Integer,
+  OAuth2Tokens,
+  SnowflakeID,
+  UnixTimestamp,
+  URLString,
+  Username,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -93,7 +93,7 @@ export class SocialDataMock {
             profile.name,
             profile.owner,
             profile.permissions,
-            profile.icon,
+            URLString(profile.icon ?? ""),
             null,
           ),
       ),
