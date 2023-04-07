@@ -14,6 +14,8 @@ import {
 } from "./AuthNavigator";
 import { createStackNavigator } from "@react-navigation/stack";
 import CardDetails from "../newcomponents/Marketplace/CardDetails";
+import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
+import Initial from "../screens/Initial/Initial";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

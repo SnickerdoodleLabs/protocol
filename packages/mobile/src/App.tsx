@@ -17,14 +17,18 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from "react-native/Libraries/NewAppScreen";
-import AccountLinkingContextProvider from "./context/AccountLinkingContextProvider";
+import AccountLinkingContextProvider, {
+  useAccountLinkingContext,
+} from "./context/AccountLinkingContextProvider";
 import LayoutContextProvider from "./context/LayoutContext";
-import AppContextProvider from "./context/AppContextProvider";
+import AppContextProvider, {
+  useAppContext,
+} from "./context/AppContextProvider";
 import EventContextProvider from "./context/EventContextProvider";
-import AuthNavigator from "./navigators/AuthNavigator";
 import InvitationContextProvider from "./context/InvitationContext";
 import DeepLinkHandler from "./navigators/DeepLinkHandler";
 import BottomTabNavigator from "./navigators/BottomTabNavigator";
+import { AuthNavigator } from "./navigators/AuthNavigator";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -37,6 +41,7 @@ const App = () => {
   const [state, setState] = React.useState<any>({
     events: [],
   });
+  const { isUnlocked } = useAppContext();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -68,7 +73,7 @@ const App = () => {
               }}
             >
               <AccountLinkingContextProvider>
-               <BottomTabNavigator />
+                <BottomTabNavigator />
               </AccountLinkingContextProvider>
             </WalletConnectProvider>
           </InvitationContextProvider>
