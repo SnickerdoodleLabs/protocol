@@ -84,50 +84,51 @@ import {
   SetReceivingAddressParams,
   GetReceivingAddressParams,
   mapToObj,
+  GetEarnedRewardsParams,
+  GetAccountsParams,
+  GetAccountBalancesParams,
+  GetAccountNFTsParams,
+  GetAgeParams,
+  GetGivenNameParams,
+  GetEmailParams,
+  GetFamilyNameParams,
+  GetBirthdayParams,
+  GetGenderParams,
+  GetLocationParams,
+  GetSiteVisitsParams,
+  GetSiteVisitsMapParams,
+  GetAcceptedInvitationsCIDParams,
+  GetMarketplaceListingsTotalParams,
+  GetAvailableInvitationsCIDParms,
+  GetDefaultPermissionsParams,
+  SetDefaultPermissionsToAllParams,
+  GetApplyDefaultPermissionsOptionParams,
+  GetScamFilterSettingsParams,
+  CloseTabParams,
+  GetStateParams,
+  GetInternalStateParams,
+  GetDataWalletAddressParams,
+  IsDataWalletAddressInitializedParams,
 } from "@synamint-extension-sdk/shared";
-
-class ExternalActionHandler<TParams> {
-  public constructor(
-    public action: ECoreActions,
-    public handler: (
-      params: TParams,
-      sender?: Runtime.MessageSender | undefined,
-    ) => ResultAsync<unknown, unknown>,
-  ) {}
-
-  public async execute(
-    params: TParams,
-    res: PendingJsonRpcResponse<unknown>,
-    sender: Runtime.MessageSender | undefined,
-  ): Promise<void> {
-    await this.handler(params!, sender)
-      .mapErr((err) => {
-        res.error = err as Error;
-      })
-      .map((result) => {
-        if (typeof result === typeof undefined) {
-          res.result = DEFAULT_RPC_SUCCESS_RESULT;
-        } else {
-          res.result = ObjectUtils.toGenericObject(result);
-        }
-      });
-  }
-}
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected rpcCalls: ExternalActionHandler<any>[] = [
-    new ExternalActionHandler<UnlockParams>(ECoreActions.UNLOCK, (params) => {
-      return this.accountService.unlock(
-        params.accountAddress,
-        params.signature,
-        params.chain,
-        params.languageCode,
-      );
-    }),
-    new ExternalActionHandler<AddAccountParams>(
-      ECoreActions.ADD_ACCOUNT,
+  protected rpcCalls: CoreActionHandler<any>[] = [
+    new CoreActionHandler<UnlockParams>(
+      // Annoying that we need to do this; TS doesn't support abstract static methods
+      UnlockParams.getCoreAction(),
+      (params) => {
+        return this.accountService.unlock(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountParams>(
+      AddAccountParams.getCoreAction(),
       (params) => {
         return this.accountService.addAccount(
           params.accountAddress,
@@ -137,23 +138,26 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<GetUnlockMessageParams>(
-      ECoreActions.GET_UNLOCK_MESSAGE,
+    new CoreActionHandler<GetUnlockMessageParams>(
+      GetUnlockMessageParams.getCoreAction(),
       (params) => {
         return this.accountService.getUnlockMessage(params.languageCode);
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_EARNED_REWARDS,
+    new CoreActionHandler<GetEarnedRewardsParams>(
+      GetEarnedRewardsParams.getCoreAction(),
       (_params) => {
         return this.accountService.getEarnedRewards();
       },
     ),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_ACCOUNTS, (_params) => {
-      return this.accountService.getAccounts();
-    }),
-    new ExternalActionHandler<GetTokenPriceParams>(
-      ECoreActions.GET_TOKEN_PRICE,
+    new CoreActionHandler<GetAccountsParams>(
+      GetAccountsParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getAccounts();
+      },
+    ),
+    new CoreActionHandler<GetTokenPriceParams>(
+      GetTokenPriceParams.getCoreAction(),
       (params) => {
         return this.tokenPriceService.getTokenPrice(
           params.chainId,
@@ -162,14 +166,14 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<GetTokenMarketDataParams>(
-      ECoreActions.GET_TOKEN_MARKET_DATA,
+    new CoreActionHandler<GetTokenMarketDataParams>(
+      GetTokenMarketDataParams.getCoreAction(),
       (params) => {
         return this.tokenPriceService.getTokenMarketData(params.ids);
       },
     ),
-    new ExternalActionHandler<GetTokenInfoParams>(
-      ECoreActions.GET_TOKEN_INFO,
+    new CoreActionHandler<GetTokenInfoParams>(
+      GetTokenInfoParams.getCoreAction(),
       (params) => {
         return this.tokenPriceService.getTokenInfo(
           params.chainId,
@@ -177,111 +181,126 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_ACCOUNT_BALANCES,
+    new CoreActionHandler<GetAccountBalancesParams>(
+      GetAccountBalancesParams.getCoreAction(),
       (_params) => {
         return this.accountService.getAccountBalances();
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_ACCOUNT_NFTS,
+    new CoreActionHandler<GetAccountNFTsParams>(
+      GetAccountNFTsParams.getCoreAction(),
       (_params) => {
         return this.accountService.getAccountNFTs();
       },
     ),
-    new ExternalActionHandler<SetGivenNameParams>(
-      ECoreActions.SET_GIVEN_NAME,
+    new CoreActionHandler<SetGivenNameParams>(
+      SetGivenNameParams.getCoreAction(),
       (params) => {
         return this.piiService.setGivenName(params.givenName);
       },
     ),
-    new ExternalActionHandler<SetEmailParams>(
-      ECoreActions.SET_EMAIL,
+    new CoreActionHandler<SetEmailParams>(
+      SetEmailParams.getCoreAction(),
       (params) => {
         return this.piiService.setEmail(params.email);
       },
     ),
-    new ExternalActionHandler<SetFamilyNameParams>(
-      ECoreActions.SET_FAMILY_NAME,
+    new CoreActionHandler<SetFamilyNameParams>(
+      SetFamilyNameParams.getCoreAction(),
       (params) => {
         return this.piiService.setFamilyName(params.familyName);
       },
     ),
-    new ExternalActionHandler<SetBirthdayParams>(
-      ECoreActions.SET_BIRTHDAY,
+    new CoreActionHandler<SetBirthdayParams>(
+      SetBirthdayParams.getCoreAction(),
       (params) => {
         return this.piiService.setBirthday(params.birthday);
       },
     ),
-    new ExternalActionHandler<SetGenderParams>(
-      ECoreActions.SET_GENDER,
+    new CoreActionHandler<SetGenderParams>(
+      SetGenderParams.getCoreAction(),
       (params) => {
         return this.piiService.setGender(params.gender);
       },
     ),
-    new ExternalActionHandler<SetLocationParams>(
-      ECoreActions.SET_LOCATION,
+    new CoreActionHandler<SetLocationParams>(
+      SetLocationParams.getCoreAction(),
       (params) => {
         return this.piiService.setLocation(params.location);
       },
     ),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_AGE, (_params) => {
-      return this.piiService.getAge();
-    }),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_GIVEN_NAME,
+    new CoreActionHandler<GetAgeParams>(
+      GetAgeParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getAge();
+      },
+    ),
+    new CoreActionHandler<GetGivenNameParams>(
+      GetGivenNameParams.getCoreAction(),
       (_params) => {
         return this.piiService.getGivenName();
       },
     ),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_EMAIL, (_params) => {
-      return this.piiService.getEmail();
-    }),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_FAMILY_NAME,
+    new CoreActionHandler<GetEmailParams>(
+      GetEmailParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getEmail();
+      },
+    ),
+    new CoreActionHandler<GetFamilyNameParams>(
+      GetFamilyNameParams.getCoreAction(),
       (_params) => {
         return this.piiService.getFamilyName();
       },
     ),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_BIRTHDAY, (_params) => {
-      return this.piiService.getBirthday();
-    }),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_GENDER, (_params) => {
-      return this.piiService.getGender();
-    }),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_LOCATION, (_params) => {
-      return this.piiService.getLocation();
-    }),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_SITE_VISITS,
+    new CoreActionHandler<GetBirthdayParams>(
+      GetBirthdayParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getBirthday();
+      },
+    ),
+    new CoreActionHandler<GetGenderParams>(
+      GetGenderParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getGender();
+      },
+    ),
+    new CoreActionHandler<GetLocationParams>(
+      GetLocationParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getLocation();
+      },
+    ),
+    new CoreActionHandler<GetSiteVisitsParams>(
+      GetSiteVisitsParams.getCoreAction(),
       (_params) => {
         return this.userSiteInteractionService.getSiteVisits();
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_SITE_VISITS_MAP,
+    new CoreActionHandler<GetSiteVisitsMapParams>(
+      GetSiteVisitsMapParams.getCoreAction(),
       (_params) => {
         return this.userSiteInteractionService.getSiteVisitsMap();
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_ACCEPTED_INVITATIONS_CID,
+    new CoreActionHandler<GetAcceptedInvitationsCIDParams>(
+      GetAcceptedInvitationsCIDParams.getCoreAction(),
       (_params) => {
         return this.invitationService
           .getAcceptedInvitationsCID()
           .map((res) => mapToObj(res)); // TODO: mapToObj is probably just for dealing with serialization; the improved serializer in ObjectUtils probably makes this unnecessary.
       },
     ),
-    new ExternalActionHandler<SetDefaultReceivingAddressParams>(
-      ECoreActions.SET_DEFAULT_RECEIVING_ACCOUNT,
+    new CoreActionHandler<SetDefaultReceivingAddressParams>(
+      SetDefaultReceivingAddressParams.getCoreAction(),
       (params) => {
         return this.invitationService.setDefaultReceivingAddress(
           params.receivingAddress,
         );
       },
     ),
-    new ExternalActionHandler<SetReceivingAddressParams>(
-      ECoreActions.SET_RECEIVING_ACCOUNT,
+    new CoreActionHandler<SetReceivingAddressParams>(
+      SetReceivingAddressParams.getCoreAction(),
       (params) => {
         return this.invitationService.setReceivingAddress(
           params.contractAddress,
@@ -289,24 +308,24 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<GetReceivingAddressParams>(
-      ECoreActions.GET_RECEIVING_ACCOUNT,
+    new CoreActionHandler<GetReceivingAddressParams>(
+      GetReceivingAddressParams.getCoreAction(),
       (params) => {
         return this.invitationService.getReceivingAddress(
           params.contractAddress,
         );
       },
     ),
-    new ExternalActionHandler<GetInvitationMetadataByCIDParams>(
-      ECoreActions.GET_INVITATION_METADATA_BY_CID,
+    new CoreActionHandler<GetInvitationMetadataByCIDParams>(
+      GetInvitationMetadataByCIDParams.getCoreAction(),
       (params) => {
         return this.invitationService.getInvitationMetadataByCID(
           params.ipfsCID,
         );
       },
     ),
-    new ExternalActionHandler<CheckInvitationStatusParams>(
-      ECoreActions.CHECK_INVITATION_STATUS,
+    new CoreActionHandler<CheckInvitationStatusParams>(
+      CheckInvitationStatusParams.getCoreAction(),
       (params) => {
         return this._getTokenId(params.tokenId).andThen((tokenId) => {
           return this.invitationService.checkInvitationStatus(
@@ -320,8 +339,8 @@ export class RpcCallHandler implements IRpcCallHandler {
         });
       },
     ),
-    new ExternalActionHandler<GetMarketplaceListingsParams>(
-      ECoreActions.GET_MARKETPLACE_LISTINGS,
+    new CoreActionHandler<GetMarketplaceListingsParams>(
+      GetMarketplaceListingsParams.getCoreAction(),
       (params) => {
         return this.invitationService.getMarketplaceListings(
           params.count,
@@ -329,22 +348,22 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_LISTING_TOTAL,
+    new CoreActionHandler<GetMarketplaceListingsTotalParams>(
+      GetMarketplaceListingsTotalParams.getCoreAction(),
       (_params) => {
         return this.invitationService.getListingsTotal();
       },
     ),
-    new ExternalActionHandler<GetConsentContractCIDParams>(
-      ECoreActions.GET_CONTRACT_CID,
+    new CoreActionHandler<GetConsentContractCIDParams>(
+      GetConsentContractCIDParams.getCoreAction(),
       (params) => {
         return this.invitationService.getConsentContractCID(
           params.consentAddress,
         );
       },
     ),
-    new ExternalActionHandler<UnlinkAccountParams>(
-      ECoreActions.UNLINK_ACCOUNT,
+    new CoreActionHandler<UnlinkAccountParams>(
+      UnlinkAccountParams.getCoreAction(),
       (params) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
@@ -354,16 +373,16 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<LeaveCohortParams>(
-      ECoreActions.LEAVE_COHORT,
+    new CoreActionHandler<LeaveCohortParams>(
+      LeaveCohortParams.getCoreAction(),
       (params) => {
         return this.invitationService.leaveCohort(
           params.consentContractAddress,
         );
       },
     ),
-    new ExternalActionHandler<GetInvitationWithDomainParams>(
-      ECoreActions.GET_COHORT_INVITATION_WITH_DOMAIN,
+    new CoreActionHandler<GetInvitationWithDomainParams>(
+      GetInvitationWithDomainParams.getCoreAction(),
       (params) => {
         return this.invitationService
           .getInvitationByDomain(params.domain)
@@ -404,60 +423,60 @@ export class RpcCallHandler implements IRpcCallHandler {
           });
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_AVAILABLE_INVITATIONS_CID,
+    new CoreActionHandler<GetAvailableInvitationsCIDParms>(
+      GetAvailableInvitationsCIDParms.getCoreAction(),
       (_params) => {
         return this.invitationService
           .getAvailableInvitationsCID()
           .map((res) => mapToObj(res));
       },
     ),
-    new ExternalActionHandler<GetAgreementPermissionsParams>(
-      ECoreActions.GET_AGREEMENT_PERMISSIONS,
+    new CoreActionHandler<GetAgreementPermissionsParams>(
+      GetAgreementPermissionsParams.getCoreAction(),
       (params) => {
         return this.invitationService.getAgreementPermissions(
           params.consentContractAddress,
         );
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_DEFAULT_PERMISSIONS,
+    new CoreActionHandler<GetDefaultPermissionsParams>(
+      GetDefaultPermissionsParams.getCoreAction(),
       (_params) => {
         return this.dataPermissionsUtils.defaultFlags.andThen((flags) =>
           this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
         );
       },
     ),
-    new ExternalActionHandler<SetDefaultPermissionsWithDataTypesParams>(
-      ECoreActions.SET_DEFAULT_PERMISSIONS,
+    new CoreActionHandler<SetDefaultPermissionsWithDataTypesParams>(
+      SetDefaultPermissionsWithDataTypesParams.getCoreAction(),
       (params) => {
         return this.dataPermissionsUtils.setDefaultFlagsWithDataTypes(
           params.dataTypes,
         );
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.SET_DEFAULT_PERMISSIONS_TO_ALL,
+    new CoreActionHandler<SetDefaultPermissionsToAllParams>(
+      SetDefaultPermissionsToAllParams.getCoreAction(),
       (_params) => {
         return this.dataPermissionsUtils.setDefaultFlagsToAll();
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+    new CoreActionHandler<GetApplyDefaultPermissionsOptionParams>(
+      GetApplyDefaultPermissionsOptionParams.getCoreAction(),
       (_params) => {
         return this.dataPermissionsUtils.applyDefaultPermissionsOption;
       },
     ),
-    new ExternalActionHandler<SetApplyDefaultPermissionsParams>(
-      ECoreActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+    new CoreActionHandler<SetApplyDefaultPermissionsParams>(
+      SetApplyDefaultPermissionsParams.getCoreAction(),
       (params) => {
         return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(
           params.option,
         );
       },
     ),
-    new ExternalActionHandler<AcceptInvitationByUUIDParams>(
-      ECoreActions.ACCEPT_INVITATION_BY_UUID,
+    new CoreActionHandler<AcceptInvitationByUUIDParams>(
+      AcceptInvitationByUUIDParams.getCoreAction(),
       (params) => {
         const invitation = this.contextProvider.getInvitation(
           params.id,
@@ -468,14 +487,14 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_SCAM_FILTER_SETTINGS,
+    new CoreActionHandler<GetScamFilterSettingsParams>(
+      GetScamFilterSettingsParams.getCoreAction(),
       (_params) => {
         return this.scamFilterSettingsUtils.getScamFilterSettings();
       },
     ),
-    new ExternalActionHandler<ScamFilterSettingsParams>(
-      ECoreActions.SET_SCAM_FILTER_SETTINGS,
+    new CoreActionHandler<ScamFilterSettingsParams>(
+      ScamFilterSettingsParams.getCoreAction(),
       (params) => {
         return this.scamFilterSettingsUtils.setScamFilterSettings(
           params.isScamFilterActive,
@@ -483,8 +502,8 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-    new ExternalActionHandler<AcceptInvitationParams>(
-      ECoreActions.ACCEPT_INVITATION,
+    new CoreActionHandler<AcceptInvitationParams>(
+      AcceptInvitationParams.getCoreAction(),
       (params) => {
         return this._getTokenId(params.tokenId).andThen((tokenId) => {
           return this.invitationService.acceptInvitation(
@@ -499,8 +518,8 @@ export class RpcCallHandler implements IRpcCallHandler {
         });
       },
     ),
-    new ExternalActionHandler<RejectInvitationParams>(
-      ECoreActions.REJECT_INVITATION,
+    new CoreActionHandler<RejectInvitationParams>(
+      RejectInvitationParams.getCoreAction(),
       (params) => {
         const invitation = this.contextProvider.getInvitation(
           params.id,
@@ -508,36 +527,39 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.invitationService.rejectInvitation(invitation);
       },
     ),
-    new ExternalActionHandler<CheckURLParams>(
-      ECoreActions.CHECK_URL,
+    new CoreActionHandler<CheckURLParams>(
+      CheckURLParams.getCoreAction(),
       (params) => {
         return this.scamFilterService.checkURL(params.domain);
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.CLOSE_TAB,
+    new CoreActionHandler<CloseTabParams>(
+      CloseTabParams.getCoreAction(),
       (_params, sender) => {
         sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
         return okAsync(DEFAULT_RPC_SUCCESS_RESULT);
       },
     ),
-    new ExternalActionHandler<unknown>(ECoreActions.GET_STATE, (_params) => {
-      return okAsync(this.contextProvider.getExterenalState());
-    }),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_INTERNAL_STATE,
+    new CoreActionHandler<GetStateParams>(
+      GetStateParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.contextProvider.getExterenalState());
+      },
+    ),
+    new CoreActionHandler<GetInternalStateParams>(
+      GetInternalStateParams.getCoreAction(),
       (_params) => {
         return okAsync(this.contextProvider.getInternalState());
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.GET_DATA_WALLET_ADDRESS,
+    new CoreActionHandler<GetDataWalletAddressParams>(
+      GetDataWalletAddressParams.getCoreAction(),
       (_params) => {
         return okAsync(this.contextProvider.getAccountContext().getAccount());
       },
     ),
-    new ExternalActionHandler<unknown>(
-      ECoreActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
+    new CoreActionHandler<IsDataWalletAddressInitializedParams>(
+      IsDataWalletAddressInitializedParams.getCoreAction(),
       (_params) => {
         return this.accountService.isDataWalletAddressInitialized();
       },
@@ -591,5 +613,33 @@ export class RpcCallHandler implements IRpcCallHandler {
       return okAsync(TokenId(BigInt(tokenId)));
     }
     return this.cryptoUtils.getTokenId();
+  }
+}
+
+class CoreActionHandler<TParams> {
+  public constructor(
+    public action: ECoreActions,
+    public handler: (
+      params: TParams,
+      sender?: Runtime.MessageSender | undefined,
+    ) => ResultAsync<unknown, unknown>,
+  ) {}
+
+  public async execute(
+    params: TParams,
+    res: PendingJsonRpcResponse<unknown>,
+    sender: Runtime.MessageSender | undefined,
+  ): Promise<void> {
+    await this.handler(params!, sender)
+      .mapErr((err) => {
+        res.error = err as Error;
+      })
+      .map((result) => {
+        if (typeof result === typeof undefined) {
+          res.result = DEFAULT_RPC_SUCCESS_RESULT;
+        } else {
+          res.result = ObjectUtils.toGenericObject(result);
+        }
+      });
   }
 }

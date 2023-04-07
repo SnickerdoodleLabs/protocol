@@ -27,10 +27,10 @@ import {
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   GetReceivingAddressParams,
-  IInvitationDomainWithUUID,
   RejectInvitationParams,
   SetReceivingAddressParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions";
+  IInvitationDomainWithUUID,
+} from "@synamint-extension-sdk/shared/interfaces/index.js";
 
 interface IRewardCardProps {
   emptyReward: () => void;

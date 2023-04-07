@@ -1,6 +1,4 @@
-import { Eco } from "@material-ui/icons";
 import {
-  Age,
   BigNumberString,
   CountryCode,
   DomainName,
@@ -35,7 +33,10 @@ export class UnlockParams extends CoreActionParams {
     public chain: EChain,
     public languageCode: LanguageCode,
   ) {
-    super(ECoreActions.UNLOCK);
+    super(UnlockParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.UNLOCK;
   }
 }
 
@@ -46,7 +47,10 @@ export class AddAccountParams extends CoreActionParams {
     public chain: EChain,
     public languageCode: LanguageCode,
   ) {
-    super(ECoreActions.ADD_ACCOUNT);
+    super(AddAccountParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ADD_ACCOUNT;
   }
 }
 
@@ -57,69 +61,103 @@ export class UnlinkAccountParams extends CoreActionParams {
     public chain: EChain,
     public languageCode: LanguageCode,
   ) {
-    super(ECoreActions.UNLINK_ACCOUNT);
+    super(UnlinkAccountParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.UNLINK_ACCOUNT;
   }
 }
 
 export class GetUnlockMessageParams extends CoreActionParams {
   public constructor(public languageCode: LanguageCode) {
-    super(ECoreActions.GET_UNLOCK_MESSAGE);
+    super(GetUnlockMessageParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_UNLOCK_MESSAGE;
   }
 }
 
 export class SetGivenNameParams extends CoreActionParams {
   public constructor(public givenName: GivenName) {
-    super(ECoreActions.SET_GIVEN_NAME);
+    super(SetGivenNameParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_GIVEN_NAME;
   }
 }
 
 export class SetFamilyNameParams extends CoreActionParams {
   public constructor(public familyName: FamilyName) {
-    super(ECoreActions.SET_FAMILY_NAME);
+    super(SetFamilyNameParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_FAMILY_NAME;
   }
 }
 
 export class SetBirthdayParams extends CoreActionParams {
   public constructor(public birthday: UnixTimestamp) {
-    super(ECoreActions.SET_BIRTHDAY);
+    super(SetBirthdayParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_BIRTHDAY;
   }
 }
 
 export class SetGenderParams extends CoreActionParams {
   public constructor(public gender: Gender) {
-    super(ECoreActions.SET_GENDER);
+    super(SetGenderParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_GENDER;
   }
 }
 
 export class SetEmailParams extends CoreActionParams {
   public constructor(public email: EmailAddressString) {
-    super(ECoreActions.SET_EMAIL);
+    super(SetEmailParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_EMAIL;
   }
 }
 
 export class SetLocationParams extends CoreActionParams {
   public constructor(public location: CountryCode) {
-    super(ECoreActions.SET_LOCATION);
+    super(SetLocationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_LOCATION;
   }
 }
 
 export class SetApplyDefaultPermissionsParams extends CoreActionParams {
   public constructor(public option: boolean) {
-    super(ECoreActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION);
+    super(SetApplyDefaultPermissionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION;
   }
 }
 
 export class GetInvitationWithDomainParams extends CoreActionParams {
   public constructor(public domain: DomainName, public path: string) {
-    super(ECoreActions.GET_COHORT_INVITATION_WITH_DOMAIN);
+    super(GetInvitationWithDomainParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_COHORT_INVITATION_WITH_DOMAIN;
   }
 }
 
 export class AcceptInvitationByUUIDParams extends CoreActionParams {
   public constructor(public dataTypes: EWalletDataType[], public id: UUID) {
-    super(ECoreActions.ACCEPT_INVITATION_BY_UUID);
+    super(AcceptInvitationByUUIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ACCEPT_INVITATION_BY_UUID;
   }
 }
+
 export class AcceptInvitationParams extends CoreActionParams {
   public constructor(
     public dataTypes: EWalletDataType[],
@@ -127,42 +165,64 @@ export class AcceptInvitationParams extends CoreActionParams {
     public tokenId?: BigNumberString,
     public businessSignature?: Signature,
   ) {
-    super(ECoreActions.ACCEPT_INVITATION);
+    super(AcceptInvitationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ACCEPT_INVITATION;
   }
 }
 
 export class GetAgreementPermissionsParams extends CoreActionParams {
   public constructor(public consentContractAddress: EVMContractAddress) {
-    super(ECoreActions.GET_AGREEMENT_PERMISSIONS);
+    super(GetAgreementPermissionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_AGREEMENT_PERMISSIONS;
   }
 }
 
 export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams {
   public constructor(public dataTypes: EWalletDataType[]) {
-    super(ECoreActions.SET_DEFAULT_PERMISSIONS);
+    super(SetDefaultPermissionsWithDataTypesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_DEFAULT_PERMISSIONS;
   }
 }
+
 export class RejectInvitationParams extends CoreActionParams {
   public constructor(public id: UUID) {
-    super(ECoreActions.REJECT_INVITATION);
+    super(RejectInvitationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REJECT_INVITATION;
   }
 }
 
 export class LeaveCohortParams extends CoreActionParams {
   public constructor(public consentContractAddress: EVMContractAddress) {
-    super(ECoreActions.LEAVE_COHORT);
+    super(LeaveCohortParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.LEAVE_COHORT;
   }
 }
 
 export class GetInvitationMetadataByCIDParams extends CoreActionParams {
   public constructor(public ipfsCID: IpfsCID) {
-    super(ECoreActions.GET_INVITATION_METADATA_BY_CID);
+    super(GetInvitationMetadataByCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_INVITATION_METADATA_BY_CID;
   }
 }
 
 export class CheckURLParams extends CoreActionParams {
   public constructor(public domain: DomainName) {
-    super(ECoreActions.CHECK_URL);
+    super(CheckURLParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.CHECK_URL;
   }
 }
 
@@ -171,13 +231,19 @@ export class ScamFilterSettingsParams extends CoreActionParams {
     public isScamFilterActive: boolean,
     public showMessageEveryTime: boolean,
   ) {
-    super(ECoreActions.SET_SCAM_FILTER_SETTINGS);
+    super(ScamFilterSettingsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_SCAM_FILTER_SETTINGS;
   }
 }
 
 export class GetConsentContractCIDParams extends CoreActionParams {
   public constructor(public consentAddress: EVMContractAddress) {
-    super(ECoreActions.GET_CONTRACT_CID);
+    super(GetConsentContractCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CONTRACT_CID;
   }
 }
 
@@ -187,7 +253,10 @@ export class CheckInvitationStatusParams extends CoreActionParams {
     public signature?: Signature | undefined,
     public tokenId?: BigNumberString | undefined,
   ) {
-    super(ECoreActions.CHECK_INVITATION_STATUS);
+    super(CheckInvitationStatusParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.CHECK_INVITATION_STATUS;
   }
 }
 
@@ -197,13 +266,19 @@ export class GetTokenPriceParams extends CoreActionParams {
     public address: TokenAddress | null,
     public timestamp?: UnixTimestamp,
   ) {
-    super(ECoreActions.GET_TOKEN_PRICE);
+    super(GetTokenPriceParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TOKEN_PRICE;
   }
 }
 
 export class GetTokenMarketDataParams extends CoreActionParams {
   public constructor(public ids: string[]) {
-    super(ECoreActions.GET_TOKEN_MARKET_DATA);
+    super(GetTokenMarketDataParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TOKEN_MARKET_DATA;
   }
 }
 
@@ -212,169 +287,253 @@ export class GetTokenInfoParams extends CoreActionParams {
     public chainId: ChainId,
     public contractAddress: TokenAddress | null,
   ) {
-    super(ECoreActions.GET_TOKEN_INFO);
+    super(GetTokenInfoParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TOKEN_INFO;
   }
 }
 
 export class GetMarketplaceListingsParams extends CoreActionParams {
   public constructor(public count?: number, public headAt?: number) {
-    super(ECoreActions.GET_MARKETPLACE_LISTINGS);
+    super(GetMarketplaceListingsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_MARKETPLACE_LISTINGS;
   }
 }
 
 export class GetMarketplaceListingsTotalParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_LISTING_TOTAL);
+    super(GetMarketplaceListingsTotalParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_LISTING_TOTAL;
   }
 }
 
 export class GetSiteVisitsMapParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_SITE_VISITS_MAP);
+    super(GetSiteVisitsMapParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_SITE_VISITS_MAP;
   }
 }
 
 export class GetSiteVisitsParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_SITE_VISITS);
+    super(GetSiteVisitsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_SITE_VISITS;
   }
 }
 
 export class GetEarnedRewardsParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_EARNED_REWARDS);
+    super(GetEarnedRewardsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_EARNED_REWARDS;
   }
 }
 
 export class GetDataWalletAddressParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_DATA_WALLET_ADDRESS);
+    super(GetDataWalletAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DATA_WALLET_ADDRESS;
   }
 }
 
 export class CloseTabParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.CLOSE_TAB);
+    super(CloseTabParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.CLOSE_TAB;
   }
 }
 
 export class IsDataWalletAddressInitializedParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.IS_DATA_WALLET_ADDRESS_INITIALIZED);
+    super(IsDataWalletAddressInitializedParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.IS_DATA_WALLET_ADDRESS_INITIALIZED;
   }
 }
 
 export class GetLocationParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_LOCATION);
+    super(GetLocationParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_LOCATION;
   }
 }
 
 export class GetGenderParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_GENDER);
+    super(GetGenderParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_GENDER;
   }
 }
 
 export class GetEmailParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_EMAIL);
+    super(GetEmailParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_EMAIL;
   }
 }
 
 export class GetBirthdayParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_BIRTHDAY);
+    super(GetBirthdayParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_BIRTHDAY;
   }
 }
 
 export class GetGivenNameParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_GIVEN_NAME);
+    super(GetGivenNameParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_GIVEN_NAME;
   }
 }
 
 export class GetFamilyNameParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_FAMILY_NAME);
+    super(GetFamilyNameParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_FAMILY_NAME;
   }
 }
 
 export class GetAgeParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_AGE);
+    super(GetAgeParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_AGE;
   }
 }
 
 export class GetAccountNFTsParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_ACCOUNT_NFTS);
+    super(GetAccountNFTsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_NFTS;
   }
 }
 
 export class GetAccountBalancesParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_ACCOUNT_BALANCES);
+    super(GetAccountBalancesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNT_BALANCES;
   }
 }
 
 export class GetAccountsParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_ACCOUNTS);
+    super(GetAccountsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCOUNTS;
   }
 }
 
 export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION);
+    super(GetApplyDefaultPermissionsOptionParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION;
   }
 }
 
 export class GetAcceptedInvitationsCIDParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_ACCEPTED_INVITATIONS_CID);
+    super(GetAcceptedInvitationsCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_ACCEPTED_INVITATIONS_CID;
   }
 }
 
 export class GetScamFilterSettingsParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_SCAM_FILTER_SETTINGS);
+    super(GetScamFilterSettingsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_SCAM_FILTER_SETTINGS;
   }
 }
 
 export class SetDefaultPermissionsToAllParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
+    super(SetDefaultPermissionsToAllParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_DEFAULT_PERMISSIONS_TO_ALL;
   }
 }
 
 export class GetDefaultPermissionsParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_DEFAULT_PERMISSIONS);
+    super(GetDefaultPermissionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DEFAULT_PERMISSIONS;
   }
 }
 
 export class GetAvailableInvitationsCIDParms extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_AVAILABLE_INVITATIONS_CID);
+    super(GetAvailableInvitationsCIDParms.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_AVAILABLE_INVITATIONS_CID;
   }
 }
 
 export class GetStateParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_STATE);
+    super(GetStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_STATE;
   }
 }
 
 export class GetInternalStateParams extends CoreActionParams {
   public constructor() {
-    super(ECoreActions.GET_INTERNAL_STATE);
+    super(GetInternalStateParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_INTERNAL_STATE;
   }
 }
 
 export class SetDefaultReceivingAddressParams extends CoreActionParams {
   public constructor(public receivingAddress: AccountAddress | null) {
-    super(ECoreActions.SET_DEFAULT_RECEIVING_ACCOUNT);
+    super(SetDefaultReceivingAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_DEFAULT_RECEIVING_ACCOUNT;
   }
 }
 
@@ -383,23 +542,18 @@ export class SetReceivingAddressParams extends CoreActionParams {
     public contractAddress: EVMContractAddress,
     public receivingAddress: AccountAddress | null,
   ) {
-    super(ECoreActions.SET_RECEIVING_ACCOUNT);
+    super(SetReceivingAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SET_RECEIVING_ACCOUNT;
   }
 }
 
 export class GetReceivingAddressParams extends CoreActionParams {
   public constructor(public contractAddress?: EVMContractAddress) {
-    super(ECoreActions.GET_RECEIVING_ACCOUNT);
+    super(GetReceivingAddressParams.getCoreAction());
   }
-}
-
-export interface IInvitationDomainWithUUID {
-  consentAddress: EVMContractAddress;
-  domain: DomainName;
-  title: string;
-  description: string;
-  image: URLString;
-  rewardName: string;
-  nftClaimedImage: URLString;
-  id: UUID;
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_RECEIVING_ACCOUNT;
+  }
 }
