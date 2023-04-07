@@ -28,6 +28,30 @@ const OnboardingMain = () => {
   const { isUnlocked } = useAppContext();
   const navigation = useNavigation();
 
+  React.useEffect(() => {
+    setTimeout(() => {
+      navigation.getParent()?.setOptions({
+        tabBarStyle: {
+          display: "none",
+        },
+      });
+      return () =>
+        navigation.getParent()?.setOptions({
+          tabBarStyle: undefined,
+        });
+    },10);
+
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+    return () =>
+      navigation.getParent()?.setOptions({
+        tabBarStyle: undefined,
+      });
+  }, [navigation]);
+
   useEffect(() => {
     if (isUnlocked) {
       handleNextButtonPress();

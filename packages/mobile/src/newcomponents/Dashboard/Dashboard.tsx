@@ -250,11 +250,11 @@ const Dashboard = () => {
                 </Text>
 
                 <View style={{ marginTop: normalizeHeight(42) }}>
-                  <RadioButton
+              {/*     <RadioButton
                     label="All"
                     checked={selected === "All"}
                     onPress={() => handleSelect("All")}
-                  />
+                  /> */}
                   {linkedAccounts.map((account) => {
                     return (
                       <RadioButton

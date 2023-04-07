@@ -34,7 +34,7 @@ export default function OnboardingItem({
   const { width, height } = Dimensions.get("window");
   const ITEM_WIDTH = width;
   return (
-    <SafeAreaView style={{height:'78%'}}>
+    <SafeAreaView style={{height:'90%'}}>
       <ScrollView>
         <SafeAreaView
           style={{

@@ -16,8 +16,9 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function Settings() {
   const navigation = useNavigation();
+
   return (
-    <SafeAreaView style={{ backgroundColor: "white",height:'100%' }}>
+    <SafeAreaView style={{ backgroundColor: "white", height: "100%" }}>
       <ScrollView
         style={{
           backgroundColor: "white",
