@@ -32,6 +32,7 @@ import {
   DiscordGuildProfile,
   SnowflakeID,
   OAuthAuthorizationCode,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -232,11 +233,11 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getAccounts() {
     return coreGateway.getAccounts();
   }
-  public getAccountBalances() {
-    return coreGateway.getAccountBalances();
+  public getAccountBalances(chains?: ChainId[], accounts?: LinkedAccount[]) {
+    return coreGateway.getAccountBalances(chains, accounts);
   }
-  public getAccountNFTs() {
-    return coreGateway.getAccountNFTs();
+  public getAccountNFTs(chains?: ChainId[], accounts?: LinkedAccount[]) {
+    return coreGateway.getAccountNFTs(chains, accounts);
   }
   public getFamilyName() {
     return coreGateway.getFamilyName();

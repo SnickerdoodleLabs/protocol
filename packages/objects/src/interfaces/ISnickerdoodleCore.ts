@@ -731,9 +731,13 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
   getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;
   getTransactionValueByChain(

@@ -120,6 +120,8 @@ import {
   SnickerDoodleCoreError,
   IInitializeDiscordUser,
   IUnlinkDiscordAccount,
+  IGetAccountBalancesParams,
+  IGetAccountNFTsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -207,14 +209,19 @@ export class RpcCallHandler implements IRpcCallHandler {
       }
       case EExternalActions.GET_ACCOUNT_BALANCES:
       case EInternalActions.GET_ACCOUNT_BALANCES: {
+        const { chains, accounts } = params as IGetAccountBalancesParams;
         return new AsyncRpcResponseSender(
-          this.getAccountBalances(),
+          this.getAccountBalances(chains, accounts),
           res,
         ).call();
       }
       case EExternalActions.GET_ACCOUNT_NFTS:
       case EInternalActions.GET_ACCOUNT_NFTS: {
-        return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
+        const { chains, accounts } = params as IGetAccountNFTsParams;
+        return new AsyncRpcResponseSender(
+          this.getAccountNFTs(chains, accounts),
+          res,
+        ).call();
       }
       case EExternalActions.SET_GIVEN_NAME: {
         const { givenName } = params as ISetGivenNameParams;
@@ -808,15 +815,18 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.tokenPriceService.getTokenInfo(chainId, contractAddress);
   }
 
-  private getAccountBalances(): ResultAsync<
-    TokenBalance[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountService.getAccountBalances();
+  private getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], SnickerDoodleCoreError> {
+    return this.accountService.getAccountBalances(chains, accounts);
   }
 
-  private getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountService.getAccountNFTs();
+  private getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountService.getAccountNFTs(chains, accounts);
   }
 
   private getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {

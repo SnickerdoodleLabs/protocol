@@ -9,6 +9,7 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -31,8 +32,14 @@ export interface IAccountService {
   getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
-  getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
+  getAccounts(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
+  getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(

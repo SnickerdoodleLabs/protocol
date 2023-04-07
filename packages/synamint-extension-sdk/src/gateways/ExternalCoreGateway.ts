@@ -79,6 +79,8 @@ import {
   IExternalState,
   IInitializeDiscordUser,
   IUnlinkDiscordAccount,
+  IGetAccountBalancesParams,
+  IGetAccountNFTsParams,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
@@ -296,8 +298,14 @@ export class ExternalCoreGateway {
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
-  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
-    return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
+  public getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES, {
+      chains,
+      accounts,
+    } as IGetAccountBalancesParams);
   }
   public getTokenPrice(
     chainId: ChainId,
@@ -326,8 +334,14 @@ export class ExternalCoreGateway {
       contractAddress,
     } as IGetTokenInfoParams);
   }
-  public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
-    return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
+  public getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS, {
+      chains,
+      accounts,
+    } as IGetAccountNFTsParams);
   }
 
   public setFamilyName(

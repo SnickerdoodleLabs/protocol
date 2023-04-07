@@ -22,6 +22,7 @@ import {
   BearerAuthToken,
   SnowflakeID,
   OAuthAuthorizationCode,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -123,6 +124,16 @@ export interface IInvitationDomainWithUUID {
 export interface ICheckURLParams {
   domain: DomainName;
 }
+export interface IGetAccountNFTsParams {
+  chains?: ChainId[];
+  accounts?: LinkedAccount[];
+}
+
+export interface IGetAccountBalancesParams {
+  chains?: ChainId[];
+  accounts?: LinkedAccount[];
+}
+
 export interface IScamFilterSettingsParams {
   isScamFilterActive: boolean;
   showMessageEveryTime: boolean;

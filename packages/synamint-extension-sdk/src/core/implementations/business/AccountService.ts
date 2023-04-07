@@ -9,6 +9,7 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -38,15 +39,18 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccounts();
   }
 
-  public getAccountBalances(): ResultAsync<
-    TokenBalance[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountRepository.getAccountBalances();
+  public getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], SnickerDoodleCoreError> {
+    return this.accountRepository.getAccountBalances(chains, accounts);
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountRepository.getAccountNFTs();
+  public getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getAccountNFTs(chains, accounts);
   }
 
   public addAccount(

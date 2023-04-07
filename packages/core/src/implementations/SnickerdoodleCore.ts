@@ -867,6 +867,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
@@ -875,6 +877,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<WalletNFT[], PersistenceError> {
     const accountService =
