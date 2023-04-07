@@ -19,25 +19,25 @@ export class DiscordProvider implements IDiscordProvider {
   constructor() {}
   //SDL Connections
   public getUserProfiles(): ResultAsync<DiscordProfile[], unknown> {
-    return window.sdlDataWallet.discord.getUserProfiles().mapErr(() => {
-      return errAsync(new Error("Could not get discord user profiles!"));
-    });
+    return window.sdlDataWallet.discord
+      .getUserProfiles()
+      .mapErr(() => new Error("Could not get discord user profiles!"));
   }
   public unlink(discordProfileId: SnowflakeID): ResultAsync<void, unknown> {
-    return window.sdlDataWallet.discord.unlink(discordProfileId).mapErr(() => {
-      return errAsync(new Error("Could not get unlink discord profile!"));
-    });
+    return window.sdlDataWallet.discord
+      .unlink(discordProfileId)
+      .mapErr(() => new Error("Could not get unlink discord profile!"));
   }
 
   public initializeUserWithAuthorizationCode(
     params: IDiscordInitParams,
   ): ResultAsync<void, unknown> {
     const { code } = params;
-    console.log(
-      "DiscordProvider: initializeUserWithAuthorizationCode with code",
-      code,
-    );
     if (code) {
+      console.log(
+        "DiscordProvider: initializeUserWithAuthorizationCode with code",
+        code,
+      );
       return window.sdlDataWallet.discord.initializeUserWithAuthorizationCode(
         code,
       );
@@ -46,16 +46,16 @@ export class DiscordProvider implements IDiscordProvider {
   }
 
   public installationUrl(): ResultAsync<URLString, unknown> {
-    return window.sdlDataWallet.discord.installationUrl().mapErr(() => {
-      return errAsync(
-        new Error("Discord installation url can not be generated!"),
+    return window.sdlDataWallet.discord
+      .installationUrl()
+      .mapErr(
+        () => new Error("Discord installation url can not be generated!"),
       );
-    });
   }
 
   public getGuildProfiles(): ResultAsync<DiscordGuildProfile[], unknown> {
-    return window.sdlDataWallet.discord.getGuildProfiles().mapErr(() => {
-      return errAsync(new Error("Could not get discord guild profiles!"));
-    });
+    return window.sdlDataWallet.discord
+      .getGuildProfiles()
+      .mapErr(() => new Error("Could not get discord guild profiles!"));
   }
 }
