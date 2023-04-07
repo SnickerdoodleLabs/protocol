@@ -40,7 +40,10 @@ export interface IAccountService {
     chains?: ChainId[],
     accounts?: LinkedAccount[],
   ): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+  getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,
