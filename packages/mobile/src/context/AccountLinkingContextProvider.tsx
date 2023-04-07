@@ -145,54 +145,6 @@ const AccountLinkingContextProvider = ({ children }) => {
 
   return (
     <AccountLinkingContext.Provider value={{ onWCButtonClicked: onConnect }}>
-      {askForSignature && (
-        <View
-          style={{
-            position: "absolute",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            zIndex: 9999,
-            display: "flex",
-            padding: 40,
-            backgroundColor: "white",
-            borderBottomLeftRadius: 20,
-            borderBottomRightRadius: 20,
-            minHeight: Dimensions.get("window").height * 0.25,
-            width: Dimensions.get("window").width,
-          }}
-        >
-          <Text>Signature waiting</Text>
-          <View>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#53f55e",
-                padding: 10,
-                borderRadius: 16,
-                marginBottom: 20,
-              }}
-              onPress={() => {
-                sign();
-              }}
-            >
-              <Text>Ask for signature again</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#f04c41",
-                padding: 10,
-                borderRadius: 16,
-              }}
-              onPress={() => {
-                resetConnection();
-              }}
-            >
-              <Text>Kill Session</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
       {children}
     </AccountLinkingContext.Provider>
   );
