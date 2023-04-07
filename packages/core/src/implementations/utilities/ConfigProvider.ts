@@ -70,6 +70,7 @@ export class ConfigProvider
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
       "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
+      "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // Oklink api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
