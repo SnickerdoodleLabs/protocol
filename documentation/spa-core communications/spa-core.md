@@ -221,7 +221,7 @@ We have a new "DiscordService" in data wallet that handles Discord-related calls
     }: ISocialMediaDataItemProps) => {
       public getUserProfiles(): ResultAsync<DiscordProfile[], unknown> {
         return window.sdlDataWallet.discord.getUserProfiles().mapErr(() => {
-          return errAsync(new Error("Could not get discord user profiles!"));
+          return new Error("Could not get discord user profiles!");
         });
       }
     }

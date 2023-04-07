@@ -143,10 +143,7 @@ export class DiscordRepository implements IDiscordRepository {
               oauth2Tokens,
             ),
         )
-        .mapErr((error) => {
-          console.log(error.src);
-          return new DiscordError(error.message);
-        });
+        .mapErr((error) => new DiscordError(error.message));
     });
   }
 
@@ -172,10 +169,7 @@ export class DiscordRepository implements IDiscordRepository {
             );
           }),
         )
-        .mapErr((error) => {
-          console.log(error.src);
-          return new DiscordError(error.message);
-        });
+        .mapErr((error) => new DiscordError(error.message));
     });
   }
 
