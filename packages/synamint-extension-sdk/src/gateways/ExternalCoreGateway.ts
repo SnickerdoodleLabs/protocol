@@ -84,7 +84,7 @@ import {
   GetScamFilterSettingsParams,
   SetDefaultPermissionsToAllParams,
   GetDefaultPermissionsParams,
-  GetAvailableInvitationsCIDParms,
+  GetAvailableInvitationsCIDParams,
   GetStateParams,
 } from "@synamint-extension-sdk/shared";
 
@@ -118,7 +118,7 @@ export class ExternalCoreGateway {
     Record<EVMContractAddress, IpfsCID>,
     JsonRpcError
   > {
-    return this._handler.call(new GetAvailableInvitationsCIDParms());
+    return this._handler.call(new GetAvailableInvitationsCIDParams());
   }
 
   public acceptInvitation(
@@ -189,7 +189,7 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
   public unlock(params: UnlockParams): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call<UnlockParams>(params);
   }
   public unlinkAccount(
     params: UnlinkAccountParams,
@@ -209,7 +209,7 @@ export class ExternalCoreGateway {
   }
   public setApplyDefaultPermissionsOption(
     params: SetApplyDefaultPermissionsParams,
-  ): ResultAsync<boolean, JsonRpcError> {
+  ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(params);
   }
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
@@ -227,12 +227,12 @@ export class ExternalCoreGateway {
 
   public getTokenMarketData(
     params: GetTokenMarketDataParams,
-  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+  ): ResultAsync<TokenMarketData[], JsonRpcError> {
     return this._handler.call(params);
   }
   public getTokenInfo(
     params: GetTokenInfoParams,
-  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+  ): ResultAsync<TokenInfo | null, JsonRpcError> {
     return this._handler.call(params);
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
@@ -323,38 +323,35 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetSiteVisitsParams());
   }
 
-  public getSiteVisitsMap(): ResultAsync<
-    Record<URLString, number>,
-    JsonRpcError
-  > {
+  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError> {
     return this._handler.call(new GetSiteVisitsMapParams());
   }
 
   public getMarketplaceListings(
     params: GetMarketplaceListingsParams,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+  ): ResultAsync<MarketplaceListing, JsonRpcError> {
     return this._handler.call(params);
   }
 
-  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+  public getListingsTotal(): ResultAsync<number, JsonRpcError> {
     return this._handler.call(new GetMarketplaceListingsTotalParams());
   }
 
   public setDefaultReceivingAddress(
     params: SetDefaultReceivingAddressParams,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
+  ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(params);
   }
 
   public setReceivingAddress(
     params: SetReceivingAddressParams,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
+  ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(params);
   }
 
   public getReceivingAddress(
     params: GetReceivingAddressParams,
-  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
+  ): ResultAsync<AccountAddress, JsonRpcError> {
     return this._handler.call(params);
   }
 }

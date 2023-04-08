@@ -11,22 +11,44 @@ import {
   UnixTimestamp,
   UUID,
   EVMContractAddress,
-  URLString,
   IpfsCID,
   EChain,
   EWalletDataType,
   AccountAddress,
   ChainId,
   TokenAddress,
+  IOpenSeaMetadata,
+  LinkedAccount,
+  TokenBalance,
+  TokenMarketData,
+  TokenInfo,
+  WalletNFT,
+  Age,
+  DataWalletAddress,
+  EInvitationStatus,
+  EarnedReward,
+  SiteVisit,
+  URLString,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 
-import { ECoreActions } from "@synamint-extension-sdk/shared";
+import {
+  ECoreActions,
+  IExternalState,
+  IInternalState,
+  IInvitationDomainWithUUID,
+  IScamFilterPreferences,
+} from "@synamint-extension-sdk/shared";
 
-export abstract class CoreActionParams {
+export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
+
+  public returnMethodMarker(): TReturn {
+    throw new Error("Shouldn't execute this, only used for typing purposes");
+  }
 }
 
-export class UnlockParams extends CoreActionParams {
+export class UnlockParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
     public signature: Signature,
@@ -40,7 +62,7 @@ export class UnlockParams extends CoreActionParams {
   }
 }
 
-export class AddAccountParams extends CoreActionParams {
+export class AddAccountParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
     public signature: Signature,
@@ -54,7 +76,7 @@ export class AddAccountParams extends CoreActionParams {
   }
 }
 
-export class UnlinkAccountParams extends CoreActionParams {
+export class UnlinkAccountParams extends CoreActionParams<void> {
   public constructor(
     public accountAddress: AccountAddress,
     public signature: Signature,
@@ -68,7 +90,7 @@ export class UnlinkAccountParams extends CoreActionParams {
   }
 }
 
-export class GetUnlockMessageParams extends CoreActionParams {
+export class GetUnlockMessageParams extends CoreActionParams<string> {
   public constructor(public languageCode: LanguageCode) {
     super(GetUnlockMessageParams.getCoreAction());
   }
@@ -77,7 +99,7 @@ export class GetUnlockMessageParams extends CoreActionParams {
   }
 }
 
-export class SetGivenNameParams extends CoreActionParams {
+export class SetGivenNameParams extends CoreActionParams<void> {
   public constructor(public givenName: GivenName) {
     super(SetGivenNameParams.getCoreAction());
   }
@@ -86,7 +108,7 @@ export class SetGivenNameParams extends CoreActionParams {
   }
 }
 
-export class SetFamilyNameParams extends CoreActionParams {
+export class SetFamilyNameParams extends CoreActionParams<void> {
   public constructor(public familyName: FamilyName) {
     super(SetFamilyNameParams.getCoreAction());
   }
@@ -95,7 +117,7 @@ export class SetFamilyNameParams extends CoreActionParams {
   }
 }
 
-export class SetBirthdayParams extends CoreActionParams {
+export class SetBirthdayParams extends CoreActionParams<void> {
   public constructor(public birthday: UnixTimestamp) {
     super(SetBirthdayParams.getCoreAction());
   }
@@ -104,7 +126,7 @@ export class SetBirthdayParams extends CoreActionParams {
   }
 }
 
-export class SetGenderParams extends CoreActionParams {
+export class SetGenderParams extends CoreActionParams<void> {
   public constructor(public gender: Gender) {
     super(SetGenderParams.getCoreAction());
   }
@@ -113,7 +135,7 @@ export class SetGenderParams extends CoreActionParams {
   }
 }
 
-export class SetEmailParams extends CoreActionParams {
+export class SetEmailParams extends CoreActionParams<void> {
   public constructor(public email: EmailAddressString) {
     super(SetEmailParams.getCoreAction());
   }
@@ -122,7 +144,7 @@ export class SetEmailParams extends CoreActionParams {
   }
 }
 
-export class SetLocationParams extends CoreActionParams {
+export class SetLocationParams extends CoreActionParams<void> {
   public constructor(public location: CountryCode) {
     super(SetLocationParams.getCoreAction());
   }
@@ -131,7 +153,7 @@ export class SetLocationParams extends CoreActionParams {
   }
 }
 
-export class SetApplyDefaultPermissionsParams extends CoreActionParams {
+export class SetApplyDefaultPermissionsParams extends CoreActionParams<void> {
   public constructor(public option: boolean) {
     super(SetApplyDefaultPermissionsParams.getCoreAction());
   }
@@ -140,7 +162,7 @@ export class SetApplyDefaultPermissionsParams extends CoreActionParams {
   }
 }
 
-export class GetInvitationWithDomainParams extends CoreActionParams {
+export class GetInvitationWithDomainParams extends CoreActionParams<IInvitationDomainWithUUID | null> {
   public constructor(public domain: DomainName, public path: string) {
     super(GetInvitationWithDomainParams.getCoreAction());
   }
@@ -149,7 +171,7 @@ export class GetInvitationWithDomainParams extends CoreActionParams {
   }
 }
 
-export class AcceptInvitationByUUIDParams extends CoreActionParams {
+export class AcceptInvitationByUUIDParams extends CoreActionParams<void> {
   public constructor(public dataTypes: EWalletDataType[], public id: UUID) {
     super(AcceptInvitationByUUIDParams.getCoreAction());
   }
@@ -158,7 +180,7 @@ export class AcceptInvitationByUUIDParams extends CoreActionParams {
   }
 }
 
-export class AcceptInvitationParams extends CoreActionParams {
+export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(
     public dataTypes: EWalletDataType[],
     public consentContractAddress: EVMContractAddress,
@@ -172,7 +194,9 @@ export class AcceptInvitationParams extends CoreActionParams {
   }
 }
 
-export class GetAgreementPermissionsParams extends CoreActionParams {
+export class GetAgreementPermissionsParams extends CoreActionParams<
+  EWalletDataType[]
+> {
   public constructor(public consentContractAddress: EVMContractAddress) {
     super(GetAgreementPermissionsParams.getCoreAction());
   }
@@ -181,7 +205,7 @@ export class GetAgreementPermissionsParams extends CoreActionParams {
   }
 }
 
-export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams {
+export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams<void> {
   public constructor(public dataTypes: EWalletDataType[]) {
     super(SetDefaultPermissionsWithDataTypesParams.getCoreAction());
   }
@@ -190,7 +214,7 @@ export class SetDefaultPermissionsWithDataTypesParams extends CoreActionParams {
   }
 }
 
-export class RejectInvitationParams extends CoreActionParams {
+export class RejectInvitationParams extends CoreActionParams<void> {
   public constructor(public id: UUID) {
     super(RejectInvitationParams.getCoreAction());
   }
@@ -199,7 +223,7 @@ export class RejectInvitationParams extends CoreActionParams {
   }
 }
 
-export class LeaveCohortParams extends CoreActionParams {
+export class LeaveCohortParams extends CoreActionParams<void> {
   public constructor(public consentContractAddress: EVMContractAddress) {
     super(LeaveCohortParams.getCoreAction());
   }
@@ -208,7 +232,7 @@ export class LeaveCohortParams extends CoreActionParams {
   }
 }
 
-export class GetInvitationMetadataByCIDParams extends CoreActionParams {
+export class GetInvitationMetadataByCIDParams extends CoreActionParams<IOpenSeaMetadata> {
   public constructor(public ipfsCID: IpfsCID) {
     super(GetInvitationMetadataByCIDParams.getCoreAction());
   }
@@ -217,7 +241,7 @@ export class GetInvitationMetadataByCIDParams extends CoreActionParams {
   }
 }
 
-export class CheckURLParams extends CoreActionParams {
+export class CheckURLParams extends CoreActionParams<string> {
   public constructor(public domain: DomainName) {
     super(CheckURLParams.getCoreAction());
   }
@@ -226,7 +250,7 @@ export class CheckURLParams extends CoreActionParams {
   }
 }
 
-export class ScamFilterSettingsParams extends CoreActionParams {
+export class ScamFilterSettingsParams extends CoreActionParams<void> {
   public constructor(
     public isScamFilterActive: boolean,
     public showMessageEveryTime: boolean,
@@ -238,7 +262,7 @@ export class ScamFilterSettingsParams extends CoreActionParams {
   }
 }
 
-export class GetConsentContractCIDParams extends CoreActionParams {
+export class GetConsentContractCIDParams extends CoreActionParams<IpfsCID> {
   public constructor(public consentAddress: EVMContractAddress) {
     super(GetConsentContractCIDParams.getCoreAction());
   }
@@ -247,7 +271,7 @@ export class GetConsentContractCIDParams extends CoreActionParams {
   }
 }
 
-export class CheckInvitationStatusParams extends CoreActionParams {
+export class CheckInvitationStatusParams extends CoreActionParams<EInvitationStatus> {
   public constructor(
     public consentAddress: EVMContractAddress,
     public signature?: Signature | undefined,
@@ -260,7 +284,7 @@ export class CheckInvitationStatusParams extends CoreActionParams {
   }
 }
 
-export class GetTokenPriceParams extends CoreActionParams {
+export class GetTokenPriceParams extends CoreActionParams<number> {
   public constructor(
     public chainId: ChainId,
     public address: TokenAddress | null,
@@ -273,7 +297,9 @@ export class GetTokenPriceParams extends CoreActionParams {
   }
 }
 
-export class GetTokenMarketDataParams extends CoreActionParams {
+export class GetTokenMarketDataParams extends CoreActionParams<
+  TokenMarketData[]
+> {
   public constructor(public ids: string[]) {
     super(GetTokenMarketDataParams.getCoreAction());
   }
@@ -282,7 +308,7 @@ export class GetTokenMarketDataParams extends CoreActionParams {
   }
 }
 
-export class GetTokenInfoParams extends CoreActionParams {
+export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   public constructor(
     public chainId: ChainId,
     public contractAddress: TokenAddress | null,
@@ -294,7 +320,7 @@ export class GetTokenInfoParams extends CoreActionParams {
   }
 }
 
-export class GetMarketplaceListingsParams extends CoreActionParams {
+export class GetMarketplaceListingsParams extends CoreActionParams<MarketplaceListing> {
   public constructor(public count?: number, public headAt?: number) {
     super(GetMarketplaceListingsParams.getCoreAction());
   }
@@ -303,7 +329,7 @@ export class GetMarketplaceListingsParams extends CoreActionParams {
   }
 }
 
-export class GetMarketplaceListingsTotalParams extends CoreActionParams {
+export class GetMarketplaceListingsTotalParams extends CoreActionParams<number> {
   public constructor() {
     super(GetMarketplaceListingsTotalParams.getCoreAction());
   }
@@ -312,7 +338,9 @@ export class GetMarketplaceListingsTotalParams extends CoreActionParams {
   }
 }
 
-export class GetSiteVisitsMapParams extends CoreActionParams {
+export class GetSiteVisitsMapParams extends CoreActionParams<
+  Map<URLString, number>
+> {
   public constructor() {
     super(GetSiteVisitsMapParams.getCoreAction());
   }
@@ -321,7 +349,7 @@ export class GetSiteVisitsMapParams extends CoreActionParams {
   }
 }
 
-export class GetSiteVisitsParams extends CoreActionParams {
+export class GetSiteVisitsParams extends CoreActionParams<SiteVisit[]> {
   public constructor() {
     super(GetSiteVisitsParams.getCoreAction());
   }
@@ -330,7 +358,7 @@ export class GetSiteVisitsParams extends CoreActionParams {
   }
 }
 
-export class GetEarnedRewardsParams extends CoreActionParams {
+export class GetEarnedRewardsParams extends CoreActionParams<EarnedReward[]> {
   public constructor() {
     super(GetEarnedRewardsParams.getCoreAction());
   }
@@ -339,7 +367,7 @@ export class GetEarnedRewardsParams extends CoreActionParams {
   }
 }
 
-export class GetDataWalletAddressParams extends CoreActionParams {
+export class GetDataWalletAddressParams extends CoreActionParams<DataWalletAddress | null> {
   public constructor() {
     super(GetDataWalletAddressParams.getCoreAction());
   }
@@ -348,7 +376,7 @@ export class GetDataWalletAddressParams extends CoreActionParams {
   }
 }
 
-export class CloseTabParams extends CoreActionParams {
+export class CloseTabParams extends CoreActionParams<void> {
   public constructor() {
     super(CloseTabParams.getCoreAction());
   }
@@ -357,7 +385,7 @@ export class CloseTabParams extends CoreActionParams {
   }
 }
 
-export class IsDataWalletAddressInitializedParams extends CoreActionParams {
+export class IsDataWalletAddressInitializedParams extends CoreActionParams<boolean> {
   public constructor() {
     super(IsDataWalletAddressInitializedParams.getCoreAction());
   }
@@ -366,7 +394,7 @@ export class IsDataWalletAddressInitializedParams extends CoreActionParams {
   }
 }
 
-export class GetLocationParams extends CoreActionParams {
+export class GetLocationParams extends CoreActionParams<CountryCode | null> {
   public constructor() {
     super(GetLocationParams.getCoreAction());
   }
@@ -375,7 +403,7 @@ export class GetLocationParams extends CoreActionParams {
   }
 }
 
-export class GetGenderParams extends CoreActionParams {
+export class GetGenderParams extends CoreActionParams<Gender | null> {
   public constructor() {
     super(GetGenderParams.getCoreAction());
   }
@@ -384,7 +412,7 @@ export class GetGenderParams extends CoreActionParams {
   }
 }
 
-export class GetEmailParams extends CoreActionParams {
+export class GetEmailParams extends CoreActionParams<EmailAddressString | null> {
   public constructor() {
     super(GetEmailParams.getCoreAction());
   }
@@ -393,7 +421,7 @@ export class GetEmailParams extends CoreActionParams {
   }
 }
 
-export class GetBirthdayParams extends CoreActionParams {
+export class GetBirthdayParams extends CoreActionParams<UnixTimestamp | null> {
   public constructor() {
     super(GetBirthdayParams.getCoreAction());
   }
@@ -402,7 +430,7 @@ export class GetBirthdayParams extends CoreActionParams {
   }
 }
 
-export class GetGivenNameParams extends CoreActionParams {
+export class GetGivenNameParams extends CoreActionParams<GivenName | null> {
   public constructor() {
     super(GetGivenNameParams.getCoreAction());
   }
@@ -411,7 +439,7 @@ export class GetGivenNameParams extends CoreActionParams {
   }
 }
 
-export class GetFamilyNameParams extends CoreActionParams {
+export class GetFamilyNameParams extends CoreActionParams<FamilyName | null> {
   public constructor() {
     super(GetFamilyNameParams.getCoreAction());
   }
@@ -420,7 +448,7 @@ export class GetFamilyNameParams extends CoreActionParams {
   }
 }
 
-export class GetAgeParams extends CoreActionParams {
+export class GetAgeParams extends CoreActionParams<Age | null> {
   public constructor() {
     super(GetAgeParams.getCoreAction());
   }
@@ -429,7 +457,7 @@ export class GetAgeParams extends CoreActionParams {
   }
 }
 
-export class GetAccountNFTsParams extends CoreActionParams {
+export class GetAccountNFTsParams extends CoreActionParams<WalletNFT[]> {
   public constructor() {
     super(GetAccountNFTsParams.getCoreAction());
   }
@@ -438,7 +466,7 @@ export class GetAccountNFTsParams extends CoreActionParams {
   }
 }
 
-export class GetAccountBalancesParams extends CoreActionParams {
+export class GetAccountBalancesParams extends CoreActionParams<TokenBalance[]> {
   public constructor() {
     super(GetAccountBalancesParams.getCoreAction());
   }
@@ -447,7 +475,7 @@ export class GetAccountBalancesParams extends CoreActionParams {
   }
 }
 
-export class GetAccountsParams extends CoreActionParams {
+export class GetAccountsParams extends CoreActionParams<LinkedAccount[]> {
   public constructor() {
     super(GetAccountsParams.getCoreAction());
   }
@@ -456,7 +484,7 @@ export class GetAccountsParams extends CoreActionParams {
   }
 }
 
-export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams {
+export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams<boolean> {
   public constructor() {
     super(GetApplyDefaultPermissionsOptionParams.getCoreAction());
   }
@@ -465,7 +493,9 @@ export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams {
   }
 }
 
-export class GetAcceptedInvitationsCIDParams extends CoreActionParams {
+export class GetAcceptedInvitationsCIDParams extends CoreActionParams<
+  Record<EVMContractAddress, IpfsCID>
+> {
   public constructor() {
     super(GetAcceptedInvitationsCIDParams.getCoreAction());
   }
@@ -474,7 +504,7 @@ export class GetAcceptedInvitationsCIDParams extends CoreActionParams {
   }
 }
 
-export class GetScamFilterSettingsParams extends CoreActionParams {
+export class GetScamFilterSettingsParams extends CoreActionParams<IScamFilterPreferences> {
   public constructor() {
     super(GetScamFilterSettingsParams.getCoreAction());
   }
@@ -483,7 +513,7 @@ export class GetScamFilterSettingsParams extends CoreActionParams {
   }
 }
 
-export class SetDefaultPermissionsToAllParams extends CoreActionParams {
+export class SetDefaultPermissionsToAllParams extends CoreActionParams<void> {
   public constructor() {
     super(SetDefaultPermissionsToAllParams.getCoreAction());
   }
@@ -492,7 +522,9 @@ export class SetDefaultPermissionsToAllParams extends CoreActionParams {
   }
 }
 
-export class GetDefaultPermissionsParams extends CoreActionParams {
+export class GetDefaultPermissionsParams extends CoreActionParams<
+  EWalletDataType[]
+> {
   public constructor() {
     super(GetDefaultPermissionsParams.getCoreAction());
   }
@@ -501,16 +533,18 @@ export class GetDefaultPermissionsParams extends CoreActionParams {
   }
 }
 
-export class GetAvailableInvitationsCIDParms extends CoreActionParams {
+export class GetAvailableInvitationsCIDParams extends CoreActionParams<
+  Record<EVMContractAddress, IpfsCID>
+> {
   public constructor() {
-    super(GetAvailableInvitationsCIDParms.getCoreAction());
+    super(GetAvailableInvitationsCIDParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_AVAILABLE_INVITATIONS_CID;
   }
 }
 
-export class GetStateParams extends CoreActionParams {
+export class GetStateParams extends CoreActionParams<IExternalState> {
   public constructor() {
     super(GetStateParams.getCoreAction());
   }
@@ -519,7 +553,7 @@ export class GetStateParams extends CoreActionParams {
   }
 }
 
-export class GetInternalStateParams extends CoreActionParams {
+export class GetInternalStateParams extends CoreActionParams<IInternalState> {
   public constructor() {
     super(GetInternalStateParams.getCoreAction());
   }
@@ -528,7 +562,7 @@ export class GetInternalStateParams extends CoreActionParams {
   }
 }
 
-export class SetDefaultReceivingAddressParams extends CoreActionParams {
+export class SetDefaultReceivingAddressParams extends CoreActionParams<void> {
   public constructor(public receivingAddress: AccountAddress | null) {
     super(SetDefaultReceivingAddressParams.getCoreAction());
   }
@@ -537,7 +571,7 @@ export class SetDefaultReceivingAddressParams extends CoreActionParams {
   }
 }
 
-export class SetReceivingAddressParams extends CoreActionParams {
+export class SetReceivingAddressParams extends CoreActionParams<void> {
   public constructor(
     public contractAddress: EVMContractAddress,
     public receivingAddress: AccountAddress | null,
@@ -549,7 +583,7 @@ export class SetReceivingAddressParams extends CoreActionParams {
   }
 }
 
-export class GetReceivingAddressParams extends CoreActionParams {
+export class GetReceivingAddressParams extends CoreActionParams<AccountAddress> {
   public constructor(public contractAddress?: EVMContractAddress) {
     super(GetReceivingAddressParams.getCoreAction());
   }

@@ -99,7 +99,7 @@ import {
   GetSiteVisitsMapParams,
   GetAcceptedInvitationsCIDParams,
   GetMarketplaceListingsTotalParams,
-  GetAvailableInvitationsCIDParms,
+  GetAvailableInvitationsCIDParams,
   GetDefaultPermissionsParams,
   SetDefaultPermissionsToAllParams,
   GetApplyDefaultPermissionsOptionParams,
@@ -109,6 +109,7 @@ import {
   GetInternalStateParams,
   GetDataWalletAddressParams,
   IsDataWalletAddressInitializedParams,
+  CoreActionParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -423,8 +424,8 @@ export class RpcCallHandler implements IRpcCallHandler {
           });
       },
     ),
-    new CoreActionHandler<GetAvailableInvitationsCIDParms>(
-      GetAvailableInvitationsCIDParms.getCoreAction(),
+    new CoreActionHandler<GetAvailableInvitationsCIDParams>(
+      GetAvailableInvitationsCIDParams.getCoreAction(),
       (_params) => {
         return this.invitationService
           .getAvailableInvitationsCID()
@@ -537,7 +538,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       CloseTabParams.getCoreAction(),
       (_params, sender) => {
         sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
-        return okAsync(DEFAULT_RPC_SUCCESS_RESULT);
+        return okAsync(undefined);
       },
     ),
     new CoreActionHandler<GetStateParams>(
@@ -616,13 +617,15 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 }
 
-class CoreActionHandler<TParams> {
+class CoreActionHandler<
+  TParams extends CoreActionParams<ReturnType<TParams["returnMethodMarker"]>>,
+> {
   public constructor(
     public action: ECoreActions,
     public handler: (
       params: TParams,
       sender?: Runtime.MessageSender | undefined,
-    ) => ResultAsync<unknown, unknown>,
+    ) => ResultAsync<ReturnType<TParams["returnMethodMarker"]>, unknown>,
   ) {}
 
   public async execute(

@@ -1,4 +1,4 @@
-import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
+import { JsonRpcEngine, JsonRpcError, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import { v4 } from "uuid";
 
@@ -14,8 +14,12 @@ export default class CoreHandler {
     this.rpcEngine = rpcEngine;
   }
 
-  public call<T, K>(params: CoreActionParams): ResultAsync<T, K> {
-    return ResultAsync.fromPromise<T, K>(
+  public call<
+    TParams extends CoreActionParams<ReturnType<TParams["returnMethodMarker"]>>,
+  >(
+    params: TParams,
+  ): ResultAsync<ReturnType<TParams["returnMethodMarker"]>, JsonRpcError> {
+    return ResultAsync.fromPromise(
       new Promise((resolve, reject) => {
         const requestObject = this._createRequestObject(params);
         this.rpcEngine.handle(requestObject, async (error, result) => {
@@ -36,7 +40,9 @@ export default class CoreHandler {
           );
         });
       }),
-      (e) => e as K,
+      (e) => {
+        return e as JsonRpcError;
+      },
     );
   }
 

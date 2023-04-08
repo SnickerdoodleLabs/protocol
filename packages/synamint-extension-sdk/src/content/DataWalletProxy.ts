@@ -369,7 +369,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getSiteVisits(): ResultAsync<SiteVisit[], unknown> {
     return coreGateway.getSiteVisits();
   }
-  public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
+  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, unknown> {
     return coreGateway.getSiteVisitsMap();
   }
 }
