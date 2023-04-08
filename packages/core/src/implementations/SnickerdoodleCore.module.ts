@@ -62,6 +62,7 @@ import { ContainerModule, interfaces } from "inversify";
 
 import {
   AccountIndexerPoller,
+  DiscordPoller,
   BlockchainListener,
 } from "@core/implementations/api/index.js";
 import {
@@ -76,6 +77,7 @@ import {
   SiftContractService,
   MarketplaceService,
   IntegrationService,
+  DiscordService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -104,6 +106,8 @@ import {
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
   PermissionRepository,
+  DiscordRepository,
+  SocialRepository,
   DomainCredentialRepository,
 } from "@core/implementations/data/index.js";
 import {
@@ -121,12 +125,16 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
+  IDiscordPoller,
+  IDiscordPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -195,6 +203,10 @@ import {
   IDemographicDataRepository,
   IPermissionRepository,
   IPermissionRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
   IDomainCredentialRepositoryType,
   IDomainCredentialRepository,
 } from "@core/interfaces/data/index.js";
@@ -222,6 +234,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    bind<IDiscordPoller>(IDiscordPollerType)
+      .to(DiscordPoller)
+      .inSingletonScope();
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
       .inSingletonScope();
@@ -252,6 +267,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ISiftContractService>(ISiftContractServiceType)
       .to(SiftContractService)
+      .inSingletonScope();
+
+    bind<IDiscordService>(IDiscordServiceType)
+      .to(DiscordService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
@@ -329,6 +348,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
+    bind<IDiscordRepository>(IDiscordRepositoryType)
+      .to(DiscordRepository)
+      .inSingletonScope();
+    bind<ISocialRepository>(ISocialRepositoryType)
+      .to(SocialRepository)
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)

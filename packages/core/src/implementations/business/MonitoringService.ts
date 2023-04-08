@@ -14,13 +14,18 @@ import {
   ChainTransaction,
   SolanaAccountAddress,
   isAccountValidForChain,
+  DiscordError,
   DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IMonitoringService } from "@core/interfaces/business/index.js";
+import {
+  IDiscordService,
+  IDiscordServiceType,
+  IMonitoringService,
+} from "@core/interfaces/business/index.js";
 import {
   IBrowsingDataRepository,
   IBrowsingDataRepositoryType,
@@ -53,6 +58,8 @@ export class MonitoringService implements IMonitoringService {
     protected transactionRepo: ITransactionHistoryRepository,
     @inject(IBrowsingDataRepositoryType)
     protected browsingDataRepo: IBrowsingDataRepository,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -197,11 +204,14 @@ export class MonitoringService implements IMonitoringService {
       },
     );
   }
-
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.persistence.pollBackups();
   }
-
+  public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
+    this.logUtils.debug("Polling discord");
+    return this.discordService.poll();
+  }
+  
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.persistence.postBackups();
   }

@@ -29,12 +29,14 @@ import {
   ScamFilterService,
   TokenPriceService,
   UserSiteInteractionService,
+  DiscordService,
 } from "@synamint-extension-sdk/core/implementations/business";
 import {
   PortConnectionRepository,
   AccountRepository,
   PIIRepository,
   InvitationRepository,
+  DiscordRepository,
   ScamFilterRepository,
   TokenPriceRepository,
   UserSiteInteractionRepository,
@@ -63,6 +65,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IInvitationService,
   IInvitationServiceType,
   IPIIService,
@@ -91,6 +95,8 @@ import {
   IPortConnectionRepositoryType,
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
 import {
   IScamFilterRepository,
@@ -165,6 +171,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IScamFilterService>(IScamFilterServiceType)
       .to(ScamFilterService)
       .inSingletonScope();
+    bind<IDiscordService>(IDiscordServiceType)
+      .to(DiscordService)
+      .inSingletonScope();
 
     // Data
     bind<IAccountRepository>(IAccountRepositoryType)
@@ -188,7 +197,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IScamFilterRepository>(IScamFilterRepositoryType)
       .to(ScamFilterRepository)
       .inSingletonScope();
-
+    bind<IDiscordRepository>(IDiscordRepositoryType)
+      .to(DiscordRepository)
+      .inSingletonScope();
     // Utilities
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)

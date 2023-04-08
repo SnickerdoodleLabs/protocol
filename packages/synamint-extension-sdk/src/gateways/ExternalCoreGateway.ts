@@ -22,6 +22,11 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  ISdlDiscordMethods,
+  DiscordProfile,
+  DiscordGuildProfile,
+  SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -86,12 +91,43 @@ import {
   GetDefaultPermissionsParams,
   GetAvailableInvitationsCIDParams,
   GetStateParams,
+  InitializeDiscordUserParams,
+  GetDiscordInstallationUrlParams,
+  GetDiscordUserProfilesParams,
+  GetDiscordGuildProfilesParams,
+  UnlinkDiscordAccountParams,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
+  public discord: ISdlDiscordMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+
+    this.discord = {
+      initializeUserWithAuthorizationCode: (
+        code: OAuthAuthorizationCode,
+      ): ResultAsync<void, JsonRpcError> => {
+        return this._handler.call(new InitializeDiscordUserParams(code));
+      },
+      installationUrl: (): ResultAsync<URLString, JsonRpcError> => {
+        return this._handler.call(new GetDiscordInstallationUrlParams());
+      },
+      getUserProfiles: (): ResultAsync<DiscordProfile[], JsonRpcError> => {
+        return this._handler.call(new GetDiscordUserProfilesParams());
+      },
+      getGuildProfiles: (): ResultAsync<
+        DiscordGuildProfile[],
+        JsonRpcError
+      > => {
+        return this._handler.call(new GetDiscordGuildProfilesParams());
+      },
+      unlink: (discordProfileId: SnowflakeID) => {
+        return this._handler.call(
+          new UnlinkDiscordAccountParams(discordProfileId),
+        );
+      },
+    };
   }
 
   public updateRpcEngine(rpcEngine: JsonRpcEngine) {

@@ -25,6 +25,8 @@ import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IInvitationService,
   IInvitationServiceType,
   IPIIService,
@@ -110,6 +112,11 @@ import {
   GetDataWalletAddressParams,
   IsDataWalletAddressInitializedParams,
   CoreActionParams,
+  InitializeDiscordUserParams,
+  GetDiscordInstallationUrlParams,
+  GetDiscordGuildProfilesParams,
+  GetDiscordUserProfilesParams,
+  UnlinkDiscordAccountParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -565,7 +572,40 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.accountService.isDataWalletAddressInitialized();
       },
     ),
+    new CoreActionHandler<InitializeDiscordUserParams>(
+      InitializeDiscordUserParams.getCoreAction(),
+      (params) => {
+        return this.discordService.initializeUserWithAuthorizationCode(
+          params.code,
+        );
+      },
+    ),
+    new CoreActionHandler<GetDiscordInstallationUrlParams>(
+      GetDiscordInstallationUrlParams.getCoreAction(),
+      (_params) => {
+        return this.discordService.installationUrl();
+      },
+    ),
+    new CoreActionHandler<GetDiscordGuildProfilesParams>(
+      GetDiscordGuildProfilesParams.getCoreAction(),
+      (_params) => {
+        return this.discordService.getGuildProfiles();
+      },
+    ),
+    new CoreActionHandler<GetDiscordUserProfilesParams>(
+      GetDiscordUserProfilesParams.getCoreAction(),
+      (_params) => {
+        return this.discordService.getUserProfiles();
+      },
+    ),
+    new CoreActionHandler<UnlinkDiscordAccountParams>(
+      UnlinkDiscordAccountParams.getCoreAction(),
+      (params) => {
+        return this.discordService.unlink(params.discordProfileId);
+      },
+    ),
   ];
+
   constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ITokenPriceServiceType)
@@ -583,6 +623,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
   ) {}
 
   public async handleRpcCall(

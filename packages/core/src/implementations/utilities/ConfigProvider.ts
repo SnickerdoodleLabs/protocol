@@ -52,6 +52,18 @@ export class ConfigProvider
       );
     }
 
+    const discordConfig = {
+      clientId: "1093307083102887996",
+      clientSecret: "w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK",
+      oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+      oauthRedirectUrl: URLString("spa-url"),
+      accessTokenUrl: URLString("https://discord.com/api/oauth2/token"),
+      refreshTokenUrl: URLString("https://discord.com/api/oauth2/token"),
+      dataAPIUrl: URLString("https://discord.com/api"),
+      iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+      pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
+    };
+
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
@@ -98,6 +110,7 @@ export class ConfigProvider
       "(localhost|chrome://)",
       false, // enable backup encryption
       120000, // backup placement heartbeat
+      discordConfig,
     );
   }
 
@@ -179,5 +192,12 @@ export class ConfigProvider
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =
       overrides.enableBackupEncryption ?? false;
+
+    const discordConfig = {
+      ...this.config.discord,
+      ...overrides.discordOverrides,
+    };
+
+    this.config.discord = discordConfig;
   }
 }

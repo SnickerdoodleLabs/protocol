@@ -30,6 +30,10 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  SnowflakeID,
+  OAuthAuthorizationCode,
+  DiscordProfile,
+  DiscordGuildProfile,
 } from "@snickerdoodlelabs/objects";
 
 import {
@@ -589,5 +593,54 @@ export class GetReceivingAddressParams extends CoreActionParams<AccountAddress> 
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_RECEIVING_ACCOUNT;
+  }
+}
+
+export class InitializeDiscordUserParams extends CoreActionParams<void> {
+  public constructor(public code: OAuthAuthorizationCode) {
+    super(InitializeDiscordUserParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.INITIALIZE_DISCORD_USER;
+  }
+}
+
+export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
+  public constructor() {
+    super(GetDiscordInstallationUrlParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.INSTALLATION_DISCORD_URL;
+  }
+}
+
+export class GetDiscordUserProfilesParams extends CoreActionParams<
+  DiscordProfile[]
+> {
+  public constructor() {
+    super(GetDiscordUserProfilesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DISCORD_USER_PROFILES;
+  }
+}
+
+export class GetDiscordGuildProfilesParams extends CoreActionParams<
+  DiscordGuildProfile[]
+> {
+  public constructor() {
+    super(GetDiscordGuildProfilesParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DISCORD_GUILD_PROFILES;
+  }
+}
+
+export class UnlinkDiscordAccountParams extends CoreActionParams<void> {
+  public constructor(public discordProfileId: SnowflakeID) {
+    super(UnlinkDiscordAccountParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.UNLINK_DISCORD_ACCOUNT;
   }
 }

@@ -22,6 +22,8 @@ import {
   AdSignature,
   AESEncryptedString,
   PossibleReward,
+  DiscordProfile,
+  DiscordGuildProfile,
   DataWalletBackup,
 } from "@objects/businessObjects";
 import {
@@ -39,12 +41,14 @@ import {
   ConsentError,
   ConsentFactoryContractError,
   CrumbsContractError,
+  DiscordError,
   EvaluationError,
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   KeyGenerationError,
   MinimalForwarderContractError,
+  OAuthError,
   PersistenceError,
   QueryFormatError,
   SiftContractError,
@@ -60,6 +64,7 @@ import {
   AdSurfaceId,
   AESKey,
   Age,
+  BearerAuthToken,
   BackupFileName,
   ChainId,
   CountryCode,
@@ -77,9 +82,11 @@ import {
   IpfsCID,
   JsonWebToken,
   LanguageCode,
+  OAuthAuthorizationCode,
   PEMEncodedRSAPublicKey,
   SHA256Hash,
   Signature,
+  SnowflakeID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -119,6 +126,49 @@ export interface ICoreMarketplaceMethods {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
+/**
+ ************************ MAINTENANCE HAZARD ***********************************************
+ Whenever you add or change a method in this class, you also need to look at and probably update
+ ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
+ clones this interface, with some methods removed or added, but all of them updated to remove
+ sourceDomain (which is managed by the integration package)
+ */
+export interface ICoreDiscordMethods {
+  /**
+   * This method will upsert a users discord profile and
+   * discord guild data given a token which will come from discord api
+   * @param authToken
+   */
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
+
+  /**
+   * This method will return url for the discord api
+   * call to be made. If user gives consent token can be used
+   * to initialize the user
+   */
+  installationUrl(): ResultAsync<URLString, OAuthError>;
+
+  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  /**
+   * This method will remove a users discord profile and
+   * discord guild data given their profile id
+   * @param discordProfileId
+   */
+  unlink(
+    discordProfileId: SnowflakeID,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
+}
+
+/**
+ ************************ MAINTENANCE HAZARD ***********************************************
+ Whenever you add or change a method in this class, you also need to look at and probably update
+ ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
+ clones this interface, with some methods removed or added, but all of them updated to remove
+ sourceDomain (which is managed by the integration package)
+ */
 export interface ICoreIntegrationMethods {
   /**
    * This method grants the requested permissions to the wallet to the specified domain name.
@@ -732,6 +782,7 @@ export interface ISnickerdoodleCore {
 
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;
+  discord: ICoreDiscordMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
