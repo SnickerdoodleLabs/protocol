@@ -195,6 +195,10 @@ export class MonitoringService implements IMonitoringService {
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
+          case EIndexer.Arbitrum:
+            return okAsync([]);
+          case EIndexer.Optimism:
+            return okAsync([]);
           default:
             this.logUtils.error(
               `No available indexer repository for chain ${chainId}`,

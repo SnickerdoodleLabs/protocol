@@ -38,6 +38,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       solanaTestnet: string;
       polygon: string;
       polygonMumbai: string;
+      Arbitrum: string;
+      Optimism: string;
     },
     public restoreTimeoutMS: number,
     public domainFilter: string,

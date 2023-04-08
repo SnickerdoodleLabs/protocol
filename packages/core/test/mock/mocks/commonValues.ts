@@ -85,7 +85,14 @@ export const testCoreConfig = new CoreConfig(
   new Map(),
   100, // etherscan tx batch size
   5000,
-  { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
+  {
+    solana: "",
+    solanaTestnet: "",
+    polygon: "",
+    polygonMumbai: "",
+    Arbitrum: "",
+    Optimism: "",
+  }, // alchemy endpoints
   10000,
   "(localhost|chrome:\/\/)",
   false,
