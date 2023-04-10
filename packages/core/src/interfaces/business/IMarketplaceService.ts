@@ -7,6 +7,9 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
+  EvaluationError,
+  EVMContractAddress,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -33,6 +36,11 @@ export interface IMarketplaceService {
     MarketplaceTag[],
     UninitializedError | BlockchainProviderError | ConsentContractError
   >;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export const IMarketplaceServiceType = Symbol.for("IMarketplaceService");

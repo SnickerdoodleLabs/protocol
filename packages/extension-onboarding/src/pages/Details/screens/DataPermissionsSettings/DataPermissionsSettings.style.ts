@@ -2,10 +2,12 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   title: {
-    fontFamily: "Shrikhand",
-    fontSize: 36,
-    fontWeight: 400,
-    color: "#232039",
+    fontFamily:"Inter",
+    fontSize: "30px",
+    fontWeight: 500,
+    lineHeight: "38px",
+    color: "#101828",
+    letterSpacing: "0em",
   },
   label: {
     "& .MuiRadio-colorSecondary.Mui-checked ": {

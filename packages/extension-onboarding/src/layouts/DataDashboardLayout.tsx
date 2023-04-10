@@ -1,4 +1,5 @@
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { memo, useEffect } from "react";
@@ -43,7 +44,9 @@ interface ILink {
 const LINKS: ILink[] = [
   { path: EPaths.TOKENS, title: "Tokens" },
   { path: EPaths.NFTS, title: "NFTs" },
+  { path: EPaths.POAP_NFTS, title: "POAPs" },
   { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
+  { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
   { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
 ];
 
@@ -88,7 +91,9 @@ const DataDashboardLayout = () => {
           </Box>
         ))}
       </Box>
-      <Outlet />
+      <DashboardContextProvider>
+        <Outlet />
+      </DashboardContextProvider>
     </>
   );
 };

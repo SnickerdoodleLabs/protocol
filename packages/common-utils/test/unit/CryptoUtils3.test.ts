@@ -8,7 +8,7 @@ import { BigNumber, ethers } from "ethers";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
-describe("CryptoUtils tests", () => {
+describe("CryptoUtils Tests 3", () => {
   test("getSignature() Closed Loop", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();

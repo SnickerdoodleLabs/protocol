@@ -14,6 +14,8 @@ import {
   MarketplaceListing,
   PagingRequest,
   PagedResponse,
+  DiscordProfile,
+  DiscordGuildProfile,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -21,6 +23,7 @@ import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferenc
 import {
   AccountAddress,
   Age,
+  BearerAuthToken,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -33,7 +36,9 @@ import {
   IpfsCID,
   LanguageCode,
   MarketplaceTag,
+  OAuthAuthorizationCode,
   Signature,
+  SnowflakeID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -166,4 +171,33 @@ export interface ISdlDataWallet extends EventEmitter {
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
+
+  discord: ISdlDiscordMethods;
+}
+
+export interface ISdlDiscordMethods {
+  /**
+   * This method will upsert a users discord profile and
+   * discord guild data given a token which will come from discord api
+   * @param authToken
+   */
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<void, JsonRpcError>;
+
+  /**
+   * This method will return url for the discord api
+   * call to be made. If user gives consent token can be used
+   * to initialize the user
+   */
+  installationUrl(): ResultAsync<URLString, JsonRpcError>;
+
+  getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], JsonRpcError>;
+  /**
+   * This method will remove a users discord profile and
+   * discord guild data given their profile id
+   * @param discordProfileId
+   */
+  unlink(discordProfileId: SnowflakeID): ResultAsync<void, JsonRpcError>;
 }
