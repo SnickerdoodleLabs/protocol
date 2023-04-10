@@ -6,6 +6,11 @@ import {
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import Browser, { Tabs } from "webextension-polyfill";
+
 import { extensionCoreModule } from "@synamint-extension-sdk/core/implementations/ExtensionCore.module";
 import {
   IBrowserTabListener,
@@ -34,10 +39,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@synamint-extension-sdk/shared/interfaces/configProvider";
-import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import Browser, { Tabs } from "webextension-polyfill";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -80,6 +81,7 @@ export class ExtensionCore {
       domainFilter: config.domainFilter,
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
       enableBackupEncryption: config.enableBackupEncryption,
+      discordOverrides: config.discordOverrides,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

@@ -1,36 +1,41 @@
 import {
-  AESKey,
   DataWalletBackupID,
-  IDataWalletBackup,
+  DataWalletBackup,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
   VolatileStorageMetadata,
+  ERecordKey,
+  EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface IBackupManager {
-  clear(): ResultAsync<void, never>;
   addRecord<T extends VersionedObject>(
-    tableName: string,
+    tableName: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError>;
   deleteRecord(
-    tableName: string,
+    tableName: ERecordKey,
     key: VolatileStorageKey,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
   updateField(
-    key: string,
-    value: object,
-    priority: EBackupPriority,
+    key: EFieldKey,
+    value: unknown,
   ): ResultAsync<void, PersistenceError>;
-  restore(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
+
+  restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+
+  getRendered(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackup[], PersistenceError>;
+  popRendered(
+    id: DataWalletBackupID,
+  ): ResultAsync<DataWalletBackupID, PersistenceError>;
+
   unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 }
 

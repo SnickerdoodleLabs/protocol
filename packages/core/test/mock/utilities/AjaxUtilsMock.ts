@@ -13,12 +13,22 @@ export class AjaxUtilsMock implements IAxiosAjaxUtils {
   public addGetReturn(url: string, value: unknown): void {
     this.configuredGetReturns.set(url, value);
   }
-
   public get<T>(
     url: URL,
     config?: IRequestConfig | undefined,
   ): ResultAsync<T, AjaxError> {
-    const val = this.configuredGetReturns.get(url.toString());
+    let val: unknown = null;
+    const urlStr = url.toString();
+    if (this.configuredGetReturns.has(urlStr)) {
+      val = this.configuredGetReturns.get(urlStr);
+    } else {
+      for (const [k, v] of this.configuredGetReturns) {
+        if (urlStr.endsWith(k)) {
+          val = v;
+          break;
+        }
+      }
+    }
 
     if (val != null) {
       return okAsync(val as T);

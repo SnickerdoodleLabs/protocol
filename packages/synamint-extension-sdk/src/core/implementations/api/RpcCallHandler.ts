@@ -52,6 +52,8 @@ import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IInvitationService,
   IInvitationServiceType,
   IPIIService,
@@ -116,6 +118,8 @@ import {
   IGetReceivingAddressParams,
   mapToObj,
   SnickerDoodleCoreError,
+  IInitializeDiscordUser,
+  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -137,6 +141,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
   ) {}
 
   public async handleRpcCall(
@@ -480,6 +486,38 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
         return new AsyncRpcResponseSender(
           this.accountService.isDataWalletAddressInitialized(),
+          res,
+        ).call();
+      }
+      case EExternalActions.INITIALIZE_DISCORD_USER: {
+        const { code } = params as IInitializeDiscordUser;
+        return new AsyncRpcResponseSender(
+          this.discordService.initializeUserWithAuthorizationCode(code),
+          res,
+        ).call();
+      }
+      case EExternalActions.INSTALLATION_DISCORD_URL: {
+        return new AsyncRpcResponseSender(
+          this.discordService.installationUrl(),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_DISCORD_GUILD_PROFILES: {
+        return new AsyncRpcResponseSender(
+          this.discordService.getGuildProfiles(),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_DISCORD_USER_PROFILES: {
+        return new AsyncRpcResponseSender(
+          this.discordService.getUserProfiles(),
+          res,
+        ).call();
+      }
+      case EExternalActions.UNLINK_DISCORD_ACCOUNT: {
+        const { discordProfileId } = params as IUnlinkDiscordAccount;
+        return new AsyncRpcResponseSender(
+          this.discordService.unlink(discordProfileId),
           res,
         ).call();
       }

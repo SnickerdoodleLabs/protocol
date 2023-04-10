@@ -47,6 +47,7 @@
     "@snickerdoodlelabs/signature-verification": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
+    "jsonwebtoken": "^9.0.0",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13",
