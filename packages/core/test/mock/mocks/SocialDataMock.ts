@@ -75,28 +75,27 @@ export const discordGuildProfileAPIResponses = [
 ];
 
 export class SocialDataMock {
-  public getDiscordProfiles(): ResultAsync<DiscordProfile[], never> {
-    return okAsync(discordProfiles);
+  public getDiscordProfiles(): DiscordProfile[] {
+    return discordProfiles;
   }
+
   public getDiscordGuildProfiles(
     discordProfileId: SnowflakeID | null,
-  ): ResultAsync<DiscordGuildProfile[], never> {
+  ): DiscordGuildProfile[] {
     if (discordProfileId == null) {
       discordProfileId = SnowflakeID("-1");
     }
-    return okAsync(
-      discordGuildProfileAPIResponses.map(
-        (profile) =>
-          new DiscordGuildProfile(
-            profile.id,
-            discordProfileId!,
-            profile.name,
-            profile.owner,
-            profile.permissions,
-            profile.icon ? URLString(profile.icon) : null,
-            null,
-          ),
-      ),
+    return discordGuildProfileAPIResponses.map(
+      (profile) =>
+        new DiscordGuildProfile(
+          profile.id,
+          discordProfileId!,
+          profile.name,
+          profile.owner,
+          profile.permissions,
+          profile.icon ? URLString(profile.icon) : null,
+          null,
+        ),
     );
   }
 }

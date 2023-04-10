@@ -35,35 +35,22 @@ class DiscordServiceMocks {
     this.configProvider = new ConfigProviderMock();
     this.contextProvider = td.object<IContextProvider>();
     this.discordRepo = td.object<IDiscordRepository>();
-    this.timeUtils = new TimeUtils();
-
-    td.when(this.contextProvider.getContext()).thenReturn(
-      okAsync(
-        new CoreContext(
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-        ),
-      ),
-    );
+    this.timeUtils = td.object<ITimeUtils>();
 
     td.when(this.discordRepo.getUserProfiles()).thenReturn(
-      this.getDiscordProfiles(),
+      okAsync(this.getDiscordProfiles()),
     );
   }
 
-  protected getDiscordProfiles(): ResultAsync<
-    DiscordProfile[],
-    PersistenceError
-  > {
-    return okAsync(
-      discordProfiles.map((uProfile) => {
-        uProfile.oauth2Tokens.expiry = this.timeUtils.getUnixNow();
-        return uProfile;
-      }),
-    );
+  protected getDiscordProfiles(): DiscordProfile[] {
+    return discordProfiles.map((uProfile) => {
+      uProfile.oauth2Tokens.expiry = this.getUnixNow();
+      return uProfile;
+    });
+  }
+
+  protected getUnixNow(): UnixTimestamp {
+    return UnixTimestamp(1);
   }
 
   public getDiscordAuthTokens() {
@@ -93,6 +80,6 @@ describe("DiscordService tests", () => {
     expect(result).toBeDefined();
     expect(result.isOk()).toBeTruthy();
     const authTokens = result._unsafeUnwrap();
-    expect(authTokens.map(token => token.accessToken)).toEqual(expected);
+    expect(authTokens.map((token) => token.accessToken)).toEqual(expected);
   });
 });
