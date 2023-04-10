@@ -74,16 +74,16 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   }
 
   private getUrl(chainId) {
-    switch (chainId) {
-      case "1284":
-        return "https://moonbeamapi.nftscan.com";
-      case "42161":
-        return "https://arbitrumapi.nftscan.com";
-      case "10":
-        return "https://optimismapi.nftscan.com";
-      default:
-        return "https://ethereumapi.nftscan.com";
+    if (chainId == "1284") {
+      return "https://moonbeamapi.nftscan.com";
     }
+    if (chainId == "42161") {
+      return "https://arbitrumapi.nftscan.com";
+    }
+    if (chainId == "10") {
+      return "https://optimismapi.nftscan.com";
+    }
+    return "https://ethereumapi.nftscan.com";
   }
 
   private generateQueryConfig(
