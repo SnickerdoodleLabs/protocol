@@ -120,21 +120,30 @@ export interface IConsentContractRepository {
     tokenId: TokenId,
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+
   encodeRestrictedOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     signature: Signature,
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+
   encodeAnonymousRestrictedOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     signature: Signature,
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+
   encodeOptOut(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+
+  encodeUpdateAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
 }
 

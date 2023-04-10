@@ -1,4 +1,8 @@
 import {
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects";
+import {
   ConsentContractError,
   EVMAccountAddress,
   IpfsCID,
@@ -17,11 +21,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import {
-  ConsentRoles,
-  ContractOverrides,
-} from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract {
   getContractAddress(): EVMContractAddress;
@@ -232,7 +231,7 @@ export interface IConsentContract {
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
   /**
-   * Returns the tokenId of latest opt-in contract the user has 
+   * Returns the tokenId of latest opt-in contract the user has
    * for given derived opt-in address.
    * @param optInAddress Opt-in contract address
    */
@@ -328,6 +327,23 @@ export interface IConsentContract {
    * Get the open optIn availability
    */
   openOptInDisabled(): ResultAsync<boolean, ConsentContractError>;
+
+  /**
+   * Updates a consent token's permissions (agreement flags)
+   * @param tokenId randomly generated token id
+   * @param agreementURI token uri data
+   * @param contractOverrides for overriding transaction gas object
+   */
+  updateAgreementFlags(
+    tokenId: TokenId,
+    agreementFlags: HexString32,
+    contractOverrides?: ContractOverrides,
+  ): ResultAsync<void, ConsentContractError>;
+
+  encodeUpdateAgreementFlags(
+    tokenId: TokenId,
+    agreementFlags: HexString32,
+  ): HexString;
 
   getSignature(
     values: Array<

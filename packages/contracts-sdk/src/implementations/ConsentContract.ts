@@ -1,3 +1,6 @@
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
@@ -22,10 +25,6 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -212,7 +211,6 @@ export class ConsentContract implements IConsentContract {
   public agreementFlags(
     tokenId: TokenId,
   ): ResultAsync<HexString32, ConsentContractError> {
-  
     return ResultAsync.fromPromise(
       this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
       (e) => {
@@ -513,7 +511,6 @@ export class ConsentContract implements IConsentContract {
   public ownerOf(
     tokenId: TokenId,
   ): ResultAsync<EVMAccountAddress, ConsentContractError> {
-   
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
       (e) => {
@@ -574,7 +571,6 @@ export class ConsentContract implements IConsentContract {
       this.ownerOf(tokenId),
       this.agreementFlags(tokenId),
     ]).andThen(([ownerAddress, agreementFlags]) => {
-    
       return okAsync(
         new ConsentToken(
           this.contractAddress,
@@ -983,6 +979,47 @@ export class ConsentContract implements IConsentContract {
       this.providerOrSigner as ethers.providers.JsonRpcSigner,
       types,
       values,
+    );
+  }
+
+  public updateAgreementFlags(
+    tokenId: TokenId,
+    agreementFlags: HexString32,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.updateAgreementFlags(
+        tokenId,
+        agreementFlags,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call updateAgreementFlags()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for updateAgreementFlags() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public encodeUpdateAgreementFlags(
+    tokenId: TokenId,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("updateAgreementFlags", [
+        tokenId,
+        agreementFlags,
+      ]),
     );
   }
 }

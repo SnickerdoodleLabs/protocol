@@ -323,6 +323,21 @@ export class ConsentContractRepository implements IConsentContractRepository {
     );
   }
 
+  public encodeUpdateAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeUpdateAgreementFlags(
+        tokenId,
+        dataPermissions != null
+          ? dataPermissions.getFlags()
+          : DataPermissions.allPermissionsHexString,
+      );
+    });
+  }
+
   protected getConsentContract(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
