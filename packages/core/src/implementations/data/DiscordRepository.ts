@@ -27,6 +27,10 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
+import {
+  DiscordOAuth2TokensAPIResponse,
+  DiscordProfileAPIResponse,
+} from "@core/interfaces/data/apis";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IDataWalletPersistence,
@@ -38,7 +42,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider.js";
-import { DiscordOAuth2TokensAPIResponse, DiscordProfileAPIResponse } from "@core/interfaces/data/apis";
 
 @injectable()
 export class DiscordRepository implements IDiscordRepository {
