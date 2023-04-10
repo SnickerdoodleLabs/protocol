@@ -39,15 +39,15 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.dataWalletBackupIntervalMS);
 
-      this.persistence.waitForFullRestore().map(() => {
-        this.contextProvider.getContext().map((ctx) => {
-          ctx.publicEvents.onAccountAdded.subscribe(() => {
-            this.monitoringService.pollTransactions().mapErr((e) => {
-              this.logUtils.error(e);
-            });
+      this.contextProvider.getContext().map((ctx) => {
+        ctx.publicEvents.onAccountAdded.subscribe(() => {
+          this.monitoringService.pollTransactions().mapErr((e) => {
+            this.logUtils.error(e);
           });
         });
+      });
 
+      this.persistence.waitForFullRestore().map(() => {
         setInterval(() => {
           this.monitoringService.pollTransactions().mapErr((e) => {
             this.logUtils.error(e);
