@@ -1,10 +1,10 @@
+import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup";
+import Sidebar from "@extension-onboarding/components/Sidebar";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box } from "@material-ui/core";
 import React, { useEffect } from "react";
-import Sidebar from "@extension-onboarding/components/Sidebar";
-import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-
 
 const AutFlowLayout = () => {
   // TODO remove below code when extension navigations fixed
@@ -24,7 +24,7 @@ const AutFlowLayout = () => {
   }, []);
 
   return (
-    <Box display="flex" maxHeight="100vh" >
+    <Box display="flex" maxHeight="100vh">
       <Sidebar />
       <CampaignPopup />
       <Box
@@ -34,7 +34,9 @@ const AutFlowLayout = () => {
         flex={1}
         flexDirection="column"
       >
-        <Outlet />
+        <DashboardContextProvider>
+          <Outlet />
+        </DashboardContextProvider>
       </Box>
     </Box>
   );

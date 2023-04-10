@@ -1,5 +1,4 @@
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { memo, useEffect } from "react";
@@ -91,9 +90,7 @@ const DataDashboardLayout = () => {
           </Box>
         ))}
       </Box>
-      <DashboardContextProvider>
-        <Outlet />
-      </DashboardContextProvider>
+      <Outlet />
     </>
   );
 };
