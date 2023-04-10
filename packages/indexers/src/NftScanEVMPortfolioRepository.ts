@@ -37,7 +37,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return this.generateQueryConfig(accountAddress)
+    return this.generateQueryConfig(chainId, accountAddress)
       .andThen((requestConfig) => {
         return this.ajaxUtils.get<INftScanResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -66,23 +66,40 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
         token.name,
         chainId,
         undefined,
-        UnixTimestamp(Number(token.own_timestamp))
+        UnixTimestamp(Number(token.own_timestamp)),
       );
     });
 
     return items;
   }
 
+  private getUrl(chainId) {
+    switch (chainId) {
+      case "1284":
+        return "https://moonbeamapi.nftscan.com";
+      case "42161":
+        return "https://arbitrumapi.nftscan.com";
+      case "10":
+        return "https://optimismapi.nftscan.com";
+      default:
+        return "https://ethereumapi.nftscan.com";
+    }
+  }
+
   private generateQueryConfig(
+    chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
-    const url = urlJoinP("https://moonbeamapi.nftscan.com", [
+    const baseUrl = this.getUrl(chainId);
+    console.log("nftscan baseUrl: ", baseUrl);
+    const url = urlJoinP(baseUrl, [
       "api",
       "v2",
       "account",
       "own",
       accountAddress.toString() + "?erc_type=erc721",
     ]);
+    console.log("nftscan url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",

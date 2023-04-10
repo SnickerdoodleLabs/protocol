@@ -411,12 +411,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Arbitrum:
-              return alchemyRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Optimism:
-              return alchemyRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
