@@ -28,6 +28,7 @@ import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
@@ -94,6 +95,33 @@ export class AlchemyIndexer
     });
   }
 
+  private _getAlchemyNftConfig(
+    chain: ChainId,
+  ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      switch (chain) {
+        case ChainId(EChain.Arbitrum):
+          return okAsync({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getNFTs",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+          });
+        case ChainId(EChain.Optimism):
+          return okAsync({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getNFTs",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+          });
+        default:
+          return errAsync(
+            new AccountIndexingError("no alchemy app for chainId", chain),
+          );
+      }
+    });
+  }
+
   private getNativeBalance(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -114,16 +142,6 @@ export class AlchemyIndexer
           console.log("response: ", JSON.stringify(response));
           const resp = response as IAlchemyNativeBalanceResponse;
           const weiValue = parseInt(resp.result, 16).toString();
-          // console.log(
-          //   "response: ",
-          //   JSON.stringify(resp) + " and chainInfo: ",
-          //   chainInfo,
-          // );
-          // console.log(
-          //   "chainInfo: ",
-          //   chainInfo + " and (BigNumber.from(weiValue)).toString(): ",
-          //   BigNumber.from(weiValue).toString(),
-          // );
 
           const balance = new TokenBalance(
             EChainTechnology.EVM,
@@ -166,8 +184,47 @@ export class AlchemyIndexer
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], never> {
-    return okAsync([]);
+  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+    const chainInfo = getChainInfoByChainId(chainId);
+    return ResultUtils.combine([
+      this._getAlchemyNftConfig(chainId),
+      this.configProvider.getConfig(),
+    ]).andThen(([alchemySettings, config]) => {
+      console.log("alchemySettings: ", alchemySettings);
+      const url = urlJoinP(
+        config.alchemyEndpoints[chainInfo.name.toString()],
+        ["getNFTs"],
+        {
+          owner: accountAddress,
+        },
+      );
+
+      return this.ajaxUtils
+        .get<alchemyNftResponse>(new URL(url))
+        .andThen((response) => {
+          console.log("response: ", response);
+          return okAsync([]);
+
+          // const items: EVMNFT[] = response.result.map((token) => {
+          //   return new EVMNFT(
+          //     EVMContractAddress(token.token_address),
+          //     BigNumberString(token.token_id),
+          //     token.contract_type,
+          //     EVMAccountAddress(token.owner_of),
+          //     TokenUri(token.token_uri),
+          //     { raw: token.metadata },
+          //     BigNumberString(token.amount),
+          //     token.name,
+          //     chainId,
+          //     BlockNumber(Number(token.block_number)),
+          //     undefined,
+          //   );
+          // });
+
+          // // const nfts: EVMNFT[] = [];
+          // return okAsync(items);
+        });
+    });
   }
 }
 
@@ -182,4 +239,44 @@ interface alchemyAjaxSettings {
   jsonrpc: string;
   method: string;
   params: string[];
+}
+
+interface alchemyNftResponse {
+  blockHash: number;
+  ownedNfts: alchemyNft[];
+  totalCount: number;
+}
+
+interface alchemyNft {
+  balance: string;
+  contract: {
+    address: string;
+  };
+  contractMetadata: {
+    contractDeployer: string;
+    deployedBlockNumber: number;
+    name: string;
+    openSea: string;
+    symbol: string;
+    tokenType: string;
+    totalSupply: string;
+  };
+  description: string;
+  id: {
+    tokenId: string;
+    tokenMetadata: {
+      tokenType: string;
+    };
+  };
+  media: string;
+  metadata: {
+    attributes: string;
+    description: string;
+    external_url: string;
+    image: string;
+    name: string;
+  };
+  timeLastUpdated: string;
+  title: string;
+  tokenUri: string;
 }

@@ -10,6 +10,7 @@ export interface IAccountNFTs {
   getEtherscanNftRepository(): ResultAsync<IEVMNftRepository, never>;
   getNftScanRepository(): ResultAsync<IEVMNftRepository, never>;
   getPoapRepository(): ResultAsync<IEVMNftRepository, never>;
+  getAlchemyTokens(): ResultAsync<IEVMNftRepository, never>;
 }
 
 export const IAccountNFTsType = Symbol.for("IAccountNFTs");
