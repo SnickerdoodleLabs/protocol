@@ -131,8 +131,6 @@ export class MoralisEVMPortfolioRepository
       );
     });
 
-    console.log("Ethereum Items: ", items);
-
     if (response.cursor == null || response.cursor == "") {
       return okAsync(items);
     }

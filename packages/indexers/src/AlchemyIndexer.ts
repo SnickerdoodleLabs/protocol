@@ -71,23 +71,23 @@ export class AlchemyIndexer
 
   private _getAlchemyConfig(
     chain: ChainId,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log("within _getAlchemyConfig: ", chain);
       switch (chain) {
         case ChainId(EChain.Arbitrum):
           return okAsync({
             id: 0,
             jsonrpc: "2.0",
             method: "eth_getBalance",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+            params: [accountAddress, "latest"],
           });
         case ChainId(EChain.Optimism):
           return okAsync({
             id: 0,
             jsonrpc: "2.0",
             method: "eth_getBalance",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+            params: [accountAddress, "latest"],
           });
         default:
           return errAsync(
@@ -99,6 +99,7 @@ export class AlchemyIndexer
 
   private _getAlchemyNftConfig(
     chain: ChainId,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       switch (chain) {
@@ -107,14 +108,14 @@ export class AlchemyIndexer
             id: 0,
             jsonrpc: "2.0",
             method: "eth_getNFTs",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+            params: [accountAddress, "latest"],
           });
         case ChainId(EChain.Optimism):
           return okAsync({
             id: 0,
             jsonrpc: "2.0",
             method: "eth_getNFTs",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+            params: [accountAddress, "latest"],
           });
         default:
           return errAsync(
@@ -130,7 +131,7 @@ export class AlchemyIndexer
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     const chainInfo = getChainInfoByChainId(chainId);
     return ResultUtils.combine([
-      this._getAlchemyConfig(chainId),
+      this._getAlchemyConfig(chainId, accountAddress),
       this.configProvider.getConfig(),
     ]).andThen(([alchemySettings, config]) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
@@ -141,7 +142,6 @@ export class AlchemyIndexer
           },
         })
         .andThen((response) => {
-          console.log("response: ", JSON.stringify(response));
           const resp = response as IAlchemyNativeBalanceResponse;
           const weiValue = parseInt(resp.result, 16).toString();
 
@@ -154,9 +154,6 @@ export class AlchemyIndexer
             BigNumberString(weiValue),
             chainInfo.nativeCurrency.decimals,
           );
-
-          console.log("balance: ", balance);
-
           return okAsync(balance);
         });
     });
@@ -177,7 +174,6 @@ export class AlchemyIndexer
       this.getNonNativeBalance(chainId, accountAddress),
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
-      console.log("nativeBalance: ", nativeBalance);
       return [nativeBalance];
       //   return [nativeBalance, ...nonNativeBalance];
     });
@@ -189,10 +185,9 @@ export class AlchemyIndexer
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     const chainInfo = getChainInfoByChainId(chainId);
     return ResultUtils.combine([
-      this._getAlchemyNftConfig(chainId),
+      this._getAlchemyNftConfig(chainId, accountAddress),
       this.configProvider.getConfig(),
     ]).andThen(([alchemySettings, config]) => {
-      console.log("alchemySettings: ", alchemySettings);
       const url = urlJoinP(
         config.alchemyEndpoints[chainInfo.name.toString()],
         ["getNFTs"],
@@ -204,7 +199,6 @@ export class AlchemyIndexer
       return this.ajaxUtils
         .get<alchemyNftResponse>(new URL(url))
         .andThen((response) => {
-          console.log("response: ", response);
           const items: EVMNFT[] = response.ownedNfts.map((nft) => {
             return new EVMNFT(
               EVMContractAddress(nft.contract.address),
@@ -220,7 +214,6 @@ export class AlchemyIndexer
               undefined,
             );
           });
-          console.log("items: ", items);
           return okAsync(items);
         });
     });
