@@ -127,8 +127,8 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
             display="flex"
           >
             <Typography style={{ fontSize: 12, color: "white" }}>
-              {walletProvider.accountAddress.slice(0, 2)}..
-              {walletProvider.accountAddress.slice(-1)}
+              {walletProvider.accountInfo.sourceAccountAddress.slice(0, 2)}..
+              {walletProvider.accountInfo.sourceAccountAddress.slice(-1)}
             </Typography>
           </Box>
         );
@@ -157,18 +157,21 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
               {linkedAccounts?.map((account) => {
                 return (
                   <MenuItem
-                    key={account.accountAddress}
-                    value={account.accountAddress}
+                    key={account.accountInfo.sourceAccountAddress}
+                    value={account.accountInfo.sourceAccountAddress}
                   >
                     <Box display="flex" alignItems="center">
                       <Box>
                         <AccountIdentIcon
-                          accountAddress={account.accountAddress}
+                          accountAddress={
+                            account.accountInfo.sourceAccountAddress
+                          }
                         />
                       </Box>
                       <Typography className={classes.accountAddressText}>
-                        {account.accountAddress.slice(0, 5)} ................
-                        {account.accountAddress.slice(-4)}
+                        {account.accountInfo.sourceAccountAddress.slice(0, 5)}{" "}
+                        ................
+                        {account.accountInfo.sourceAccountAddress.slice(-4)}
                       </Typography>
                     </Box>
                   </MenuItem>

@@ -105,7 +105,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
             .andThen((signature) => {
               if (
                 !linkedAccounts?.find(
-                  (linkedAccount) => linkedAccount.accountAddress === account,
+                  (linkedAccount) => linkedAccount.accountInfo.sourceAccountAddress === account,
                 )
               ) {
                 // use it for metadata

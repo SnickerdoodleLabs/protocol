@@ -31,14 +31,16 @@ const AccountCard = ({
         {linkedAccounts?.length ? (
           linkedAccounts?.map?.((account, index) => (
             <AccountCardItem
-              key={account.accountAddress}
+              key={account.accountInfo.sourceAccountAddress}
               useBg={index % 2 === 0}
               account={account}
               buttonText={buttonText}
               onSelect={() => {
-                onSelect(account.accountAddress);
+                onSelect(account.accountInfo.sourceAccountAddress);
               }}
-              isSelected={account.accountAddress === receivingAddress}
+              isSelected={
+                account.accountInfo.sourceAccountAddress === receivingAddress
+              }
             />
           ))
         ) : (
