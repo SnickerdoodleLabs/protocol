@@ -1,5 +1,6 @@
 import {
   ClickData,
+  ISDQLTimestampRange,
   PersistenceError,
   SiteVisit,
   URLString,
@@ -20,7 +21,7 @@ export interface IBrowsingDataRepository {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   // return a map of URLs
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitsMap(timestampRange ?:ISDQLTimestampRange): ResultAsync<Map<URLString, number>, PersistenceError>;
 }
 
 export const IBrowsingDataRepositoryType = Symbol.for(

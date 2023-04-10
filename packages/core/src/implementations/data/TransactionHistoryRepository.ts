@@ -12,9 +12,9 @@ import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   VolatileStorageMetadata,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import {
-  ERecordKey,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   IVolatileCursor,
@@ -177,12 +177,7 @@ export class TransactionHistoryRepository
 
     return ResultUtils.combine(
       transactions.map((tx) => {
-        const metadata = new VolatileStorageMetadata<ChainTransaction>(
-          EBackupPriority.NORMAL,
-          tx,
-          ChainTransaction.CURRENT_VERSION,
-        );
-        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, metadata);
+        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
       }),
     ).andThen(() => okAsync(undefined));
   }
@@ -211,8 +206,6 @@ export class TransactionHistoryRepository
         "timestamp",
         undefined,
         "prev",
-        undefined,
-        EBackupPriority.NORMAL,
       )
       .andThen((cursor) => {
         const filter = new TransactionFilter([chainId], [address]);
@@ -240,13 +233,7 @@ export class TransactionHistoryRepository
     return ResultUtils.combine(
       chains.map((chain) => {
         return this.persistence
-          .getAllKeys(
-            ERecordKey.TRANSACTIONS,
-            "chainId",
-            chain,
-            undefined,
-            EBackupPriority.NORMAL,
-          )
+          .getAllKeys(ERecordKey.TRANSACTIONS, "chainId", chain)
           .andThen((keys) => {
             return okAsync([chain, keys.length]);
           });

@@ -45,24 +45,22 @@ export const controlChainInformation = chainConfig.get(
   controlChainId,
 ) as ControlChainInformation;
 
-export const modelAliases = {
-  definitions: {
-    backupIndex:
-      "kjzl6cwe1jw149f06c8o6hgro45rerad83swxqn5nrijb4i271uc1g5dybjjk22",
-  },
-  schemas: {
-    BackupIndex:
-      "ceramic://k3y52l7qbv1frxm8elgkbtatgwkukhh7f3he8h6jarqy8szuq39x96heksob9hqtc",
-    DataWalletBackup:
-      "ceramic://k3y52l7qbv1frxmf8dp0byvefkkj7j9f4hztn82r85lmpsrln5195njzlaw6zq680",
-  },
-  tiles: {},
-};
-
 export const defaultInsightPlatformBaseUrl = URLString(
   "http://localhost:3000/v0",
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
+
+const discordConfig = {
+  clientId: "1089994449830027344",
+  clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+  oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+  oauthRedirectUrl: URLString("https://localhost:9005/data-dashboard/social-media-data"),
+  accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+  refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+  dataAPIUrl: URLString("https://discord.com/api"),
+  iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+  pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
+};
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
@@ -82,7 +80,6 @@ export const testCoreConfig = new CoreConfig(
   "nftScan api key",
   "poap api key",
   URLString("http://dnsServerAddress"),
-  modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
   new Map(),
@@ -93,6 +90,8 @@ export const testCoreConfig = new CoreConfig(
   "(localhost|chrome:\/\/)",
   false,
   300000,
+  1000,
+  discordConfig,
 );
 
 // #endregion

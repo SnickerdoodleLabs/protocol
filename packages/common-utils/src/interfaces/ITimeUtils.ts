@@ -1,9 +1,11 @@
-import { UnixTimestamp } from "@snickerdoodlelabs/objects";
+import {
+  MillisecondTimestamp,
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
 
 export interface ITimeUtils {
   getUnixNow(): UnixTimestamp;
-  getUnixNowMS(): UnixTimestamp;
-  getISO8601TimeString(time: number): string;
+  getISO8601TimeString(time: MillisecondTimestamp): string;
 }
 
 export const ITimeUtilsType = Symbol.for("ITimeUtils");

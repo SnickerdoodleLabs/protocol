@@ -33,20 +33,6 @@ services:
     networks:
       - internal
 
-  ceramic:
-    image: ceramicnetwork/js-ceramic:2.7.0-rc.2
-    ports:
-      - 7007:7007
-    volumes:
-      - ./.ceramic/config/daemon.config.json:/root/.ceramic/daemon.config.json
-      - ./.ceramic/logs:/root/.ceramic/logs
-      - ./.ceramic/statestore:/root/.ceramic/statestore
-    env_file: docker-compose.env
-    networks:
-      - internal
-    depends_on:
-      - ipfs
-
 networks:
   internal:
 

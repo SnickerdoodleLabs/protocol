@@ -21,6 +21,9 @@ import {
   TokenAddress,
   PagingRequest,
   MarketplaceTag,
+  BearerAuthToken,
+  SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -172,4 +175,11 @@ export interface ISetReceivingAddressParams {
 
 export interface IGetReceivingAddressParams {
   contractAddress?: EVMContractAddress;
+}
+
+export interface IInitializeDiscordUser {
+  code: OAuthAuthorizationCode;
+}
+export interface IUnlinkDiscordAccount {
+  discordProfileId: SnowflakeID;
 }
