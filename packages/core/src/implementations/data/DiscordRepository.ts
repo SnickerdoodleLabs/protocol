@@ -13,9 +13,9 @@ import {
   DiscordGuildProfileAPIResponse,
   DiscordOAuth2TokensAPIResponse,
   DiscordProfile,
-  DiscordProfileAPIResponse,
   DiscordRefreshToken,
   ESocialType,
+  Integer,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PersistenceError,
@@ -23,6 +23,7 @@ import {
   SocialPrimaryKey,
   UnixTimestamp,
   URLString,
+  Username,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -287,4 +288,13 @@ export class DiscordRepository implements IDiscordRepository {
       })
       .map(() => {});
   }
+}
+
+interface DiscordProfileAPIResponse {
+  id: SnowflakeID;
+  username: Username;
+  display_name: string | null;
+  avatar: string | null;
+  discriminator: string;
+  flags: Integer;
 }
