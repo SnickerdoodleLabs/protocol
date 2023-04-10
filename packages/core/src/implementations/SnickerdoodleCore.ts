@@ -873,7 +873,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccountBalances();
+    return accountService.getAccountBalances(chains, accounts);
   }
 
   public getAccountNFTs(
@@ -883,7 +883,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<WalletNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccountNFTs();
+    return accountService.getAccountNFTs(chains, accounts);
   }
 
   public getTransactionValueByChain(
