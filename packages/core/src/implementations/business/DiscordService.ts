@@ -25,10 +25,15 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities";
 
 @injectable()
 export class DiscordService implements IDiscordService {
   public constructor(
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDiscordRepositoryType) public discordRepo: IDiscordRepository,
   ) {}
@@ -52,7 +57,12 @@ export class DiscordService implements IDiscordService {
   public unlink(
     userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
-    return this.discordRepo.deleteProfile(userProfileId);
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.discordRepo.deleteProfile(userProfileId),
+    ]).map(([context]) => {
+      context.publicEvents.onDiscordProfileUnlinked.next(userProfileId);
+    });
   }
 
   public isAuthTokenValid(
@@ -134,13 +144,18 @@ export class DiscordService implements IDiscordService {
       })
       .andThen(([userProfile, guildProfiles]) => {
         return ResultUtils.combine([
+          this.contextProvider.getContext(),
           this.discordRepo.upsertUserProfile(userProfile),
           this.discordRepo.upsertGuildProfiles(
-            this.addDiscordProfileIdToGuildProfiles(guildProfiles, userProfile.id),
+            this.addDiscordProfileIdToGuildProfiles(
+              guildProfiles,
+              userProfile.id,
+            ),
           ),
-        ]);
-      })
-      .map(() => {});
+        ]).map(([context]) => {
+          context.publicEvents.onDiscordProfileLinked.next(userProfile.id);
+        });
+      });
   }
 
   protected addDiscordProfileIdToGuildProfiles(
