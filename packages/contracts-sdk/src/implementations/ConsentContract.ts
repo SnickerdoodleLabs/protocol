@@ -677,6 +677,34 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
+  public getLatestTokenIdByOptInAddress(
+    optInAddress: EVMAccountAddress,
+  ): ResultAsync<TokenId | null, ConsentContractError> {
+    return this.queryFilter(
+      this.filters.Transfer(null, optInAddress),
+      undefined,
+      undefined,
+    ).map((logsEvents) => {
+      if (logsEvents.length == 0) {
+        return null;
+      }
+
+      const latestOptinEvent = logsEvents.reduce(
+        (latestEvent, logEvent) =>
+          logEvent.blockNumber > latestEvent.blockNumber
+            ? logEvent
+            : latestEvent,
+        logsEvents[0],
+      );
+
+      if (latestOptinEvent.args && latestOptinEvent.args.tokenId) {
+        return TokenId(latestOptinEvent.args.tokenId);
+      }
+
+      return null;
+    });
+  }
+
   public disableOpenOptIn(): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.disableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,

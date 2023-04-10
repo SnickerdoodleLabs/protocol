@@ -1,14 +1,20 @@
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { IpfsCID, SDQLQuery } from "@snickerdoodlelabs/objects";
 import {
   avalanche3SchemaStr,
   IQueryObjectFactory,
   QueryObjectFactory,
+  SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 
-import { SDQLQueryWrapperMocks } from "./SDQLQueryWrapperMocks";
-
+const queryCID = IpfsCID("0");
 export class QueryObjectFactoryMocks {
-  public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalanche3SchemaStr);
+  public timeUtils = new TimeUtils();
+  public sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(this.timeUtils);
+
+  public schema = this.sdqlQueryWrapperFactory.makeWrapper(
+    new SDQLQuery(queryCID, avalanche3SchemaStr),
+  );
   factory(): IQueryObjectFactory {
     return new QueryObjectFactory();
   }

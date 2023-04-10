@@ -1,26 +1,11 @@
 import {
-  AjaxError,
   BlockchainProviderError,
-  Invitation,
-  DataPermissions,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  ConsentError,
-  DomainName,
-  EInvitationStatus,
-  EVMContractAddress,
-  MinimalForwarderContractError,
-  PersistenceError,
-  UninitializedError,
-  PageInvitation,
-  IPFSError,
-  IOpenSeaMetadata,
   ConsentFactoryContractError,
-  IpfsCID,
-  HexString32,
-  Signature,
-  TokenId,
+  EvaluationError,
+  EVMContractAddress,
   MarketplaceListing,
+  PossibleReward,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -37,6 +22,11 @@ export interface IMarketplaceService {
     number,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export const IMarketplaceServiceType = Symbol.for("IMarketplaceService");

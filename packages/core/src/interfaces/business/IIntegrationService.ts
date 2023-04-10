@@ -3,6 +3,10 @@ import {
   PersistenceError,
   EDataWalletPermission,
   UnauthorizedError,
+  PEMEncodedRSAPublicKey,
+  KeyGenerationError,
+  JsonWebToken,
+  InvalidSignatureError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -27,6 +31,18 @@ export interface IIntegrationService {
     domain: DomainName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
+
+  getTokenVerificationPublicKey(
+    domain: DomainName,
+  ): ResultAsync<PEMEncodedRSAPublicKey, PersistenceError | KeyGenerationError>;
+
+  getBearerToken(
+    nonce: string,
+    domain: DomainName,
+  ): ResultAsync<
+    JsonWebToken,
+    InvalidSignatureError | PersistenceError | KeyGenerationError
+  >;
 }
 
 export const IIntegrationServiceType = Symbol.for("IIntegrationService");

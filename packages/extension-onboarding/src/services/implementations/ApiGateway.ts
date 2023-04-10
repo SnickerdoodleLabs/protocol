@@ -21,7 +21,7 @@ import {
 import {
   INFTMetadataRepository,
   IPIIRepository,
-} from "@extension-onboarding/services/interfaces/data";
+} from "@extension-onboarding/services/interfaces/data/index.js";
 import { ApiGatewayConfig } from "@extension-onboarding/services/interfaces/objects";
 
 export class ApiGateway {
