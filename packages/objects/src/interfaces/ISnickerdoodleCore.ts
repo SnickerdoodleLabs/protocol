@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   Invitation,
   DataPermissions,
@@ -22,6 +20,11 @@ import {
   AdSignature,
   AESEncryptedString,
   PossibleReward,
+  PagingRequest,
+  PagedResponse,
+  DiscordProfile,
+  DiscordGuildProfile,
+  DataWalletBackup,
 } from "@objects/businessObjects";
 import {
   EChain,
@@ -38,12 +41,14 @@ import {
   ConsentError,
   ConsentFactoryContractError,
   CrumbsContractError,
+  DiscordError,
   EvaluationError,
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   KeyGenerationError,
   MinimalForwarderContractError,
+  OAuthError,
   PersistenceError,
   QueryFormatError,
   SiftContractError,
@@ -51,7 +56,6 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
@@ -61,6 +65,7 @@ import {
   AdSurfaceId,
   AESKey,
   Age,
+  BearerAuthToken,
   BackupFileName,
   ChainId,
   CountryCode,
@@ -78,12 +83,16 @@ import {
   IpfsCID,
   JsonWebToken,
   LanguageCode,
+  MarketplaceTag,
+  OAuthAuthorizationCode,
   PEMEncodedRSAPublicKey,
   SHA256Hash,
   Signature,
+  SnowflakeID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -94,16 +103,27 @@ import {
  */
 
 export interface ICoreMarketplaceMethods {
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean, // make it optional in interface, = true here
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<MarketplaceListing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
-  getListingsTotal(): ResultAsync<
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   /**
@@ -120,6 +140,49 @@ export interface ICoreMarketplaceMethods {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
+/**
+ ************************ MAINTENANCE HAZARD ***********************************************
+ Whenever you add or change a method in this class, you also need to look at and probably update
+ ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
+ clones this interface, with some methods removed or added, but all of them updated to remove
+ sourceDomain (which is managed by the integration package)
+ */
+export interface ICoreDiscordMethods {
+  /**
+   * This method will upsert a users discord profile and
+   * discord guild data given a token which will come from discord api
+   * @param authToken
+   */
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
+
+  /**
+   * This method will return url for the discord api
+   * call to be made. If user gives consent token can be used
+   * to initialize the user
+   */
+  installationUrl(): ResultAsync<URLString, OAuthError>;
+
+  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  /**
+   * This method will remove a users discord profile and
+   * discord guild data given their profile id
+   * @param discordProfileId
+   */
+  unlink(
+    discordProfileId: SnowflakeID,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
+}
+
+/**
+ ************************ MAINTENANCE HAZARD ***********************************************
+ Whenever you add or change a method in this class, you also need to look at and probably update
+ ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
+ clones this interface, with some methods removed or added, but all of them updated to remove
+ sourceDomain (which is managed by the integration package)
+ */
 export interface ICoreIntegrationMethods {
   /**
    * This method grants the requested permissions to the wallet to the specified domain name.
@@ -263,7 +326,7 @@ export interface ISnickerdoodleCore {
    * and establishes the actual address of the data wallet. After getUnlockMessage(),
    * this should be the second method you call on the Snickerdoodle Core. If this is the first
    * time using this account + unlock message, the Data Wallet will be created.
-   * If this is a subsequent time, you will regain access to the exisitng wallet.
+   * If this is a subsequent time, you will regain access to the existing wallet.
    * For an existing wallet with multiple connected accounts, you can unlock with a
    * signature from any of the accounts (form factor can decide), but you cannot
    * add a new account via unlock, use addAccount() to link a new account once you
@@ -447,7 +510,7 @@ export interface ISnickerdoodleCore {
 
   /**
    * This method will actually burn a user's consent token. This data wallet will no longer
-   * recieve notifications of queries for this cohort.
+   * received notifications of queries for this cohort.
    * @param consentContractAddress
    */
   leaveCohort(
@@ -571,14 +634,14 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
-  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
   fetchBackup(
     backupHeader: string,
     sourceDomain?: DomainName,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  ): ResultAsync<DataWalletBackup[], PersistenceError>;
 
   getEarnedRewards(
     sourceDomain?: DomainName | undefined,
@@ -740,6 +803,7 @@ export interface ISnickerdoodleCore {
 
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;
+  discord: ICoreDiscordMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -16,6 +16,9 @@ import {
   AccountAddress,
   IConsentCapacity,
   PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -34,19 +37,23 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.core.marketplace
-      .getMarketplaceListings(count, headAt)
+      .getMarketplaceListingsByTag(pagingReq, tag, filterActive)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
-  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.core.marketplace.getListingsTotal().mapErr((error) => {
+
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.core.marketplace.getListingsTotalByTag(tag).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

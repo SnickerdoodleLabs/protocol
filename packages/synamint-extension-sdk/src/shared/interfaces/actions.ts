@@ -19,6 +19,11 @@ import {
   AccountAddress,
   ChainId,
   TokenAddress,
+  PagingRequest,
+  MarketplaceTag,
+  BearerAuthToken,
+  SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -149,9 +154,14 @@ export interface IGetTokenInfoParams {
   contractAddress: TokenAddress | null;
 }
 
-export interface IGetMarketplaceListingsParams {
-  count?: number;
-  headAt?: number;
+export interface IGetMarketplaceListingsByTagParams {
+  pagingReq: PagingRequest;
+  tag: MarketplaceTag;
+  filterActive?: boolean;
+}
+
+export interface IGetListingsTotalByTagParams {
+  tag: MarketplaceTag;
 }
 
 export interface ISetDefaultReceivingAddressParams {
@@ -174,4 +184,10 @@ export interface IGetConsentCapacityParams {
 export interface IGetPossibleRewardsParams {
   contractAddresses: EVMContractAddress[];
   timeoutMs?: number;
+}
+export interface IInitializeDiscordUser {
+  code: OAuthAuthorizationCode;
+}
+export interface IUnlinkDiscordAccount {
+  discordProfileId: SnowflakeID;
 }

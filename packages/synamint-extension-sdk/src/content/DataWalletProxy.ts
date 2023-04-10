@@ -28,6 +28,15 @@ import {
   MarketplaceListing,
   IConsentCapacity,
   PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
+  ISdlDiscordMethods,
+  BearerAuthToken,
+  DiscordProfile,
+  DiscordGuildProfile,
+  SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -93,10 +102,29 @@ const initConnection = () => {
 initConnection();
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
+  discord: ISdlDiscordMethods;
+
   constructor() {
     super();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
+    this.discord = {
+      initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
+        return coreGateway.discord.initializeUserWithAuthorizationCode(code);
+      },
+      installationUrl: () => {
+        return coreGateway.discord.installationUrl();
+      },
+      getUserProfiles: () => {
+        return coreGateway.discord.getUserProfiles();
+      },
+      getGuildProfiles: () => {
+        return coreGateway.discord.getGuildProfiles();
+      },
+      unlink: (discordProfileId: SnowflakeID) => {
+        return coreGateway.discord.unlink(discordProfileId);
+      },
+    };
     eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
@@ -118,15 +146,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   ): ResultAsync<AccountAddress, unknown> {
     return coreGateway.getReceivingAddress(contractAddress);
   }
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, unknown> {
-    return coreGateway.getMarketplaceListings(count, headAt);
+
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, unknown> {
+    return coreGateway.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<number, unknown> {
-    return coreGateway.getListingsTotal();
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotalByTag(tag);
   }
 
   public getTokenMarketData(

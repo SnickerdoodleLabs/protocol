@@ -32,6 +32,10 @@ import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders";
+import {
+  getProviderList as getSocialMediaProviderList,
+  ISocialMediaWrapper,
+} from "@extension-onboarding/services/socialMediaProviders";
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -64,6 +68,7 @@ export interface IAppContext {
   earnedRewards: EarnedReward[];
   updateOptedInContracts: () => void;
   optedInContracts: EVMContractAddress[];
+  socialMediaProviderList: ISocialMediaWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
   appMode: EAppModes | undefined;
@@ -85,6 +90,9 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [providerList, setProviderList] = useState<IProvider[]>([]);
+  const [socialMediaProviderList, setSocialMediaProviderList] = useState<
+    ISocialMediaWrapper[]
+  >([]);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
@@ -251,9 +259,15 @@ export const AppContextProvider: FC = ({ children }) => {
       checkDataWalletAddressAndInitializeApp();
       const providerList = getProviderList();
       setProviderList(providerList);
+      const socialMediaProviderList = getSocialMediaProviderList();
+      setSocialMediaProviderList(socialMediaProviderList);
       setIsLoading(false);
     }, 500);
   }, []);
+
+  const getSocialMediaAccounts = () => {
+    //return window.sdlDataWallet.get
+  };
 
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
@@ -292,6 +306,7 @@ export const AppContextProvider: FC = ({ children }) => {
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(),
         providerList,
+        socialMediaProviderList,
         isSDLDataWalletDetected,
         linkedAccounts,
         getUserAccounts,

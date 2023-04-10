@@ -8,6 +8,7 @@ export const PERMISSION_NAMES = {
   [EWalletDataType.EVMTransactions]: "Transaction History",
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
+  [EWalletDataType.Discord]: "Discord",
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
@@ -24,7 +25,7 @@ export const PERMISSION_TEXT_NAMES = {
 
 export const PERMISSIONS = [
   {
-    title: "Web2 Data",
+    title: "Personal Info",
     dataTypes: [
       EWalletDataType.Gender,
       EWalletDataType.Birthday,
@@ -33,13 +34,17 @@ export const PERMISSIONS = [
     ],
   },
   {
-    title: "Web3 Data",
+    title: "Crypto Accounts",
     dataTypes: [
       EWalletDataType.EVMTransactions,
       EWalletDataType.AccountBalances,
       EWalletDataType.AccountNFTs,
       // EWalletDataType.LatestBlockNumber,
     ],
+  },
+  {
+    title: "Social Data",
+    dataTypes: [EWalletDataType.Discord],
   },
 ];
 
@@ -54,4 +59,6 @@ export const PERMISSION_DESCRIPTIONS = {
     "Fungible tokens you own across different blockchain networks",
   [EWalletDataType.AccountNFTs]:
     "NFT projects you interact with and/or currently own accross different blockchain networks",
+  [EWalletDataType.Discord]:
+    "Server name,  server icon, server ownership information",
 };

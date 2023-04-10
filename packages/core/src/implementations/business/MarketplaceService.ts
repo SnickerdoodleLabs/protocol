@@ -5,10 +5,10 @@ import {
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
+  IMarketplaceRepositoryType,
+  IMarketplaceRepository,
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IMarketplaceRepository,
-  IMarketplaceRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -17,7 +17,6 @@ import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
   ConsentFactoryContractError,
   EvaluationError,
   EVMContractAddress,
@@ -26,6 +25,10 @@ import {
   RequestForData,
   UninitializedError,
   MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
+  ConsentContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -45,21 +48,37 @@ export class MarketplaceService implements IMarketplaceService {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive = true,
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<MarketplaceListing>,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
-    return this.marketplaceRepo.getMarketplaceListings(count, headAt);
+    return this.marketplaceRepo.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
-    return this.marketplaceRepo.getListingsTotal();
+    return this.marketplaceRepo.getListingsTotalByTag(tag);
+  }
+
+  public getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    UninitializedError | BlockchainProviderError | ConsentContractError
+  > {
+    return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
 
   public getPossibleRewards(
@@ -164,7 +183,7 @@ export class MarketplaceService implements IMarketplaceService {
     timeoutMs: number,
   ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
     return this.sdqlQueryRepo
-      .getByCID(queryCid, timeoutMs)
+      .getSDQLQueryByCID(queryCid, timeoutMs)
       .andThen((sdqlQuery) => {
         if (sdqlQuery == null) {
           return okAsync([]);

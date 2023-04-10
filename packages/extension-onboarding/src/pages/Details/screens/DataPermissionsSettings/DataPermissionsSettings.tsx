@@ -10,8 +10,8 @@ const DataPermissionsSettings: FC = () => {
     <Box>
       <Typography className={classes.title}>Data Permissions</Typography>
       <Typography className={classes.description}>
-        You can set permission for every data that you have in your data wallet
-        individually.
+        Consent to share aggregate, anonymized insights derived from your data.
+        You can set permissions individually, for each item.
       </Typography>
       <PermissionSelection />
     </Box>

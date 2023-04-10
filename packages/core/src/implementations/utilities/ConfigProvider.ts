@@ -16,20 +16,6 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
-const modelAliases = {
-  definitions: {
-    backupIndex:
-      "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
-  },
-  schemas: {
-    DataWalletBackup:
-      "ceramic://k3y52l7qbv1fryeqpnu3xx9st37h6soh7cosvpskp59r6wj8ag4zl2n3u3283xrsw",
-    BackupIndex:
-      "ceramic://k3y52l7qbv1fryk2h9xhsf2mai9wsiga2eld67pn8vgo3845yad3bn9plleei53pc",
-  },
-  tiles: {},
-};
-
 /**
  * The config provider is a stash for data that is determined dynamically
  * but does not change during runtime.
@@ -66,6 +52,18 @@ export class ConfigProvider
       );
     }
 
+    const discordConfig = {
+      clientId: "1093307083102887996",
+      clientSecret: "w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK",
+      oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+      oauthRedirectUrl: URLString("spa-url"),
+      accessTokenUrl: URLString("https://discord.com/api/oauth2/token"),
+      refreshTokenUrl: URLString("https://discord.com/api/oauth2/token"),
+      dataAPIUrl: URLString("https://discord.com/api"),
+      iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+      pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
+    };
+
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
@@ -79,13 +77,12 @@ export class ConfigProvider
       5000, // polling interval balance
       5000, // polling interval nfts
       60000, // backup interval
-      50, // backup chunk size target
+      5, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
       "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
-      modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
       new Map([
@@ -111,7 +108,10 @@ export class ConfigProvider
       },
       10000,
       "(localhost|chrome://)",
-      false,
+      false, // enable backup encryption
+      300000,
+      120000, // backup placement heartbeat
+      discordConfig,
     );
   }
 
@@ -189,11 +189,16 @@ export class ConfigProvider
     this.config.requestForDataCheckingFrequency =
       overrides.requestForDataCheckingFrequency ??
       this.config.requestForDataCheckingFrequency;
-    this.config.ceramicModelAliases =
-      overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
     this.config.domainFilter =
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =
       overrides.enableBackupEncryption ?? false;
+
+    const discordConfig = {
+      ...this.config.discord,
+      ...overrides.discordOverrides,
+    };
+
+    this.config.discord = discordConfig;
   }
 }

@@ -12,6 +12,9 @@ import {
   AccountAddress,
   IConsentCapacity,
   PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -75,10 +78,15 @@ export interface IInvitationService {
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
 
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError>;
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
@@ -90,8 +98,6 @@ export interface IInvitationService {
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError>;
-
-  getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");
