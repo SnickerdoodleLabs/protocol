@@ -15,21 +15,39 @@ import * as td from "testdouble";
 import { DiscordService } from "@core/implementations/business/DiscordService";
 import { IDiscordService } from "@core/interfaces/business";
 import { IDiscordRepository } from "@core/interfaces/data/index.js";
-import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import {
+  IConfigProvider,
+  IContextProvider,
+} from "@core/interfaces/utilities/index.js";
 import { discordProfiles } from "@core-tests/mock/mocks/SocialDataMock";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
+import { CoreContext } from "@core/interfaces/objects";
 
 class DiscordServiceMocks {
   public configProvider: IConfigProvider;
+  public contextProvider: IContextProvider;
   public discordRepo: IDiscordRepository;
   public timeUtils: ITimeUtils;
   public constructor() {
     this.configProvider = new ConfigProviderMock();
+    this.contextProvider = td.object<IContextProvider>();
     this.discordRepo = td.object<IDiscordRepository>();
     this.timeUtils = new TimeUtils();
+
+    td.when(this.contextProvider.getContext()).thenReturn(
+      okAsync(
+        new CoreContext(
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+        ),
+      ),
+    );
 
     td.when(this.discordRepo.getUserProfiles()).thenReturn(
       this.getDiscordProfiles(),
@@ -53,7 +71,11 @@ class DiscordServiceMocks {
   }
 
   public factory(): IDiscordService {
-    return new DiscordService(this.configProvider, this.discordRepo);
+    return new DiscordService(
+      this.contextProvider,
+      this.configProvider,
+      this.discordRepo,
+    );
   }
 }
 
@@ -71,6 +93,6 @@ describe("DiscordService tests", () => {
     expect(result).toBeDefined();
     expect(result.isOk()).toBeTruthy();
     const authTokens = result._unsafeUnwrap();
-    expect(authTokens).toEqual(expected);
+    expect(authTokens.map(token => token.accessToken)).toEqual(expected);
   });
 });

@@ -130,7 +130,7 @@ export class DiscordRepository implements IDiscordRepository {
               response.username,
               response.display_name,
               response.discriminator,
-              response.avatar,
+              response.avatar ?? null,
               response.flags,
               oauth2Tokens,
             ),

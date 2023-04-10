@@ -93,7 +93,7 @@ export class SocialDataMock {
             profile.name,
             profile.owner,
             profile.permissions,
-            URLString(profile.icon ?? ""),
+            profile.icon ? URLString(profile.icon) : null,
             null,
           ),
       ),
