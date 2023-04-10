@@ -11,11 +11,9 @@ import {
   DiscordError,
   DiscordGuildProfile,
   DiscordGuildProfileAPIResponse,
-  DiscordOAuth2TokensAPIResponse,
   DiscordProfile,
   DiscordRefreshToken,
   ESocialType,
-  Integer,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PersistenceError,
@@ -23,7 +21,6 @@ import {
   SocialPrimaryKey,
   UnixTimestamp,
   URLString,
-  Username,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -41,6 +38,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider.js";
+import { DiscordOAuth2TokensAPIResponse, DiscordProfileAPIResponse } from "@core/interfaces/data/apis";
 
 @injectable()
 export class DiscordRepository implements IDiscordRepository {
@@ -288,13 +286,4 @@ export class DiscordRepository implements IDiscordRepository {
       })
       .map(() => {});
   }
-}
-
-interface DiscordProfileAPIResponse {
-  id: SnowflakeID;
-  username: Username;
-  display_name: string | null;
-  avatar: string | null;
-  discriminator: string;
-  flags: Integer;
 }
