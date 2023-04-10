@@ -22,6 +22,8 @@ import {
   HexString,
   EVMNFT,
   IEVMNftRepository,
+  BlockNumber,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
@@ -203,26 +205,23 @@ export class AlchemyIndexer
         .get<alchemyNftResponse>(new URL(url))
         .andThen((response) => {
           console.log("response: ", response);
-          return okAsync([]);
-
-          // const items: EVMNFT[] = response.result.map((token) => {
-          //   return new EVMNFT(
-          //     EVMContractAddress(token.token_address),
-          //     BigNumberString(token.token_id),
-          //     token.contract_type,
-          //     EVMAccountAddress(token.owner_of),
-          //     TokenUri(token.token_uri),
-          //     { raw: token.metadata },
-          //     BigNumberString(token.amount),
-          //     token.name,
-          //     chainId,
-          //     BlockNumber(Number(token.block_number)),
-          //     undefined,
-          //   );
-          // });
-
-          // // const nfts: EVMNFT[] = [];
-          // return okAsync(items);
+          const items: EVMNFT[] = response.ownedNfts.map((nft) => {
+            return new EVMNFT(
+              EVMContractAddress(nft.contract.address),
+              BigNumberString(nft.id.tokenId),
+              nft.contractMetadata.tokenType,
+              EVMAccountAddress(accountAddress),
+              TokenUri(nft.tokenUri.gateway),
+              { raw: undefined },
+              BigNumberString(nft.balance),
+              nft.title,
+              chainId,
+              BlockNumber(Number(nft.contractMetadata.deployedBlockNumber)),
+              undefined,
+            );
+          });
+          console.log("items: ", items);
+          return okAsync(items);
         });
     });
   }
@@ -250,13 +249,13 @@ interface alchemyNftResponse {
 interface alchemyNft {
   balance: string;
   contract: {
-    address: string;
+    address: EVMContractAddress;
   };
   contractMetadata: {
     contractDeployer: string;
     deployedBlockNumber: number;
     name: string;
-    openSea: string;
+    // openSea: string;
     symbol: string;
     tokenType: string;
     totalSupply: string;
@@ -268,7 +267,7 @@ interface alchemyNft {
       tokenType: string;
     };
   };
-  media: string;
+  media: alchemyMedia[];
   metadata: {
     attributes: string;
     description: string;
@@ -278,5 +277,16 @@ interface alchemyNft {
   };
   timeLastUpdated: string;
   title: string;
-  tokenUri: string;
+  tokenUri: {
+    gateway: string;
+    raw: string;
+  };
+}
+
+interface alchemyMedia {
+  bytes: number;
+  format: string;
+  gateway: string;
+  raw: string;
+  thumbnail: string;
 }

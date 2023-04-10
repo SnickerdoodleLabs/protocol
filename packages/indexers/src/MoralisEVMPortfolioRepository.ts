@@ -127,9 +127,11 @@ export class MoralisEVMPortfolioRepository
         token.name,
         chainId,
         BlockNumber(Number(token.block_number)),
-        undefined
+        undefined,
       );
     });
+
+    console.log("Ethereum Items: ", items);
 
     if (response.cursor == null || response.cursor == "") {
       return okAsync(items);
