@@ -98,7 +98,7 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
       const chainInfo = getChainInfoByChainId(chainId);
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
       return this.ajaxUtils
-        .post<IAlchemyNativeBalanceResponse>(
+        .post<IOKXNativeBalanceResponse>(
           new URL(url),
           JSON.stringify(alchemySettings),
           {
@@ -144,7 +144,7 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
   }
 }
 
-interface IAlchemyNativeBalanceResponse {
+interface IOKXNativeBalanceResponse {
   status: string;
   message: string;
   result: HexString;
