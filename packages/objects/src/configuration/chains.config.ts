@@ -269,7 +269,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Arbitrum,
-      new NativeCurrencyInformation("ETH", 18, "ETH", "arbitrum"),
+      new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
       EChainType.Mainnet,
       "https://api.arbiscan.io/api",
       getExplorerUrl,
@@ -287,7 +287,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Optimism,
-      new NativeCurrencyInformation("Ether", 18, "Ether", "optimism"),
+      new NativeCurrencyInformation("OP", 18, "OP", "optimism"),
       EChainType.Mainnet,
       "https://api-optimistic.etherscan.io/api",
       getExplorerUrl,

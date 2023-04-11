@@ -23,7 +23,7 @@ export const tokenInfoObj: ITokenInfo = {
   BNB: { displayName: "Binance", iconSrc: binanceCircle },
   GLMR: { displayName: "Moonbeam", iconSrc: moonbeamCircle },
   ARB: { displayName: "Arbitrum", iconSrc: arbitrumCircle },
-  OPT: { displayName: "Optimism", iconSrc: optimismCircle },
+  OP: { displayName: "Optimism", iconSrc: optimismCircle },
 };
 
 export const stableCoins = [
@@ -39,5 +39,5 @@ export const stableCoins = [
   "BNB",
   "GLMR",
   "ARB",
-  "OPT",
+  "OP",
 ];
