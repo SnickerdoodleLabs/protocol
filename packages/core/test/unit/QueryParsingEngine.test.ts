@@ -141,7 +141,7 @@ class QueryParsingMocks {
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
-      this.socialRepo
+      this.socialRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
     this.adContentRepository = new AdContentRepository(
@@ -155,9 +155,9 @@ class QueryParsingMocks {
     // td.when(this.snickerDoodleCore.getAge()).thenReturn(okAsync(Age(10)));
     td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(10)));
     td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
-    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
-      okAsync(new Map()),
-    );
+    td.when(
+      this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
+    ).thenReturn(okAsync(new Map()));
     td.when(
       this.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));

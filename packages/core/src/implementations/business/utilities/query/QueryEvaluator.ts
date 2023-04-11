@@ -79,8 +79,6 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    console.log("QueryEvaluator eval query:");
-    console.log(query);
     if (query instanceof AST_BlockchainTransactionQuery) {
       return this.blockchainTransactionQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {

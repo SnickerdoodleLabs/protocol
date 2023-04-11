@@ -87,23 +87,7 @@ export class OptInCampaign extends Prompt {
                   );
                 }
                 // Accept with no conditions
-                return this.core.acceptInvitation(
-                  invitation.invitation,
-                  DataPermissions.createWithPermissions([
-                    EWalletDataType.Age,
-                    // EWalletDataType.Gender,
-                    // EWalletDataType.GivenName,
-                    // EWalletDataType.FamilyName,
-                    // EWalletDataType.Birthday,
-                    EWalletDataType.Location,
-                    EWalletDataType.SiteVisits,
-                    // EWalletDataType.EVMTransactions,
-                    // EWalletDataType.AccountBalances,
-                    EWalletDataType.AccountNFTs,
-                    // EWalletDataType.LatestBlockNumber,
-                    EWalletDataType.Discord,
-                  ]),
-                );
+                return this.core.acceptInvitation(invitation.invitation, null);
               })
               .map(() => {
                 console.log(
