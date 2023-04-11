@@ -27,6 +27,7 @@ import {
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
   IDemographicDataRepository,
+  ISocialRepository,
 } from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
@@ -42,6 +43,7 @@ export class ASTMocks {
   public txRepo = td.object<ITransactionHistoryRepository>();
   public queryObjectFactory = td.object<IQueryObjectFactory>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
+  public socialRepo = td.object<ISocialRepository>();
 
   public queryFactories: IQueryFactories;
   protected queryWrapperFactory: ISDQLQueryWrapperFactory;
@@ -76,6 +78,7 @@ export class ASTMocks {
       this.demoRepo,
       this.browsingRepo,
       this.txRepo,
+      this.socialRepo
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }

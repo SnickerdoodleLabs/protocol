@@ -208,7 +208,6 @@ export class MonitoringService implements IMonitoringService {
     return this.persistence.pollBackups();
   }
   public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
-    this.logUtils.debug("Polling discord");
     return this.discordService.poll();
   }
   
