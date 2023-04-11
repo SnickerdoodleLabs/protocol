@@ -1,15 +1,22 @@
 import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import Carousel from "@extension-onboarding/components/Carousel";
-
 import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Typography } from "@material-ui/core";
-import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import {
+  ETag,
+  EVMContractAddress,
+  MarketplaceListing,
+} from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
 interface IPopularRewardsProgramsProps {
   tag?: ETag;
+  listings: MarketplaceListing[];
 }
-const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({ tag }) => {
+const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({
+  tag,
+  listings,
+}) => {
   const sectionClasses = useSectionStyles();
 
   const responsive = {
@@ -39,15 +46,13 @@ const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({ tag }) => {
       </Box>
       <Box className={sectionClasses.carouselWrapper}>
         <Carousel responsive={responsive}>
-          {[
-            "0x6303c6f490CF742F6EaEDD560945f16E42136aCE",
-            "0xc336E4ff9271f4B4B2B9E514D4B73c066e3Fc1d6",
-            "0x9031E8903f3192158046f72639db900d73b33359",
-          ].map((item) => (
-            <Box mr={3}>
+          {listings.map((item) => (
+            <Box key={JSON.stringify(item)} mr={3}>
               <DefaultCampaignItem
                 tag={tag}
-                consentContractAddress={item as EVMContractAddress}
+                consentContractAddress={
+                  item.consentContract as EVMContractAddress
+                }
               />
             </Box>
           ))}

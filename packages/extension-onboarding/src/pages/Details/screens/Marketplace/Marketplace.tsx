@@ -8,6 +8,7 @@ import {
   RecommendedRewardPrograms,
 } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
 import { useMarketplaceStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/Marketplace.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   Collapse,
@@ -17,9 +18,19 @@ import {
   Typography,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { ETag } from "@snickerdoodlelabs/objects";
-import React, { useState } from "react";
+import {
+  ETag,
+  MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
+} from "@snickerdoodlelabs/objects";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
+
+declare const window: IWindowWithSdlDataWallet;
+
 const Marketplace = () => {
   const classes = useMarketplaceStyles();
   const navigate = useNavigate();
@@ -29,6 +40,68 @@ const Marketplace = () => {
   const [isBannerVisible, setIsBannerVisible] = useState<boolean>(
     !localStorage.getItem(LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION),
   );
+  const [listings, setListings] =
+    useState<Record<ETag, PagedResponse<MarketplaceListing>>>();
+
+  useEffect(() => {
+    ResultUtils.combine(
+      Object.values(ETag).map((tag) =>
+        window.sdlDataWallet
+          ?.getMarketplaceListingsByTag(
+            new PagingRequest(1, 50),
+            tag as MarketplaceTag,
+          )
+          .map(
+            (response) =>
+              ({ [tag]: response } as Record<
+                ETag,
+                PagedResponse<MarketplaceListing>
+              >),
+          ),
+      ),
+    ).map((responses) => {
+      const structuredItems = responses.reduce((acc, item) => {
+        acc = { ...acc, ...item };
+        return acc;
+      }, {} as Record<ETag, PagedResponse<MarketplaceListing>>);
+      setListings(structuredItems);
+    });
+  }, []);
+
+  const {
+    featured,
+    popular,
+    recommended,
+    isLoading,
+    isEmpty,
+  }: {
+    featured?: MarketplaceListing[];
+    popular?: MarketplaceListing[];
+    recommended?: MarketplaceListing[];
+    isEmpty: boolean;
+    isLoading: boolean;
+  } = useMemo(() => {
+    if (!listings) return { isLoading: true, isEmpty: false };
+    const listingObj = Object.values(listings).reduce(
+      (acc, item) => {
+        acc.featured = [...acc.featured, ...item.response.slice(0, 1)];
+        acc.popular = [...acc.popular, ...item.response.slice(1, 2)];
+        acc.recommended = [...acc.recommended, ...item.response.slice(2, -1)];
+
+        return acc;
+      },
+      {
+        featured: [] as MarketplaceListing[],
+        popular: [] as MarketplaceListing[],
+        recommended: [] as MarketplaceListing[],
+      },
+    );
+    return {
+      ...listingObj,
+      isLoading: false,
+      isEmpty: !(Object.values(listingObj).flat().length > 0),
+    };
+  }, [listings]);
 
   return (
     <>
@@ -116,15 +189,21 @@ const Marketplace = () => {
         </Box>
       </Box>
 
-      <Box mt={6}>
-        <FeaturedRewardsPrograms />
-      </Box>
-      <Box mt={6}>
-        <PopularRewardsPrograms />
-      </Box>
-      <Box mt={6}>
-        <RecommendedRewardPrograms />
-      </Box>
+      {featured && featured.length > 0 && (
+        <Box mt={6}>
+          <FeaturedRewardsPrograms listings={featured} />
+        </Box>
+      )}
+      {popular && popular.length > 0 && (
+        <Box mt={6}>
+          <PopularRewardsPrograms listings={popular} />
+        </Box>
+      )}
+      {recommended && recommended.length > 0 && (
+        <Box mt={6}>
+          <RecommendedRewardPrograms listings={recommended} />
+        </Box>
+      )}
     </>
   );
 };

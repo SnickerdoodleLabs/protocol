@@ -2,14 +2,20 @@ import { FeaturedCampaignItem } from "@extension-onboarding/components/CampaignI
 import Carousel from "@extension-onboarding/components/Carousel";
 import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Typography } from "@material-ui/core";
-import { ETag, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import {
+  ETag,
+  EVMContractAddress,
+  MarketplaceListing,
+} from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 
 interface IFeaturedRewardsProgramsProps {
   tag?: ETag;
+  listings: MarketplaceListing[];
 }
 const FeaturedRewardsPrograms: FC<IFeaturedRewardsProgramsProps> = ({
   tag,
+  listings,
 }) => {
   const sectionClasses = useSectionStyles();
 
@@ -40,16 +46,13 @@ const FeaturedRewardsPrograms: FC<IFeaturedRewardsProgramsProps> = ({
       </Box>
       <Box className={sectionClasses.carouselWrapper}>
         <Carousel responsive={responsive}>
-          {[
-            "0xe9C9575E969a3f917a9CAF38a59859fB8E200B20",
-            "0xeA730e52735aa6568daEB7d56E5e44f0B4d30E0c",
-            "0xc336E4ff9271f4B4B2B9E514D4B73c066e3Fc1d6",
-            "0x9031E8903f3192158046f72639db900d73b33359",
-          ].map((item) => (
-            <Box>
+          {listings.map((item) => (
+            <Box key={JSON.stringify(item)}>
               <FeaturedCampaignItem
                 tag={tag}
-                consentContractAddress={item as EVMContractAddress}
+                consentContractAddress={
+                  item.consentContract as EVMContractAddress
+                }
               />
             </Box>
           ))}

@@ -182,7 +182,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
           )}
 
           <Box marginLeft="auto">
-            <Box display="inline" mr={!isSubscribed ? 2 : 0}>
+            <Box display="inline">
               <Button
                 onClick={() => {
                   navigate(navigationPath, {
@@ -196,14 +196,9 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                 }}
                 buttonType="v2"
               >
-                Program Details
+                Details
               </Button>
             </Box>
-            {!isSubscribed && (
-              <Button onClick={handleSubscribeButton} buttonType="v2Primary">
-                Subscribe
-              </Button>
-            )}
           </Box>
         </Box>
       </Box>

@@ -9,8 +9,14 @@ import {
   RecommendedRewardPrograms,
 } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
-import { ETag } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
+import {
+  ETag,
+  MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
+} from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import {
   useParams,
   matchPath,
@@ -18,11 +24,16 @@ import {
   useNavigate,
   generatePath,
 } from "react-router-dom";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+
+declare const window: IWindowWithSdlDataWallet;
+
 const CategoryDetail = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { tag } = params ?? {};
   const classes = useStyles();
+  const [listings, setListings] = useState<PagedResponse<MarketplaceListing>>();
   const marketplaceClasses = useMarketplaceStyles();
   const handleCategoryClick = (tag: ETag) => {
     navigate(generatePath(EPaths.MARKETPLACE_TAG_DETAIL, { tag }));
@@ -34,6 +45,50 @@ const CategoryDetail = () => {
       .map((str) => str.charAt(0).toUpperCase() + str.slice(1))
       .join(" ") ??
     "";
+
+  useEffect(() => {
+    window.sdlDataWallet
+      ?.getMarketplaceListingsByTag(
+        new PagingRequest(1, 50),
+        tag as MarketplaceTag,
+      )
+      .map((response) => setListings(response));
+  }, [tag]);
+
+  const {
+    featured,
+    popular,
+    recommended,
+    isLoading,
+    isEmpty,
+  }: {
+    featured?: MarketplaceListing[];
+    popular?: MarketplaceListing[];
+    recommended?: MarketplaceListing[];
+    isLoading: boolean;
+    isEmpty: boolean;
+  } = useMemo(() => {
+    if (!listings) return { isLoading: true, isEmpty: false };
+    const res: {
+      featured: MarketplaceListing[];
+      popular: MarketplaceListing[];
+      recommended: MarketplaceListing[];
+      isLoading: boolean;
+      isEmpty: boolean;
+    } = {
+      featured: [],
+      popular: [],
+      recommended: [],
+      isLoading: false,
+      isEmpty: !(listings.totalResults > 0),
+    };
+
+    res.featured = [...res.featured, ...listings.response.slice(0, 1)];
+    res.popular = [...res.popular, ...listings.response.slice(1, 2)];
+    res.recommended = [...res.recommended, ...listings.response.slice(2, -1)];
+    return res;
+  }, [listings]);
+
   return (
     <Box>
       <Breadcrumb currentPathName={tagDisplayName} />
@@ -70,15 +125,30 @@ const CategoryDetail = () => {
           </Select>
         </Box>
       </Box>
-      {/* <Box mt={6}>
-        <FeaturedRewardsPrograms tag={tag as ETag | undefined} />
-      </Box> */}
-      <Box mt={6}>
-        <PopularRewardsPrograms tag={tag as ETag | undefined} />
-      </Box>
-      <Box mt={6}>
-        <RecommendedRewardPrograms tag={tag as ETag | undefined} />
-      </Box>
+      {featured && featured.length > 0 && (
+        <Box mt={6}>
+          <FeaturedRewardsPrograms
+            listings={featured}
+            tag={tag as ETag | undefined}
+          />
+        </Box>
+      )}
+      {popular && popular.length > 0 && (
+        <Box mt={6}>
+          <PopularRewardsPrograms
+            listings={popular}
+            tag={tag as ETag | undefined}
+          />
+        </Box>
+      )}
+      {recommended && recommended.length > 0 && (
+        <Box mt={6}>
+          <RecommendedRewardPrograms
+            listings={recommended}
+            tag={tag as ETag | undefined}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

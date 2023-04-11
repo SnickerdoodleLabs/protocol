@@ -43,28 +43,6 @@ const DetailsButton = withStyles({
   },
 })(MaterialButton);
 
-const SubscribeButton = withStyles({
-  root: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.016)",
-    color: "#FFFFFF",
-    border: "1px solid",
-    borderColor: "#B9B6D3",
-    borderRadius: 4,
-    fontStyle: "normal",
-    fontFamily: "Public Sans",
-    fontWeight: 400,
-    height: 22,
-    fontSize: "12px",
-    lineHeight: "22px",
-    textTransform: "none",
-    backgroundColor: "#8079B4",
-    "&:hover": {
-      backgroundColor: "#8079B4",
-    },
-  },
-})(MaterialButton);
 const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
   consentContractAddress,
   tag,
@@ -132,7 +110,7 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
               </Box>
             )}
             <Box display="flex" marginLeft="auto">
-              <Box display="inline" mr={isSubscribed ? 0 : 1}>
+              <Box display="inline">
                 <DetailsButton
                   onClick={() => {
                     navigate(navigationPath, {
@@ -149,11 +127,6 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
                   Details
                 </DetailsButton>
               </Box>
-              {!isSubscribed && (
-                <SubscribeButton onClick={handleSubscribeButton}>
-                  Subscribe
-                </SubscribeButton>
-              )}
             </Box>
           </Box>
         </Box>

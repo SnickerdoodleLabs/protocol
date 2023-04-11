@@ -157,7 +157,12 @@ const CampaignItem: FC<ICampaignItemProps> = ({
           )}
 
           <Box marginLeft="auto">
-            <Box display="inline" mr={!onLeaveClick && isSubscribed ? 0 : 2}>
+            {onLeaveClick && isSubscribed && (
+              <Button onClick={onLeaveClick} buttonType="v2Danger">
+                Unsubscribe
+              </Button>
+            )}
+            <Box display="inline" ml={!onLeaveClick && isSubscribed ? 0 : 2}>
               <Button
                 onClick={() => {
                   navigate(navigationPath, {
@@ -174,16 +179,6 @@ const CampaignItem: FC<ICampaignItemProps> = ({
                 Details
               </Button>
             </Box>
-            {onLeaveClick && isSubscribed && (
-              <Button onClick={onLeaveClick} buttonType="v2Danger">
-                Unsubscribe
-              </Button>
-            )}
-            {!isSubscribed && (
-              <Button onClick={handleSubscribeButton} buttonType="v2Primary">
-                Subscribe
-              </Button>
-            )}
           </Box>
         </Box>
       </Box>

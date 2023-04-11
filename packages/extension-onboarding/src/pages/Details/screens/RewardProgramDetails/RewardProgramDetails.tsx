@@ -400,7 +400,7 @@ const RewardProgramDetails: FC = () => {
           />
         </Box>
       )}
-      <Box mt={3}>
+      {/* <Box mt={3}>
         <ConsentOwnersOtherPrograms consentContract={consentContractAddress} />
       </Box>
       {tag && (
@@ -412,7 +412,7 @@ const RewardProgramDetails: FC = () => {
         <Box mt={3}>
           <ProgramHistory rewards={collectedRewards} />
         </Box>
-      )}
+      )} */}
     </>
   );
 };
