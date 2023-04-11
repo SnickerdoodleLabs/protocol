@@ -206,6 +206,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
             [platform.toString(), "history"],
             { date: dateString, localization: false },
           );
+          console.log("Coingecko url: ", url);
           return this.ajaxUtils
             .get<ITokenHistoryResponse>(new URL(url))
             .map((resp) => this.getPrice(resp, config.quoteCurrency));

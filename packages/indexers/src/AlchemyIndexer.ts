@@ -87,6 +87,7 @@ export class AlchemyIndexer
     });
   }
 
+  /* Fetching ETH Balance from Chains */
   private getNativeBalance(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -114,19 +115,12 @@ export class AlchemyIndexer
         .andThen((response) => {
           console.log("Alchemy native response: ", response);
           const weiValue = parseInt(response.result, 16).toString();
-          let nativeTicker = "";
-          if (chainId == ChainId(42161)) {
-            nativeTicker = TickerSymbol("ARB");
-          }
-          if (chainId == ChainId(10)) {
-            nativeTicker = TickerSymbol("OP");
-          }
           chainInfo.nativeCurrency.symbol;
 
           const balance = new TokenBalance(
             EChainTechnology.EVM,
-            TickerSymbol(chainInfo.nativeCurrency.symbol),
-            chainId,
+            TickerSymbol("ETH"),
+            ChainId(1), // this should not be the case, we should be adding by symbols
             null,
             accountAddress,
             BigNumberString(weiValue),
