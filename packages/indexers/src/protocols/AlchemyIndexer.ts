@@ -1,4 +1,7 @@
-import { Metaplex } from "@metaplex-foundation/js";
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@indexers/IIndexerConfigProvider.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -6,51 +9,58 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EVMTransaction,
-  IEVMTransactionRepository,
   EChainTechnology,
   TickerSymbol,
   getChainInfoByChainId,
-  EVMTransactionHash,
-  UnixTimestamp,
-  getEtherscanBaseURLForChain,
-  PolygonTransaction,
-  EPolygonTransactionType,
   AccountIndexingError,
   AjaxError,
   ChainId,
   TokenBalance,
-  URLString,
-  SolanaTokenAddress,
   BigNumberString,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
-  getChainInfoByChain,
   EVMAccountAddress,
   IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
   HexString,
+  EVMNFT,
+  IEVMNftRepository,
+  BlockNumber,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
-import { Connection } from "@solana/web3.js";
-import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
+import { TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
-import converter from "hex2dec";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import {
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
-
-export class AlchemyIndexer implements IEVMAccountBalanceRepository {
-  private _metadataCache = new Map<
-    `${EVMContractAddress}-${ChainId}`,
-    TokenMetadataResponse
-  >();
+export class AlchemyIndexer
+  implements IEVMAccountBalanceRepository, IEVMNftRepository
+{
+  private _addressMapping = new Map<EVMContractAddress, TickerSymbol>([
+    [
+      EVMContractAddress("0x912ce59144191c1204e64559fe8253a0e49e6548"),
+      TickerSymbol("ARB"),
+    ],
+    [
+      EVMContractAddress("0x4200000000000000000000000000000000000042"),
+      TickerSymbol("OP"),
+    ],
+    [
+      EVMContractAddress("0x82af49447d8a07e3bd95bd0d56f35241523fbab1"),
+      TickerSymbol("WETH"),
+    ],
+    [
+      EVMContractAddress("0x4200000000000000000000000000000000000006"),
+      TickerSymbol("WETH"),
+    ],
+    [
+      EVMContractAddress("0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000"),
+      TickerSymbol("Ether"),
+    ],
+  ]);
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -76,55 +86,25 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
     });
   }
 
-  private _getAlchemyConfig(
-    chain: ChainId,
-  ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      console.log("Inside getAlchemyclient chain: ", chain);
-      switch (chain) {
-        case ChainId(EChain.Arbitrum):
-          return okAsync({
-            id: 0,
-            jsonrpc: "2.0",
-            method: "eth_getBalance",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
-          });
-        case ChainId(EChain.Polygon):
-          return okAsync({
-            id: 0,
-            jsonrpc: "2.0",
-            method: "eth_getBalance",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
-          });
-        case ChainId(EChain.Mumbai):
-          return okAsync({
-            id: 0,
-            jsonrpc: "2.0",
-            method: "eth_getBalance",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
-          });
-        default:
-          return errAsync(
-            new AccountIndexingError("no alchemy app for chainId", chain),
-          );
-      }
-    });
-  }
-
+  /* Fetching ETH Balance from Chains */
   private getNativeBalance(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this._getAlchemyConfig(chainId),
-      this.configProvider.getConfig(),
-    ]).andThen(([alchemySettings, config]) => {
-      const chainInfo = getChainInfoByChainId(chainId);
+    const chainInfo = getChainInfoByChainId(chainId);
+    return this.configProvider.getConfig().andThen((config) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      console.log("url: ", url);
+
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(
           new URL(url),
-          JSON.stringify(alchemySettings),
+          JSON.stringify({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: [accountAddress, "latest"],
+          }),
           {
             headers: {
               "Content-Type": `application/json;`,
@@ -132,18 +112,20 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
           },
         )
         .andThen((response) => {
-          const weiValue = parseInt(response.result, 16);
-          return okAsync(
-            new TokenBalance(
-              EChainTechnology.EVM,
-              TickerSymbol("ETH"),
-              chainId,
-              null,
-              accountAddress,
-              BigNumberString(BigNumber.from(weiValue).toString()),
-              18,
-            ),
+          console.log("Alchemy native response: ", response);
+          const weiValue = parseInt(response.result, 16).toString();
+          chainInfo.nativeCurrency.symbol;
+
+          const balance = new TokenBalance(
+            EChainTechnology.EVM,
+            TickerSymbol("ETH"),
+            ChainId(1), // this should not be the case, we should be adding by symbols
+            null,
+            accountAddress,
+            BigNumberString(weiValue),
+            chainInfo.nativeCurrency.decimals,
           );
+          return okAsync(balance);
         });
     });
   }
@@ -152,7 +134,51 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    const chainInfo = getChainInfoByChainId(chainId);
+    return this.configProvider.getConfig().andThen((config) => {
+      const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      console.log("url: ", url);
+
+      return this.ajaxUtils
+        .post<INonNativeReponse>(
+          new URL(url),
+          JSON.stringify({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "alchemy_getTokenBalances",
+            params: [accountAddress, "erc20"],
+          }),
+          {
+            headers: {
+              "Content-Type": `application/json`,
+            },
+          },
+        )
+        .andThen((response) => {
+          console.log("Alchemy non native response: ", response);
+          const balances = response.result.tokenBalances.map((entry) => {
+            const weiValue = parseInt(entry.tokenBalance, 16).toString();
+
+            let contractSymbol = this._addressMapping.get(
+              entry.contractAddress,
+            );
+            console.log("contractSymbol: ", contractSymbol);
+            if (!contractSymbol) {
+              contractSymbol = TickerSymbol("");
+            }
+            return new TokenBalance(
+              EChainTechnology.EVM,
+              contractSymbol,
+              chainId,
+              entry.contractAddress,
+              accountAddress,
+              BigNumberString(weiValue),
+              chainInfo.nativeCurrency.decimals,
+            );
+          });
+          return okAsync(balances);
+        });
+    });
   }
 
   public getBalancesForAccount(
@@ -163,9 +189,67 @@ export class AlchemyIndexer implements IEVMAccountBalanceRepository {
       this.getNonNativeBalance(chainId, accountAddress),
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+      // return [nativeBalance];
       return [nativeBalance, ...nonNativeBalance];
     });
   }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+    const chainInfo = getChainInfoByChainId(chainId);
+    return this.configProvider.getConfig().andThen((config) => {
+      const url = urlJoinP(
+        config.alchemyEndpoints[chainInfo.name.toString()],
+        ["getNFTs"],
+        {
+          owner: accountAddress,
+        },
+      );
+
+      return this.ajaxUtils
+        .get<alchemyNftResponse>(new URL(url))
+        .andThen((response) => {
+          const items: EVMNFT[] = response.ownedNfts.map((nft) => {
+            return new EVMNFT(
+              EVMContractAddress(nft.contract.address),
+              BigNumberString(nft.id.tokenId),
+              nft.contractMetadata.tokenType,
+              EVMAccountAddress(accountAddress),
+              TokenUri(nft.tokenUri.gateway),
+              { raw: undefined },
+              BigNumberString(nft.balance),
+              nft.title,
+              chainId,
+              BlockNumber(Number(nft.contractMetadata.deployedBlockNumber)),
+              undefined,
+            );
+          });
+          return okAsync(items);
+        });
+    });
+  }
+}
+
+interface INonNativeReponse {
+  jsonrpc: number;
+  id: number;
+  result: {
+    address: EVMAccountAddress;
+    tokenBalances: ITokenBalance[];
+  };
+}
+
+interface INativeReponse {
+  jsonrpc: number;
+  id: number;
+  result: HexString;
+}
+
+interface ITokenBalance {
+  contractAddress: EVMContractAddress;
+  tokenBalance: HexString;
 }
 
 interface IAlchemyNativeBalanceResponse {
@@ -179,4 +263,55 @@ interface alchemyAjaxSettings {
   jsonrpc: string;
   method: string;
   params: string[];
+}
+
+interface alchemyNftResponse {
+  blockHash: number;
+  ownedNfts: alchemyNft[];
+  totalCount: number;
+}
+
+interface alchemyNft {
+  balance: string;
+  contract: {
+    address: EVMContractAddress;
+  };
+  contractMetadata: {
+    contractDeployer: string;
+    deployedBlockNumber: number;
+    name: string;
+    // openSea: string;
+    symbol: string;
+    tokenType: string;
+    totalSupply: string;
+  };
+  description: string;
+  id: {
+    tokenId: string;
+    tokenMetadata: {
+      tokenType: string;
+    };
+  };
+  media: alchemyMedia[];
+  metadata: {
+    attributes: string;
+    description: string;
+    external_url: string;
+    image: string;
+    name: string;
+  };
+  timeLastUpdated: string;
+  title: string;
+  tokenUri: {
+    gateway: string;
+    raw: string;
+  };
+}
+
+interface alchemyMedia {
+  bytes: number;
+  format: string;
+  gateway: string;
+  raw: string;
+  thumbnail: string;
 }
