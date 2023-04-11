@@ -31,12 +31,12 @@ export interface IRoute {
 }
 
 export const routes: IRoute[] = [
-  {
-    icon: rewardsIcon,
-    title: "Rewards Marketplace",
-    path: EPaths.MY_REWARDS,
-    subroutes: null,
-  },
+  // {
+  //   icon: rewardsIcon,
+  //   title: "Rewards Marketplace",
+  //   path: EPaths.MY_REWARDS,
+  //   subroutes: null,
+  // },
   {
     icon: rewardsIcon,
     title: "Rewards Marketplace",
@@ -96,6 +96,7 @@ const Sidebar = () => {
           }}
           className={classes.button}
           mt={6}
+          minHeight={48}
           height={48}
           borderRadius={8}
           display="flex"
@@ -110,7 +111,7 @@ const Sidebar = () => {
             <AddIcon className={classes.linkAccountButtonIcon} />
           </Box>
           <Typography className={classes.linkAccountButtonText}>
-            Link account
+            Link Account
           </Typography>
         </Box>
         <Box mt={6} display="flex" flexDirection="column" width="100%">
@@ -150,11 +151,7 @@ const Sidebar = () => {
                   {/* <Box display="flex" mr={1.5}>
                     <img className={classes.mainRouteIcon} src={route.icon} />
                   </Box> */}
-                  <Typography
-                    className={clsx(classes.mainRouteText, {
-                      [classes.textActive]: isActive,
-                    })}
-                  >
+                  <Typography className={clsx(classes.routeText)}>
                     {route.title}
                   </Typography>
                   {subroutes?.length && (
@@ -184,10 +181,10 @@ const Sidebar = () => {
                               navigate(subroute.path);
                               setLastClickedIndex(index);
                             }}
-                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 2}
                           >
                             <Typography
-                              className={clsx(classes.subrouteText, {
+                              className={clsx(classes.routeText, {
                                 [classes.textActive]:
                                   subroute.path === location.pathname,
                               })}
@@ -204,7 +201,7 @@ const Sidebar = () => {
             );
           })}
         </Box>
-        <Box alignSelf="flex-start" marginTop="auto" mb={2} display="flex">
+        <Box alignSelf="flex-start" marginTop="auto" mb={1.5} display="flex">
           <Typography
             onClick={() => {
               window.open(SURVEY_URL, "_blank");
@@ -214,7 +211,7 @@ const Sidebar = () => {
             Survey
           </Typography>
         </Box>
-        <Box mb={2} width="100%" justifyContent="flex-start">
+        <Box mb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {
@@ -224,7 +221,7 @@ const Sidebar = () => {
             Contact Us
           </Typography>
         </Box>
-        <Box mb={2} width="100%" justifyContent="flex-start">
+        <Box mb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {
@@ -234,7 +231,7 @@ const Sidebar = () => {
             FAQ
           </Typography>
         </Box>
-        <Box pb={2.5} width="100%" justifyContent="flex-start">
+        <Box pb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {

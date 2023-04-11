@@ -1,35 +1,23 @@
+import Typography from "@extension-onboarding/components/Typography";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
-import { Box, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import React, { memo, useEffect } from "react";
+import clsx from "clsx";
+import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-
 const useStyles = makeStyles((theme) => ({
-  subtitle: {
-    fontFamily: "'Space Grotesk'",
-    fontStyle: "normal",
-    fontWeight: 400,
-    fontSize: "16px",
-    lineHeight: "24px",
-    color: "#232039",
-  },
-  title: {
-    fontFamily: "'Shrikhand'",
-    fontStyle: "italic",
-    fontWeight: 400,
-    fontSize: "30px",
-    lineHeight: "38px",
-    color: "#101828",
-  },
   link: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "18px",
     lineHeight: "28px",
     textAlign: "center",
     color: "#000000",
+  },
+  selected: {
+    fontWeight: 400,
   },
   linkWrapper: {
     cursor: "pointer",
@@ -57,9 +45,9 @@ const DataDashboardLayout = () => {
 
   return (
     <>
-      <Typography className={classes.title}>My Data Dashboard</Typography>
-      <Box mt={2}>
-        <Typography className={classes.subtitle}>
+      <Typography variant="pageTitle">My Data Dashboard</Typography>
+      <Box mt={1}>
+        <Typography variant="pageDescription">
           The dashboard is your command center. View, manage, and monetize your
           information from linked accounts. Link new accounts for more rewards.
           No one can see or access your personal Data Wallet information but
@@ -78,12 +66,18 @@ const DataDashboardLayout = () => {
             }}
           >
             <Box px={4} mb={1}>
-              <Typography className={classes.link}>{link.title}</Typography>
+              <Typography
+                className={clsx(classes.link, {
+                  [classes.selected]: location.pathname === link.path,
+                })}
+              >
+                {link.title}
+              </Typography>
             </Box>
             <Box
               display="flex"
               width="100%"
-              height="3px"
+              height="1px"
               bgcolor={
                 location.pathname === link.path ? "black" : "transparent"
               }

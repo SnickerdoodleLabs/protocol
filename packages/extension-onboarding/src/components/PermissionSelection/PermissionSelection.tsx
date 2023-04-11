@@ -1,11 +1,12 @@
+import { useStyles } from "@extension-onboarding/components/PermissionSelection/PermissionSelection.style";
 import Switch from "@extension-onboarding/components/Switch";
+import Typography from "@extension-onboarding/components/Typography";
 import {
   PERMISSIONS,
   PERMISSION_DESCRIPTIONS,
   PERMISSION_NAMES,
 } from "@extension-onboarding/constants/permissions";
 import usePermissionSettingsLogic from "@extension-onboarding/hooks/usePermissionSettingsLogic";
-import { useStyles } from "@extension-onboarding/components/PermissionSelection/PermissionSelection.style";
 import {
   Box,
   Divider,
@@ -13,7 +14,6 @@ import {
   Grid,
   Radio,
   RadioGroup,
-  Typography,
 } from "@material-ui/core";
 import React, { FC } from "react";
 
@@ -67,7 +67,13 @@ const PermissionSelection: FC<IPermissionSelection> = ({
                   {item.title}
                 </Typography>
               </Box>
-              <Box mb={7} border="1px solid #D9D9D9" p={4} borderRadius={8}>
+              <Box
+                bgcolor="#fff"
+                mb={5}
+                border="1px solid #D9D9D9"
+                p={4}
+                borderRadius={8}
+              >
                 <Grid container>
                   {item.dataTypes.map((dataType, index) => {
                     return (

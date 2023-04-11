@@ -29,7 +29,7 @@ const AutFlowLayout = () => {
     );
     return (
       authFlowRouteSettings[originalPath as EPaths] ?? {
-        bgColor: "#fff",
+        bgColor: "#FAFAFA",
         hideSidebar: false,
         removeDefaultPadding: false,
       }

@@ -12,7 +12,6 @@ import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 const Router: FC = () => {
   const { appMode } = useAppContext();
   const routes = useMemo(() => {
-   
     if (!appMode) {
       return null;
     }

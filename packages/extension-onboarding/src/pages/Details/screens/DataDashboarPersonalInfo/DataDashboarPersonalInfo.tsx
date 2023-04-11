@@ -1,10 +1,11 @@
 import Switch from "@extension-onboarding/components/Switch";
+import Typography from "@extension-onboarding/components/Typography";
 import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
 import usePermissionSettingsLogic from "@extension-onboarding/hooks/usePermissionSettingsLogic";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo/DataDashboarPersonalInfo.style";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
-import { Box, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState } from "react";
 
@@ -82,6 +83,7 @@ export default () => {
               }}
             />
             <Typography
+              className={classes.itemTitle}
               style={{
                 visibility: permissionForm.includes(item.dataType)
                   ? "visible"
