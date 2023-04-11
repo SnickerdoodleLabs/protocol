@@ -3,7 +3,9 @@ import {
   BlockchainProviderError,
   ConsentContractError,
   ConsentContractRepositoryError,
+  DataPermissions,
   EInvitationStatus,
+  EWalletDataType,
   PageInvitation,
   PersistenceError,
   UninitializedError,
@@ -85,7 +87,23 @@ export class OptInCampaign extends Prompt {
                   );
                 }
                 // Accept with no conditions
-                return this.core.acceptInvitation(invitation.invitation, null);
+                return this.core.acceptInvitation(
+                  invitation.invitation,
+                  DataPermissions.createWithPermissions([
+                    EWalletDataType.Age,
+                    // EWalletDataType.Gender,
+                    // EWalletDataType.GivenName,
+                    // EWalletDataType.FamilyName,
+                    // EWalletDataType.Birthday,
+                    EWalletDataType.Location,
+                    EWalletDataType.SiteVisits,
+                    // EWalletDataType.EVMTransactions,
+                    // EWalletDataType.AccountBalances,
+                    EWalletDataType.AccountNFTs,
+                    // EWalletDataType.LatestBlockNumber,
+                    EWalletDataType.Discord,
+                  ]),
+                );
               })
               .map(() => {
                 console.log(

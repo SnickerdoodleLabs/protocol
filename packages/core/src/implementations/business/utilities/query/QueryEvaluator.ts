@@ -168,6 +168,16 @@ export class QueryEvaluator implements IQueryEvaluator {
       case "social_discord":
         return this.socialRepo
           .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
+          .map((profiles) =>
+            profiles.map((profile) => {
+              return {
+                id: profile.id,
+                name: profile.name,
+                icon: profile.icon,
+                joinedAt: profile.joinedAt,
+              };
+            }),
+          )
           .map(SDQL_Return);
       default:
         return okAsync(result);
