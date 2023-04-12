@@ -14,6 +14,8 @@ import {
   TokenId,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
@@ -95,6 +97,31 @@ export class InvitationRepository implements IInvitationRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
+  }
+
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this.core
+      .getConsentCapacity(consentContractAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this.core.marketplace
+      .getPossibleRewards(contractAddresses, timeoutMs)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,

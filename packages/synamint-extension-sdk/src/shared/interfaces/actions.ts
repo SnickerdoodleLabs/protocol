@@ -177,6 +177,14 @@ export interface IGetReceivingAddressParams {
   contractAddress?: EVMContractAddress;
 }
 
+export interface IGetConsentCapacityParams {
+  contractAddress: EVMContractAddress;
+}
+
+export interface IGetPossibleRewardsParams {
+  contractAddresses: EVMContractAddress[];
+  timeoutMs?: number;
+}
 export interface IInitializeDiscordUser {
   code: OAuthAuthorizationCode;
 }

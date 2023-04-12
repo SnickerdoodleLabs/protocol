@@ -1,14 +1,36 @@
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 
+export const UI_SUPPORTED_PERMISSIONS = [
+  EWalletDataType.Gender,
+  EWalletDataType.Age,
+  EWalletDataType.Location,
+  EWalletDataType.SiteVisits,
+  EWalletDataType.EVMTransactions,
+  EWalletDataType.AccountBalances,
+  EWalletDataType.AccountNFTs,
+  EWalletDataType.Discord,
+];
+
 export const PERMISSION_NAMES = {
   [EWalletDataType.Gender]: "Gender",
-  [EWalletDataType.Birthday]: "Birthday",
-  [EWalletDataType.Location]: "Location",
-  [EWalletDataType.SiteVisits]: "Sites Visited",
+  [EWalletDataType.Age]: "Birthday",
+  [EWalletDataType.Location]: "Country",
+  [EWalletDataType.SiteVisits]: "Browser History",
   [EWalletDataType.EVMTransactions]: "Transaction History",
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
   [EWalletDataType.Discord]: "Discord",
+  // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
+};
+
+export const PERMISSION_TEXT_NAMES = {
+  [EWalletDataType.Gender]: "gender",
+  [EWalletDataType.Age]: "birthday",
+  [EWalletDataType.Location]: "country",
+  [EWalletDataType.SiteVisits]: "browser history",
+  [EWalletDataType.EVMTransactions]: "transaction history",
+  [EWalletDataType.AccountBalances]: "token balances",
+  [EWalletDataType.AccountNFTs]: "NFTs",
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
@@ -17,7 +39,7 @@ export const PERMISSIONS = [
     title: "Personal Info",
     dataTypes: [
       EWalletDataType.Gender,
-      EWalletDataType.Birthday,
+      EWalletDataType.Age,
       EWalletDataType.Location,
       EWalletDataType.SiteVisits,
     ],

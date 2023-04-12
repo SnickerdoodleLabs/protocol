@@ -10,6 +10,8 @@ import {
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
@@ -52,6 +54,17 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
 
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  >;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

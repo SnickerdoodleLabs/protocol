@@ -1,6 +1,7 @@
 import {
   DataWalletAddress,
   DataWalletBackupID,
+  EarnedReward,
   DomainName,
   EVMContractAddress,
   EVMTransaction,
@@ -29,6 +30,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
   public onBackupRestored: Subject<DataWalletBackupID>;
+  public onEarnedRewardsAdded: Subject<EarnedReward[]>;
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
   public onPermissionsRevoked: Subject<DomainName>;
@@ -47,6 +49,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onTokenBalanceUpdate = new Subject();
     this.onNftBalanceUpdate = new Subject();
     this.onBackupRestored = new Subject();
+    this.onEarnedRewardsAdded = new Subject();
     this.onPermissionsGranted = new Subject();
     this.onPermissionsRequested = new Subject();
     this.onPermissionsRevoked = new Subject();

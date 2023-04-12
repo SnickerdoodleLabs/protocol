@@ -135,6 +135,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import {
   IVolatileStorage,
@@ -368,6 +369,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         throw new Error("Unimplemented");
       },
     };
+  }
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getConsentCapacity(consentContractAddress);
   }
 
   public getConsentContractCID(

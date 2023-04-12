@@ -12,6 +12,7 @@ import {
   WalletNFT,
   SiteVisit,
   MarketplaceListing,
+  PossibleReward,
   PagingRequest,
   PagedResponse,
   DiscordProfile,
@@ -20,6 +21,7 @@ import {
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
 import {
   AccountAddress,
   Age,
@@ -172,6 +174,14 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
 
+  getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, JsonRpcError>;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
   discord: ISdlDiscordMethods;
 }
 

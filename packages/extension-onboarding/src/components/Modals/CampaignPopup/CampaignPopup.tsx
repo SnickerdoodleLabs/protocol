@@ -192,12 +192,15 @@ const CampaignPopup: FC = () => {
       .getApplyDefaultPermissionsOption()
       .map((option) => {
         if (option) {
-          acceptInvitation(
-            null,
-            invitationInfo.consentAddress!,
-            invitationInfo.tokenId,
-            invitationInfo.signature,
-          );
+          window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
+            acceptInvitation(
+              permissions,
+              invitationInfo.consentAddress!,
+              invitationInfo.tokenId,
+              invitationInfo.signature,
+            );
+          });
+
           return;
         }
         setModal({

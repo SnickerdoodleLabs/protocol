@@ -10,6 +10,8 @@ import {
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
   MarketplaceTag,
   PagingRequest,
   PagedResponse,
@@ -89,6 +91,25 @@ export class InvitationService implements IInvitationService {
     SnickerDoodleCoreError
   > {
     return this.invitationRepository.getAcceptedInvitationsCID();
+  }
+
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this.invitationRepository.getConsentCapacity(consentContractAddress);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationRepository.getPossibleRewards(
+      contractAddresses,
+      timeoutMs,
+    );
   }
 
   public getInvitationMetadataByCID(

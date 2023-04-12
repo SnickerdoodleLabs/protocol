@@ -58,6 +58,7 @@ import {
 } from "@objects/errors";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
 import {
   AccountAddress,
   AdKey,
@@ -512,6 +513,13 @@ export interface ISnickerdoodleCore {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+  >;
+
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getAcceptedInvitations(

@@ -81,7 +81,8 @@ export * from "@objects/primitives/UUID";
 export * from "@objects/primitives/Version";
 export * from "@objects/primitives/VolatileStorageKey";
 
-export * from "@objects/primitives/QueryTypes.js";
+export * from "@objects/primitives/QueryTypePermissionMap";
+export * from "@objects/primitives/QueryTypes";
 
 export * from "@objects/primitives/MarketplaceTag";
 export * from "@objects/primitives/Web2Credential";

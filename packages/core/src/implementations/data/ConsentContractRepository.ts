@@ -29,6 +29,7 @@ import {
   Signature,
   TokenId,
   TokenUri,
+  IConsentCapacity,
   UninitializedError,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -65,10 +66,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getAvailableOptInCount(
+  public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    number,
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
     return this.getConsentContract(consentContractAddress)
@@ -83,10 +84,16 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
         // Crazy sanity check
         if (available < 0) {
-          return 0;
+          return {
+            maxCapacity,
+            availableOptInCount: 0,
+          };
         }
 
-        return available;
+        return {
+          maxCapacity,
+          availableOptInCount: available,
+        };
       });
   }
 

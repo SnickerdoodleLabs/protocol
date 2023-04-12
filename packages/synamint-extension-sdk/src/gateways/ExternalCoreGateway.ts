@@ -30,6 +30,8 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
@@ -80,6 +82,8 @@ import {
   IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
   IGetListingsTotalByTagParams,
   IInitializeDiscordUser,
   IUnlinkDiscordAccount,
@@ -490,5 +494,26 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_RECEIVING_ACCOUNT, {
       contractAddress,
     } as IGetReceivingAddressParams);
+  }
+
+  public getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_CONSENT_CAPACITY, {
+      contractAddress,
+    } as IGetConsentCapacityParams);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this._handler.call(EExternalActions.GET_POSSIBLE_REWARDS, {
+      contractAddresses,
+      timeoutMs,
+    } as IGetPossibleRewardsParams);
   }
 }

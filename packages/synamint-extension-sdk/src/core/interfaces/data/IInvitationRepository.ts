@@ -9,6 +9,8 @@ import {
   HexString32,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
@@ -41,8 +43,18 @@ export interface IInvitationRepository {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  >;
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
     SnickerDoodleCoreError
   >;
   getAgreementFlags(
