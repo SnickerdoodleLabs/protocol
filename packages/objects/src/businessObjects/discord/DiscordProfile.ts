@@ -34,15 +34,6 @@ export class DiscordProfile extends SocialProfile {
   }
 }
 
-export interface DiscordProfileAPIResponse {
-  id: SnowflakeID;
-  username: Username;
-  display_name: string | null;
-  avatar: string | null;
-  discriminator: string;
-  flags: Integer;
-}
-
 export class DiscordProfileMigrator {
   public factory(data: Record<string, unknown>): DiscordProfile {
     return new DiscordProfile(

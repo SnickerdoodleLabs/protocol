@@ -12,11 +12,13 @@ export interface ISocialMediaWrapper {
   key: ESocialMediaProviderKeys;
 }
 
-export const getProviderList = (): ISocialMediaWrapper[] => [
-  {
-    provider: new DiscordProvider(),
-    icon: DiscordIcon,
-    name: "Discord",
-    key: ESocialMediaProviderKeys.DISCORD,
-  },
-];
+export function getProviderList(): ISocialMediaWrapper[] {
+  return [
+    {
+      provider: new DiscordProvider(),
+      icon: DiscordIcon,
+      name: "Discord",
+      key: ESocialMediaProviderKeys.DISCORD,
+    },
+  ];
+}

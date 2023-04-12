@@ -22,21 +22,16 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 class SocialRepositoryMock {
   public configProvider: IConfigProvider;
   public persistence: IDataWalletPersistence;
-  protected repository: ISocialRepository;
   protected socialDataMocks: SocialDataMock;
   public constructor() {
     this.configProvider = new ConfigProviderMock();
     this.persistence = td.object<IDataWalletPersistence>();
-    this.repository = new SocialRepository(
-      this.configProvider,
-      this.persistence,
-    );
     this.socialDataMocks = new SocialDataMock();
 
     td.when(
       this.persistence.updateRecord(
         ERecordKey.SOCIAL_PROFILE,
-        td.matchers.anything(),
+        this.getDiscordProfiles()[0],
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -46,14 +41,13 @@ class SocialRepositoryMock {
         "type",
         td.matchers.anything(),
       ),
-    ).thenReturn(this.socialDataMocks.getDiscordProfiles());
+    ).thenReturn(okAsync(this.socialDataMocks.getDiscordProfiles()));
 
-    td.when(
-      this.persistence.updateRecord(
-        ERecordKey.SOCIAL_GROUP,
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync(undefined));
+    this.getDiscordGuildProfiles().map((profile) =>
+      td
+        .when(this.persistence.updateRecord(ERecordKey.SOCIAL_GROUP, profile))
+        .thenReturn(okAsync(undefined)),
+    );
 
     td.when(
       this.persistence.getAllByIndex<SocialGroupProfile>(
@@ -61,19 +55,19 @@ class SocialRepositoryMock {
         "type",
         td.matchers.anything(),
       ),
-    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles(null));
+    ).thenReturn(okAsync(this.socialDataMocks.getDiscordGuildProfiles(null)));
   }
 
-  public getDiscordGuildProfiles(): ResultAsync<DiscordGuildProfile[], never> {
+  public getDiscordGuildProfiles(): DiscordGuildProfile[] {
     return this.socialDataMocks.getDiscordGuildProfiles(null);
   }
 
-  public getDiscordProfiles(): ResultAsync<DiscordProfile[], never> {
+  public getDiscordProfiles(): DiscordProfile[] {
     return this.socialDataMocks.getDiscordProfiles();
   }
 
   public factory(): ISocialRepository {
-    return this.repository;
+    return new SocialRepository(this.configProvider, this.persistence);
   }
 }
 
@@ -82,9 +76,7 @@ describe("Test social profile", () => {
     // Acquire
     const socialMocks = new SocialRepositoryMock();
     const repository = socialMocks.factory();
-    const discordProfiles = (
-      await socialMocks.getDiscordProfiles()
-    )._unsafeUnwrap();
+    const discordProfiles = socialMocks.getDiscordProfiles();
 
     // Action
     const result = await repository.upsertProfile(discordProfiles[0]);
@@ -97,9 +89,7 @@ describe("Test social profile", () => {
     // Acquire
     const socialMocks = new SocialRepositoryMock();
     const repository = socialMocks.factory();
-    const expectedData = (
-      await socialMocks.getDiscordProfiles()
-    )._unsafeUnwrap();
+    const expectedData = socialMocks.getDiscordProfiles();
 
     // Action
     const result = await repository.getProfiles(ESocialType.DISCORD);
@@ -115,9 +105,7 @@ describe("Test social group", () => {
     // Acquire
     const socialMocks = new SocialRepositoryMock();
     const repository = socialMocks.factory();
-    const discordGuildProfiles = (
-      await socialMocks.getDiscordGuildProfiles()
-    )._unsafeUnwrap();
+    const discordGuildProfiles = socialMocks.getDiscordGuildProfiles();
 
     // Action
     const result = await repository.upsertGroupProfiles(discordGuildProfiles);
@@ -129,9 +117,7 @@ describe("Test social group", () => {
     // Acquire
     const socialMocks = new SocialRepositoryMock();
     const repository = socialMocks.factory();
-    const expectedData = (
-      await socialMocks.getDiscordGuildProfiles()
-    )._unsafeUnwrap();
+    const expectedData = socialMocks.getDiscordGuildProfiles();
 
     // Action
     const result = await repository.getGroupProfiles(ESocialType.DISCORD);

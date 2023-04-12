@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 import {
   LinkedAccount,
@@ -7,7 +7,7 @@ import {
   PermissionsRequestedEvent,
   SDQLQueryRequest,
 } from "@objects/businessObjects/index.js";
-import { DataWalletAddress, DomainName } from "@objects/primitives/index.js";
+import { DataWalletAddress, DomainName, SnowflakeID } from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
@@ -18,4 +18,6 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsGranted: Observable<PermissionsGrantedEvent>;
   onPermissionsRequested: Observable<PermissionsRequestedEvent>;
   onPermissionsRevoked: Observable<DomainName>;
+  onDiscordProfileLinked: Subject<SnowflakeID>;
+  onDiscordProfileUnlinked: Subject<SnowflakeID>;
 }
