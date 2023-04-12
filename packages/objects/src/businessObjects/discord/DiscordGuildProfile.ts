@@ -19,7 +19,7 @@ export class DiscordGuildProfile extends SocialGroupProfile {
     public name: string,
     public isOwner: boolean,
     public permissions: Integer,
-    public icon: URLString,
+    public icon: URLString | null,
     public joinedAt: UnixTimestamp | null,
   ) {
     super(
