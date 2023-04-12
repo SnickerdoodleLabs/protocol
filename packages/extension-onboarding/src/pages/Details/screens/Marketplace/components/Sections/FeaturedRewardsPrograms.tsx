@@ -46,13 +46,13 @@ const FeaturedRewardsPrograms: FC<IFeaturedRewardsProgramsProps> = ({
       </Box>
       <Box className={sectionClasses.carouselWrapper}>
         <Carousel responsive={responsive}>
-          {listings.map((item) => (
+          {Array.from(
+            new Set([...listings.map((item) => item.consentContract)]),
+          ).map((item) => (
             <Box key={JSON.stringify(item)}>
               <FeaturedCampaignItem
                 tag={tag}
-                consentContractAddress={
-                  item.consentContract as EVMContractAddress
-                }
+                consentContractAddress={item as EVMContractAddress}
               />
             </Box>
           ))}

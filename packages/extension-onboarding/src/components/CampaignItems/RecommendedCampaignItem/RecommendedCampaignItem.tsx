@@ -81,7 +81,7 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
               {isLoading ? (
                 <Skeleton animation="wave" />
               ) : (
-                `${campaignInfo?.rewardName}`
+                `${campaignInfo?.title}`
               )}
             </Typography>
           </Box>
@@ -112,6 +112,7 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
             <Box display="flex" marginLeft="auto">
               <Box display="inline">
                 <DetailsButton
+                  disabled={!possibleRewards || !campaignInfo}
                   onClick={() => {
                     navigate(navigationPath, {
                       state: {

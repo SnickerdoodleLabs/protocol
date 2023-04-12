@@ -17,4 +17,12 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "24px",
     color: "#616161",
   },
+  tableTitle: {
+    fontFamily: "'Roboto'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "14px",
+    lineHeight: "22px",
+    color: "#262626",
+  },
 }));

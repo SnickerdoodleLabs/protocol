@@ -55,11 +55,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
     >
       <Box mb={2}>
         <Typography className={classes.name}>
-          {isLoading ? (
-            <Skeleton animation="wave" />
-          ) : (
-            `${campaignInfo?.rewardName}`
-          )}
+          {isLoading ? <Skeleton animation="wave" /> : `${campaignInfo?.title}`}
         </Typography>
       </Box>
       <Box display="flex">
@@ -89,6 +85,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
                           width={32}
                           height={32}
                           style={{
+                            objectFit: "cover",
                             borderRadius: 4,
                             border: "1px solid #FFFFFF",
                             marginLeft: index === 0 ? 0 : -8,
@@ -164,6 +161,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
             )}
             <Box display="inline" ml={!onLeaveClick && isSubscribed ? 0 : 2}>
               <Button
+                disabled={!possibleRewards || !campaignInfo}
                 onClick={() => {
                   navigate(navigationPath, {
                     state: {

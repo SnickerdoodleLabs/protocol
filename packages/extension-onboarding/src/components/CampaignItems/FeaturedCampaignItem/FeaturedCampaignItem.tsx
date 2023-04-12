@@ -90,7 +90,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
             {isLoading ? (
               <Skeleton animation="wave" />
             ) : (
-              `${campaignInfo?.rewardName}`
+              `${campaignInfo?.title}`
             )}
           </Typography>
           <Box mt={2} mb={2} height={42}>
@@ -115,6 +115,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                           width={56}
                           height={56}
                           style={{
+                            objectFit: "cover",
                             borderRadius: 4,
                             border: "1px solid #FFFFFF",
                             marginLeft: index === 0 ? 0 : -8,
@@ -184,6 +185,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
           <Box marginLeft="auto">
             <Box display="inline">
               <Button
+                disabled={!possibleRewards || !campaignInfo}
                 onClick={() => {
                   navigate(navigationPath, {
                     state: {

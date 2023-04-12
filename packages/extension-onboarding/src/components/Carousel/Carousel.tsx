@@ -16,6 +16,7 @@ const CarouselButtonGroup = ({
   carouselState,
 }: ButtonGroupProps) => {
   const classes = useStyles();
+  console.log("STATE", carouselState);
   return (
     <>
       {carouselState?.currentSlide !== 0 && (
@@ -27,6 +28,7 @@ const CarouselButtonGroup = ({
         </Box>
       )}
       {carouselState &&
+        carouselState.totalItems > 1 &&
         carouselState.currentSlide !==
           carouselState.totalItems - carouselState.slidesToShow && (
           <Box

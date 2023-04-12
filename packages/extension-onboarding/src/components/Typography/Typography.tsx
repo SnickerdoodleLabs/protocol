@@ -6,7 +6,7 @@ import {
 import clsx from "clsx";
 import React, { ElementType, FC } from "react";
 
-type CustomVariants = "pageTitle" | "pageDescription";
+type CustomVariants = "pageTitle" | "pageDescription" | "tableTitle";
 
 interface ITypographyProps extends Omit<TypographyProps, "variant"> {
   variant?: TypographyProps["variant"] | CustomVariants;

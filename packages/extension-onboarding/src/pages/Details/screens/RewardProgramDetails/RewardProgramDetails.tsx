@@ -1,6 +1,8 @@
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import Permissions from "@extension-onboarding/components/Permissions";
+import { UI_SUPPORTED_PERMISSIONS } from "@extension-onboarding/constants/permissions";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -11,6 +13,7 @@ import {
   PossibleRewards,
   ProgramHistory,
   OtherProgramsForSameTag,
+  ProgramRewards,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -19,6 +22,8 @@ import {
   Typography,
   Button as MaterialButton,
   withStyles,
+  Grid,
+  Divider,
 } from "@material-ui/core";
 import {
   EarnedReward,
@@ -29,8 +34,10 @@ import {
   IOpenSeaMetadata,
   PossibleReward,
   QueryTypePermissionMap,
+  QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const ManageSettingsButton = withStyles({
@@ -94,6 +101,9 @@ const RewardProgramDetails: FC = () => {
     consentContractAddress: EVMContractAddress;
   };
   const rewardsRef = useRef<PossibleReward[]>([]);
+  const { ref: saveButtonRef, inView: isSaveButtonInView } = useInView({
+    threshold: 0.5,
+  });
 
   const [capacityInfo, setCapacityInfo] = useState<IConsentCapacity>();
   const [consentPermissions, setConsentPermissions] = useState<
@@ -103,8 +113,15 @@ const RewardProgramDetails: FC = () => {
     useAppContext();
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
+  const [permissionsState, setPermissionsState] = useState<EWalletDataType[]>(
+    UI_SUPPORTED_PERMISSIONS,
+  );
 
-  console.log("earnedREwards", { earnedRewards });
+  useEffect(() => {
+    if (consentPermissions.length > 0) {
+      setPermissionsState(consentPermissions);
+    }
+  }, [JSON.stringify(consentPermissions)]);
 
   const handleSubscribeButton = () => {
     setModal({
@@ -184,12 +201,7 @@ const RewardProgramDetails: FC = () => {
       });
   };
 
-  const {
-    collectedRewards,
-    programRewards,
-    permissionRequiredRewards,
-    waitingRewards,
-  } = useMemo(() => {
+  const { collectedRewards, programRewards, waitingRewards } = useMemo(() => {
     // earned rewards
     const collectedRewards = possibleRewards.reduce((acc, item) => {
       const matchedReward = earnedRewards.find(
@@ -203,15 +215,25 @@ const RewardProgramDetails: FC = () => {
 
     if (!isSubscribed) {
       return {
-        programRewards: possibleRewards.filter(
-          (possibleReward) =>
-            !collectedRewards.find(
-              (item) => item.queryCID === possibleReward.queryCID,
-            ),
-        ),
+        programRewards: possibleRewards
+          .filter(
+            (possibleReward) =>
+              !collectedRewards.find(
+                (item) => item.queryCID === possibleReward.queryCID,
+              ),
+            // test code
+          )
+          .map((r, index) => ({
+            ...r,
+            queryDependencies: [
+              "location",
+              "nft",
+              "gender",
+              ...(index % 2 > 0 ? ["chain_transactions"] : []),
+            ] as QueryTypes[],
+          })),
         waitingRewards: [] as PossibleReward[],
         collectedRewards,
-        permissionRequiredRewards: [] as PossibleReward[],
       };
     }
 
@@ -237,8 +259,7 @@ const RewardProgramDetails: FC = () => {
         ),
     );
 
-    // get permission requiered rewards
-    const permissionRequiredRewards = possibleRewards.filter(
+    const programRewards = possibleRewards.filter(
       (item) =>
         !collectedRewards.find((reward) => reward.queryCID === item.queryCID) &&
         !waitingRewards.find((reward) => reward.queryCID === item.queryCID),
@@ -247,8 +268,7 @@ const RewardProgramDetails: FC = () => {
     return {
       collectedRewards,
       waitingRewards,
-      permissionRequiredRewards,
-      programRewards: [] as PossibleReward[],
+      programRewards,
     };
   }, [
     possibleRewards,
@@ -258,17 +278,21 @@ const RewardProgramDetails: FC = () => {
     consentContractAddress,
   ]);
 
+  const handlePermissionSelect = (permission: EWalletDataType) => {
+    permissionsState.includes(permission)
+      ? setPermissionsState((permissions) =>
+          permissions.filter((_permission) => _permission != permission),
+        )
+      : setPermissionsState((permissions) => [...permissions, permission]);
+  };
+
   return (
     <>
       <Box
-        mb={6.75}
         pt={8}
         pb={4}
-        px={15}
-        position="sticky"
-        top="0px"
+        px={3}
         bgcolor="white"
-        zIndex={1001}
         boxShadow="0px 2px 0px rgba(0, 0, 0, 0.016)"
       >
         <Breadcrumb currentPathName={info?.rewardName} />
@@ -352,6 +376,7 @@ const RewardProgramDetails: FC = () => {
                   </>
                 ) : (
                   <SubscribeButton
+                    ref={saveButtonRef}
                     onClick={handleSubscribeButton}
                     variant="contained"
                   >
@@ -363,56 +388,85 @@ const RewardProgramDetails: FC = () => {
           </Box>
         </Box>
       </Box>
-
-      {permissionRequiredRewards?.length > 0 && (
-        <Box mt={3}>
-          <PossibleRewards
-            consentContractAddress={consentContractAddress}
-            type={EPossibleRewardDisplayType.MorePermissionRequiered}
-            rewards={permissionRequiredRewards}
-          />
-        </Box>
-      )}
-      {collectedRewards?.length > 0 && (
-        <Box mt={3}>
-          <CollectedRewards
-            consentContractAddress={consentContractAddress}
-            rewards={collectedRewards}
-            possibleRewards={possibleRewards}
-          />
-        </Box>
-      )}
-      {waitingRewards?.length > 0 && (
-        <Box mt={3}>
-          <PossibleRewards
-            consentContractAddress={consentContractAddress}
-            type={EPossibleRewardDisplayType.Waiting}
-            rewards={waitingRewards}
-          />
-        </Box>
-      )}
-      {programRewards?.length > 0 && (
-        <Box mt={3}>
-          <PossibleRewards
-            consentContractAddress={consentContractAddress}
-            type={EPossibleRewardDisplayType.ProgramRewards}
-            rewards={programRewards}
-          />
-        </Box>
-      )}
-      {/* <Box mt={3}>
-        <ConsentOwnersOtherPrograms consentContract={consentContractAddress} />
+      <Box px={2.5}>
+        <Grid spacing={2} container>
+          <Grid item xs={2}>
+            <Box
+              mt={2.5}
+              bgcolor="#FFFFFF"
+              borderRadius={12}
+              pt={2.5}
+              pb={1}
+              top={48}
+              position="sticky"
+            >
+              <Box px={1.5} mb={2.5}>
+                <Typography className={classes.permissionsTitle}>
+                  Data Permissions
+                </Typography>
+              </Box>
+              <Divider />
+              <Box mt={1.5} px={1.5}>
+                <Box mb={1.25}>
+                  <Typography className={classes.permissionsDescription}>
+                    Data you are willing to rent
+                  </Typography>
+                </Box>
+                <Permissions
+                  onClick={handlePermissionSelect}
+                  permissions={permissionsState}
+                  displayType="column"
+                />
+                <Box px={1.5}>
+                  {UI_SUPPORTED_PERMISSIONS.some(
+                    (item) => !permissionsState.includes(item),
+                  ) ? (
+                    <Typography
+                      className={classes.selectAll}
+                      onClick={() =>
+                        setPermissionsState(UI_SUPPORTED_PERMISSIONS)
+                      }
+                    >
+                      Select All
+                    </Typography>
+                  ) : (
+                    <Box height={16} />
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={10}>
+            {programRewards?.length > 0 && (
+              <Box mt={2.5}>
+                <ProgramRewards
+                  consentContractAddress={consentContractAddress}
+                  currentPermissions={permissionsState}
+                  rewards={programRewards}
+                />
+              </Box>
+            )}
+            {collectedRewards?.length > 0 && (
+              <Box mt={2.5}>
+                <CollectedRewards
+                  consentContractAddress={consentContractAddress}
+                  rewards={collectedRewards}
+                  possibleRewards={possibleRewards}
+                />
+              </Box>
+            )}
+            {waitingRewards?.length > 0 && (
+              <Box mt={2.5}>
+                <PossibleRewards
+                  consentContractAddress={consentContractAddress}
+                  type={EPossibleRewardDisplayType.Waiting}
+                  rewards={waitingRewards}
+                />
+              </Box>
+            )}
+          </Grid>
+        </Grid>
       </Box>
-      {tag && (
-        <Box mt={3}>
-          <OtherProgramsForSameTag tag={tag} />
-        </Box>
-      )}
-      {collectedRewards?.length > 0 && (
-        <Box mt={3}>
-          <ProgramHistory rewards={collectedRewards} />
-        </Box>
-      )} */}
     </>
   );
 };

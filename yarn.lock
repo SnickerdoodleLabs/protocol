@@ -5771,6 +5771,7 @@ __metadata:
     react-ga: ^3.3.1
     react-google-login: ^5.2.2
     react-hotjar: ^5.2.0
+    react-intersection-observer: ^9.4.3
     react-joyride: ^2.5.3
     react-lottie: ^1.2.3
     react-multi-carousel: ^2.8.2
@@ -26822,6 +26823,15 @@ __metadata:
   version: 5.4.1
   resolution: "react-hotjar@npm:5.4.1"
   checksum: 773f408842334fcdec86f15795c0541eb29c16475c9644dc5e2b0d22addc899305c0ba093555e70866fcca78911db14bc006e287ab9c0363ddfe2574c90dbfa3
+  languageName: node
+  linkType: hard
+
+"react-intersection-observer@npm:^9.4.3":
+  version: 9.4.3
+  resolution: "react-intersection-observer@npm:9.4.3"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: ac31c6c76ce72019a1fb50fe6b53ef6429d98b9e9b937f92d16635ef8586392c7058bb61526a8fe6bea6ce36c006015fe2d8893bac43eda6157b9e6b17ad9b68
   languageName: node
   linkType: hard
 

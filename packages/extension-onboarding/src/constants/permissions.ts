@@ -1,10 +1,21 @@
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 
+export const UI_SUPPORTED_PERMISSIONS = [
+  EWalletDataType.Gender,
+  EWalletDataType.Birthday,
+  EWalletDataType.Location,
+  EWalletDataType.SiteVisits,
+  EWalletDataType.EVMTransactions,
+  EWalletDataType.AccountBalances,
+  EWalletDataType.AccountNFTs,
+  EWalletDataType.Discord,
+];
+
 export const PERMISSION_NAMES = {
   [EWalletDataType.Gender]: "Gender",
   [EWalletDataType.Birthday]: "Birthday",
-  [EWalletDataType.Location]: "Location",
-  [EWalletDataType.SiteVisits]: "Sites Visited",
+  [EWalletDataType.Location]: "Country",
+  [EWalletDataType.SiteVisits]: "Browser History",
   [EWalletDataType.EVMTransactions]: "Transaction History",
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
@@ -15,8 +26,8 @@ export const PERMISSION_NAMES = {
 export const PERMISSION_TEXT_NAMES = {
   [EWalletDataType.Gender]: "gender",
   [EWalletDataType.Birthday]: "birthday",
-  [EWalletDataType.Location]: "location",
-  [EWalletDataType.SiteVisits]: "sites visited",
+  [EWalletDataType.Location]: "country",
+  [EWalletDataType.SiteVisits]: "browser hisyory",
   [EWalletDataType.EVMTransactions]: "transaction history",
   [EWalletDataType.AccountBalances]: "token balances",
   [EWalletDataType.AccountNFTs]: "NFTs",

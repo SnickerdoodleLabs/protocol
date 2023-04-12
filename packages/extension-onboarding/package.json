@@ -49,6 +49,7 @@
     "react-ga": "^3.3.1",
     "react-google-login": "^5.2.2",
     "react-hotjar": "^5.2.0",
+    "react-intersection-observer": "^9.4.3",
     "react-joyride": "^2.5.3",
     "react-lottie": "^1.2.3",
     "react-multi-carousel": "^2.8.2",
