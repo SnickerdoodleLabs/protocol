@@ -277,31 +277,29 @@ export class SDQLParser {
     AST_Ad,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    try {
-      const adTarget = this.parseTargetExpString(
-        singleAdSchema.target,
-      ) as AST_ConditionExpr;
-      const dataPermissions = this.parseUnifiedDataPermissions([
-        singleAdSchema.target,
-      ]);
-
-      const ad = new AST_Ad(
-        adKey,
-        SDQL_Name(singleAdSchema.name),
-        singleAdSchema.content,
-        singleAdSchema.text,
-        singleAdSchema.displayType,
-        singleAdSchema.weight,
-        singleAdSchema.expiry,
-        singleAdSchema.keywords,
-        adTarget,
-        singleAdSchema.target,
-        dataPermissions,
-      );
-      return okAsync(ad);
-    } catch (err) {
-      return errAsync(this.transformError(err as Error));
-    }
+    return this.parseTargetExpString(singleAdSchema.target)
+      .andThen((adTarget) => {
+        const dataPermissions = this.parseUnifiedDataPermissions([
+          singleAdSchema.target,
+        ]);
+        const ad = new AST_Ad(
+          adKey,
+          SDQL_Name(singleAdSchema.name),
+          singleAdSchema.content,
+          singleAdSchema.text,
+          singleAdSchema.displayType,
+          singleAdSchema.weight,
+          singleAdSchema.expiry,
+          singleAdSchema.keywords,
+          adTarget,
+          singleAdSchema.target,
+          dataPermissions,
+        );
+        return okAsync(ad);
+      })
+      .orElse((err) => {
+        return errAsync(this.transformError(err as Error));
+      });
   }
 
   private parseQueries(): ResultAsync<
@@ -496,32 +494,6 @@ export class SDQLParser {
     // }
   }
 
-  private parseCompensation(
-    name: SDQL_Name,
-    schema: ISDQLCompensations,
-  ): ResultAsync<
-    AST_Compensation,
-    DuplicateIdInSchema | QueryFormatError | MissingASTError
-  > {
-    return this.parseExpString(schema.requires)
-      .andThen((ast) => {
-        const requiresAst = ast as AST_RequireExpr;
-        const compensation = new AST_Compensation(
-          name,
-          schema.description,
-          requiresAst,
-          schema.requires,
-          schema.chainId,
-          schema.callback,
-          schema.alternatives ? schema.alternatives : [],
-        );
-        return okAsync(compensation);
-      })
-      .orElse((err) => {
-        return errAsync(this.transformError(err as Error));
-      });
-  }
-
   private parseCompensations(): ResultAsync<
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
@@ -553,49 +525,34 @@ export class SDQLParser {
     });
 
     return ResultUtils.combine(results).map(() => {});
-
-    // try {
-    //   const compensationSchema = this.schema.getCompensationSchema();
-
-    //   for (const cName in compensationSchema) {
-    //     // console.log(`parsing compensation ${cName}`);
-
-    //     if (cName == "parameters") {
-    //       // this is the parameters block
-    //       this.compensationParameters = compensationSchema[
-    //         cName
-    //       ] as ISDQLCompensationParameters;
-    //     } else {
-    //       // This is a compensation
-    //       const name = SDQL_Name(cName);
-    //       const schema = compensationSchema[cName] as ISDQLCompensations;
-    //       const requiresAst = this.parseExpString(
-    //         schema.requires,
-    //       ) as AST_RequireExpr;
-    //       const compensation = new AST_Compensation(
-    //         name,
-    //         schema.description,
-    //         requiresAst,
-    //         schema.requires,
-    //         schema.chainId,
-    //         schema.callback,
-    //         schema.alternatives ? schema.alternatives : [],
-    //       );
-
-    //       this.compensations.set(compensation.name, compensation);
-    //       this.saveInContext(cName, compensation);
-    //       // this.requiresCompensations.set(
-    //       //   schema.requires,
-    //       //   compensation.requires,
-    //       // );
-    //     }
-    //   }
-
-    //   return okAsync(undefined);
-    // } catch (err) {
-    //   return errAsync(this.transformError(err as Error));
-    // }
   }
+
+  private parseCompensation(
+    name: SDQL_Name,
+    schema: ISDQLCompensations,
+  ): ResultAsync<
+    AST_Compensation,
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+    return this.parseExpString(schema.requires)
+      .andThen((ast) => {
+        const requiresAst = ast as AST_RequireExpr;
+        const compensation = new AST_Compensation(
+          name,
+          schema.description,
+          requiresAst,
+          schema.requires,
+          schema.chainId,
+          schema.callback,
+          schema.alternatives ? schema.alternatives : [],
+        );
+        return okAsync(compensation);
+      })
+      .orElse((err) => {
+        return errAsync(this.transformError(err as Error));
+      });
+  }
+
   // #endregion
 
   // #region Logic
@@ -638,17 +595,17 @@ export class SDQLParser {
   /**
    * @deprecated
    */
-  private parseLogicExpressions(
-    expressions: Array<string>,
-  ): Map<string, AST_Expr | Command> {
-    // console.log('expressions', expressions);
-    const lrs = new Map<string, AST_Expr | Command>();
-    for (const expStr of expressions) {
-      const exp = this.parseExpString(expStr);
-      lrs.set(expStr, exp);
-    }
-    return lrs;
-  }
+  // private parseLogicExpressions(
+  //   expressions: Array<string>,
+  // ): Map<string, AST_Expr | Command> {
+  //   // console.log('expressions', expressions);
+  //   const lrs = new Map<string, AST_Expr | Command>();
+  //   for (const expStr of expressions) {
+  //     const exp = this.parseExpString(expStr);
+  //     lrs.set(expStr, exp);
+  //   }
+  //   return lrs;
+  // }
 
   public parseTargetExpString(
     target: string,
