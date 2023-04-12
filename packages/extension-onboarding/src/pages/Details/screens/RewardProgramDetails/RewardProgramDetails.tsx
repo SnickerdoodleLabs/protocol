@@ -437,30 +437,21 @@ const RewardProgramDetails: FC = () => {
             </Box>
           </Grid>
           <Grid item xs={10}>
-            {programRewards?.length > 0 && (
-              <Box mt={2.5}>
-                <ProgramRewards
-                  consentContractAddress={consentContractAddress}
-                  currentPermissions={permissionsState}
-                  rewards={programRewards}
-                />
-              </Box>
-            )}
-            {collectedRewards?.length > 0 && (
+            <Box mt={2.5}>
+              <ProgramRewards
+                consentContractAddress={consentContractAddress}
+                currentPermissions={permissionsState}
+                rewards={programRewards}
+                isSubscribed={isSubscribed}
+              />
+            </Box>
+            {(collectedRewards?.length > 0 || waitingRewards.length > 0) && (
               <Box mt={2.5}>
                 <CollectedRewards
                   consentContractAddress={consentContractAddress}
                   rewards={collectedRewards}
                   possibleRewards={possibleRewards}
-                />
-              </Box>
-            )}
-            {waitingRewards?.length > 0 && (
-              <Box mt={2.5}>
-                <PossibleRewards
-                  consentContractAddress={consentContractAddress}
-                  type={EPossibleRewardDisplayType.Waiting}
-                  rewards={waitingRewards}
+                  waitingRewards={waitingRewards}
                 />
               </Box>
             )}

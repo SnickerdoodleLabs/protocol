@@ -2,7 +2,9 @@ import {
   DirectReward as DirectRewardComponent,
   LazyReward as LazyRewardComponent,
   Web2Reward as Web2RewardComponent,
+  PossibleReward as PossibleRewardComponent,
 } from "@extension-onboarding/components/RewardItems";
+import { EBadgeType } from "@extension-onboarding/objects";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
@@ -25,11 +27,13 @@ interface ICollectedRewardsProps {
   // temporary to read permissions
   possibleRewards: PossibleReward[];
   consentContractAddress: EVMContractAddress;
+  waitingRewards: PossibleReward[];
 }
 const CollectedRewards: FC<ICollectedRewardsProps> = ({
   rewards,
   possibleRewards,
   consentContractAddress,
+  waitingRewards,
 }) => {
   const sectionClasses = useSectionStyles();
   const getRewardComponent = (
@@ -68,20 +72,20 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
     <Section>
       <Box mb={4}>
         <Typography className={sectionClasses.sectionTitle}>
-          Collected Rewards
+          Earned Rewards
         </Typography>
 
         <Box mt={1}>
           <Typography className={sectionClasses.sectionDescription}>
-            You were eligible to claim these rewards because you are sharing
-            required permissions.
+            You've earned these rewards because you rented, required
+            permissions.
           </Typography>
         </Box>
       </Box>
-      <Grid spacing={2} container>
+      <Box display="flex" flexWrap="wrap" gridColumnGap={10} gridRowGap={24}>
         {rewards.map((reward) => {
           return (
-            <Grid xs={2} item key={reward.queryCID}>
+            <Box flexBasis="calc(20% - 8px)" key={reward.queryCID}>
               {getRewardComponent(
                 reward,
                 // temporary to read required permissions
@@ -91,10 +95,19 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
                     (dependency) => QueryTypePermissionMap.get(dependency)!,
                   ) ?? []) as EWalletDataType[],
               )}
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+        {waitingRewards.map((reward) => {
+          <Box flexBasis="calc(20% - 8px)" key={reward.queryCID}>
+            <PossibleRewardComponent
+              reward={reward}
+              consentContractAddress={consentContractAddress}
+              badgeType={EBadgeType.Waiting}
+            />
+          </Box>;
+        })}
+      </Box>
     </Section>
   );
 };

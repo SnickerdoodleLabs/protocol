@@ -25,17 +25,20 @@ import DisplayModeToggle, {
   EDISPLAY_MODE,
 } from "@extension-onboarding/components/DisplayModeToggle/DisplayModeToggle";
 import Typography from "@extension-onboarding/components/Typography";
+import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IProgramRewardsProps {
   rewards: PossibleReward[];
   consentContractAddress: EVMContractAddress;
   currentPermissions: EWalletDataType[];
+  isSubscribed: boolean;
 }
 const ProgramRewards: FC<IProgramRewardsProps> = ({
   rewards,
   consentContractAddress,
   currentPermissions,
+  isSubscribed,
 }) => {
   const sectionClasses = useSectionStyles();
   const [displayMode, setDisplayMode] = useState<EDISPLAY_MODE>(
@@ -57,7 +60,9 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
       <Box mb={4} display="flex" alignItems="center">
         <Box>
           <Typography className={sectionClasses.sectionTitle}>
-            Rewards you can earn now
+            {isSubscribed
+              ? "Rent more data, unlock more rewards!"
+              : "Rewards you can earn now"}
           </Typography>
           <Box mt={1}>
             <Typography className={sectionClasses.sectionDescription}>
@@ -74,70 +79,86 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
           />
         </Box>
       </Box>
-      <Box
-        {...(displayMode === EDISPLAY_MODE.COZY && {
-          display: "flex",
-          flexWrap: "wrap",
-          gridColumnGap: 10,
-          gridRowGap: 24,
-        })}
-        {...(displayMode === EDISPLAY_MODE.COMPACT && {
-          display: "flex",
-          flexWrap: "wrap",
-          gridColumnGap: 12,
-          gridRowGap: 12,
-        })}
-      >
-        {displayMode === EDISPLAY_MODE.LIST && (
-          <Box
-            display="flex"
-            py={3}
-            borderRadius="12px 12px 0 0"
-            bgcolor="#FAFAFA"
-            px={2}
-            borderBottom="1px solid #f0f0f0"
-          >
-            <Box flex={2}>
-              <Typography variant="tableTitle">Reward Name</Typography>
-            </Box>
-            <Box flex={2}>
-              <Typography variant="tableTitle">Price</Typography>
-            </Box>
-            <Box flex={1}>
-              <Typography variant="tableTitle">Eligibility Status</Typography>
-            </Box>
-          </Box>
-        )}
-        {rewards.map((reward) => {
-          return (
+      {rewards.length > 0 ? (
+        <Box
+          {...(displayMode === EDISPLAY_MODE.COZY && {
+            display: "flex",
+            flexWrap: "wrap",
+            gridColumnGap: 10,
+            gridRowGap: 24,
+          })}
+          {...(displayMode === EDISPLAY_MODE.COMPACT && {
+            display: "flex",
+            flexWrap: "wrap",
+            gridColumnGap: 12,
+            gridRowGap: 12,
+          })}
+        >
+          {displayMode === EDISPLAY_MODE.LIST && (
             <Box
-              {...(displayMode === EDISPLAY_MODE.COZY && {
-                flexBasis: "calc(20% - 8px)",
-              })}
-              {...(displayMode === EDISPLAY_MODE.COMPACT && {
-                flexBasis: "calc(100%/9 - 12px*8/9)",
-              })}
-              {...(displayMode === EDISPLAY_MODE.LIST && {
-                component: Fragment,
-              })}
-              key={`${reward.queryCID}-${displayMode}`}
+              display="flex"
+              py={3}
+              borderRadius="12px 12px 0 0"
+              bgcolor="#FAFAFA"
+              px={2}
+              borderBottom="1px solid #f0f0f0"
             >
-              <PossibleRewardComponent
-                displayType={
-                  displayMode === EDISPLAY_MODE.LIST
-                    ? "list"
-                    : displayMode === EDISPLAY_MODE.COMPACT
-                    ? "compact"
-                    : "default"
-                }
-                consentContractAddress={consentContractAddress}
-                badgeType={getBadge(reward.queryDependencies)}
-                reward={reward}
-              />
+              <Box flex={2}>
+                <Typography variant="tableTitle">Reward Name</Typography>
+              </Box>
+              <Box flex={2}>
+                <Typography variant="tableTitle">Price</Typography>
+              </Box>
+              <Box flex={1}>
+                <Typography variant="tableTitle">Eligibility Status</Typography>
+              </Box>
             </Box>
-          );
-        })}
-      </Box>
+          )}
+          {rewards.map((reward) => {
+            return (
+              <Box
+                {...(displayMode === EDISPLAY_MODE.COZY && {
+                  flexBasis: "calc(20% - 8px)",
+                })}
+                {...(displayMode === EDISPLAY_MODE.COMPACT && {
+                  flexBasis: "calc(100%/9 - 12px*8/9)",
+                })}
+                {...(displayMode === EDISPLAY_MODE.LIST && {
+                  component: Fragment,
+                })}
+                key={`${reward.queryCID}-${displayMode}`}
+              >
+                <PossibleRewardComponent
+                  displayType={
+                    displayMode === EDISPLAY_MODE.LIST
+                      ? "list"
+                      : displayMode === EDISPLAY_MODE.COMPACT
+                      ? "compact"
+                      : "default"
+                  }
+                  consentContractAddress={consentContractAddress}
+                  badgeType={getBadge(reward.queryDependencies)}
+                  reward={reward}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+      ) : (
+        <Box display="flex" alignItems="center" flexDirection="column">
+          <img width={162} src={rewardsCollectedImg} />
+          <Box my={1.25} textAlign="center">
+            <Typography className={sectionClasses.successTitle}>
+              Congratulations!
+            </Typography>
+            <Typography className={sectionClasses.sectionDescription}>
+              You've earned all rewards in this campaign.
+              <br />
+              Explore more rewards programs in the Marketplace.
+            </Typography>
+          </Box>
+        </Box>
+      )}
     </Section>
   );
 };

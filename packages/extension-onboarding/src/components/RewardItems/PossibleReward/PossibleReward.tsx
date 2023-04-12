@@ -1,6 +1,7 @@
 import lockExpandedIcon from "@extension-onboarding/assets/icons/lock-expanded.png";
 import lockIcon from "@extension-onboarding/assets/icons/lock.png";
 import unlockedIcon from "@extension-onboarding/assets/icons/unlocked.png";
+import waitingIcon from "@extension-onboarding/assets/icons/waiting.png";
 import availableBadge from "@extension-onboarding/assets/images/badge-available.svg";
 import permissionRequiredBadge from "@extension-onboarding/assets/images/badge-permission-required.svg";
 import waitingBadge from "@extension-onboarding/assets/images/badge-waiting.svg";
@@ -296,6 +297,18 @@ export default ({
             zIndex={1}
             top={0}
           >
+            {badgeType === EBadgeType.Waiting && (
+              <Box
+                zIndex={1}
+                width="100%"
+                height="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <img width="30%" height="auto" src={waitingIcon} />
+              </Box>
+            )}
             <Zoom in={unlockAnimation} unmountOnExit>
               <img height={53} style={{ zIndex: 1 }} src={unlockedIcon} />
             </Zoom>
