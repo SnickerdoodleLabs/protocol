@@ -419,15 +419,6 @@ This query determines if a US-based user has received an ERC-721 token on the Et
                     "icon": {
                         "type": "string"
                     },
-                    "banner": {
-                        "type": "string"
-                    },
-                    "desrciption": {
-                        "type": "string"
-                    },
-                    "total_member_count": {
-                        "type": "integer"
-                    },
                     "joined_at": {
                         "type": "string",
                         "pattern": "^[0-9]{2}-[0-9]{2}-[0-9]{4}$"
@@ -436,11 +427,8 @@ This query determines if a US-based user has received an ERC-721 token on the Et
                 "required": [
                     "id",
                     "name",
-                    "joined_at",
                     "icon",
-                    "banner",
-                    "desrciption",
-                    "total_member_count"
+                    "joined_at",
                 ]
             }
         }
