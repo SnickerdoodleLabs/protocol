@@ -52,6 +52,7 @@ import {
   IDataWalletPersistence,
   IDemographicDataRepository,
   IPortfolioBalanceRepository,
+  ISocialRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
@@ -80,6 +81,7 @@ class QueryParsingMocks {
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
+  public socialRepo = td.object<ISocialRepository>();
 
   public blockchainTransactionQueryEvaluator =
     new BlockchainTransactionQueryEvaluator(this.transactionRepo);
@@ -139,6 +141,7 @@ class QueryParsingMocks {
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
+      this.socialRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
     this.adContentRepository = new AdContentRepository(
@@ -273,9 +276,8 @@ describe("Testing order of results", () => {
   test("No null insight with all permissions given", async () => {
     await engine
       .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
-      .andThen(([insights, rewards]) => {
+      .andThen((insights) => {
         console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
         expect(insights.returns).toEqual({
           "if($q1and$q2)then$r1else$r2": "not qualified",
           $r3: country,

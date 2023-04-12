@@ -1,12 +1,10 @@
 import {
-  EBackupPriority,
-  ESocialType,
   ERecordKey,
+  ESocialType,
   PersistenceError,
   SocialGroupProfile,
   SocialPrimaryKey,
   SocialProfile,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";

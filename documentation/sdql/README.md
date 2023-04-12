@@ -36,6 +36,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `location`: access to location data of the DW user in ISO 3166-2 format
 - `browsing_history`: access to the browsing history of the DW user
 - `gender`: access to the gender of the DW user
+- `social_discord`: access to information related to discord servers of the DW user
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
 - `url_visited_count`: access to the browsing history of the DW user
