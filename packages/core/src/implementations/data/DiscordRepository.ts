@@ -11,9 +11,7 @@ import {
   DiscordError,
   DiscordGuildProfile,
   DiscordGuildProfileAPIResponse,
-  DiscordOAuth2TokensAPIResponse,
   DiscordProfile,
-  DiscordProfileAPIResponse,
   DiscordRefreshToken,
   ESocialType,
   OAuth2Tokens,
@@ -29,6 +27,10 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
+import {
+  DiscordOAuth2TokensAPIResponse,
+  DiscordProfileAPIResponse,
+} from "@core/interfaces/data/apis";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
   IDataWalletPersistence,
@@ -128,7 +130,7 @@ export class DiscordRepository implements IDiscordRepository {
               response.username,
               response.display_name,
               response.discriminator,
-              response.avatar,
+              response.avatar ?? null,
               response.flags,
               oauth2Tokens,
             ),

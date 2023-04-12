@@ -140,13 +140,7 @@ export interface ICoreMarketplaceMethods {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
-/**
- ************************ MAINTENANCE HAZARD ***********************************************
- Whenever you add or change a method in this class, you also need to look at and probably update
- ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
- clones this interface, with some methods removed or added, but all of them updated to remove
- sourceDomain (which is managed by the integration package)
- */
+
 export interface ICoreDiscordMethods {
   /**
    * This method will upsert a users discord profile and
@@ -176,13 +170,6 @@ export interface ICoreDiscordMethods {
   ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
-/**
- ************************ MAINTENANCE HAZARD ***********************************************
- Whenever you add or change a method in this class, you also need to look at and probably update
- ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
- clones this interface, with some methods removed or added, but all of them updated to remove
- sourceDomain (which is managed by the integration package)
- */
 export interface ICoreIntegrationMethods {
   /**
    * This method grants the requested permissions to the wallet to the specified domain name.

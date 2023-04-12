@@ -52,7 +52,7 @@ export class SocialGroupProfileMigrator extends VersionedObjectMigrator<SocialGr
         return this.discordMigrator.factory(data);
         break;
     }
-    return new InvalidSocialGroupProfile(
+    return new InvalidSocialGroupProfile( // Cannot return null
       SocialPrimaryKey(data["pKey"] as string),
       ESocialType[data["type"] as string],
       SocialPrimaryKey(data["ownerId"] as string),
