@@ -2,13 +2,14 @@ import lockExpandedIcon from "@extension-onboarding/assets/icons/lock-expanded.p
 import lockIcon from "@extension-onboarding/assets/icons/lock.png";
 import unlockedIcon from "@extension-onboarding/assets/icons/unlocked.png";
 import waitingIcon from "@extension-onboarding/assets/icons/waiting.png";
-import availableBadge from "@extension-onboarding/assets/images/badge-available.svg";
 import permissionRequiredBadge from "@extension-onboarding/assets/images/badge-permission-required.svg";
 import waitingBadge from "@extension-onboarding/assets/images/badge-waiting.svg";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import Permissions from "@extension-onboarding/components/Permissions";
 import { useStyles } from "@extension-onboarding/components/RewardItems/PossibleReward/PossibleReward.style";
 import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EBadgeType } from "@extension-onboarding/objects";
 import {
   Box,
@@ -49,6 +50,7 @@ export default ({
   const [lockHovered, setLockHovered] = useState<boolean>(false);
   const [compactItemHovered, setCompactItemHovered] = useState<boolean>(false);
   const [unlockAnimation, setUnlockAnimation] = useState<boolean>(false);
+  const { setModal } = useLayoutContext();
 
   const compactItemRef = useRef(null);
 
@@ -120,7 +122,7 @@ export default ({
             borderRadius={4}
           >
             <Typography className={rewardItemsClasses.listPermissionRequired}>
-              Data Permission Needed
+              Claimable - data required
             </Typography>
           </Box>
         );
@@ -155,8 +157,10 @@ export default ({
           px={0.25}
           borderRadius={16}
           onClick={() => {
-            navigate(`${pathname}/reward-detail`, {
-              state: {
+            setModal({
+              modalSelector: EModalSelectors.REWARD_DETAIL_MODAL,
+              onPrimaryButtonClick: () => {},
+              customProps: {
                 consentContractAddress,
                 reward,
               },
@@ -207,7 +211,7 @@ export default ({
                 >
                   <Box mb={1}>
                     <Typography className={rewardItemsClasses.compactItemPrice}>
-                      Rent Your:
+                      Price:
                     </Typography>
                   </Box>
                   <Permissions
@@ -232,8 +236,10 @@ export default ({
           borderBottom="1px solid #f0f0f0"
           alignItems="center"
           onClick={() => {
-            navigate(`${pathname}/reward-detail`, {
-              state: {
+            setModal({
+              modalSelector: EModalSelectors.REWARD_DETAIL_MODAL,
+              onPrimaryButtonClick: () => {},
+              customProps: {
                 consentContractAddress,
                 reward,
               },
@@ -277,8 +283,10 @@ export default ({
         p={1}
         borderRadius={14}
         onClick={() => {
-          navigate(`${pathname}/reward-detail`, {
-            state: {
+          setModal({
+            modalSelector: EModalSelectors.REWARD_DETAIL_MODAL,
+            onPrimaryButtonClick: () => {},
+            customProps: {
               consentContractAddress,
               reward,
             },

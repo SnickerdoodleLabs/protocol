@@ -24,8 +24,8 @@ const DetailsButton = withStyles({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
-    boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.016)",
-    color: "#262626",
+    boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.043)",
+    color: "#FFFFFF",
     border: "1px solid",
     borderColor: "#B9B6D3",
     fontStyle: "normal",
@@ -34,11 +34,11 @@ const DetailsButton = withStyles({
     fontWeight: 400,
     height: 22,
     fontSize: "12px",
-    lineHeight: "22px",
+    lineHeight: "20px",
     textTransform: "none",
-    backgroundColor: "#fff",
+    backgroundColor: "#8079B4",
     "&:hover": {
-      backgroundColor: "#fff",
+      backgroundColor: "#8079B4",
     },
   },
 })(MaterialButton);
@@ -81,7 +81,7 @@ const RecommendedCampaignItem: FC<IRecommendedCampaignItemProps> = ({
               {isLoading ? (
                 <Skeleton animation="wave" />
               ) : (
-                `${campaignInfo?.title}`
+                `${campaignInfo?.rewardName}`
               )}
             </Typography>
           </Box>

@@ -2,7 +2,7 @@ import { EWalletDataType } from "@snickerdoodlelabs/objects";
 
 export const UI_SUPPORTED_PERMISSIONS = [
   EWalletDataType.Gender,
-  EWalletDataType.Birthday,
+  EWalletDataType.Age,
   EWalletDataType.Location,
   EWalletDataType.SiteVisits,
   EWalletDataType.EVMTransactions,
@@ -13,7 +13,7 @@ export const UI_SUPPORTED_PERMISSIONS = [
 
 export const PERMISSION_NAMES = {
   [EWalletDataType.Gender]: "Gender",
-  [EWalletDataType.Birthday]: "Birthday",
+  [EWalletDataType.Age]: "Birthday",
   [EWalletDataType.Location]: "Country",
   [EWalletDataType.SiteVisits]: "Browser History",
   [EWalletDataType.EVMTransactions]: "Transaction History",
@@ -25,9 +25,9 @@ export const PERMISSION_NAMES = {
 
 export const PERMISSION_TEXT_NAMES = {
   [EWalletDataType.Gender]: "gender",
-  [EWalletDataType.Birthday]: "birthday",
+  [EWalletDataType.Age]: "birthday",
   [EWalletDataType.Location]: "country",
-  [EWalletDataType.SiteVisits]: "browser hisyory",
+  [EWalletDataType.SiteVisits]: "browser history",
   [EWalletDataType.EVMTransactions]: "transaction history",
   [EWalletDataType.AccountBalances]: "token balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
@@ -39,7 +39,7 @@ export const PERMISSIONS = [
     title: "Personal Info",
     dataTypes: [
       EWalletDataType.Gender,
-      EWalletDataType.Birthday,
+      EWalletDataType.Age,
       EWalletDataType.Location,
       EWalletDataType.SiteVisits,
     ],

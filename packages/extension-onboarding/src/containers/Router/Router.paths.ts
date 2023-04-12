@@ -7,7 +7,7 @@ export enum EPaths {
   ONBOARDING_TAG_SELECTION = "/onboarding/tag-selection",
   HOME = "/",
   CAMPAIGNS = "/campaigns",
-  MY_REWARDS = "/my-rewards",
+  // MY_REWARDS = "/my-rewards",
 
   MARKETPLACE = "/marketplace",
   MARKETPLACE_CAMPAIGN_DETAIL = "/marketplace/reward-program-detail",
@@ -16,9 +16,9 @@ export enum EPaths {
   MARKETPLACE_CAMPAIGN_DETAIL_WITH_TAG = "/marketplace/:tag/reward-program-detail",
   MARKETPLACE_REWARD_DETAIL_WITH_TAG = "/marketplace/:tag/reward-program-detail/reward-detail",
 
-  MARKETPLACE_CAMPAIGNS = "/campaigns/marketplace",
-  MARKETPLACE_COLLECTION = "/rewards/marketplace/:brand",
-  MARKETPLACE_REWARD = "/rewards/marketplace/reward",
+  // MARKETPLACE_CAMPAIGNS = "/campaigns/marketplace",
+  // MARKETPLACE_COLLECTION = "/rewards/marketplace/:brand",
+  // MARKETPLACE_REWARD = "/rewards/marketplace/reward",
   SETTINGS = "/settings",
   WEB3_SETTINGS = "/settings/web3",
   WEB2_SETTINGS = "/settings/web2",

@@ -55,7 +55,11 @@ const CampaignItem: FC<ICampaignItemProps> = ({
     >
       <Box mb={2}>
         <Typography className={classes.name}>
-          {isLoading ? <Skeleton animation="wave" /> : `${campaignInfo?.title}`}
+          {isLoading ? (
+            <Skeleton animation="wave" />
+          ) : (
+            `${campaignInfo?.rewardName}`
+          )}
         </Typography>
       </Box>
       <Box display="flex">
@@ -172,7 +176,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
                     },
                   });
                 }}
-                buttonType="v2"
+                buttonType="v2Primary"
               >
                 Details
               </Button>

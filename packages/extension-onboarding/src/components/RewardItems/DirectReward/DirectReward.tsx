@@ -1,7 +1,9 @@
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import Permissions from "@extension-onboarding/components/Permissions";
 import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
 import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Typography } from "@material-ui/core";
 import {
   DirectReward,
@@ -27,6 +29,7 @@ export default ({
   const rewardItemsClasses = useRewardItemsStyles();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { setModal } = useLayoutContext();
 
   const image = (
     <img
@@ -44,11 +47,12 @@ export default ({
       p={1}
       borderRadius={14}
       onClick={() => {
-        navigate(`${pathname}/reward-detail`, {
-          state: {
-            consentContractAddress,
-            reward,
+        setModal({
+          modalSelector: EModalSelectors.REWARD_DETAIL_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: {
             permissions,
+            reward,
           },
         });
       }}

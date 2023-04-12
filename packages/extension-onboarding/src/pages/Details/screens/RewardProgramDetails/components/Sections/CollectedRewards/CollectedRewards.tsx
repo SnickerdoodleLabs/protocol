@@ -99,13 +99,15 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
           );
         })}
         {waitingRewards.map((reward) => {
-          <Box flexBasis="calc(20% - 8px)" key={reward.queryCID}>
-            <PossibleRewardComponent
-              reward={reward}
-              consentContractAddress={consentContractAddress}
-              badgeType={EBadgeType.Waiting}
-            />
-          </Box>;
+          return (
+            <Box flexBasis="calc(20% - 8px)" key={reward.queryCID}>
+              <PossibleRewardComponent
+                reward={reward}
+                consentContractAddress={consentContractAddress}
+                badgeType={EBadgeType.Waiting}
+              />
+            </Box>
+          );
         })}
       </Box>
     </Section>

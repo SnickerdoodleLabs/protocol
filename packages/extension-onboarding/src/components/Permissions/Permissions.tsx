@@ -27,10 +27,10 @@ const PERMISSIONS: Partial<
     icon: genderIcon,
     dataType: EWalletDataType.Gender,
   },
-  [EWalletDataType.Birthday]: {
-    name: PERMISSION_NAMES[EWalletDataType.Birthday],
+  [EWalletDataType.Age]: {
+    name: PERMISSION_NAMES[EWalletDataType.Age],
     icon: dobIcon,
-    dataType: EWalletDataType.Birthday,
+    dataType: EWalletDataType.Age,
   },
   [EWalletDataType.Location]: {
     name: PERMISSION_NAMES[EWalletDataType.Location],
@@ -87,7 +87,7 @@ const Permissions: FC<IPermissionsProps> = ({
     if (displayType === "row") {
       return (
         <Box display="flex" flexWrap="wrap">
-          {permissions.map((permission, index) => (
+          {Array.from(new Set(permissions)).map((permission, index) => (
             <Fragment key={index}>
               {!!PERMISSIONS[permission] ? (
                 <Box style={{ cursor: "pointer" }}>

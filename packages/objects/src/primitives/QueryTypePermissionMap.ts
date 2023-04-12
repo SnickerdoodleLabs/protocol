@@ -14,4 +14,5 @@ export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   ["url_visited_count", EWalletDataType.SiteVisits],
   // web3
   ["nft", EWalletDataType.AccountNFTs],
+  ["network", EWalletDataType.EVMTransactions],
 ]);

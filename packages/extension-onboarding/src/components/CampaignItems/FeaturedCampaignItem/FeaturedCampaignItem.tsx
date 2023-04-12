@@ -90,7 +90,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
             {isLoading ? (
               <Skeleton animation="wave" />
             ) : (
-              `${campaignInfo?.title}`
+              `${campaignInfo?.rewardName}`
             )}
           </Typography>
           <Box mt={2} mb={2} height={42}>
@@ -196,7 +196,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                     },
                   });
                 }}
-                buttonType="v2"
+                buttonType="v2Primary"
               >
                 Details
               </Button>

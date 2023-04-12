@@ -131,8 +131,7 @@ const RewardsInfo: FC = () => {
                   src={emptySubscriptions}
                 />
                 <Typography className={classes.emptyText}>
-                  You don’t have any rewards
-                  <br /> program subscriptions yet.
+                  You don’t have any rewards program subscriptions yet.
                 </Typography>
                 <Box
                   mt={0.5}

@@ -26,6 +26,7 @@ import {
   Divider,
 } from "@material-ui/core";
 import {
+  AccountAddress,
   EarnedReward,
   ETag,
   EVMContractAddress,
@@ -124,49 +125,55 @@ const RewardProgramDetails: FC = () => {
   }, [JSON.stringify(consentPermissions)]);
 
   const handleSubscribeButton = () => {
+    rewardsRef.current = programRewards.reduce((acc, item) => {
+      const requiredDataTypes = item.queryDependencies.map(
+        (queryType) => QueryTypePermissionMap.get(queryType)!,
+      );
+      const permissionsMatched = requiredDataTypes.every((item) =>
+        permissionsState.includes(item),
+      );
+      if (permissionsMatched) {
+        acc = [...acc, item];
+      }
+      return acc;
+    }, [] as PossibleReward[]);
     setModal({
-      modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-      onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
+      modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
+      onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
         setLoadingStatus(true);
-        rewardsRef.current = programRewards.reduce((acc, item) => {
-          const requiredDataTypes = item.queryDependencies.map(
-            (queryType) => QueryTypePermissionMap.get(queryType)!,
-          );
-          const permissionsMatched = requiredDataTypes.every((item) =>
-            dataTypes.includes(item),
-          );
-          if (permissionsMatched) {
-            acc = [...acc, item];
-          }
-          return acc;
-        }, [] as PossibleReward[]);
         window.sdlDataWallet
-          .acceptInvitation(dataTypes, consentContractAddress)
+          .setReceivingAddress(consentContractAddress, receivingAccount)
           .map(() => {
-            updateOptedInContracts();
-            setLoadingStatus(false);
-            setModal({
-              modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
-              onPrimaryButtonClick: () => {},
-              customProps: {
-                campaignImage: info?.image,
-                eligibleRewards: rewardsRef.current,
-                dataTypes,
-                campaignName: info?.rewardName,
-              },
-            });
-          })
-          .mapErr(() => {
-            setLoadingStatus(false);
-            setAlert({
-              severity: EAlertSeverity.ERROR,
-              message: `${info?.rewardName} Rewards Program Subscription Failed!`,
-            });
+            window.sdlDataWallet
+              .acceptInvitation(permissionsState, consentContractAddress)
+              .map(() => {
+                updateOptedInContracts();
+                setLoadingStatus(false);
+                setModal({
+                  modalSelector: EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL,
+                  onPrimaryButtonClick: () => {},
+                  customProps: {
+                    campaignImage: info?.image,
+                    campaignName: info?.rewardName,
+                  },
+                });
+              })
+              .mapErr(() => {
+                setLoadingStatus(false);
+                setAlert({
+                  severity: EAlertSeverity.ERROR,
+                  message: `${info?.rewardName} Rewards Program Subscription Failed!`,
+                });
+              });
           });
       },
       customProps: {
         onCloseClicked: () => {},
-        primaryButtonText: "Save",
+        campaignImage: info?.image,
+        eligibleRewards: rewardsRef.current,
+        dataTypes: permissionsState,
+        consentContractAddress,
+        campaignName: info?.rewardName,
       },
     });
   };
@@ -215,23 +222,12 @@ const RewardProgramDetails: FC = () => {
 
     if (!isSubscribed) {
       return {
-        programRewards: possibleRewards
-          .filter(
-            (possibleReward) =>
-              !collectedRewards.find(
-                (item) => item.queryCID === possibleReward.queryCID,
-              ),
-            // test code
-          )
-          .map((r, index) => ({
-            ...r,
-            queryDependencies: [
-              "location",
-              "nft",
-              "gender",
-              ...(index % 2 > 0 ? ["chain_transactions"] : []),
-            ] as QueryTypes[],
-          })),
+        programRewards: possibleRewards.filter(
+          (possibleReward) =>
+            !collectedRewards.find(
+              (item) => item.queryCID === possibleReward.queryCID,
+            ),
+        ),
         waitingRewards: [] as PossibleReward[],
         collectedRewards,
       };
@@ -357,6 +353,24 @@ const RewardProgramDetails: FC = () => {
                   </Typography>
                 )}
               </Box>
+              {isSubscribed && consentPermissions && (
+                <Box
+                  px={1.5}
+                  ml={1.5}
+                  pt={0.75}
+                  py={0.25}
+                  borderRadius={8}
+                  bgcolor="#F6F6F6"
+                >
+                  <Typography className={classes.infoTitle}>
+                    Renting Your
+                  </Typography>
+                  <Permissions
+                    permissions={consentPermissions}
+                    displayType="row"
+                  />
+                </Box>
+              )}
               <Box display="flex" alignItems="center" marginLeft="auto">
                 {isSubscribed ? (
                   <>

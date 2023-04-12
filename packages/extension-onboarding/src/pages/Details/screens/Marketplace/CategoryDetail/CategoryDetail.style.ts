@@ -18,4 +18,13 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "160%",
     color: "#212121",
   },
+  emptyText: {
+    fontFamily: "'Roboto'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "24px",
+    textAlign: "center",
+    color: "rgba(35, 32, 57, 0.8)",
+  },
 }));
