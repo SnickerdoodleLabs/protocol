@@ -18,12 +18,17 @@ import {
   IBrowsingDataRepositoryType,
   IDemographicDataRepository,
   IDemographicDataRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   Age,
   CountryCode,
+  DiscordGuildProfile,
+  DiscordProfile,
+  ESocialType,
   EvalNotImplementedError,
   Gender,
   PersistenceError,
@@ -45,6 +50,7 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -63,6 +69,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected browsingDataRepo: IBrowsingDataRepository,
     @inject(ITransactionHistoryRepositoryType)
     protected transactionRepo: ITransactionHistoryRepository,
+    @inject(ISocialRepositoryType)
+    protected socialRepo: ISocialRepository,
   ) {}
 
   protected age: Age = Age(0);
@@ -131,7 +139,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
-              if(q.enum_keys){
+              if (q.enum_keys) {
                 for (const key of q.enum_keys) {
                   if (key == gender) {
                     return okAsync(SDQL_Return(gender));
@@ -155,6 +163,20 @@ export class QueryEvaluator implements IQueryEvaluator {
           .andThen((transactionArray) => {
             return okAsync(SDQL_Return(transactionArray));
           });
+      case "social_discord":
+        return this.socialRepo
+          .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
+          .map((profiles) =>
+            profiles.map((profile) => {
+              return {
+                id: profile.id,
+                name: profile.name,
+                icon: profile.icon,
+                joinedAt: profile.joinedAt,
+              };
+            }),
+          )
+          .map(SDQL_Return);
       default:
         return okAsync(result);
     }

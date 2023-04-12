@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IpfsCID,
+  QueryExpiredError,
   QueryFormatError,
   SDQLQuery,
   SDQLString,
@@ -142,8 +143,7 @@ describe.only("Schema validation", () => {
         fail("didn't return error");
       })
       .mapErr((err) => {
-        expect(err.constructor).toBe(QueryFormatError);
-        expect(err.message.includes("expiry")).toBeTruthy();
+        expect(err.constructor).toBe(QueryExpiredError);
       });
   });
 
