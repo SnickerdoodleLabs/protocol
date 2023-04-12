@@ -161,9 +161,8 @@ class QueryServiceMocks {
       this.queryParsingEngine.handleQuery(
         sdqlQuery,
         dataPermissions,
-        rewardParameters,
       ),
-    ).thenReturn(okAsync([insights, rewards]));
+    ).thenReturn(okAsync(insights));
 
     td.when(
       this.dataWalletUtils.deriveOptInPrivateKey(

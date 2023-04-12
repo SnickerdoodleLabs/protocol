@@ -119,21 +119,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
-    [IInsights, EligibleReward[]],
+    IInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const schemaString = query.query;
-    const cid: IpfsCID = query.cid;
-
     return this.queryFactories
-      .makeParserAsync(cid, schemaString)
+      .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        return this.gatherInsights(sdqlParser, cid, dataPermissions);
-      })
-      .map((insights) => {
-        return [insights, []] as [IInsights, EligibleReward[]];
+        return this.gatherInsights(sdqlParser, query.cid, dataPermissions);
       });
   }
 
