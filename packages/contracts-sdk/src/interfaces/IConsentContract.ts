@@ -1,7 +1,6 @@
 import {
   ConsentRoles,
   ContractOverrides,
-  ListingSlot,
   Tag,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
@@ -21,6 +20,7 @@ import {
   EVMContractAddress,
   HexString32,
   InvalidParametersError,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -350,24 +350,24 @@ export interface IConsentContract {
 
   newGlobalTag(
     tag: string,
-    newSlot: ListingSlot,
+    newSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   newLocalTagUpstream(
     tag: string,
-    newSlot: ListingSlot,
-    existingSlot: ListingSlot,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   newLocalTagDownstream(
     tag: string,
-    existingSlot: ListingSlot,
-    newSlot: ListingSlot,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   replaceExpiredListing(
     tag: string,
-    slot: ListingSlot,
+    slot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   removeListing(

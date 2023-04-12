@@ -10,6 +10,9 @@ import {
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,
+  MarketplaceTag,
+  PagingRequest,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -40,15 +43,22 @@ export class InvitationService implements IInvitationService {
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this.invitationRepository.getMarketplaceListings(count, headAt);
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
+    return this.invitationRepository.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.invitationRepository.getListingsTotal();
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationRepository.getListingsTotalByTag(tag);
   }
 
   public getConsentContractCID(

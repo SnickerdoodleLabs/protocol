@@ -1,11 +1,7 @@
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
 import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import {
-  ConsentRoles,
-  Tag,
-  ListingSlot,
-} from "@contracts-sdk/interfaces/objects/index.js";
+import { ConsentRoles, Tag } from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
@@ -980,7 +976,7 @@ export class ConsentContract implements IConsentContract {
       this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call openOptInDisabled()",
+          "Unable to call getNumberOfStakedTags()",
           "Unknown",
           e,
         );
@@ -995,7 +991,7 @@ export class ConsentContract implements IConsentContract {
       this.contract.getTagArray() as Promise<ITagStruct[]>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call openOptInDisabled()",
+          "Unable to call getTagArray()",
           "Unknown",
           e,
         );
@@ -1013,12 +1009,12 @@ export class ConsentContract implements IConsentContract {
 
   public newGlobalTag(
     tag: string,
-    newSlot: ListingSlot,
+    newStakeAmount: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newGlobalTag(
         tag,
-        newSlot,
+        newStakeAmount,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
@@ -1034,14 +1030,14 @@ export class ConsentContract implements IConsentContract {
 
   public newLocalTagUpstream(
     tag: string,
-    newSlot: ListingSlot,
-    existingSlot: ListingSlot,
+    newStakeAmount: BigNumberString,
+    existingStakeAmount: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.newLocalTagUpstream(
         tag,
-        newSlot,
-        existingSlot,
+        newStakeAmount,
+        existingStakeAmount,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
@@ -1057,14 +1053,14 @@ export class ConsentContract implements IConsentContract {
 
   public newLocalTagDownstream(
     tag: string,
-    existingSlot: ListingSlot,
-    newSlot: ListingSlot,
+    existingStakeAmount: BigNumberString,
+    newStakeAmount: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.newGlobalTag(
+      this.contract.newLocalTagDownstream(
         tag,
-        existingSlot,
-        newSlot,
+        existingStakeAmount,
+        newStakeAmount,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
@@ -1080,12 +1076,12 @@ export class ConsentContract implements IConsentContract {
 
   public replaceExpiredListing(
     tag: string,
-    slot: ListingSlot,
+    stakeAmount: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.replaceExpiredListing(
         tag,
-        slot,
+        stakeAmount,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(

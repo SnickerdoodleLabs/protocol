@@ -1,8 +1,6 @@
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import {
   ConsentRoles,
-  ListingSlot,
-  Listing,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -15,6 +13,8 @@ import {
   EVMContractAddress,
   IBlockchainError,
   IpfsCID,
+  MarketplaceListing,
+  MarketplaceTag,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
@@ -254,24 +254,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 
-  public getNumberOfListings(
-    tag: string,
-  ): ResultAsync<number, ConsentFactoryContractError> {
-    const key = ethers.utils.keccak256(ethers.utils.toUtf8String(tag));
-    return ResultAsync.fromPromise(
-      this.contract.listingTotals(key) as Promise<BigNumber>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getNumberOfListings()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((num) => {
-      return num.toNumber();
-    });
-  }
-
   public getListingDuration(): ResultAsync<
     number,
     ConsentFactoryContractError
@@ -324,116 +306,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     );
   }
 
-  public initializeTag(
-    tag: string,
-    newHead: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.initializeTag(
-        tag,
-        newHead,
-      ) as Promise<WrappedTransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call initializeTag()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    );
-  }
-
-  public insertUpstream(
-    tag: string,
-    newSlot: ListingSlot,
-    existingSlot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.insertUpstream(
-        tag,
-        newSlot,
-        existingSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call insertUpstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
-  public insertDownstream(
-    tag: string,
-    existingSlot: ListingSlot,
-    newSlot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.insertUpstream(
-        tag,
-        existingSlot,
-        newSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call insertDownstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
-  public replaceExpiredListing(
-    tag: string,
-    slot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.replaceExpiredListing(
-        tag,
-        slot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call insertDownstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
-  public removeListing(
-    tag: string,
-    removedSlot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.replaceExpiredListing(
-        tag,
-        removedSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call removeListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
-  }
-
   public adminRemoveListing(
-    tag: string,
-    removedSlot: ListingSlot,
+    tag: MarketplaceTag,
+    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.adminRemoveListing(
@@ -453,9 +328,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getListingDetail(
-    tag: string,
-    slot: ListingSlot,
-  ): ResultAsync<Listing, ConsentFactoryContractError> {
+    tag: MarketplaceTag,
+    slot: BigNumberString,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListing(tag, slot) as Promise<IListingStruct>,
       (e) => {
@@ -466,23 +341,24 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map((listing) => {
-      return new Listing(
-        listing.previous ? BigNumberString(listing.previous.toString()) : null,
-        listing.next ? BigNumberString(listing.next.toString()) : null,
+      return new MarketplaceListing(
+        BigNumberString(listing.previous.toString()),
+        BigNumberString(listing.next.toString()),
         listing.consentContract,
-        listing.timeExpiring
-          ? UnixTimestamp(listing.timeExpiring?.toNumber())
-          : null,
+        UnixTimestamp(listing.timeExpiring?.toNumber()),
+        IpfsCID(""), // TODO: Update contract to also return its CID for getListing (only does this with getListingsForward/backward atm)
+        slot,
+        tag,
       );
     });
   }
 
   public getListingsForward(
-    tag: string,
-    startingSlot: ListingSlot,
+    tag: MarketplaceTag,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError> {
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
@@ -498,28 +374,35 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map(([cids, listings]) => {
-      return listings.map((listing, index) => {
-        return new Listing(
-          listing.previous
-            ? BigNumberString(listing.previous.toString())
-            : null,
-          listing.next ? BigNumberString(listing.next.toString()) : null,
-          listing.consentContract,
-          listing.timeExpiring
-            ? UnixTimestamp(listing.timeExpiring?.toNumber())
-            : null,
-          IpfsCID(cids[index]),
-        );
-      });
+      return listings
+        .map((listing, index) => {
+          return new MarketplaceListing(
+            BigNumberString(listing.previous.toString()),
+            BigNumberString(listing.next.toString()),
+            listing.consentContract,
+            UnixTimestamp(listing.timeExpiring.toNumber()),
+            IpfsCID(cids[index]),
+            listings[index + 1] != null && listing.next.isZero() === false
+              ? BigNumberString(listings[index + 1].previous.toString())
+              : listings[index - 1] != null
+              ? BigNumberString(listings[index - 1].next.toString())
+              : startingSlot,
+            tag,
+          );
+        })
+        .filter((listing) => {
+          // Filter out slots with previous and next zeros
+          return listing.previous != "0" || listing.next != "0";
+        });
     });
   }
 
   public getListingsBackward(
-    tag: string,
-    startingSlot: ListingSlot,
+    tag: MarketplaceTag,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError> {
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
@@ -535,24 +418,32 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map(([cids, listings]) => {
-      return listings.map((listing, index) => {
-        return new Listing(
-          listing.previous
-            ? BigNumberString(listing.previous.toString())
-            : null,
-          listing.next ? BigNumberString(listing.next.toString()) : null,
-          listing.consentContract,
-          listing.timeExpiring
-            ? UnixTimestamp(listing.timeExpiring?.toNumber())
-            : null,
-          IpfsCID(cids[index]),
-        );
-      });
+      return listings
+        .map((listing, index) => {
+          return new MarketplaceListing(
+            BigNumberString(listing.previous.toString()),
+            BigNumberString(listing.next.toString()),
+            listing.consentContract,
+            UnixTimestamp(listing.timeExpiring?.toNumber()),
+            IpfsCID(cids[index]),
+            listings[index + 1] != null &&
+            listing.previous.eq(ethers.constants.MaxUint256) === false
+              ? BigNumberString(listings[index + 1].next.toString())
+              : listings[index - 1] != null
+              ? BigNumberString(listings[index - 1].previous.toString())
+              : startingSlot,
+            tag,
+          );
+        })
+        .filter((listing) => {
+          // Filter out slots with previous and next zeros
+          return listing.previous != "0" || listing.next != "0";
+        });
     });
   }
 
   public getTagTotal(
-    tag: string,
+    tag: MarketplaceTag,
   ): ResultAsync<number, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getTagTotal(tag) as Promise<BigNumber>,
@@ -567,15 +458,37 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       return count.toNumber();
     });
   }
+
+  public getListingsByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    // We get the total number of slots by calling getTagTotal()
+    // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
+    return ResultUtils.combine([
+      this.getTagTotal(tag),
+      this.getListingDetail(
+        tag,
+        BigNumberString(ethers.constants.MaxUint256.toString()),
+      ),
+    ]).andThen(([tagTotal, listingDetail]) => {
+      const lowestRankedListingSlot = listingDetail.previous;
+      return this.getListingsForward(
+        tag,
+        lowestRankedListingSlot,
+        tagTotal,
+        true,
+      );
+    });
+  }
 }
 interface IListingStruct {
-  previous: BigNumber | null;
-  next: BigNumber | null;
-  consentContract: EVMContractAddress | null;
-  timeExpiring: BigNumber | null;
+  previous: BigNumber;
+  next: BigNumber;
+  consentContract: EVMContractAddress;
+  timeExpiring: BigNumber;
 }
 
-// I listinStruct { at the place where we're using it, and dont have to export here
+// I listingStruct { at the place where we're using it, and don't have to export here
 
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
 

@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   Invitation,
   DataPermissions,
@@ -22,6 +20,8 @@ import {
   AdSignature,
   AESEncryptedString,
   PossibleReward,
+  PagingRequest,
+  PagedResponse,
   DiscordProfile,
   DiscordGuildProfile,
   DataWalletBackup,
@@ -82,6 +82,7 @@ import {
   IpfsCID,
   JsonWebToken,
   LanguageCode,
+  MarketplaceTag,
   OAuthAuthorizationCode,
   PEMEncodedRSAPublicKey,
   SHA256Hash,
@@ -90,6 +91,7 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -100,16 +102,27 @@ import {
  */
 
 export interface ICoreMarketplaceMethods {
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean, // make it optional in interface, = true here
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<MarketplaceListing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
-  getListingsTotal(): ResultAsync<
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   /**
@@ -299,7 +312,7 @@ export interface ISnickerdoodleCore {
    * and establishes the actual address of the data wallet. After getUnlockMessage(),
    * this should be the second method you call on the Snickerdoodle Core. If this is the first
    * time using this account + unlock message, the Data Wallet will be created.
-   * If this is a subsequent time, you will regain access to the exisitng wallet.
+   * If this is a subsequent time, you will regain access to the existing wallet.
    * For an existing wallet with multiple connected accounts, you can unlock with a
    * signature from any of the accounts (form factor can decide), but you cannot
    * add a new account via unlock, use addAccount() to link a new account once you
@@ -483,7 +496,7 @@ export interface ISnickerdoodleCore {
 
   /**
    * This method will actually burn a user's consent token. This data wallet will no longer
-   * recieve notifications of queries for this cohort.
+   * received notifications of queries for this cohort.
    * @param consentContractAddress
    */
   leaveCohort(

@@ -1,14 +1,16 @@
-import { Listing, ListingSlot, WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
+  BigNumberString,
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
   MarketplaceListing,
+  MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -97,10 +99,6 @@ export interface IConsentFactoryContract {
    */
   getMaxTagsPerListing(): ResultAsync<number, ConsentFactoryContractError>;
 
-  getNumberOfListings(
-    tag: string,
-  ): ResultAsync<number, ConsentFactoryContractError>;
-
   getListingDuration(): ResultAsync<number, ConsentFactoryContractError>;
 
   setListingDuration(
@@ -111,56 +109,39 @@ export interface IConsentFactoryContract {
     maxTagsPerListing: number,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
-  initializeTag(
-    tag: string,
-    newHead: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  insertUpstream(
-    tag: string,
-    newSlot: ListingSlot,
-    existingSlot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  insertDownstream(
-    tag: string,
-    existingSlot: ListingSlot,
-    newSlot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  replaceExpiredListing(
-    tag: string,
-    slot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
-  removeListing(
-    tag: string,
-    removedSlot: ListingSlot,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
-
   adminRemoveListing(
-    tag: string,
-    removedSlot: ListingSlot,
+    tag: MarketplaceTag,
+    removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   getListingDetail(
-    tag: string,
-    slot: ListingSlot,
-  ): ResultAsync<Listing, ConsentFactoryContractError>;
+    tag: MarketplaceTag,
+    slot: BigNumberString,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
 
   getListingsForward(
-    tag: string,
-    startingSlot: ListingSlot,
+    tag: MarketplaceTag,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError>;
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 
   getListingsBackward(
-    tag: string,
-    startingSlot: ListingSlot,
+    tag: MarketplaceTag,
+    startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<Listing[], ConsentFactoryContractError>;
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 
-  getTagTotal(tag: string): ResultAsync<number, ConsentFactoryContractError>;
+  getTagTotal(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, ConsentFactoryContractError>;
+
+  /**
+   *  Return the list of marketplace listings of a specific tag
+   * @param tag marketplace tag string
+   */
+  getListingsByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 }

@@ -3,6 +3,49 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+  IDiscordPoller,
+  IDiscordPollerType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+  IDiscordService,
+  IDiscordServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountIndexers,
   DefaultAccountBalances,
@@ -83,6 +126,10 @@ import {
   TransactionFilter,
   TransactionPaymentCounter,
   UnauthorizedError,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  MarketplaceListing,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
@@ -105,50 +152,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-  IDiscordPoller,
-  IDiscordPollerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  IDiscordService,
-  IDiscordServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -275,21 +278,34 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Marketplace Methods ---------------------------------------------------------------------------
     this.marketplace = {
-      getMarketplaceListings: (
-        count?: number | undefined,
-        headAt?: number | undefined,
+      getMarketplaceListingsByTag: (
+        pagingReq: PagingRequest,
+        tag: MarketplaceTag,
+        filterActive?: boolean,
       ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getMarketplaceListings(count, headAt);
+        return marketplaceService.getMarketplaceListingsByTag(
+          pagingReq,
+          tag,
+          filterActive,
+        );
       },
-      getListingsTotal: () => {
+      getListingsTotalByTag: (tag: MarketplaceTag) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getListingsTotal();
+        return marketplaceService.getListingsTotalByTag(tag);
       },
+
+      getRecommendationsByListing: (listing: MarketplaceListing) => {
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getRecommendationsByListing(listing);
+      },
+
       getPossibleRewards: (
         contractAddresses: EVMContractAddress[],
         timeoutMs?: number,
