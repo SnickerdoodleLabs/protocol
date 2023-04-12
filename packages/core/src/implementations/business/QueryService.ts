@@ -310,7 +310,6 @@ export class QueryService implements IQueryService {
     console.log(
       `QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
     );
-
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -321,17 +320,12 @@ export class QueryService implements IQueryService {
           this.queryParsingEngine.handleQuery(
             query,
             consentToken!.dataPermissions,
-            rewardParameters,
           ),
           this.dataWalletUtils.deriveOptInPrivateKey(
             consentContractAddress,
             context.dataWalletKey!,
           ),
-        ]).andThen(([maps, optInKey]) => {
-          const maps2 = maps as [IInsights, EligibleReward[]];
-          const insights = maps2[0];
-          const rewards = maps2[1];
-
+        ]).andThen(([insights, optInKey]) => {
           return this.insightPlatformRepo
             .deliverInsights(
               consentContractAddress,
