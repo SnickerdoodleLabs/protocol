@@ -109,37 +109,25 @@ export class ChunkRenderer implements IChunkRenderer {
     }
 
     return this.backupUtils
-      .getBackupHash(updates as BackupBlob)
-      .andThen((hash) => {
-        const timestamp = this.timeUtils.getUnixNow();
-        return this.backupUtils
-          .generateBackupSignature(hash, timestamp, this.privateKey)
-          .andThen((signature) => {
-            const header = new DataWalletBackupHeader(
-              hash,
-              UnixTimestamp(timestamp),
-              signature,
-              this.schema.priority,
-              this.schema.name,
-              this.schema instanceof FieldIndex,
-            );
-
-            if (!this.enableEncryption) {
-              return okAsync(
-                new DataWalletBackup(header, updates as BackupBlob),
+      .encryptBlob(updates, this.enableEncryption ? this.privateKey : null)
+      .andThen((encryptedBlob) => {
+        return this.backupUtils.getBackupHash(encryptedBlob).andThen((hash) => {
+          const timestamp = this.timeUtils.getUnixNow();
+          return this.backupUtils
+            .generateBackupSignature(hash, timestamp, this.privateKey)
+            .map((signature) => {
+              const header = new DataWalletBackupHeader(
+                hash,
+                UnixTimestamp(timestamp),
+                signature,
+                this.schema.priority,
+                this.schema.name,
+                this.schema instanceof FieldIndex,
               );
-            }
 
-            return this.cryptoUtils
-              .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-              .andThen((aesKey) => {
-                return this.cryptoUtils
-                  .encryptString(ObjectUtils.serialize(updates), aesKey)
-                  .map((encryptedBlob) => {
-                    return new DataWalletBackup(header, encryptedBlob);
-                  });
-              });
-          });
+              return new DataWalletBackup(header, encryptedBlob);
+            });
+        });
       });
   }
 }
