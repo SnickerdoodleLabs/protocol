@@ -12,6 +12,8 @@ import {
   WalletNFT,
   SiteVisit,
   MarketplaceListing,
+  PagingRequest,
+  PagedResponse,
   DiscordProfile,
   DiscordGuildProfile,
 } from "@objects/businessObjects";
@@ -33,6 +35,7 @@ import {
   GivenName,
   IpfsCID,
   LanguageCode,
+  MarketplaceTag,
   OAuthAuthorizationCode,
   Signature,
   SnowflakeID,
@@ -148,12 +151,13 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
 
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, JsonRpcError>;
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError>;
 
-  getListingsTotal(): ResultAsync<number, JsonRpcError>;
+  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, JsonRpcError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,

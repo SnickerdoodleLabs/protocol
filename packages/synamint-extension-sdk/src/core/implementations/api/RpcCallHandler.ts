@@ -36,6 +36,9 @@ import {
   URLString,
   SiteVisit,
   MarketplaceListing,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -111,13 +114,14 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
-  IGetMarketplaceListingsParams,
   ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
   IScamFilterPreferences,
   IGetReceivingAddressParams,
   mapToObj,
   SnickerDoodleCoreError,
+  IGetMarketplaceListingsByTagParams,
+  IGetListingsTotalByTagParams,
   IInitializeDiscordUser,
   IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
@@ -329,16 +333,21 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
-      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
-        const { count, headAt } = params as IGetMarketplaceListingsParams;
+      case EExternalActions.GET_MARKETPLACE_LISTINGS_BY_TAG: {
+        const { pagingReq, tag, filterActive } =
+          params as IGetMarketplaceListingsByTagParams;
         return new AsyncRpcResponseSender(
-          this.getMarketplaceListings(count, headAt),
+          this.getMarketplaceListingsByTag(pagingReq, tag, filterActive),
           res,
         ).call();
       }
 
-      case EExternalActions.GET_LISTING_TOTAL: {
-        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
+      case EExternalActions.GET_LISTING_TOTAL_BY_TAG: {
+        const { tag } = params as IGetListingsTotalByTagParams;
+        return new AsyncRpcResponseSender(
+          this.getListingsTotalByTag(tag),
+          res,
+        ).call();
       }
 
       case EExternalActions.GET_CONTRACT_CID: {
@@ -644,15 +653,22 @@ export class RpcCallHandler implements IRpcCallHandler {
     });
   }
 
-  private getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this.invitationService.getMarketplaceListings(count, headAt);
+  private getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
+    return this.invitationService.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  private getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.invitationService.getListingsTotal();
+  private getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationService.getListingsTotalByTag(tag);
   }
 
   private getConsentContractCID(

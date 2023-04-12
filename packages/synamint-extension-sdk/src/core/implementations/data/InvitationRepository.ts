@@ -14,12 +14,18 @@ import {
   TokenId,
   MarketplaceListing,
   AccountAddress,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IInvitationRepository } from "@synamint-extension-sdk/core/interfaces/data/IInvitationRepository";
-import { IErrorUtils, IErrorUtilsType } from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 @injectable()
@@ -29,19 +35,23 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.core.marketplace
-      .getMarketplaceListings(count, headAt)
+      .getMarketplaceListingsByTag(pagingReq, tag, filterActive)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
-  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.core.marketplace.getListingsTotal().mapErr((error) => {
+
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.core.marketplace.getListingsTotalByTag(tag).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -114,32 +124,32 @@ export class InvitationRepository implements IInvitationRepository {
   }
 
   public setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.setDefaultReceivingAddress(receivingAddress).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core
+      .setDefaultReceivingAddress(receivingAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public setReceivingAddress(
-    contractAddress: EVMContractAddress, 
-    receivingAddress: AccountAddress | null
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.setReceivingAddress(
-      contractAddress, receivingAddress
-    ).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core
+      .setReceivingAddress(contractAddress, receivingAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getReceivingAddress(
-    contractAddress?: EVMContractAddress, 
+    contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
-    return this.core.getReceivingAddress(
-      contractAddress
-    ).mapErr((error) => {
+    return this.core.getReceivingAddress(contractAddress).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

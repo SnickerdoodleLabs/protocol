@@ -19,6 +19,8 @@ import {
   AccountAddress,
   ChainId,
   TokenAddress,
+  PagingRequest,
+  MarketplaceTag,
   BearerAuthToken,
   SnowflakeID,
   OAuthAuthorizationCode,
@@ -152,9 +154,14 @@ export interface IGetTokenInfoParams {
   contractAddress: TokenAddress | null;
 }
 
-export interface IGetMarketplaceListingsParams {
-  count?: number;
-  headAt?: number;
+export interface IGetMarketplaceListingsByTagParams {
+  pagingReq: PagingRequest;
+  tag: MarketplaceTag;
+  filterActive?: boolean;
+}
+
+export interface IGetListingsTotalByTagParams {
+  tag: MarketplaceTag;
 }
 
 export interface ISetDefaultReceivingAddressParams {

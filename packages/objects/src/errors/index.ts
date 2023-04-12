@@ -32,3 +32,4 @@ export * from "@objects/errors/UninitializedError.js";
 export * from "@objects/errors/UnsupportedLanguageError.js";
 export * from "@objects/errors/ERC721RewardContractError.js";
 export * from "@objects/errors/RewardsFactoryError.js";
+export * from "@objects/errors/TransactionResponseError";
