@@ -70,6 +70,7 @@ export class ExtensionCore {
       moralisApiKey: config.moralisApiKey,
       nftScanApiKey: config.nftScanApiKey,
       poapApiKey: config.poapApiKey,
+      oklinkApiKey: config.oklinkApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,

@@ -43,7 +43,7 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+} from "@indexers/IIndexerConfigProvider.js";
 
 export class OklinkExplorer implements IEVMAccountBalanceRepository {
   public constructor(
@@ -77,12 +77,12 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
       console.log("Inside getAlchemyclient chain: ", chain);
       switch (chain) {
         default:
-        return okAsync({
+          return okAsync({
             id: 0,
             jsonrpc: "2.0",
             method: "eth_getBalance",
             params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
-            });
+          });
       }
     });
   }
@@ -96,27 +96,37 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
       this.configProvider.getConfig(),
     ]).andThen(([alchemySettings, config]) => {
       const chainInfo = getChainInfoByChainId(chainId);
-      const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      // const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      // const url = new URL("https://www.oklink.com/api/v5/explorer/address/address-balance-fills?chainShortName=arbitrum&address=0x7472cb61cd0c2761acb5fD0aeB13B79FB0173097&protocolType=token_20&tokenContractAddress=0x912ce59144191c1204e64559fe8253a0e49e6548"
+      const url = urlJoinP(
+        "https://www.oklink.com/api/v5/explorer/address/",
+        ["address-balance-fills"],
+        {
+          chainShortName: chainInfo.name.toString(),
+          address: accountAddress,
+          protocolType: "token_20",
+        },
+      );
+      console.log("url: ", url);
       return this.ajaxUtils
-        .post<IOKXNativeBalanceResponse>(
-          new URL(url),
-          JSON.stringify(alchemySettings),
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
+        .get<IOKXNativeBalanceResponse>(new URL(url), {
+          headers: {
+            "Ok-Access-Key": config.oklinkApiKey,
           },
-        )
+        })
         .andThen((response) => {
-          const weiValue = parseInt(response.result, 16);
+          const tokenData = response.data[0].tokenList[0];
+          // const weiValue = parseInt(response.result, 16);
           return okAsync(
             new TokenBalance(
               EChainTechnology.EVM,
-              TickerSymbol("ETH"),
+              tokenData.token,
               chainId,
-              null,
+              tokenData.tokenContractAddress,
               accountAddress,
-              BigNumberString(BigNumber.from(weiValue).toString()),
+              BigNumberString(
+                BigNumber.from(tokenData.holdingAmount).toString(),
+              ),
               18,
             ),
           );
@@ -145,9 +155,29 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
 }
 
 interface IOKXNativeBalanceResponse {
-  status: string;
-  message: string;
-  result: HexString;
+  code: string;
+  msg: string;
+  data: typedData[];
+}
+
+interface typedData {
+  page: string;
+  limit: string;
+  totalPage: string;
+  chainFullName: string;
+  chainShortName: string;
+  tokenList: tokenData[];
+}
+
+interface tokenData {
+  token: TickerSymbol;
+  tokenId: string;
+  holdingAmount: string; // how much native token you own
+  totalTokenValue: string;
+  change24h: string;
+  priceUsd: BigNumberString; // usd value per token
+  valueUsd: BigNumberString; // total usd amount you own
+  tokenContractAddress: EVMContractAddress;
 }
 
 interface alchemyAjaxSettings {

@@ -28,6 +28,10 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
+  getOklinkBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
 }
 
 export const IAccountBalancesType = Symbol.for("IAccountBalances");
