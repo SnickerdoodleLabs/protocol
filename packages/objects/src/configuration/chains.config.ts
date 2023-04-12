@@ -36,9 +36,9 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Hardhat,
       "",
       EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
-      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Crumbs Contract
+      EVMContractAddress("0x610178dA211FEF7D417bC0e6FeD39F05609AD788"), // Crumbs Contract
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"), // Sift Contract
+      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Sift Contract
     ),
   ],
   [

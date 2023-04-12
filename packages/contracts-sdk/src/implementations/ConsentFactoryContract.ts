@@ -471,10 +471,13 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         BigNumberString(ethers.constants.MaxUint256.toString()),
       ),
     ]).andThen(([tagTotal, listingDetail]) => {
-      const lowestRankedListingSlot = listingDetail.previous;
+      // The max slot's next points to the highest slot
+      const highestRankListingSlot = listingDetail.next;
+
+      // Fetch from the highest to lowest listings
       return this.getListingsForward(
         tag,
-        lowestRankedListingSlot,
+        highestRankListingSlot,
         tagTotal,
         true,
       );
