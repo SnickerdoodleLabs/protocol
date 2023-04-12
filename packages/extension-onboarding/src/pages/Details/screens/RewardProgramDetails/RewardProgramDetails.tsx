@@ -374,9 +374,9 @@ const RewardProgramDetails: FC = () => {
               <Box display="flex" alignItems="center" marginLeft="auto">
                 {isSubscribed ? (
                   <>
-                    <ManageSettingsButton variant="contained">
+                    {/* <ManageSettingsButton variant="contained">
                       Manage Data Permissions
-                    </ManageSettingsButton>
+                    </ManageSettingsButton> */}
                     <Box ml={2} mr={0.5}>
                       <img
                         width={17}
