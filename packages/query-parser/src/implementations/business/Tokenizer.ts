@@ -2,6 +2,7 @@ import {
   InvalidRegularExpression,
   ParserError,
 } from "@snickerdoodlelabs/objects";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 export enum TokenType {
   if = "if",
@@ -70,20 +71,24 @@ export class Tokenizer {
   position = 0;
   private _hasNext = true;
   constructor(readonly exprStr: string, readonly debug: boolean = false) {
-    if (this.exprStr.length == 0) {
-      const err = new ParserError(
-        this.position,
-        "cannot parse empty expressions",
-      );
-      // console.error(err);
-      throw err;
-    }
-    this.validateRules();
+    // if (this.exprStr.length == 0) {
+    //   const err = new ParserError(
+    //     this.position,
+    //     "cannot parse empty expressions",
+    //   );
+    //   // console.error(err);
+    //   throw err;
+    // }
+    // this.validateRules(); it went to all method.
   }
 
   reset() {
     this.position = 0;
-    this._hasNext = true;
+    if (this.exprStr.length == 0) {
+      this._hasNext = false;
+    } else {
+      this._hasNext = true;
+    }
   }
 
   hasNext(): boolean {
@@ -105,20 +110,9 @@ export class Tokenizer {
         console.log("testing regex", rexp);
       }
       // if test True, extract from stream, set position to lastIndex if lastIndex is < len, finish otherwise
-      if (rexp.test(this.exprStr)) {
-        if (this.debug) {
-          console.log(`found token at ${this.position}, ${rexp.lastIndex}`);
-        }
-        const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
-        const tokenVal = this.convertVal(tokenType, rawVal);
-        const token = new Token(tokenType, tokenVal, this.position);
-        if (rexp.lastIndex >= this.exprStr.length) {
-          this._hasNext = false;
-          this.position = 0;
-        } else {
-          this.position = rexp.lastIndex;
-        }
 
+      const token = this.getTokenByRule(rexp, tokenType);
+      if (token != null) {
         return token;
       }
       // if false, do nothing
@@ -134,23 +128,54 @@ export class Tokenizer {
     throw err;
   }
 
-  all(): Array<Token> {
-    const tokens = new Array<Token>();
-    while (this.hasNext()) {
-      tokens.push(this.next());
+  public getTokenByRule(rexp: RegExp, tokenType: TokenType): Token | null {
+    if (rexp.test(this.exprStr)) {
+      if (this.debug) {
+        console.log(`found token at ${this.position}, ${rexp.lastIndex}`);
+      }
+      const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
+      const tokenVal = this.convertVal(tokenType, rawVal);
+      const token = new Token(tokenType, tokenVal, this.position);
+      if (rexp.lastIndex >= this.exprStr.length) {
+        this._hasNext = false;
+        this.position = 0;
+      } else {
+        this.position = rexp.lastIndex;
+      }
+
+      return token;
     }
-    return tokens;
+
+    return null;
   }
 
-  validateRules() {
+  public all(): ResultAsync<
+    Array<Token>,
+    ParserError | InvalidRegularExpression
+  > {
+    return this.validateRules().andThen(() => {
+      try {
+        const tokens = new Array<Token>();
+        while (this.hasNext()) {
+          tokens.push(this.next());
+        }
+        return okAsync(tokens);
+      } catch (err) {
+        return errAsync(err as ParserError);
+      }
+    });
+  }
+
+  validateRules(): ResultAsync<void, InvalidRegularExpression> {
     for (const rule of rules) {
       const rexp = rule[0];
       if (rexp.sticky != true) {
         const err = new InvalidRegularExpression(`${rexp} is not sticky`);
         // console.error(err);
-        throw err;
+        return errAsync(err);
       }
     }
+    return okAsync(undefined);
   }
 
   convertVal(type: TokenType, rawVal: string): unknown {

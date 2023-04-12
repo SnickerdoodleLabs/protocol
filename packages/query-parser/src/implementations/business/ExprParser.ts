@@ -1,9 +1,12 @@
+import { ParseError } from "@babel/parser";
 import {
+  InvalidRegularExpression,
   MissingTokenConstructorError,
   ParserError,
   SDQL_Name,
   SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import {
   Token,
@@ -88,14 +91,20 @@ export class ExprParser {
   }
 
   // #region building ast
-  parse(exprStr: string): AST_Expr | Command {
+  public parse(
+    exprStr: string,
+  ): ResultAsync<AST_Expr | Command, ParserError | InvalidRegularExpression> {
     /**
      * Builds a AST expression or a command from the input string
      */
     const tokenizer = new Tokenizer(exprStr);
-    const tokens = tokenizer.all();
-    const ast = this.tokensToAst(tokens);
-    return ast;
+    return tokenizer.all().andThen((tokens) => {
+      const ast = this.tokensToAst(tokens); // TODO this to be result async, too.
+      return okAsync(ast);
+    });
+    // const tokens = tokenizer.all(); // TODO fix
+    // const ast = this.tokensToAst(tokens);
+    // return ast;
   }
 
   tokensToAst(tokens: Token[]): AST_Expr | Command {

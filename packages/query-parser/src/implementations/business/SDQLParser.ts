@@ -5,6 +5,7 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   EWalletDataType,
+  InvalidRegularExpression,
   IpfsCID,
   ISDQLAd,
   ISDQLCompensationParameters,
@@ -498,47 +499,95 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError
   > {
-    try {
-      const compensationSchema = this.schema.getCompensationSchema();
+    const compensationSchema = this.schema.getCompensationSchema();
+    let compensations: [SDQL_Name, ISDQLCompensations][] = [];
+    for (const cName in compensationSchema) {
+      // console.log(`parsing compensation ${cName}`);
 
-      for (const cName in compensationSchema) {
-        // console.log(`parsing compensation ${cName}`);
-
-        if (cName == "parameters") {
-          // this is the parameters block
-          this.compensationParameters = compensationSchema[
-            cName
-          ] as ISDQLCompensationParameters;
-        } else {
-          // This is a compensation
-          const name = SDQL_Name(cName);
-          const schema = compensationSchema[cName] as ISDQLCompensations;
-          const requiresAst = this.parseExpString(
-            schema.requires,
-          ) as AST_RequireExpr;
-          const compensation = new AST_Compensation(
-            name,
-            schema.description,
-            requiresAst,
-            schema.requires,
-            schema.chainId,
-            schema.callback,
-            schema.alternatives ? schema.alternatives : [],
-          );
-
-          this.compensations.set(compensation.name, compensation);
-          this.saveInContext(cName, compensation);
-          // this.requiresCompensations.set(
-          //   schema.requires,
-          //   compensation.requires,
-          // );
-        }
-      }
-
-      return okAsync(undefined);
-    } catch (err) {
-      return errAsync(this.transformError(err as Error));
+      if (cName == "parameters") {
+        // this is the parameters block
+        this.compensationParameters = compensationSchema[
+          cName
+        ] as ISDQLCompensationParameters;
+      } else {
+        // This is a compensation
+        const name = SDQL_Name(cName);
+        const schema = compensationSchema[cName] as ISDQLCompensations;
+        compensations.push([name, schema]);
     }
+
+    const results = compensations.map(([name, schema]) => {
+      const astResult = this.parseExpString(
+        schema.requires
+      ).andThen((ast) => {
+        const requiresAst = ast as AST_RequireExpr;
+        const compensation = new AST_Compensation(
+          name,
+          schema.description,
+          requiresAst,
+          schema.requires,
+          schema.chainId,
+          schema.callback,
+          schema.alternatives ? schema.alternatives : []
+        );
+        this.compensations.set(compensation.name, compensation);
+        this.saveInContext(cName, compensation);
+        return okAsync(undefined);
+
+      }).orElse((err) => {
+        return errAsync(this.transformError(err as Error));
+      })
+      return astResult;
+    })
+
+    return okAsync(undefined);
+
+    // return ResultUtils.combine(results).map(()=>{})
+
+
+    
+
+    // try {
+    //   const compensationSchema = this.schema.getCompensationSchema();
+
+    //   for (const cName in compensationSchema) {
+    //     // console.log(`parsing compensation ${cName}`);
+
+    //     if (cName == "parameters") {
+    //       // this is the parameters block
+    //       this.compensationParameters = compensationSchema[
+    //         cName
+    //       ] as ISDQLCompensationParameters;
+    //     } else {
+    //       // This is a compensation
+    //       const name = SDQL_Name(cName);
+    //       const schema = compensationSchema[cName] as ISDQLCompensations;
+    //       const requiresAst = this.parseExpString(
+    //         schema.requires,
+    //       ) as AST_RequireExpr;
+    //       const compensation = new AST_Compensation(
+    //         name,
+    //         schema.description,
+    //         requiresAst,
+    //         schema.requires,
+    //         schema.chainId,
+    //         schema.callback,
+    //         schema.alternatives ? schema.alternatives : [],
+    //       );
+
+    //       this.compensations.set(compensation.name, compensation);
+    //       this.saveInContext(cName, compensation);
+    //       // this.requiresCompensations.set(
+    //       //   schema.requires,
+    //       //   compensation.requires,
+    //       // );
+    //     }
+    //   }
+
+    //   return okAsync(undefined);
+    // } catch (err) {
+    //   return errAsync(this.transformError(err as Error));
+    // }
   }
   // #endregion
 
@@ -594,30 +643,40 @@ export class SDQLParser {
     return lrs;
   }
 
-  public parseTargetExpString(target: string): AST_ConditionExpr {
+  public parseTargetExpString(
+    target: string,
+  ): ResultAsync<AST_ConditionExpr, ParserError | InvalidRegularExpression> {
     const ast = this.parseExpString(target);
-    if (ast instanceof AST_ConditionExpr) {
-      return ast;
-    }
-    if (ast instanceof AST_BoolExpr) {
-      return new AST_ConditionExpr(
-        ast.name,
-        ast.source == null ? false : ast.source,
+
+    return this.parseExpString(target).andThen((ast) => {
+      if (ast instanceof AST_ConditionExpr) {
+        return okAsync(ast);
+      }
+      if (ast instanceof AST_BoolExpr) {
+        return okAsync(
+          new AST_ConditionExpr(
+            ast.name,
+            ast.source == null ? false : ast.source,
+          ),
+        );
+      } else if (ast instanceof AST_Expr && ast.source instanceof AST_Query) {
+        return okAsync(new AST_ConditionExpr(ast.name, ast.source));
+      } else if (ast instanceof Condition) {
+        return okAsync(
+          new AST_ConditionExpr(SDQL_Name(ast.name as string), ast),
+        );
+      }
+      return errAsync(
+        new QueryFormatError(
+          `wrong AST type for target expression: ${JSON.stringify(ast)}`,
+        ),
       );
-      // return ast;
-    }
-    if (ast instanceof AST_Expr && ast.source instanceof AST_Query) {
-      return new AST_ConditionExpr(ast.name, ast.source);
-    }
-    if (ast instanceof Condition) {
-      return new AST_ConditionExpr(ast.name, ast);
-    }
-    throw new QueryFormatError(
-      `wrong AST type for target expression: ${JSON.stringify(ast)}`,
-    );
+    });
   }
 
-  public parseExpString(expStr: string): AST_Expr | Command {
+  public parseExpString(
+    expStr: string,
+  ): ResultAsync<AST_Expr | Command, ParserError | InvalidRegularExpression> {
     return this.exprParser!.parse(expStr);
     // if (this.exprParser) return this.exprParser.parse(expStr);
     // throw new Error("Expression Parser not found.");
