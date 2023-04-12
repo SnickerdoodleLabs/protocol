@@ -23,11 +23,7 @@ export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    parameters?: IDynamicRewardParameter[],
-  ): ResultAsync<
-    [IInsights, EligibleReward[]],
-    EvaluationError | QueryFormatError
-  >;
+  ): ResultAsync<IInsights, EvaluationError | QueryFormatError>;
   getPossibleRewards(
     query: SDQLQuery,
   ): ResultAsync<PossibleReward[], ParserError>;

@@ -1,5 +1,4 @@
 import {
-  BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
   OAuthAuthorizationCode,

@@ -1,7 +1,4 @@
-import {
-  DiscordAccessToken,
-  DiscordRefreshToken,
-} from "@objects/primitives/index.js";
+import { DiscordAccessToken, DiscordRefreshToken } from "@snickerdoodlelabs/objects";
 
 export interface DiscordOAuth2TokensAPIResponse {
   access_token: DiscordAccessToken;
