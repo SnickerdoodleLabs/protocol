@@ -116,7 +116,7 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
         })
         .andThen((response) => {
           const tokenData = response.data[0].tokenList[0];
-          // const weiValue = parseInt(response.result, 16);
+          // const val = tokenData.holdingAmount * 10 ** 18;
           return okAsync(
             new TokenBalance(
               EChainTechnology.EVM,
@@ -124,9 +124,7 @@ export class OklinkExplorer implements IEVMAccountBalanceRepository {
               chainId,
               tokenData.tokenContractAddress,
               accountAddress,
-              BigNumberString(
-                BigNumber.from(tokenData.holdingAmount).toString(),
-              ),
+              BigNumberString((tokenData.holdingAmount * 10 ** 18).toString()),
               18,
             ),
           );
@@ -172,7 +170,7 @@ interface typedData {
 interface tokenData {
   token: TickerSymbol;
   tokenId: string;
-  holdingAmount: string; // how much native token you own
+  holdingAmount: number; // how much native token you own
   totalTokenValue: string;
   change24h: string;
   priceUsd: BigNumberString; // usd value per token
