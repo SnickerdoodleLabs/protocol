@@ -400,28 +400,29 @@ export class SDQLParser {
     AST_Insight,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    try {
-      // 1. build ast from target, requires queries in the context
-      // 2. build ast from returns, requires queries in the context
-      const targetAst = this.parseTargetExpString(schema.target);
-      const returnsAst = this.parseExpString(schema.returns);
-      const dataPermissions = this.parseUnifiedDataPermissions([
-        schema.target,
-        schema.returns,
-      ]);
-      return okAsync(
-        new AST_Insight(
-          name,
-          targetAst as AST_ConditionExpr,
+    const targetResult = this.parseTargetExpString(schema.target);
+    const returnResult = this.parseExpString(schema.returns);
+
+    return ResultUtils.combine([targetResult, returnResult])
+      .andThen(([targetAst, returnsAst]) => {
+        const dataPermissions = this.parseUnifiedDataPermissions([
           schema.target,
-          returnsAst as AST_Expr,
           schema.returns,
-          dataPermissions,
-        ),
-      );
-    } catch (err) {
-      return errAsync(this.transformError(err as Error));
-    }
+        ]);
+        return okAsync(
+          new AST_Insight(
+            name,
+            targetAst as AST_ConditionExpr,
+            schema.target,
+            returnsAst as AST_Expr,
+            schema.returns,
+            dataPermissions,
+          ),
+        );
+      })
+      .orElse((err) => {
+        return errAsync(this.transformError(err as Error));
+      });
   }
 
   /**
@@ -495,12 +496,38 @@ export class SDQLParser {
     // }
   }
 
+  private parseCompensation(
+    name: SDQL_Name,
+    schema: ISDQLCompensations,
+  ): ResultAsync<
+    AST_Compensation,
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
+  > {
+    return this.parseExpString(schema.requires)
+      .andThen((ast) => {
+        const requiresAst = ast as AST_RequireExpr;
+        const compensation = new AST_Compensation(
+          name,
+          schema.description,
+          requiresAst,
+          schema.requires,
+          schema.chainId,
+          schema.callback,
+          schema.alternatives ? schema.alternatives : [],
+        );
+        return okAsync(compensation);
+      })
+      .orElse((err) => {
+        return errAsync(this.transformError(err as Error));
+      });
+  }
+
   private parseCompensations(): ResultAsync<
     void,
-    DuplicateIdInSchema | QueryFormatError
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
     const compensationSchema = this.schema.getCompensationSchema();
-    let compensations: [SDQL_Name, ISDQLCompensations][] = [];
+    const compensations: [SDQL_Name, ISDQLCompensations][] = [];
     for (const cName in compensationSchema) {
       // console.log(`parsing compensation ${cName}`);
 
@@ -514,38 +541,18 @@ export class SDQLParser {
         const name = SDQL_Name(cName);
         const schema = compensationSchema[cName] as ISDQLCompensations;
         compensations.push([name, schema]);
+      }
     }
 
     const results = compensations.map(([name, schema]) => {
-      const astResult = this.parseExpString(
-        schema.requires
-      ).andThen((ast) => {
-        const requiresAst = ast as AST_RequireExpr;
-        const compensation = new AST_Compensation(
-          name,
-          schema.description,
-          requiresAst,
-          schema.requires,
-          schema.chainId,
-          schema.callback,
-          schema.alternatives ? schema.alternatives : []
-        );
-        this.compensations.set(compensation.name, compensation);
-        this.saveInContext(cName, compensation);
+      return this.parseCompensation(name, schema).andThen((ast) => {
+        this.compensations.set(name, ast);
+        this.saveInContext(name, ast);
         return okAsync(undefined);
+      });
+    });
 
-      }).orElse((err) => {
-        return errAsync(this.transformError(err as Error));
-      })
-      return astResult;
-    })
-
-    return okAsync(undefined);
-
-    // return ResultUtils.combine(results).map(()=>{})
-
-
-    
+    return ResultUtils.combine(results).map(() => {});
 
     // try {
     //   const compensationSchema = this.schema.getCompensationSchema();
