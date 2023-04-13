@@ -34,10 +34,10 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
     public alchemyEndpoints: {
-      solana: string;
-      solanaTestnet: string;
-      polygon: string;
-      polygonMumbai: string;
+      Solana: string;
+      SolanaTestnet: string;
+      Polygon: string;
+      PolygonMumbai: string;
       Arbitrum: string;
       Optimism: string;
     },

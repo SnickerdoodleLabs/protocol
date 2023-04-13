@@ -240,8 +240,8 @@ export class SolanaIndexer
 
     this._connections = this.configProvider.getConfig().andThen((config) => {
       return ResultUtils.combine([
-        this._getConnectionForEndpoint(config.alchemyEndpoints.solana),
-        this._getConnectionForEndpoint(config.alchemyEndpoints.solanaTestnet),
+        this._getConnectionForEndpoint(config.alchemyEndpoints.Solana),
+        this._getConnectionForEndpoint(config.alchemyEndpoints.SolanaTestnet),
       ]).map(([mainnet, testnet]) => {
         return {
           mainnet,

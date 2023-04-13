@@ -10,10 +10,10 @@ export interface IIndexerConfig {
   quoteCurrency: ECurrencyCode;
   supportedChains: ChainId[];
   alchemyEndpoints: {
-    solana: string;
-    solanaTestnet: string;
-    polygon: string;
-    polygonMumbai: string;
+    Solana: string;
+    SolanaTestnet: string;
+    Polygon: string;
+    PolygonMumbai: string;
     Arbitrum: string;
     Optimism: string;
   };

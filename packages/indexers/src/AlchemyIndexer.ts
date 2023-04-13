@@ -24,6 +24,7 @@ import {
   IEVMNftRepository,
   BlockNumber,
   TokenUri,
+  EIndexer,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject } from "inversify";
@@ -90,6 +91,47 @@ export class AlchemyIndexer
     });
   }
 
+  private nativeBalanceParms(
+    chain: ChainId,
+  ): [IAlchemyRequestConfig, TickerSymbol, ChainId] {
+    console.log("chain: ", ChainId);
+    switch (chain) {
+      case EChain.Polygon:
+        return [
+          {
+            id: 1,
+            jsonrpc: "2.0",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83"],
+            method: "eth_getBalance",
+          },
+          TickerSymbol("MATIC"),
+          ChainId(137),
+        ];
+      case EChain.Arbitrum:
+        return [
+          {
+            id: 1,
+            jsonrpc: "2.0",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83"],
+            method: "eth_getBalance1",
+          },
+          TickerSymbol("ETH"),
+          ChainId(1),
+        ];
+      default:
+        return [
+          {
+            id: 1,
+            jsonrpc: "2.0",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83"],
+            method: "eth_getBalance2",
+          },
+          TickerSymbol("ETH"),
+          ChainId(1),
+        ];
+    }
+  }
+
   /* Fetching ETH Balance from Chains */
   private getNativeBalance(
     chainId: ChainId,
@@ -98,17 +140,19 @@ export class AlchemyIndexer
     const chainInfo = getChainInfoByChainId(chainId);
     return this.configProvider.getConfig().andThen((config) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
-      console.log("url: ", url);
+
+      const params = this.nativeBalanceParms(chainId);
+      const requestParams = params[0];
+      const nativeTickerSymbol = params[1];
+      const nativeChain = params[2];
+
+      console.log("native balance url: ", url);
+      console.log("requestParams: ", requestParams);
 
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(
           new URL(url),
-          JSON.stringify({
-            id: 0,
-            jsonrpc: "2.0",
-            method: "eth_getBalance",
-            params: [accountAddress, "latest"],
-          }),
+          JSON.stringify(requestParams),
           {
             headers: {
               "Content-Type": `application/json;`,
@@ -119,8 +163,8 @@ export class AlchemyIndexer
           const weiValue = parseInt(response.result, 16).toString();
           const balance = new TokenBalance(
             EChainTechnology.EVM,
-            TickerSymbol("ETH"),
-            ChainId(1), // this should not be the case, we should be adding by symbols
+            nativeTickerSymbol,
+            nativeChain, // this should not be the case, we should be adding by symbols
             null,
             accountAddress,
             BigNumberString(weiValue),
@@ -141,6 +185,7 @@ export class AlchemyIndexer
       .getConfig()
       .andThen((config) => {
         const url = config.alchemyEndpoints[chainInfo.name.toString()];
+        console.log("non native balance url: ", url);
         return this.ajaxUtils
           .post<INonNativeReponse>(
             new URL(url),
@@ -319,6 +364,13 @@ interface alchemyNft {
     gateway: string;
     raw: string;
   };
+}
+
+interface IAlchemyRequestConfig {
+  id: number;
+  jsonrpc: string;
+  method: string;
+  params: string[];
 }
 
 interface coinGeckoCall {

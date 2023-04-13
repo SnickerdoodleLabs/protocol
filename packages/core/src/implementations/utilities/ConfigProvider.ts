@@ -101,12 +101,12 @@ export class ConfigProvider
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
       {
-        solana:
+        Solana:
           "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-        solanaTestnet:
+        SolanaTestnet:
           "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-        polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
-        polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
+        Polygon: "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
+        PolygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
         Arbitrum:
           "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
         Optimism:
