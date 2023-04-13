@@ -96,6 +96,7 @@ export const testCoreConfig = new CoreConfig(
   10000,
   "(localhost|chrome:\/\/)",
   false,
+  300000,
   1000,
   discordConfig,
 );

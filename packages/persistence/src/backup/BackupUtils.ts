@@ -11,9 +11,10 @@ import {
   BackupBlob,
   EncryptedBackupBlob,
   DataWalletBackupID,
+  AESEncryptedString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 
@@ -22,6 +23,25 @@ export class BackupUtils implements IBackupUtils {
   public constructor(
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
+
+  public encryptBlob(
+    blob: BackupBlob,
+    privateKey: EVMPrivateKey | null,
+  ): ResultAsync<BackupBlob | AESEncryptedString, never> {
+    if (privateKey == null) {
+      return okAsync(blob);
+    }
+
+    return this.cryptoUtils
+      .deriveAESKeyFromEVMPrivateKey(privateKey)
+      .andThen((aesKey) => {
+        return this.cryptoUtils
+          .encryptString(ObjectUtils.serialize(blob), aesKey)
+          .map((encryptedBlob) => {
+            return encryptedBlob;
+          });
+      });
+  }
 
   public verifyBackupSignature(
     backup: DataWalletBackup,

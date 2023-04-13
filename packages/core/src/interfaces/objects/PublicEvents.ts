@@ -1,6 +1,7 @@
 import {
   DataWalletAddress,
   DataWalletBackupID,
+  EarnedReward,
   DomainName,
   EVMContractAddress,
   EVMTransaction,
@@ -11,6 +12,7 @@ import {
   PermissionsRequestedEvent,
   PortfolioUpdate,
   SDQLQueryRequest,
+  SnowflakeID,
   TokenBalance,
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
@@ -28,9 +30,12 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
   public onBackupRestored: Subject<DataWalletBackupID>;
+  public onEarnedRewardsAdded: Subject<EarnedReward[]>;
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
   public onPermissionsRevoked: Subject<DomainName>;
+  public onDiscordProfileLinked: Subject<SnowflakeID>;
+  public onDiscordProfileUnlinked: Subject<SnowflakeID>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -44,8 +49,11 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onTokenBalanceUpdate = new Subject();
     this.onNftBalanceUpdate = new Subject();
     this.onBackupRestored = new Subject();
+    this.onEarnedRewardsAdded = new Subject();
     this.onPermissionsGranted = new Subject();
     this.onPermissionsRequested = new Subject();
     this.onPermissionsRevoked = new Subject();
+    this.onDiscordProfileLinked = new Subject();
+    this.onDiscordProfileUnlinked = new Subject();
   }
 }

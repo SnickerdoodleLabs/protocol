@@ -115,7 +115,7 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.transactionRepo.addTransactions(transactions); // let's not call if empty?
+        return this.transactionRepo.addTransactions(transactions);
       });
   }
 
