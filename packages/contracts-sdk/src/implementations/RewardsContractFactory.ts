@@ -46,7 +46,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       this.providerOrSigner,
     ).andThen((gasFee) => {
       return ResultAsync.fromPromise(
-        this.contractFactory.deploy(symbol, name, baseURI, {
+        this.contractFactory.deploy(name, symbol, baseURI, {
           ...gasFee,
           ...overrides,
         }),

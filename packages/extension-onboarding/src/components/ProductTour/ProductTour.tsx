@@ -155,7 +155,7 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
       ETourCompleteState.COMPLETED,
     );
     setIsActive(false);
-    navigate(EPaths.MY_REWARDS);
+    navigate(EPaths.MARKETPLACE);
   };
 
   const handleCallBack = (data: CallBackProps) => {

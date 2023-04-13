@@ -1,10 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { IMarketplaceService } from "@core/interfaces/business/index.js";
+import {
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IMarketplaceRepositoryType,
+  IMarketplaceRepository,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+} from "@core/interfaces/data/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
   ConsentFactoryContractError,
   EvaluationError,
   EVMContractAddress,
@@ -13,24 +25,14 @@ import {
   RequestForData,
   UninitializedError,
   MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
+  ConsentContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IMarketplaceService } from "@core/interfaces/business/index.js";
-import {
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  IMarketplaceRepository,
-  IMarketplaceRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class MarketplaceService implements IMarketplaceService {
@@ -46,21 +48,37 @@ export class MarketplaceService implements IMarketplaceService {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive = true,
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<MarketplaceListing>,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
-    return this.marketplaceRepo.getMarketplaceListings(count, headAt);
+    return this.marketplaceRepo.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
-    return this.marketplaceRepo.getListingsTotal();
+    return this.marketplaceRepo.getListingsTotalByTag(tag);
+  }
+
+  public getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    UninitializedError | BlockchainProviderError | ConsentContractError
+  > {
+    return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
 
   public getPossibleRewards(

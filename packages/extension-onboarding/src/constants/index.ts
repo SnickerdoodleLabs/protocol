@@ -22,6 +22,7 @@ export const DOWNLOAD_URL =
 export const googleScopes =
   "profile email https://www.googleapis.com/auth/user.addresses.read https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/user.phonenumbers.read https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
+export const LOCAL_STORAGE_TAGS_KEY = "sdlSelectedTags";
 export const LOCAL_STORAGE_SDL_INVITATION_KEY = "sdlInvitation";
 export const LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION =
   "rewardsMarketplaceIntroduction";

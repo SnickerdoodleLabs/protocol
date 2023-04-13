@@ -17,6 +17,7 @@ import {
   Signature,
   OptInInfo,
   TokenUri,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -33,14 +34,14 @@ export interface IConsentContractRepository {
   >;
 
   /**
-   * Returns the number of "slots" available to opt-in to the contract, which is just
+   * Returns the number of "slots" available to opt-in to the contract as availableOptInCount and maxCapacity as maxCapacity, which is just
    * maxCapacity - currentOptins.
    * @param consentContractAddress
    */
-  getAvailableOptInCount(
+  getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    number,
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 

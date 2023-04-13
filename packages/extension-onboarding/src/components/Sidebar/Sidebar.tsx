@@ -31,10 +31,16 @@ export interface IRoute {
 }
 
 export const routes: IRoute[] = [
+  // {
+  //   icon: rewardsIcon,
+  //   title: "Rewards Marketplace",
+  //   path: EPaths.MY_REWARDS,
+  //   subroutes: null,
+  // },
   {
     icon: rewardsIcon,
     title: "Rewards Marketplace",
-    path: EPaths.MY_REWARDS,
+    path: EPaths.MARKETPLACE,
     subroutes: null,
   },
   {
@@ -50,15 +56,6 @@ export const routes: IRoute[] = [
       { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
   },
-  // {
-  //   icon: campaignIcon,
-  //   title: "Campaigns",
-  //   path: null,
-  //   subroutes: [
-  //     { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
-  //     { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
-  //   ],
-  // },
   {
     icon: settingsIcon,
     title: "Settings",
@@ -66,7 +63,7 @@ export const routes: IRoute[] = [
     subroutes: [
       { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
       { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
-      { title: "Campaigns", path: EPaths.CAMPAIGN_SETTINGS },
+      { title: "Rewards Subscriptions", path: EPaths.REWARDS_SUBSCRIPTIONS },
       { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
@@ -99,6 +96,7 @@ const Sidebar = () => {
           }}
           className={classes.button}
           mt={6}
+          minHeight={48}
           height={48}
           borderRadius={8}
           display="flex"
@@ -113,7 +111,7 @@ const Sidebar = () => {
             <AddIcon className={classes.linkAccountButtonIcon} />
           </Box>
           <Typography className={classes.linkAccountButtonText}>
-            Link account
+            Link Account
           </Typography>
         </Box>
         <Box mt={6} display="flex" flexDirection="column" width="100%">
@@ -124,6 +122,8 @@ const Sidebar = () => {
               (route.subroutes ? route.subroutes : []).findIndex(
                 (subroute) => subroute.path === location.pathname,
               ) > -1;
+            const isHighlighted =
+              route.path && location.pathname.includes(route.path);
             return (
               <Box
                 key={index}
@@ -145,17 +145,13 @@ const Sidebar = () => {
                   px={1.5}
                   display="flex"
                   alignItems="center"
-                  {...(isActive && { bgcolor: "#DAD8E9" })}
+                  {...((isActive || isHighlighted) && { bgcolor: "#DAD8E9" })}
                   className={classes.routeWrapper}
                 >
                   {/* <Box display="flex" mr={1.5}>
                     <img className={classes.mainRouteIcon} src={route.icon} />
                   </Box> */}
-                  <Typography
-                    className={clsx(classes.mainRouteText, {
-                      [classes.textActive]: isActive,
-                    })}
-                  >
+                  <Typography className={clsx(classes.routeText)}>
                     {route.title}
                   </Typography>
                   {subroutes?.length && (
@@ -185,10 +181,10 @@ const Sidebar = () => {
                               navigate(subroute.path);
                               setLastClickedIndex(index);
                             }}
-                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 2}
                           >
                             <Typography
-                              className={clsx(classes.subrouteText, {
+                              className={clsx(classes.routeText, {
                                 [classes.textActive]:
                                   subroute.path === location.pathname,
                               })}
@@ -205,7 +201,7 @@ const Sidebar = () => {
             );
           })}
         </Box>
-        <Box alignSelf="flex-start" marginTop="auto" mb={2} display="flex">
+        <Box alignSelf="flex-start" marginTop="auto" mb={1.5} display="flex">
           <Typography
             onClick={() => {
               window.open(SURVEY_URL, "_blank");
@@ -215,7 +211,7 @@ const Sidebar = () => {
             Survey
           </Typography>
         </Box>
-        <Box mb={2} width="100%" justifyContent="flex-start">
+        <Box mb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {
@@ -225,7 +221,7 @@ const Sidebar = () => {
             Contact Us
           </Typography>
         </Box>
-        <Box mb={2} width="100%" justifyContent="flex-start">
+        <Box mb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {
@@ -235,7 +231,7 @@ const Sidebar = () => {
             FAQ
           </Typography>
         </Box>
-        <Box pb={2.5} width="100%" justifyContent="flex-start">
+        <Box pb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {
