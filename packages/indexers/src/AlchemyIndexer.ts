@@ -25,7 +25,6 @@ import {
   BlockNumber,
   TokenUri,
 } from "@snickerdoodlelabs/objects";
-import { TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -127,6 +126,7 @@ export class AlchemyIndexer
             BigNumberString(weiValue),
             chainInfo.nativeCurrency.decimals,
           );
+          console.log("Alchemy Indexer balance: ", balance);
           return okAsync(balance);
         });
     });
@@ -157,6 +157,10 @@ export class AlchemyIndexer
             },
           )
           .andThen((response) => {
+            console.log(
+              "response.result.tokenBalances: ",
+              response.result.tokenBalances,
+            );
             const balances = response.result.tokenBalances.map((entry) => {
               const weiValue = parseInt(entry.tokenBalance, 16).toString();
               const url = `https://api.coingecko.com/api/v3/coins/${chainInfo.name}/contract/${entry.contractAddress}`;

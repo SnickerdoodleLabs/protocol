@@ -197,7 +197,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
             case EIndexer.Polygon:
-              return evmRepo.getBalancesForAccount(
+              return alchemyRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
