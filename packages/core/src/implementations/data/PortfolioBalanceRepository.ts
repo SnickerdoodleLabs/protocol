@@ -212,7 +212,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as SolanaAccountAddress,
               );
             case EIndexer.Ethereum:
-              return etherscanRepo.getBalancesForAccount(
+              return alchemyRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
