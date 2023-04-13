@@ -63,6 +63,8 @@ export class AlchemyIndexer
     ],
   ]);
 
+  private contractConnection;
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -70,7 +72,9 @@ export class AlchemyIndexer
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) {
+    // this.contractConnection = ;
+  }
 
   protected _getEtherscanApiKey(
     chain: ChainId,
@@ -113,10 +117,7 @@ export class AlchemyIndexer
           },
         )
         .andThen((response) => {
-          console.log("Alchemy native response: ", response);
           const weiValue = parseInt(response.result, 16).toString();
-          chainInfo.nativeCurrency.symbol;
-
           const balance = new TokenBalance(
             EChainTechnology.EVM,
             TickerSymbol("ETH"),
@@ -136,50 +137,71 @@ export class AlchemyIndexer
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     const chainInfo = getChainInfoByChainId(chainId);
-    return this.configProvider.getConfig().andThen((config) => {
-      const url = config.alchemyEndpoints[chainInfo.name.toString()];
-      console.log("url: ", url);
-
-      return this.ajaxUtils
-        .post<INonNativeReponse>(
-          new URL(url),
-          JSON.stringify({
-            id: 0,
-            jsonrpc: "2.0",
-            method: "alchemy_getTokenBalances",
-            params: [accountAddress, "erc20"],
-          }),
-          {
-            headers: {
-              "Content-Type": `application/json`,
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const url = config.alchemyEndpoints[chainInfo.name.toString()];
+        return this.ajaxUtils
+          .post<INonNativeReponse>(
+            new URL(url),
+            JSON.stringify({
+              id: 0,
+              jsonrpc: "2.0",
+              method: "alchemy_getTokenBalances",
+              params: [accountAddress, "erc20"],
+            }),
+            {
+              headers: {
+                "Content-Type": `application/json`,
+              },
             },
-          },
-        )
-        .andThen((response) => {
-          console.log("Alchemy non native response: ", response);
-          const balances = response.result.tokenBalances.map((entry) => {
-            const weiValue = parseInt(entry.tokenBalance, 16).toString();
+          )
+          .andThen((response) => {
+            const balances = response.result.tokenBalances.map((entry) => {
+              const weiValue = parseInt(entry.tokenBalance, 16).toString();
+              const url = `https://api.coingecko.com/api/v3/coins/${chainInfo.name}/contract/${entry.contractAddress}`;
+              console.log("coin gecko api: ", url);
+              return this.ajaxUtils
+                .get<coinGeckoCall>(new URL(url))
+                .map((val) => {
+                  console.log("coin gecko val: ", val);
 
-            let contractSymbol = this._addressMapping.get(
-              entry.contractAddress,
-            );
-            console.log("contractSymbol: ", contractSymbol);
-            if (!contractSymbol) {
-              contractSymbol = TickerSymbol("");
-            }
-            return new TokenBalance(
-              EChainTechnology.EVM,
-              contractSymbol,
-              chainId,
-              entry.contractAddress,
-              accountAddress,
-              BigNumberString(weiValue),
-              chainInfo.nativeCurrency.decimals,
-            );
+                  return new TokenBalance(
+                    EChainTechnology.EVM,
+                    TickerSymbol(val.symbol),
+                    chainId,
+                    entry.contractAddress,
+                    accountAddress,
+                    BigNumberString(weiValue),
+                    chainInfo.nativeCurrency.decimals,
+                  );
+                });
+            });
+
+            return okAsync(balances);
           });
-          return okAsync(balances);
+      })
+      .map((balances) => {
+        console.log("coin gecko balances: ", balances);
+
+        return Promise.all(balances).then((balance) => {
+          return (
+            balance
+              //@ts-ignore
+              .filter((obj) => obj.value != null)
+              .map((tokenBalance) => {
+                console.log("coin gecko tokenBalance: ", tokenBalance);
+
+                //@ts-ignore
+                return tokenBalance.value;
+              })
+          );
         });
-    });
+      })
+      .andThen((asdf) => {
+        console.log("asdf: ", asdf);
+        return okAsync(asdf);
+      });
   }
 
   public getBalancesForAccount(
@@ -190,7 +212,6 @@ export class AlchemyIndexer
       this.getNonNativeBalance(chainId, accountAddress),
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
-      // return [nativeBalance];
       return [nativeBalance, ...nonNativeBalance];
     });
   }
@@ -233,6 +254,12 @@ export class AlchemyIndexer
   }
 }
 
+interface IAlchemyNativeBalanceResponse {
+  status: string;
+  message: string;
+  result: HexString;
+}
+
 interface INonNativeReponse {
   jsonrpc: number;
   id: number;
@@ -242,28 +269,9 @@ interface INonNativeReponse {
   };
 }
 
-interface INativeReponse {
-  jsonrpc: number;
-  id: number;
-  result: HexString;
-}
-
 interface ITokenBalance {
   contractAddress: EVMContractAddress;
   tokenBalance: HexString;
-}
-
-interface IAlchemyNativeBalanceResponse {
-  status: string;
-  message: string;
-  result: HexString;
-}
-
-interface alchemyAjaxSettings {
-  id: number;
-  jsonrpc: string;
-  method: string;
-  params: string[];
 }
 
 interface alchemyNftResponse {
@@ -307,6 +315,12 @@ interface alchemyNft {
     gateway: string;
     raw: string;
   };
+}
+
+interface coinGeckoCall {
+  id: string;
+  symbol: string;
+  name: string;
 }
 
 interface alchemyMedia {

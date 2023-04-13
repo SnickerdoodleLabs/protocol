@@ -12,6 +12,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  getChainInfoByChain,
   IEVMNftRepository,
   TokenUri,
   UnixTimestamp,
@@ -73,26 +74,12 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     return items;
   }
 
-  private getUrl(chainId) {
-    if (chainId == "1284") {
-      return "https://moonbeamapi.nftscan.com";
-    }
-    if (chainId == "42161") {
-      return "https://arbitrumapi.nftscan.com";
-    }
-    if (chainId == "10") {
-      return "https://optimismapi.nftscan.com";
-    }
-    return "https://ethereumapi.nftscan.com";
-  }
-
   private generateQueryConfig(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
-    const baseUrl = this.getUrl(chainId);
-    console.log("nftscan baseUrl: ", baseUrl);
-    const url = urlJoinP(baseUrl, [
+    const chainInfo = getChainInfoByChain(chainId);
+    const url = urlJoinP(`https://${chainInfo.name}api.nftscan.com`, [
       "api",
       "v2",
       "account",

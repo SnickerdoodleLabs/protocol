@@ -125,6 +125,7 @@ export class SolanaIndexer
               })
           );
         });
+
       });
   }
 
