@@ -152,13 +152,8 @@ export class AlchemyIndexer
     const chainInfo = getChainInfoByChainId(chainId);
     return this.configProvider.getConfig().andThen((config) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
-
-      const params = this.nativeBalanceParams(chainId, accountAddress);
-      const requestParams = params[0];
-      const nativeTickerSymbol = params[1];
-      const nativeChain = params[2];
-
-      console.log("native balance url: ", url);
+      const [requestParams, nativeTickerSymbol, nativeChain] =
+        this.nativeBalanceParams(chainId, accountAddress);
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(
           new URL(url),
@@ -180,7 +175,6 @@ export class AlchemyIndexer
             BigNumberString(weiValue),
             chainInfo.nativeCurrency.decimals,
           );
-          console.log("Alchemy Chain: ", chainId, " has balance: ", balance);
           return okAsync(balance);
         });
     });
@@ -193,7 +187,6 @@ export class AlchemyIndexer
     const chainInfo = getChainInfoByChainId(chainId);
     return this.configProvider.getConfig().andThen((config) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
-      console.log("non native balance url: ", url);
       return this.ajaxUtils
         .post<INonNativeReponse>(
           new URL(url),
@@ -210,10 +203,10 @@ export class AlchemyIndexer
           },
         )
         .andThen((response) => {
-          console.log(
-            "response.result.tokenBalances: ",
-            response.result.tokenBalances,
-          );
+          // console.log(
+          //   "response.result.tokenBalances: ",
+          //   response.result.tokenBalances,
+          // );
           return ResultUtils.combine(
             response.result.tokenBalances.map((entry) => {
               const weiValue = parseInt(entry.tokenBalance, 16).toString();
@@ -244,7 +237,6 @@ export class AlchemyIndexer
           });
         })
         .andThen((balances) => {
-          console.log("response balances: ", balances);
           return okAsync(balances);
         });
     });
