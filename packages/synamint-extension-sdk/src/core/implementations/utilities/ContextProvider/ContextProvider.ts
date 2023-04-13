@@ -1,5 +1,7 @@
 import {
   DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
   Invitation,
   LinkedAccount,
   UUID,
@@ -19,9 +21,12 @@ import {
   IInternalState,
   IExternalState,
 } from "@synamint-extension-sdk/shared/interfaces/states";
-import { AccountAddedNotification } from "@synamint-extension-sdk/shared/objects/notifications/AccountAddedNotification";
-import { AccountInitializedNotification } from "@synamint-extension-sdk/shared/objects/notifications/AccountInitializedNotification";
-import { AccountRemovedNotification } from "@synamint-extension-sdk/shared/objects/notifications/AccountRemovedNotification";
+import {
+  AccountAddedNotification,
+  AccountInitializedNotification,
+  AccountRemovedNotification,
+  EarnedRewardsAddedNotification,
+} from "@synamint-extension-sdk/shared/objects/notifications";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
@@ -78,19 +83,27 @@ export class ContextProvider implements IContextProvider {
 
   // port notifiers
 
-  public onAccountAdded(linkedAccount: LinkedAccount) {
+  public onAccountAdded(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
       new AccountAddedNotification({ linkedAccount }, UUID(v4())),
     );
   }
 
-  public onAccountRemoved(linkedAccount: LinkedAccount) {
+  public onAccountRemoved(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
       new AccountRemovedNotification({ linkedAccount }, UUID(v4())),
     );
   }
 
-  private onAccountContextInitialized(dataWalletAddress: DataWalletAddress) {
+  public onEarnedRewardsAdded(rewards: EarnedReward[]): void {
+    this.appContext.notifyAllConnections(
+      new EarnedRewardsAddedNotification({ rewards }, UUID(v4())),
+    );
+  }
+
+  private onAccountContextInitialized(
+    dataWalletAddress: DataWalletAddress,
+  ): void {
     this.appContext.notifyAllConnections(
       new AccountInitializedNotification({ dataWalletAddress }, UUID(v4())),
     );

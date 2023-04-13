@@ -22,6 +22,11 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
   ISdlDiscordMethods,
   DiscordProfile,
   DiscordGuildProfile,
@@ -58,7 +63,6 @@ import {
   GetTokenPriceParams,
   GetTokenMarketDataParams,
   GetTokenInfoParams,
-  GetMarketplaceListingsParams,
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
@@ -67,7 +71,6 @@ import {
   UnlockParams,
   AddAccountParams,
   UnlinkAccountParams,
-  GetMarketplaceListingsTotalParams,
   GetSiteVisitsMapParams,
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
@@ -96,6 +99,10 @@ import {
   GetDiscordUserProfilesParams,
   GetDiscordGuildProfilesParams,
   UnlinkDiscordAccountParams,
+  GetMarketplaceListingsByTagParams,
+  GetListingsTotalByTagParams,
+  GetConsentCapacityParams,
+  GetPossibleRewardsParams,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
@@ -363,14 +370,16 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetSiteVisitsMapParams());
   }
 
-  public getMarketplaceListings(
-    params: GetMarketplaceListingsParams,
-  ): ResultAsync<MarketplaceListing, JsonRpcError> {
+  public getMarketplaceListingsByTag(
+    params: GetMarketplaceListingsByTagParams,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError> {
     return this._handler.call(params);
   }
 
-  public getListingsTotal(): ResultAsync<number, JsonRpcError> {
-    return this._handler.call(new GetMarketplaceListingsTotalParams());
+  public getListingsTotalByTag(
+    params: GetListingsTotalByTagParams,
+  ): ResultAsync<number, JsonRpcError> {
+    return this._handler.call(params);
   }
 
   public setDefaultReceivingAddress(
@@ -388,6 +397,18 @@ export class ExternalCoreGateway {
   public getReceivingAddress(
     params: GetReceivingAddressParams,
   ): ResultAsync<AccountAddress, JsonRpcError> {
+    return this._handler.call(params);
+  }
+
+  public getConsentCapacity(
+    params: GetConsentCapacityParams,
+  ): ResultAsync<IConsentCapacity, JsonRpcError> {
+    return this._handler.call(params);
+  }
+
+  public getPossibleRewards(
+    params: GetPossibleRewardsParams,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError> {
     return this._handler.call(params);
   }
 }

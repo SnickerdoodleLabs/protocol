@@ -30,10 +30,16 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  PagingRequest,
+  MarketplaceTag,
+  BearerAuthToken,
   SnowflakeID,
   OAuthAuthorizationCode,
   DiscordProfile,
   DiscordGuildProfile,
+  PagedResponse,
+  IConsentCapacity,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 
 import {
@@ -254,6 +260,31 @@ export class CheckURLParams extends CoreActionParams<string> {
   }
 }
 
+export class GetMarketplaceListingsByTagParams extends CoreActionParams<
+  PagedResponse<MarketplaceListing>
+> {
+  public constructor(
+    public pagingReq: PagingRequest,
+    public tag: MarketplaceTag,
+    public filterActive?: boolean,
+  ) {
+    super(GetMarketplaceListingsByTagParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_MARKETPLACE_LISTINGS_BY_TAG;
+  }
+}
+
+export class GetListingsTotalByTagParams extends CoreActionParams<number> {
+  public constructor(public tag: MarketplaceTag) {
+    super(GetListingsTotalByTagParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_LISTING_TOTAL_BY_TAG;
+  }
+}
+
 export class ScamFilterSettingsParams extends CoreActionParams<void> {
   public constructor(
     public isScamFilterActive: boolean,
@@ -301,6 +332,31 @@ export class GetTokenPriceParams extends CoreActionParams<number> {
   }
 }
 
+export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity> {
+  public constructor(public contractAddress: EVMContractAddress) {
+    super(GetConsentCapacityParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CONSENT_CAPACITY;
+  }
+}
+
+export class GetPossibleRewardsParams extends CoreActionParams<
+  Record<EVMContractAddress, PossibleReward[]>
+> {
+  public constructor(
+    public contractAddresses: EVMContractAddress[],
+    public timeoutMs?: number,
+  ) {
+    super(GetPossibleRewardsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_POSSIBLE_REWARDS;
+  }
+}
+
 export class GetTokenMarketDataParams extends CoreActionParams<
   TokenMarketData[]
 > {
@@ -321,24 +377,6 @@ export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_TOKEN_INFO;
-  }
-}
-
-export class GetMarketplaceListingsParams extends CoreActionParams<MarketplaceListing> {
-  public constructor(public count?: number, public headAt?: number) {
-    super(GetMarketplaceListingsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_MARKETPLACE_LISTINGS;
-  }
-}
-
-export class GetMarketplaceListingsTotalParams extends CoreActionParams<number> {
-  public constructor() {
-    super(GetMarketplaceListingsTotalParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_LISTING_TOTAL;
   }
 }
 

@@ -81,7 +81,6 @@ import {
   GetTokenPriceParams,
   GetTokenMarketDataParams,
   GetTokenInfoParams,
-  GetMarketplaceListingsParams,
   SetDefaultReceivingAddressParams,
   SetReceivingAddressParams,
   GetReceivingAddressParams,
@@ -100,7 +99,6 @@ import {
   GetSiteVisitsParams,
   GetSiteVisitsMapParams,
   GetAcceptedInvitationsCIDParams,
-  GetMarketplaceListingsTotalParams,
   GetAvailableInvitationsCIDParams,
   GetDefaultPermissionsParams,
   SetDefaultPermissionsToAllParams,
@@ -117,6 +115,10 @@ import {
   GetDiscordGuildProfilesParams,
   GetDiscordUserProfilesParams,
   UnlinkDiscordAccountParams,
+  GetMarketplaceListingsByTagParams,
+  GetListingsTotalByTagParams,
+  GetConsentCapacityParams,
+  GetPossibleRewardsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -345,21 +347,6 @@ export class RpcCallHandler implements IRpcCallHandler {
             ),
           );
         });
-      },
-    ),
-    new CoreActionHandler<GetMarketplaceListingsParams>(
-      GetMarketplaceListingsParams.getCoreAction(),
-      (params) => {
-        return this.invitationService.getMarketplaceListings(
-          params.count,
-          params.headAt,
-        );
-      },
-    ),
-    new CoreActionHandler<GetMarketplaceListingsTotalParams>(
-      GetMarketplaceListingsTotalParams.getCoreAction(),
-      (_params) => {
-        return this.invitationService.getListingsTotal();
       },
     ),
     new CoreActionHandler<GetConsentContractCIDParams>(
@@ -602,6 +589,38 @@ export class RpcCallHandler implements IRpcCallHandler {
       UnlinkDiscordAccountParams.getCoreAction(),
       (params) => {
         return this.discordService.unlink(params.discordProfileId);
+      },
+    ),
+    new CoreActionHandler<GetMarketplaceListingsByTagParams>(
+      GetMarketplaceListingsByTagParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getMarketplaceListingsByTag(
+          params.pagingReq,
+          params.tag,
+          params.filterActive,
+        );
+      },
+    ),
+    new CoreActionHandler<GetListingsTotalByTagParams>(
+      GetListingsTotalByTagParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getListingsTotalByTag(params.tag);
+      },
+    ),
+    new CoreActionHandler<GetConsentCapacityParams>(
+      GetConsentCapacityParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getConsentCapacity(
+          params.contractAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetPossibleRewardsParams>(
+      GetPossibleRewardsParams.getCoreAction(),
+      (params) => {
+        return this.invitationService
+          .getPossibleRewards(params.contractAddresses, params.timeoutMs)
+          .map((res) => mapToObj(res));
       },
     ),
   ];

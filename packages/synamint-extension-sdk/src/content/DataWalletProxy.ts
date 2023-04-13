@@ -25,6 +25,11 @@ import {
   UnixTimestamp,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
   ISdlDiscordMethods,
   BearerAuthToken,
   DiscordProfile,
@@ -68,10 +73,13 @@ import {
   GetTokenPriceParams,
   GetTokenMarketDataParams,
   GetTokenInfoParams,
-  GetMarketplaceListingsParams,
   SetDefaultReceivingAddressParams,
   GetReceivingAddressParams,
   SetReceivingAddressParams,
+  GetMarketplaceListingsByTagParams,
+  GetListingsTotalByTagParams,
+  GetConsentCapacityParams,
+  GetPossibleRewardsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -149,6 +157,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, unknown> {
@@ -171,17 +180,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetReceivingAddressParams(contractAddress),
     );
   }
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, unknown> {
-    return coreGateway.getMarketplaceListings(
-      new GetMarketplaceListingsParams(count, headAt),
+
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, unknown> {
+    return coreGateway.getMarketplaceListingsByTag(
+      new GetMarketplaceListingsByTagParams(pagingReq, tag, filterActive),
     );
   }
 
-  public getListingsTotal(): ResultAsync<number, unknown> {
-    return coreGateway.getListingsTotal();
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotalByTag(
+      new GetListingsTotalByTagParams(tag),
+    );
   }
 
   public getTokenMarketData(
@@ -396,6 +411,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, unknown> {
     return coreGateway.getSiteVisitsMap();
+  }
+
+  public getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, unknown> {
+    return coreGateway.getConsentCapacity(
+      new GetConsentCapacityParams(contractAddress),
+    );
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, unknown> {
+    return coreGateway.getPossibleRewards(
+      new GetPossibleRewardsParams(contractAddresses, timeoutMs),
+    );
   }
 }
 

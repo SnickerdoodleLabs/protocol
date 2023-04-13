@@ -12,12 +12,16 @@ import {
   WalletNFT,
   SiteVisit,
   MarketplaceListing,
+  PossibleReward,
+  PagingRequest,
+  PagedResponse,
   DiscordProfile,
   DiscordGuildProfile,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
 import {
   AccountAddress,
   Age,
@@ -33,6 +37,7 @@ import {
   GivenName,
   IpfsCID,
   LanguageCode,
+  MarketplaceTag,
   OAuthAuthorizationCode,
   Signature,
   SnowflakeID,
@@ -148,12 +153,13 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
 
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, JsonRpcError>;
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError>;
 
-  getListingsTotal(): ResultAsync<number, JsonRpcError>;
+  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, JsonRpcError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
@@ -168,6 +174,14 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
 
+  getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, JsonRpcError>;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
   discord: ISdlDiscordMethods;
 }
 

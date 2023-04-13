@@ -1,9 +1,10 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import Typography from "@extension-onboarding/components/Typography";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import InfoCard from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/InfoCard";
 import UpdateForm from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/Personalnfo.style";
-import { Box, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 
 import React, { FC, useMemo, useState } from "react";
 
@@ -47,9 +48,9 @@ const PersonalInfo: FC = () => {
 
   return (
     <>
-      <Typography className={classes.title}>Personal Info Settings</Typography>
-      <Box my={4}>
-        <Typography className={classes.description}>
+      <Typography variant="pageTitle">Personal Info Settings</Typography>
+      <Box mt={1} mb={6.5}>
+        <Typography variant="pageDescription">
           Add or Remove demographic information to control what you stored in
           your data wallet. Any insights you choose to share on your data is
           anonymous.

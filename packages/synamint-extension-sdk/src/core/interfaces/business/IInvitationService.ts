@@ -10,6 +10,11 @@ import {
   EWalletDataType,
   MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -49,6 +54,17 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
 
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  >;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
@@ -62,23 +78,26 @@ export interface IInvitationService {
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
 
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError>;
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError>;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError>;
-
-  getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

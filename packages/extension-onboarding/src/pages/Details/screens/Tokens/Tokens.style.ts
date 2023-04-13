@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   title: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto",
     fontStyle: "normal",
     fontWeight: 700,
     fontSize: "20px",
@@ -10,7 +10,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#232039",
   },
   description: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto",
     fontStyle: "normal",
     fontWeight: 400,
     fontSize: "14px",
@@ -20,7 +20,7 @@ export const useStyles = makeStyles((theme) => ({
   },
 
   infoCardLabel: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "16px",
@@ -28,7 +28,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#101828",
   },
   infoCardValue: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "24px",
@@ -43,7 +43,7 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 12,
   },
   tableTitle: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "12px",
@@ -51,7 +51,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#616161",
   },
   metricTitle: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "12px",
@@ -61,7 +61,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#757575",
   },
   metricValue: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "16px",
