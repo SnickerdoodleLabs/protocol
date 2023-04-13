@@ -97,8 +97,20 @@ const Marketplace = () => {
         recommended: [] as MarketplaceListing[],
       },
     );
+
     return {
-      ...listingObj,
+      featured: listingObj.featured.sort(
+        (current, next) =>
+          Number(next.stakeAmount) - Number(current.stakeAmount),
+      ),
+      popular: listingObj.popular.sort(
+        (current, next) =>
+          Number(next.stakeAmount) - Number(current.stakeAmount),
+      ),
+      recommended: listingObj.recommended.sort(
+        (current, next) =>
+          Number(next.stakeAmount) - Number(current.stakeAmount),
+      ),
       isLoading: false,
       isEmpty: !(Object.values(listingObj).flat().length > 0),
     };
