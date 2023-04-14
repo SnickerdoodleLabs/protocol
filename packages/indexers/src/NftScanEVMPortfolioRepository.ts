@@ -19,6 +19,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
@@ -37,41 +38,52 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return this.generateQueryConfig(chainId, accountAddress)
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<INftScanResponse>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .map((result) => {
-        return this.getPages(chainId, result);
-      })
-      .mapErr(
-        (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
-      );
+  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+    return this.generateQueryConfig(chainId, accountAddress).andThen(
+      (requestConfig) => {
+        // console.log("requestConfig: ", requestConfig);
+        return this.ajaxUtils
+          .get<INftScanResponse>(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            new URL(requestConfig.url!),
+            requestConfig,
+          )
+          .andThen((response) => {
+            // console.log("response: ", response);
+            return this.getPages(chainId, response);
+          })
+          .mapErr((e) => new AjaxError("error fetching nfts from nftscan", e));
+      },
+    );
   }
 
-  private getPages(chainId: ChainId, response: INftScanResponse): EVMNFT[] {
-    const items: EVMNFT[] = response.data.content.map((token) => {
+  private getPages(
+    chainId: ChainId,
+    response: INftScanResponse,
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    // console.log(
+    //   "Chain " + chainId + " Nftscan response.data.content: ",
+    //   response.data,
+    // );
+
+    const items: EVMNFT[] = response.data.map((token) => {
       return new EVMNFT(
         EVMContractAddress(token.contract_address),
-        BigNumberString(token.token_id),
-        token.erc_type,
-        EVMAccountAddress(token.owner),
-        TokenUri(token.token_uri),
-        { raw: token.metadata_json },
-        BigNumberString(token.amount),
-        token.name,
+        BigNumberString(token.assets[0].token_id),
+        token.assets[0].erc_type,
+        EVMAccountAddress(token.assets[0].owner),
+        TokenUri(token.assets[0].token_uri),
+        { raw: token.assets[0].metadata_json },
+        BigNumberString(token.assets[0].amount),
+        token.assets[0].name,
         chainId,
         undefined,
-        UnixTimestamp(Number(token.own_timestamp)),
+        UnixTimestamp(Number(token.assets[0].own_timestamp)),
       );
     });
+    // console.log("Chain " + chainId + " Nftscan items: ", items);
 
-    return items;
+    return okAsync(items);
   }
 
   private generateQueryConfig(
@@ -79,14 +91,16 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
     const chainInfo = getChainInfoByChain(chainId);
+    // https://polygonapi.nftscan.com/api/v2/account/own/all/0x7472cb61cd0c2761acb5fD0aeB13B79FB0173097?erc_type=&show_attribute=false
     const url = urlJoinP(`https://${chainInfo.name}api.nftscan.com`, [
       "api",
       "v2",
       "account",
       "own",
-      accountAddress.toString() + "?erc_type=erc721",
+      "all",
+      accountAddress.toString() + "?erc_type=&show_attribute=false",
     ]);
-    console.log("nftscan url: ", url);
+    // console.log("nftscan url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
@@ -103,36 +117,51 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
 
 interface INftScanResponse {
   code: number;
-  data: {
-    content: {
-      amount: string;
-      attributes: string[];
-      content_type: string;
-      content_uri: string;
-      contract_address: string;
-      contract_name: string;
-      contract_token_id: string;
-      erc_type: string;
-      external_link: string;
-      image_uri: string;
-      latest_trade_price: string;
-      latest_trade_symbol: string;
-      latest_trade_timestamp: UnixTimestamp;
-      metadata_json: string;
-      mint_price: string;
-      mint_timestamp: UnixTimestamp;
-      mint_transaction_hash: string;
-      minter: string;
-      name: string;
-      nftscan_id: string;
-      nftscan_uri: string;
-      own_timestamp: string;
-      owner: string;
-      rarity_rank: string;
-      rarity_score: string;
-      token_id: string;
-      token_uri: string;
-    }[];
-  };
+  data: INftScanDataObject[];
   msg: number;
+}
+
+interface INftScanDataObject {
+  contract_address: string;
+  s;
+  contract_name: string;
+  logo_url: null;
+  owns_total: number;
+  items_total: number;
+  symbol: string;
+  description: string | null;
+  floor_price: string | null;
+  assets: INftScanAssetData[];
+}
+
+interface INftScanAssetData {
+  contract_address: string;
+  contract_name: string;
+  contract_token_id: string;
+  token_id: string;
+  erc_type: string;
+  amount: string;
+  minter: string;
+  owner: string;
+  own_timestamp: string;
+  mint_timestamp: UnixTimestamp;
+  mint_transaction_hash: string;
+  mint_price: string;
+  token_uri: string;
+  metadata_json: string;
+  name: string;
+  content_type: string;
+  content_uri: string;
+  description: string;
+  image_uri: string;
+  external_link: string;
+  latest_trade_price: string | null;
+  latest_trade_symbol: string | null;
+  latest_trade_timestamp: UnixTimestamp | null;
+  nftscan_id: string | null;
+  nftscan_uri: string | null;
+  small_nftscan_uri: string | null;
+  attributes: string[];
+  rarity_rank: string | null;
+  rarity_score: string | null;
 }

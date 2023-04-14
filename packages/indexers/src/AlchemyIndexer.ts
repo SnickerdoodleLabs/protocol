@@ -154,6 +154,10 @@ export class AlchemyIndexer
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chainId, accountAddress);
+      console.log("non native requestParams: ", requestParams);
+      console.log("non native nativeTickerSymbol: ", nativeTickerSymbol);
+      console.log("non native nativeChain: ", nativeChain);
+
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(
           new URL(url),
@@ -175,6 +179,7 @@ export class AlchemyIndexer
             BigNumberString(weiValue),
             chainInfo.nativeCurrency.decimals,
           );
+          console.log("non native balance: ", balance);
           return okAsync(balance);
         });
     });
@@ -187,6 +192,7 @@ export class AlchemyIndexer
     const chainInfo = getChainInfoByChainId(chainId);
     return this.configProvider.getConfig().andThen((config) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      console.log("get non native balances url: ", url);
       return this.ajaxUtils
         .post<INonNativeReponse>(
           new URL(url),
@@ -203,10 +209,10 @@ export class AlchemyIndexer
           },
         )
         .andThen((response) => {
-          // console.log(
-          //   "response.result.tokenBalances: ",
-          //   response.result.tokenBalances,
-          // );
+          console.log(
+            "response.result.tokenBalances: ",
+            response.result.tokenBalances,
+          );
           return ResultUtils.combine(
             response.result.tokenBalances.map((entry) => {
               const weiValue = parseInt(entry.tokenBalance, 16).toString();
@@ -231,12 +237,14 @@ export class AlchemyIndexer
                 });
             }),
           ).andThen((balances) => {
+            console.log("non native balances: ", balances);
             return okAsync(
               balances.filter((x) => x != undefined) as TokenBalance[],
             );
           });
         })
         .andThen((balances) => {
+          console.log("non native balances: ", balances);
           return okAsync(balances);
         });
     });

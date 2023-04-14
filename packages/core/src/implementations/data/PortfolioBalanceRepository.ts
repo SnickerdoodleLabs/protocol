@@ -376,7 +376,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
             case EIndexer.Polygon:
-              return evmRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
