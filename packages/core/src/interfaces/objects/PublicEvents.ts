@@ -9,6 +9,7 @@ import {
   MetatransactionSignatureRequest,
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
+  PermissionsUpdatedEvent,
   PortfolioUpdate,
   SDQLQueryRequest,
   TokenBalance,
@@ -31,6 +32,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
   public onPermissionsRevoked: Subject<DomainName>;
+  public onPermissionsUpdated: Subject<PermissionsUpdatedEvent>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -47,5 +49,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsGranted = new Subject();
     this.onPermissionsRequested = new Subject();
     this.onPermissionsRevoked = new Subject();
+    this.onPermissionsUpdated = new Subject();
   }
 }

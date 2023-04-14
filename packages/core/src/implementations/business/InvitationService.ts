@@ -34,6 +34,7 @@ import {
   Signature,
   TokenId,
   UninitializedError,
+  PermissionsUpdatedEvent
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -843,6 +844,122 @@ export class InvitationService implements IInvitationService {
             });
         });
       });
+  }
+
+  public updatePermissions(
+    consentContractAddress: EVMContractAddress,
+    newDataPermissions: DataPermissions,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | MinimalForwarderContractError
+    | ConsentContractError
+    | ConsentError
+    | PersistenceError
+  > {
+    // This will actually create a metatransaction, since the invitation is issued
+    // to the data wallet address
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
+      }
+
+      // We need to find your opt-in token
+      return this.accountRepo
+        .getAcceptedInvitations()
+        .andThen((invitations) => {
+          const currentInvitation = invitations.find((invitation) => {
+            return invitation.consentContractAddress == consentContractAddress;
+          });
+          if (currentInvitation == null) {
+            return errAsync(
+              new ConsentError(
+                "Cannot opt out of consent contract, you were not opted in!",
+              ),
+            );
+          }
+          return ResultUtils.combine([
+            this.consentRepo.getConsentToken(currentInvitation),
+            this.dataWalletUtils.deriveOptInPrivateKey(
+              consentContractAddress,
+              context.dataWalletKey!,
+            ),
+          ]);
+        })
+        .andThen(([consentToken, optInPrivateKey]) => {
+          if (consentToken == null) {
+            // You're not actually opted in!
+            // But we think we are. We should remove this from persistence
+            this.logUtils.warning(
+              `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!`,
+            );
+            return okAsync(undefined);
+          }
+
+          this.logUtils.debug("Existing consent token ", consentToken);
+
+          const optInAccountAddress =
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              optInPrivateKey,
+            );
+
+          this.logUtils.log(
+            `Updating permissions / agreement flag of ${consentToken.tokenId} on contract ${consentContractAddress} with derived account ${optInAccountAddress}`,
+          );
+
+          // Encode the call to the consent contract and get the nonce for the forwarder
+          return ResultUtils.combine([
+            this.consentRepo.encodeUpdateAgreementFlags(
+              consentContractAddress,
+              consentToken.tokenId,
+              newDataPermissions
+            ),
+            this.forwarderRepo.getNonce(optInAccountAddress),
+            this.configProvider.getConfig(),
+          ]).andThen(([callData, nonce, config]) => {
+            const request = new MetatransactionRequest(
+              consentContractAddress, // Contract address for the metatransaction
+              optInAccountAddress, // EOA to run the transaction as
+              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+              callData, // The actual bytes of the request, encoded as a hex string
+            );
+
+            return this.forwarderRepo
+              .signMetatransactionRequest(request, optInPrivateKey)
+              .andThen((metatransactionSignature) => {
+                // Got the signature for the metatransaction, now we can execute it.
+                // .executeMetatransaction will sign everything and have the server run
+                // the metatransaction.
+                return this.insightPlatformRepo.executeMetatransaction(
+                  optInAccountAddress, // account address
+                  consentContractAddress, // contract address
+                  BigNumberString(BigNumber.from(nonce).toString()),
+                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  callData,
+                  metatransactionSignature,
+                  optInPrivateKey,
+                  config.defaultInsightPlatformBaseUrl,
+                );
+              });
+          }).andThen(() => {
+            // TODO: then update the permissions in the DB?
+                return this.accountRepo.removeAcceptedInvitationsByContractAddress([
+                    consentContractAddress,
+                ]);
+            })
+            .map(() => {
+            // Notify the world that that permissions have been updated
+            context.publicEvents.onPermissionsUpdated.next(new PermissionsUpdatedEvent(consentContractAddress, consentToken.tokenId, newDataPermissions) );
+            });
+        })
+    });
   }
 
   protected isValidSignatureForInvitation(

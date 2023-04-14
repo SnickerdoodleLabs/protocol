@@ -5,6 +5,7 @@ import {
   MetatransactionSignatureRequest,
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
+  PermissionsUpdatedEvent,
   SDQLQueryRequest,
 } from "@objects/businessObjects/index.js";
 import { DataWalletAddress, DomainName } from "@objects/primitives/index.js";
@@ -18,4 +19,5 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsGranted: Observable<PermissionsGrantedEvent>;
   onPermissionsRequested: Observable<PermissionsRequestedEvent>;
   onPermissionsRevoked: Observable<DomainName>;
+  onPermissionsUpdated: Observable<PermissionsUpdatedEvent>;
 }
