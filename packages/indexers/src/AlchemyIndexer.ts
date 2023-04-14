@@ -24,10 +24,8 @@ import {
   IEVMNftRepository,
   BlockNumber,
   TokenUri,
-  EIndexer,
   AccountAddress,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -41,31 +39,6 @@ import {
 export class AlchemyIndexer
   implements IEVMAccountBalanceRepository, IEVMNftRepository
 {
-  private _addressMapping = new Map<EVMContractAddress, TickerSymbol>([
-    [
-      EVMContractAddress("0x912ce59144191c1204e64559fe8253a0e49e6548"),
-      TickerSymbol("ARB"),
-    ],
-    [
-      EVMContractAddress("0x4200000000000000000000000000000000000042"),
-      TickerSymbol("OP"),
-    ],
-    [
-      EVMContractAddress("0x82af49447d8a07e3bd95bd0d56f35241523fbab1"),
-      TickerSymbol("WETH"),
-    ],
-    [
-      EVMContractAddress("0x4200000000000000000000000000000000000006"),
-      TickerSymbol("WETH"),
-    ],
-    [
-      EVMContractAddress("0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000"),
-      TickerSymbol("Ether"),
-    ],
-  ]);
-
-  private contractConnection;
-
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -73,9 +46,7 @@ export class AlchemyIndexer
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {
-    // this.contractConnection = ;
-  }
+  ) {}
 
   protected _getEtherscanApiKey(
     chain: ChainId,
@@ -119,17 +90,6 @@ export class AlchemyIndexer
           TickerSymbol("MATIC"),
           ChainId(137),
         ];
-      // case EChain.Arbitrum:
-      //   return [
-      //     {
-      //       id: 1,
-      //       jsonrpc: "2.0",
-      //       params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83"],
-      //       method: "eth_getBalance1",
-      //     },
-      //     TickerSymbol("ETH"),
-      //     ChainId(1),
-      //   ];
       default:
         return [
           {
@@ -144,7 +104,6 @@ export class AlchemyIndexer
     }
   }
 
-  /* Fetching ETH Balance from Chains */
   private getNativeBalance(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -154,10 +113,6 @@ export class AlchemyIndexer
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chainId, accountAddress);
-      console.log("non native requestParams: ", requestParams);
-      console.log("non native nativeTickerSymbol: ", nativeTickerSymbol);
-      console.log("non native nativeChain: ", nativeChain);
-
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(
           new URL(url),
@@ -173,13 +128,12 @@ export class AlchemyIndexer
           const balance = new TokenBalance(
             EChainTechnology.EVM,
             nativeTickerSymbol,
-            nativeChain, // this should not be the case, we should be adding by symbols
+            nativeChain,
             null,
             accountAddress,
             BigNumberString(weiValue),
             chainInfo.nativeCurrency.decimals,
           );
-          console.log("non native balance: ", balance);
           return okAsync(balance);
         });
     });
@@ -192,9 +146,8 @@ export class AlchemyIndexer
     const chainInfo = getChainInfoByChainId(chainId);
     return this.configProvider.getConfig().andThen((config) => {
       const url = config.alchemyEndpoints[chainInfo.name.toString()];
-      console.log("get non native balances url: ", url);
       return this.ajaxUtils
-        .post<INonNativeReponse>(
+        .post<IAlchemyNonNativeReponse>(
           new URL(url),
           JSON.stringify({
             id: 0,
@@ -209,10 +162,6 @@ export class AlchemyIndexer
           },
         )
         .andThen((response) => {
-          console.log(
-            "response.result.tokenBalances: ",
-            response.result.tokenBalances,
-          );
           return ResultUtils.combine(
             response.result.tokenBalances.map((entry) => {
               const weiValue = parseInt(entry.tokenBalance, 16).toString();
@@ -237,14 +186,12 @@ export class AlchemyIndexer
                 });
             }),
           ).andThen((balances) => {
-            console.log("non native balances: ", balances);
             return okAsync(
               balances.filter((x) => x != undefined) as TokenBalance[],
             );
           });
         })
         .andThen((balances) => {
-          console.log("non native balances: ", balances);
           return okAsync(balances);
         });
     });
@@ -277,7 +224,7 @@ export class AlchemyIndexer
       );
 
       return this.ajaxUtils
-        .get<alchemyNftResponse>(new URL(url))
+        .get<IAlchemyNftResponse>(new URL(url))
         .andThen((response) => {
           const items: EVMNFT[] = response.ownedNfts.map((nft) => {
             return new EVMNFT(
@@ -306,7 +253,7 @@ interface IAlchemyNativeBalanceResponse {
   result: HexString;
 }
 
-interface INonNativeReponse {
+interface IAlchemyNonNativeReponse {
   jsonrpc: number;
   id: number;
   result: {
@@ -320,13 +267,13 @@ interface ITokenBalance {
   tokenBalance: HexString;
 }
 
-interface alchemyNftResponse {
+interface IAlchemyNftResponse {
   blockHash: number;
-  ownedNfts: alchemyNft[];
+  ownedNfts: IAlchemyNft[];
   totalCount: number;
 }
 
-interface alchemyNft {
+interface IAlchemyNft {
   balance: string;
   contract: {
     address: EVMContractAddress;
@@ -335,7 +282,6 @@ interface alchemyNft {
     contractDeployer: string;
     deployedBlockNumber: number;
     name: string;
-    // openSea: string;
     symbol: string;
     tokenType: string;
     totalSupply: string;
@@ -347,7 +293,7 @@ interface alchemyNft {
       tokenType: string;
     };
   };
-  media: alchemyMedia[];
+  media: IAlchemyMediaObject[];
   metadata: {
     attributes: string;
     description: string;
@@ -370,14 +316,7 @@ interface IAlchemyRequestConfig {
   params: string[];
 }
 
-interface coinGeckoCall {
-  id: string;
-  symbol: string;
-  name: string;
-  error: string;
-}
-
-interface alchemyMedia {
+interface IAlchemyMediaObject {
   bytes: number;
   format: string;
   gateway: string;

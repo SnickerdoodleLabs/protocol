@@ -41,7 +41,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return this.generateQueryConfig(chainId, accountAddress).andThen(
       (requestConfig) => {
-        // console.log("requestConfig: ", requestConfig);
         return this.ajaxUtils
           .get<INftScanResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -49,7 +48,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
             requestConfig,
           )
           .andThen((response) => {
-            // console.log("response: ", response);
             return this.getPages(chainId, response);
           })
           .mapErr((e) => new AjaxError("error fetching nfts from nftscan", e));
@@ -61,11 +59,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     chainId: ChainId,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    // console.log(
-    //   "Chain " + chainId + " Nftscan response.data.content: ",
-    //   response.data,
-    // );
-
     const items: EVMNFT[] = response.data.map((token) => {
       return new EVMNFT(
         EVMContractAddress(token.contract_address),
@@ -81,8 +74,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
         UnixTimestamp(Number(token.assets[0].own_timestamp)),
       );
     });
-    // console.log("Chain " + chainId + " Nftscan items: ", items);
-
     return okAsync(items);
   }
 
@@ -91,7 +82,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
     const chainInfo = getChainInfoByChain(chainId);
-    // https://polygonapi.nftscan.com/api/v2/account/own/all/0x7472cb61cd0c2761acb5fD0aeB13B79FB0173097?erc_type=&show_attribute=false
     const url = urlJoinP(`https://${chainInfo.name}api.nftscan.com`, [
       "api",
       "v2",
@@ -100,7 +90,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
       "all",
       accountAddress.toString() + "?erc_type=&show_attribute=false",
     ]);
-    // console.log("nftscan url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
@@ -123,7 +112,6 @@ interface INftScanResponse {
 
 interface INftScanDataObject {
   contract_address: string;
-  s;
   contract_name: string;
   logo_url: null;
   owns_total: number;

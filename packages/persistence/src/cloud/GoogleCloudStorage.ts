@@ -259,7 +259,6 @@ export class GoogleCloudStorage implements ICloudStorage {
         defaultGoogleCloudBucket +
         "/o?prefix=" +
         addr;
-      console.log("dataWalletFolder: ", dataWalletFolder);
       return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
         new URL(dataWalletFolder),
       );

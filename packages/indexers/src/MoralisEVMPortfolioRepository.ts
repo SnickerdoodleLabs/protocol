@@ -131,7 +131,6 @@ export class MoralisEVMPortfolioRepository
       );
     });
 
-    console.log("Polygon nfts: ", items);
     if (response.cursor == null || response.cursor == "") {
       return okAsync(items);
     }
