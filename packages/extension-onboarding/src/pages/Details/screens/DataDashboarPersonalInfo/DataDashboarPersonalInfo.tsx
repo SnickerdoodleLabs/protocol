@@ -16,7 +16,7 @@ interface IProfileItem {
 }
 
 const PROFILE_ITEMS: IProfileItem[] = [
-  { dataSelector: "age", dataType: EWalletDataType.Birthday, title: "Age" },
+  { dataSelector: "age", dataType: EWalletDataType.Age, title: "Age" },
   { dataSelector: "gender", dataType: EWalletDataType.Gender, title: "Gender" },
   {
     dataSelector: "country_code",
