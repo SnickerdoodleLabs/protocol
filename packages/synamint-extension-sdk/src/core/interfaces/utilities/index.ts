@@ -2,3 +2,4 @@ export * from "@synamint-extension-sdk/core/interfaces/utilities/IAccountCookieU
 export * from "@synamint-extension-sdk/core/interfaces/utilities/IContextProvider";
 export * from "@synamint-extension-sdk/core/interfaces/utilities/IDataPermissionsUtils";
 export * from "@synamint-extension-sdk/core/interfaces/utilities/IErrorUtils";
+export * from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";

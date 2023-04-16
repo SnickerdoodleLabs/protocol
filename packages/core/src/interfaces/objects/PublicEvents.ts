@@ -36,6 +36,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsRevoked: Subject<DomainName>;
   public onDiscordProfileLinked: Subject<SnowflakeID>;
   public onDiscordProfileUnlinked: Subject<SnowflakeID>;
+  public onTwitterProfileLinked: Subject<SnowflakeID>;
+  public onTwitterProfileUnlinked: Subject<SnowflakeID>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -55,5 +57,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsRevoked = new Subject();
     this.onDiscordProfileLinked = new Subject();
     this.onDiscordProfileUnlinked = new Subject();
+    this.onTwitterProfileLinked = new Subject();
+    this.onTwitterProfileUnlinked = new Subject();
   }
 }

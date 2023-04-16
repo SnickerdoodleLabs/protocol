@@ -11,6 +11,8 @@ import {
   EVMAccountAddress,
   ControlChainInformation,
   ECurrencyCode,
+  SignatureMethod,
+  TwitterConfig,
 } from "@snickerdoodlelabs/objects";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
@@ -50,17 +52,28 @@ export const defaultInsightPlatformBaseUrl = URLString(
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
-const discordConfig = {
+const testDiscordConfig = {
   clientId: "1089994449830027344",
   clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-  oauthRedirectUrl: URLString("https://localhost:9005/data-dashboard/social-media-data"),
+  oauthRedirectUrl: URLString(
+    "https://localhost:9005/data-dashboard/social-media-data",
+  ),
   accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),
   iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
   pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
 };
+
+const testTwitterConfig = new TwitterConfig(
+  "boxruvqZNqFDLsWgc2BkbhHzn",
+  "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+  URLString("https://api.twitter.com/oauth"),
+  URLString("oob"),
+  URLString("https://api.twitter.com/2"),
+  1 * 24 * 3600 * 1000,
+);
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
@@ -87,11 +100,12 @@ export const testCoreConfig = new CoreConfig(
   5000,
   { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
   10000,
-  "(localhost|chrome:\/\/)",
+  "(localhost|chrome://)",
   false,
   300000,
   1000,
-  discordConfig,
+  testDiscordConfig,
+  testTwitterConfig,
 );
 
 // #endregion

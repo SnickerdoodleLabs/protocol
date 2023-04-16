@@ -1,14 +1,14 @@
 import { SocialGroupProfile } from "@objects/businessObjects/SocialGroupProfile.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
+  Integer,
   ISO8601DateString,
+  SnowflakeID,
   SocialPrimaryKey,
   UnixTimestamp,
   URLString,
   Username,
 } from "@objects/primitives/index.js";
-import { Integer } from "@objects/primitives/Integer.js";
-import { SnowflakeID } from "@objects/primitives/SnowflakeID.js";
 
 export class DiscordGuildProfile extends SocialGroupProfile {
   public static CURRENT_VERSION = 1;
@@ -37,7 +37,6 @@ export class DiscordGuildProfile extends SocialGroupProfile {
     return DiscordGuildProfile.CURRENT_VERSION;
   }
 }
-
 export interface DiscordGuildProfileAPIResponse {
   id: SnowflakeID;
   name: string;
@@ -45,6 +44,7 @@ export interface DiscordGuildProfileAPIResponse {
   owner: boolean;
   permissions: Integer;
 }
+
 //TODO add needed fields only
 export interface DiscordGuildMembershipAPIResponse {
   is_pending: boolean;

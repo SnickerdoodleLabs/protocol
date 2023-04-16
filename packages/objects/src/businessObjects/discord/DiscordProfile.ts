@@ -1,18 +1,14 @@
-import { OAuth2Tokens } from "@objects/businessObjects/OAuth2Tokens.js";
+import { OAuth2Tokens } from "@objects/businessObjects/index.js";
 import { SocialProfile } from "@objects/businessObjects/SocialProfile.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
-  BearerAuthToken,
   Integer,
   SnowflakeID,
   SocialPrimaryKey,
-  UnixTimestamp,
   Username,
 } from "@objects/primitives/index.js";
 
 export class DiscordProfile extends SocialProfile {
-  public static CURRENT_VERSION = 1;
-
   public constructor(
     public id: SnowflakeID,
     public username: Username,
@@ -27,10 +23,6 @@ export class DiscordProfile extends SocialProfile {
 
   public deriveKey(id: SnowflakeID): SocialPrimaryKey {
     return SocialPrimaryKey(`discord-${id}`);
-  }
-
-  public getVersion(): number {
-    return DiscordProfile.CURRENT_VERSION;
   }
 }
 

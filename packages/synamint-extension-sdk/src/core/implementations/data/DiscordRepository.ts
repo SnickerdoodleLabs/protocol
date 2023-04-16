@@ -1,12 +1,11 @@
 import {
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreType,
-  BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
-  URLString,
-  SnowflakeID,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
   OAuthAuthorizationCode,
+  SnowflakeID,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";

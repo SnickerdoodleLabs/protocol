@@ -15,15 +15,10 @@ import {
   IDataWalletPersistenceType,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/IConfigProvider.js";
 
 @injectable()
 export class SocialRepository implements ISocialRepository {
   public constructor(
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
   ) {}

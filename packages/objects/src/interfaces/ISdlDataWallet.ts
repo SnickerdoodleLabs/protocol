@@ -3,25 +3,27 @@ import { EventEmitter } from "events";
 import { ResultAsync } from "neverthrow";
 
 import {
+  DiscordGuildProfile,
+  DiscordProfile,
   EarnedReward,
+  ITokenAndSecret,
   LinkedAccount,
+  MarketplaceListing,
+  PagedResponse,
+  PagingRequest,
+  PossibleReward,
+  SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
+  TwitterProfile,
   WalletNFT,
-  SiteVisit,
-  MarketplaceListing,
-  PossibleReward,
-  PagingRequest,
-  PagedResponse,
-  DiscordProfile,
-  DiscordGuildProfile,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
-import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
 import {
   AccountAddress,
   Age,
@@ -182,7 +184,9 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
+
   discord: ISdlDiscordMethods;
+  twitter: ISdlTwitterMethods;
 }
 
 export interface ISdlDiscordMethods {
@@ -210,4 +214,20 @@ export interface ISdlDiscordMethods {
    * @param discordProfileId
    */
   unlink(discordProfileId: SnowflakeID): ResultAsync<void, JsonRpcError>;
+}
+
+export interface ISdlTwitterMethods {
+  /**
+   * Fetches the most basic profile information of given usernames.
+   * data by fetching details about linked twitter accounts.
+   * @param config
+   * @param usernames
+   */
+  getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, JsonRpcError>;
+  initTwitterProfile(
+    requestToken: BearerAuthToken,
+    oAuthVerifier: string,
+  ): ResultAsync<TwitterProfile, JsonRpcError>;
+  unlinkProfile(id: SnowflakeID): ResultAsync<void, JsonRpcError>;
+  getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;
 }

@@ -1,30 +1,31 @@
 import {
-  Invitation,
-  DataPermissions,
-  SDQLQuery,
-  PageInvitation,
-  SiteVisit,
-  LinkedAccount,
-  TokenBalance,
-  WalletNFT,
-  TokenAddress,
-  EarnedReward,
-  IDynamicRewardParameter,
-  ChainTransaction,
-  TransactionFilter,
-  TokenMarketData,
-  TokenInfo,
-  MarketplaceListing,
-  TransactionPaymentCounter,
-  EligibleAd,
   AdSignature,
-  AESEncryptedString,
-  PossibleReward,
-  PagingRequest,
-  PagedResponse,
-  DiscordProfile,
-  DiscordGuildProfile,
+  ChainTransaction,
+  DataPermissions,
   DataWalletBackup,
+  DiscordGuildProfile,
+  DiscordProfile,
+  EarnedReward,
+  EligibleAd,
+  IDynamicRewardParameter,
+  Invitation,
+  ITokenAndSecret,
+  LinkedAccount,
+  MarketplaceListing,
+  PagedResponse,
+  PageInvitation,
+  PagingRequest,
+  PossibleReward,
+  SDQLQuery,
+  SiteVisit,
+  TokenAddress,
+  TokenBalance,
+  TokenInfo,
+  TokenMarketData,
+  TransactionFilter,
+  TransactionPaymentCounter,
+  TwitterProfile,
+  WalletNFT,
 } from "@objects/businessObjects";
 import {
   EChain,
@@ -52,21 +53,21 @@ import {
   PersistenceError,
   QueryFormatError,
   SiftContractError,
+  TwitterError,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
-import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
 import {
   AccountAddress,
   AdKey,
   AdSurfaceId,
-  AESKey,
   Age,
-  BearerAuthToken,
   BackupFileName,
+  BearerAuthToken,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -74,11 +75,9 @@ import {
   DomainName,
   EmailAddressString,
   EVMContractAddress,
-  EVMPrivateKey,
   FamilyName,
   Gender,
   GivenName,
-  HexString,
   HexString32,
   IpfsCID,
   JsonWebToken,
@@ -140,7 +139,6 @@ export interface ICoreMarketplaceMethods {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
-
 export interface ICoreDiscordMethods {
   /**
    * This method will upsert a users discord profile and
@@ -168,6 +166,18 @@ export interface ICoreDiscordMethods {
   unlink(
     discordProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError>;
+}
+
+export interface ICoreTwitterMethods {
+  getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, TwitterError>;
+  initTwitterProfile(
+    requestToken: BearerAuthToken,
+    oAuthVerifier: string,
+  ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
+  unlinkProfile(
+    id: SnowflakeID,
+  ): ResultAsync<void, TwitterError | PersistenceError>;
+  getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError>;
 }
 
 export interface ICoreIntegrationMethods {
@@ -791,6 +801,7 @@ export interface ISnickerdoodleCore {
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;
   discord: ICoreDiscordMethods;
+  twitter: ICoreTwitterMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

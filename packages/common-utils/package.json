@@ -44,10 +44,12 @@
     "@snickerdoodlelabs/objects": "workspace:^",
     "argon2": "^0.28.4",
     "axios": "^0.27.2",
+    "axios-oauth-1.0a": "^0.3.6",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
+    "oauth-1.0a": "^2.2.6",
     "pino": "^8.1.0",
     "tweetnacl": "^1.0.3",
     "uuid": "^8.3.0"

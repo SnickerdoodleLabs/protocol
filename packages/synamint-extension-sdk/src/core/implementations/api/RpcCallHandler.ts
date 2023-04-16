@@ -3,44 +3,44 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AccountAddress,
   Age,
-  Invitation,
+  BigNumberString,
+  ChainId,
   CountryCode,
   DomainName,
+  EarnedReward,
+  EChain,
   EInvitationStatus,
   EmailAddressString,
+  EScamFilterStatus,
+  EVMContractAddress,
+  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
+  IConsentCapacity,
+  Invitation,
   IOpenSeaMetadata,
   IpfsCID,
-  EScamFilterStatus,
-  EChain,
+  LanguageCode,
   LinkedAccount,
-  EWalletDataType,
-  AccountAddress,
-  TokenId,
-  BigNumberString,
-  TokenBalance,
-  WalletNFT,
-  EarnedReward,
-  ChainId,
-  TokenAddress,
-  TokenInfo,
-  TokenMarketData,
-  URLString,
-  SiteVisit,
   MarketplaceListing,
-  IConsentCapacity,
-  PossibleReward,
-  PagingRequest,
   MarketplaceTag,
   PagedResponse,
+  PagingRequest,
+  PossibleReward,
+  Signature,
+  SiteVisit,
+  TokenAddress,
+  TokenBalance,
+  TokenId,
+  TokenInfo,
+  TokenMarketData,
+  UnixTimestamp,
+  URLString,
+  UUID,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -63,15 +63,15 @@ import {
   IInvitationServiceType,
   IPIIService,
   IPIIServiceType,
+  IScamFilterService,
+  IScamFilterServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
+  ITwitterService,
+  ITwitterServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
 import {
   IContextProvider,
   IContextProviderType,
@@ -84,50 +84,52 @@ import {
 } from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
-  DEFAULT_SUBDOMAIN,
   DEFAULT_RPC_SUCCESS_RESULT,
+  DEFAULT_SUBDOMAIN,
   EExternalActions,
   EInternalActions,
   ExtensionStorageError,
-  IUnlockParams,
-  IGetUnlockMessageParams,
-  IAddAccountParams,
-  ISetGivenNameParams,
-  ISetFamilyNameParams,
-  ISetBirthdayParams,
-  ISetGenderParams,
-  ISetLocationParams,
-  ISetEmailParams,
-  IGetInvitationWithDomainParams,
   IAcceptInvitationByUUIDParams,
-  IRejectInvitationParams,
-  ILeaveCohortParams,
-  IInvitationDomainWithUUID,
-  IGetInvitationMetadataByCIDParams,
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  ICheckInvitationStatusParams,
   ICheckURLParams,
   IGetAgreementPermissionsParams,
-  ISetDefaultPermissionsWithDataTypesParams,
-  ISetApplyDefaultPermissionsParams,
-  IUnlinkAccountParams,
-  IAcceptInvitationParams,
-  IScamFilterSettingsParams,
+  IGetConsentCapacityParams,
   IGetConsentContractCIDParams,
-  ICheckInvitationStatusParams,
-  IGetTokenPriceParams,
-  IGetTokenMarketDataParams,
-  IGetTokenInfoParams,
-  ISetDefaultReceivingAddressParams,
-  ISetReceivingAddressParams,
-  IScamFilterPreferences,
+  IGetInvitationMetadataByCIDParams,
+  IGetInvitationWithDomainParams,
+  IGetListingsTotalByTagParams,
+  IGetMarketplaceListingsByTagParams,
+  IGetPossibleRewardsParams,
   IGetReceivingAddressParams,
+  IGetTokenInfoParams,
+  IGetTokenMarketDataParams,
+  IGetTokenPriceParams,
+  IGetUnlockMessageParams,
+  IInitializeDiscordUser,
+  IInvitationDomainWithUUID,
+  ILeaveCohortParams,
+  IRejectInvitationParams,
+  IScamFilterPreferences,
+  IScamFilterSettingsParams,
+  ISetApplyDefaultPermissionsParams,
+  ISetBirthdayParams,
+  ISetDefaultPermissionsWithDataTypesParams,
+  ISetDefaultReceivingAddressParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  ISetReceivingAddressParams,
+  ITwitterLinkProfile,
+  ITwitterUnlinkProfile,
+  IUnlinkAccountParams,
+  IUnlinkDiscordAccount,
+  IUnlockParams,
   mapToObj,
   SnickerDoodleCoreError,
-  IGetConsentCapacityParams,
-  IGetPossibleRewardsParams,
-  IGetMarketplaceListingsByTagParams,
-  IGetListingsTotalByTagParams,
-  IInitializeDiscordUser,
-  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -151,6 +153,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
+    @inject(ITwitterServiceType)
+    protected twitterService: ITwitterService,
   ) {}
 
   public async handleRpcCall(
@@ -548,6 +552,32 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { discordProfileId } = params as IUnlinkDiscordAccount;
         return new AsyncRpcResponseSender(
           this.discordService.unlink(discordProfileId),
+          res,
+        ).call();
+      }
+      case EExternalActions.TWITTER_GET_REQUEST_TOKEN: {
+        return new AsyncRpcResponseSender(
+          this.twitterService.getOAuth1aRequestToken(),
+          res,
+        ).call();
+      }
+      case EExternalActions.TWITTER_LINK_PROFILE: {
+        const { requestToken, oAuthVerifier } = params as ITwitterLinkProfile;
+        return new AsyncRpcResponseSender(
+          this.twitterService.initTwitterProfile(requestToken, oAuthVerifier),
+          res,
+        ).call();
+      }
+      case EExternalActions.TWITTER_UNLINK_PROFILE: {
+        const { id } = params as ITwitterUnlinkProfile;
+        return new AsyncRpcResponseSender(
+          this.twitterService.unlinkProfile(id),
+          res,
+        ).call();
+      }
+      case EExternalActions.TWITTER_GET_LINKED_PROFILES: {
+        return new AsyncRpcResponseSender(
+          this.twitterService.getUserProfiles(),
           res,
         ).call();
       }

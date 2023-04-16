@@ -1,29 +1,29 @@
 import {
-  Age,
+  AccountAddress,
+  BearerAuthToken,
   BigNumberString,
+  ChainId,
   CountryCode,
   DomainName,
+  EChain,
   EmailAddressString,
+  EVMContractAddress,
+  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
-  URLString,
   IpfsCID,
-  EChain,
-  EWalletDataType,
-  AccountAddress,
-  ChainId,
-  TokenAddress,
-  PagingRequest,
+  LanguageCode,
   MarketplaceTag,
-  BearerAuthToken,
-  SnowflakeID,
   OAuthAuthorizationCode,
+  PagingRequest,
+  Signature,
+  SnowflakeID,
+  TokenAddress,
+  UnixTimestamp,
+  URLString,
+  Username,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -190,4 +190,13 @@ export interface IInitializeDiscordUser {
 }
 export interface IUnlinkDiscordAccount {
   discordProfileId: SnowflakeID;
+}
+
+export interface ITwitterLinkProfile {
+  requestToken: BearerAuthToken,
+  oAuthVerifier: string,
+}
+
+export interface ITwitterUnlinkProfile {
+  id: SnowflakeID
 }

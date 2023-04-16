@@ -28,11 +28,14 @@ import {
 import {
   BackupManagerProvider,
   BackupUtils,
+  ChunkRendererFactory,
   FieldSchemaProvider,
   IBackupManagerProvider,
   IBackupManagerProviderType,
   IBackupUtils,
   IBackupUtilsType,
+  IChunkRendererFactory,
+  IChunkRendererFactoryType,
   IFieldSchemaProvider,
   IFieldSchemaProviderType,
   IPersistenceConfigProvider,
@@ -40,9 +43,6 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
-  IChunkRendererFactory,
-  IChunkRendererFactoryType,
-  ChunkRendererFactory,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -62,22 +62,23 @@ import { ContainerModule, interfaces } from "inversify";
 
 import {
   AccountIndexerPoller,
-  DiscordPoller,
   BlockchainListener,
+  DiscordPoller,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
   AdService,
   ConsentTokenUtils,
+  DiscordService,
+  IntegrationService,
   InvitationService,
+  MarketplaceService,
   MonitoringService,
   ProfileService,
   QueryParsingEngine,
   QueryService,
   SiftContractService,
-  MarketplaceService,
-  IntegrationService,
-  DiscordService,
+  TwitterService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -88,27 +89,28 @@ import {
   QueryRepository,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
+  AdContentRepository,
   AdDataRepository,
   BrowsingDataRepository,
-  LinkedAccountRepository,
-  PortfolioBalanceRepository,
-  TransactionHistoryRepository,
-  DemographicDataRepository,
-  AdContentRepository,
+  CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
   CrumbsRepository,
   DataWalletPersistence,
+  DemographicDataRepository,
+  DiscordRepository,
+  TwitterRepository,
   DNSRepository,
+  DomainCredentialRepository,
   InvitationRepository,
+  LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  PermissionRepository,
+  PortfolioBalanceRepository,
   SDQLQueryRepository,
   SiftContractRepository,
-  CoinGeckoTokenPriceRepository,
-  PermissionRepository,
-  DiscordRepository,
   SocialRepository,
-  DomainCredentialRepository,
+  TransactionHistoryRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -149,66 +151,70 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
+  ITwitterService,
+  ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   IBlockchainTransactionQueryEvaluator,
   IBlockchainTransactionQueryEvaluatorType,
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
   INftQueryEvaluator,
   INftQueryEvaluatorType,
+  IPermissionUtils,
+  IPermissionUtilsType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
-  IPermissionUtils,
-  IPermissionUtilsType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
   IAdRepositoryType,
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
   IDNSRepository,
   IDNSRepositoryType,
+  IDomainCredentialRepository,
+  IDomainCredentialRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
   IMarketplaceRepository,
   IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
   ISiftContractRepositoryType,
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IBrowsingDataRepositoryType,
-  IBrowsingDataRepository,
-  ILinkedAccountRepositoryType,
-  ILinkedAccountRepository,
-  IPortfolioBalanceRepositoryType,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepositoryType,
-  ITransactionHistoryRepository,
-  IDemographicDataRepositoryType,
-  IDemographicDataRepository,
-  IPermissionRepository,
-  IPermissionRepositoryType,
-  IDiscordRepository,
-  IDiscordRepositoryType,
   ISocialRepository,
   ISocialRepositoryType,
-  IDomainCredentialRepositoryType,
-  IDomainCredentialRepository,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+  ITwitterRepository,
+  ITwitterRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -271,6 +277,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
+      .inSingletonScope();
+    bind<ITwitterService>(ITwitterServiceType)
+      .to(TwitterService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
@@ -351,8 +360,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
       .inSingletonScope();
-    bind<ISocialRepository>(ISocialRepositoryType)
-      .to(SocialRepository)
+    bind<ITwitterRepository>(ITwitterRepositoryType)
+      .to(TwitterRepository)
+      .inSingletonScope();
+    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)

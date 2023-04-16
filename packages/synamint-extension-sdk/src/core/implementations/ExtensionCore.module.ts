@@ -11,8 +11,6 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { ContainerModule, interfaces } from "inversify";
 
-import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
-
 import {
   BrowserTabListener,
   CoreListener,
@@ -20,34 +18,37 @@ import {
   ExtensionListener,
   PortConnectionListener,
   RpcCallHandler,
-} from "@synamint-extension-sdk/core/implementations/api";
+} from "@synamint-extension-sdk/core/implementations/api/index.js";
 import {
-  PortConnectionService,
   AccountService,
-  PIIService,
+  DiscordService,
   InvitationService,
+  PIIService,
+  PortConnectionService,
   ScamFilterService,
   TokenPriceService,
+  TwitterService,
   UserSiteInteractionService,
-  DiscordService,
-} from "@synamint-extension-sdk/core/implementations/business";
+} from "@synamint-extension-sdk/core/implementations/business/index.js";
 import {
-  PortConnectionRepository,
   AccountRepository,
-  PIIRepository,
-  InvitationRepository,
   DiscordRepository,
+  InvitationRepository,
+  PIIRepository,
+  PortConnectionRepository,
   ScamFilterRepository,
   TokenPriceRepository,
+  TwitterRepository,
   UserSiteInteractionRepository,
-} from "@synamint-extension-sdk/core/implementations/data";
+} from "@synamint-extension-sdk/core/implementations/data/index.js";
+import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory/index.js";
 import {
   AccountCookieUtils,
   ContextProvider,
   DataPermissionsUtils,
   ErrorUtils,
-} from "@synamint-extension-sdk/core/implementations/utilities";
-import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
+  ScamFilterSettingsUtils,
+} from "@synamint-extension-sdk/core/implementations/utilities/index.js";
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -61,7 +62,7 @@ import {
   IPortConnectionListenerType,
   IRpcCallHandler,
   IRpcCallHandlerType,
-} from "@synamint-extension-sdk/core/interfaces/api";
+} from "@synamint-extension-sdk/core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
@@ -73,35 +74,39 @@ import {
   IPIIServiceType,
   IPortConnectionService,
   IPortConnectionServiceType,
-  ITokenPriceService,
-  ITokenPriceServiceType,
-  IUserSiteInteractionService,
-  IUserSiteInteractionServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business";
-import {
   IScamFilterService,
   IScamFilterServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
+  ITokenPriceService,
+  ITokenPriceServiceType,
+  ITwitterService,
+  ITwitterServiceType,
+  IUserSiteInteractionService,
+  IUserSiteInteractionServiceType,
+} from "@synamint-extension-sdk/core/interfaces/business/index.js";
 import {
   IAccountRepository,
   IAccountRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
   IPIIRepository,
   IPIIRepositoryType,
   IPortConnectionRepository,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   IPortConnectionRepositoryType,
-  IUserSiteInteractionRepository,
-  IUserSiteInteractionRepositoryType,
-  IDiscordRepository,
-  IDiscordRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data";
-import {
   IScamFilterRepository,
   IScamFilterRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data/IScamFilterRepository";
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+  ITwitterRepository,
+  ITwitterRepositoryType,
+  IUserSiteInteractionRepository,
+  IUserSiteInteractionRepositoryType,
+} from "@synamint-extension-sdk/core/interfaces/data/index.js";
+import {
+  IRpcEngineFactory,
+  IRpcEngineFactoryType,
+} from "@synamint-extension-sdk/core/interfaces/utilities/factory/index.js";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -111,20 +116,14 @@ import {
   IDataPermissionsUtilsType,
   IErrorUtils,
   IErrorUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities";
-import {
-  IRpcEngineFactory,
-  IRpcEngineFactoryType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
-import {
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
+} from "@synamint-extension-sdk/core/interfaces/utilities/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
-import { configProvider } from "@synamint-extension-sdk/shared/utils/ConfigProvider";
+} from "@synamint-extension-sdk/shared/interfaces/index.js";
+import { configProvider } from "@synamint-extension-sdk/shared/utils/index.js";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -174,6 +173,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
+    bind<ITwitterService>(ITwitterServiceType)
+      .to(TwitterService)
+      .inSingletonScope();
 
     // Data
     bind<IAccountRepository>(IAccountRepositoryType)
@@ -199,6 +201,9 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
+      .inSingletonScope();
+    bind<ITwitterRepository>(ITwitterRepositoryType)
+      .to(TwitterRepository)
       .inSingletonScope();
     // Utilities
     bind<IContextProvider>(IContextProviderType)

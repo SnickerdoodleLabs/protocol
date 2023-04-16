@@ -5640,10 +5640,12 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     argon2: ^0.28.4
     axios: ^0.27.2
+    axios-oauth-1.0a: ^0.3.6
     ethers: ^5.6.6
     inversify: ^5.1.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
+    oauth-1.0a: ^2.2.6
     pino: ^8.1.0
     tweetnacl: ^1.0.3
     uuid: ^8.3.0
@@ -9025,6 +9027,17 @@ __metadata:
   version: 4.6.3
   resolution: "axe-core@npm:4.6.3"
   checksum: d0c46be92b9707c48b88a53cd5f471b155a2bfc8bf6beffb514ecd14e30b4863e340b5fc4f496d82a3c562048088c1f3ff5b93b9b3b026cb9c3bfacfd535da10
+  languageName: node
+  linkType: hard
+
+"axios-oauth-1.0a@npm:^0.3.6":
+  version: 0.3.6
+  resolution: "axios-oauth-1.0a@npm:0.3.6"
+  dependencies:
+    oauth-sign: ^0.9.0
+  peerDependencies:
+    axios: ">=0.21.0"
+  checksum: 4abce77080a7423d910f89307a1da9ae389da610a718c71c510579f6b7e996739ce7b92b3a896be122e75cddfb9476f97439980b3a162c99b78c044dd7b9e2d2
   languageName: node
   linkType: hard
 
@@ -24563,7 +24576,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oauth-sign@npm:~0.9.0":
+"oauth-1.0a@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "oauth-1.0a@npm:2.2.6"
+  checksum: d791da3dd44aa0f19cea262a9f8ff5154fc9c831e219f820ec8a72bb7d4993edf1f1240bade6e5c5b4878c1f2644c0813090f71f10fb6ddff41eb9c5d16893c6
+  languageName: node
+  linkType: hard
+
+"oauth-sign@npm:^0.9.0, oauth-sign@npm:~0.9.0":
   version: 0.9.0
   resolution: "oauth-sign@npm:0.9.0"
   checksum: 8f5497a127967866a3c67094c21efd295e46013a94e6e828573c62220e9af568cc1d2d04b16865ba583e430510fa168baf821ea78f355146d8ed7e350fc44c64

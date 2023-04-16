@@ -22,4 +22,6 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsRevoked: Observable<DomainName>;
   onDiscordProfileLinked: Subject<SnowflakeID>;
   onDiscordProfileUnlinked: Subject<SnowflakeID>;
+  onTwitterProfileLinked: Subject<SnowflakeID>;
+  onTwitterProfileUnlinked: Subject<SnowflakeID>;
 }

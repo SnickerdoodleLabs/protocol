@@ -91,7 +91,6 @@ class DiscordRepositoryMock {
     return new DiscordRepository(
       this.ajaxUtil,
       this.configProvider,
-      this.persistence,
       this.socialRepository,
       this.timeUtils,
     );

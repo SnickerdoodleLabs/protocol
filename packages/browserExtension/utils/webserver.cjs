@@ -24,7 +24,10 @@ process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
 process.env.__DISCORD_CLIENT_ID__ = "1089994449830027344";
 process.env.__DISCORD_CLIENT_KEY__ = "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ";
 process.env.__DISCORD_POLL_INTERVAL__ = "86400000";
-
+process.env.__TWITTER_CONSUMER_KEY__ = "boxruvqZNqFDLsWgc2BkbhHzn";
+process.env.__TWITTER_CONSUMER_SECRET__ = "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw";
+process.env.__TWITTER_ACCESS_TOKEN__ = "1378611657367191553-UAzr2uq8CilII8aO14k59WdA4MR6ua";
+process.env.__TWITTER_TOKEN_SECRET__ = "MdhJ8IuoWjEcMWT1IV94E8vcQz2lvbosi4nuwoVJZkQQp";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

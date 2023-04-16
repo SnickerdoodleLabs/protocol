@@ -8,6 +8,9 @@ import {
   IConfigOverrides,
   URLString,
   ProviderUrl,
+  BearerAuthToken,
+  SignatureMethod,
+  TwitterConfig,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
@@ -64,6 +67,15 @@ export class ConfigProvider
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
     };
 
+    const twitterConfig = new TwitterConfig(
+      "boxruvqZNqFDLsWgc2BkbhHzn",
+      "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+      URLString("https://api.twitter.com/oauth"),
+      URLString("oob"),
+      URLString("https://api.twitter.com/2"),
+      1 * 24 * 3600 * 1000,
+    );
+
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
@@ -112,6 +124,7 @@ export class ConfigProvider
       300000,
       120000, // backup placement heartbeat
       discordConfig,
+      twitterConfig,
     );
   }
 

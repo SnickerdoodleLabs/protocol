@@ -31,6 +31,8 @@ import {
   ISiftContractServiceType,
   IDiscordService,
   IDiscordServiceType,
+  ITwitterService,
+  ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IAdDataRepository,
@@ -136,6 +138,9 @@ import {
   URLString,
   WalletNFT,
   IConsentCapacity,
+  ICoreTwitterMethods,
+  Username,
+  BearerAuthToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IVolatileStorage,
@@ -160,6 +165,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
   public discord: ICoreDiscordMethods;
+  public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
 
   public constructor(
@@ -320,7 +326,32 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
     };
-
+    // Social Media Methods ----------------------------------------------------------
+    this.twitter = {
+      getOAuth1aRequestToken: () => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .getOAuth1aRequestToken();
+      },
+      initTwitterProfile: (
+        requestToken: BearerAuthToken,
+        oAuthVerifier: string,
+      ) => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .initTwitterProfile(requestToken, oAuthVerifier);
+      },
+      unlinkProfile: (id: SnowflakeID) => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .unlinkProfile(id);
+      },
+      getUserProfiles: () => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .getUserProfiles();
+      },
+    };
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         const discordService =

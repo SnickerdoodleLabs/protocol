@@ -1,99 +1,106 @@
 import {
+  AccountAddress,
   Age,
+  BearerAuthToken,
+  BigNumberString,
+  ChainId,
   CountryCode,
+  DataWalletAddress,
+  DiscordGuildProfile,
+  DiscordProfile,
   DomainName,
+  EarnedReward,
+  EChain,
+  EInvitationStatus,
   EmailAddressString,
+  EVMContractAddress,
+  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
+  IConsentCapacity,
   IOpenSeaMetadata,
   IpfsCID,
-  EChain,
-  EWalletDataType,
-  AccountAddress,
+  ISdlDiscordMethods,
+  ISdlTwitterMethods,
+  ITokenAndSecret,
+  LanguageCode,
   LinkedAccount,
-  DataWalletAddress,
-  BigNumberString,
-  EInvitationStatus,
-  WalletNFT,
-  TokenBalance,
-  EarnedReward,
-  ChainId,
+  MarketplaceListing,
+  MarketplaceTag,
+  OAuthAuthorizationCode,
+  PagedResponse,
+  PagingRequest,
+  PossibleReward,
+  Signature,
+  SiteVisit,
+  SnowflakeID,
   TokenAddress,
+  TokenBalance,
   TokenInfo,
   TokenMarketData,
-  SiteVisit,
+  TwitterProfile,
+  UnixTimestamp,
   URLString,
-  MarketplaceListing,
-  IConsentCapacity,
-  PossibleReward,
-  PagingRequest,
-  MarketplaceTag,
-  PagedResponse,
-  ISdlDiscordMethods,
-  BearerAuthToken,
-  DiscordProfile,
-  DiscordGuildProfile,
-  SnowflakeID,
-  OAuthAuthorizationCode,
+  UUID,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
-  SnickerDoodleCoreError,
   EExternalActions,
+  IAcceptInvitationByUUIDParams,
   IAcceptInvitationParams,
   IAddAccountParams,
+  ICheckInvitationStatusParams,
+  ICheckURLParams,
+  IExternalState,
+  IGetAgreementPermissionsParams,
+  IGetConsentCapacityParams,
+  IGetConsentContractCIDParams,
   IGetInvitationMetadataByCIDParams,
   IGetInvitationWithDomainParams,
+  IGetListingsTotalByTagParams,
+  IGetMarketplaceListingsByTagParams,
+  IGetPossibleRewardsParams,
+  IGetReceivingAddressParams,
+  IGetTokenInfoParams,
+  IGetTokenMarketDataParams,
+  IGetTokenPriceParams,
   IGetUnlockMessageParams,
+  IInitializeDiscordUser,
   IInvitationDomainWithUUID,
   ILeaveCohortParams,
   IRejectInvitationParams,
+  IScamFilterPreferences,
+  IScamFilterSettingsParams,
+  ISetApplyDefaultPermissionsParams,
   ISetBirthdayParams,
+  ISetDefaultPermissionsWithDataTypesParams,
+  ISetDefaultReceivingAddressParams,
   ISetEmailParams,
   ISetFamilyNameParams,
   ISetGenderParams,
   ISetGivenNameParams,
   ISetLocationParams,
-  IUnlockParams,
-  ICheckURLParams,
-  IAcceptInvitationByUUIDParams,
-  IGetAgreementPermissionsParams,
-  ISetDefaultPermissionsWithDataTypesParams,
-  ISetApplyDefaultPermissionsParams,
-  IUnlinkAccountParams,
-  IScamFilterSettingsParams,
-  IGetConsentContractCIDParams,
-  ICheckInvitationStatusParams,
-  IGetTokenPriceParams,
-  IGetTokenMarketDataParams,
-  IGetTokenInfoParams,
-  IGetMarketplaceListingsByTagParams,
-  ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
-  IGetReceivingAddressParams,
-  IScamFilterPreferences,
-  IExternalState,
-  IGetConsentCapacityParams,
-  IGetPossibleRewardsParams,
-  IGetListingsTotalByTagParams,
-  IInitializeDiscordUser,
+  ITwitterLinkProfile,
+  ITwitterUnlinkProfile,
+  IUnlinkAccountParams,
   IUnlinkDiscordAccount,
+  IUnlockParams,
+  SnickerDoodleCoreError,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
   public discord: ISdlDiscordMethods;
+  public twitter: ISdlTwitterMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+
     this.discord = {
       initializeUserWithAuthorizationCode: (
         code: OAuthAuthorizationCode,
@@ -118,6 +125,31 @@ export class ExternalCoreGateway {
         return this._handler.call(EExternalActions.UNLINK_DISCORD_ACCOUNT, {
           discordProfileId,
         } as IUnlinkDiscordAccount);
+      },
+    };
+    this.twitter = {
+      getOAuth1aRequestToken: (): ResultAsync<
+        ITokenAndSecret,
+        JsonRpcError
+      > => {
+        return this._handler.call(EExternalActions.TWITTER_GET_REQUEST_TOKEN);
+      },
+      initTwitterProfile: (
+        requestToken: BearerAuthToken,
+        oAuthVerifier: string,
+      ): ResultAsync<TwitterProfile, JsonRpcError> => {
+        return this._handler.call(EExternalActions.TWITTER_LINK_PROFILE, {
+          requestToken,
+          oAuthVerifier,
+        } as ITwitterLinkProfile);
+      },
+      unlinkProfile: (id: SnowflakeID): ResultAsync<void, JsonRpcError> => {
+        return this._handler.call(EExternalActions.TWITTER_UNLINK_PROFILE, {
+          id,
+        } as ITwitterUnlinkProfile);
+      },
+      getUserProfiles: (): ResultAsync<TwitterProfile[], JsonRpcError> => {
+        return this._handler.call(EExternalActions.TWITTER_GET_LINKED_PROFILES);
       },
     };
   }

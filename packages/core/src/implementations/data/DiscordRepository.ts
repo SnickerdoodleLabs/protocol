@@ -33,8 +33,6 @@ import {
 } from "@core/interfaces/data/apis";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   ISocialRepository,
   ISocialRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -48,8 +46,6 @@ export class DiscordRepository implements IDiscordRepository {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(ISocialRepositoryType)
     protected socialRepository: ISocialRepository,
     @inject(ITimeUtilsType)
