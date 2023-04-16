@@ -3,14 +3,12 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
-  ECurrencyCode,
   EChain,
+  ECurrencyCode,
   IConfigOverrides,
-  URLString,
   ProviderUrl,
-  BearerAuthToken,
-  SignatureMethod,
   TwitterConfig,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";

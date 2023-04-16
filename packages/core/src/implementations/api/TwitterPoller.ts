@@ -2,7 +2,7 @@ import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IDiscordPoller } from "@core/interfaces/api/index.js";
+import { ITwitterPoller } from "@core/interfaces/api/index.js";
 import {
   IMonitoringService,
   IMonitoringServiceType,
@@ -13,7 +13,7 @@ import {
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
-export class DiscordPoller implements IDiscordPoller {
+export class TwitterPoller implements ITwitterPoller {
   public constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
@@ -24,13 +24,13 @@ export class DiscordPoller implements IDiscordPoller {
   initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
       this.logUtils.debug(
-        `Initializing Discord Poller with ${config.discord.pollInterval} MS`,
+        `Initializing Twitter Poller with ${config.twitter.pollInterval} MS`,
       );
       setInterval(() => {
-        this.monitoringService.pollDiscord().mapErr((e) => {
+        this.monitoringService.pollTwitter().mapErr((e) => {
           this.logUtils.error(e);
         });
-      }, config.discord.pollInterval);
+      }, config.twitter.pollInterval);
     });
   }
 }

@@ -42,8 +42,7 @@ declare const __DISCORD_CLIENT_KEY__: string;
 declare const __DISCORD_POLL_INTERVAL__: string;
 declare const __TWITTER_CONSUMER_KEY__: string;
 declare const __TWITTER_CONSUMER_SECRET__: string;
-declare const __TWITTER_ACCESS_TOKEN__: string;
-declare const __TWITTER_TOKEN_SECRET__: string;
+declare const __TWITTER_POLL_INTERVAL__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -197,7 +196,7 @@ class ConfigProvider implements IConfigProvider {
 
     let twitterConfig = {
       callbackUrl: oauthRedirectUrl,
-    } as Partial<DiscordConfig>;
+    } as Partial<TwitterConfig>;
 
     if (
       typeof __TWITTER_CONSUMER_KEY__ !== "undefined" &&
@@ -210,6 +209,12 @@ class ConfigProvider implements IConfigProvider {
       !!__TWITTER_CONSUMER_SECRET__
     ) {
       twitterConfig["apiSecretKey"] = __TWITTER_CONSUMER_SECRET__;
+    }
+    if (
+      typeof __TWITTER_POLL_INTERVAL__ !== "undefined" &&
+      !!__TWITTER_POLL_INTERVAL__
+    ) {
+      twitterConfig["pollInterval"] = parseInt(__TWITTER_POLL_INTERVAL__);
     }
 
     return twitterConfig;

@@ -11,12 +11,16 @@ import {
   IBlockchainListenerType,
   IDiscordPoller,
   IDiscordPollerType,
+  ITwitterPoller,
+  ITwitterPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -29,8 +33,6 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
-  IDiscordService,
-  IDiscordServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -49,8 +51,8 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 import {
-  DefaultAccountIndexers,
   DefaultAccountBalances,
+  DefaultAccountIndexers,
   DefaultAccountNFTs,
 } from "@snickerdoodlelabs/indexers";
 import {
@@ -62,6 +64,7 @@ import {
   Age,
   AjaxError,
   BackupFileName,
+  BearerAuthToken,
   BlockchainProviderError,
   ChainId,
   ChainTransaction,
@@ -94,9 +97,11 @@ import {
   IAccountNFTsType,
   IAdMethods,
   IConfigOverrides,
+  IConsentCapacity,
   ICoreDiscordMethods,
   ICoreIntegrationMethods,
   ICoreMarketplaceMethods,
+  ICoreTwitterMethods,
   IDynamicRewardParameter,
   InvalidParametersError,
   InvalidSignatureError,
@@ -110,9 +115,12 @@ import {
   ITokenPriceRepositoryType,
   LanguageCode,
   LinkedAccount,
+  MarketplaceListing,
+  MarketplaceTag,
   MinimalForwarderContractError,
   OAuthAuthorizationCode,
   PageInvitation,
+  PagingRequest,
   PersistenceError,
   QueryFormatError,
   SDQLQuery,
@@ -128,27 +136,19 @@ import {
   TransactionFilter,
   TransactionPaymentCounter,
   UnauthorizedError,
-  PossibleReward,
-  PagingRequest,
-  MarketplaceTag,
-  MarketplaceListing,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
-  IConsentCapacity,
-  ICoreTwitterMethods,
-  Username,
-  BearerAuthToken,
 } from "@snickerdoodlelabs/objects";
 import {
-  IVolatileStorage,
+  GoogleCloudStorage,
   ICloudStorage,
   ICloudStorageType,
-  GoogleCloudStorage,
-  IVolatileStorageType,
   IndexedDBVolatileStorage,
+  IVolatileStorage,
+  IVolatileStorageType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -489,6 +489,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     const discordPoller =
       this.iocContainer.get<IDiscordPoller>(IDiscordPollerType);
+    const twitterPoller =
+      this.iocContainer.get<ITwitterPoller>(ITwitterPollerType);
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
@@ -505,6 +507,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           accountIndexerPoller.initialize(),
           blockchainListener.initialize(),
           discordPoller.initialize(),
+          twitterPoller.initialize(),
         ]);
       })
       .map(() => {});

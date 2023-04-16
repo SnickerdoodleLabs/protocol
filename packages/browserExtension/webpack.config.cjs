@@ -202,11 +202,8 @@ var options = {
       __TWITTER_CONSUMER_SECRET__: JSON.stringify(
         process.env.__TWITTER_CONSUMER_SECRET__,
       ),
-      __TWITTER_ACCESS_TOKEN__: JSON.stringify(
-        process.env.__TWITTER_ACCESS_TOKEN__,
-      ),
-      __TWITTER_TOKEN_SECRET__: JSON.stringify(
-        process.env.__TWITTER_TOKEN_SECRET__,
+      __TWITTER_POLL_INTERVAL__: JSON.stringify(
+        process.env.__TWITTER_POLL_INTERVAL__,
       ),
     }),
 

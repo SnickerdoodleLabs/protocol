@@ -64,6 +64,7 @@ import {
   AccountIndexerPoller,
   BlockchainListener,
   DiscordPoller,
+  TwitterPoller,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
@@ -98,7 +99,6 @@ import {
   DataWalletPersistence,
   DemographicDataRepository,
   DiscordRepository,
-  TwitterRepository,
   DNSRepository,
   DomainCredentialRepository,
   InvitationRepository,
@@ -111,6 +111,7 @@ import {
   SiftContractRepository,
   SocialRepository,
   TransactionHistoryRepository,
+  TwitterRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -129,6 +130,8 @@ import {
   IBlockchainListenerType,
   IDiscordPoller,
   IDiscordPollerType,
+  ITwitterPoller,
+  ITwitterPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -240,6 +243,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    bind<ITwitterPoller>(ITwitterPollerType)
+      .to(TwitterPoller)
+      .inSingletonScope();
     bind<IDiscordPoller>(IDiscordPollerType)
       .to(DiscordPoller)
       .inSingletonScope();
