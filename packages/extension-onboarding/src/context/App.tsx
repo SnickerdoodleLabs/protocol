@@ -88,7 +88,7 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [providerList, setProviderList] = useState<IProvider[]>([]);
+  const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
   const [socialMediaProviderList, setSocialMediaProviderList] = useState<
     ISocialMediaWrapper[]
   >([]);
@@ -256,7 +256,7 @@ export const AppContextProvider: FC = ({ children }) => {
     setSDLDataWalletDetected(true);
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();
-      setProviderList(getChainProviderList());
+      setChainProviderList(getChainProviderList());
       setSocialMediaProviderList(getSocialMediaProviderList());
       setIsLoading(false);
     }, 500);
@@ -298,7 +298,7 @@ export const AppContextProvider: FC = ({ children }) => {
         optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(),
-        providerList,
+        providerList: chainProviderList,
         socialMediaProviderList,
         isSDLDataWalletDetected,
         linkedAccounts,

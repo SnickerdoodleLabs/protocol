@@ -217,12 +217,6 @@ export interface ISdlDiscordMethods {
 }
 
 export interface ISdlTwitterMethods {
-  /**
-   * Fetches the most basic profile information of given usernames.
-   * data by fetching details about linked twitter accounts.
-   * @param config
-   * @param usernames
-   */
   getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, JsonRpcError>;
   initTwitterProfile(
     requestToken: BearerAuthToken,
