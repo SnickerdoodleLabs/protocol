@@ -1,7 +1,7 @@
+import waitingGif from "@extension-onboarding/assets/gifs/waiting.gif";
 import lockExpandedIcon from "@extension-onboarding/assets/icons/lock-expanded.png";
 import lockIcon from "@extension-onboarding/assets/icons/lock.png";
 import unlockedIcon from "@extension-onboarding/assets/icons/unlocked.png";
-import waitingIcon from "@extension-onboarding/assets/icons/waiting.png";
 import permissionRequiredBadge from "@extension-onboarding/assets/images/badge-permission-required.svg";
 import waitingBadge from "@extension-onboarding/assets/images/badge-waiting.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
@@ -314,7 +314,7 @@ export default ({
                 alignItems="center"
                 justifyContent="center"
               >
-                <img width="30%" height="auto" src={waitingIcon} />
+                <img width="30%" height="auto" src={waitingGif} />
               </Box>
             )}
             <Zoom in={unlockAnimation} unmountOnExit>
