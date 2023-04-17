@@ -32,7 +32,7 @@ export class TwitterService implements ITwitterService {
   ) {}
 
   public getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, TwitterError> {
-    return this._getTwitterConfig().andThen((config) => {
+    return this.getAPIConfig().andThen((config) => {
       console.log(
         "TwitterService getOAuth1aRequestToken config.oAuthCallbackUrl: " +
           config.oAuthCallbackUrl,
@@ -45,7 +45,7 @@ export class TwitterService implements ITwitterService {
     requestToken: BearerAuthToken,
     oAuthVerifier: string,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
-    return this._getTwitterConfig().andThen((config) => {
+    return this.getAPIConfig().andThen((config) => {
       return ResultUtils.combine([
         this.contextProvider.getContext(),
         this.twitterRepo.initTwitterProfile(
@@ -74,7 +74,7 @@ export class TwitterService implements ITwitterService {
   }
 
   public poll(): ResultAsync<void, TwitterError | PersistenceError> {
-    return this._getTwitterConfig().andThen((config) => {
+    return this.getAPIConfig().andThen((config) => {
       return this.twitterRepo
         .getUserProfiles()
         .andThen((profiles) => {
@@ -92,7 +92,7 @@ export class TwitterService implements ITwitterService {
     return this.twitterRepo.getUserProfiles();
   }
 
-  private _getTwitterConfig(): ResultAsync<TwitterConfig, TwitterError> {
+  private getAPIConfig(): ResultAsync<TwitterConfig, TwitterError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (config.twitter == null) {
         return errAsync(new TwitterError("Twitter configuration is NULL!"));

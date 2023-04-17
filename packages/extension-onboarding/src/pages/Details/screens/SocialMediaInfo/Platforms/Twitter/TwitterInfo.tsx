@@ -36,6 +36,9 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
     const [selectedProfile, setSelectedProfile] =
       useState<TwitterProfile | null>(null);
 
+    const [requestPin, setRequestPin] = useState<boolean>(false);
+    const [pinValue, setPinValue] = useState<string>();
+
     const initTwitterProfile = (
       requestToken: BearerAuthToken,
       oAuthVerifier: string,
@@ -65,10 +68,6 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
       if (!verifier || !incomingRequestToken) {
         return;
       }
-      console.log("TwitterInfo USEEFFECT incomingRequestToken");
-      console.log(incomingRequestToken);
-      console.log("TwitterInfo USEEFFECT requestToken");
-      console.log(requestToken);
       if (incomingRequestToken != requestToken.token) {
         console.error(
           `Initial requestToken ${requestToken.token} and incoming request token ${incomingRequestToken} do not match!`,
@@ -121,20 +120,51 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
               </Box>
             </Box>
             <Box justifyContent="center" alignItems="center">
-              <Button
-                variant="outlined"
-                onClick={() =>
-                  provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
-                    setRequestToken(tokenAndSecret);
-                    window.open(
-                      `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}`,
-                      "_self",
-                    );
-                  })
-                }
-              >
-                Link Account
-              </Button>
+              {!requestPin && (
+                <Button
+                  variant="outlined"
+                  onClick={() =>
+                    provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
+                      setRequestToken(tokenAndSecret);
+                      window
+                        .open(
+                          `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}`,
+                          "_blank",
+                        )
+                        ?.focus();
+                      setRequestPin(true);
+                    })
+                  }
+                >
+                  Link Account
+                </Button>
+              )}
+              {requestPin && (
+                <form
+                  onSubmit={(e) => {
+                    if (e && e.preventDefault) {
+                      e.preventDefault();
+                    }
+                    if (pinValue?.toString().length != 7) {
+                      console.error("Pin value consists of 7 numbers");
+                    } else {
+                      setRequestPin(false);
+                      initTwitterProfile(requestToken.token, pinValue);
+                    }
+                  }}
+                >
+                  <label>
+                    PIN:
+                    <input
+                      type="text"
+                      value={pinValue}
+                      onChange={(e) => setPinValue(e.target.value)}
+                      name="PIN"
+                    />
+                  </label>
+                  <input type="submit" name="Submit" />
+                </form>
+              )}
             </Box>
           </Box>
           {userProfiles.map((twitterProfile, index) => {
