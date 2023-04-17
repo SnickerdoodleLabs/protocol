@@ -3,19 +3,12 @@ import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { COLORS, ROUTES } from "../constants";
 import Icon from "react-native-vector-icons/Ionicons";
-import Onboarding from "../screens/Onboarding";
-import Marketplace from "../newcomponents/Marketplace/Marketplace";
-import Dashboard from "../newcomponents/Dashboard/Dashboard";
-import Settings from "../newcomponents/Settings/Settings";
 import {
   DashboardStack,
   MarketplaceStack,
   SettingStack,
 } from "./AuthNavigator";
 import { createStackNavigator } from "@react-navigation/stack";
-import CardDetails from "../newcomponents/Marketplace/CardDetails";
-import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
-import Initial from "../screens/Initial/Initial";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

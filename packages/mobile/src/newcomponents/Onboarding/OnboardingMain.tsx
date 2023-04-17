@@ -7,6 +7,7 @@ import {
   Dimensions,
   Animated,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
@@ -39,7 +40,7 @@ const OnboardingMain = () => {
         navigation.getParent()?.setOptions({
           tabBarStyle: undefined,
         });
-    },10);
+    }, 10);
 
     navigation.getParent()?.setOptions({
       tabBarStyle: {
@@ -94,7 +95,7 @@ const OnboardingMain = () => {
             style={{
               backgroundColor: "#6E62A6",
               width: normalizeWidth(380),
-              height: normalizeHeight(58),
+              height: normalizeHeight(65),
               borderRadius: normalizeWidth(100),
               justifyContent: "center",
             }}
@@ -134,7 +135,7 @@ const OnboardingMain = () => {
           style={{
             backgroundColor: "#6E62A6",
             width: normalizeWidth(380),
-            height: normalizeHeight(58),
+            height: normalizeHeight(65),
             borderRadius: normalizeWidth(100),
             justifyContent: "center",
           }}
@@ -164,32 +165,61 @@ const OnboardingMain = () => {
         height: 200,
       },
       title: `Create Your Account with Your \n Crypto Wallet and Earn Rewards!`,
-      description: `Link your account to view your web3 activity in your \n secure personal Data Wallet and claim your reward.\n
-      You'll share public key, authenticate account, link\n data, no transfer/gas fees.`,
-      button: (
-        <TouchableOpacity
-          style={{
-            justifyContent: "center",
-            backgroundColor: "#6E62A6",
-            width: normalizeWidth(380),
-            height: normalizeHeight(58),
-            borderRadius: normalizeWidth(100),
-          }}
-          onPress={() => {
-            onWCButtonClicked();
-          }}
-        >
+      description: (
+        <View>
           <Text
             style={{
               textAlign: "center",
-              color: "white",
-              fontWeight: "700",
+              fontWeight: "400",
+              color: "#616161",
               fontSize: normalizeWidth(16),
+              lineHeight: normalizeWidth(23),
             }}
           >
-            Connect Wallet
+            {`Link your account to view your web3 activity in your \n secure personal Data Wallet and claim your reward.\n You'll share public key, authenticate account, link\n data, no transfer/gas fees.`}
           </Text>
-        </TouchableOpacity>
+          <View>
+            <Text
+              style={{
+                textAlign: "center",
+                fontWeight: "400",
+                color: "#616161",
+                fontSize: normalizeWidth(16),
+                lineHeight: normalizeWidth(23),
+              }}
+            >
+              {`\n If you don't want to use Wallet Connect \n You can use Public Key`}
+            </Text>
+            <Button title="Use Public Key" />
+          </View>
+        </View>
+      ),
+      button: (
+        <View>
+          <TouchableOpacity
+            style={{
+              justifyContent: "center",
+              backgroundColor: "#6E62A6",
+              width: normalizeWidth(380),
+              height: normalizeHeight(65),
+              borderRadius: normalizeWidth(100),
+            }}
+            onPress={() => {
+              onWCButtonClicked();
+            }}
+          >
+            <Text
+              style={{
+                textAlign: "center",
+                color: "white",
+                fontWeight: "700",
+                fontSize: normalizeWidth(16),
+              }}
+            >
+              Connect Wallet
+            </Text>
+          </TouchableOpacity>
+        </View>
       ),
       backButton: false,
     },
@@ -207,7 +237,7 @@ const OnboardingMain = () => {
           style={{
             backgroundColor: "#6E62A6",
             width: normalizeWidth(380),
-            height: normalizeHeight(58),
+            height: normalizeHeight(65),
             borderRadius: normalizeWidth(100),
             justifyContent: "center",
           }}
@@ -246,7 +276,7 @@ const OnboardingMain = () => {
             style={{
               backgroundColor: "#6E62A6",
               width: normalizeWidth(380),
-              height: normalizeHeight(58),
+              height: normalizeHeight(65),
               borderRadius: normalizeWidth(100),
               justifyContent: "center",
             }}
@@ -291,6 +321,7 @@ const OnboardingMain = () => {
           { useNativeDriver: false },
         )}
         scrollEventThrottle={16}
+        scrollEnabled={false}
       >
         {data.map((item) => (
           <View key={item.id} style={styles.item}>
@@ -299,7 +330,7 @@ const OnboardingMain = () => {
               scrollViewRef={scrollViewRef}
               scrollX={scrollX}
             />
-            <View style={{ position: "absolute", bottom: normalizeHeight(54) }}>
+            <View style={{ position: "absolute", bottom: normalizeHeight(45) }}>
               {item.button}
             </View>
           </View>
@@ -361,7 +392,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 120,
+    bottom: normalizeHeight(120),
     left: 0,
     right: 0,
   },

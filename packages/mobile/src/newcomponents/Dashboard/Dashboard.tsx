@@ -173,9 +173,14 @@ const Dashboard = () => {
     }
   };
   return (
-    <SafeAreaView style={{ backgroundColor: "white" }}>
+    <SafeAreaView style={{ backgroundColor: "white",height:'100%' }}>
       <ScrollView style={{ backgroundColor: "white" }}>
-        <SafeAreaView style={{ marginHorizontal: normalizeWidth(20) }}>
+        <SafeAreaView
+          style={{
+            backgroundColor: "white",
+            marginHorizontal: normalizeWidth(5),
+          }}
+        >
           <View style={styles.containerBox}>
             <Text style={styles.title}>My Data Dashboard</Text>
             <TouchableOpacity
@@ -198,17 +203,21 @@ const Dashboard = () => {
               selected={selectedAccount}
             />
           </View>
-          <DashboardTab
-            data={{
-              nfts: myNFTs,
-              tokens: myTokens,
-              totalBalance: totalVal,
-              selectedAccount,
-              setSelectedAccount,
-              isMainnet,
-              pickerLinkedAccounts,
-            }}
-          />
+          <View style={{ flex: 1 }}>
+            <View style={{backgroundColor:'red',height:'100%'}}>
+              <DashboardTab
+                data={{
+                  nfts: myNFTs,
+                  tokens: myTokens,
+                  totalBalance: totalVal,
+                  selectedAccount,
+                  setSelectedAccount,
+                  isMainnet,
+                  pickerLinkedAccounts,
+                }}
+              />
+            </View>
+          </View>
           {isOpen && (
             <Animated.View style={[styles.sidebar, { width: animatedWidth }]}>
               <View
@@ -250,7 +259,7 @@ const Dashboard = () => {
                 </Text>
 
                 <View style={{ marginTop: normalizeHeight(42) }}>
-              {/*     <RadioButton
+                  {/*     <RadioButton
                     label="All"
                     checked={selected === "All"}
                     onPress={() => handleSelect("All")}
@@ -306,6 +315,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: normalizeWidth(24),
     lineHeight: normalizeHeight(29),
+    marginLeft: normalizeWidth(25),
+    marginTop: normalizeHeight(20),
     color: "#424242",
   },
   banner: {
@@ -355,6 +366,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: "white",
   },
   dropdownContainer: {
     width: normalizeWidth(60),

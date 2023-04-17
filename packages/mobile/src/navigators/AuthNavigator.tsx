@@ -77,6 +77,15 @@ export function MarketplaceStack() {
           title: false,
         }}
       />
+      <Stack.Screen
+        name={ROUTES.PERMISSION_SETTINGS}
+        component={PermissionSettings}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }

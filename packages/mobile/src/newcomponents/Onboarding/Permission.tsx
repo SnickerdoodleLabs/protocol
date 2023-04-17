@@ -55,42 +55,50 @@ const Permission = () => {
   // Personal Info
   const [age, setAge] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.Age,
-    status: false,
+    status: true,
   });
   const [gender, setGender] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.Gender,
-    status: false,
+    status: true,
   });
   const [location, setLocation] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.Location,
-    status: false,
+    status: true,
   });
   const [siteVisited, setSiteVisited] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.SiteVisits,
-    status: false,
+    status: true,
   });
   // Crypto Accounts
   const [nfts, setNFTs] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.AccountNFTs,
-    status: false,
+    status: true,
   });
   const [tokenBalance, setTokenBalance] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.AccountBalances,
-    status: false,
+    status: true,
   });
   const [transactionHistory, setTransactionHistory] =
     useState<IPermissionStateProps>({
       walletDataType: EWalletDataType.EVMTransactions,
-      status: false,
+      status: true,
     });
   // Discord
   const [discord, setDiscord] = useState<IPermissionStateProps>({
     walletDataType: 11,
-    status: false,
+    status: true,
   });
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   React.useEffect(() => {
     mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
+      if ((permission.length == 0)) {
+        mobileCore.dataPermissionUtils.setPermissions([
+          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+        ]);
+      }
+      else{
+        
+      }
       setPermissions(permission);
     });
   }, []);

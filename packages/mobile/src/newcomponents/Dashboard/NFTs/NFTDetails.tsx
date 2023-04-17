@@ -63,7 +63,7 @@ export const LineBreaker = () => {
   return <View style={styles.lineBreaker} />;
 };
 
-const ipfsParse = (ipfs: string) => {
+export const ipfsParse = (ipfs: string) => {
   let a;
   if (ipfs) {
     a = ipfs.replace("ipfs://", "");
@@ -93,9 +93,7 @@ const NFTDetails = ({ navigation, route }) => {
         ipfsParse(item?.normalized_metadata?.image) === rewardItem?.image,
     );
     console.log("parsed", parsed);
-    setNFTData(parsed?.[0]);
-    console.log("JSONMETADATA", JSON.parse(parsed?.[0].metadata));
-  }, []);
+    setNFTData(parsed?.[0]);  }, []);
 
   const getTokenId = (tokenId: BigNumberString | undefined) => {
     if (tokenId) {

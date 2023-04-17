@@ -21,7 +21,9 @@ const Tab = ({ item, isActive }: any) => {
 
 const Tabs = ({ data, activeTab, setActiveTab }: any) => {
   return (
-    <View style={{ width: "35%", paddingTop: normalizeHeight(30) }}>
+    <View
+      style={{ width: "35%", paddingTop: normalizeHeight(30), marginLeft: 20 }}
+    >
       <View style={styles.tabsContainer}>
         {data.map((item: any) => {
           return (
@@ -49,7 +51,7 @@ const DashboardTab = ({ data }: IDashboardChildrenProps) => {
     console.log("data", data);
   }, [data]);
   return (
-    <View>
+    <View style={{ backgroundColor: "white", height: "100%" }}>
       <Tabs
         data={[
           { key: "1", component: "1", title: "Tokens" },
@@ -58,8 +60,10 @@ const DashboardTab = ({ data }: IDashboardChildrenProps) => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-      {activeTab === "Tokens" && <Tokens data={data} />}
-      {activeTab === "NFT's" && <NFTs data={data} />}
+      <View>
+        {activeTab === "Tokens" && <Tokens data={data} />}
+        {activeTab === "NFT's" && <NFTs data={data} />}
+      </View>
     </View>
   );
 };

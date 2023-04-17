@@ -132,10 +132,10 @@ export class InvitationService implements IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
+    dataTypes: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError | MobileStorageError> {
     // TODO MOBILE DATAPERMISSIONS
-    return this.core.acceptInvitation(invitation, null).mapErr((error) => {
+    return this.core.acceptInvitation(invitation, dataTypes).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

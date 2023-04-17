@@ -58,7 +58,7 @@ const Marketplace = () => {
               </Text>
             </View>
           </View>
-          {/* My Rewards */}
+
           <View
             style={{
               flexDirection: "row",
@@ -113,9 +113,7 @@ const Marketplace = () => {
               />
             </View>
           </View>
-          {/* My Rewards */}
 
-          {/* Available Rewards */}
           <View
             style={{
               flexDirection: "row",
@@ -172,7 +170,6 @@ const Marketplace = () => {
               />
             </View>
           </View>
-          {/* Available Rewards */}
         </SafeAreaView>
       </ScrollView>
     </SafeAreaView>

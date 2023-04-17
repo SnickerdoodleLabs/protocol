@@ -27,7 +27,7 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
       key: 1,
       value: 100,
       svg: { fill: "#AFAADB" },
-      label: "100%",
+      label: "Empty",
     },
   ];
 

@@ -24,7 +24,7 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
+    dataTypes: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError | MobileStorageError>;
 
   rejectInvitation(

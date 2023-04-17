@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
@@ -16,10 +16,20 @@ import RadioButton from "../Custom/RadioButton";
 import { useNavigation } from "@react-navigation/native";
 
 export default function CryptoSettings() {
+  const { mobileCore } = useAppContext();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
   const [selected, setSelected] = React.useState<string>(linkedAccounts[0]);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    mobileCore
+      .getCore()
+      .getReceivingAddress()
+      .map((receiveAccount) => {
+        setSelected(receiveAccount);
+      });
+  }, []);
 
   const handleSelect = (value: string) => {
     setSelected(value);
@@ -33,7 +43,7 @@ export default function CryptoSettings() {
       }}
     >
       <SafeAreaView>
-      {/*   <Icon
+        {/*   <Icon
           name="arrow-back-outline"
           size={40}
           onPress={() => {
@@ -134,7 +144,7 @@ export default function CryptoSettings() {
                       0,
                       6,
                     )}...........................${account?.slice(36, 42)}`}
-                    checked={selected === account}
+                    checked={account === selected}
                     onPress={() => handleSelect(account)}
                   />
                 </View>

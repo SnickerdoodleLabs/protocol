@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import { PieChart } from "react-native-svg-charts";
 import { Text as SvgText } from "react-native-svg";
@@ -37,13 +37,35 @@ class PieChartComponent extends React.PureComponent<Props> {
         );
       });
     };
-
+    /*    useEffect(() => {
+      if (pieData.length === 0) {
+        setPieData([
+          {
+            key: 1,
+            value: 100,
+            svg: { fill: "#AFAADB" },
+            label: "No Tokens Found",
+          },
+        ]);
+      }
+    }, [pieData]); */
     return (
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <View>
           <PieChart
             style={{ width: 200, height: 250 }}
-            data={data}
+            data={
+              data.length === 0
+                ? [
+                    {
+                      key: 1,
+                      value: 100,
+                      svg: { fill: "#AFAADB" },
+                      label: "100%",
+                    },
+                  ]
+                : data
+            }
             innerRadius={0}
             outerRadius={"90%"}
           >
@@ -51,6 +73,39 @@ class PieChartComponent extends React.PureComponent<Props> {
           </PieChart>
         </View>
         <View style={{ marginTop: -30, marginLeft: 20 }}>
+          {data.length === 0 && (
+            <View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: "#AFAADB",
+                    borderRadius: 100,
+                    marginTop: 8,
+                  }}
+                ></View>
+                <Text
+                  key={1}
+                  style={{
+                    fontSize: 12,
+                    paddingLeft: 5,
+                    color: "#757575",
+                    fontWeight: "500",
+                    marginTop: 8,
+                  }}
+                >
+                  Empty
+                </Text>
+              </View>
+              <Text
+                key={1}
+                style={{ fontSize: 16, fontWeight: "500", marginTop: 8 }}
+              >
+                {`${100}%`}
+              </Text>
+            </View>
+          )}
           {data.map((item) => (
             <View>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -58,7 +113,7 @@ class PieChartComponent extends React.PureComponent<Props> {
                   style={{
                     width: 8,
                     height: 8,
-                    backgroundColor: item.svg.fill,
+                    backgroundColor: item?.svg?.fill ?? "#AFAADB",
                     borderRadius: 100,
                     marginTop: 8,
                   }}
