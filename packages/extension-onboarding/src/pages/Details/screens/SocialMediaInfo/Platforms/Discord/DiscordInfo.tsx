@@ -125,7 +125,11 @@ const DiscordInfo: FC<ISocialMediaPlatformProps> = ({
           <Box justifyContent="center" alignItems="center">
             <Button
               variant="outlined"
-              href={`https://discord.com/oauth2/authorize?response_type=code&client_id=1093307083102887996&scope=identify%20guilds&state=15773059ghq9183habn&redirect_uri=${window.location.origin}/data-dashboard/social-media-data&prompt=consent`}
+              onClick={() => {
+                provider
+                  .installationUrl()
+                  .map((url) => window.open(url, "_self"));
+              }}
             >
               Link Account
             </Button>

@@ -26,6 +26,11 @@ import {
   UnixTimestamp,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
   ISdlDiscordMethods,
   BearerAuthToken,
   DiscordProfile,
@@ -125,6 +130,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, unknown> {
@@ -141,15 +147,23 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   ): ResultAsync<AccountAddress, unknown> {
     return coreGateway.getReceivingAddress(contractAddress);
   }
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, unknown> {
-    return coreGateway.getMarketplaceListings(count, headAt);
+
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, unknown> {
+    return coreGateway.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<number, unknown> {
-    return coreGateway.getListingsTotal();
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotalByTag(tag);
   }
 
   public getTokenMarketData(
@@ -351,6 +365,19 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
     return coreGateway.getSiteVisitsMap();
+  }
+
+  public getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, unknown> {
+    return coreGateway.getConsentCapacity(contractAddress);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, unknown> {
+    return coreGateway.getPossibleRewards(contractAddresses, timeoutMs);
   }
 }
 

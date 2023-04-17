@@ -68,14 +68,6 @@ async function deployConsentFactory() {
   await upgradeableConsentFactory.deployed();
 
   console.log("ConsentFactory deployed to:", upgradeableConsentFactory.address);
-
-  await upgradeableConsentFactory.newListingHead(5, "QmTPfcSAr5FKWDmjbyudNae5NMAreqZfYqWUGFzvuWZQDh").then(
-    (txrcpt) => {
-      return txrcpt.wait();
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
 }
 
 // function that deploys the Doodle Token

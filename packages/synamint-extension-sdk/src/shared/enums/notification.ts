@@ -3,4 +3,5 @@ export enum ENotificationTypes {
   ACCOUNT_INITIALIZED = "onAccountInitialized",
   ACCOUNT_ADDED = "onAccountAdded",
   ACCOUNT_REMOVED = "onAccountRemoved",
+  EARNED_REWARDS_ADDED = "onEarnedRewardsAdded",
 }

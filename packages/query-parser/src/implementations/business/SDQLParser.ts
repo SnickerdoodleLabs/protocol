@@ -142,9 +142,7 @@ export class SDQLParser {
       this.validateQuery(schema),
       this.validateCompenstations(schema),
       this.validateLogic(schema),
-    ]).andThen(() => {
-      return okAsync(undefined);
-    });
+    ]).map(() => {});
   }
 
   public validateMeta(
@@ -295,8 +293,6 @@ export class SDQLParser {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
       }
-
-      // return okAsync(queries
 
       for (const query of queries) {
         this.saveInContext(query.name, query);

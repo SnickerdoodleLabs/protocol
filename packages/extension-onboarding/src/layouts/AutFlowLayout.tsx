@@ -2,18 +2,19 @@ import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup
 import Sidebar from "@extension-onboarding/components/Sidebar";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
+import { authFlowRouteSettings } from "@extension-onboarding/containers/Router/Router.settings";
 import { Box } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo } from "react";
+import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const AutFlowLayout = () => {
   // TODO remove below code when extension navigations fixed
   const SCREENS_OBJ = {
     portfolio: EPaths.HOME,
-    rewards: EPaths.MY_REWARDS,
+    rewards: EPaths.MARKETPLACE,
     settings: EPaths.WEB3_SETTINGS,
   };
-  const { search } = useLocation();
+  const { search, pathname, state } = useLocation();
   const screen = new URLSearchParams(search).get("screen");
   const navigate = useNavigate();
 
@@ -23,19 +24,43 @@ const AutFlowLayout = () => {
     }
   }, []);
 
+  const { hideSidebar, bgColor, removeDefaultPadding } = useMemo(() => {
+    const originalPath = Object.values(EPaths).find((path) =>
+      matchPath(path, pathname),
+    );
+    return (
+      authFlowRouteSettings[originalPath as EPaths] ?? {
+        bgColor: "#FAFAFA",
+        hideSidebar: false,
+        removeDefaultPadding: false,
+      }
+    );
+  }, [pathname]);
+
+  useEffect(() => {
+    const wrapper = document.getElementById("authflow");
+    if (wrapper) {
+      wrapper.scrollTop = 0;
+    }
+  }, [pathname, JSON.stringify(search), JSON.stringify(state)]);
+
   return (
-    <Box display="flex" maxHeight="100vh">
-      <Sidebar />
+    <Box display="flex" overflow="hidden" height="100vh">
+      {!hideSidebar && <Sidebar />}
       <CampaignPopup />
       <Box
+        id="authflow"
         display="flex"
+        bgcolor={bgColor}
         style={{ overflowY: "auto" }}
-        p={6}
+        p={removeDefaultPadding ? 0 : 6}
         flex={1}
         flexDirection="column"
       >
         <DashboardContextProvider>
-          <Outlet />
+          <Box mb={4}>
+            <Outlet />
+          </Box>
         </DashboardContextProvider>
       </Box>
     </Box>

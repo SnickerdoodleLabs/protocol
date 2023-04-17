@@ -24,6 +24,7 @@ const errorCodes = {
   ParserTypeNotImplementedError: "ERR_PARSER_TYPE_NOT_IMPLEMENTED",
   RewardsFactoryError: "ERR_REWARDS_FACTORY",
   ServerRewardError: "ERR_SERVER_REWARD",
+  TransactionResponseError: "ERR_TRANSACTION_RESPONSE",
   DiscordError: "ERR_DISCORD",
   OAuthError: "ERR_OAuth",
   SiftContractError: "ERR_SIFT_CONTRACT",
