@@ -186,44 +186,98 @@ export class TwitterRepository implements ITwitterRepository {
     config: TwitterConfig,
     userId: SnowflakeID,
     oAuth1a: ITokenAndSecret,
-  ): ResultAsync<ITwitterUserObject[], TwitterError> {
+    nextPageToken?: string,
+    recursionCount: number = 1,
+    ): ResultAsync<ITwitterUserObject[], TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}/followers`);
+    const pathParams = {
+      max_results: 1000,
+    };
+    if (nextPageToken) {
+      pathParams["pagination_token"] = nextPageToken;
+    }
     return this.ajaxUtil
-      .get<{ data: ITwitterUserObject[] }>(new URL(url), {
+      .get<{
+        data: ITwitterUserObject[];
+        meta: { result_count: number; next_token: string };
+      }>(new URL(url), {
+        params: pathParams,
         headers: {
           authorization: config.getOAuth1aHeader(
             {
               url: url,
               method: "GET",
+              data: pathParams,
             },
             oAuth1a,
           ),
         },
       })
       .mapErr((error) => new TwitterError(error.message))
-      .map((responseObj) => (responseObj.data as ITwitterUserObject[]) ?? []);
+      .andThen((responseObj) => {
+        if (!responseObj.data || recursionCount > 100) {
+          return okAsync([]);
+        }
+        if (responseObj.meta.next_token) {
+          return this._fetchFollowers(
+            config,
+            userId,
+            oAuth1a,
+            responseObj.meta.next_token,
+            recursionCount + 1,
+          ).map((rest) => [...responseObj.data, ...rest]);
+        }
+        return okAsync(responseObj.data);
+      });
   }
 
   private _fetchFollowing(
     config: TwitterConfig,
     userId: SnowflakeID,
     oAuth1a: ITokenAndSecret,
+    nextPageToken?: string,
+    recursionCount: number = 1,
   ): ResultAsync<ITwitterUserObject[], TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}/following`);
+    const pathParams = {
+      max_results: 1000,
+    };
+    if (nextPageToken) {
+      pathParams["pagination_token"] = nextPageToken;
+    }
     return this.ajaxUtil
-      .get<{ data: ITwitterUserObject[] }>(new URL(url), {
+      .get<{
+        data: ITwitterUserObject[];
+        meta: { result_count: number; next_token: string };
+      }>(new URL(url), {
+        params: pathParams,
         headers: {
           authorization: config.getOAuth1aHeader(
             {
               url: url,
               method: "GET",
+              data: pathParams,
             },
             oAuth1a,
           ),
         },
       })
       .mapErr((error) => new TwitterError(error.message))
-      .map((responseObj) => (responseObj.data as ITwitterUserObject[]) ?? []);
+      .andThen((responseObj) => {
+        if (!responseObj.data || recursionCount > 100) {
+          return okAsync([]);
+        }
+        if (responseObj.meta.next_token) {
+          return this._fetchFollowing(
+            config,
+            userId,
+            oAuth1a,
+            responseObj.meta.next_token,
+            recursionCount + 1,
+          ).map((rest) => [...responseObj.data, ...rest]);
+        }
+        return okAsync(responseObj.data);
+      });
   }
 
   private _parseResponseString(res: string): object {

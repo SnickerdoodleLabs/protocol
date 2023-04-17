@@ -27,7 +27,7 @@ export const TwitterAccountItem: FC<ITwitterAccountItemProps> = memo(
           </Box>
           <Box mt={2.5}>
             <Typography className={classes.guildsTitle}>
-              @{userObject.username} #:{userObject.id} {userObject.name}
+              @{userObject.username}, #{userObject.id}, {userObject.name}
             </Typography>
           </Box>
           <Box>
