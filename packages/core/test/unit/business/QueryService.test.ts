@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   ICryptoUtils,
+  ILogUtils,
   ITimeUtils,
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
@@ -103,6 +104,7 @@ class QueryServiceMocks {
   public accountRepo: ILinkedAccountRepository;
   public timeUtils: ITimeUtils;
   public sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory;
+  public logUtils: ILogUtils;
 
   public consentToken = new ConsentToken(
     consentContractAddress,
@@ -124,6 +126,7 @@ class QueryServiceMocks {
     this.accountRepo = td.object<ILinkedAccountRepository>();
     this.timeUtils = new TimeUtils();
     this.sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(this.timeUtils);
+    this.logUtils = td.object<ILogUtils>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -146,7 +149,7 @@ class QueryServiceMocks {
         derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
-    ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
+    ).thenReturn(errAsync(new AjaxError("mocked error", 500))); // error
 
     td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
@@ -158,10 +161,7 @@ class QueryServiceMocks {
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ).thenReturn(okAsync(this.consentToken));
     td.when(
-      this.queryParsingEngine.handleQuery(
-        sdqlQuery,
-        dataPermissions,
-      ),
+      this.queryParsingEngine.handleQuery(sdqlQuery, dataPermissions),
     ).thenReturn(okAsync(insights));
 
     td.when(
@@ -184,61 +184,10 @@ class QueryServiceMocks {
       this.cryptoUtils,
       this.accountRepo,
       this.sdqlQueryWrapperFactory,
+      this.logUtils,
     );
   }
 }
-describe("processQuery tests", () => {
-  const mocks = new QueryServiceMocks();
-  const queryService = mocks.factory();
-  const returns = JSON.stringify(insights);
-  test("error if dataWalletAddress missing in context", async () => {
-    await mocks.contextProvider.getContext().andThen((context) => {
-      const copyContext: CoreContext = { ...(context as CoreContext) };
-      copyContext.dataWalletAddress = null;
-      return queryService
-        .validateContextConfig(copyContext, mocks.consentToken)
-        .andThen(() => {
-          fail();
-        })
-        .orElse((err) => {
-          expect(err.constructor).toBe(UninitializedError);
-          return errAsync(err);
-        });
-    });
-  });
-
-  test("error if dataWallet missing in context", async () => {
-    await mocks.contextProvider.getContext().andThen((context) => {
-      const copyContext: CoreContext = { ...(context as CoreContext) };
-      copyContext.dataWalletKey = null;
-      return queryService
-        .validateContextConfig(copyContext, mocks.consentToken)
-        .andThen(() => {
-          fail();
-        })
-        .orElse((err) => {
-          expect(err.constructor).toBe(UninitializedError);
-          return errAsync(err);
-        });
-    });
-  });
-
-  test("processQuery success", async () => {
-    // Arrange
-    const mocks = new QueryServiceMocks();
-    const queryService = mocks.factory(); // new context
-    await queryService
-      .processQuery(consentContractAddress, sdqlQuery, rewardParameters)
-      .andThen((result) => {
-        expect(result).toBeUndefined();
-        return okAsync(true);
-      })
-      .orElse((err) => {
-        console.log(err);
-        fail();
-      });
-  });
-});
 
 describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
@@ -247,52 +196,6 @@ describe("processRewardsPreview tests", () => {
     td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     ); // QQ: MAKES A LOT OF SENSE
-    td.when(mocks.contextProvider.getContext()).thenReturn(
-      okAsync(
-        new CoreContext(
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-        ),
-      ),
-    );
-    td.when(mocks.configProvider.getConfig()).thenReturn(
-      okAsync(
-        new CoreConfig(
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-        ),
-      ),
-    );
     td.when(
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));

@@ -1,6 +1,7 @@
 // This is basically global variables
 
 import { DataWalletAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
+import { Subject } from "rxjs";
 
 import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
 
@@ -19,11 +20,15 @@ import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
  * of the key in this context is unproductive. KISS!
  */
 export class CoreContext {
+  public heartbeat: Subject<void>;
+
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
     public dataWalletKey: EVMPrivateKey | null,
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
     public restoreInProgress: boolean,
-  ) { }
+  ) {
+    this.heartbeat = new Subject();
+  }
 }

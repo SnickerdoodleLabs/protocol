@@ -1107,7 +1107,7 @@ describe("AccountService unlock() tests", () => {
         evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
-    ).thenReturn(errAsync(new AjaxError()));
+    ).thenReturn(errAsync(new AjaxError("Error", 500)));
 
     const service = mocks.factory();
 
@@ -1456,7 +1456,7 @@ describe("AccountService addAccount() tests", () => {
         evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
-    ).thenReturn(errAsync(new AjaxError()));
+    ).thenReturn(errAsync(new AjaxError("Error", 500)));
 
     const service = mocks.factory();
 

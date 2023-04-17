@@ -11,6 +11,7 @@ import {
   QueryStatus,
   EVMContractAddress,
   ERecordKey,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -66,6 +67,38 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
             queryStatus.receivedBlock > queryHorizon
           );
         });
+      });
+  }
+
+  public getQueryStatusByStatus(
+    status: EQueryProcessingStatus,
+  ): ResultAsync<QueryStatus[], PersistenceError> {
+    // TODO: Make this more efficient in the future
+    return this.persistence
+      .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
+      .map((queryStatii) => {
+        // Return only those status from after the query horizon and for the requested
+        // contract
+        return queryStatii.filter((queryStatus) => {
+          return queryStatus.status == status;
+        });
+      });
+  }
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    // TODO: Make this more efficient in the future
+    return this.persistence
+      .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
+      .map((queryStatii) => {
+        // Return only those status from after the query horizon and for the requested
+        // contract
+        return (
+          queryStatii.find((queryStatus) => {
+            return queryStatus.queryCID == queryCID;
+          }) || null
+        );
       });
   }
 
