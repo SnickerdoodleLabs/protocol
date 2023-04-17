@@ -22,8 +22,8 @@ import {
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
+import { IDiscordProvider, ITwitterProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { DiscordProvider, TwitterProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -31,7 +31,8 @@ interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
   walletConnect: IProvider | null;
-  discordMediaDataProvider: IDiscordProvider;
+  discordProvider: IDiscordProvider;
+  twitterProvider: ITwitterProvider;
   onProviderConnectClick: (
     providerObj: IProvider,
   ) => ResultAsync<void, unknown>;
@@ -75,10 +76,16 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       );
     }, [providerList.length]);
 
-  const discordMediaDataProvider = useMemo(() => {
+  const discordProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
       return provider.key === ESocialMediaProviderKeys.DISCORD;
     })?.provider ?? new DiscordProvider()) as IDiscordProvider;
+  }, [socialMediaProviderList.length]);
+
+  const twitterProvider = useMemo(() => {
+    return (socialMediaProviderList.find((provider) => {
+      return provider.key === ESocialMediaProviderKeys.TWITTER;
+    })?.provider ?? new TwitterProvider()) as ITwitterProvider;
   }, [socialMediaProviderList.length]);
 
   useEffect(() => {
@@ -155,7 +162,8 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         detectedProviders,
         unDetectedProviders,
         walletConnect,
-        discordMediaDataProvider,
+        discordProvider,
+        twitterProvider,
         onProviderConnectClick,
       }}
     >

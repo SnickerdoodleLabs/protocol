@@ -33,6 +33,10 @@ export class TwitterService implements ITwitterService {
 
   public getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, TwitterError> {
     return this._getTwitterConfig().andThen((config) => {
+      console.log(
+        "TwitterService getOAuth1aRequestToken config.oAuthCallbackUrl: " +
+          config.oAuthCallbackUrl,
+      );
       return this.twitterRepo.getOAuth1aRequestToken(config);
     });
   }

@@ -195,7 +195,7 @@ class ConfigProvider implements IConfigProvider {
           );
 
     let twitterConfig = {
-      callbackUrl: oauthRedirectUrl,
+      callbackUrl: URLString(oauthRedirectUrl),
     } as Partial<TwitterConfig>;
 
     if (

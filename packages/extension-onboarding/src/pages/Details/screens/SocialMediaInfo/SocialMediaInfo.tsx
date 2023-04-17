@@ -1,9 +1,12 @@
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import React from "react";
 
 import { ESocialMediaProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
-import DiscordMediaData from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
+import {
+  DiscordInfo,
+  TwitterInfo,
+} from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/SocialMediaInfo.style";
 
 interface ISocialMediaInfoProps {
@@ -23,7 +26,9 @@ export default () => {
   }: ISocialMediaInfoProps) => {
     switch (key) {
       case ESocialMediaProviderKeys.DISCORD:
-        return <DiscordMediaData name={name} icon={icon} />;
+        return <DiscordInfo name={name} icon={icon} />;
+      case ESocialMediaProviderKeys.TWITTER:
+        return <TwitterInfo name={name} icon={icon} />;
 
       default:
         return null;

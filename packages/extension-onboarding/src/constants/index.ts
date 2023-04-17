@@ -13,7 +13,8 @@ export enum EWalletProviderKeys {
 }
 
 export enum ESocialMediaProviderKeys {
-  DISCORD = "discord"
+  DISCORD = "discord",
+  TWITTER = "twitter",
 }
 
 export const DOWNLOAD_URL =
