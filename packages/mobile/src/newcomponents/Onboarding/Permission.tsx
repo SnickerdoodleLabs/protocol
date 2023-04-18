@@ -136,7 +136,7 @@ const Permission = () => {
         title="Personal Info"
         perms={[
           {
-            name: "Age",
+            name: "Year of Birth",
             state: age,
             setState: setAge,
             ewalletType: EWalletDataType.Age,
@@ -152,7 +152,7 @@ const Permission = () => {
             setPermissions,
           },
           {
-            name: "Location",
+            name: "Country",
             state: location,
             setState: setLocation,
             ewalletType: EWalletDataType.Location,
@@ -160,7 +160,7 @@ const Permission = () => {
             setPermissions,
           },
           {
-            name: "Sites Visited",
+            name: "Browser History",
             state: siteVisited,
             setState: setSiteVisited,
             ewalletType: EWalletDataType.SiteVisits,
@@ -181,7 +181,7 @@ const Permission = () => {
             setPermissions,
           },
           {
-            name: "Token Balance",
+            name: "Token Balances",
             state: tokenBalance,
             setState: setTokenBalance,
             ewalletType: EWalletDataType.AccountBalances,

@@ -12,6 +12,7 @@ import Video from "react-native-video";
 import VideoPlayer from "../VideoPlayer";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ScrollView } from "react-native-gesture-handler";
+import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
 
 interface OnboardingItemProps {
   item: {
@@ -34,7 +35,7 @@ export default function OnboardingItem({
   const { width, height } = Dimensions.get("window");
   const ITEM_WIDTH = width;
   return (
-    <SafeAreaView style={{height:'90%'}}>
+    <SafeAreaView style={{ height: "90%" }}>
       <ScrollView>
         <SafeAreaView
           style={{
@@ -90,6 +91,7 @@ export default function OnboardingItem({
                 {item.description}
               </Text>
             </View>
+
             {item.component && item.component}
             {item.backButton && (
               <TouchableOpacity

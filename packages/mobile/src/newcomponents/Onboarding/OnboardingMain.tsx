@@ -8,6 +8,13 @@ import {
   Animated,
   TouchableOpacity,
   Button,
+  Modal,
+  Image,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  Alert,
+  NativeModules,
 } from "react-native";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
@@ -18,16 +25,75 @@ import Permission from "./Permission";
 import { useAppContext } from "../../context/AppContextProvider";
 import { useNavigation } from "@react-navigation/native";
 import { ROUTES } from "../../constants";
+import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
+import { ethers } from "ethers";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import {
+  EChain,
+  EVMAccountAddress,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
+import {
+  ELoadingStatusType,
+  ILoadingStatus,
+  useLayoutContext,
+} from "../../context/LayoutContext";
+import Clipboard from "@react-native-clipboard/clipboard";
+import Crypto from "react-native-quick-crypto";
+import Wallet from "ethereumjs-wallet";
+import { keccak256 } from "ethers/lib/utils";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
 
 const OnboardingMain = () => {
+  const initialLoadingStatus: ILoadingStatus = {
+    loading: false,
+    type: ELoadingStatusType.IDLE,
+  };
+  const [publicKey, setPublicKey] = React.useState("");
+  const [privateKey, setPrivateKey] = React.useState("");
+  const [walletObject, setWalletObject] = React.useState<ethers.Wallet | null>(
+    null,
+  );
+
+  const [generated, setGenerated] = React.useState(false);
+
+  const [connectModal, setConnectModal] = React.useState(false);
+  const [usePublicKey, setUsePublicKey] = React.useState(false);
   const scrollX = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { isUnlocked } = useAppContext();
   const navigation = useNavigation();
+
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+
+  const { mobileCore } = useAppContext();
+  const { setLoadingStatus } = useLayoutContext();
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      ({ endCoordinates }) => {
+        setKeyboardHeight(endCoordinates.height);
+      },
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardHeight(0);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   React.useEffect(() => {
     setTimeout(() => {
@@ -59,6 +125,16 @@ const OnboardingMain = () => {
     }
   }, [isUnlocked]);
 
+  const isValidPublicKey = (publicKey) => {
+    try {
+      const address = ethers.utils.getAddress(publicKey);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
+
   const handlePrevButtonPress = () => {
     // Scroll to the previous image
     scrollViewRef.current?.scrollTo({
@@ -74,11 +150,7 @@ const OnboardingMain = () => {
       animated: true,
     });
   };
-  const data2 = [
-    { value: 50, color: "#f00" },
-    { value: 30, color: "#0f0" },
-    { value: 20, color: "#00f" },
-  ];
+
   const data = [
     {
       id: 1,
@@ -178,20 +250,6 @@ const OnboardingMain = () => {
           >
             {`Link your account to view your web3 activity in your \n secure personal Data Wallet and claim your reward.\n You'll share public key, authenticate account, link\n data, no transfer/gas fees.`}
           </Text>
-          <View>
-            <Text
-              style={{
-                textAlign: "center",
-                fontWeight: "400",
-                color: "#616161",
-                fontSize: normalizeWidth(16),
-                lineHeight: normalizeWidth(23),
-              }}
-            >
-              {`\n If you don't want to use Wallet Connect \n You can use Public Key`}
-            </Text>
-            <Button title="Use Public Key" />
-          </View>
         </View>
       ),
       button: (
@@ -205,7 +263,7 @@ const OnboardingMain = () => {
               borderRadius: normalizeWidth(100),
             }}
             onPress={() => {
-              onWCButtonClicked();
+              setConnectModal(true);
             }}
           >
             <Text
@@ -269,7 +327,7 @@ const OnboardingMain = () => {
         height: 0,
       },
       title: `Set Your Data Permissions`,
-      description: `Choose your data  permissions to control what\n information you share.`,
+      description: `Choose your data  permissions to control what\n information you rent.`,
       button: (
         <View>
           <TouchableOpacity
@@ -308,6 +366,80 @@ const OnboardingMain = () => {
     },
   ];
 
+  const handleUsePublicKey = () => {
+    AsyncStorage.setItem("public-key-connected", publicKey);
+    setConnectModal(false);
+    handleNextButtonPress();
+  };
+
+  const generateWallet = () => {
+    /*   const wallet = ethers.Wallet.createRandom(); // Generate a new random wallet
+    const privateKey = wallet.privateKey;
+    setWalletObject(wallet);
+    setPublicKey(wallet.address);
+    setPrivateKey(privateKey);
+    setConnectModal(false);
+    setGenerated(true); */
+
+    const privateKey = Crypto.randomBytes(32).toString("hex");
+    const wallet = Wallet.fromPrivateKey(Buffer.from(privateKey, "hex"));
+    const publicKey = wallet.getPublicKeyString();
+    const address = wallet.getAddressString();
+
+    const walletObject = new ethers.Wallet(privateKey);
+
+    // Sign the message with your private key
+
+    setWalletObject(walletObject);
+    setPublicKey(address);
+    setPrivateKey(privateKey);
+    setConnectModal(false);
+    setGenerated(true);
+
+    console.log("Private Key:", privateKey);
+    console.log("Public Key:", publicKey);
+    console.log("Address:", address);
+  };
+
+  const handleCopy = (privateKey: string) => {
+    Clipboard.setString(privateKey);
+    Alert.alert(
+      "Information",
+      "Private Key successfuly copied, please don't forget to save it!",
+      [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+    );
+  };
+
+  const accountGeneratedNext = () => {
+    const enLangueCode: LanguageCode = LanguageCode("en");
+    mobileCore.accountService.getUnlockMessage(enLangueCode).map((message) => {
+      const accountService = mobileCore.accountService;
+      walletObject?.signMessage(message).then((signature) => {
+        setConnectModal(false);
+        setGenerated(false);
+        setLoadingStatus({
+          loading: true,
+          type: ELoadingStatusType.ADDING_ACCOUNT,
+        });
+        if (!isUnlocked) {
+          accountService.unlock(
+            walletObject?.address as EVMAccountAddress,
+            signature as Signature,
+            EChain.EthereumMainnet,
+            enLangueCode,
+          );
+        } else {
+          accountService.addAccount(
+            walletObject?.address as EVMAccountAddress,
+            signature as Signature,
+            EChain.EthereumMainnet,
+            enLangueCode,
+          );
+        }
+      });
+    });
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -332,6 +464,435 @@ const OnboardingMain = () => {
             />
             <View style={{ position: "absolute", bottom: normalizeHeight(45) }}>
               {item.button}
+            </View>
+            <View>
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={connectModal}
+              >
+                <KeyboardAvoidingView
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  }}
+                >
+                  <KeyboardAvoidingView
+                    style={[
+                      {
+                        backgroundColor: "white",
+                        position: "absolute",
+                        bottom: 0,
+                        width: "100%",
+                        height: normalizeHeight(370),
+                        borderTopRightRadius: 50,
+                        borderTopLeftRadius: 50,
+                      },
+                      { bottom: keyboardHeight },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(24),
+                        textAlign: "center",
+                        color: "#424242",
+                        fontWeight: "700",
+                        paddingTop: normalizeHeight(40),
+                        paddingHorizontal: normalizeHeight(10),
+                      }}
+                    >
+                      Unlock Your Account
+                    </Text>
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "400",
+                        color: "#616161",
+                        fontSize: normalizeWidth(16),
+                        lineHeight: normalizeWidth(23),
+                        paddingHorizontal: normalizeWidth(20),
+                        paddingTop: normalizeHeight(10),
+                      }}
+                    >
+                      You can connect your account with Wallet Connect or you
+                      can use your public key. For earning rewards you should
+                      use Wallet Connect
+                    </Text>
+                    {!usePublicKey && (
+                      <View style={{ alignItems: "center" }}>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#6E62A6",
+                            width: "90%",
+                            height: normalizeHeight(65),
+                            borderRadius: normalizeWidth(100),
+                            marginVertical: normalizeHeight(15),
+                            justifyContent: "center",
+                          }}
+                          onPress={() => {
+                            setConnectModal(false);
+                            onWCButtonClicked();
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Image
+                              source={require("../../assets/images/walletConnect.png")}
+                            />
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "white",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                                paddingLeft: normalizeWidth(5),
+                              }}
+                            >
+                              Wallet Connect
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#CDC8DF",
+                            width: "90%",
+                            height: normalizeHeight(65),
+                            borderRadius: normalizeWidth(100),
+                            marginVertical: normalizeHeight(5),
+                            justifyContent: "center",
+                          }}
+                          onPress={() => {
+                            generateWallet();
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "#645997",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                                paddingLeft: normalizeWidth(5),
+                              }}
+                            >
+                              Generate Wallet
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+
+                        {/* <TouchableOpacity
+                          style={{
+                            backgroundColor: "#CDC8DF",
+                            width: "90%",
+                            height: normalizeHeight(65),
+                            borderRadius: normalizeWidth(100),
+                            marginVertical: normalizeHeight(5),
+                            justifyContent: "center",
+                          }}
+                          onPress={() => {
+                            setUsePublicKey(true);
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "#645997",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                                paddingLeft: normalizeWidth(5),
+                              }}
+                            >
+                              Use Public Key
+                            </Text>
+                          </View>
+                        </TouchableOpacity> */}
+                      </View>
+                    )}
+                    {usePublicKey && (
+                      <View style={{ alignItems: "center", width: "100%" }}>
+                        <TextInput
+                          value={publicKey}
+                          onChangeText={setPublicKey}
+                          placeholder="Enter your public key"
+                          placeholderTextColor="black"
+                          style={{
+                            color: "black",
+                            width: "90%",
+                            height: normalizeHeight(55),
+                            marginTop: normalizeHeight(30),
+                            borderRadius: normalizeWidth(20),
+                            borderWidth: 1,
+                            paddingLeft: normalizeWidth(10),
+                          }}
+                        />
+                        <View style={{ width: "90%" }}>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: "#6E62A6",
+                              height: normalizeHeight(50),
+                              borderRadius: normalizeWidth(20),
+                              marginVertical: normalizeHeight(15),
+                              justifyContent: "center",
+                            }}
+                            onPress={handleUsePublicKey}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  textAlign: "center",
+                                  color: "white",
+                                  fontWeight: "700",
+                                  fontSize: normalizeWidth(16),
+                                  paddingLeft: normalizeWidth(5),
+                                }}
+                              >
+                                Use Public Key
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                        <Button
+                          title="Back"
+                          onPress={() => {
+                            setUsePublicKey(false);
+                          }}
+                        />
+                      </View>
+                    )}
+                  </KeyboardAvoidingView>
+                </KeyboardAvoidingView>
+              </Modal>
+            </View>
+
+            <View>
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={generated}
+              >
+                <KeyboardAvoidingView
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  }}
+                >
+                  <KeyboardAvoidingView
+                    style={[
+                      {
+                        backgroundColor: "white",
+                        position: "absolute",
+                        bottom: 0,
+                        width: "100%",
+                        height: "100%",
+                        borderTopRightRadius: 50,
+                        borderTopLeftRadius: 50,
+                      },
+                      { bottom: keyboardHeight },
+                    ]}
+                  >
+                    <View style={{ alignItems: "center" }}>
+                      <Image
+                        style={{
+                          width: normalizeWidth(260),
+                          height: normalizeHeight(287),
+                          marginTop: normalizeHeight(60),
+                        }}
+                        source={require("../../assets/images/account-1.png")}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(24),
+                        textAlign: "center",
+                        color: "#424242",
+                        fontWeight: "700",
+                        paddingTop: normalizeHeight(40),
+                        paddingHorizontal: normalizeHeight(10),
+                      }}
+                    >
+                      Your Account Has Been Created
+                    </Text>
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "400",
+                        color: "#616161",
+                        fontSize: normalizeWidth(16),
+                        lineHeight: normalizeWidth(23),
+                        paddingHorizontal: normalizeWidth(20),
+                        paddingTop: normalizeHeight(10),
+                      }}
+                    >
+                      We have generated your unique account. You should save
+                      your private key now, otherwise you won’t be able to see
+                      this information again.
+                    </Text>
+
+                    <View style={{ alignItems: "center" }}>
+                      <View
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "#EEEEEE",
+                          width: "90%",
+                          height: normalizeHeight(260),
+                          borderRadius: normalizeWidth(16),
+                          padding: normalizeWidth(20),
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: normalizeWidth(20),
+                            color: "#424242",
+                            fontWeight: "700",
+                            lineHeight: normalizeWidth(24),
+                          }}
+                        >
+                          Account Address
+                        </Text>
+                        <View
+                          style={{
+                            width: "100%",
+                            height: normalizeHeight(68),
+                            backgroundColor: "#FAFAFA",
+                            justifyContent: "center",
+                            paddingHorizontal: normalizeWidth(10),
+                            marginVertical: normalizeHeight(12),
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Image
+                              style={{
+                                width: normalizeWidth(28),
+                                height: normalizeHeight(28),
+                              }}
+                              source={require("../../assets/images/newAccountIcon.png")}
+                            />
+
+                            <Text
+                              style={{
+                                paddingLeft: normalizeWidth(12),
+                                color: "#616161",
+                                fontSize: normalizeWidth(16),
+                                fontWeight: "600",
+                              }}
+                            >
+                              {publicKey?.slice(0, 28)}...
+                            </Text>
+                          </View>
+                        </View>
+
+                        <Text
+                          style={{
+                            fontSize: normalizeWidth(20),
+                            color: "#424242",
+                            fontWeight: "700",
+                            lineHeight: normalizeWidth(24),
+                          }}
+                        >
+                          Private Key
+                        </Text>
+                        <View
+                          style={{
+                            width: "100%",
+                            height: normalizeHeight(68),
+                            backgroundColor: "#FAFAFA",
+                            justifyContent: "center",
+                            paddingHorizontal: normalizeWidth(10),
+                            marginTop: normalizeHeight(12),
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: "#616161",
+                                fontSize: normalizeWidth(16),
+                                fontWeight: "600",
+                              }}
+                            >
+                              {privateKey?.slice(0, 28)}...
+                            </Text>
+                            <TouchableOpacity
+                              onPress={() => {
+                                handleCopy(privateKey);
+                              }}
+                            >
+                              <Image
+                                style={{
+                                  width: normalizeWidth(22),
+                                  height: normalizeHeight(22),
+                                  marginLeft: normalizeWidth(12),
+                                }}
+                                source={require("../../assets/images/copyIcon.png")}
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </View>
+                      <View>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#6E62A6",
+                            width: normalizeWidth(380),
+                            height: normalizeHeight(65),
+                            borderRadius: normalizeWidth(100),
+                            justifyContent: "center",
+                          }}
+                          onPress={accountGeneratedNext}
+                        >
+                          <Text
+                            style={{
+                              textAlign: "center",
+                              color: "white",
+                              fontWeight: "700",
+                              fontSize: normalizeWidth(16),
+                            }}
+                          >
+                            Next
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </KeyboardAvoidingView>
+                </KeyboardAvoidingView>
+              </Modal>
             </View>
           </View>
         ))}

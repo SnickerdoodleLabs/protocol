@@ -440,7 +440,11 @@ const LayoutContextProvider = ({ children }) => {
                 justifyContent: "center",
               }}
             >
-              <LottieView source={UnlockLottie} autoPlay loop />
+              <Image
+                style={{ width: 250, height: 250 }}
+                source={require("../assets/images/S-loading6.gif")}
+              />
+              {/*  <LottieView source={UnlockLottie} autoPlay loop /> */}
             </View>
           );
       }
@@ -599,7 +603,7 @@ const LayoutContextProvider = ({ children }) => {
 
             <View>
               <Modal
-                animationType="slide"
+                animationType="fade"
                 transparent={true}
                 visible={invitationSuccess}
                 onRequestClose={handleNestedPopup}
@@ -698,7 +702,7 @@ const LayoutContextProvider = ({ children }) => {
 
             <View>
               <Modal
-                animationType="slide"
+                animationType="fade"
                 transparent={true}
                 visible={nestedPopup}
                 onRequestClose={handleNestedPopup}

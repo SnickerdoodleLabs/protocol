@@ -78,7 +78,7 @@ const DropdownInput = ({
                 <Text style={styles.dropdownOptionText}>
                   {typeof option === "string"
                     ? option
-                    : `${option.label} (${option.value})`}
+                    : `${option.label}`}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -145,7 +145,7 @@ const MyComponent = () => {
         label="Country"
         selectedValue={
           selectedCountry
-            ? `${selectedCountry.label} (${selectedCountry.value})`
+            ? `${selectedCountry.label}`
             : null
         }
         options={countries}

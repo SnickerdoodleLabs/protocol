@@ -7,7 +7,7 @@ const BottomSheetComponenet = () => {
   const sheetRef = useRef<BottomSheet>(null);
 
   // variables
-  const snapPoints = useMemo(() => ["15%", "50%",], []);
+  const snapPoints = useMemo(() => ["30%","100%"], []);
 
   // callbacks
   const handleSheetChange = useCallback((index) => {
@@ -28,8 +28,9 @@ const BottomSheetComponenet = () => {
         snapPoints={snapPoints}
         onChange={handleSheetChange}
         enablePanDownToClose={false}
+        style={{borderRadius:50}}
       >
-        <BottomSheetView>
+        <BottomSheetView style={{borderRadius:60}}>
           <Text>Awesome 🔥</Text>
         </BottomSheetView>
       </BottomSheet>
@@ -40,7 +41,8 @@ const BottomSheetComponenet = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 200,
+    paddingTop: 500,
+    borderRadius:50
   },
 });
 
