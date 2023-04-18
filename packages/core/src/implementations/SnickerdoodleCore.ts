@@ -9,10 +9,8 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-  IDiscordPoller,
-  IDiscordPollerType,
-  ITwitterPoller,
-  ITwitterPollerType,
+  ISocialMediaPoller,
+  ISocialMediaPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -487,10 +485,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IBlockchainListenerType,
     );
 
-    const discordPoller =
-      this.iocContainer.get<IDiscordPoller>(IDiscordPollerType);
-    const twitterPoller =
-      this.iocContainer.get<ITwitterPoller>(ITwitterPollerType);
+    const socialPoller =
+      this.iocContainer.get<ISocialMediaPoller>(ISocialMediaPollerType);
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
@@ -506,8 +502,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return ResultUtils.combine([
           accountIndexerPoller.initialize(),
           blockchainListener.initialize(),
-          discordPoller.initialize(),
-          twitterPoller.initialize(),
+          socialPoller.initialize(),
         ]);
       })
       .map(() => {});

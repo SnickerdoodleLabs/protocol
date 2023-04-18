@@ -74,18 +74,18 @@ export class TwitterService implements ITwitterService {
   }
 
   public poll(): ResultAsync<void, TwitterError | PersistenceError> {
-    return this.getAPIConfig().andThen((config) => {
-      return this.twitterRepo
-        .getUserProfiles()
-        .andThen((profiles) => {
-          return ResultUtils.combine(
-            profiles.map((profile) =>
-              this.twitterRepo.populateProfile(config, profile),
-            ),
-          );
-        })
-        .map(() => {});
-    });
+    return ResultUtils.combine([
+      this.getAPIConfig(),
+      this.twitterRepo.getUserProfiles(),
+    ])
+      .andThen(([config, profiles]) => {
+        return ResultUtils.combine(
+          profiles.map((profile) =>
+            this.twitterRepo.populateProfile(config, profile),
+          ),
+        );
+      })
+      .map(() => {});
   }
 
   public getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError> {

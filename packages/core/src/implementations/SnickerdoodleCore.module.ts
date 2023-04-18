@@ -63,8 +63,7 @@ import { ContainerModule, interfaces } from "inversify";
 import {
   AccountIndexerPoller,
   BlockchainListener,
-  DiscordPoller,
-  TwitterPoller,
+  SocialMediaPoller,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
@@ -128,10 +127,8 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-  IDiscordPoller,
-  IDiscordPollerType,
-  ITwitterPoller,
-  ITwitterPollerType,
+  ISocialMediaPoller,
+  ISocialMediaPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -243,11 +240,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
-    bind<ITwitterPoller>(ITwitterPollerType)
-      .to(TwitterPoller)
-      .inSingletonScope();
-    bind<IDiscordPoller>(IDiscordPollerType)
-      .to(DiscordPoller)
+    bind<ISocialMediaPoller>(ISocialMediaPollerType)
+      .to(SocialMediaPoller)
       .inSingletonScope();
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
