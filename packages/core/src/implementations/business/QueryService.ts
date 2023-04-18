@@ -4,6 +4,8 @@ import {
   ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -98,6 +100,7 @@ export class QueryService implements IQueryService {
     @inject(ISDQLQueryWrapperFactoryType)
     protected sdqlQueryWrapperFactory: ISDQLQueryWrapperFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -227,10 +230,10 @@ export class QueryService implements IQueryService {
             new QueryStatus(
               consentContractAddress,
               query.cid,
-              BlockNumber(0),
+              BlockNumber(1),
               EQueryProcessingStatus.AdsCompleted,
-              UnixTimestamp(0),
-              ObjectUtils.serialize({}),
+              this.timeUtils.getUnixNow(),
+              ObjectUtils.serialize(rewardParameters),
             ),
           ]);
         }
@@ -284,14 +287,12 @@ export class QueryService implements IQueryService {
               queryStatus.status = EQueryProcessingStatus.NoRewardsParams;
               return this.sdqlQueryRepo
                 .upsertQueryStatus([queryStatus])
-                .andThen(() => {
+                .map(() => {
                   context.publicEvents.onQueryParametersRequired.next(
                     queryStatus.queryCID,
                   );
-                  return errAsync(
-                    new EvaluationError(
-                      `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
-                    ),
+                  this.logUtils.warning(
+                    `Cannot return data for query ${queryStatus.queryCID} because it lacks defined rewards parameters.`,
                   );
                 });
               // queryStatus.rewardsParameters = ObjectUtils.serialize({
@@ -381,6 +382,7 @@ export class QueryService implements IQueryService {
                 .orElse((err) => {
                   // We are going to consume errors from adding earned rewards or updating the
                   // query status, or a continuing error from posting, and just say it's successful
+                  this.logUtils.warning(err);
                   return okAsync(undefined);
                 });
             });
