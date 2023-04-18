@@ -17,6 +17,7 @@ import {
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { isSameReward } from "@extension-onboarding/utils";
 import {
   Box,
   Typography,
@@ -211,8 +212,8 @@ const RewardProgramDetails: FC = () => {
   const { collectedRewards, programRewards, waitingRewards } = useMemo(() => {
     // earned rewards
     const collectedRewards = possibleRewards.reduce((acc, item) => {
-      const matchedReward = earnedRewards.find(
-        (reward) => reward.queryCID === item.queryCID,
+      const matchedReward = earnedRewards.find((reward) =>
+        isSameReward(reward, item),
       );
       if (matchedReward) {
         acc = [...acc, matchedReward];
@@ -224,8 +225,8 @@ const RewardProgramDetails: FC = () => {
       return {
         programRewards: possibleRewards.filter(
           (possibleReward) =>
-            !collectedRewards.find(
-              (item) => item.queryCID === possibleReward.queryCID,
+            !collectedRewards.find((item) =>
+              isSameReward(possibleReward, item),
             ),
         ),
         waitingRewards: [] as PossibleReward[],
@@ -250,15 +251,15 @@ const RewardProgramDetails: FC = () => {
     // get eligible but not delivered rewards
     const waitingRewards = eligibleRewards.filter(
       (item) =>
-        !collectedRewards.find(
-          (earnedReward) => earnedReward.queryCID === item.queryCID,
+        !collectedRewards.find((earnedReward) =>
+          isSameReward(earnedReward, item),
         ),
     );
 
     const programRewards = possibleRewards.filter(
       (item) =>
-        !collectedRewards.find((reward) => reward.queryCID === item.queryCID) &&
-        !waitingRewards.find((reward) => reward.queryCID === item.queryCID),
+        !collectedRewards.find((reward) => isSameReward(reward, item)) &&
+        !waitingRewards.find((reward) => isSameReward(reward, item)),
     );
 
     return {

@@ -8,6 +8,7 @@ import { EBadgeType } from "@extension-onboarding/objects";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
+import { isSameReward } from "@extension-onboarding/utils";
 import { Box, Grid, Typography } from "@material-ui/core";
 import {
   DirectReward,
@@ -83,14 +84,17 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
         </Box>
       </Box>
       <Box display="flex" flexWrap="wrap" gridColumnGap={10} gridRowGap={24}>
-        {rewards.map((reward) => {
+        {rewards.map((reward, index) => {
           return (
-            <Box flexBasis="calc(20% - 8px)" key={reward.queryCID}>
+            <Box
+              flexBasis="calc(20% - 8px)"
+              key={`${JSON.stringify(reward)}--${index}`}
+            >
               {getRewardComponent(
                 reward,
                 // temporary to read required permissions
                 (possibleRewards
-                  .find((item) => item.queryCID === reward.queryCID)
+                  .find((item) => isSameReward(item, reward))
                   ?.queryDependencies.map(
                     (dependency) => QueryTypePermissionMap.get(dependency)!,
                   ) ?? []) as EWalletDataType[],
@@ -98,9 +102,12 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
             </Box>
           );
         })}
-        {waitingRewards.map((reward) => {
+        {waitingRewards.map((reward, index) => {
           return (
-            <Box flexBasis="calc(20% - 8px)" key={reward.queryCID}>
+            <Box
+              flexBasis="calc(20% - 8px)"
+              key={`${JSON.stringify(reward)}--${index}`}
+            >
               <PossibleRewardComponent
                 reward={reward}
                 consentContractAddress={consentContractAddress}
