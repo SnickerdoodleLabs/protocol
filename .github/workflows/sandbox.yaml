@@ -27,7 +27,7 @@ jobs:
       
     - name: scrapping
       run: |-
-        python infra/scrapping/coin_list_gen.py
+        python infra/scrapper/coin_list_gen.py
         mv data.json packages/indexers/coinList.json
         ls packages/indexers/
         cat packages/indexers/coinList.json
