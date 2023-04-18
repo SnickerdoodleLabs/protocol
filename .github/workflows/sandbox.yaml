@@ -24,14 +24,6 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v2
-      
-    - name: scrapping
-      run: |-
-        python infra/scrapping/coin_list_gen.py
-        mv data.json packages/indexers/coinList.json
-        ls packages/indexers/
-        cat packages/indexers/coinList.json
-    
 
     # Setup gcloud CLI
     - id: 'auth'
