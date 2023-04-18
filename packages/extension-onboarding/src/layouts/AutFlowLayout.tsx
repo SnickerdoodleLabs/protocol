@@ -1,6 +1,7 @@
 import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup";
 import Sidebar from "@extension-onboarding/components/Sidebar";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { authFlowRouteSettings } from "@extension-onboarding/containers/Router/Router.settings";
 import { Box } from "@material-ui/core";
 import React, { useEffect, useMemo } from "react";
@@ -56,9 +57,11 @@ const AutFlowLayout = () => {
         flex={1}
         flexDirection="column"
       >
-        <Box mb={4}>
-          <Outlet />
-        </Box>
+        <DashboardContextProvider>
+          <Box mb={4}>
+            <Outlet />
+          </Box>
+        </DashboardContextProvider>
       </Box>
     </Box>
   );

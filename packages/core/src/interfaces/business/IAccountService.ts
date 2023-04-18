@@ -109,9 +109,15 @@ export interface IAccountService {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError>;
 
-  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+  getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], PersistenceError>;
   getTranactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;

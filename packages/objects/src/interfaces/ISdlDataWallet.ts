@@ -89,8 +89,14 @@ export interface ISdlDataWallet extends EventEmitter {
     chainId: ChainId,
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, JsonRpcError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
+  getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], JsonRpcError>;
+  getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], JsonRpcError>;
   closeTab(): ResultAsync<void, JsonRpcError>;
   getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;
   getAcceptedInvitationsCID(): ResultAsync<

@@ -37,6 +37,10 @@ import {
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
 
+// hard codded for now
+// 10 minutes
+const tokenMarketDataLifeSpanMS = 600000;
+
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   private _assetPlatforms?: ResultAsync<
@@ -46,6 +50,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
   private _initialized?: ResultAsync<void, AccountIndexingError>;
   private _nativeIds: Map<ChainId, string>;
+  private tokenMarketDataCache: Map<string, MarketDataCache>;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -60,6 +65,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
+    this.tokenMarketDataCache = new Map();
   }
 
   public getMarketDataForTokens(
@@ -116,26 +122,24 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           },
         );
 
-        return this.ajaxUtils
-          .get<IMarketDataResponse>(new URL(url))
-          .map((response) => {
-            return response.map((item) => {
-              return new TokenMarketData(
-                item.id,
-                item.symbol,
-                item.name,
-                item.image,
-                item.current_price,
-                item.market_cap,
-                item.market_cap_rank,
-                item.price_change_24h,
-                item.price_change_percentage_24h,
-                item.circulating_supply,
-                item.total_supply,
-                item.max_supply,
-              );
-            });
+        return this._fetchTokenMarketData(new URL(url)).map((response) => {
+          return response.map((item) => {
+            return new TokenMarketData(
+              item.id,
+              item.symbol,
+              item.name,
+              item.image,
+              item.current_price,
+              item.market_cap,
+              item.market_cap_rank,
+              item.price_change_24h,
+              item.price_change_percentage_24h,
+              item.circulating_supply,
+              item.total_supply,
+              item.max_supply,
+            );
           });
+        });
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching token market data", e),
@@ -229,6 +233,25 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         );
       })
       .mapErr((e) => new AccountIndexingError("error getting price", e));
+  }
+
+  private _fetchTokenMarketData(url: URL) {
+    const cached = this.tokenMarketDataCache.get(url.href);
+    if (
+      cached &&
+      new Date().getTime() - cached.timeStamp < tokenMarketDataLifeSpanMS
+    ) {
+      return okAsync(cached.marketData);
+    }
+    return this.ajaxUtils
+      .get<IMarketDataResponse>(new URL(url))
+      .map((response) => {
+        this.tokenMarketDataCache.set(url.href, {
+          marketData: response,
+          timeStamp: new Date().getTime(),
+        });
+        return response;
+      });
   }
 
   private getPrice(
@@ -415,4 +438,9 @@ type IMarketDataResponse = {
 interface AssetPlatformMapping {
   forward: { [key: string]: ChainId };
   backward: { [key: ChainId]: string };
+}
+
+interface MarketDataCache {
+  timeStamp: number;
+  marketData: IMarketDataResponse;
 }
