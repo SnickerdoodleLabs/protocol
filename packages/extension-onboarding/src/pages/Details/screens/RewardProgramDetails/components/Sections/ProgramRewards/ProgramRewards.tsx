@@ -114,7 +114,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
               </Box>
             </Box>
           )}
-          {rewards.map((reward) => {
+          {rewards.map((reward, index) => {
             return (
               <Box
                 {...(displayMode === EDISPLAY_MODE.COZY && {
@@ -126,7 +126,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
                 {...(displayMode === EDISPLAY_MODE.LIST && {
                   component: Fragment,
                 })}
-                key={`${reward.queryCID}-${displayMode}`}
+                key={`${JSON.stringify(reward)}-${displayMode}-${index}`}
               >
                 <PossibleRewardComponent
                   displayType={
