@@ -21,6 +21,7 @@ import {
   IAccountNFTs,
   IAccountNFTsType,
   BigNumberString,
+  EChainType,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -196,6 +197,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Polygon:
               return alchemyRepo.getBalancesForAccount(
                 chainId,
@@ -371,6 +376,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 `No available chain info for chain ${chainId}`,
               ),
             );
+          }
+
+          if (chainInfo.type == EChainType.Testnet) {
+            return okAsync([]);
           }
 
           switch (chainInfo.indexer) {
