@@ -139,7 +139,6 @@ export class SDQLParser {
       this.validateTimeStampExpiry(schema, cid),
       this.validateQuery(schema),
       this.validateCompenstations(schema),
-      // this.validateLogic(schema),
     ]).andThen(() => {
       return okAsync(undefined);
     });
@@ -204,20 +203,6 @@ export class SDQLParser {
     return okAsync(undefined);
   }
 
-  public validateLogic(
-    schema: SDQLQueryWrapper,
-  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    // if (schema.logic === undefined) {
-    //   return errAsync(new QueryFormatError("schema missing logic"));
-    // }
-    // if (schema.logic["compensations"] === undefined) {
-    //   return errAsync(
-    //     new QueryFormatError("schema missing logic->compensations"),
-    //   );
-    // }
-
-    return okAsync(undefined);
-  }
   // #endregion
 
   protected transformError(
@@ -278,11 +263,11 @@ export class SDQLParser {
     AST_Ad,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    return this.parseTargetExpString(singleAdSchema.target)
-      .andThen((adTarget) => {
-        const dataPermissions = this.parseUnifiedDataPermissions([
-          singleAdSchema.target,
-        ]);
+    return ResultUtils.combine([
+      this.parseTargetExpString(singleAdSchema.target),
+      this.parseUnifiedDataPermissions([singleAdSchema.target]),
+    ])
+      .andThen(([adTarget, dataPermissions]) => {
         const ad = new AST_Ad(
           adKey,
           SDQL_Name(singleAdSchema.name),
@@ -339,8 +324,6 @@ export class SDQLParser {
         }
       }
 
-      // return okAsync(queries
-
       for (const query of queries) {
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
@@ -350,8 +333,6 @@ export class SDQLParser {
     } catch (err) {
       return errAsync(this.transformError(err as Error));
     }
-
-    // return queries;
   }
 
   private parseInsights(): ResultAsync<
@@ -379,14 +360,6 @@ export class SDQLParser {
       insights.map((insight) => {
         this.insights.set(insight.name, insight);
         this.saveInContext(insight.name, insight);
-        // this.targetInsights.set(
-        //   insightSchema[insight.name].target,
-        //   insight.target,
-        // );
-        // this.insightPermissions.set(
-        //   insightSchema[insight.name].target,
-        //   insight.requiredPermissions,
-        // );
       });
       return okAsync(undefined);
     });
@@ -401,13 +374,13 @@ export class SDQLParser {
   > {
     const targetResult = this.parseTargetExpString(schema.target);
     const returnResult = this.parseExpString(schema.returns);
+    const permissionResult = this.parseUnifiedDataPermissions([
+      schema.target,
+      schema.returns,
+    ]);
 
-    return ResultUtils.combine([targetResult, returnResult])
-      .andThen(([targetAst, returnsAst]) => {
-        const dataPermissions = this.parseUnifiedDataPermissions([
-          schema.target,
-          schema.returns,
-        ]);
+    return ResultUtils.combine([targetResult, returnResult, permissionResult])
+      .andThen(([targetAst, returnsAst, dataPermissions]) => {
         return okAsync(
           new AST_Insight(
             name,
@@ -422,77 +395,6 @@ export class SDQLParser {
       .orElse((err) => {
         return errAsync(this.transformError(err as Error));
       });
-  }
-
-  /**
-   * @deprecated
-   */
-  private parseReturns(): ResultAsync<
-    void,
-    DuplicateIdInSchema | QueryFormatError | MissingASTError
-  > {
-    return okAsync(undefined);
-    // try {
-    //   const returnsSchema = this.schema.getReturnSchema();
-    //   if (!returnsSchema) {
-    //     return okAsync(undefined);
-    //   }
-
-    //   const returns = new Array<AST_ReturnExpr>();
-
-    //   for (const rName in returnsSchema) {
-    //     // console.log(`parsing return ${rName}`);
-
-    //     const name = SDQL_Name(rName);
-    //     const schema = returnsSchema[rName];
-
-    //     if (typeof schema === "string") {
-    //       continue;
-    //     }
-
-    //     if ("query" in schema) {
-    //       const source = this.context.get(SDQL_Name(schema.query!)) as
-    //         | AST_Query
-    //         | AST_Return;
-    //       if (null == source) {
-    //         return errAsync(new MissingASTError(schema.query!));
-    //       }
-    //       const returnExpr = new AST_ReturnExpr(name, source);
-    //       returns.push(returnExpr);
-    //     } else if ("message" in schema) {
-    //       const source = new AST_Return(
-    //         SDQL_Name(schema.name),
-    //         schema.message!,
-    //       );
-    //       const returnExpr = new AST_ReturnExpr(name, source);
-    //       returns.push(returnExpr);
-    //     } else {
-    //       // const err = new ReturnNotImplementedError(rName);
-    //       // console.error(err);
-    //       // throw err;
-    //       return errAsync(
-    //         new QueryFormatError("Missing type definition", 0, schema),
-    //       );
-    //     }
-    //   }
-
-    //   this.returns = new AST_Returns(URLString(returnsSchema.url));
-
-    //   for (const r of returns) {
-    //     this.saveInContext(r.name, r);
-    //     this.returns.expressions.set(r.name, r);
-    //   }
-
-    //   return okAsync(undefined);
-    // } catch (err) {
-    //   if (err instanceof DuplicateIdInSchema) {
-    //     return errAsync(err as DuplicateIdInSchema);
-    //   }
-    //   if (err instanceof QueryFormatError) {
-    //     return errAsync(err as QueryFormatError);
-    //   }
-    //   return errAsync(new QueryFormatError(JSON.stringify(err)));
-    // }
   }
 
   private parseCompensations(): ResultAsync<
@@ -558,56 +460,6 @@ export class SDQLParser {
 
   // #region Logic
 
-  /**
-   * @deprecated
-   */
-  private parseLogic(): ResultAsync<
-    void,
-    ParserError | MissingTokenConstructorError | QueryFormatError
-  > {
-    return okAsync(undefined);
-    // try {
-    //   const logicSchema = this.schema.getLogicSchema();
-
-    //   this.logicCompensations = this.parseLogicExpressions(
-    //     logicSchema.compensations,
-    //   );
-
-    //   if (logicSchema.returns) {
-    //     this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
-    //   }
-
-    //   if (logicSchema.ads) {
-    //     this.logicAds = this.parseLogicExpressions(logicSchema.ads);
-    //   }
-
-    //   return okAsync(undefined);
-    // } catch (err) {
-    //   if (err instanceof ParserError) {
-    //     return errAsync(err as ParserError);
-    //   }
-    //   if (err instanceof MissingTokenConstructorError) {
-    //     return errAsync(err as MissingTokenConstructorError);
-    //   }
-    //   return errAsync(new QueryFormatError(JSON.stringify(err)));
-    // }
-  }
-
-  /**
-   * @deprecated
-   */
-  // private parseLogicExpressions(
-  //   expressions: Array<string>,
-  // ): Map<string, AST_Expr | Command> {
-  //   // console.log('expressions', expressions);
-  //   const lrs = new Map<string, AST_Expr | Command>();
-  //   for (const expStr of expressions) {
-  //     const exp = this.parseExpString(expStr);
-  //     lrs.set(expStr, exp);
-  //   }
-  //   return lrs;
-  // }
-
   public parseTargetExpString(
     target: string,
   ): ResultAsync<AST_ConditionExpr, ParserError | InvalidRegularExpression> {
@@ -645,37 +497,6 @@ export class SDQLParser {
     return this.exprParser!.parse(expStr);
     // if (this.exprParser) return this.exprParser.parse(expStr);
     // throw new Error("Expression Parser not found.");
-  }
-
-  /**
-   * @deprecated
-   */
-  private parsePermissions(): ResultAsync<
-    void,
-    ParserError | MissingWalletDataTypeError
-  > {
-    return okAsync(undefined);
-    // try {
-    //   const logicSchema = this.schema.getLogicSchema();
-
-    //   this.compensationPermissions = this.parseLogicPermissions(
-    //     logicSchema["compensations"],
-    //   );
-
-    //   if (logicSchema["returns"]) {
-    //     this.returnPermissions = this.parseLogicPermissions(
-    //       logicSchema["returns"],
-    //     );
-    //   }
-
-    //   if (logicSchema["ads"]) {
-    //     this.adPermissions = this.parseLogicPermissions(logicSchema["ads"]);
-    //   }
-
-    //   return okAsync(undefined);
-    // } catch (err) {
-    //   return errAsync(err as MissingWalletDataTypeError);
-    // }
   }
 
   /**
