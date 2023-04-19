@@ -8,6 +8,7 @@ import {
   InvalidRegularExpression,
   IpfsCID,
   ISDQLAd,
+  ISDQLAnyEvaluatableString,
   ISDQLCompensationParameters,
   ISDQLCompensations,
   ISDQLInsightBlock,
@@ -681,44 +682,50 @@ export class SDQLParser {
    * @deprecated
    */
   private parseLogicPermissions(
-    expressions: Array<string>,
-  ): Map<string, DataPermissions> {
-    const permMap = new Map();
-    for (const expression of expressions) {
-      permMap.set(expression, this.parseUnifiedDataPermissions([expression]));
-    }
-    return permMap;
+    expressions: ISDQLAnyEvaluatableString[],
+  ): ResultAsync<
+    Map<string, DataPermissions>,
+    ParserError | InvalidRegularExpression
+  > {
+    const permMap: Map<string, DataPermissions> = new Map();
+    // for (const expression of expressions) {
+    //   permMap.set(expression, this.parseUnifiedDataPermissions([expression]));
+    // }
+    // return permMap;
+    const results = expressions.map((expr) => {
+      return this.parseUnifiedDataPermissions([expr]).map((perms) => {
+        permMap.set(expr, perms);
+        return undefined;
+      });
+    });
+
+    return ResultUtils.combine(results).map((a) => permMap);
   }
 
-  private parseUnifiedDataPermissions(expressions: string[]): DataPermissions {
-    let queryDeps: AST_Query[] = [];
-    for (const expression of expressions) {
-      queryDeps = [...queryDeps, ...this.parseQueryDependencies(expression)];
-    }
-    return this.queriesToDataPermission(queryDeps);
-  }
-
-  public parseAdDependencies(compensationExpression: string): AST_Ad[] {
-    const adDependencies = this.exprParser!.getAdDependencies(
-      compensationExpression,
+  private parseUnifiedDataPermissions(
+    expressions: ISDQLAnyEvaluatableString[],
+  ): ResultAsync<DataPermissions, ParserError | InvalidRegularExpression> {
+    return this.exprParser!.getUnifiedQueryDependencies(expressions).andThen(
+      (queryDeps) => okAsync(this.queriesToDataPermission(queryDeps)),
     );
-    return Array.from(new Set(adDependencies));
   }
 
-  public parseQueryDependencies(compensationExpression: string): AST_Query[] {
-    const queryDependencies = this.exprParser!.getQueryDependencies(
-      compensationExpression,
-    );
-    return Array.from(new Set(queryDependencies));
+  public parseAdDependencies(
+    compensationExpression: ISDQLAnyEvaluatableString,
+  ): ResultAsync<AST_Ad[], ParserError | InvalidRegularExpression> {
+    return this.exprParser!.getAdDependencies(compensationExpression);
+  }
+
+  public parseQueryDependencies(
+    compensationExpression: ISDQLAnyEvaluatableString,
+  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
+    return this.exprParser!.getQueryDependencies(compensationExpression);
   }
 
   public parseInsightDependencies(
-    compensationExpression: string,
-  ): AST_Insight[] {
-    const insightDeps = this.exprParser!.getInsightDependencies(
-      compensationExpression,
-    );
-    return Array.from(new Set(insightDeps));
+    compensationExpression: ISDQLAnyEvaluatableString,
+  ): ResultAsync<AST_Insight[], ParserError | InvalidRegularExpression> {
+    return this.exprParser!.getInsightDependencies(compensationExpression);
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {

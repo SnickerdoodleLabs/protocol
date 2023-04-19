@@ -1,12 +1,16 @@
 import { ParseError } from "@babel/parser";
 import {
   InvalidRegularExpression,
+  ISDQLAnyEvaluatableString,
+  ISDQLConditionString,
+  ISDQLExpressionString,
   MissingTokenConstructorError,
   ParserError,
   SDQL_Name,
   SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   Token,
@@ -497,7 +501,7 @@ export class ExprParser {
   // #region parse dependencies only
 
   public getQueryDependencies(
-    exprStr: string,
+    exprStr: ISDQLAnyEvaluatableString,
   ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
     return this.getTokens(exprStr).andThen((tokens) => {
       const deps: AST_Query[] = [];
@@ -514,12 +518,29 @@ export class ExprParser {
         // }
         return deps;
       }, deps);
-      return okAsync(deps);
+      return okAsync(Array.from(new Set(deps)));
+    });
+  }
+
+  public getUnifiedQueryDependencies(
+    expressions: ISDQLAnyEvaluatableString[],
+  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
+    const results = expressions.map((expr) => {
+      return this.getQueryDependencies(expr);
+    });
+
+    const allDeps: AST_Query[] = [];
+
+    return ResultUtils.combine(results).andThen((depsArrays) => {
+      // const flat = depsArrays.reduce((all, deps) => all.concat(deps), []);
+      const flat = depsArrays.flat();
+      const unique = Array.from(new Set(flat));
+      return okAsync(unique);
     });
   }
 
   public getAdDependencies(
-    exprStr: string,
+    exprStr: ISDQLAnyEvaluatableString,
   ): ResultAsync<AST_Ad[], ParserError | InvalidRegularExpression> {
     return this.getTokens(exprStr).andThen((tokens) => {
       const deps: AST_Ad[] = [];
@@ -531,12 +552,12 @@ export class ExprParser {
         return deps;
       }, deps);
 
-      return okAsync(deps);
+      return okAsync(Array.from(new Set(deps)));
     });
   }
 
   public getInsightDependencies(
-    exprStr: string,
+    exprStr: ISDQLAnyEvaluatableString,
   ): ResultAsync<AST_Insight[], ParserError | InvalidRegularExpression> {
     return this.getTokens(exprStr).andThen((tokens) => {
       const deps: AST_Insight[] = [];
@@ -548,7 +569,7 @@ export class ExprParser {
         return deps;
       }, deps);
 
-      return okAsync(deps);
+      return okAsync(Array.from(new Set(deps)));
     });
   }
 
