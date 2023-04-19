@@ -1,5 +1,6 @@
 import {
   DataWalletAddress,
+  IpfsCID,
   LinkedAccount,
   SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
@@ -16,8 +17,10 @@ export class ContextProviderMock implements IContextProvider {
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
+  public onQueryParametersRequiredActivations: IpfsCID[] = [];
   public onAccountAddedActivations: LinkedAccount[] = [];
   public onAccountRemovedActivations: LinkedAccount[] = [];
+  public heartbeatActivations: void[] = [];
 
   constructor(context: CoreContext | null = null) {
     if (context != null) {
@@ -42,12 +45,20 @@ export class ContextProviderMock implements IContextProvider {
       this.onQueryPostedActivations.push(val);
     });
 
+    this.publicEvents.onQueryParametersRequired.subscribe((val) => {
+      this.onQueryParametersRequiredActivations.push(val);
+    });
+
     this.publicEvents.onAccountAdded.subscribe((val) => {
       this.onAccountAddedActivations.push(val);
     });
 
     this.publicEvents.onAccountRemoved.subscribe((val) => {
       this.onAccountRemovedActivations.push(val);
+    });
+
+    this.context.heartbeat.subscribe((val) => {
+      this.heartbeatActivations.push(val);
     });
   }
 
@@ -58,15 +69,17 @@ export class ContextProviderMock implements IContextProvider {
   public setContextValues = new Array<CoreContext>();
   public setContext(context: CoreContext): ResultAsync<void, never> {
     this.setContextValues.push({ ...context });
-    return okAsync<null, never>(null).map(() => { });
+    return okAsync<null, never>(null).map(() => {});
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {
     const counts: IExpectedEventCounts = {
       onInitialized: 0,
       onQueryPosted: 0,
+      onQueryParametersRequired: 0,
       onAccountAdded: 0,
       onAccountRemoved: 0,
+      heartbeat: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -74,16 +87,22 @@ export class ContextProviderMock implements IContextProvider {
 
     expect(this.onInitializedActivations.length).toBe(counts.onInitialized);
     expect(this.onQueryPostedActivations.length).toBe(counts.onQueryPosted);
+    expect(this.onQueryParametersRequiredActivations.length).toBe(
+      counts.onQueryParametersRequired,
+    );
     expect(this.onAccountAddedActivations.length).toBe(counts.onAccountAdded);
     expect(this.onAccountRemovedActivations.length).toBe(
       counts.onAccountRemoved,
     );
+    expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
   }
 }
 
 export interface IExpectedEventCounts {
   onInitialized?: number;
   onQueryPosted?: number;
+  onQueryParametersRequired?: number;
   onAccountAdded?: number;
   onAccountRemoved?: number;
+  heartbeat?: number;
 }

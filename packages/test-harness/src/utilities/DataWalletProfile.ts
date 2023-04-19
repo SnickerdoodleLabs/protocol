@@ -200,6 +200,7 @@ export class DataWalletProfile {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
         discordOverrides: discordConfig,
+        heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
       } as IConfigOverrides,
       undefined,
       mocks.fakeDBVolatileStorage,

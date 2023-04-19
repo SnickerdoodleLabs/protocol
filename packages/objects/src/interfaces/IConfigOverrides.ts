@@ -23,4 +23,5 @@ export interface IConfigOverrides {
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
+  heartbeatIntervalMS?: number;
 }
