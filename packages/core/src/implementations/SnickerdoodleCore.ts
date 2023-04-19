@@ -896,23 +896,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public getAccountBalances(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccountBalances(chains, accounts);
+    return accountService.getAccountBalances();
   }
 
   public getAccountNFTs(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<WalletNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccountNFTs(chains, accounts);
+    return accountService.getAccountNFTs();
   }
 
   public getTransactionValueByChain(

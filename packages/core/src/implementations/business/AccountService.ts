@@ -569,18 +569,12 @@ export class AccountService implements IAccountService {
       });
   }
 
-  public getAccountBalances(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<TokenBalance[], PersistenceError> {
-    return this.balanceRepo.getAccountBalances(chains, accounts);
+  public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
+    return this.balanceRepo.getAccountBalances();
   }
 
-  public getAccountNFTs(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.balanceRepo.getAccountNFTs(chains, accounts);
+  public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
+    return this.balanceRepo.getAccountNFTs();
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {

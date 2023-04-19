@@ -1,5 +1,6 @@
 import Typography from "@extension-onboarding/components/Typography";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
@@ -84,7 +85,9 @@ const DataDashboardLayout = () => {
           </Box>
         ))}
       </Box>
-      <Outlet />
+      <DashboardContextProvider>
+        <Outlet />
+      </DashboardContextProvider>
     </>
   );
 };

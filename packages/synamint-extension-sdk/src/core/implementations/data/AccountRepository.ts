@@ -12,7 +12,6 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
-  ChainId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -67,21 +66,18 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountBalances(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<TokenBalance[], SnickerDoodleCoreError> {
-    return this.core.getAccountBalances(chains, accounts).mapErr((error) => {
+  public getAccountBalances(): ResultAsync<
+    TokenBalance[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getAccountBalances().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
 
-  public getAccountNFTs(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.getAccountNFTs(chains, accounts).mapErr((error) => {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.getAccountNFTs().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

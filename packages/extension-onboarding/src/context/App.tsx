@@ -42,7 +42,8 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
-  accountInfo: LinkedAccount;
+  accountAddress: AccountAddress;
+  chain: EChain;
 }
 
 export interface IInvitationInfo {
@@ -232,11 +233,12 @@ export const AppContextProvider: FC = ({ children }) => {
     data: { linkedAccount: LinkedAccount };
   }) => {
     addAccount({
-      accountInfo: notification.data.linkedAccount,
+      accountAddress: notification.data.linkedAccount.sourceAccountAddress,
       providerKey:
         localStorage.getItem(
           `${notification.data.linkedAccount.sourceAccountAddress}`,
         ) ?? null,
+      chain: notification.data.linkedAccount.sourceChain,
     } as ILinkedAccount);
     setVisualAlert(true);
     setAlert({
@@ -272,9 +274,10 @@ export const AppContextProvider: FC = ({ children }) => {
       const _accounts = accounts.map(
         (account) =>
           ({
-            accountInfo: account,
+            accountAddress: account.sourceAccountAddress,
             providerKey:
               localStorage.getItem(`${account.sourceAccountAddress}`) ?? null,
+            chain: account.sourceChain,
           } as ILinkedAccount),
       );
       setLinkedAccounts((prev) =>
