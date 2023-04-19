@@ -5,7 +5,11 @@ import {
   TokenInfo,
   TokenMarketData,
 } from "@objects/businessObjects";
-import { AccountIndexingError, PersistenceError } from "@objects/errors";
+import {
+  AccountIndexingError,
+  AjaxError,
+  PersistenceError,
+} from "@objects/errors";
 import { ChainId, UnixTimestamp } from "@objects/primitives";
 
 export interface ITokenPriceRepository {
@@ -25,13 +29,13 @@ export interface ITokenPriceRepository {
 
   getTokenMarketData(
     ids: string[],
-  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+  ): ResultAsync<TokenMarketData[], AccountIndexingError | AjaxError>;
 
   getMarketDataForTokens(
     tokens: { chain: ChainId; address: TokenAddress | null }[],
   ): ResultAsync<
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
-    AccountIndexingError
+    AccountIndexingError | AjaxError
   >;
 
   getTokenInfoFromList(

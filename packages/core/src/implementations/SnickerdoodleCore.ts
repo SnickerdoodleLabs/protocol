@@ -1112,7 +1112,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getTokenMarketData(
     ids: string[],
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<TokenMarketData[], AccountIndexingError> {
+  ): ResultAsync<TokenMarketData[], AccountIndexingError | AjaxError> {
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
       ITokenPriceRepositoryType,
     );
