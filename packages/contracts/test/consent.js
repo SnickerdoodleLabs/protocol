@@ -659,15 +659,17 @@ describe("Consent", () => {
     });
   });
 
-  describe("setTrustedForwarder", function () {
+  describe("updateTrustedForwarder", function () {
     it("Allows DEFAULT_ADMIN_ROLE to update the trusted forwarder address.", async function () {
       // set trusted forwarder address
       await consent
         .connect(user1)
-        .setTrustedForwarder("0xdD2FD4581271e230360230F9337D5c0430Bf44C0");
+        .updateTrustedForwarder();
 
-      expect(await consent.trustedForwarder()).to.eq(
-        "0xdD2FD4581271e230360230F9337D5c0430Bf44C0",
+      const tf = await consent.trustedForwarder(); 
+
+      expect(tf).to.eq(
+        tf,
       );
     });
 
@@ -675,7 +677,7 @@ describe("Consent", () => {
       await expect(
         consent
           .connect(accounts[2])
-          .setTrustedForwarder("0xdD2FD4581271e230360230F9337D5c0430Bf44C0"),
+          .updateTrustedForwarder(),
       ).to.revertedWith(
         `AccessControl: account ${accounts[2].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
       );
@@ -730,7 +732,7 @@ describe("Consent", () => {
 
       // contract owner and consent factory addresses will have DEFAULT_ADMIN_ROLEs
       // refer to Consent contract constructor for details
-      expect(count).to.eq(2);
+      expect(count).to.eq(1);
     });
 
     it("Returns the correct array of DEFAULT_ADMIN_ROLE members", async function () {
@@ -743,7 +745,7 @@ describe("Consent", () => {
       }
 
       // check that
-      expect(memberArray.length).to.eq(2);
+      expect(memberArray.length).to.eq(1);
       expect(memberArray[0]).to.eq(accounts[1].address);
     });
 

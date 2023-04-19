@@ -38,4 +38,12 @@ export const useStyles = makeStyles((theme) => ({
   },
   propertyTitle: {},
   propertyValue: {},
+  externalLinkText: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "16px",
+    lineHeight: "19px",
+    color: "#8079B4",
+  },
 }));

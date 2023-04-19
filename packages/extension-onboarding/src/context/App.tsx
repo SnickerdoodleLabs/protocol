@@ -3,6 +3,7 @@ import {
   AccountAddress,
   BigNumberString,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   EVMContractAddress,
   LinkedAccount,
@@ -31,6 +32,10 @@ import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders";
+import {
+  getProviderList as getSocialMediaProviderList,
+  ISocialMediaWrapper,
+} from "@extension-onboarding/services/socialMediaProviders";
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -60,6 +65,10 @@ export interface IAppContext {
   linkedAccounts: ILinkedAccount[];
   isSDLDataWalletDetected: boolean;
   providerList: IProvider[];
+  earnedRewards: EarnedReward[];
+  updateOptedInContracts: () => void;
+  optedInContracts: EVMContractAddress[];
+  socialMediaProviderList: ISocialMediaWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
   appMode: EAppModes | undefined;
@@ -81,6 +90,9 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [providerList, setProviderList] = useState<IProvider[]>([]);
+  const [socialMediaProviderList, setSocialMediaProviderList] = useState<
+    ISocialMediaWrapper[]
+  >([]);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
@@ -89,6 +101,10 @@ export const AppContextProvider: FC = ({ children }) => {
   const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
     INITIAL_INVITATION_INFO,
   );
+  const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>([]);
+  const [optedInContracts, setUptedInContracts] = useState<
+    EVMContractAddress[]
+  >([]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -142,20 +158,14 @@ export const AppContextProvider: FC = ({ children }) => {
     };
   }, []);
 
-  useEffect(() => {
-    console.warn("window changed");
-  }, [window?.sdlDataWallet]);
-
-  useEffect(() => {
-    if (isSDLDataWalletDetected) {
-    }
-  }, [isSDLDataWalletDetected]);
-
   const checkDataWalletAddressAndInitializeApp = () => {
     window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
       if (dataWalletAddress) {
         getUserAccounts();
+        getEarnedRewards();
+        getOptedInContracts();
         subscribeToAccountAdding();
+        subscribeToEarnedRewardAdding();
         subscribeToAccountRemoving();
         if (
           sessionStorage.getItem("appMode") ===
@@ -174,19 +184,6 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const refreshNotificationSubscriptions = () => {
-    window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
-      if (dataWalletAddress) {
-        getUserAccounts();
-        subscribeToAccountAdding();
-        subscribeToAccountRemoving();
-      } else {
-        subscribeToAccountInitiating();
-        subscribeToAccountAdding();
-      }
-    });
-  };
-
   const subscribeToAccountAdding = () => {
     window?.sdlDataWallet?.on("onAccountAdded", onAccountAdded);
   };
@@ -197,6 +194,27 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const subscribeToAccountRemoving = () => {
     window?.sdlDataWallet?.on("onAccountRemoved", onAccountRemoved);
+  };
+
+  const subscribeToEarnedRewardAdding = () => {
+    window?.sdlDataWallet?.on("onEarnedRewardsAdded", onEarnedRewardAdded);
+  };
+
+  const onEarnedRewardAdded = (notification: {
+    data: { rewards: EarnedReward[] };
+  }) => {
+    console.warn("EARNED REWARD ADDED", notification);
+    getEarnedRewards();
+  };
+
+  const updateOptedInContracts = () => {
+    getOptedInContracts();
+  };
+
+  const getOptedInContracts = () => {
+    window.sdlDataWallet.getAcceptedInvitationsCID().map((records) => {
+      setUptedInContracts(Object.keys(records) as EVMContractAddress[]);
+    });
   };
 
   const onAccountInitialized = (notification: {
@@ -236,18 +254,20 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const onWalletConnected = useCallback(() => {
-    // Phantom wallet can not initiate window phantom object at time
-    if (isSDLDataWalletDetected) {
-      return refreshNotificationSubscriptions();
-    }
     setSDLDataWalletDetected(true);
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();
       const providerList = getProviderList();
       setProviderList(providerList);
+      const socialMediaProviderList = getSocialMediaProviderList();
+      setSocialMediaProviderList(socialMediaProviderList);
       setIsLoading(false);
     }, 500);
   }, []);
+
+  const getSocialMediaAccounts = () => {
+    //return window.sdlDataWallet.get
+  };
 
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
@@ -268,6 +288,12 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
+  const getEarnedRewards = () => {
+    return window.sdlDataWallet.getEarnedRewards().map((rewards) => {
+      setEarnedRewards(rewards);
+    });
+  };
+
   const addAccount = (account: ILinkedAccount) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
@@ -275,13 +301,17 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        updateOptedInContracts,
+        optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(),
         providerList,
+        socialMediaProviderList,
         isSDLDataWalletDetected,
         linkedAccounts,
         getUserAccounts,
         appMode,
+        earnedRewards,
         addAccount,
         invitationInfo,
         setInvitationInfo: updateInvitationInfo,

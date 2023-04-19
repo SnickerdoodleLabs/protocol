@@ -3,6 +3,7 @@ import {
   PersistenceError,
   AccountIndexingError,
   AjaxError,
+  DiscordError,
   DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -20,6 +21,7 @@ export interface IMonitoringService {
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, PersistenceError>;
+  pollDiscord(): ResultAsync<void, PersistenceError | DiscordError>;
 }
 
 export const IMonitoringServiceType = Symbol.for("IMonitoringService");

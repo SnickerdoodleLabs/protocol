@@ -7600,8 +7600,10 @@ __metadata:
     react-ga: ^3.3.1
     react-google-login: ^5.2.2
     react-hotjar: ^5.2.0
+    react-intersection-observer: ^9.4.3
     react-joyride: ^2.5.3
     react-lottie: ^1.2.3
+    react-multi-carousel: ^2.8.2
     react-router-dom: ^6.3.0
     react-swipeable-views: ^0.14.0
     react-swipeable-views-utils: ^0.14.0
@@ -33900,14 +33902,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.12.0 || ^17.0.0 || ^18.0.0, react-is@npm:^18.0.0, react-is@npm:^18.1.0, react-is@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react-is@npm:18.2.0"
-  checksum: e72d0ba81b5922759e4aff17e0252bd29988f9642ed817f56b25a3e217e13eea8a7f2322af99a06edb779da12d5d636e9fda473d620df9a3da0df2a74141d53e
+"react-intersection-observer@npm:^9.4.3":
+  version: 9.4.3
+  resolution: "react-intersection-observer@npm:9.4.3"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: ac31c6c76ce72019a1fb50fe6b53ef6429d98b9e9b937f92d16635ef8586392c7058bb61526a8fe6bea6ce36c006015fe2d8893bac43eda6157b9e6b17ad9b68
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.0, react-is@npm:^16.13.1, react-is@npm:^16.7.0":
+"react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -33960,100 +33964,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-argon2@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "react-native-argon2@npm:2.0.1"
-  checksum: ce2d39e0925f2f614e1134a4197e5eba5d2e0eb87f4257d5ec8fc682cdb5bcad4ca62588d655726548fbabfc51e90924e55b4b10735d2534c14b99185bac1228
-  languageName: node
-  linkType: hard
-
-"react-native-asset@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "react-native-asset@npm:2.1.0"
-  dependencies:
-    fs-extra: ^7.0.1
-    lodash: 4.17.21
-    npmlog: ^4.1.2
-    plist: ^3.0.1
-    sha1-file: ^1.0.4
-    xcode: ^2.0.0
-  peerDependencies:
-    react-native: ">=0.60.0"
-  bin:
-    react-native-asset: lib/cli.js
-  checksum: 6115a9430f17598bba48c7a501fe2f83dfd0ac2638938639cc980d4007e1baec7599f917620afbd92eb012b9490b546f18753c647baea3dd305d636e4d3bc060
-  languageName: node
-  linkType: hard
-
-"react-native-background-actions@npm:^2.6.7":
-  version: 2.6.7
-  resolution: "react-native-background-actions@npm:2.6.7"
-  dependencies:
-    eventemitter3: ^4.0.7
-  peerDependencies:
-    react-native: ">=0.47.0"
-  checksum: 69736b37185fe9fd3365190ff0505c93196fa917b5871d1d3dd2f5d81985d7abc09b8fd40658b8e6cc13be38300ac5eb902e01c65d9ee4e2d5f7e554a264e6e3
-  languageName: node
-  linkType: hard
-
-"react-native-background-fetch@npm:^4.1.5":
-  version: 4.1.9
-  resolution: "react-native-background-fetch@npm:4.1.9"
-  checksum: ec16a9a716284890e2b877be22ea29cca055e5c69da726999f127bb89f3aa10da2ca56fc9c1c92d90160812b5296cbca6e678a744849e5e56ca57ff692a0f283
-  languageName: node
-  linkType: hard
-
-"react-native-codegen@npm:^0.70.6":
-  version: 0.70.6
-  resolution: "react-native-codegen@npm:0.70.6"
-  dependencies:
-    "@babel/parser": ^7.14.0
-    flow-parser: ^0.121.0
-    jscodeshift: ^0.13.1
-    nullthrows: ^1.1.1
-  checksum: 2a50ad71e09bc8cbb3694057cf47d6e9665c16f3968d1dc2b71e83c8c4e7be3b07b74bea08750ec9c8f6c60e6c746a5f695963c8694e5a76edcbce35a53a6a06
-  languageName: node
-  linkType: hard
-
-"react-native-crypto@npm:^2.0.1, react-native-crypto@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "react-native-crypto@npm:2.2.0"
-  dependencies:
-    browserify-cipher: ^1.0.0
-    browserify-sign: ^4.0.4
-    create-ecdh: ^4.0.0
-    create-hash: ^1.1.0
-    create-hmac: ^1.1.0
-    diffie-hellman: ^5.0.0
-    inherits: ^2.0.1
-    pbkdf2: 3.0.8
-    public-encrypt: ^4.0.0
-    randomfill: ^1.0.3
-  peerDependencies:
-    react-native-randombytes: ">=2.0.0 <4.0.0"
-  checksum: 52631bf32e5d3e0aad9329e3271808a30b91f8a072d4a0c2791105cd3c3aac5d1a63a4016a570790342baa7fc4b10f15024e4d6df47e57906197d7587af450e1
-  languageName: node
-  linkType: hard
-
-"react-native-date-picker@npm:^4.2.9":
-  version: 4.2.9
-  resolution: "react-native-date-picker@npm:4.2.9"
-  dependencies:
-    prop-types: ^15.8.1
-  peerDependencies:
-    react: ">= 17.0.1"
-    react-native: ">= 0.64.3"
-  checksum: a85939e585943fae4d118c1d2823099dba2ddc83afff2c29ea7e8d28968222517f3bcdef519d070cf84b19296c09123f001ea3d8f85f235c59f6e1714ca4e327
-  languageName: node
-  linkType: hard
-
-"react-native-dropdown-picker@npm:^5.4.4":
-  version: 5.4.6
-  resolution: "react-native-dropdown-picker@npm:5.4.6"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: d81ee3d68c17107a4d21dbdf9c2fe2ffe4bf4398973d10113139aadc0674221ce5038b945299fba2abc796930ec5e6d5f84291945bf903344493a15b8e2fca43
+"react-multi-carousel@npm:^2.8.2":
+  version: 2.8.2
+  resolution: "react-multi-carousel@npm:2.8.2"
+  checksum: 95a77120ec11e0f0c33609617b873a56c639b30a3b186e0d00323fff03889b2761b62ca3f2734e04f6c1fe00866bf759939a62b4f4a847211ad6da8224c46274
   languageName: node
   linkType: hard
 

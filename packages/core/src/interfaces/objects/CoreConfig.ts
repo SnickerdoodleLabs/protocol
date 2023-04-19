@@ -1,13 +1,11 @@
-import { TypedDataDomain } from "@ethersproject/abstract-signer";
-import { MapModelTypes } from "@glazed/types";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ChainId,
   ChainInformation,
   ControlChainInformation,
-  URLString,
+  DiscordConfig,
   ECurrencyCode,
-  EChain,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -44,6 +42,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
+    public marketplaceListingsCacheTime: number,
     public backupHeartbeatIntervalMS: number,
+    public discord: DiscordConfig,
   ) {}
 }

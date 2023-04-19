@@ -342,7 +342,7 @@ export class IndexedDB {
             let request: IDBRequest<VolatileStorageMetadata<T>[]>;
             if (index == undefined) {
               const indexObj: IDBIndex = store.index("deleted");
-              request = indexObj.getAll();
+              request = indexObj.getAll(EBoolean.FALSE);
             } else {
               // const indexObj: IDBIndex = store.index(this._getIndexName(index));
               // request = indexObj.getAll(query);
@@ -365,6 +365,41 @@ export class IndexedDB {
           promise,
           (e) => new PersistenceError("error getting all", e),
         );
+      });
+    });
+  }
+
+  public getAllByIndex<T extends VersionedObject>(
+    name: string,
+    index: VolatileStorageKey,
+    query: IDBValidKey | IDBKeyRange,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this.initialize().andThen((db) => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
+        const promise = new Promise<VolatileStorageMetadata<T>[]>(
+          (resolve, reject) => {
+            const store = tx.objectStore(name);
+            // let request: IDBRequest<VolatileStorageMetadata<T>[]>;
+            const indexObj: IDBIndex = store.index(this._getIndexName(index));
+            const request = indexObj.getAll(query);
+
+            request.onsuccess = (event) => {
+              resolve(request.result);
+            };
+            request.onerror = (event) => {
+              reject(new PersistenceError("error reading from object store"));
+            };
+          },
+        );
+
+        return ResultAsync.fromPromise(
+          promise,
+          (e) => new PersistenceError("error getting all", e),
+        ).map((result) => {
+          return result.filter((x) => {
+            return x.deleted == EBoolean.FALSE;
+          });
+        }); 
       });
     });
   }

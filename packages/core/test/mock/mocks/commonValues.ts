@@ -50,6 +50,18 @@ export const defaultInsightPlatformBaseUrl = URLString(
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
+const discordConfig = {
+  clientId: "1089994449830027344",
+  clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+  oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+  oauthRedirectUrl: URLString("https://localhost:9005/data-dashboard/social-media-data"),
+  accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+  refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+  dataAPIUrl: URLString("https://discord.com/api"),
+  iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+  pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
+};
+
 export const testCoreConfig = new CoreConfig(
   controlChainId,
   [], //TODO: supported chains
@@ -77,7 +89,9 @@ export const testCoreConfig = new CoreConfig(
   10000,
   "(localhost|chrome:\/\/)",
   false,
+  300000,
   1000,
+  discordConfig,
 );
 
 // #endregion

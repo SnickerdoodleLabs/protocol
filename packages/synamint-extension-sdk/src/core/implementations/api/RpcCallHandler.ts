@@ -36,6 +36,11 @@ import {
   URLString,
   SiteVisit,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -52,6 +57,8 @@ import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IInvitationService,
   IInvitationServiceType,
   IPIIService,
@@ -109,13 +116,18 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
-  IGetMarketplaceListingsParams,
   ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
   IScamFilterPreferences,
   IGetReceivingAddressParams,
   mapToObj,
   SnickerDoodleCoreError,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
+  IGetMarketplaceListingsByTagParams,
+  IGetListingsTotalByTagParams,
+  IInitializeDiscordUser,
+  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -137,6 +149,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
   ) {}
 
   public async handleRpcCall(
@@ -314,6 +328,23 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
+      case EExternalActions.GET_CONSENT_CAPACITY: {
+        const { contractAddress } = params as IGetConsentCapacityParams;
+        return new AsyncRpcResponseSender(
+          this.getConsentCapacity(contractAddress),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_POSSIBLE_REWARDS: {
+        const { contractAddresses, timeoutMs } =
+          params as IGetPossibleRewardsParams;
+        return new AsyncRpcResponseSender(
+          this.getPossibleRewards(contractAddresses, timeoutMs),
+          res,
+        ).call();
+      }
+
       case EExternalActions.CHECK_INVITATION_STATUS: {
         const { signature, consentAddress, tokenId } =
           params as ICheckInvitationStatusParams;
@@ -323,16 +354,21 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
-      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
-        const { count, headAt } = params as IGetMarketplaceListingsParams;
+      case EExternalActions.GET_MARKETPLACE_LISTINGS_BY_TAG: {
+        const { pagingReq, tag, filterActive } =
+          params as IGetMarketplaceListingsByTagParams;
         return new AsyncRpcResponseSender(
-          this.getMarketplaceListings(count, headAt),
+          this.getMarketplaceListingsByTag(pagingReq, tag, filterActive),
           res,
         ).call();
       }
 
-      case EExternalActions.GET_LISTING_TOTAL: {
-        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
+      case EExternalActions.GET_LISTING_TOTAL_BY_TAG: {
+        const { tag } = params as IGetListingsTotalByTagParams;
+        return new AsyncRpcResponseSender(
+          this.getListingsTotalByTag(tag),
+          res,
+        ).call();
       }
 
       case EExternalActions.GET_CONTRACT_CID: {
@@ -483,6 +519,38 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
+      case EExternalActions.INITIALIZE_DISCORD_USER: {
+        const { code } = params as IInitializeDiscordUser;
+        return new AsyncRpcResponseSender(
+          this.discordService.initializeUserWithAuthorizationCode(code),
+          res,
+        ).call();
+      }
+      case EExternalActions.INSTALLATION_DISCORD_URL: {
+        return new AsyncRpcResponseSender(
+          this.discordService.installationUrl(),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_DISCORD_GUILD_PROFILES: {
+        return new AsyncRpcResponseSender(
+          this.discordService.getGuildProfiles(),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_DISCORD_USER_PROFILES: {
+        return new AsyncRpcResponseSender(
+          this.discordService.getUserProfiles(),
+          res,
+        ).call();
+      }
+      case EExternalActions.UNLINK_DISCORD_ACCOUNT: {
+        const { discordProfileId } = params as IUnlinkDiscordAccount;
+        return new AsyncRpcResponseSender(
+          this.discordService.unlink(discordProfileId),
+          res,
+        ).call();
+      }
       default:
         return next();
     }
@@ -606,15 +674,22 @@ export class RpcCallHandler implements IRpcCallHandler {
     });
   }
 
-  private getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this.invitationService.getMarketplaceListings(count, headAt);
+  private getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
+    return this.invitationService.getMarketplaceListingsByTag(
+      pagingReq,
+      tag,
+      filterActive,
+    );
   }
 
-  private getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.invitationService.getListingsTotal();
+  private getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationService.getListingsTotalByTag(tag);
   }
 
   private getConsentContractCID(
@@ -628,6 +703,18 @@ export class RpcCallHandler implements IRpcCallHandler {
       return okAsync(TokenId(BigInt(tokenId)));
     }
     return this.cryptoUtils.getTokenId();
+  }
+
+  private getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationService
+      .getPossibleRewards(contractAddresses, timeoutMs)
+      .map((res) => mapToObj(res));
   }
 
   private getAgreementPermissions(
@@ -878,5 +965,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
     return this.invitationService.getReceivingAddress(contractAddress);
+  }
+
+  private getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentCapacity(contractAddress);
   }
 }

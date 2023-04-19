@@ -1,5 +1,19 @@
-import { IpfsCID } from "@objects/primitives";
+import {
+  BigNumberString,
+  EVMContractAddress,
+  IpfsCID,
+  MarketplaceTag,
+  UnixTimestamp,
+} from "@objects/primitives";
 
 export class MarketplaceListing {
-  public constructor(public cids: IpfsCID[], public nextHead: number) {}
+  public constructor(
+    public previous: BigNumberString,
+    public next: BigNumberString,
+    public consentContract: EVMContractAddress,
+    public timeExpiring: UnixTimestamp,
+    public cid: IpfsCID,
+    public stakeAmount: BigNumberString,
+    public tag: MarketplaceTag,
+  ) {}
 }

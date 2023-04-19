@@ -16,6 +16,8 @@ import {
   DomainCredentialMigrator,
   QueryStatusMigrator,
   PersistenceError,
+  SocialProfileMigrator,
+  SocialGroupProfileMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -138,7 +140,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.EARNED_REWARDS,
           new VolatileTableIndex(
             ERecordKey.EARNED_REWARDS,
-            "queryCID",
+            ["queryCID", "name", "contractAddress", "chainId"],
             false,
             new EarnedRewardMigrator(),
             EBackupPriority.NORMAL,
@@ -233,6 +235,35 @@ export class VolatileStorageSchemaProvider
             EBackupPriority.NORMAL,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
+          ),
+        ],
+        [
+          ERecordKey.SOCIAL_PROFILE,
+          new VolatileTableIndex(
+            ERecordKey.SOCIAL_PROFILE,
+            "pKey",
+            false,
+            new SocialProfileMigrator(),
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+            [["type", false]],
+          ),
+        ],
+        [
+          ERecordKey.SOCIAL_GROUP,
+          new VolatileTableIndex(
+            ERecordKey.SOCIAL_GROUP,
+            "pKey",
+            false,
+            new SocialGroupProfileMigrator(),
+            EBackupPriority.NORMAL,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+            [
+              ["type", false],
+              ["ownerId", false],
+            ],
           ),
         ],
       ]);

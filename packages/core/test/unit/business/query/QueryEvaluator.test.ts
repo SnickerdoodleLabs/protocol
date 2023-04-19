@@ -41,6 +41,7 @@ import {
   IBrowsingDataRepository,
   ITransactionHistoryRepository,
   IDemographicDataRepository,
+  ISocialRepository,
 } from "@core/interfaces/data/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
@@ -75,6 +76,7 @@ class QueryEvaluatorMocks {
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
+  public socialRepo = td.object<ISocialRepository>();
 
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
@@ -239,6 +241,7 @@ class QueryEvaluatorMocks {
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
+      this.socialRepo
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(

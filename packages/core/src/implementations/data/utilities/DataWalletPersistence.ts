@@ -162,6 +162,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public getAllByIndex<T extends VersionedObject>(
+    name: string,
+    indexName: string,
+    query: IDBValidKey | IDBKeyRange,
+    priority?: EBackupPriority,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.waitForPriority(priority).andThen(() => {
+      return this.volatileStorage
+        .getAllByIndex<T>(name, indexName, query)
+        .map((values) => {
+          return values.map((x) => x.data);
+        });
+    });
+  }
+
   public getAllKeys<T>(
     name: ERecordKey,
     indexName?: string | undefined,

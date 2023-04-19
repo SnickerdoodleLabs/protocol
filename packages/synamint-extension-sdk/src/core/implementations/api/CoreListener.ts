@@ -1,5 +1,7 @@
 import {
   DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -8,6 +10,7 @@ import {
   RecipientAddressType,
   SDQLQueryRequest,
   SDQLString,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { ICoreListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
@@ -42,6 +45,11 @@ export class CoreListener implements ICoreListener {
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+      events.onEarnedRewardsAdded.subscribe(
+        this.onEarnedRewardsAdded.bind(this),
+      );
+      events.onDiscordProfileLinked.subscribe(this.onDiscordProfileLinked.bind(this));
+      events.onDiscordProfileUnlinked.subscribe(this.onDiscordProfileUnlinked.bind(this));
     });
   }
 
@@ -132,4 +140,11 @@ export class CoreListener implements ICoreListener {
     );
     this.contextProvider.onAccountRemoved(account);
   }
+
+  private onEarnedRewardsAdded(rewards: EarnedReward[]): void {
+    this.contextProvider.onEarnedRewardsAdded(rewards);
+}
+  private onDiscordProfileLinked(id: SnowflakeID): void {}
+
+  private onDiscordProfileUnlinked(id: SnowflakeID): void {}
 }

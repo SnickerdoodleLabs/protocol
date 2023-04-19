@@ -1,4 +1,10 @@
-import { ChainId, ProviderUrl, URLString } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  DiscordConfig,
+  ProviderUrl,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import { urlJoin } from "url-join-ts";
 
 import {
   EPlatform,
@@ -30,6 +36,9 @@ declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
 declare const __ENABLE_BACKUP_ENCRYPTION__: string;
+declare const __DISCORD_CLIENT_ID__: string;
+declare const __DISCORD_CLIENT_KEY__: string;
+declare const __DISCORD_POLL_INTERVAL__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -126,10 +135,49 @@ class ConfigProvider implements IConfigProvider {
       !!__ENABLE_BACKUP_ENCRYPTION__
         ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
         : false,
+      this._buildDiscordConfig(),
     );
   }
+
   public getConfig() {
     return this.extensionConfig;
   }
+
+  private _buildDiscordConfig(): Partial<DiscordConfig> {
+    const oauthRedirectUrl =
+      typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
+        ? URLString(
+            urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
+          )
+        : URLString(
+            "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
+          );
+
+    let discordConfig = {
+      oauthRedirectUrl,
+    } as Partial<DiscordConfig>;
+
+    if (
+      typeof __DISCORD_CLIENT_ID__ !== "undefined" &&
+      !!__DISCORD_CLIENT_ID__
+    ) {
+      discordConfig["clientId"] = __DISCORD_CLIENT_ID__;
+    }
+    if (
+      typeof __DISCORD_CLIENT_KEY__ !== "undefined" &&
+      !!__DISCORD_CLIENT_KEY__
+    ) {
+      discordConfig["client_secret"] = __DISCORD_CLIENT_KEY__;
+    }
+    if (
+      typeof __DISCORD_POLL_INTERVAL__ !== "undefined" &&
+      !!__DISCORD_POLL_INTERVAL__
+    ) {
+      discordConfig["pollInterval"] = parseInt(__DISCORD_POLL_INTERVAL__);
+    }
+
+    return discordConfig;
+  }
 }
+
 export const configProvider = new ConfigProvider();
