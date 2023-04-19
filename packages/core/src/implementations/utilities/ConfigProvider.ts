@@ -100,20 +100,45 @@ export class ConfigProvider
       ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
-      {
-        Solana:
-          "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-        SolanaTestnet:
-          "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-        Polygon:
-          "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
-        PolygonMumbai:
-          "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
-        Arbitrum:
-          "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
-        Optimism:
-          "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
-      },
+      new Map<EChain, URLString>([ // alchemy endpoints - now a map
+
+        [
+          EChain.Solana,
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+        [
+          EChain.SolanaTestnet,
+          URLString(
+            "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+          ),
+        ],
+        [
+          EChain.Polygon,
+          URLString(
+            "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
+          ),
+        ],
+        [
+          EChain.Mumbai,
+          URLString(
+            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+          ),
+        ],
+        [
+          EChain.Arbitrum,
+          URLString(
+            "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
+          ),
+        ],
+        [
+          EChain.Optimism,
+          URLString(
+            "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+          ),
+        ],
+      ]),
       10000,
       "(localhost|chrome://)",
       false, // enable backup encryption

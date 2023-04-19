@@ -1,6 +1,3 @@
-import { useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 import {
   chainConfig,
   EChainType,
@@ -17,6 +14,14 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
+import {
+  ILinkedAccount,
+  useAppContext,
+} from "@extension-onboarding/context/App";
+import { IBalanceItem } from "@extension-onboarding/objects";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 declare const window: IWindowWithSdlDataWallet;
 
 interface IDashboardContext {

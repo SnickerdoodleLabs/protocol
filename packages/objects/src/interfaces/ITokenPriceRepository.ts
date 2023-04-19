@@ -33,6 +33,17 @@ export interface ITokenPriceRepository {
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
     AccountIndexingError
   >;
+
+  getTokenInfoFromList(
+    contractAddress: TokenAddress,
+  ): CoinGeckoTokenInfo | undefined;
 }
 
 export const ITokenPriceRepositoryType = Symbol.for("ITokenPriceRepository");
+
+export interface CoinGeckoTokenInfo {
+  id: string;
+  symbol: string;
+  name: string;
+  protocols: string[];
+}

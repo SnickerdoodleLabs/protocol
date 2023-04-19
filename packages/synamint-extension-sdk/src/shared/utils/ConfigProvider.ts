@@ -50,7 +50,7 @@ class ConfigProvider implements IConfigProvider {
     const supportedChains = (
       typeof __SUPPORTED_CHAINS__ !== "undefined" && !!__SUPPORTED_CHAINS__
         ? __SUPPORTED_CHAINS__
-        : "80001,43113,1,137,43114,-1"
+        : "100,56,1284"
     )
       .split(",")
       .map((chain) => {

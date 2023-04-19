@@ -165,40 +165,23 @@ export class MonitoringService implements IMonitoringService {
               accountAddress as SolanaAccountAddress,
               new Date(timestamp * 1000),
             );
-          case EIndexer.Ethereum:
-            return etherscanRepo.getEVMTransactions(
-              chainId,
-              accountAddress as EVMAccountAddress,
-              new Date(timestamp * 1000),
-            );
           case EIndexer.Polygon:
             return maticRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
+          case EIndexer.Ethereum:
           case EIndexer.Gnosis:
-            return etherscanRepo.getEVMTransactions(
-              chainId,
-              accountAddress as EVMAccountAddress,
-              new Date(timestamp * 1000),
-            );
           case EIndexer.Binance:
-            return etherscanRepo.getEVMTransactions(
-              chainId,
-              accountAddress as EVMAccountAddress,
-              new Date(timestamp * 1000),
-            );
           case EIndexer.Moonbeam:
+          case EIndexer.Arbitrum:
+          case EIndexer.Optimism:
             return etherscanRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
-          case EIndexer.Arbitrum:
-            return okAsync([]);
-          case EIndexer.Optimism:
-            return okAsync([]);
           default:
             this.logUtils.error(
               `No available indexer repository for chain ${chainId}`,

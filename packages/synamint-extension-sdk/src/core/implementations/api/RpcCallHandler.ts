@@ -563,7 +563,6 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
-        console.log("pageInvitations", pageInvitations);
         const pageInvitation = pageInvitations.find((value) => {
           const incomingUrl = value.url.replace(/^https?:\/\//, "");
           const incomingUrlInfo = parse(incomingUrl);
@@ -578,7 +577,6 @@ export class RpcCallHandler implements IRpcCallHandler {
           return this.invitationService
             .checkInvitationStatus(pageInvitation.invitation)
             .andThen((invitationStatus) => {
-              console.log("invitationStatus", invitationStatus);
               if (invitationStatus === EInvitationStatus.New) {
                 const invitationUUID = this.contextProvider.addInvitation(
                   pageInvitation.invitation,

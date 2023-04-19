@@ -4,6 +4,8 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import coinList from "@snickerdoodlelabs/indexers/coinList.json";
+import coinPrices from "@snickerdoodlelabs/indexers/coinPrices.json";
 import {
   AccountIndexingError,
   chainConfig,
@@ -12,6 +14,7 @@ import {
   EChain,
   ECurrencyCode,
   ERecordKey,
+  EVMContractAddress,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -46,6 +49,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
   private _initialized?: ResultAsync<void, AccountIndexingError>;
   private _nativeIds: Map<ChainId, string>;
+  private _contractAddressMap: Map<TokenAddress, CoinGeckoTokenInfo>;
+  private _coinPricesMap: Map<string, CoinMarketDataResponse>;
+
+  private tokenMarketDataCache: Map<string, MarketDataCache>;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -60,6 +67,18 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
+    this.tokenMarketDataCache = new Map();
+    this._contractAddressMap = new Map(Object.entries(coinList)) as Map<
+      TokenAddress,
+      CoinGeckoTokenInfo
+    >;
+    this._coinPricesMap = new Map(Object.entries(coinPrices)) as Map<
+      string,
+      CoinMarketDataResponse
+    >;
+    console.log("this._coinPricesMap: ", this._coinPricesMap);
+
+    console.log("Coin Gecko map: ", this._contractAddressMap);
   }
 
   public getMarketDataForTokens(
@@ -68,10 +87,12 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
     AccountIndexingError
   > {
+    console.log("Hitting getMarketDataForTokens: ", tokens);
     const ids = new Map<string, `${ChainId}-${TokenAddress}`>();
     return ResultUtils.combine(
       tokens.map((token) => {
         return this.getTokenInfo(token.chain, token.address).map((info) => {
+          console.log("getTokenInfo: ", info);
           if (info != null) {
             ids.set(info.id, `${token.chain}-${token.address}`);
           }
@@ -79,6 +100,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       }),
     ).andThen(() => {
       return this.getTokenMarketData([...ids.keys()]).map((marketData) => {
+        console.log(
+          "CoinGeckoTokenPriceRepository TokenMarketData: ",
+          marketData,
+        );
+
         const returnVal = new Map<
           `${ChainId}-${TokenAddress}`,
           TokenMarketData
@@ -98,48 +124,103 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this.persistence.updateRecord(ERecordKey.COIN_INFO, info);
   }
 
+
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const url = urlJoinP(
-          "https://api.coingecko.com/api/v3/coins/",
-          ["markets"],
-          {
-            vs_currency: config.quoteCurrency,
-            ids: ids.join(","),
-            order: "market_cap_desc",
-            per_page: 100,
-            sparkline: false,
-          },
-        );
-
-        return this.ajaxUtils
-          .get<IMarketDataResponse>(new URL(url))
-          .map((response) => {
-            return response.map((item) => {
-              return new TokenMarketData(
-                item.id,
-                item.symbol,
-                item.name,
-                item.image,
-                item.current_price,
-                item.market_cap,
-                item.market_cap_rank,
-                item.price_change_24h,
-                item.price_change_percentage_24h,
-                item.circulating_supply,
-                item.total_supply,
-                item.max_supply,
-              );
-            });
-          });
+    return okAsync(ids)
+      .map((ids) => {
+        return ids.map((id) => {
+          return this.getTokenPriceFromList(id);
+        });
       })
-      .mapErr(
-        (e) => new AccountIndexingError("error fetching token market data", e),
-      );
+      .map((balances) => {
+        return Promise.all(balances).then((balance) => {
+          return (
+            balance
+              //@ts-ignore
+              .filter((obj) => obj.value != null)
+              .map((tokenBalance) => {
+                //@ts-ignore
+                return tokenBalance.value;
+              })
+          );
+        });
+      })
+      .map((marketResponses) => {
+        return marketResponses.map((item) => {
+          return new TokenMarketData(
+            item.id,
+            item.symbol,
+            item.name,
+            item.image,
+            item.current_price,
+            item.market_cap,
+            item.market_cap_rank,
+            item.price_change_24h,
+            item.price_change_percentage_24h,
+            item.circulating_supply,
+            item.total_supply,
+            item.max_supply,
+          );
+        });
+      });
+
+    // return ResultUtils.combine(ids).map((id) => {
+    //   return okAsync(this._coinPricesMap.get(id));
+    // });
+    // .map((tokenMarketArr) => {
+    //   return Promise.all(tokenMarketArr).then((balance) => {
+    //     return balance
+    //       .filter((obj) => obj != undefined s)
+    //       .map((tokenBalance) => {
+    //         return tokenBalance.value;
+    //       });
+    //   });
+    // })
+    // .andThen((fasdfasd) => {});
+
+    // return this.configProvider
+    //   .getConfig()
+    //   .andThen((config) => {
+    //     const url = urlJoinP(
+    //       "https://api.coingecko.com/api/v3/coins/",
+    //       ["markets"],
+    //       {
+    //         vs_currency: config.quoteCurrency,
+    //         ids: ids.join(","),
+    //         order: "market_cap_desc",
+    //         per_page: 100,
+    //         sparkline: false,
+    //       },
+    //     );
+
+    //     console.log("getTokenMarketData url: ", url);
+
+    //     return this._fetchTokenMarketData(new URL(url)).map((response) => {
+    //       console.log("getTokenMarketData response: ", response);
+
+    //       return response.map((item) => {
+    //         return new TokenMarketData(
+    //           item.id,
+    //           item.symbol,
+    //           item.name,
+    //           item.image,
+    //           item.current_price,
+    //           item.market_cap,
+    //           item.market_cap_rank,
+    //           item.price_change_24h,
+    //           item.price_change_percentage_24h,
+    //           item.circulating_supply,
+    //           item.total_supply,
+    //           item.max_supply,
+    //         );
+    //       });
+    //     });
+    //   })
+    //   .mapErr(
+    //     (e) => new AccountIndexingError("error fetching token market data", e),
+    //   );
   }
 
   public getTokenInfo(
@@ -184,6 +265,19 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       });
   }
 
+  public getTokenInfoFromList(
+    contractAddress: TokenAddress,
+  ): CoinGeckoTokenInfo | undefined {
+    return this._contractAddressMap.get(contractAddress);
+  }
+
+  public getTokenPriceFromList(
+    contractAddress: TokenAddress,
+  ): ResultAsync<CoinMarketDataResponse | undefined, never> {
+    return okAsync(this._coinPricesMap.get(contractAddress));
+  }
+  // console.log("this._coinPricesMap: ", this._coinPricesMap);
+
   public getTokenPrice(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
@@ -213,6 +307,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
         return this.getTokenInfo(chainId, contractAddress).andThen(
           (tokenInfo) => {
+            console.log("getTokenPrice tokenInfo: ", tokenInfo);
+
             if (tokenInfo == null) {
               return errAsync(new AccountIndexingError("no token info found"));
             }
@@ -229,6 +325,29 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         );
       })
       .mapErr((e) => new AccountIndexingError("error getting price", e));
+  }
+
+  private _fetchTokenMarketData(url: URL) {
+    const cached = this.tokenMarketDataCache.get(url.href);
+    // console.log("this.tokenMarketDataCache: ", this.tokenMarketDataCache);
+    // console.log("cached: ", cached);
+
+    // if (
+    //   cached &&
+    //   new Date().getTime() - cached.timeStamp < tokenMarketDataLifeSpanMS
+    // ) {
+    //   return okAsync(cached.marketData);
+    // }
+    return this.ajaxUtils
+      .get<IMarketDataResponse>(new URL(url))
+      .map((response) => {
+        console.log("fetchTokenMarketData response: ", response);
+        this.tokenMarketDataCache.set(url.href, {
+          marketData: response,
+          timeStamp: UnixTimestamp(new Date().getTime()),
+        });
+        return response;
+      });
   }
 
   private getPrice(
@@ -416,3 +535,77 @@ interface AssetPlatformMapping {
   forward: { [key: string]: ChainId };
   backward: { [key: ChainId]: string };
 }
+
+interface MarketDataCache {
+  timeStamp: UnixTimestamp;
+  marketData: IMarketDataResponse;
+}
+
+interface CoinGeckoTokenInfo {
+  id: string;
+  symbol: string;
+  name: string;
+  protocols: string[];
+}
+
+interface PriceVsUSD {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: string;
+  market_cap: string;
+  market_cap_rank: number;
+  fully_diluted_valuation: string;
+  total_volume: string;
+  high_24h: string;
+  low_24h: string;
+  price_change_24h: string;
+  price_change_percentage_24h: string;
+  market_cap_change_24h: string;
+  market_cap_change_percentage_24h: string;
+  circulating_supply: string;
+  total_supply: string;
+  max_supply: string;
+  ath: string;
+  ath_change_percentage: string;
+  ath_date: string;
+  atl: string;
+  atl_change_percentage: string;
+  atl_date: string;
+  roi: string;
+  last_updated: string;
+}
+
+type CoinMarketDataResponse = {
+  id: string;
+  symbol: TickerSymbol;
+  name: string;
+  image: URLString;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  fully_diluted_valuation: number;
+  total_volume: number;
+  high_24h: number;
+  low_24h: number;
+  price_change_24h: number;
+  price_change_percentage_24h: number;
+  market_cap_change_24h: number;
+  market_cap_change_percentage_24h: number;
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number | null;
+  ath: number;
+  ath_change_percentage: number;
+  ath_date: string;
+  atl: number;
+  atl_change_percentage: number;
+  atl_date: string;
+  roi?: {
+    times: number;
+    currency: string;
+    percentage: number;
+  };
+  last_updated: string;
+};

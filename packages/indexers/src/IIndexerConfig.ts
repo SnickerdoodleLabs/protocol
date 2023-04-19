@@ -1,4 +1,4 @@
-import { ChainId, ECurrencyCode, URLString } from "@snickerdoodlelabs/objects";
+import { ChainId, EChain, ECurrencyCode, URLString } from "@snickerdoodlelabs/objects";
 
 export interface IIndexerConfig {
   covalentApiKey: string;
@@ -9,12 +9,12 @@ export interface IIndexerConfig {
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;
   supportedChains: ChainId[];
-  alchemyEndpoints: {
-    Solana: string;
-    SolanaTestnet: string;
-    Polygon: string;
-    PolygonMumbai: string;
-    Arbitrum: string;
-    Optimism: string;
-  };
+  alchemyEndpoints: Map<EChain, URLString>;
+  //   Solana: string;
+  //   SolanaTestnet: string;
+  //   Polygon: string;
+  //   PolygonMumbai: string;
+  //   Arbitrum: string;
+  //   Optimism: string;
+  // };
 }

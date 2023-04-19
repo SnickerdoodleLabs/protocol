@@ -4,6 +4,7 @@ import {
   ChainInformation,
   ControlChainInformation,
   DiscordConfig,
+  EChain,
   ECurrencyCode,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -33,14 +34,15 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
-    public alchemyEndpoints: {
-      Solana: string;
-      SolanaTestnet: string;
-      Polygon: string;
-      PolygonMumbai: string;
-      Arbitrum: string;
-      Optimism: string;
-    },
+    public alchemyEndpoints: Map<EChain, URLString>,
+    // {
+    //   Solana: string;
+    //   SolanaTestnet: string;
+    //   Polygon: string;
+    //   PolygonMumbai: string;
+    //   Arbitrum: string;
+    //   Optimism: string;
+    // },
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
