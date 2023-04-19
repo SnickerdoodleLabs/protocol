@@ -207,11 +207,11 @@ export class MonitoringService implements IMonitoringService {
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.persistence.pollBackups();
   }
+
   public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
-    this.logUtils.debug("Polling discord");
     return this.discordService.poll();
   }
-  
+
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.persistence.postBackups();
   }

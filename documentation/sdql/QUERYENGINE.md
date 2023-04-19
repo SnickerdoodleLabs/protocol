@@ -29,9 +29,9 @@ graph TD;
 Processing a blockchain query begins with the detection, by an instance of [`BlockchainLister`](packages\core\src\implementations\api\BlockchainListener.ts), of a 
 [`requestForData`](/packages/contracts/contracts/consent/Consent.sol) event emitted from a consent contract. The event data includes an IPFS 
 [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be executed. 
-The query CID is then passed into the Query Service via a call to `processQuery`. 
+The query CID is then passed into the Query Service via a call to `approveQuery`. 
 
-The call to `processQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 3 AST roots.
+The call to `approveQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 3 AST roots.
 
     logic: {
         ads: ["if$q1>30then$a1"],
@@ -52,7 +52,7 @@ Given example references $q1, $q2 as queries, $a1 as an ad, and $c1, $c2 as comp
 
 Resulting ASTs are ultimately evaluated against data wallet's [persistence layer](/packages/persistence/README.md), in consistence with user-specified permissions (i.e. if a `query` specification requires access to the `location` attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query.)
 
-Finally, after data has been accessed at the persistence layer level, the `processQuery` function delivers a cryptographically signed data payload, via the `deliverInsights`
+Finally, after data has been accessed at the persistence layer level, the `approveQuery` function delivers a cryptographically signed data payload, via the `deliverInsights`
 function to the aggregation url specified the query's SDQL JSON file. 
 
 ## Query Execution Flow

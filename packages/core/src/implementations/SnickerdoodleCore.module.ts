@@ -64,6 +64,7 @@ import {
   AccountIndexerPoller,
   DiscordPoller,
   BlockchainListener,
+  HeartbeatGenerator,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
@@ -127,6 +128,8 @@ import {
   IBlockchainListenerType,
   IDiscordPoller,
   IDiscordPollerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -243,6 +246,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAccountIndexerPoller>(IAccountIndexerPollerType)
       .to(AccountIndexerPoller)
       .inSingletonScope();
+    bind<IHeartbeatGenerator>(IHeartbeatGeneratorType)
+      .to(HeartbeatGenerator)
+      .inSingletonScope();
 
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
@@ -351,8 +357,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
       .inSingletonScope();
-    bind<ISocialRepository>(ISocialRepositoryType)
-      .to(SocialRepository)
+    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
     bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)

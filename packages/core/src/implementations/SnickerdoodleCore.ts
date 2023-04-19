@@ -3,49 +3,6 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-  IDiscordPoller,
-  IDiscordPollerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-  IDiscordService,
-  IDiscordServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountIndexers,
   DefaultAccountBalances,
@@ -153,6 +110,52 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+  IDiscordPoller,
+  IDiscordPollerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
+} from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+  IDiscordService,
+  IDiscordServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -452,12 +455,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
     const blockchainListener = this.iocContainer.get<IBlockchainListener>(
       IBlockchainListenerType,
     );
 
     const discordPoller =
       this.iocContainer.get<IDiscordPoller>(IDiscordPollerType);
+
+    const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+      IHeartbeatGeneratorType,
+    );
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
@@ -470,10 +480,16 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       })
       .andThen(() => {
+        // Service Layer
+        return ResultUtils.combine([queryService.initialize()]);
+      })
+      .andThen(() => {
+        // API Layer
         return ResultUtils.combine([
           accountIndexerPoller.initialize(),
           blockchainListener.initialize(),
           discordPoller.initialize(),
+          heartbeatGenerator.initialize(),
         ]);
       })
       .map(() => {});
@@ -738,7 +754,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getInvitationMetadataByCID(ipfsCID);
   }
 
-  public processQuery(
+  public approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],
@@ -755,7 +771,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, query, parameters);
+    return queryService.approveQuery(consentContractAddress, query, parameters);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

@@ -7,9 +7,8 @@ import {
   EvaluationError,
   EVMContractAddress,
   IDynamicRewardParameter,
-  IpfsCID,
   IPFSError,
-  PossibleReward,
+  PersistenceError,
   QueryExpiredError,
   QueryFormatError,
   RequestForData,
@@ -20,6 +19,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
+  initialize(): ResultAsync<void, never>;
   onQueryPosted(
     requestForData: RequestForData,
   ): ResultAsync<
@@ -35,7 +35,7 @@ export interface IQueryService {
     | ServerRewardError
   >;
 
-  processQuery(
+  approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],
@@ -46,7 +46,19 @@ export interface IQueryService {
     | ConsentError
     | IPFSError
     | QueryFormatError
+    | PersistenceError
+  >;
+
+  returnQueries(): ResultAsync<
+    void,
+    | PersistenceError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentError
     | EvaluationError
+    | QueryFormatError
+    | AjaxError
   >;
 }
 

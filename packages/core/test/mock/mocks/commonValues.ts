@@ -92,6 +92,7 @@ export const testCoreConfig = new CoreConfig(
   300000,
   1000,
   discordConfig,
+  60000, // heartbeatIntervalMS
 );
 
 // #endregion
