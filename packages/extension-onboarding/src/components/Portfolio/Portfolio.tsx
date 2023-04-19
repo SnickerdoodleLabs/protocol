@@ -503,15 +503,14 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
               {linkedAccounts?.map((account) => {
                 return (
                   <MenuItem
-                    key={account.accountInfo.sourceAccountAddress}
-                    value={account.accountInfo.sourceAccountAddress}
+                    key={account.accountAddress}
+                    value={account.accountAddress}
                   >
                     <Box display="flex">
                       <Box>{walletIcon(account?.providerKey)}</Box>
                       <Typography className={classes.accountAddressText}>
-                        {account.accountInfo.sourceAccountAddress.slice(0, 5)}{" "}
-                        ................
-                        {account.accountInfo.sourceAccountAddress.slice(-4)}
+                        {account.accountAddress.slice(0, 5)} ................
+                        {account.accountAddress.slice(-4)}
                       </Typography>
                     </Box>
                   </MenuItem>

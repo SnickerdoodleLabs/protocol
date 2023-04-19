@@ -4,9 +4,6 @@ import {
   IconButton,
   Grid,
   Typography,
-  createStyles,
-  withStyles,
-  LinearProgress as MuiLinearProgress,
 } from "@material-ui/core";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
@@ -41,23 +38,7 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 declare const window: IWindowWithSdlDataWallet;
-
-const LinearProgress = withStyles(() =>
-  createStyles({
-    root: {
-      borderRadius: 4,
-    },
-    colorPrimary: {
-      // backgroundColor: "#B9B6D3",
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: "#5A5292",
-    },
-  }),
-)(MuiLinearProgress);
 
 ChartJS.register(
   CategoryScale,
@@ -112,10 +93,35 @@ const getPaginationObject = (itemCount): IPagination | undefined => {
 };
 const colorGenarator = chroma.scale(["#5A5292", "#B9B6D3"]).mode("lab");
 
+const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
+  chainConfig.values(),
+).reduce(
+  (acc, chainInfo) => {
+    if (chainInfo.type === EChainType.Mainnet) {
+      acc.mainnetSupportedChainIds = [
+        ...acc.mainnetSupportedChainIds,
+        chainInfo.chainId,
+      ];
+    } else if (chainInfo.type === EChainType.Testnet) {
+      acc.testnetSupportedChainIds = [
+        ...acc.testnetSupportedChainIds,
+        chainInfo.chainId,
+      ];
+    }
+    return acc;
+  },
+  { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
+    mainnetSupportedChainIds: ChainId[];
+    testnetSupportedChainIds: ChainId[];
+  },
+);
+
 const CHART_ITEM_COUNT = 3;
 
 export default () => {
   const classes = useStyles();
+  const { linkedAccounts } = useAppContext();
+
   const [accountSelect, setAccountSelect] = useState<
     AccountAddress | undefined
   >();
@@ -123,10 +129,98 @@ export default () => {
   const [displayMode, setDisplayMode] = useState<EDisplayMode>(
     EDisplayMode.MAINNET,
   );
+  const [accountBalances, setAccountBalances] = useState<IBalanceItem[]>();
+  const [accountTestnetBalances, setAccountTestnetBalances] =
+    useState<IBalanceItem[]>();
+  const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [tokensPagination, setTokensPagination] = useState<IPagination>();
+  useEffect(() => {
+    if (linkedAccounts.length) {
+      setIsBalancesLoading(true);
+      initializeBalances();
+    }
+  }, [linkedAccounts.length]);
 
-  const { accountBalances, accountTestnetBalances, balancesLoadingState } =
-    useDashboardContext();
+  const initializeBalances = () => {
+    window.sdlDataWallet
+      .getAccountBalances()
+      .map((balances) =>
+        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+      )
+      .andThen((balanceResults) =>
+        ResultUtils.combine(
+          balanceResults.map((balanceItem) =>
+            window.sdlDataWallet
+              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+              .orElse((e) => okAsync(null)),
+          ),
+        ).map((tokenInfo) =>
+          balanceResults.map((balanceItem, index) => ({
+            ...balanceItem,
+            tokenInfo: tokenInfo[index],
+          })),
+        ),
+      )
+      .andThen((balancesWithTokenInfo) => {
+        return window.sdlDataWallet
+          .getTokenMarketData(
+            balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
+          )
+          .orElse((e) => okAsync([]))
+          .map((res) => {
+            const combinedBalances = balancesWithTokenInfo.reduce(
+              (acc, item) => {
+                if (!item.tokenInfo) {
+                  acc = [
+                    ...acc,
+                    { ...item, marketaData: null, quoteBalance: 0 },
+                  ];
+                } else {
+                  const marketData = res.filter(
+                    (marketData) => marketData.id == item.tokenInfo!.id,
+                  );
+                  const marketDataRes = marketData.length
+                    ? marketData[0]
+                    : null;
+                  acc = [
+                    ...acc,
+                    {
+                      ...item,
+                      marketaData: marketData.length ? marketData[0] : null,
+                      quoteBalance:
+                        Number.parseFloat(item.balance || "0") *
+                        (marketDataRes?.currentPrice ?? 0),
+                    },
+                  ];
+                }
+
+                return acc;
+              },
+              [] as IBalanceItem[],
+            );
+            const structeredBalances = combinedBalances.reduce(
+              (acc, item) => {
+                const isMainnetItem = mainnetSupportedChainIds.includes(
+                  item.chainId,
+                );
+                if (isMainnetItem) {
+                  acc.mainnetBalances = [...acc.mainnetBalances, item];
+                } else {
+                  acc.testnetBalances = [...acc.testnetBalances, item];
+                }
+                return acc;
+              },
+              { mainnetBalances: [], testnetBalances: [] } as {
+                mainnetBalances: IBalanceItem[];
+                testnetBalances: IBalanceItem[];
+              },
+            );
+            setAccountBalances(structeredBalances.mainnetBalances);
+            setAccountTestnetBalances(structeredBalances.testnetBalances);
+            setIsBalancesLoading(false);
+          });
+      });
+  };
 
   const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
     return Object.values(
@@ -184,8 +278,8 @@ export default () => {
     accountSelect,
     chainSelect,
     displayMode,
-    JSON.stringify(accountBalances),
-    JSON.stringify(accountTestnetBalances),
+    accountBalances,
+    accountTestnetBalances,
   ]);
 
   const { totalItems, totalBalance } = useMemo(() => {
@@ -200,9 +294,9 @@ export default () => {
           }, 0) || 0,
       };
     }
-  }, [JSON.stringify(tokensToRender)]);
+  }, [tokensToRender]);
 
-  const chartItemsToRender = useMemo(() => {
+  const charItemsToRender = useMemo(() => {
     if (!tokensToRender?.length || totalBalance == 0) {
       return undefined;
     }
@@ -245,25 +339,6 @@ export default () => {
         setChainSelect={setChainSelect}
         chainSelect={chainSelect}
       />
-      <Box display="flex" width="100%" flexGrow={1}>
-        {!balancesLoadingState.balanceFetchCompleted &&
-          balancesLoadingState.balancesIndicator.total && (
-            <LinearProgress
-              variant="buffer"
-              style={{ width: "100%" }}
-              valueBuffer={
-                ((balancesLoadingState.balancesIndicator.completed + 1) /
-                  (balancesLoadingState.balancesIndicator.total || 1)) *
-                100
-              }
-              value={
-                (balancesLoadingState.balancesIndicator.completed /
-                  (balancesLoadingState.balancesIndicator.total || 1)) *
-                100
-              }
-            />
-          )}
-      </Box>
       <Grid container spacing={3}>
         <Grid item xs={6}>
           <Box
@@ -314,7 +389,7 @@ export default () => {
               Token Value Breakdown
             </Typography>
             <Box display="flex" justifyContent="center" mt={4}>
-              {(chartItemsToRender?.data?.length || 0) > 0 && (
+              {(charItemsToRender?.data?.length || 0) > 0 && (
                 <Box maxWidth="190px" mr={5}>
                   {totalBalance == 0 ? (
                     <Box
@@ -327,19 +402,19 @@ export default () => {
                     <Pie
                       options={chartOptions}
                       data={{
-                        labels: chartItemsToRender?.labels,
+                        labels: charItemsToRender?.labels,
                         datasets: [
                           {
-                            data: chartItemsToRender?.data,
+                            data: charItemsToRender?.data,
                             backgroundColor:
-                              chartItemsToRender?.data?.reduce(
+                              charItemsToRender?.data?.reduce(
                                 (acc, _, index) => {
                                   acc = [
                                     ...acc,
                                     colorGenarator(
                                       index *
                                         (1 /
-                                          (chartItemsToRender.data.length - 1 ||
+                                          (charItemsToRender.data.length - 1 ||
                                             1)),
                                     ).hex(),
                                   ];
@@ -355,9 +430,9 @@ export default () => {
                   )}
                 </Box>
               )}
-              {(chartItemsToRender?.data?.length || 0) > 0 && (
+              {(charItemsToRender?.data?.length || 0) > 0 && (
                 <Box mt={2} maxHeight={245} overflow="auto">
-                  {chartItemsToRender?.data?.map((item, index) => {
+                  {charItemsToRender?.data?.map((item, index) => {
                     return (
                       <Box mb={0.5}>
                         <Box display="flex" alignItems="center">
@@ -368,11 +443,11 @@ export default () => {
                             borderRadius={4}
                             bgcolor={colorGenarator(
                               index *
-                                (1 / (chartItemsToRender.data.length - 1 || 1)),
+                                (1 / (charItemsToRender.data.length - 1 || 1)),
                             ).hex()}
                           />
                           <Typography className={classes.metricTitle}>
-                            {chartItemsToRender.labels[index]}
+                            {charItemsToRender.labels[index]}
                           </Typography>
                         </Box>
                         <Box ml={2.5} mt={0.5}>
@@ -390,121 +465,110 @@ export default () => {
         </Grid>
       </Grid>
       <Box mt={4} mb={3}>
-        <Box mb={0.5} display="flex">
-          <Box mr={1}>
-            <Typography className={classes.title}>Tokens</Typography>
-          </Box>
-          {!balancesLoadingState.balanceFetchCompleted &&
-            balancesLoadingState.balancesIndicator.total &&
-            !!tokensToRender?.length && (
-              <CircularProgress style={{ width: 20, height: 20 }} />
-            )}
+        <Box mb={0.5}>
+          <Typography className={classes.title}>Tokens</Typography>
         </Box>
       </Box>
-      <Box
-        display="flex"
-        border="1px solid #FAFAFA"
-        borderRadius={12}
-        minHeight={440}
-        flexDirection="column"
-      >
-        {tokensToRender?.length ? (
-          <>
-            <Box display="flex" py={2} px={3} justifyContent="space-between">
-              <Typography className={classes.tableTitle}>Name</Typography>
-              <Typography className={classes.tableTitle}>Trend</Typography>
-              <Typography className={classes.tableTitle}>Value</Typography>
-            </Box>
-            {(tokensPagination
-              ? tokensToRender.slice(
-                  (tokensPagination?.currentIndex - 1) * PAGINATION_RANGE,
-                  tokensPagination?.currentIndex * PAGINATION_RANGE,
-                )
-              : tokensToRender
-            ).map((token, index) => {
-              return (
-                <Box
-                  key={JSON.stringify(token)}
-                  {...(index % 2 === 0 && {
-                    bgcolor: "rgba(245, 244, 245, 0.52)",
-                  })}
-                >
-                  <TokenItem item={token} />
-                </Box>
-              );
-            })}
-            {tokensPagination && (
-              <Box
-                display="flex"
-                marginTop="auto"
-                alignItems="center"
-                py={0.5}
-                justifyContent="flex-end"
-              >
-                <Typography className={classes.paginationText}>
-                  {`${
-                    (tokensPagination.currentIndex - 1) * PAGINATION_RANGE + 1
-                  } - ${
-                    tokensPagination.currentIndex * PAGINATION_RANGE <
-                    tokensPagination.totalItems
-                      ? tokensPagination.currentIndex * PAGINATION_RANGE
-                      : tokensPagination.totalItems
-                  } of ${tokensPagination.totalItems}`}
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    setTokensPagination({
-                      ...tokensPagination,
-                      currentIndex: tokensPagination.currentIndex - 1,
-                    });
-                  }}
-                  disabled={tokensPagination.currentIndex === 1}
-                >
-                  <KeyboardArrowLeft />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  disabled={
-                    tokensPagination.currentIndex ===
-                    tokensPagination.numberOfPages
-                  }
-                  onClick={() => {
-                    setTokensPagination({
-                      ...tokensPagination,
-                      currentIndex: tokensPagination.currentIndex + 1,
-                    });
-                  }}
-                >
-                  <KeyboardArrowRight />
-                </IconButton>
+      {isBalancesLoading ? (
+        <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box
+          display="flex"
+          border="1px solid #FAFAFA"
+          borderRadius={12}
+          minHeight={440}
+          flexDirection="column"
+        >
+          {tokensToRender?.length ? (
+            <>
+              <Box display="flex" py={2} px={3} justifyContent="space-between">
+                <Typography className={classes.tableTitle}>Name</Typography>
+                <Typography className={classes.tableTitle}>Trend</Typography>
+                <Typography className={classes.tableTitle}>Value</Typography>
               </Box>
-            )}
-          </>
-        ) : !balancesLoadingState.balanceFetchCompleted &&
-          balancesLoadingState.balancesIndicator.total ? (
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            mt={10}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Box width="100%" display="flex">
-            <Box
-              justifyContent="center"
-              alignItems="center"
-              width="100%"
-              display="flex"
-              pt={8}
-            >
-              <img style={{ width: 255, height: "auto" }} src={emptyTokens} />
+              {(tokensPagination
+                ? tokensToRender.slice(
+                    (tokensPagination?.currentIndex - 1) * PAGINATION_RANGE,
+                    tokensPagination?.currentIndex * PAGINATION_RANGE,
+                  )
+                : tokensToRender
+              ).map((token, index) => {
+                return (
+                  <Box
+                    key={JSON.stringify(token)}
+                    {...(index % 2 === 0 && {
+                      bgcolor: "rgba(245, 244, 245, 0.52)",
+                    })}
+                  >
+                    <TokenItem item={token} />
+                  </Box>
+                );
+              })}
+              {tokensPagination && (
+                <Box
+                  display="flex"
+                  marginTop="auto"
+                  alignItems="center"
+                  py={0.5}
+                  justifyContent="flex-end"
+                >
+                  <Typography className={classes.paginationText}>
+                    {`${
+                      (tokensPagination.currentIndex - 1) * PAGINATION_RANGE + 1
+                    } - ${
+                      tokensPagination.currentIndex * PAGINATION_RANGE <
+                      tokensPagination.totalItems
+                        ? tokensPagination.currentIndex * PAGINATION_RANGE
+                        : tokensPagination.totalItems
+                    } of ${tokensPagination.totalItems}`}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setTokensPagination({
+                        ...tokensPagination,
+                        currentIndex: tokensPagination.currentIndex - 1,
+                      });
+                    }}
+                    disabled={tokensPagination.currentIndex === 1}
+                  >
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={
+                      tokensPagination.currentIndex ===
+                      tokensPagination.numberOfPages
+                    }
+                    onClick={() => {
+                      setTokensPagination({
+                        ...tokensPagination,
+                        currentIndex: tokensPagination.currentIndex + 1,
+                      });
+                    }}
+                  >
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
+              )}
+            </>
+          ) : (
+            <Box width="100%" display="flex">
+              <Box
+                justifyContent="center"
+                alignItems="center"
+                width="100%"
+                display="flex"
+                pt={8}
+              >
+                <img style={{ width: 255, height: "auto" }} src={emptyTokens} />
+              </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
+          )}
+        </Box>
+      )}
     </>
   );
 };

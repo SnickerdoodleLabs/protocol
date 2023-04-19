@@ -41,17 +41,15 @@ const AccountCardItem: FC<IAccountCardItemProps> = ({
       py={2}
       {...(useBg && { bgcolor: "#F2F2F8" })}
     >
-      <AccountIdentIcon
-        accountAddress={account.accountInfo.sourceAccountAddress}
-      />
+      <AccountIdentIcon accountAddress={account.accountAddress} />
       <Typography className={classes.accountAddressText}>
-        {account.accountInfo.sourceAccountAddress.slice(0, 5)} ................
-        {account.accountInfo.sourceAccountAddress.slice(-4)}
+        {account.accountAddress.slice(0, 5)} ................
+        {account.accountAddress.slice(-4)}
       </Typography>
       <img
         onClick={() => {
           navigator.clipboard.writeText(
-            account.accountInfo.sourceAccountAddress.toLocaleLowerCase(),
+            account.accountAddress.toLocaleLowerCase(),
           );
           setIsCopied(true);
         }}
