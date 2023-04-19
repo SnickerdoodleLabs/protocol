@@ -1,10 +1,8 @@
 import {
   DataPermissions,
-  EligibleReward,
   EvaluationError,
   EVMContractAddress,
   ExpectedReward,
-  IDynamicRewardParameter,
   IInsights,
   ParserError,
   PossibleReward,

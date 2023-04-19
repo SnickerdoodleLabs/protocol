@@ -8,11 +8,12 @@ import {
   PermissionsRequestedEvent,
   SDQLQueryRequest,
 } from "@objects/businessObjects/index.js";
-import { DataWalletAddress, DomainName, SnowflakeID } from "@objects/primitives/index.js";
+import { DataWalletAddress, DomainName, IpfsCID, SnowflakeID } from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
   onQueryPosted: Observable<SDQLQueryRequest>;
+  onQueryParametersRequired: Subject<IpfsCID>;
   onAccountAdded: Observable<LinkedAccount>;
   onAccountRemoved: Observable<LinkedAccount>;
   onEarnedRewardsAdded: Observable<EarnedReward[]>;

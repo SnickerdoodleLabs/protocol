@@ -277,7 +277,6 @@ describe("Testing order of results", () => {
     await engine
       .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
       .andThen((insights) => {
-        console.log("Insights: ", insights);
         expect(insights.returns).toEqual({
           "if($q1and$q2)then$r1else$r2": "not qualified",
           $r3: country,
