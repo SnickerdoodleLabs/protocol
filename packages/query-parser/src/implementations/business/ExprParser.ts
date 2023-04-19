@@ -496,58 +496,68 @@ export class ExprParser {
 
   // #region parse dependencies only
 
-  public getQueryDependencies(exprStr: string): AST_Query[] {
-    const tokenizer = new Tokenizer(exprStr);
-    const tokens = tokenizer.all();
+  public getQueryDependencies(
+    exprStr: string,
+  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
+    return this.getTokens(exprStr).andThen((tokens) => {
+      const deps: AST_Query[] = [];
 
-    const deps: AST_Query[] = [];
-
-    tokens.reduce((deps, token) => {
-      if (token.type == TokenType.query) {
-        deps.push(this.getExecutableFromContext(token) as AST_Query);
-      }
-      // else if (token.type == TokenType.return) {
-      //   const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
-      //   if (r.source instanceof AST_Query) {
-      //     deps.push(r.source);
-      //   }
-      // }
-      return deps;
-    }, deps);
-
-    return deps;
+      tokens.reduce((deps, token) => {
+        if (token.type == TokenType.query) {
+          deps.push(this.getExecutableFromContext(token) as AST_Query);
+        }
+        // else if (token.type == TokenType.return) {
+        //   const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
+        //   if (r.source instanceof AST_Query) {
+        //     deps.push(r.source);
+        //   }
+        // }
+        return deps;
+      }, deps);
+      return okAsync(deps);
+    });
   }
 
-  public getAdDependencies(exprStr: string): AST_Ad[] {
-    const tokenizer = new Tokenizer(exprStr);
-    const tokens = tokenizer.all();
+  public getAdDependencies(
+    exprStr: string,
+  ): ResultAsync<AST_Ad[], ParserError | InvalidRegularExpression> {
+    return this.getTokens(exprStr).andThen((tokens) => {
+      const deps: AST_Ad[] = [];
 
-    const deps: AST_Ad[] = [];
+      tokens.reduce((deps, token) => {
+        if (token.type == TokenType.ad) {
+          deps.push(this.getExecutableFromContext(token) as AST_Ad);
+        }
+        return deps;
+      }, deps);
 
-    tokens.reduce((deps, token) => {
-      if (token.type == TokenType.ad) {
-        deps.push(this.getExecutableFromContext(token) as AST_Ad);
-      }
-      return deps;
-    }, deps);
-
-    return deps;
+      return okAsync(deps);
+    });
   }
 
-  public getInsightDependencies(exprStr: string): AST_Insight[] {
-    const tokenizer = new Tokenizer(exprStr);
-    const tokens = tokenizer.all();
+  public getInsightDependencies(
+    exprStr: string,
+  ): ResultAsync<AST_Insight[], ParserError | InvalidRegularExpression> {
+    return this.getTokens(exprStr).andThen((tokens) => {
+      const deps: AST_Insight[] = [];
 
-    const deps: AST_Insight[] = [];
+      tokens.reduce((deps, token) => {
+        if (token.type == TokenType.insight) {
+          deps.push(this.getExecutableFromContext(token) as AST_Insight);
+        }
+        return deps;
+      }, deps);
 
-    tokens.reduce((deps, token) => {
-      if (token.type == TokenType.insight) {
-        deps.push(this.getExecutableFromContext(token) as AST_Insight);
-      }
-      return deps;
-    }, deps);
-
-    return deps;
+      return okAsync(deps);
+    });
   }
+
+  public getTokens(
+    exprStr: string,
+  ): ResultAsync<Token[], ParserError | InvalidRegularExpression> {
+    const tokenizer = new Tokenizer(exprStr);
+    return tokenizer.all();
+  }
+
   // #endregion
 }
