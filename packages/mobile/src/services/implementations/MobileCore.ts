@@ -5,11 +5,20 @@ import {
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   AccountAddress,
+  AdSignatureMigrator,
   ChainId,
+  ChainTransactionMigrator,
+  ClickDataMigrator,
   CountryCode,
+  DataPermissions,
+  DomainCredentialMigrator,
   DomainName,
+  EarnedRewardMigrator,
+  EBackupPriority,
   EChain,
+  EligibleAdMigrator,
   EmailAddressString,
+  ERecordKey,
   EVMContractAddress,
   EWalletDataType,
   FamilyName,
@@ -22,13 +31,26 @@ import {
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LanguageCode,
+  LatestBlockMigrator,
+  LinkedAccountMigrator,
+  QueryStatusMigrator,
+  ReceivingAccountMigrator,
+  RestoredBackupMigrator,
   Signature,
+  SiteVisitMigrator,
+  SocialGroupProfileMigrator,
+  SocialProfileMigrator,
   TokenAddress,
+  TokenInfoMigrator,
   UnixTimestamp,
+  VersionedObject,
 } from "@snickerdoodlelabs/objects";
 import {
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
   MemoryVolatileStorage,
   NullCloudStorage,
+  VolatileTableIndex,
 } from "@snickerdoodlelabs/persistence";
 import { Container, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -61,6 +83,10 @@ import { coreConfig } from "../interfaces/objects/Config";
 
 import { mobileCoreModule } from "./MobileCore.module";
 import { MobileStorageUtils } from "./utils/MobileStorageUtils";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
 
 export class MobileCore {
   protected iocContainer: Container;
@@ -75,14 +101,227 @@ export class MobileCore {
     this.iocContainer = new Container();
     this.iocContainer.load(...[mobileCoreModule]);
 
+    const provider = new Map<ERecordKey, VolatileTableIndex<VersionedObject>>([
+      [
+        ERecordKey.ACCOUNT,
+        new VolatileTableIndex(
+          ERecordKey.ACCOUNT,
+          "sourceAccountAddress",
+          false,
+          new LinkedAccountMigrator(),
+          EBackupPriority.HIGH,
+          160000,
+          0, // auto push
+          [["sourceChain", false]],
+        ),
+      ],
+      [
+        ERecordKey.TRANSACTIONS,
+        new VolatileTableIndex(
+          ERecordKey.TRANSACTIONS,
+          "hash",
+          false,
+          new ChainTransactionMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [
+            ["timestamp", false],
+            ["chainId", false],
+            ["value", false],
+            ["to", false],
+            ["from", false],
+          ],
+        ),
+      ],
+      [
+        ERecordKey.SITE_VISITS,
+        new VolatileTableIndex(
+          ERecordKey.SITE_VISITS,
+          VolatileTableIndex.DEFAULT_KEY,
+          true,
+          new SiteVisitMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [
+            ["url", false],
+            ["startTime", false],
+            ["endTime", false],
+          ],
+        ),
+      ],
+      [
+        ERecordKey.CLICKS,
+        new VolatileTableIndex(
+          ERecordKey.CLICKS,
+          VolatileTableIndex.DEFAULT_KEY,
+          true,
+          new ClickDataMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [
+            ["url", false],
+            ["timestamp", false],
+            ["element", false],
+          ],
+        ),
+      ],
+      [
+        ERecordKey.LATEST_BLOCK,
+        new VolatileTableIndex(
+          ERecordKey.LATEST_BLOCK,
+          "contract",
+          false,
+          new LatestBlockMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+        ),
+      ],
+      [
+        ERecordKey.EARNED_REWARDS,
+        new VolatileTableIndex(
+          ERecordKey.EARNED_REWARDS,
+          ["queryCID", "name", "contractAddress", "chainId"],
+          false,
+          new EarnedRewardMigrator(),
+          EBackupPriority.NORMAL,
+          0, // instant push
+          160000,
+          [["type", false]],
+        ),
+      ],
+      [
+        ERecordKey.ELIGIBLE_ADS,
+        new VolatileTableIndex(
+          ERecordKey.ELIGIBLE_ADS,
+          ["queryCID", "key"],
+          false,
+          new EligibleAdMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [["type", false]],
+        ),
+      ],
+      [
+        ERecordKey.AD_SIGNATURES,
+        new VolatileTableIndex(
+          ERecordKey.AD_SIGNATURES,
+          ["queryCID", "adKey"],
+          false,
+          new AdSignatureMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [["type", false]],
+        ),
+      ],
+      [
+        ERecordKey.COIN_INFO,
+        new VolatileTableIndex(
+          ERecordKey.COIN_INFO,
+          ["chain", "address"],
+          false,
+          new TokenInfoMigrator(),
+          EBackupPriority.DISABLED,
+          160000,
+          160000,
+          undefined,
+        ),
+      ],
+      [
+        ERecordKey.RESTORED_BACKUPS,
+        new VolatileTableIndex(
+          ERecordKey.RESTORED_BACKUPS,
+          VolatileTableIndex.DEFAULT_KEY,
+          false,
+          new RestoredBackupMigrator(),
+          EBackupPriority.DISABLED,
+          160000,
+          160000,
+          undefined,
+        ),
+      ],
+      [
+        ERecordKey.RECEIVING_ADDRESSES,
+        new VolatileTableIndex(
+          ERecordKey.RECEIVING_ADDRESSES,
+          "contractAddress",
+          false,
+          new ReceivingAccountMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+        ),
+      ],
+      [
+        ERecordKey.QUERY_STATUS,
+        new VolatileTableIndex(
+          ERecordKey.QUERY_STATUS,
+          "queryCID",
+          false,
+          new QueryStatusMigrator(),
+          EBackupPriority.HIGH,
+          160000,
+          160000,
+        ),
+      ],
+      [
+        ERecordKey.DOMAIN_CREDENTIALS,
+        new VolatileTableIndex(
+          ERecordKey.DOMAIN_CREDENTIALS,
+          "domain",
+          false,
+          new DomainCredentialMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+        ),
+      ],
+      [
+        ERecordKey.SOCIAL_PROFILE,
+        new VolatileTableIndex(
+          ERecordKey.SOCIAL_PROFILE,
+          "pKey",
+          false,
+          new SocialProfileMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [["type", false]],
+        ),
+      ],
+      [
+        ERecordKey.SOCIAL_GROUP,
+        new VolatileTableIndex(
+          ERecordKey.SOCIAL_GROUP,
+          "pKey",
+          false,
+          new SocialGroupProfileMigrator(),
+          EBackupPriority.NORMAL,
+          160000,
+          160000,
+          [
+            ["type", false],
+            ["ownerId", false],
+          ],
+        ),
+      ],
+    ]);
+
     this.core = new SnickerdoodleCore(
       coreConfig,
       new MobileStorageUtils(),
-      new MemoryVolatileStorage(),
-      new NullCloudStorage(),
+      new MemoryVolatileStorage("SD_Wallet", Array.from(provider.values())),
+      undefined,
     );
-    this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
 
+    console.log("thhis", this.core);
+
+    this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
     this.dataPermissionUtils = {
       defaultFlags: this.iocContainer.get<IDataPermissionsRepository>(
         IDataPermissionsRepositoryType,
@@ -159,7 +398,7 @@ export class MobileCore {
       },
       acceptInvitation: (
         invitation: Invitation,
-        dataTypes: EWalletDataType[] | null,
+        dataTypes: DataPermissions | null,
       ) => {
         const _invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,

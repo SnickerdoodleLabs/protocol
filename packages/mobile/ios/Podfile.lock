@@ -20,7 +20,7 @@ PODS:
   - lottie-react-native (5.1.4):
     - lottie-ios (~> 3.4.0)
     - React-Core
-  - OpenSSL-Universal (1.1.1900)
+  - OpenSSL-Universal (1.1.2000)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -625,7 +625,7 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
-  OpenSSL-Universal: 84efb8a29841f2764ac5403e0c4119a28b713346
+  OpenSSL-Universal: 708e3d1e616a2c40f09a880aafc4b14d2f2a61ec
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: e1866f61af7049eb3d8e08e8b133abd38bc1ca7a
   RCTTypeSafety: 27c2ac1b00609a432ced1ae701247593f07f901e
