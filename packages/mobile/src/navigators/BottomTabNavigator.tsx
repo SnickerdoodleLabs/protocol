@@ -9,6 +9,7 @@ import {
   SettingStack,
 } from "./AuthNavigator";
 import { createStackNavigator } from "@react-navigation/stack";
+import { normalizeWidth } from "../themes/Metrics";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -19,8 +20,8 @@ const BottomTabNavigator = () => {
         headerShown: true,
         tabBarIcon: ({ color, size, focused }) => {
           let iconName = "empty";
-          if (route.name == ROUTES.HOME) {
-            iconName = focused ? "home" : "home-outline";
+          if (route.name == ROUTES.MARKETPLACE) {
+            iconName = focused ? "gift" : "gift-outline";
           }
           if (route.name === ROUTES.DASHBOARD) {
             iconName = focused ? "stats-chart" : "stats-chart-outline";
@@ -30,18 +31,22 @@ const BottomTabNavigator = () => {
           }
           return <Icon name={iconName} size={22} color={COLORS.primary} />;
         },
+        tabBarStyle: {
+         /*  borderTopLeftRadius: normalizeWidth(25),
+          borderTopRightRadius: normalizeWidth(25), */
+        },
       })}
     >
       <Tab.Screen
-        name={ROUTES.HOME}
-        component={MarketplaceStack}
+        name={ROUTES.DASHBOARD}
+        component={DashboardStack}
         options={{
           headerShown: false,
         }}
       />
       <Tab.Screen
-        name={ROUTES.DASHBOARD}
-        component={DashboardStack}
+        name={ROUTES.MARKETPLACE}
+        component={MarketplaceStack}
         options={{
           headerShown: false,
         }}

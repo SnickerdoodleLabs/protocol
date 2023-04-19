@@ -95,6 +95,7 @@
     "react-native-level-fs": "^3.0.1",
     "react-native-linear-gradient": "^2.6.2",
     "react-native-multiple-select": "^0.5.12",
+    "react-native-orientation-locker": "^1.5.0",
     "react-native-os": "^1.2.6",
     "react-native-pager-view": "^6.2.0",
     "react-native-paper": "^4.12.5",

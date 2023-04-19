@@ -17,7 +17,10 @@ target 'SDMobile2' do
     # we make it explicit here to aid in the React Native upgrade process.
     :hermes_enabled => true,
     :fabric_enabled => flags[:fabric_enabled],
+
     # Enables Flipper.
+  
+
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
     # you should disable the next line.
@@ -25,7 +28,6 @@ target 'SDMobile2' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
-
   target 'SDMobile2Tests' do
     inherit! :complete
     # Pods for testing

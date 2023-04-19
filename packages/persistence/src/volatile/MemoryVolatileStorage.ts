@@ -13,6 +13,9 @@ import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
   public constructor() {}
+  getAllByIndex<T extends VersionedObject>(name: string, index: VolatileStorageKey, query: IDBValidKey | IDBKeyRange): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
   getKey(
     tableName: string,
     obj: VersionedObject,

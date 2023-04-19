@@ -39,17 +39,7 @@ export function MarketplaceStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name={ROUTES.INITIAL}
-        component={Initial}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTransparent: false,
-          title: false,
-        }}
-      />
-      <Stack.Screen
-        name={ROUTES.HOME}
+        name={ROUTES.MARKETPLACE}
         component={Marketplace}
         options={{
           headerShown: false,
@@ -94,6 +84,16 @@ export function DashboardStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
+        name={ROUTES.INITIAL}
+        component={Initial}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+        }}
+      />
+      <Stack.Screen
         name={ROUTES.DASHBOARD}
         component={Dashboard}
         options={{
@@ -106,6 +106,34 @@ export function DashboardStack() {
       <Stack.Screen
         name={ROUTES.NFT_DETAILS}
         component={NFTDetails}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+        }}
+      />
+        <Stack.Screen
+        name={ROUTES.ONBOARDING}
+        component={OnboardingMain}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.CARD_DETAILS}
+        component={CardDetails}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+        }}
+      />
+      <Stack.Screen
+        name={ROUTES.PERMISSION_SETTINGS}
+        component={PermissionSettings}
         options={{
           headerBackTitleVisible: false,
           headerTransparent: false,

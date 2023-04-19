@@ -29,6 +29,7 @@ import InvitationContextProvider from "./context/InvitationContext";
 import DeepLinkHandler from "./navigators/DeepLinkHandler";
 import BottomTabNavigator from "./navigators/BottomTabNavigator";
 import { AuthNavigator } from "./navigators/AuthNavigator";
+import Orientation from "react-native-orientation-locker";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -49,6 +50,10 @@ const App = () => {
   const linking = {
     prefixes: ["sdmobile://"],
   };
+
+  useEffect(() => {
+    Orientation.lockToPortrait(); // lock to portrait mode
+  }, []);
 
   return (
     <AppContextProvider>

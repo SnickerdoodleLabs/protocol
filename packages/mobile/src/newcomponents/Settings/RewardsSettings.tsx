@@ -30,8 +30,12 @@ export default function RewardsSettings() {
       .getAcceptedInvitationsCID()
       .mapErr((e) => {})
       .map((metaData) => {
-        console.log("metaData", metaData);
+        console.log("ACCEPTEDINVITATIONS", metaData);
       });
+
+    mobileCore.accountService.getEarnedRewards().map((rewards) => {
+      console.log("EARNEDREWARDS", rewards);
+    });
   }, []);
 
   return (

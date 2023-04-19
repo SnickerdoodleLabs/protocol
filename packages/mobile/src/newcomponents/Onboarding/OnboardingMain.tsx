@@ -340,7 +340,7 @@ const OnboardingMain = () => {
             }}
             onPress={() => {
               {
-                isUnlocked && navigation.replace(ROUTES.HOME);
+                isUnlocked && navigation.replace(ROUTES.DASHBOARD);
               }
             }}
           >
@@ -413,14 +413,14 @@ const OnboardingMain = () => {
   const accountGeneratedNext = () => {
     const enLangueCode: LanguageCode = LanguageCode("en");
     mobileCore.accountService.getUnlockMessage(enLangueCode).map((message) => {
+      setLoadingStatus({
+        loading: true,
+        type: ELoadingStatusType.ADDING_ACCOUNT,
+      });
+      setConnectModal(false);
+      setGenerated(false);
       const accountService = mobileCore.accountService;
       walletObject?.signMessage(message).then((signature) => {
-        setConnectModal(false);
-        setGenerated(false);
-        setLoadingStatus({
-          loading: true,
-          type: ELoadingStatusType.ADDING_ACCOUNT,
-        });
         if (!isUnlocked) {
           accountService.unlock(
             walletObject?.address as EVMAccountAddress,

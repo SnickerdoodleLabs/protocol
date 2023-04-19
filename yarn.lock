@@ -3495,6 +3495,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@gorhom/bottom-sheet@npm:^4.4.5":
+  version: 4.4.5
+  resolution: "@gorhom/bottom-sheet@npm:4.4.5"
+  dependencies:
+    "@gorhom/portal": 1.0.14
+    invariant: ^2.2.4
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-gesture-handler: ">=1.10.1"
+    react-native-reanimated: ">=2.2.0"
+  checksum: 19b3efeaacdd0eddb3f6c6e6c225dd20fcf21fae9d20f760c94e81b7ecba47a56737cb0e681225c368c93779beebe7a61102e064656a376eeb7761366b9874d6
+  languageName: node
+  linkType: hard
+
+"@gorhom/portal@npm:1.0.14":
+  version: 1.0.14
+  resolution: "@gorhom/portal@npm:1.0.14"
+  dependencies:
+    nanoid: ^3.3.1
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 227bb96a2db854ab29bb9da8d4f3823c7f7448358de459709dd1b78522110da564c9a8734c6bc7d7153ed7c99320e0fb5d60b420c2ebb75ecaf2f0d757f410f9
+  languageName: node
+  linkType: hard
+
 "@hapi/address@npm:2.x.x":
   version: 2.1.4
   resolution: "@hapi/address@npm:2.1.4"
@@ -6679,6 +6706,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-clipboard/clipboard@npm:^1.11.2":
+  version: 1.11.2
+  resolution: "@react-native-clipboard/clipboard@npm:1.11.2"
+  peerDependencies:
+    react: ">=16.0"
+    react-native: ">=0.57.0"
+  checksum: a797ae8156451f58e75fd495e36396444e28b9859e35dd657720e4eb8859330ffe73341135db95ce2144c1ffb82de74587e494203217cbf255ff16f91b95db1e
+  languageName: node
+  linkType: hard
+
 "@react-native-community/art@npm:^1.2.0":
   version: 1.2.0
   resolution: "@react-native-community/art@npm:1.2.0"
@@ -7665,6 +7702,7 @@ __metadata:
     "@glazed/datamodel": ^0.3.1
     "@glazed/did-datastore": ^0.3.2
     "@glazed/tile-loader": ^0.2.1
+    "@gorhom/bottom-sheet": ^4.4.5
     "@ipld/dag-cbor": ^9.0.0
     "@metaplex-foundation/js": ^0.17.12
     "@motify/components": ^0.18.0
@@ -7673,6 +7711,7 @@ __metadata:
     "@mui/styled-engine-sc": ^5.11.9
     "@phc/format": ^1.0.0
     "@react-native-async-storage/async-storage": ^1.15.17
+    "@react-native-clipboard/clipboard": ^1.11.2
     "@react-native-community/art": ^1.2.0
     "@react-native-community/datetimepicker": ^6.7.5
     "@react-native-community/eslint-config": ^2.0.0
@@ -7706,9 +7745,12 @@ __metadata:
     buffer: ^6.0.3
     console-browserify: ^1.2.0
     constants-browserify: ^1.0.0
+    crypto-js: ^4.1.1
     dns.js: ^1.0.1
     domain-browser: ^1.2.0
     eslint: ^7.32.0
+    ethereumjs-util: ^7.1.5
+    ethereumjs-wallet: ^1.0.2
     ethers: ^5.7.2
     events: ^1.1.1
     fake-indexeddb: ^4.0.0
@@ -7748,6 +7790,7 @@ __metadata:
     react-native-level-fs: ^3.0.1
     react-native-linear-gradient: ^2.6.2
     react-native-multiple-select: ^0.5.12
+    react-native-orientation-locker: ^1.5.0
     react-native-os: ^1.2.6
     react-native-pager-view: ^6.2.0
     react-native-paper: ^4.12.5
@@ -15761,6 +15804,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"crypto-js@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "crypto-js@npm:4.1.1"
+  checksum: b3747c12ee3a7632fab3b3e171ea50f78b182545f0714f6d3e7e2858385f0f4101a15f2517e033802ce9d12ba50a391575ff4638c9de3dd9b2c4bc47768d5425
+  languageName: node
+  linkType: hard
+
 "crypto-random-string@npm:^2.0.0":
   version: 2.0.0
   resolution: "crypto-random-string@npm:2.0.0"
@@ -19327,6 +19377,22 @@ __metadata:
     utf8: ^3.0.0
     uuid: ^3.3.2
   checksum: 54a9cc8beb8ea55e9be9b024b6ed09349423145fd8c49b8662d60d9258039330163c830fec055f92becc71ea54b430d2ef29f6bd73fa49d93ea854af01d13e58
+  languageName: node
+  linkType: hard
+
+"ethereumjs-wallet@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "ethereumjs-wallet@npm:1.0.2"
+  dependencies:
+    aes-js: ^3.1.2
+    bs58check: ^2.1.2
+    ethereum-cryptography: ^0.1.3
+    ethereumjs-util: ^7.1.2
+    randombytes: ^2.1.0
+    scrypt-js: ^3.0.1
+    utf8: ^3.0.0
+    uuid: ^8.3.2
+  checksum: 555effe571c633ca9189e08639928e7bfcb601474f5a37653a3d028b06a10fb8577408c32d425ccecb3ac25d7165322cb9786239fa09ce276532d262206feb8c
   languageName: node
   linkType: hard
 
@@ -33911,7 +33977,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.7.0":
+"react-is@npm:^16.12.0 || ^17.0.0 || ^18.0.0, react-is@npm:^18.0.0, react-is@npm:^18.1.0, react-is@npm:^18.2.0":
+  version: 18.2.0
+  resolution: "react-is@npm:18.2.0"
+  checksum: e72d0ba81b5922759e4aff17e0252bd29988f9642ed817f56b25a3e217e13eea8a7f2322af99a06edb779da12d5d636e9fda473d620df9a3da0df2a74141d53e
+  languageName: node
+  linkType: hard
+
+"react-is@npm:^16.13.0, react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -33968,6 +34041,103 @@ __metadata:
   version: 2.8.2
   resolution: "react-multi-carousel@npm:2.8.2"
   checksum: 95a77120ec11e0f0c33609617b873a56c639b30a3b186e0d00323fff03889b2761b62ca3f2734e04f6c1fe00866bf759939a62b4f4a847211ad6da8224c46274
+  languageName: node
+  linkType: hard
+
+"react-native-argon2@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "react-native-argon2@npm:2.0.1"
+  checksum: ce2d39e0925f2f614e1134a4197e5eba5d2e0eb87f4257d5ec8fc682cdb5bcad4ca62588d655726548fbabfc51e90924e55b4b10735d2534c14b99185bac1228
+  languageName: node
+  linkType: hard
+
+"react-native-asset@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "react-native-asset@npm:2.1.0"
+  dependencies:
+    fs-extra: ^7.0.1
+    lodash: 4.17.21
+    npmlog: ^4.1.2
+    plist: ^3.0.1
+    sha1-file: ^1.0.4
+    xcode: ^2.0.0
+  peerDependencies:
+    react-native: ">=0.60.0"
+  bin:
+    react-native-asset: lib/cli.js
+  checksum: 6115a9430f17598bba48c7a501fe2f83dfd0ac2638938639cc980d4007e1baec7599f917620afbd92eb012b9490b546f18753c647baea3dd305d636e4d3bc060
+  languageName: node
+  linkType: hard
+
+"react-native-background-actions@npm:^2.6.7":
+  version: 2.6.7
+  resolution: "react-native-background-actions@npm:2.6.7"
+  dependencies:
+    eventemitter3: ^4.0.7
+  peerDependencies:
+    react-native: ">=0.47.0"
+  checksum: 69736b37185fe9fd3365190ff0505c93196fa917b5871d1d3dd2f5d81985d7abc09b8fd40658b8e6cc13be38300ac5eb902e01c65d9ee4e2d5f7e554a264e6e3
+  languageName: node
+  linkType: hard
+
+"react-native-background-fetch@npm:^4.1.5":
+  version: 4.1.9
+  resolution: "react-native-background-fetch@npm:4.1.9"
+  checksum: ec16a9a716284890e2b877be22ea29cca055e5c69da726999f127bb89f3aa10da2ca56fc9c1c92d90160812b5296cbca6e678a744849e5e56ca57ff692a0f283
+  languageName: node
+  linkType: hard
+
+"react-native-codegen@npm:^0.70.6":
+  version: 0.70.6
+  resolution: "react-native-codegen@npm:0.70.6"
+  dependencies:
+    "@babel/parser": ^7.14.0
+    flow-parser: ^0.121.0
+    jscodeshift: ^0.13.1
+    nullthrows: ^1.1.1
+  checksum: 2a50ad71e09bc8cbb3694057cf47d6e9665c16f3968d1dc2b71e83c8c4e7be3b07b74bea08750ec9c8f6c60e6c746a5f695963c8694e5a76edcbce35a53a6a06
+  languageName: node
+  linkType: hard
+
+"react-native-crypto@npm:^2.0.1, react-native-crypto@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "react-native-crypto@npm:2.2.0"
+  dependencies:
+    browserify-cipher: ^1.0.0
+    browserify-sign: ^4.0.4
+    create-ecdh: ^4.0.0
+    create-hash: ^1.1.0
+    create-hmac: ^1.1.0
+    diffie-hellman: ^5.0.0
+    inherits: ^2.0.1
+    pbkdf2: 3.0.8
+    public-encrypt: ^4.0.0
+    randomfill: ^1.0.3
+  peerDependencies:
+    react-native-randombytes: ">=2.0.0 <4.0.0"
+  checksum: 52631bf32e5d3e0aad9329e3271808a30b91f8a072d4a0c2791105cd3c3aac5d1a63a4016a570790342baa7fc4b10f15024e4d6df47e57906197d7587af450e1
+  languageName: node
+  linkType: hard
+
+"react-native-date-picker@npm:^4.2.9":
+  version: 4.2.11
+  resolution: "react-native-date-picker@npm:4.2.11"
+  dependencies:
+    prop-types: ^15.8.1
+  peerDependencies:
+    react: ">= 17.0.1"
+    react-native: ">= 0.64.3"
+  checksum: a5c5b333aa47c0c25da929e7ee361142ebf70999eaca0e91a503f664d3869d92ba027e0fd8a3ff062f1e90393cb19efeab19a906398881bc9039d14b6a72b720
+  languageName: node
+  linkType: hard
+
+"react-native-dropdown-picker@npm:^5.4.4":
+  version: 5.4.6
+  resolution: "react-native-dropdown-picker@npm:5.4.6"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: d81ee3d68c17107a4d21dbdf9c2fe2ffe4bf4398973d10113139aadc0674221ce5038b945299fba2abc796930ec5e6d5f84291945bf903344493a15b8e2fca43
   languageName: node
   linkType: hard
 
@@ -34057,6 +34227,17 @@ __metadata:
     react-native: ">0.57.0"
     react-native-vector-icons: ">6.0.0"
   checksum: 79ba4e8cdb20db4e9c2c9dd67c4e3502883e22ebed96cf588f67cd8cb24a418d68d5c5b47fbe86b722dd4b8decfeabe4cb90a4d16bf4e3d0eef0ea5113dc598b
+  languageName: node
+  linkType: hard
+
+"react-native-orientation-locker@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "react-native-orientation-locker@npm:1.5.0"
+  peerDependencies:
+    react: ">=16.13.1"
+    react-native: ">=0.63.2"
+    react-native-windows: ">=0.63.3"
+  checksum: 82c0c1acb07b6e114615e10b7a6cc6526be8964ee32e9d2829a6d84c746a23e3e4f5ab76e7d8a361b8c8cda6960777d60d2a6ff4881c885eadf6a5ade936adcc
   languageName: node
   linkType: hard
 

@@ -16,6 +16,6 @@ export default {
   PERSONAL_SETTINGS: "Personal_Settings",
   REWARDS_SETTINGS: "Rewards_Settings",
   PERMISSION_SETTINGS: "Permission_Settings",
-  HOME: "Home",
+  MARKETPLACE: "Marketplace",
   DASHBOARD: "Dashboard",
 };
