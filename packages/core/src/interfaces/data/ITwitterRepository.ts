@@ -2,7 +2,7 @@ import {
   BearerAuthToken,
   ITokenAndSecret,
   PersistenceError,
-  SnowflakeID,
+  TwitterID,
   TwitterConfig,
   TwitterError,
   TwitterProfile,
@@ -26,9 +26,9 @@ export interface ITwitterRepository {
     twitterProfile: TwitterProfile,
   ): ResultAsync<void, PersistenceError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError>;
-  deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
+  deleteProfile(id: TwitterID): ResultAsync<void, PersistenceError>;
   getProfileById(
-    id: SnowflakeID,
+    id: TwitterID,
   ): ResultAsync<TwitterProfile | null, PersistenceError>;
 }
 

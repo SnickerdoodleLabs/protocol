@@ -76,6 +76,7 @@ import {
   DataWalletAddress,
   DataWalletBackup,
   DataWalletBackupID,
+  DiscordID,
   DomainName,
   EarnedReward,
   EChain,
@@ -126,13 +127,13 @@ import {
   SiftContractError,
   Signature,
   SiteVisit,
-  SnowflakeID,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
   TransactionPaymentCounter,
+  TwitterID,
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
@@ -339,7 +340,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           .get<ITwitterService>(ITwitterServiceType)
           .initTwitterProfile(requestToken, oAuthVerifier);
       },
-      unlinkProfile: (id: SnowflakeID) => {
+      unlinkProfile: (id: TwitterID) => {
         return this.iocContainer
           .get<ITwitterService>(ITwitterServiceType)
           .unlinkProfile(id);
@@ -374,7 +375,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getGuildProfiles();
       },
-      unlink: (discordProfileId: SnowflakeID) => {
+      unlink: (discordProfileId: DiscordID) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.unlink(discordProfileId);
@@ -485,8 +486,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IBlockchainListenerType,
     );
 
-    const socialPoller =
-      this.iocContainer.get<ISocialMediaPoller>(ISocialMediaPollerType);
+    const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+      ISocialMediaPollerType,
+    );
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])

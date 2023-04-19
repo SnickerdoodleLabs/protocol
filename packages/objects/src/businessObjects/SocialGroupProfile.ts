@@ -3,7 +3,7 @@ import {
   VersionedObjectMigrator,
 } from "@objects/businessObjects/VersionedObject.js";
 import { ESocialType } from "@objects/enum/index.js";
-import { Integer, ISO8601DateString, SnowflakeID, SocialPrimaryKey, UnixTimestamp, URLString, Username } from "@objects/primitives/index.js";
+import { Integer, ISO8601DateString, DiscordID, SocialPrimaryKey, UnixTimestamp, URLString, Username } from "@objects/primitives/index.js";
 
 export abstract class SocialGroupProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -66,8 +66,8 @@ export class DiscordGuildProfile extends SocialGroupProfile {
   public static CURRENT_VERSION = 1;
 
   public constructor(
-    public id: SnowflakeID,
-    public discordUserProfileId: SnowflakeID, // this should be translated to ownerId
+    public id: DiscordID,
+    public discordUserProfileId: DiscordID, // this should be translated to ownerId
     public name: string,
     public isOwner: boolean,
     public permissions: Integer,
@@ -81,7 +81,7 @@ export class DiscordGuildProfile extends SocialGroupProfile {
     );
   }
 
-  public deriveKey(id: SnowflakeID): SocialPrimaryKey {
+  public deriveKey(id: DiscordID): SocialPrimaryKey {
     return SocialPrimaryKey(`discord-group-${id}`);
   }
 
@@ -90,7 +90,7 @@ export class DiscordGuildProfile extends SocialGroupProfile {
   }
 }
 export interface DiscordGuildProfileAPIResponse {
-  id: SnowflakeID;
+  id: DiscordID;
   name: string;
   icon: URLString;
   owner: boolean;
@@ -102,15 +102,15 @@ export interface DiscordGuildMembershipAPIResponse {
   is_pending: boolean;
   joined_at: ISO8601DateString;
   user: {
-    id: SnowflakeID;
+    id: DiscordID;
     username: Username;
   };
 }
 export class DiscordGuildProfileMigrator {
   public factory(data: Record<string, unknown>): DiscordGuildProfile {
     return new DiscordGuildProfile(
-      SnowflakeID(data["id"] as string),
-      SnowflakeID(data["discordUserProfileId"] as string),
+      DiscordID(data["id"] as string),
+      DiscordID(data["discordUserProfileId"] as string),
       Username(data["name"] as string),
       data["isOwner"] as boolean,
       Integer(data["permissions"] as number),

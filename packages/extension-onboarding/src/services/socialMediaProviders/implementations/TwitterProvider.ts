@@ -17,7 +17,7 @@ export class TwitterProvider implements ITwitterProvider {
   getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, unknown> {
     return window.sdlDataWallet.twitter
       .getOAuth1aRequestToken()
-      .mapErr(() => new Error("Could not get discord user profiles!"));
+      .mapErr(() => new Error("Could not get twitter user profiles!"));
   }
   initTwitterProfile(
     params: ITwitterInitParams,

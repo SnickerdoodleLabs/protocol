@@ -2,7 +2,7 @@ import {
   BearerAuthToken,
   ITokenAndSecret,
   PersistenceError,
-  SnowflakeID,
+  TwitterID,
   TwitterError,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
@@ -15,7 +15,7 @@ export interface ITwitterService {
     oAuthVerifier: string,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
   unlinkProfile(
-    id: SnowflakeID,
+    id: TwitterID,
   ): ResultAsync<void, TwitterError | PersistenceError>;
   poll(): ResultAsync<void, TwitterError | PersistenceError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError>;

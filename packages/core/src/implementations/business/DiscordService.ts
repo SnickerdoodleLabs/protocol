@@ -9,7 +9,7 @@ import {
   OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
-  SnowflakeID,
+  DiscordID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -55,7 +55,7 @@ export class DiscordService implements IDiscordService {
   }
 
   public unlink(
-    userProfileId: SnowflakeID,
+    userProfileId: DiscordID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -153,14 +153,14 @@ export class DiscordService implements IDiscordService {
             ),
           ),
         ]).map(([context]) => {
-          context.publicEvents.onDiscordProfileLinked.next(userProfile.id);
+          context.publicEvents.onDiscordProfileLinked.next(userProfile);
         });
       });
   }
 
   protected addDiscordProfileIdToGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
-    discordProfileId: SnowflakeID,
+    discordProfileId: DiscordID,
   ): DiscordGuildProfile[] {
     return discordGuildProfiles.map((profile) => {
       profile.discordUserProfileId = discordProfileId;

@@ -9,9 +9,9 @@ import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/scree
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Button, Typography } from "@material-ui/core";
 import {
+  DiscordID,
   DiscordProfile,
   OAuthAuthorizationCode,
-  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import React, { FC, memo, useEffect, useState } from "react";
 
@@ -95,7 +95,7 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
               setIsModalOpen(false);
             }}
             unlinkAccount={() => {
-              provider.unlink(SnowflakeID(selectedProfile.userId)).map(() => {
+              provider.unlink(DiscordID(selectedProfile.userId)).map(() => {
                 getUserProfiles();
                 setIsModalOpen(false);
               });

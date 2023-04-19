@@ -1,9 +1,8 @@
 import {
-  BearerAuthToken,
   DiscordGuildProfile,
+  DiscordID,
   DiscordProfile,
   OAuthAuthorizationCode,
-  SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -45,7 +44,7 @@ export class DiscordService implements IDiscordService {
     return this.discordRepository.getGuildProfiles();
   }
   public unlink(
-    discordProfileId: SnowflakeID,
+    discordProfileId: DiscordID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.discordRepository.unlink(discordProfileId);
   }

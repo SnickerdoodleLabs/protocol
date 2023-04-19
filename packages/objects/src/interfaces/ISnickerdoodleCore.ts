@@ -72,6 +72,7 @@ import {
   CountryCode,
   DataWalletAddress,
   DataWalletBackupID,
+  DiscordID,
   DomainName,
   EmailAddressString,
   EVMContractAddress,
@@ -87,7 +88,7 @@ import {
   PEMEncodedRSAPublicKey,
   SHA256Hash,
   Signature,
-  SnowflakeID,
+  TwitterID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -164,7 +165,7 @@ export interface ICoreDiscordMethods {
    * @param discordProfileId
    */
   unlink(
-    discordProfileId: SnowflakeID,
+    discordProfileId: DiscordID,
   ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
@@ -175,7 +176,7 @@ export interface ICoreTwitterMethods {
     oAuthVerifier: string,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
   unlinkProfile(
-    id: SnowflakeID,
+    id: TwitterID,
   ): ResultAsync<void, TwitterError | PersistenceError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError>;
 }

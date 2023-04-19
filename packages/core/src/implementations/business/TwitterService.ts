@@ -2,9 +2,9 @@ import {
   BearerAuthToken,
   ITokenAndSecret,
   PersistenceError,
-  SnowflakeID,
   TwitterConfig,
   TwitterError,
+  TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -33,10 +33,6 @@ export class TwitterService implements ITwitterService {
 
   public getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, TwitterError> {
     return this.getAPIConfig().andThen((config) => {
-      console.log(
-        "TwitterService getOAuth1aRequestToken config.oAuthCallbackUrl: " +
-          config.oAuthCallbackUrl,
-      );
       return this.twitterRepo.getOAuth1aRequestToken(config);
     });
   }
@@ -54,16 +50,14 @@ export class TwitterService implements ITwitterService {
           oAuthVerifier,
         ),
       ]).map(([context, newProfile]) => {
-        context.publicEvents.onTwitterProfileLinked.next(
-          newProfile.userObject.id,
-        );
+        context.publicEvents.onTwitterProfileLinked.next(newProfile);
         return newProfile;
       });
     });
   }
 
   public unlinkProfile(
-    id: SnowflakeID,
+    id: TwitterID,
   ): ResultAsync<void, TwitterError | PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),

@@ -9,7 +9,7 @@ import { Box, Button, Typography } from "@material-ui/core";
 import {
   BearerAuthToken,
   ITokenAndSecret,
-  SnowflakeID,
+  TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import React, { FC, memo, useEffect, useState } from "react";
@@ -91,7 +91,7 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
             unlinkAccount={() =>
               provider
                 .unlinkProfile({
-                  id: selectedProfile?.userObject.id as SnowflakeID,
+                  id: selectedProfile?.userObject.id as TwitterID,
                 })
                 .map(() => {
                   getUserProfiles();

@@ -213,12 +213,10 @@ export class MonitoringService implements IMonitoringService {
     return this.persistence.pollBackups();
   }
   public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
-    console.log("polling discord")
     return this.discordService.poll();
   }
 
   public pollTwitter(): ResultAsync<void, PersistenceError | TwitterError> {
-    console.log("polling twitter")
     return this.twitterService.poll();
   }
 

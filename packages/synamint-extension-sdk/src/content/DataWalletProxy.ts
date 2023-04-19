@@ -29,12 +29,13 @@ import {
   PossibleReward,
   Signature,
   SiteVisit,
-  SnowflakeID,
+  DiscordID,
   TokenAddress,
   TokenInfo,
   TokenMarketData,
   UnixTimestamp,
   URLString,
+  TwitterID,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -120,7 +121,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getGuildProfiles: () => {
         return coreGateway.discord.getGuildProfiles();
       },
-      unlink: (discordProfileId: SnowflakeID) => {
+      unlink: (discordProfileId: DiscordID) => {
         return coreGateway.discord.unlink(discordProfileId);
       },
     };
@@ -137,7 +138,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
           oAuthVerifier,
         );
       },
-      unlinkProfile: (id: SnowflakeID) => {
+      unlinkProfile: (id: TwitterID) => {
         return coreGateway.twitter.unlinkProfile(id);
       },
       getUserProfiles: () => {

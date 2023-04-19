@@ -1,7 +1,7 @@
 import {
   BearerAuthToken,
   ITokenAndSecret,
-  SnowflakeID,
+  TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -16,7 +16,7 @@ export interface ITwitterService {
     requestToken: BearerAuthToken,
     oAuthVerifier: string,
   ): ResultAsync<TwitterProfile, SnickerDoodleCoreError>;
-  unlinkProfile(id: SnowflakeID): ResultAsync<void, SnickerDoodleCoreError>;
+  unlinkProfile(id: TwitterID): ResultAsync<void, SnickerDoodleCoreError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], SnickerDoodleCoreError>;
 }
 

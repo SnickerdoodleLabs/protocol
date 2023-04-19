@@ -66,7 +66,7 @@ export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
-export * from "@objects/primitives/SnowflakeID";
+export * from "@objects/primitives/SocialMediaIdTypes";
 export * from "@objects/primitives/SocialPrimaryKey";
 export * from "@objects/primitives/SolanaAccountAddress";
 export * from "@objects/primitives/SolanaPrivateKey";
@@ -85,3 +85,4 @@ export * from "@objects/primitives/UUID";
 export * from "@objects/primitives/Version";
 export * from "@objects/primitives/VolatileStorageKey";
 export * from "@objects/primitives/Web2Credential";
+

@@ -32,6 +32,7 @@ import {
   ChainId,
   CountryCode,
   DataWalletAddress,
+  DiscordID,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
@@ -42,7 +43,7 @@ import {
   MarketplaceTag,
   OAuthAuthorizationCode,
   Signature,
-  SnowflakeID,
+  TwitterID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -213,7 +214,7 @@ export interface ISdlDiscordMethods {
    * discord guild data given their profile id
    * @param discordProfileId
    */
-  unlink(discordProfileId: SnowflakeID): ResultAsync<void, JsonRpcError>;
+  unlink(discordProfileId: DiscordID): ResultAsync<void, JsonRpcError>;
 }
 
 export interface ISdlTwitterMethods {
@@ -222,6 +223,6 @@ export interface ISdlTwitterMethods {
     requestToken: BearerAuthToken,
     oAuthVerifier: string,
   ): ResultAsync<TwitterProfile, JsonRpcError>;
-  unlinkProfile(id: SnowflakeID): ResultAsync<void, JsonRpcError>;
+  unlinkProfile(id: TwitterID): ResultAsync<void, JsonRpcError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;
 }

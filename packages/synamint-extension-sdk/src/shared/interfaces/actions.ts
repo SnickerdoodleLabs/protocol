@@ -4,6 +4,7 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
+  DiscordID,
   DomainName,
   EChain,
   EmailAddressString,
@@ -18,11 +19,10 @@ import {
   OAuthAuthorizationCode,
   PagingRequest,
   Signature,
-  SnowflakeID,
   TokenAddress,
+  TwitterID,
   UnixTimestamp,
   URLString,
-  Username,
   UUID,
 } from "@snickerdoodlelabs/objects";
 
@@ -189,14 +189,14 @@ export interface IInitializeDiscordUser {
   code: OAuthAuthorizationCode;
 }
 export interface IUnlinkDiscordAccount {
-  discordProfileId: SnowflakeID;
+  discordProfileId: DiscordID;
 }
 
 export interface ITwitterLinkProfile {
-  requestToken: BearerAuthToken,
-  oAuthVerifier: string,
+  requestToken: BearerAuthToken;
+  oAuthVerifier: string;
 }
 
 export interface ITwitterUnlinkProfile {
-  id: SnowflakeID
+  id: TwitterID;
 }

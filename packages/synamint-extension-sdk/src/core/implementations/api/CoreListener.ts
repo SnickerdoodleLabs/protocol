@@ -1,5 +1,7 @@
 import {
   DataWalletAddress,
+  DiscordID,
+  DiscordProfile,
   EarnedReward,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
@@ -9,7 +11,8 @@ import {
   RecipientAddressType,
   SDQLQueryRequest,
   SDQLString,
-  SnowflakeID,
+  TwitterID,
+  TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { ICoreListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
@@ -154,8 +157,8 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 
-  private onDiscordProfileLinked(id: SnowflakeID): void {}
-  private onDiscordProfileUnlinked(id: SnowflakeID): void {}
-  private onTwitterProfileLinked(id: SnowflakeID): void {}
-  private onTwitterProfileUnlinked(id: SnowflakeID): void {}
+  private onDiscordProfileLinked(profile: DiscordProfile): void {}
+  private onDiscordProfileUnlinked(id: DiscordID): void {}
+  private onTwitterProfileLinked(profile: TwitterProfile): void {}
+  private onTwitterProfileUnlinked(id: TwitterID): void {}
 }

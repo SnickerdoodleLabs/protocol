@@ -17,7 +17,7 @@ import {
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PersistenceError,
-  SnowflakeID,
+  DiscordID,
   SocialPrimaryKey,
   UnixTimestamp,
   URLString,
@@ -148,7 +148,7 @@ export class DiscordRepository implements IDiscordRepository {
           response.map((profile) => {
             return new DiscordGuildProfile(
               profile.id,
-              SnowflakeID("-1"), // not set yet
+              DiscordID("-1"), // not set yet
               profile.name,
               profile.owner,
               profile.permissions,
@@ -174,7 +174,7 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public getProfileById(
-    id: SnowflakeID,
+    id: DiscordID,
   ): ResultAsync<DiscordProfile | null, PersistenceError> {
     const pKey = SocialPrimaryKey(`discord-${id}`); // Should be in a Utils class.
     return this.socialRepository.getProfileByPK<DiscordProfile>(pKey);
@@ -197,7 +197,7 @@ export class DiscordRepository implements IDiscordRepository {
     );
   }
 
-  public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
+  public deleteProfile(id: DiscordID): ResultAsync<void, PersistenceError> {
     // 1. find the profile
     // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
     return this.getProfileById(id).andThen((uProfile) => {

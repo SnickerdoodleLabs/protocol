@@ -8,11 +8,11 @@ import {
   ITokenAndSecret,
   ITwitterUserObject,
   PersistenceError,
-  SnowflakeID,
   SocialPrimaryKey,
   TokenSecret,
   TwitterConfig,
   TwitterError,
+  TwitterID,
   TwitterProfile,
   URLString,
   Username,
@@ -91,7 +91,7 @@ export class TwitterRepository implements ITwitterRepository {
           return okAsync(
             new TwitterProfile(
               {
-                id: SnowflakeID(responseObj["user_id"]),
+                id: TwitterID(responseObj["user_id"]),
                 username: Username(responseObj["screen_name"]),
               },
               {
@@ -139,7 +139,7 @@ export class TwitterRepository implements ITwitterRepository {
     );
   }
 
-  public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
+  public deleteProfile(id: TwitterID): ResultAsync<void, PersistenceError> {
     return this.getProfileById(id).andThen((profile) => {
       if (profile) {
         return this.socialRepository.deleteProfile(profile.pKey);
@@ -153,7 +153,7 @@ export class TwitterRepository implements ITwitterRepository {
   }
 
   public getProfileById(
-    id: SnowflakeID,
+    id: TwitterID,
   ): ResultAsync<TwitterProfile | null, PersistenceError> {
     return this.socialRepository.getProfileByPK<TwitterProfile>(
       SocialPrimaryKey(`twitter-${id}`),
@@ -162,7 +162,7 @@ export class TwitterRepository implements ITwitterRepository {
 
   private _fetchUserProfile(
     config: TwitterConfig,
-    userId: SnowflakeID,
+    userId: TwitterID,
     oAuth1a: ITokenAndSecret,
   ): ResultAsync<ITwitterUserObject, TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}`);
@@ -184,11 +184,11 @@ export class TwitterRepository implements ITwitterRepository {
 
   private _fetchFollowers(
     config: TwitterConfig,
-    userId: SnowflakeID,
+    userId: TwitterID,
     oAuth1a: ITokenAndSecret,
     nextPageToken?: string,
     recursionCount: number = 1,
-    ): ResultAsync<ITwitterUserObject[], TwitterError> {
+  ): ResultAsync<ITwitterUserObject[], TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}/followers`);
     const pathParams = {
       max_results: 1000,
@@ -233,7 +233,7 @@ export class TwitterRepository implements ITwitterRepository {
 
   private _fetchFollowing(
     config: TwitterConfig,
-    userId: SnowflakeID,
+    userId: TwitterID,
     oAuth1a: ITokenAndSecret,
     nextPageToken?: string,
     recursionCount: number = 1,

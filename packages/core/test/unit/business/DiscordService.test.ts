@@ -5,7 +5,7 @@ import {
   DiscordProfile,
   Integer,
   PersistenceError,
-  SnowflakeID,
+  DiscordID,
   UnixTimestamp,
   Username,
 } from "@snickerdoodlelabs/objects";

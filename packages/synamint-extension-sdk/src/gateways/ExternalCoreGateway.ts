@@ -7,6 +7,7 @@ import {
   CountryCode,
   DataWalletAddress,
   DiscordGuildProfile,
+  DiscordID,
   DiscordProfile,
   DomainName,
   EarnedReward,
@@ -34,11 +35,11 @@ import {
   PossibleReward,
   Signature,
   SiteVisit,
-  SnowflakeID,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
+  TwitterID,
   TwitterProfile,
   UnixTimestamp,
   URLString,
@@ -121,7 +122,7 @@ export class ExternalCoreGateway {
       > => {
         return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
       },
-      unlink: (discordProfileId: SnowflakeID) => {
+      unlink: (discordProfileId: DiscordID) => {
         return this._handler.call(EExternalActions.UNLINK_DISCORD_ACCOUNT, {
           discordProfileId,
         } as IUnlinkDiscordAccount);
@@ -143,7 +144,7 @@ export class ExternalCoreGateway {
           oAuthVerifier,
         } as ITwitterLinkProfile);
       },
-      unlinkProfile: (id: SnowflakeID): ResultAsync<void, JsonRpcError> => {
+      unlinkProfile: (id: TwitterID): ResultAsync<void, JsonRpcError> => {
         return this._handler.call(EExternalActions.TWITTER_UNLINK_PROFILE, {
           id,
         } as ITwitterUnlinkProfile);

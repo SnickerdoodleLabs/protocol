@@ -3,7 +3,7 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   ITokenAndSecret,
-  SnowflakeID,
+  TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -46,7 +46,7 @@ export class TwitterRepository implements ITwitterRepository {
   }
 
   public unlinkProfile(
-    id: SnowflakeID,
+    id: TwitterID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.twitter.unlinkProfile(id).mapErr((error) => {
       this.errorUtils.emit(error);

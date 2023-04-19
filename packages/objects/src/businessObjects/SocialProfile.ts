@@ -9,9 +9,10 @@ import {
 import { ESocialType } from "@objects/enum/index.js";
 import {
   Integer,
-  SnowflakeID,
+  DiscordID,
   SocialPrimaryKey,
   Username,
+  TwitterID,
 } from "@objects/primitives/index.js";
 
 export abstract class SocialProfile extends VersionedObject {
@@ -71,7 +72,7 @@ export class SocialProfileMigrator extends VersionedObjectMigrator<SocialProfile
 
 export class DiscordProfile extends SocialProfile {
   public constructor(
-    public id: SnowflakeID,
+    public id: DiscordID,
     public username: Username,
     public displayName: string | null,
     public discriminator: string,
@@ -82,7 +83,7 @@ export class DiscordProfile extends SocialProfile {
     super(SocialPrimaryKey(`discord-${id}`), ESocialType.DISCORD);
   }
 
-  public deriveKey(id: SnowflakeID): SocialPrimaryKey {
+  public deriveKey(id: DiscordID): SocialPrimaryKey {
     return SocialPrimaryKey(`discord-${id}`);
   }
 }
@@ -90,7 +91,7 @@ export class DiscordProfile extends SocialProfile {
 export class DiscordProfileMigrator {
   public factory(data: Record<string, unknown>): DiscordProfile {
     return new DiscordProfile(
-      SnowflakeID(data["id"] as string),
+      DiscordID(data["id"] as string),
       Username(data["username"] as string),
       data["displayName"] as string,
       data["discriminator"] as string,
@@ -102,7 +103,7 @@ export class DiscordProfileMigrator {
 }
 
 export interface ITwitterUserObject {
-  id: SnowflakeID;
+  id: TwitterID;
   username: Username;
   name?: string;
 }
@@ -121,7 +122,7 @@ export class TwitterProfile extends SocialProfile {
     super(SocialPrimaryKey(`twitter-${userObject.id}`), ESocialType.TWITTER);
   }
 
-  public deriveKey(id: SnowflakeID): SocialPrimaryKey {
+  public deriveKey(id: TwitterID): SocialPrimaryKey {
     return SocialPrimaryKey(`twitter-${id}`);
   }
 }

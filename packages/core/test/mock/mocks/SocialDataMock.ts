@@ -5,7 +5,7 @@ import {
   DiscordRefreshToken,
   Integer,
   OAuth2Tokens,
-  SnowflakeID,
+  DiscordID,
   UnixTimestamp,
   URLString,
   Username,
@@ -14,7 +14,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 export const discordProfiles = [
   new DiscordProfile(
-    SnowflakeID("1074825823787425833"),
+    DiscordID("1074825823787425833"),
     Username("sdmuki"),
     null,
     "5192",
@@ -28,7 +28,7 @@ export const discordProfiles = [
   ),
 
   new DiscordProfile(
-    SnowflakeID("INVALID--SnowflakeID"),
+    DiscordID("INVALID--SnowflakeID"),
     Username("sdmuki2"),
     null,
     "5192",
@@ -43,7 +43,7 @@ export const discordProfiles = [
 ];
 
 export const discordProfileAPIResponse = {
-  id: SnowflakeID("1074825823787425833"),
+  id: DiscordID("1074825823787425833"),
   username: Username("sdmuki"),
   display_name: null,
   discriminator: "5192",
@@ -52,21 +52,21 @@ export const discordProfileAPIResponse = {
 
 export const discordGuildProfileAPIResponses = [
   {
-    id: SnowflakeID("889939924655169616"),
+    id: DiscordID("889939924655169616"),
     name: "NFT Worlds",
     icon: "88f2caecc154b4e2e1bcab67b7dbba7b",
     owner: false,
     permissions: Integer(0),
   },
   {
-    id: SnowflakeID("916563302065274891"),
+    id: DiscordID("916563302065274891"),
     name: "NFT Marketing Services | Growth • Management • Promotions • Marketing • Advertisements",
     icon: "a_189c4f0d955bde1f1621fd4896fd2b4c",
     owner: false,
     permissions: Integer(99328),
   },
   {
-    id: SnowflakeID("1074837489417719840"),
+    id: DiscordID("1074837489417719840"),
     name: "test-server1",
     icon: null,
     owner: true,
@@ -80,10 +80,10 @@ export class SocialDataMock {
   }
 
   public getDiscordGuildProfiles(
-    discordProfileId: SnowflakeID | null,
+    discordProfileId: DiscordID | null,
   ): DiscordGuildProfile[] {
     if (discordProfileId == null) {
-      discordProfileId = SnowflakeID("-1");
+      discordProfileId = DiscordID("-1");
     }
     return discordGuildProfileAPIResponses.map(
       (profile) =>

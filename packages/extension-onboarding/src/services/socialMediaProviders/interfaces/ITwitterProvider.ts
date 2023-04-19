@@ -1,7 +1,7 @@
 import {
   BearerAuthToken,
   ITokenAndSecret,
-  SnowflakeID,
+  TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -13,7 +13,7 @@ export type ITwitterInitParams = {
   oAuthVerifier: string;
 };
 export type ITwitterUnlinkProfileParams = {
-  id: SnowflakeID;
+  id: TwitterID;
 };
 
 export interface ITwitterProvider extends ISocialMediaProvider {

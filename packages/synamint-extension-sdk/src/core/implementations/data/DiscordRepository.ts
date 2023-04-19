@@ -4,7 +4,7 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   OAuthAuthorizationCode,
-  SnowflakeID,
+  DiscordID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -59,7 +59,7 @@ export class DiscordRepository implements IDiscordRepository {
     });
   }
   public unlink(
-    discordProfileId: SnowflakeID,
+    discordProfileId: DiscordID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.discord.unlink(discordProfileId).mapErr((error) => {
       this.errorUtils.emit(error);
