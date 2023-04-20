@@ -114,7 +114,7 @@ export interface ISdlDataWallet extends EventEmitter {
   getApplyDefaultPermissionsOption(): ResultAsync<boolean, JsonRpcError>;
   setApplyDefaultPermissionsOption(
     option: boolean,
-  ): ResultAsync<boolean, JsonRpcError>;
+  ): ResultAsync<void, JsonRpcError>;
   getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
@@ -155,7 +155,7 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
 
-  getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
 
   getMarketplaceListingsByTag(
     pagingReq: PagingRequest,

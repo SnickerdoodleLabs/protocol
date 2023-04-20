@@ -32,13 +32,11 @@ import {
 } from "@synamint-extension-sdk/core/implementations/business/index.js";
 import {
   AccountRepository,
-  DiscordRepository,
   InvitationRepository,
   PIIRepository,
   PortConnectionRepository,
   ScamFilterRepository,
   TokenPriceRepository,
-  TwitterRepository,
   UserSiteInteractionRepository,
 } from "@synamint-extension-sdk/core/implementations/data/index.js";
 import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory/index.js";
@@ -86,8 +84,6 @@ import {
 import {
   IAccountRepository,
   IAccountRepositoryType,
-  IDiscordRepository,
-  IDiscordRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
   IPIIRepository,
@@ -98,8 +94,6 @@ import {
   IScamFilterRepositoryType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
-  ITwitterRepository,
-  ITwitterRepositoryType,
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data/index.js";
@@ -198,12 +192,6 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IScamFilterRepository>(IScamFilterRepositoryType)
       .to(ScamFilterRepository)
-      .inSingletonScope();
-    bind<IDiscordRepository>(IDiscordRepositoryType)
-      .to(DiscordRepository)
-      .inSingletonScope();
-    bind<ITwitterRepository>(ITwitterRepositoryType)
-      .to(TwitterRepository)
       .inSingletonScope();
     // Utilities
     bind<IContextProvider>(IContextProviderType)
