@@ -21,6 +21,7 @@ import {
   IAccountNFTs,
   IAccountNFTsType,
   BigNumberString,
+  EChainType,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -43,7 +44,6 @@ import {
   IContextProviderType,
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
-import { EChainType } from "packages/objects/src/enum";
 
 @injectable()
 export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
@@ -372,7 +372,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
-              return etherscanRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -392,7 +392,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as SolanaAccountAddress,
               );
             case EIndexer.Ethereum:
-              return etherscanRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -402,7 +402,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Binance:
-              return etherscanRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
