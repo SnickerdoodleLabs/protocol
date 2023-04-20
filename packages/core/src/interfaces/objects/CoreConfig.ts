@@ -6,9 +6,9 @@ import {
   DiscordConfig,
   ECurrencyCode,
   URLString,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
-import { EChain } from "packages/objects/src/enum";
 
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(

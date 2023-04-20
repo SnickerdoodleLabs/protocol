@@ -102,7 +102,7 @@ export class AlchemyIndexer
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-        config.covalentApiKey
+      config.covalentApiKey;
       const apiKey = config.etherscanApiKeys.get(chain);
       if (apiKey == null) {
         return errAsync(
@@ -236,26 +236,25 @@ export class AlchemyIndexer
           return ResultUtils.combine(
             response.result.tokenBalances.map((entry) => {
               const weiValue = Web3.utils.hexToNumberString(entry.tokenBalance);
+              return this.tokenPriceRepo
+                .getTokenInfo(chainId, entry.contractAddress)
+                .andThen((tokenInfo) => {
+                  if (tokenInfo == null) {
+                    return okAsync(undefined);
+                  }
 
-              const listValue = this.tokenPriceRepo.getTokenInfoFromList(
-                entry.contractAddress,
-              );
-
-              if (listValue == undefined) {
-                return okAsync(undefined);
-              }
-              const tokenInfo = listValue as CoinGeckoTokenInfo;
-              return okAsync(
-                new TokenBalance(
-                  EChainTechnology.EVM,
-                  TickerSymbol(tokenInfo.symbol),
-                  chainId,
-                  entry.contractAddress,
-                  accountAddress,
-                  BigNumberString(weiValue),
-                  getChainInfoByChainId(chainId).nativeCurrency.decimals,
-                ),
-              );
+                  return okAsync(
+                    new TokenBalance(
+                      EChainTechnology.EVM,
+                      TickerSymbol(tokenInfo.symbol),
+                      chainId,
+                      entry.contractAddress,
+                      accountAddress,
+                      BigNumberString(weiValue),
+                      getChainInfoByChainId(chainId).nativeCurrency.decimals,
+                    ),
+                  );
+                });
             }),
           ).andThen((balances) => {
             return okAsync(

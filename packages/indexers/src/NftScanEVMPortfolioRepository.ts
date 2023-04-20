@@ -49,8 +49,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
           )
           .andThen((response) => {
             return this.getPages(chainId, response);
-          })
-          .mapErr((e) => new AjaxError("error fetching nfts from nftscan", e));
+          });
       },
     );
   }
@@ -77,12 +76,25 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     return okAsync(items);
   }
 
+  private generateBaseUrl(chainId: ChainId): string {
+    switch (chainId) {
+      case ChainId(1):
+        return "rest";
+      case ChainId(56):
+        return "bnb";
+      case ChainId(43114):
+        return "avax";
+      default:
+        return getChainInfoByChain(chainId).name;
+    }
+  }
+
   private generateQueryConfig(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
-    const chainInfo = getChainInfoByChain(chainId);
-    const url = urlJoinP(`https://${chainInfo.name}api.nftscan.com`, [
+    const chainName = this.generateBaseUrl(chainId);
+    const url = urlJoinP(`https://${chainName}api.nftscan.com`, [
       "api",
       "v2",
       "account",
@@ -90,6 +102,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
       "all",
       accountAddress.toString() + "?erc_type=&show_attribute=false",
     ]);
+    console.log("nftscan url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",

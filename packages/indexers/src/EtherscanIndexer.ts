@@ -169,12 +169,12 @@ export class EtherscanIndexer
 
         return ResultUtils.combine(
           response.result.map((item) => {
-            if (
-              this.tokenPriceRepo.getTokenInfoFromList(item.TokenAddress) ==
-              undefined
-            ) {
-              return okAsync(undefined);
-            }
+            // if (
+            //   this.tokenPriceRepo.getTokenInfoFromList(item.TokenAddress) ==
+            //   undefined
+            // ) {
+            //   return okAsync(undefined);
+            // }
 
             return okAsync(
               new TokenBalance(
