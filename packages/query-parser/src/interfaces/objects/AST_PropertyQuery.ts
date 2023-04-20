@@ -72,12 +72,12 @@ export class AST_PropertyQuery extends AST_Query {
         return ok(EWalletDataType.Email);
       case "location":
         return ok(EWalletDataType.Location);
-      case "browsing_history":
-        return ok(EWalletDataType.SiteVisits);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
       case "chain_transactions":
         return ok(EWalletDataType.EVMTransactions);
+      case "social_discord":
+        return ok(EWalletDataType.Discord);
       default:
         const missingWalletType = new MissingWalletDataTypeError(this.property);
         console.error(missingWalletType);

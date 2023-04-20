@@ -1,10 +1,3 @@
-import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -14,24 +7,112 @@ import {
   SDQLQuery,
   SDQLString,
   AjaxError,
+  PersistenceError,
+  QueryStatus,
+  EVMContractAddress,
+  ERecordKey,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
 
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
+
 @injectable()
 export class SDQLQueryRepository implements ISDQLQueryRepository {
   protected queryCache: Map<IpfsCID, SDQLQuery>;
 
   public constructor(
-    @inject(IConfigProviderType) public configProvider: IConfigProvider,
-    @inject(IContextProviderType) public contextProvider: IContextProvider,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {
     // Singelton - eager initialization
     // can use as a cache; this.cache - return map
     this.queryCache = new Map();
+  }
+
+  public getQueryStatusByConsentContract(
+    consentContractAddress: EVMContractAddress,
+    queryHorizon: number,
+  ): ResultAsync<QueryStatus[], PersistenceError> {
+    // TODO: Make this more efficient in the future
+    return this.persistence
+      .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
+      .map((queryStatii) => {
+        // Just in case the contract addresses get the cases mixed up
+        const lowerConsentContractAddress =
+          consentContractAddress.toLowerCase();
+
+        // Return only those status from after the query horizon and for the requested
+        // contract
+        return queryStatii.filter((queryStatus) => {
+          return (
+            queryStatus.consentContractAddress.toLowerCase() ==
+              lowerConsentContractAddress &&
+            queryStatus.receivedBlock > queryHorizon
+          );
+        });
+      });
+  }
+
+  public getQueryStatusByStatus(
+    status: EQueryProcessingStatus,
+  ): ResultAsync<QueryStatus[], PersistenceError> {
+    // TODO: Make this more efficient in the future
+    return this.persistence
+      .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
+      .map((queryStatii) => {
+        // Return only those status from after the query horizon and for the requested
+        // contract
+        return queryStatii.filter((queryStatus) => {
+          return queryStatus.status == status;
+        });
+      });
+  }
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    // TODO: Make this more efficient in the future
+    return this.persistence
+      .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
+      .map((queryStatii) => {
+        // Return only those status from after the query horizon and for the requested
+        // contract
+        return (
+          queryStatii.find((queryStatus) => {
+            return queryStatus.queryCID == queryCID;
+          }) || null
+        );
+      });
+  }
+
+  public upsertQueryStatus(
+    queryStatii: QueryStatus[],
+  ): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine(
+      queryStatii.map((queryStatus) => {
+        return this.persistence.updateRecord(
+          ERecordKey.QUERY_STATUS,
+          queryStatus,
+        );
+      }),
+    ).map(() => {});
   }
 
   // if you have cache, good idea to duplicate objects before returned - business objects are immutable
@@ -40,7 +121,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   // multiple calls of ipfs in parallel with multiple pieces of content
   // easier in parallel than proper for loop
   // resultutils.combine is how you combine resultasyncs - usually functional notation of cids, uses .map for each value of cids, return copy cache value
-  public getByCID(
+  public getSDQLQueryByCID(
     cid: IpfsCID,
     timeoutMs?: number,
   ): ResultAsync<SDQLQuery | null, AjaxError> {

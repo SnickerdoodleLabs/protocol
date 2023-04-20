@@ -1,11 +1,9 @@
 import {
   DomainCredential,
   DomainName,
-  EBackupPriority,
+  ERecordKey,
   PersistenceError,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -33,11 +31,7 @@ export class DomainCredentialRepository implements IDomainCredentialRepository {
   ): ResultAsync<void, PersistenceError> {
     return this.persistence.updateRecord(
       ERecordKey.DOMAIN_CREDENTIALS,
-      new VolatileStorageMetadata<DomainCredential>(
-        EBackupPriority.NORMAL,
-        domainCredential,
-        DomainCredential.CURRENT_VERSION,
-      ),
+      domainCredential,
     );
   }
 }

@@ -1,8 +1,12 @@
-import { AccountAddedNotification } from "@synamint-extension-sdk/shared/objects/notifications/AccountAddedNotification";
-import { AccountInitializedNotification } from "@synamint-extension-sdk/shared/objects/notifications/AccountInitializedNotification";
-import { AccountRemovedNotification } from "@synamint-extension-sdk/shared/objects/notifications/AccountRemovedNotification";
+import {
+  AccountAddedNotification,
+  AccountInitializedNotification,
+  AccountRemovedNotification,
+  EarnedRewardsAddedNotification,
+} from "@synamint-extension-sdk/shared/objects/notifications";
 
 export type TNotification =
   | AccountAddedNotification
   | AccountInitializedNotification
-  | AccountRemovedNotification;
+  | AccountRemovedNotification
+  | EarnedRewardsAddedNotification;

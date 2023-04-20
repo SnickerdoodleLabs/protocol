@@ -8,6 +8,8 @@ import {
   ISDQLQueryObject,
   // ISDQLReturnProperties,
   ISO8601DateString,
+  SDQLQuery,
+  SDQLString,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -18,6 +20,7 @@ export class SDQLQueryWrapper {
    */
 
   constructor(
+    readonly sdqlQuery: SDQLQuery,
     readonly internalObj: ISDQLQueryObject,
     readonly timeUtils: ITimeUtils,
   ) {
@@ -67,24 +70,27 @@ export class SDQLQueryWrapper {
     if (this.internalObj.timestamp == null) {
       return null;
     }
-    return UnixTimestamp(Date.parse(this.internalObj.timestamp));
+    return UnixTimestamp(
+      Math.floor(Date.parse(this.internalObj.timestamp) / 1000),
+    );
   }
 
-  public get expiry(): UnixTimestamp | null {
+  public get expiry(): UnixTimestamp {
     if (this.internalObj.expiry == null) {
-      return null;
+      // If it lacks an expiration date, it's already expired
+      return UnixTimestamp(0);
     }
 
-    const timestamp = Date.parse(this.internalObj.expiry);
-    // console.log(`expiry: ${this.internalObj.expiry} converted to timestamp ${timestamp}`);
-    return UnixTimestamp(timestamp);
+    return UnixTimestamp(
+      Math.floor(Date.parse(this.internalObj.expiry) / 1000),
+    );
   }
 
   public isExpired(): boolean {
     if (!this.expiry) {
       return true;
     }
-    return Date.now() > this.expiry;
+    return this.timeUtils.getUnixNow() > this.expiry;
   }
 
   public get description(): string {

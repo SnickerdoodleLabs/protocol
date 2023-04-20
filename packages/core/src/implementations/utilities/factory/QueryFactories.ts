@@ -2,6 +2,7 @@ import {
   IpfsCID,
   SDQLString,
   QueryFormatError,
+  SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -28,7 +29,9 @@ export class QueryFactories implements IQueryFactories {
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
-    const schema = this.queryWrapperFactory.makeWrapper(schemaString);
+    const schema = this.queryWrapperFactory.makeWrapper(
+      new SDQLQuery(cid, schemaString),
+    );
     return new SDQLParser(cid, schema, this.queryObjectFactory);
   }
 
@@ -37,7 +40,9 @@ export class QueryFactories implements IQueryFactories {
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError> {
     try {
-      const schema = this.queryWrapperFactory.makeWrapper(schemaString);
+      const schema = this.queryWrapperFactory.makeWrapper(
+        new SDQLQuery(cid, schemaString),
+      );
       return okAsync(new SDQLParser(cid, schema, this.queryObjectFactory));
     } catch (e) {
       return errAsync(new QueryFormatError((e as Error).message));

@@ -50,6 +50,7 @@ import {
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr";
 
+
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
   public ads = new Map<SDQL_Name, AST_Ad>();
@@ -139,9 +140,7 @@ export class SDQLParser {
       this.validateTimeStampExpiry(schema, cid),
       this.validateQuery(schema),
       this.validateCompenstations(schema),
-    ]).andThen(() => {
-      return okAsync(undefined);
-    });
+    ]).map(() => {});
   }
 
   public validateMeta(

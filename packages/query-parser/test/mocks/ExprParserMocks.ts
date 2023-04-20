@@ -1,19 +1,22 @@
 import "reflect-metadata";
 
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ChainId,
   ESDQLQueryReturn,
   IpfsCID,
   ISDQLConditionString,
   SDQL_Name,
+  SDQLQuery,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
   ExprParser,
   QueryObjectFactory,
   SDQLParser,
+  SDQLQueryWrapperFactory,
 } from "@query-parser/implementations";
 import {
   AST_Compensation,
@@ -24,16 +27,15 @@ import {
 } from "@query-parser/interfaces";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr";
 import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
-import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
 
+const cid = IpfsCID("0");
 export class ExprParserMocks {
-  public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
-  readonly parser = new SDQLParser(
-    IpfsCID("0"),
-    this.schema,
-    new QueryObjectFactory(),
+  public timeUtils = new TimeUtils();
+  public sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(this.timeUtils);
+  public schema = this.sdqlQueryWrapperFactory.makeWrapper(
+    new SDQLQuery(cid, avalanche1SchemaStr),
   );
+  readonly parser = new SDQLParser(cid, this.schema, new QueryObjectFactory());
 
   public context: Map<string, ParserContextDataTypes> | null = null;
 
