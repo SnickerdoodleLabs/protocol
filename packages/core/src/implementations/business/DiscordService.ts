@@ -1,10 +1,10 @@
 import {
-  DiscordAccessToken,
+  OAuth2AccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
-  DiscordRefreshToken,
+  OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   OAuthError,
@@ -66,13 +66,13 @@ export class DiscordService implements IDiscordService {
   }
 
   public isAuthTokenValid(
-    authToken: DiscordAccessToken,
+    authToken: OAuth2AccessToken,
   ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }
 
   public refreshAuthToken(
-    refreshToken: DiscordRefreshToken,
+    refreshToken: OAuth2RefreshToken,
   ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }

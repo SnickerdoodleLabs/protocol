@@ -209,7 +209,19 @@ export class ConfigProvider
       ...this.config.discord,
       ...overrides.discordOverrides,
     };
-
     this.config.discord = discordConfig;
+
+    const twitterConfig = {
+      ...this.config.twitter,
+      ...overrides.twitterOverrides,
+    };
+    this.config.twitter = new TwitterConfig(
+      twitterConfig.apiKey ?? this.config.twitter.apiKey,
+      twitterConfig.apiSecretKey ?? this.config.twitter.apiSecretKey,
+      twitterConfig.oAuthBaseUrl ?? this.config.twitter.oAuthBaseUrl,
+      twitterConfig.oAuthCallbackUrl ?? this.config.twitter.oAuthCallbackUrl,
+      twitterConfig.dataAPIUrl ?? this.config.twitter.dataAPIUrl,
+      twitterConfig.pollInterval ?? this.config.twitter.pollInterval
+    );
   }
 }

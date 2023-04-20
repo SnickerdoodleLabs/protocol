@@ -2,7 +2,7 @@ import {
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
-  DiscordRefreshToken,
+  OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PersistenceError,
@@ -20,7 +20,7 @@ export interface IDiscordRepository {
   ): ResultAsync<OAuth2Tokens, DiscordError>;
 
   refreshAuthToken(
-    refreshToken: DiscordRefreshToken,
+    refreshToken: OAuth2RefreshToken,
   ): ResultAsync<OAuth2Tokens, DiscordError>;
 
   fetchUserProfile(

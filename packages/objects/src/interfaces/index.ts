@@ -12,5 +12,5 @@ export * from "@objects/interfaces/ISdlDataWallet.js";
 export * from "@objects/interfaces/ISDQLQueryObject.js";
 export * from "@objects/interfaces/ISnickerdoodleCore.js";
 export * from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
-export * from "@objects/interfaces/ITokenAndSecret.js";
+export * from "@objects/businessObjects/TokenAndSecret.js";
 export * from "@objects/interfaces/ITokenPriceRepository.js";

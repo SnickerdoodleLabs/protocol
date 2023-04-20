@@ -1,18 +1,17 @@
 import {
-  URLString,
-  ChainId,
   chainConfig,
+  ChainId,
+  ControlChainInformation,
   DataWalletAddress,
+  ECurrencyCode,
+  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
   SDQLQuery,
   SDQLString,
-  EVMAccountAddress,
-  ControlChainInformation,
-  ECurrencyCode,
-  SignatureMethod,
   TwitterConfig,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";

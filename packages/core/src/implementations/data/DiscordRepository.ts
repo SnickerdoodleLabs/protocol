@@ -6,13 +6,13 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  DiscordAccessToken,
+  OAuth2AccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
   DiscordGuildProfileAPIResponse,
   DiscordProfile,
-  DiscordRefreshToken,
+  OAuth2RefreshToken,
   ESocialType,
   OAuth2Tokens,
   OAuthAuthorizationCode,
@@ -59,7 +59,7 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public refreshAuthToken(
-    refreshToken: DiscordRefreshToken,
+    refreshToken: OAuth2RefreshToken,
   ): ResultAsync<OAuth2Tokens, DiscordError> {
     return ResultUtils.combine([
       this.tokenAPICallBaseConfig(),
@@ -72,7 +72,9 @@ export class DiscordRepository implements IDiscordRepository {
           refresh_token: refreshToken,
         })
         .map(this.factoryAccessToken)
-        .mapErr((error) => new DiscordError(error.message));
+        .mapErr((error) => {
+          return new DiscordError(error.message);
+        });
     });
   }
 
@@ -131,7 +133,9 @@ export class DiscordRepository implements IDiscordRepository {
               oauth2Tokens,
             ),
         )
-        .mapErr((error) => new DiscordError(error.message));
+        .mapErr((error) => {
+          return new DiscordError(error.message);
+        });
     });
   }
 
@@ -157,7 +161,9 @@ export class DiscordRepository implements IDiscordRepository {
             );
           }),
         )
-        .mapErr((error) => new DiscordError(error.message));
+        .mapErr((error) => {
+          return new DiscordError(error.message);
+        });
     });
   }
 
@@ -255,7 +261,7 @@ export class DiscordRepository implements IDiscordRepository {
     );
   }
 
-  protected getRequestConfig(authToken: DiscordAccessToken): IRequestConfig {
+  protected getRequestConfig(authToken: OAuth2AccessToken): IRequestConfig {
     return {
       headers: {
         Authorization: `Bearer ${authToken}`,

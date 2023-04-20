@@ -6,7 +6,7 @@ import {
   DiscordGuildProfile,
   DiscordProfile,
   EarnedReward,
-  ITokenAndSecret,
+  TokenAndSecret,
   LinkedAccount,
   MarketplaceListing,
   PagedResponse,
@@ -27,7 +27,7 @@ import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferenc
 import {
   AccountAddress,
   Age,
-  BearerAuthToken,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -42,6 +42,7 @@ import {
   LanguageCode,
   MarketplaceTag,
   OAuthAuthorizationCode,
+  OAuthVerifier,
   Signature,
   TwitterID,
   UnixTimestamp,
@@ -218,10 +219,10 @@ export interface ISdlDiscordMethods {
 }
 
 export interface ISdlTwitterMethods {
-  getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, JsonRpcError>;
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, JsonRpcError>;
   initTwitterProfile(
-    requestToken: BearerAuthToken,
-    oAuthVerifier: string,
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, JsonRpcError>;
   unlinkProfile(id: TwitterID): ResultAsync<void, JsonRpcError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;

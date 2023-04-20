@@ -1,8 +1,9 @@
 import {
-  BearerAuthToken,
+  OAuth1RequstToken,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
-  ITokenAndSecret,
+  TokenAndSecret,
+  OAuthVerifier,
   TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
@@ -24,7 +25,7 @@ export class TwitterRepository implements ITwitterRepository {
   ) {}
 
   public getOAuth1aRequestToken(): ResultAsync<
-    ITokenAndSecret,
+    TokenAndSecret,
     SnickerDoodleCoreError
   > {
     return this.core.twitter.getOAuth1aRequestToken().mapErr((error) => {
@@ -34,8 +35,8 @@ export class TwitterRepository implements ITwitterRepository {
   }
 
   public initTwitterProfile(
-    requestToken: BearerAuthToken,
-    oAuthVerifier: string,
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, SnickerDoodleCoreError> {
     return this.core.twitter
       .initTwitterProfile(requestToken, oAuthVerifier)

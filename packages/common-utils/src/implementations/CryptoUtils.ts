@@ -12,7 +12,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
-  HashAlgorithm,
   HexString,
   InitializationVector,
   InvalidParametersError,

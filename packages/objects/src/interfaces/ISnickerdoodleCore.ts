@@ -9,7 +9,7 @@ import {
   EligibleAd,
   IDynamicRewardParameter,
   Invitation,
-  ITokenAndSecret,
+  TokenAndSecret,
   LinkedAccount,
   MarketplaceListing,
   PagedResponse,
@@ -67,7 +67,7 @@ import {
   AdSurfaceId,
   Age,
   BackupFileName,
-  BearerAuthToken,
+  OAuth1RequstToken,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -85,6 +85,7 @@ import {
   LanguageCode,
   MarketplaceTag,
   OAuthAuthorizationCode,
+  OAuthVerifier,
   PEMEncodedRSAPublicKey,
   SHA256Hash,
   Signature,
@@ -170,10 +171,10 @@ export interface ICoreDiscordMethods {
 }
 
 export interface ICoreTwitterMethods {
-  getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, TwitterError>;
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError>;
   initTwitterProfile(
-    requestToken: BearerAuthToken,
-    oAuthVerifier: string,
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
   unlinkProfile(
     id: TwitterID,

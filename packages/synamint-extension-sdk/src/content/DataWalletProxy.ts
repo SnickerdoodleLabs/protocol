@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 
 import {
   AccountAddress,
-  BearerAuthToken,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -36,6 +36,7 @@ import {
   UnixTimestamp,
   URLString,
   TwitterID,
+  OAuthVerifier,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -130,8 +131,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.twitter.getOAuth1aRequestToken();
       },
       initTwitterProfile: (
-        requestToken: BearerAuthToken,
-        oAuthVerifier: string,
+        requestToken: OAuth1RequstToken,
+        oAuthVerifier: OAuthVerifier,
       ) => {
         return coreGateway.twitter.initTwitterProfile(
           requestToken,

@@ -62,7 +62,7 @@ import {
   Age,
   AjaxError,
   BackupFileName,
-  BearerAuthToken,
+  OAuth1RequstToken,
   BlockchainProviderError,
   ChainId,
   ChainTransaction,
@@ -118,6 +118,7 @@ import {
   MarketplaceTag,
   MinimalForwarderContractError,
   OAuthAuthorizationCode,
+  OAuthVerifier,
   PageInvitation,
   PagingRequest,
   PersistenceError,
@@ -333,8 +334,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           .getOAuth1aRequestToken();
       },
       initTwitterProfile: (
-        requestToken: BearerAuthToken,
-        oAuthVerifier: string,
+        requestToken: OAuth1RequstToken,
+        oAuthVerifier: OAuthVerifier,
       ) => {
         return this.iocContainer
           .get<ITwitterService>(ITwitterServiceType)

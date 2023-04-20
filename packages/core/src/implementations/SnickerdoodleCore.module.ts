@@ -74,6 +74,7 @@ import {
   InvitationService,
   MarketplaceService,
   MonitoringService,
+  OAuthUtils,
   ProfileService,
   QueryParsingEngine,
   QueryService,
@@ -163,6 +164,8 @@ import {
   IConsentTokenUtilsType,
   INftQueryEvaluator,
   INftQueryEvaluatorType,
+  IOAuthUtils,
+  IOAuthUtilsType,
   IPermissionUtils,
   IPermissionUtilsType,
   IQueryEvaluator,
@@ -364,7 +367,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(TwitterRepository)
       .inSingletonScope();
     bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
-    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
+
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)
       .inSingletonScope();
@@ -396,6 +399,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
+    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
+    bind<IOAuthUtils>(IOAuthUtilsType).to(OAuthUtils).inSingletonScope();
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)

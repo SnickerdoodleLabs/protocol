@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  BearerAuthToken,
+  OAuth1RequstToken,
   DiscordProfile,
   Integer,
   PersistenceError,

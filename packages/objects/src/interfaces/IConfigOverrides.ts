@@ -1,4 +1,4 @@
-import { DiscordConfig } from "@objects/businessObjects";
+import { DiscordConfig, TwitterConfig } from "@objects/businessObjects";
 import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
 
 export interface IConfigOverrides {
@@ -23,4 +23,5 @@ export interface IConfigOverrides {
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
+  twitterOverrides?: Partial<TwitterConfig>;
 }

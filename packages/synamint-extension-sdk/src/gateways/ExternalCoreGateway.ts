@@ -1,7 +1,7 @@
 import {
   AccountAddress,
   Age,
-  BearerAuthToken,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -24,12 +24,13 @@ import {
   IpfsCID,
   ISdlDiscordMethods,
   ISdlTwitterMethods,
-  ITokenAndSecret,
+  TokenAndSecret,
   LanguageCode,
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
   OAuthAuthorizationCode,
+  OAuthVerifier,
   PagedResponse,
   PagingRequest,
   PossibleReward,
@@ -130,14 +131,14 @@ export class ExternalCoreGateway {
     };
     this.twitter = {
       getOAuth1aRequestToken: (): ResultAsync<
-        ITokenAndSecret,
+        TokenAndSecret,
         JsonRpcError
       > => {
         return this._handler.call(EExternalActions.TWITTER_GET_REQUEST_TOKEN);
       },
       initTwitterProfile: (
-        requestToken: BearerAuthToken,
-        oAuthVerifier: string,
+        requestToken: OAuth1RequstToken,
+        oAuthVerifier: OAuthVerifier,
       ): ResultAsync<TwitterProfile, JsonRpcError> => {
         return this._handler.call(EExternalActions.TWITTER_LINK_PROFILE, {
           requestToken,

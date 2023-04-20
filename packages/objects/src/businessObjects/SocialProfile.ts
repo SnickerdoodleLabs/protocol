@@ -1,5 +1,5 @@
 import {
-  ITokenAndSecret,
+  TokenAndSecret,
   OAuth2Tokens,
 } from "@objects/businessObjects/index.js";
 import {
@@ -116,7 +116,7 @@ export interface ITwitterFollowData {
 export class TwitterProfile extends SocialProfile {
   public constructor(
     public userObject: ITwitterUserObject,
-    public oAuth1a: ITokenAndSecret,
+    public oAuth1a: TokenAndSecret,
     public followData?: ITwitterFollowData,
   ) {
     super(SocialPrimaryKey(`twitter-${userObject.id}`), ESocialType.TWITTER);
@@ -131,7 +131,7 @@ export class TwitterProfileMigrator {
   public factory(data: Record<string, unknown>): TwitterProfile {
     return new TwitterProfile(
       data["userObject"] as ITwitterUserObject,
-      data["oAuth1a"] as ITokenAndSecret,
+      data["oAuth1a"] as TokenAndSecret,
       data["followData"]
         ? (data["followData"] as ITwitterFollowData)
         : undefined,

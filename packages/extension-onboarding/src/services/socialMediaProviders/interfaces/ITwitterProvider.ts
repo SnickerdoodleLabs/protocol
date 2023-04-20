@@ -1,6 +1,7 @@
 import {
-  BearerAuthToken,
-  ITokenAndSecret,
+  OAuth1RequstToken,
+  TokenAndSecret,
+  OAuthVerifier,
   TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
@@ -9,15 +10,15 @@ import { ResultAsync } from "neverthrow";
 import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 export type ITwitterInitParams = {
-  requestToken: BearerAuthToken;
-  oAuthVerifier: string;
+  requestToken: OAuth1RequstToken;
+  oAuthVerifier: OAuthVerifier;
 };
 export type ITwitterUnlinkProfileParams = {
   id: TwitterID;
 };
 
 export interface ITwitterProvider extends ISocialMediaProvider {
-  getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, unknown>;
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, unknown>;
   initTwitterProfile(
     params: ITwitterInitParams,
   ): ResultAsync<TwitterProfile, unknown>;

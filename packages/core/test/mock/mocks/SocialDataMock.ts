@@ -1,16 +1,15 @@
 import {
-  DiscordAccessToken,
   DiscordGuildProfile,
-  DiscordProfile,
-  DiscordRefreshToken,
-  Integer,
-  OAuth2Tokens,
   DiscordID,
+  DiscordProfile,
+  OAuth2RefreshToken,
+  Integer,
+  OAuth2AccessToken,
+  OAuth2Tokens,
   UnixTimestamp,
   URLString,
   Username,
 } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
 
 export const discordProfiles = [
   new DiscordProfile(
@@ -21,8 +20,8 @@ export const discordProfiles = [
     null,
     Integer(0),
     new OAuth2Tokens(
-      DiscordAccessToken("f0RhjaxsHvw5HqKLDsnWZdttSIODUg"),
-      DiscordRefreshToken("my-refresh-token"),
+      OAuth2AccessToken("f0RhjaxsHvw5HqKLDsnWZdttSIODUg"),
+      OAuth2RefreshToken("my-refresh-token"),
       UnixTimestamp(0),
     ),
   ),
@@ -35,8 +34,8 @@ export const discordProfiles = [
     null,
     Integer(0),
     new OAuth2Tokens(
-      DiscordAccessToken("INVALID"),
-      DiscordRefreshToken("my-refresh-token"),
+      OAuth2AccessToken("INVALID"),
+      OAuth2RefreshToken("my-refresh-token"),
       UnixTimestamp(0),
     ),
   ),

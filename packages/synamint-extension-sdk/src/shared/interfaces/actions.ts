@@ -1,6 +1,6 @@
 import {
   AccountAddress,
-  BearerAuthToken,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -17,6 +17,7 @@ import {
   LanguageCode,
   MarketplaceTag,
   OAuthAuthorizationCode,
+  OAuthVerifier,
   PagingRequest,
   Signature,
   TokenAddress,
@@ -193,8 +194,8 @@ export interface IUnlinkDiscordAccount {
 }
 
 export interface ITwitterLinkProfile {
-  requestToken: BearerAuthToken;
-  oAuthVerifier: string;
+  requestToken: OAuth1RequstToken;
+  oAuthVerifier: OAuthVerifier;
 }
 
 export interface ITwitterUnlinkProfile {

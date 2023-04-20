@@ -1,6 +1,7 @@
 import {
-  BearerAuthToken,
-  ITokenAndSecret,
+  OAuth1RequstToken,
+  TokenAndSecret,
+  OAuthVerifier,
   PersistenceError,
   TwitterConfig,
   TwitterError,
@@ -31,15 +32,15 @@ export class TwitterService implements ITwitterService {
     @inject(ITwitterRepositoryType) public twitterRepo: ITwitterRepository,
   ) {}
 
-  public getOAuth1aRequestToken(): ResultAsync<ITokenAndSecret, TwitterError> {
+  public getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError> {
     return this.getAPIConfig().andThen((config) => {
       return this.twitterRepo.getOAuth1aRequestToken(config);
     });
   }
 
   public initTwitterProfile(
-    requestToken: BearerAuthToken,
-    oAuthVerifier: string,
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
     return this.getAPIConfig().andThen((config) => {
       return ResultUtils.combine([

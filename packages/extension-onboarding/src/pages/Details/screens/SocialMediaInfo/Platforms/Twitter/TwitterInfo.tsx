@@ -7,8 +7,9 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMed
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Button, Typography } from "@material-ui/core";
 import {
-  BearerAuthToken,
-  ITokenAndSecret,
+  OAuth1RequstToken,
+  TokenAndSecret,
+  OAuthVerifier,
   TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
@@ -22,9 +23,8 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {
     const { twitterProvider: provider } = useAccountLinkingContext();
 
-    const [requestToken, setRequestToken] = useState<ITokenAndSecret>(
-      {} as ITokenAndSecret,
-    );
+    const [requestTokenAndSecret, setRequestTokenAndSecret] =
+      useState<TokenAndSecret | null>(null);
 
     const [userProfiles, setUserProfiles] = useState<TwitterProfile[]>([]);
     const getUserProfiles = () =>
@@ -40,8 +40,8 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
     const [pinValue, setPinValue] = useState<string>();
 
     const initTwitterProfile = (
-      requestToken: BearerAuthToken,
-      oAuthVerifier: string,
+      requestToken: OAuth1RequstToken,
+      oAuthVerifier: OAuthVerifier,
     ) => {
       provider
         .initTwitterProfile({
@@ -65,16 +65,19 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
       const verifier = new URLSearchParams(window.location.search).get(
         "oauth_verifier",
       );
-      if (!verifier || !incomingRequestToken) {
+      if (!verifier || !incomingRequestToken || !requestTokenAndSecret) {
         return;
       }
-      if (incomingRequestToken != requestToken.token) {
+      if (incomingRequestToken != requestTokenAndSecret.token) {
         console.error(
-          `Initial requestToken ${requestToken.token} and incoming request token ${incomingRequestToken} do not match!`,
+          `Initial requestToken ${requestTokenAndSecret.token} and incoming request token ${incomingRequestToken} do not match!`,
         );
         return;
       }
-      initTwitterProfile(incomingRequestToken as BearerAuthToken, verifier);
+      initTwitterProfile(
+        incomingRequestToken as OAuth1RequstToken,
+        verifier as OAuthVerifier,
+      );
     }, [JSON.stringify(window.location.search)]);
 
     useEffect(() => {
@@ -125,7 +128,7 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
                   variant="outlined"
                   onClick={() =>
                     provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
-                      setRequestToken(tokenAndSecret);
+                      setRequestTokenAndSecret(tokenAndSecret);
                       window
                         .open(
                           `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}`,
@@ -145,11 +148,20 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
                     if (e && e.preventDefault) {
                       e.preventDefault();
                     }
+                    if (!requestTokenAndSecret) {
+                      console.warn(
+                        "Tried to initialize Twitter Profile but request token doesn't seem to be in place.",
+                      );
+                      return;
+                    }
                     if (pinValue?.toString().length != 7) {
                       console.error("Pin value consists of 7 numbers");
                     } else {
                       setRequestPin(false);
-                      initTwitterProfile(requestToken.token, pinValue);
+                      initTwitterProfile(
+                        requestTokenAndSecret.token as string as OAuth1RequstToken,
+                        pinValue as OAuthVerifier,
+                      );
                     }
                   }}
                 >

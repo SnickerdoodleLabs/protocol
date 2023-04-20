@@ -3,12 +3,14 @@ import {
   IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  BearerAuthToken,
+  BearerToken,
   ESocialType,
-  ITokenAndSecret,
   ITwitterUserObject,
+  OAuth1RequstToken,
+  OAuthVerifier,
   PersistenceError,
   SocialPrimaryKey,
+  TokenAndSecret,
   TokenSecret,
   TwitterConfig,
   TwitterError,
@@ -20,6 +22,10 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
+import {
+  IOAuthUtils,
+  IOAuthUtilsType,
+} from "@core/interfaces/business/utilities/index.js";
 import {
   ISocialRepository,
   ISocialRepositoryType,
@@ -33,11 +39,12 @@ export class TwitterRepository implements ITwitterRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(ISocialRepositoryType)
     protected socialRepository: ISocialRepository,
+    @inject(IOAuthUtilsType) protected oAuthUtils: IOAuthUtils,
   ) {}
 
   public getOAuth1aRequestToken(
     config: TwitterConfig,
-  ): ResultAsync<ITokenAndSecret, TwitterError> {
+  ): ResultAsync<TokenAndSecret, TwitterError> {
     const urlString = config.oAuthBaseUrl + "/request_token";
     const pathParams = {
       oauth_callback: encodeURIComponent(config.oAuthCallbackUrl),
@@ -46,27 +53,42 @@ export class TwitterRepository implements ITwitterRepository {
       .post<string>(new URL(urlString), undefined, {
         params: pathParams,
         headers: {
-          authorization: config.getOAuth1aHeader({
-            url: urlString,
-            method: "POST",
-            data: pathParams,
-          }),
+          authorization: this.oAuthUtils.getOAuth1aString(
+            {
+              url: urlString,
+              method: "POST",
+              data: pathParams,
+            },
+            config.oauth,
+          ),
         },
       })
-      .mapErr((error) => new TwitterError(error.message))
-      .map(this._parseResponseString)
-      .map((responseObj) => {
-        return {
-          token: responseObj["oauth_token"],
-          secret: responseObj["oauth_token_secret"],
-        } as ITokenAndSecret;
+      .mapErr((error) => {
+        return new TwitterError(error.message);
+      })
+      .andThen((responseStr) => {
+        const queryParams = new URLSearchParams(responseStr);
+        if (!this._responseHasOAuthToken(queryParams)) {
+          return errAsync(
+            new TwitterError(
+              `Requested a "request token" but the response does not include a valid oAuth token`,
+            ),
+          );
+        }
+
+        return okAsync(
+          new TokenAndSecret(
+            queryParams.get("oauth_token")! as BearerToken,
+            queryParams.get("oauth_token_secret")! as TokenSecret,
+          ),
+        );
       });
   }
 
   public initTwitterProfile(
     config: TwitterConfig,
-    requestToken: BearerAuthToken,
-    oAuthVerifier: string,
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
     const urlString = config.oAuthBaseUrl + "/access_token";
     const pathParams = {
@@ -77,37 +99,45 @@ export class TwitterRepository implements ITwitterRepository {
       .post<string>(new URL(urlString), undefined, {
         params: pathParams,
         headers: {
-          authorization: config.getOAuth1aHeader({
-            url: urlString,
-            method: "POST",
-            data: pathParams,
-          }),
+          authorization: this.oAuthUtils.getOAuth1aString(
+            {
+              url: urlString,
+              method: "POST",
+              data: pathParams,
+            },
+            config.oauth,
+          ),
         },
       })
-      .mapErr((error) => new TwitterError(error.message))
+      .mapErr((error) => {
+        return new TwitterError(error.message);
+      })
       .andThen((resposeStr) => {
-        const responseObj = this._parseResponseString(resposeStr);
-        if (this._isAccessTokenResponseValid(responseObj)) {
+        const queryParams = new URLSearchParams(resposeStr);
+        if (this._isAccessTokenResponseValid(queryParams)) {
           return okAsync(
             new TwitterProfile(
               {
-                id: TwitterID(responseObj["user_id"]),
-                username: Username(responseObj["screen_name"]),
+                id: TwitterID(queryParams.get("user_id")!),
+                username: Username(queryParams.get("screen_name")!),
               },
-              {
-                token: BearerAuthToken(responseObj["oauth_token"]),
-                secret: TokenSecret(responseObj["oauth_token_secret"]),
-              },
+              new TokenAndSecret(
+                queryParams.get("oauth_token")! as BearerToken,
+                queryParams.get("oauth_token_secret")! as TokenSecret,
+              ),
             ),
           );
         }
+
         return errAsync(
           new TwitterError(
-            `Received corrupted access token object: ${responseObj}`,
+            `Received corrupted access token object: ${queryParams}`,
           ),
         );
       })
-      .andThen((profile) => this.populateProfile(config, profile));
+      .andThen((profile) => {
+        return this.populateProfile(config, profile);
+      });
   }
 
   public populateProfile(
@@ -118,13 +148,11 @@ export class TwitterRepository implements ITwitterRepository {
       this._fetchUserProfile(config, profile.userObject.id, profile.oAuth1a),
       this._fetchFollowing(config, profile.userObject.id, profile.oAuth1a),
       this._fetchFollowers(config, profile.userObject.id, profile.oAuth1a),
-    ])
-      .map(([userProfile, following, followers]) => {
-        profile.userObject = userProfile;
-        profile.followData = { following: following, followers: followers };
-        return profile;
-      })
-      .andThen((profile) => this.upsertUserProfile(profile).map(() => profile));
+    ]).andThen(([userProfile, following, followers]) => {
+      profile.userObject = userProfile;
+      profile.followData = { following: following, followers: followers };
+      return this.upsertUserProfile(profile).map(() => profile);
+    });
   }
 
   public upsertUserProfile(
@@ -163,29 +191,32 @@ export class TwitterRepository implements ITwitterRepository {
   private _fetchUserProfile(
     config: TwitterConfig,
     userId: TwitterID,
-    oAuth1a: ITokenAndSecret,
+    oAuth1Access: TokenAndSecret,
   ): ResultAsync<ITwitterUserObject, TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}`);
     return this.ajaxUtil
       .get<{ data: ITwitterUserObject }>(new URL(url), {
         headers: {
-          authorization: config.getOAuth1aHeader(
+          authorization: this.oAuthUtils.getOAuth1aString(
             {
               url: url,
               method: "GET",
             },
-            oAuth1a,
+            config.oauth,
+            oAuth1Access,
           ),
         },
       })
-      .mapErr((error) => new TwitterError(error.message))
+      .mapErr((error) => {
+        return new TwitterError(error.message);
+      })
       .map((responseObj) => responseObj.data);
   }
 
   private _fetchFollowers(
     config: TwitterConfig,
     userId: TwitterID,
-    oAuth1a: ITokenAndSecret,
+    oAuth1Access: TokenAndSecret,
     nextPageToken?: string,
     recursionCount: number = 1,
   ): ResultAsync<ITwitterUserObject[], TwitterError> {
@@ -203,17 +234,20 @@ export class TwitterRepository implements ITwitterRepository {
       }>(new URL(url), {
         params: pathParams,
         headers: {
-          authorization: config.getOAuth1aHeader(
+          authorization: this.oAuthUtils.getOAuth1aString(
             {
               url: url,
               method: "GET",
               data: pathParams,
             },
-            oAuth1a,
+            config.oauth,
+            oAuth1Access,
           ),
         },
       })
-      .mapErr((error) => new TwitterError(error.message))
+      .mapErr((error) => {
+        return new TwitterError(error.message);
+      })
       .andThen((responseObj) => {
         if (!responseObj.data || recursionCount > 100) {
           return okAsync([]);
@@ -222,7 +256,7 @@ export class TwitterRepository implements ITwitterRepository {
           return this._fetchFollowers(
             config,
             userId,
-            oAuth1a,
+            oAuth1Access,
             responseObj.meta.next_token,
             recursionCount + 1,
           ).map((rest) => [...responseObj.data, ...rest]);
@@ -234,7 +268,7 @@ export class TwitterRepository implements ITwitterRepository {
   private _fetchFollowing(
     config: TwitterConfig,
     userId: TwitterID,
-    oAuth1a: ITokenAndSecret,
+    oAuth1aAccess: TokenAndSecret,
     nextPageToken?: string,
     recursionCount: number = 1,
   ): ResultAsync<ITwitterUserObject[], TwitterError> {
@@ -252,17 +286,20 @@ export class TwitterRepository implements ITwitterRepository {
       }>(new URL(url), {
         params: pathParams,
         headers: {
-          authorization: config.getOAuth1aHeader(
+          authorization: this.oAuthUtils.getOAuth1aString(
             {
               url: url,
               method: "GET",
               data: pathParams,
             },
-            oAuth1a,
+            config.oauth,
+            oAuth1aAccess,
           ),
         },
       })
-      .mapErr((error) => new TwitterError(error.message))
+      .mapErr((error) => {
+        return new TwitterError(error.message);
+      })
       .andThen((responseObj) => {
         if (!responseObj.data || recursionCount > 100) {
           return okAsync([]);
@@ -271,7 +308,7 @@ export class TwitterRepository implements ITwitterRepository {
           return this._fetchFollowing(
             config,
             userId,
-            oAuth1a,
+            oAuth1aAccess,
             responseObj.meta.next_token,
             recursionCount + 1,
           ).map((rest) => [...responseObj.data, ...rest]);
@@ -280,18 +317,18 @@ export class TwitterRepository implements ITwitterRepository {
       });
   }
 
-  private _parseResponseString(res: string): object {
-    return Object.fromEntries(
-      res.split("&").map((paramPair) => [...paramPair.split("=")]),
+  private _isAccessTokenResponseValid(responseObj: URLSearchParams): boolean {
+    return (
+      this._responseHasOAuthToken(responseObj) &&
+      responseObj.get("screen_name") != null &&
+      responseObj.get("user_id") != null
     );
   }
 
-  private _isAccessTokenResponseValid(responseObj: object): boolean {
+  private _responseHasOAuthToken(responseObj: URLSearchParams): boolean {
     return (
-      responseObj["oauth_token"] &&
-      responseObj["oauth_token_secret"] &&
-      responseObj["screen_name"] &&
-      responseObj["user_id"]
+      responseObj.get("oauth_token") != null &&
+      responseObj.get("oauth_token_secret") != null
     );
   }
 }
