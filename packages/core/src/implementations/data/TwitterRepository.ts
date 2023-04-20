@@ -151,12 +151,9 @@ export class TwitterRepository implements ITwitterRepository {
     profiles: TwitterProfile[],
     config?: TwitterConfig,
   ): ResultAsync<TwitterProfile[], TwitterError | PersistenceError> {
-    console.log("populateProfile profiles:");
-    console.log(profiles);
     return ResultAsync.fromPromise(
       new Promise<TwitterConfig>((resolve) => {
         if (config != null) {
-          console.log("PASSED IN CONFIG. RETURNING IT.");
           resolve(config);
         }
         this._getAPIConfig().map(resolve);
@@ -167,9 +164,6 @@ export class TwitterRepository implements ITwitterRepository {
           e,
         ),
     ).andThen((config) => {
-      console.log("twitterRepository populateProfile config");
-      console.log(config);
-
       return ResultUtils.combine(
         profiles.map((p) => {
           return ResultUtils.combine([
