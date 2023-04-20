@@ -68,7 +68,7 @@ const testDiscordConfig = {
 
 const testTwitterConfig = new TwitterConfig(
   "boxruvqZNqFDLsWgc2BkbhHzn",
-  "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+  TokenSecret("WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw"),
   URLString("https://api.twitter.com/oauth"),
   URLString("oob"),
   URLString("https://api.twitter.com/2"),

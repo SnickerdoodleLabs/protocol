@@ -102,22 +102,26 @@ export class DiscordProfileMigrator {
   }
 }
 
-export interface ITwitterUserObject {
-  id: TwitterID;
-  username: Username;
-  name?: string;
+export class TwitterUserObject {
+  constructor(
+    public id: TwitterID,
+    public username: Username,
+    public name?: string,
+  ) {}
 }
 
-export interface ITwitterFollowData {
-  following: ITwitterUserObject[];
-  followers: ITwitterUserObject[];
+export class TwitterFollowData {
+  constructor(
+    public following: TwitterUserObject[],
+    public followers: TwitterUserObject[],
+  ) {}
 }
 
 export class TwitterProfile extends SocialProfile {
   public constructor(
-    public userObject: ITwitterUserObject,
+    public userObject: TwitterUserObject,
     public oAuth1a: TokenAndSecret,
-    public followData?: ITwitterFollowData,
+    public followData?: TwitterFollowData,
   ) {
     super(SocialPrimaryKey(`twitter-${userObject.id}`), ESocialType.TWITTER);
   }
@@ -130,10 +134,10 @@ export class TwitterProfile extends SocialProfile {
 export class TwitterProfileMigrator {
   public factory(data: Record<string, unknown>): TwitterProfile {
     return new TwitterProfile(
-      data["userObject"] as ITwitterUserObject,
+      data["userObject"] as TwitterUserObject,
       data["oAuth1a"] as TokenAndSecret,
       data["followData"]
-        ? (data["followData"] as ITwitterFollowData)
+        ? (data["followData"] as TwitterFollowData)
         : undefined,
     );
   }

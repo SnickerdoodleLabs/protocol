@@ -5,7 +5,7 @@ import {
 import {
   BearerToken,
   ESocialType,
-  ITwitterUserObject,
+  TwitterUserObject,
   OAuth1RequstToken,
   OAuthVerifier,
   PersistenceError,
@@ -18,6 +18,7 @@ import {
   TwitterProfile,
   URLString,
   Username,
+  TwitterFollowData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -172,7 +173,7 @@ export class TwitterRepository implements ITwitterRepository {
             this._fetchFollowers(config, p.userObject.id, p.oAuth1a),
           ]).andThen(([userProfile, following, followers]) => {
             p.userObject = userProfile;
-            p.followData = { following: following, followers: followers };
+            p.followData = new TwitterFollowData(following, followers);
             return this.upsertUserProfile(p).map(() => p);
           });
         }),
@@ -217,10 +218,10 @@ export class TwitterRepository implements ITwitterRepository {
     config: TwitterConfig,
     userId: TwitterID,
     oAuth1Access: TokenAndSecret,
-  ): ResultAsync<ITwitterUserObject, TwitterError> {
+  ): ResultAsync<TwitterUserObject, TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}`);
     return this.ajaxUtil
-      .get<{ data: ITwitterUserObject }>(new URL(url), {
+      .get<{ data: TwitterUserObject }>(new URL(url), {
         headers: {
           authorization: this.oAuthUtils.getOAuth1aString(
             {
@@ -244,7 +245,7 @@ export class TwitterRepository implements ITwitterRepository {
     oAuth1Access: TokenAndSecret,
     nextPageToken?: string,
     recursionCount: number = 1,
-  ): ResultAsync<ITwitterUserObject[], TwitterError> {
+  ): ResultAsync<TwitterUserObject[], TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}/followers`);
     const pathParams = {
       max_results: 1000,
@@ -254,7 +255,7 @@ export class TwitterRepository implements ITwitterRepository {
     }
     return this.ajaxUtil
       .get<{
-        data: ITwitterUserObject[];
+        data: TwitterUserObject[];
         meta: { result_count: number; next_token: string };
       }>(new URL(url), {
         params: pathParams,
@@ -296,7 +297,7 @@ export class TwitterRepository implements ITwitterRepository {
     oAuth1aAccess: TokenAndSecret,
     nextPageToken?: string,
     recursionCount: number = 1,
-  ): ResultAsync<ITwitterUserObject[], TwitterError> {
+  ): ResultAsync<TwitterUserObject[], TwitterError> {
     const url = URLString(config.dataAPIUrl + `/users/${userId}/following`);
     const pathParams = {
       max_results: 1000,
@@ -306,7 +307,7 @@ export class TwitterRepository implements ITwitterRepository {
     }
     return this.ajaxUtil
       .get<{
-        data: ITwitterUserObject[];
+        data: TwitterUserObject[];
         meta: { result_count: number; next_token: string };
       }>(new URL(url), {
         params: pathParams,

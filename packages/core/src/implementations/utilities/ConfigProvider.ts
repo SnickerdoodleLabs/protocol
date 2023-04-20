@@ -68,7 +68,7 @@ export class ConfigProvider
 
     const twitterConfig = new TwitterConfig(
       "boxruvqZNqFDLsWgc2BkbhHzn",
-      "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+      TokenSecret("WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw"),
       URLString("https://api.twitter.com/oauth"),
       URLString("oob"),
       URLString("https://api.twitter.com/2"),
@@ -219,7 +219,7 @@ export class ConfigProvider
     };
     this.config.twitter = new TwitterConfig(
       twitterConfig.apiKey ?? this.config.twitter.apiKey,
-      twitterConfig.apiSecretKey ?? this.config.twitter.apiSecretKey,
+      TokenSecret(twitterConfig.apiSecretKey ?? this.config.twitter.apiSecretKey),
       twitterConfig.oAuthBaseUrl ?? this.config.twitter.oAuthBaseUrl,
       twitterConfig.oAuthCallbackUrl ?? this.config.twitter.oAuthCallbackUrl,
       twitterConfig.dataAPIUrl ?? this.config.twitter.dataAPIUrl,

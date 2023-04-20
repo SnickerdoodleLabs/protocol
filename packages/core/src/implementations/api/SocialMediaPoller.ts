@@ -11,8 +11,6 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { ESocialType } from "@snickerdoodlelabs/objects";
-import { CoreConfig } from "@core/interfaces/objects";
 
 @injectable()
 export class SocialMediaPoller implements ISocialMediaPoller {
@@ -25,45 +23,12 @@ export class SocialMediaPoller implements ISocialMediaPoller {
 
   initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      Object.values(ESocialType).forEach((platform) => {
-        if (!this._platformHasValidPollingSettings(config, platform)) {
-          return;
-        }
-        const platformLowerCase = platform.toLowerCase();
-        this.logUtils.debug(
-          `Initializing ${platformLowerCase} poller with ${config[platformLowerCase].pollInterval} MS`,
-        );
-        setInterval(() => {
-          this.monitoringService[`poll${platform}`]().mapErr(
-            this.logUtils.error,
-          );
-        }, config[platformLowerCase].pollInterval);
-      });
+      setInterval(() => {
+        this.monitoringService.pollDiscord().mapErr(this.logUtils.error);
+      }, config.discord.pollInterval);
+      setInterval(() => {
+        this.monitoringService.pollTwitter().mapErr(this.logUtils.error);
+      }, config.twitter.pollInterval);
     });
-  }
-
-  private _platformHasValidPollingSettings(
-    config: CoreConfig,
-    platform: ESocialType,
-  ): boolean {
-    if (this.monitoringService[`poll${platform}`] == null) {
-      this.logUtils.warning(
-        `Not initializing ${platform} poller because it doesn't have a polling function named poll${platform}`,
-      );
-      return false;
-    }
-
-    const platformLowerCase = platform.toLowerCase();
-    if (
-      config[platformLowerCase] == null ||
-      config[platformLowerCase].pollInterval == null
-    ) {
-      this.logUtils.warning(
-        `Not initializing ${platformLowerCase} poller because it doesn't have a polling interval set up.`,
-      );
-      return false;
-    }
-
-    return true;
   }
 }

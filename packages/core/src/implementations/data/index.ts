@@ -18,4 +18,5 @@ export * from "@core/implementations/data/SDQLQueryRepository.js";
 export * from "@core/implementations/data/SiftContractRepository.js";
 export * from "@core/implementations/data/TransactionHistoryRepository.js";
 export * from "@core/implementations/data/TwitterRepository.js";
+
 export * from "@core/implementations/data/utilities/index.js";
