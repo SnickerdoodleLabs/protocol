@@ -245,7 +245,7 @@ export class VolatileStorageSchemaProvider
             false,
             new SocialProfileMigrator(),
             EBackupPriority.NORMAL,
-            config.dataWalletBackupIntervalMS,
+            0,
             config.backupChunkSizeTarget,
             [["type", false]],
           ),
