@@ -1,7 +1,9 @@
 import {
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
   OAuth1RequstToken,
-  TokenAndSecret,
   OAuthVerifier,
+  TokenAndSecret,
   TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
@@ -10,43 +12,56 @@ import { ResultAsync } from "neverthrow";
 
 import { ITwitterService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
-  ITwitterRepository,
-  ITwitterRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data";
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()
 export class TwitterService implements ITwitterService {
   constructor(
-    @inject(ITwitterRepositoryType)
-    protected twitterRepository: ITwitterRepository,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
   public getOAuth1aRequestToken(): ResultAsync<
     TokenAndSecret,
     SnickerDoodleCoreError
   > {
-    return this.twitterRepository.getOAuth1aRequestToken();
+    return this.core.twitter.getOAuth1aRequestToken().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
   public initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, SnickerDoodleCoreError> {
-    return this.twitterRepository.initTwitterProfile(
-      requestToken,
-      oAuthVerifier,
-    );
+    return this.core.twitter
+      .initTwitterProfile(requestToken, oAuthVerifier)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public unlinkProfile(
     id: TwitterID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.twitterRepository.unlinkProfile(id);
+    return this.core.twitter.unlinkProfile(id).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 
-  public getUserProfiles(
-  ): ResultAsync<TwitterProfile[], SnickerDoodleCoreError> {
-    return this.twitterRepository.getUserProfiles();
+  public getUserProfiles(): ResultAsync<
+    TwitterProfile[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.twitter.getUserProfiles().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 }
