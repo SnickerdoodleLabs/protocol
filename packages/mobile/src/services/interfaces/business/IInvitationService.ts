@@ -12,6 +12,18 @@ import {
   Signature,
   TokenId,
   MarketplaceListing,
+  PersistenceError,
+  ConsentContractRepositoryError,
+  ConsentContractError,
+  BlockchainProviderError,
+  UninitializedError,
+  AjaxError,
+  MinimalForwarderContractError,
+  ConsentError,
+  AccountAddress,
+  ConsentFactoryContractError,
+  IPFSError,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import { MobileStorageError } from "../objects/errors/MobileStorageError";
@@ -24,8 +36,8 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    dataTypes: EWalletDataType[] | null,
-  ): ResultAsync<void, SnickerDoodleCoreError | MobileStorageError>;
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
 
   rejectInvitation(
     invitation: Invitation,
@@ -35,7 +47,27 @@ export interface IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 
-  getInvitationByDomain(
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError>;
+
+  getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  >;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
+
+  getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
 
@@ -43,30 +75,22 @@ export interface IInvitationService {
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   >;
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
 
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<HexString32, SnickerDoodleCoreError>;
+
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   >;
-
-  getAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError>;
-
-  getConsentContractCID(
-    consentAddress: EVMContractAddress,
-  ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
-
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
-
-  getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

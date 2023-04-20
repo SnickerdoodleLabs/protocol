@@ -41,6 +41,7 @@ import {
   IBrowsingDataRepository,
   ITransactionHistoryRepository,
   IDemographicDataRepository,
+  ISocialRepository,
 } from "@core/interfaces/data/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
@@ -75,6 +76,7 @@ class QueryEvaluatorMocks {
   public demoDataRepo = td.object<IDemographicDataRepository>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
+  public socialRepo = td.object<ISocialRepository>();
 
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
@@ -217,7 +219,7 @@ class QueryEvaluatorMocks {
 
     td.when(this.demoDataRepo.getGender()).thenReturn(okAsync(Gender("male")));
 
-    td.when(this.browsingDataRepo.getSiteVisitsMap()).thenReturn(
+    td.when(this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything())).thenReturn(
       okAsync(this.URLmap),
     );
 
@@ -239,6 +241,7 @@ class QueryEvaluatorMocks {
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
+      this.socialRepo
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(
@@ -255,7 +258,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -271,7 +274,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -286,7 +289,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -304,7 +307,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -319,7 +322,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -334,7 +337,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -352,7 +355,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -368,7 +371,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -384,7 +387,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -402,7 +405,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -418,7 +421,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -434,7 +437,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -452,7 +455,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -468,7 +471,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -483,7 +486,7 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -501,7 +504,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -516,7 +519,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -531,7 +534,7 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -549,7 +552,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -565,7 +568,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -581,7 +584,7 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -599,7 +602,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -615,7 +618,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -631,7 +634,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL3,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -650,7 +653,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
       "age",
       conditionsE,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -665,7 +668,7 @@ describe("QueryEvaluator checking age boolean: E", () => {
       "age",
       conditionsE2,
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -725,7 +728,7 @@ describe("QueryEvaluator return integer values", () => {
       "age",
       [],
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -757,7 +760,7 @@ describe("QueryEvaluator return integer values", () => {
       "gender",
       [],
       ["male", "female", "non-binary", "unknown"],
-      {},
+      {} 
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -768,23 +771,26 @@ describe("QueryEvaluator return integer values", () => {
 });
 
 describe("Return URLs Map", () => {
-  test("EvalPropertyQuery: return URLs count", async () => {
+  test("EvalPropertyQuery: return URLs count ", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
       ESDQLQueryReturn.Object,
       "url_visited_count",
       [],
       [],
-      {},
+      {}
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
+    
     const result = await repo.eval(propertyQuery);
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
       new Map<URLString, number>([[URLString("www.snickerdoodlelabs.io"), 10]]),
     );
   });
+
+
 });
 
 describe("Return Chain Transaction Flow", () => {
@@ -799,7 +805,7 @@ describe("Return Chain Transaction Flow", () => {
         "^ETH|AVAX|SOL$": {
           type: "integer",
         },
-      },
+      } 
     );
 
     //const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];

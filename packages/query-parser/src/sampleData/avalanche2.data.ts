@@ -1,10 +1,13 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { MillisecondTimestamp } from "@snickerdoodlelabs/objects";
 
 const timeUtils = new TimeUtils();
 export const avalanche2SchemaStr = JSON.stringify({
   version: 0.1,
   timestamp: timeUtils.getISO8601TimeString(),
-  expiry: timeUtils.getISO8601TimeString(Date.now() + 1000 * 60 * 60 * 24),
+  expiry: timeUtils.getISO8601TimeString(
+    MillisecondTimestamp(Date.now() + 1000 * 60 * 60 * 24),
+  ),
   description:
     "Interactions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",

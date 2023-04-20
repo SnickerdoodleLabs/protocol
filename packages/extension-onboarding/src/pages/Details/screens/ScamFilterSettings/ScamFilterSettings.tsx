@@ -1,6 +1,5 @@
-import * as defaultLoading from "@extension-onboarding/assets/lotties/loading.json";
 import Switch from "@extension-onboarding/components/Switch";
-import { LOTTIE_DEFAULT_OPTIONS } from "@extension-onboarding/constants/lottieDefaults";
+import Typography from "@extension-onboarding/components/Typography";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/ScamFilterSettings/ScamFilterSettings.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
@@ -8,13 +7,10 @@ import {
   CircularProgress,
   Divider,
   FormControlLabel,
-  Grid,
   Radio,
   RadioGroup,
-  Typography,
 } from "@material-ui/core";
 import React, { FC, useEffect, useState } from "react";
-import Lottie from "react-lottie";
 declare const window: IWindowWithSdlDataWallet;
 
 interface IScamFilterPreferences {
@@ -66,10 +62,12 @@ const ScamFilterSettings: FC = () => {
   return (
     <Box>
       <Box>
-        <Typography className={classes.title}>Scam Filter Settings</Typography>
-        <Typography className={classes.description}>
-          Update your scam filter preferences to optimize your experience.
-        </Typography>
+        <Typography variant="pageTitle">Scam Filter Settings</Typography>
+        <Box mt={1}>
+          <Typography variant="pageDescription">
+            Update your scam filter preferences to optimize your experience.
+          </Typography>
+        </Box>
       </Box>
       {!isLoading ? (
         <Box mt={4}>
@@ -115,6 +113,7 @@ const ScamFilterSettings: FC = () => {
             </Box>
             {scamFilterPreferences?.isScamFilterActive === true && (
               <Box
+                bgcolor="#fff"
                 mt={0.5}
                 mb={2}
                 border="1px solid #D9D9D9"
@@ -131,14 +130,7 @@ const ScamFilterSettings: FC = () => {
                     }
                   >
                     <FormControlLabel
-                      className={
-                        scamFilterPreferences?.isScamFilterActive
-                          ? classes.label
-                          : classes.labelDeactive
-                      }
-                      disabled={
-                        !scamFilterPreferences?.isScamFilterActive ?? false
-                      }
+                      className={classes.label}
                       value={true}
                       control={<Radio />}
                       label={`Show me a "verified" message for each website, every time I visit.`}
@@ -147,14 +139,7 @@ const ScamFilterSettings: FC = () => {
                       <Divider />
                     </Box>
                     <FormControlLabel
-                      className={
-                        scamFilterPreferences?.isScamFilterActive
-                          ? classes.label
-                          : classes.labelDeactive
-                      }
-                      disabled={
-                        !scamFilterPreferences?.isScamFilterActive ?? false
-                      }
+                      className={classes.label}
                       value={false}
                       control={<Radio />}
                       label={`Show me a "verified" message for each website, only the first time I visit.`}

@@ -118,8 +118,8 @@ class InvitationServiceMocks {
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));
     td.when(
-      this.consentRepo.getAvailableOptInCount(consentContractAddress1),
-    ).thenReturn(okAsync(10));
+      this.consentRepo.getConsentCapacity(consentContractAddress1),
+    ).thenReturn(okAsync({ availableOptInCount: 10, maxCapacity: 10 }));
 
     td.when(
       this.invitationRepo.getInvitationDomainByCID(ipfsCID, domain),
@@ -189,8 +189,8 @@ describe("InvitationService tests", () => {
     const mocks = new InvitationServiceMocks();
 
     td.when(
-      mocks.consentRepo.getAvailableOptInCount(consentContractAddress1),
-    ).thenReturn(okAsync(0));
+      mocks.consentRepo.getConsentCapacity(consentContractAddress1),
+    ).thenReturn(okAsync({ availableOptInCount: 0, maxCapacity: 10 }));
 
     const service = mocks.factory();
 

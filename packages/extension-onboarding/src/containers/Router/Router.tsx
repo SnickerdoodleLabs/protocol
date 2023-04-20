@@ -38,7 +38,7 @@ const Router: FC = () => {
                     to={
                       appMode === EAppModes.ONBOARDING_FLOW
                         ? EPaths.ONBOARDING_LINK_ACCOUNT
-                        : EPaths.MY_REWARDS
+                        : EPaths.MARKETPLACE
                     }
                   />
                 }

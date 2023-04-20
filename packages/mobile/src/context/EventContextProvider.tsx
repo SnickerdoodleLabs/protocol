@@ -1,8 +1,8 @@
 import {
   DataWalletAddress,
+  EDynamicRewardParameterType,
   IDynamicRewardParameter,
   LinkedAccount,
-  RecipientAddressType,
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
@@ -40,6 +40,11 @@ const EventContextProvider = ({ children }) => {
   };
 
   const onQueryPosted = (request: SDQLQueryRequest) => {
+    console.log(
+      `Extension: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
+    );
+    console.debug(request.query.query);
+
     // @TODO - remove once ipfs issue is resolved
     const getStringQuery = () => {
       const queryObjOrStr = request.query.query;
@@ -55,39 +60,46 @@ const EventContextProvider = ({ children }) => {
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-    request.rewardsPreview.forEach((element) => {
-      if (request.dataWalletAddress !== null) {
-        parameters.push({
-          recipientAddress: {
-            type: "address",
-            value: RecipientAddressType(
-              request.accounts[0].sourceAccountAddress,
-            ),
-          },
-        } as IDynamicRewardParameter);
-      }
-    });
 
-    mobileCore
-      .getCore()
-      .processQuery(
-        request.consentContractAddress,
-        {
-          cid: request.query.cid,
-          query: getStringQuery(),
-        },
-        parameters as IDynamicRewardParameter[],
-      )
-      .map(() => {
-        console.log(
-          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-      })
-      .mapErr((e) => {
-        console.error(
-          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-        console.error(e);
+    mobileCore.invitationService
+      .getReceivingAddress(request.consentContractAddress)
+      .map((accountAddress) => {
+        request.rewardsPreview.forEach((eligibleReward) => {
+          if (request.dataWalletAddress !== null) {
+            parameters.push({
+              recipientAddress: {
+                type: EDynamicRewardParameterType.Address,
+                value: accountAddress,
+              },
+              compensationId: {
+                type: EDynamicRewardParameterType.CompensationId,
+                value: eligibleReward.compensationKey,
+              },
+            } as IDynamicRewardParameter);
+          }
+        });
+
+        mobileCore
+          .getCore()
+          .approveQuery(
+            request.consentContractAddress,
+            {
+              cid: request.query.cid,
+              query: getStringQuery(),
+            },
+            parameters,
+          )
+          .map(() => {
+            console.log(
+              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+            );
+          })
+          .mapErr((e) => {
+            console.error(
+              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+            );
+            console.error(e);
+          });
       });
   };
 

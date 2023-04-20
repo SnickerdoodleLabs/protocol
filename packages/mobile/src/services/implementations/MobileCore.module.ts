@@ -46,6 +46,10 @@ import {
   IDataPermissionsRepositoryType,
 } from "../interfaces/data/IDataPermissionsRepository";
 import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
+import { IConfigProvider, IConfigProviderType } from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import { IIndexerConfigProvider, IIndexerConfigProviderType } from "@snickerdoodlelabs/indexers";
+import { ConfigProvider } from "@snickerdoodlelabs/core";
+
 export const mobileCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -73,6 +77,11 @@ export const mobileCoreModule = new ContainerModule(
     );
 
     // Utilities
+    const configProvider = new ConfigProvider();
+    bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
+    bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
+      configProvider,
+    );
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)

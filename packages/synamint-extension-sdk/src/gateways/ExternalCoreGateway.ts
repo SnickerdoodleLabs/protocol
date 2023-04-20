@@ -30,7 +30,21 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
+  ISdlDiscordMethods,
+  BearerAuthToken,
+  DiscordProfile,
+  DiscordGuildProfile,
+  SnowflakeID,
+  OAuthAuthorizationCode,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   SnickerDoodleCoreError,
@@ -62,20 +76,50 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
-  IGetMarketplaceListingsParams,
+  IGetMarketplaceListingsByTagParams,
   ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
   IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
+  IGetListingsTotalByTagParams,
+  IInitializeDiscordUser,
+  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
+  public discord: ISdlDiscordMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
+    this.discord = {
+      initializeUserWithAuthorizationCode: (
+        code: OAuthAuthorizationCode,
+      ): ResultAsync<void, JsonRpcError> => {
+        return this._handler.call(EExternalActions.INITIALIZE_DISCORD_USER, {
+          code,
+        } as IInitializeDiscordUser);
+      },
+      installationUrl: (): ResultAsync<URLString, JsonRpcError> => {
+        return this._handler.call(EExternalActions.INSTALLATION_DISCORD_URL);
+      },
+      getUserProfiles: (): ResultAsync<DiscordProfile[], JsonRpcError> => {
+        return this._handler.call(EExternalActions.GET_DISCORD_USER_PROFILES);
+      },
+      getGuildProfiles: (): ResultAsync<
+        DiscordGuildProfile[],
+        JsonRpcError
+      > => {
+        return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
+      },
+      unlink: (discordProfileId: SnowflakeID) => {
+        return this._handler.call(EExternalActions.UNLINK_DISCORD_ACCOUNT, {
+          discordProfileId,
+        } as IUnlinkDiscordAccount);
+      },
+    };
   }
 
   public updateRpcEngine(rpcEngine: JsonRpcEngine) {
@@ -403,18 +447,27 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_SITE_VISITS_MAP);
   }
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this._handler.call(EExternalActions.GET_MARKETPLACE_LISTINGS, {
-      count,
-      headAt,
-    } as IGetMarketplaceListingsParams);
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
+    return this._handler.call(
+      EExternalActions.GET_MARKETPLACE_LISTINGS_BY_TAG,
+      {
+        pagingReq,
+        tag,
+        filterActive,
+      } as IGetMarketplaceListingsByTagParams,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this._handler.call(EExternalActions.GET_LISTING_TOTAL);
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_LISTING_TOTAL_BY_TAG, {
+      tag,
+    } as IGetListingsTotalByTagParams);
   }
 
   public setDefaultReceivingAddress(
@@ -441,5 +494,26 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_RECEIVING_ACCOUNT, {
       contractAddress,
     } as IGetReceivingAddressParams);
+  }
+
+  public getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_CONSENT_CAPACITY, {
+      contractAddress,
+    } as IGetConsentCapacityParams);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this._handler.call(EExternalActions.GET_POSSIBLE_REWARDS, {
+      contractAddresses,
+      timeoutMs,
+    } as IGetPossibleRewardsParams);
   }
 }

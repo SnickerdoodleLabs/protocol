@@ -47,6 +47,44 @@ export class DataPermissionsRepository implements IDataPermissionsRepository {
       return false;
     });
   }
+  public getPermissions(): ResultAsync<EWalletDataType[], MobileStorageError> {
+    return ResultAsync.fromPromise(
+      AsyncStorage.getItem("walletDataTypes"),
+      (e) => new MobileStorageError("could not read key defaultFlags"),
+    ).map((perms) => {
+      if (perms) {
+        return JSON.parse(perms);
+      } else {
+        AsyncStorage.setItem(
+          "walletDataTypes",
+          JSON.stringify([
+            EWalletDataType.Gender,
+            EWalletDataType.Birthday,
+            EWalletDataType.Location,
+            EWalletDataType.SiteVisits,
+            EWalletDataType.EVMTransactions,
+            EWalletDataType.AccountBalances,
+            EWalletDataType.AccountNFTs,
+          ]),
+        );
+        return [
+          (EWalletDataType.Gender,
+          EWalletDataType.Birthday,
+          EWalletDataType.Location,
+          EWalletDataType.SiteVisits,
+          EWalletDataType.EVMTransactions,
+          EWalletDataType.AccountBalances,
+          EWalletDataType.AccountNFTs),
+        ];
+      }
+    });
+  }
+  public setPermissions(
+    walletDataTypes: EWalletDataType[],
+  ): ResultAsync<void, MobileStorageError> {
+    AsyncStorage.setItem("walletDataTypes", JSON.stringify(walletDataTypes));
+    return okAsync(undefined);
+  }
 
   public setApplyDefaultPermissionsOption(
     option: boolean,

@@ -10,31 +10,31 @@ import {
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  Invitation,
-  EInvitationStatus,
-  UninitializedError,
-  PersistenceError,
-  DataPermissions,
-  ConsentError,
-  EVMContractAddress,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  BlockchainProviderError,
+  AccountAddress,
   AjaxError,
   BigNumberString,
-  MinimalForwarderContractError,
-  DomainName,
-  IPFSError,
-  PageInvitation,
+  BlockchainProviderError,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  ConsentError,
   ConsentFactoryContractError,
+  DataPermissions,
+  DomainName,
+  EInvitationStatus,
+  EVMContractAddress,
+  HexString32,
+  Invitation,
   IOpenSeaMetadata,
   IpfsCID,
-  HexString32,
-  TokenId,
-  Signature,
-  MarketplaceListing,
-  AccountAddress,
+  IPFSError,
   LinkedAccount,
+  IConsentCapacity,
+  MinimalForwarderContractError,
+  PageInvitation,
+  PersistenceError,
+  Signature,
+  TokenId,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -50,16 +50,14 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IDNSRepositoryType,
   IDNSRepository,
-  IInvitationRepositoryType,
+  IDNSRepositoryType,
   IInvitationRepository,
-  IMetatransactionForwarderRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMarketplaceRepositoryType,
-  IMarketplaceRepository,
-  ILinkedAccountRepositoryType,
+  IInvitationRepositoryType,
   ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
@@ -112,9 +110,7 @@ export class InvitationService implements IInvitationService {
       // isAddressOptedIn() just checks for a balance- it does not require that the persistence
       // layer actually know about the token
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
-      this.consentRepo.getAvailableOptInCount(
-        invitation.consentContractAddress,
-      ),
+      this.getConsentCapacity(invitation.consentContractAddress),
       this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
     ])
       .andThen(
@@ -122,7 +118,7 @@ export class InvitationService implements IInvitationService {
           rejectedConsentContracts,
           acceptedInvitations,
           optedInOnChain,
-          availableOptIns,
+          consentCapacity,
           openOptInDisabled,
         ]) => {
           const rejected = rejectedConsentContracts.includes(
@@ -144,11 +140,20 @@ export class InvitationService implements IInvitationService {
               return okAsync(EInvitationStatus.Accepted);
             }
             // There's no known accepted invitation
-            // Add it to the persistence, then return Accepted
-            return this.accountRepo
-              .addAcceptedInvitations([invitation])
-              .map(() => {
-                return EInvitationStatus.Accepted;
+            // Get latest opt-in tokenId from chain, and restore Invitation in the persistence
+            return this.consentRepo
+              .getLatestConsentTokenId(invitation.consentContractAddress)
+              .andThen((tokenIdOrNull) => {
+                return this.accountRepo
+                  .addAcceptedInvitations([
+                    new Invitation(
+                      invitation.domain,
+                      invitation.consentContractAddress,
+                      tokenIdOrNull ?? invitation.tokenId,
+                      invitation.businessSignature,
+                    ),
+                  ])
+                  .map(() => EInvitationStatus.Accepted);
               });
           }
 
@@ -170,7 +175,7 @@ export class InvitationService implements IInvitationService {
           }
 
           // Next up, if there are no slots available, then it's an Invalid invitation
-          if (availableOptIns == 0) {
+          if (consentCapacity.availableOptInCount == 0) {
             return okAsync(EInvitationStatus.OutOfCapacity);
           }
 
@@ -497,12 +502,12 @@ export class InvitationService implements IInvitationService {
             // You're not actually opted in!
             // But we think we are. We should remove this from persistence
             this.logUtils.warning(
-              "No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!",
+              `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!`,
             );
             return okAsync(undefined);
           }
 
-          this.logUtils.debug("Existing consent token", consentToken);
+          this.logUtils.debug("Existing consent token ", consentToken);
 
           const optInAccountAddress =
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
@@ -628,6 +633,15 @@ export class InvitationService implements IInvitationService {
       );
   }
 
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo.getConsentCapacity(consentContractAddress);
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
@@ -656,10 +670,10 @@ export class InvitationService implements IInvitationService {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
-      this.consentRepo.getAvailableOptInCount(consentContractAddress),
-    ]).andThen(([invitationUrls, ipfsCID, availableOptIns]) => {
+      this.getConsentCapacity(consentContractAddress),
+    ]).andThen(([invitationUrls, ipfsCID, consentCapacity]) => {
       // If there's no slots, there's no invites
-      if (availableOptIns == 0) {
+      if (consentCapacity.availableOptInCount == 0) {
         return okAsync([]);
       }
 
@@ -933,12 +947,10 @@ export class InvitationService implements IInvitationService {
             );
           })
           .map((consentAddress) =>
-            this.consentRepo
-              .getAvailableOptInCount(consentAddress)
-              .map((availableOptIns) => ({
-                availableOptIns,
-                consentAddress,
-              })),
+            this.getConsentCapacity(consentAddress).map((consentCapacity) => ({
+              availableOptIns: consentCapacity.availableOptInCount,
+              consentAddress,
+            })),
           ),
       ).map((results) =>
         results

@@ -14,6 +14,7 @@ import LoadingLottie from "../../assets/lotties/loading.json";
 import { useAppContext } from "../../context/AppContextProvider";
 
 import { styles } from "./Initial.styles";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 // Make all neccassary checks here
 
@@ -41,14 +42,27 @@ const Initial = ({ navigation }) => {
       unlockCompleted === EUnlockState.NO_ACCOUNT
     );
   }, [unlockCompleted, isUnlocked]);
+  const [gifLoaded, setGifLoaded] = useState(false);
 
   useEffect(() => {
     tryUnlock();
   }, []);
 
   useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+    return () =>
+      navigation.getParent()?.setOptions({
+        tabBarStyle: undefined,
+      });
+  }, [navigation]);
+
+  useEffect(() => {
     if (allChecksCompleted) {
-      navigation.replace(isUnlocked ? "Wallet" : "Starter_Tour");
+      navigation.replace(isUnlocked ? "Dashboard" : "Onboarding");
     }
   }, [allChecksCompleted, isUnlocked]);
 
@@ -131,15 +145,20 @@ const Initial = ({ navigation }) => {
     <View
       style={[
         {
+          flex: 1,
           alignItems: "center",
-          display: "flex",
-          width: "100%",
-          height: "100%",
-          backgroundColor: "#000",
+          justifyContent: "center",
+          backgroundColor: "white",
         },
       ]}
     >
       <Image
+        source={require("../../assets/images/sd-animated.gif")}
+        style={{ height: normalizeHeight(140), width: normalizeWidth(380) }}
+        onLoadEnd={() => setGifLoaded(true)}
+      />
+
+      {/*      <Image
         resizeMode={"cover"}
         source={require("../../assets/images/sd-horizontal.png")}
         style={{
@@ -148,7 +167,7 @@ const Initial = ({ navigation }) => {
         }}
       />
 
-      <LottieView source={LoadingLottie} autoPlay loop />
+      <LottieView source={LoadingLottie} autoPlay loop /> */}
     </View>
   );
 };

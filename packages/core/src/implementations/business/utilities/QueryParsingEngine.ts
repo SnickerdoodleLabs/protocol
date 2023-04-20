@@ -4,12 +4,10 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   EligibleAd,
-  EligibleReward,
   ERewardType,
   EvaluationError,
   EVMContractAddress,
   ExpectedReward,
-  IDynamicRewardParameter,
   IInsights,
   IInsightsQueries,
   IInsightsReturns,
@@ -119,21 +117,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
-    [IInsights, EligibleReward[]],
+    IInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const schemaString = query.query;
-    const cid: IpfsCID = query.cid;
-
     return this.queryFactories
-      .makeParserAsync(cid, schemaString)
+      .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        return this.gatherInsights(sdqlParser, cid, dataPermissions);
-      })
-      .map((insights) => {
-        return [insights, []] as [IInsights, EligibleReward[]];
+        return this.gatherInsights(sdqlParser, query.cid, dataPermissions);
       });
   }
 
@@ -310,15 +301,22 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     return this.getPermittedQueries(sdqlParser, ast, dataPermissions).andThen(
-      (queries) => {
-        return ResultUtils.combine(this.evalQueries(queries)).map((results) => {
-          return Object.fromEntries(
-            results.map(([queryId, sdqlReturn]) => [
-              queryId,
-              this.SDQLReturnToInsightString(sdqlReturn),
-            ]),
-          ) as IInsightsQueries;
-        });
+      (permittedQueries) => {
+        const allQueries = this.getAllQueriesFromAst(ast);
+
+        return ResultUtils.combine(this.evalQueries(permittedQueries)).map(
+          (results) => {
+            return Object.fromEntries(
+              allQueries.map((query) => {
+                const queryIdentifier = QueryIdentifier(query.name);
+                const sdqlReturn = (results.find(
+                  (result) => result[0] === queryIdentifier,
+                ) || [queryIdentifier, null])[1];
+                return [query.name, this.SDQLReturnToInsight(sdqlReturn)];
+              }),
+            ) as IInsightsQueries;
+          },
+        );
       },
     );
   }
@@ -363,6 +361,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IInsightsReturns,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
+    const allReturns = [...ast.logic.returns.keys()];
+
     return ResultUtils.combine(
       this.evalReturns(
         ast,
@@ -371,10 +371,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       ),
     ).map((results) => {
       return Object.fromEntries(
-        results.map(([returnExpr, sdqlReturn]) => [
-          returnExpr,
-          this.SDQLReturnToInsightString(sdqlReturn),
-        ]),
+        allReturns.map((returnExpr) => {
+          const sdqlReturn = (results.find(
+            (result) => result[0] === returnExpr,
+          ) || [returnExpr, null])[1];
+
+          return [returnExpr, this.SDQLReturnToInsight(sdqlReturn)];
+        }),
       ) as IInsightsReturns;
     });
   }
@@ -389,13 +392,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
-  protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
+  protected SDQLReturnToInsight(
+    sdqlR: SDQL_Return | null,
+  ): InsightString | null {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 
-    if (typeof actualTypeData == "string") {
+    if (actualTypeData == null) {
+      return null;
+    } else if (typeof actualTypeData == "string") {
       return InsightString(actualTypeData);
-    } else if (actualTypeData == null) {
-      return InsightString("");
     } else {
       return InsightString(JSON.stringify(actualTypeData));
     }

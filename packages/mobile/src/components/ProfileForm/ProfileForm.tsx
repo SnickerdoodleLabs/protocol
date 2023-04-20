@@ -20,14 +20,7 @@ import DatePicker from "react-native-date-picker";
 import { ROUTES } from "../../constants";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useAppContext } from "../../context/AppContextProvider";
-import {
-  DomainName,
-  EVMContractAddress,
-  EWalletDataType,
-  Invitation,
-  TokenId,
-  UnixTimestamp,
-} from "@snickerdoodlelabs/objects";
+import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { countries } from "../../services/interfaces/objects/Countries";
 
 export const ProfileForm = ({ navigation }) => {

@@ -14,7 +14,7 @@ export class MobileStorageUtils implements IStorageUtils {
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(
-      AsyncStorage.setItem(key, value as string),
+      AsyncStorage.setItem(key, JSON.stringify(value)),
       (e) => {
         return new PersistenceError(
           `Cannot write key ${key} to mobile storage, ${e}`,
@@ -29,7 +29,11 @@ export class MobileStorageUtils implements IStorageUtils {
         `Cannot read key ${key} from mobile storage, ${e}`,
       );
     }).map((val) => {
-      return val as T;
+      if (val) {
+        return JSON.parse(val) as T;
+      } else {
+        return null;
+      }
     });
   }
 

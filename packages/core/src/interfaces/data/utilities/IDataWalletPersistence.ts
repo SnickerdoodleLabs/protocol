@@ -2,18 +2,16 @@ import {
   BackupFileName,
   DataWalletBackupID,
   EBackupPriority,
+  EFieldKey,
+  ERecordKey,
   EVMPrivateKey,
-  IDataWalletBackup,
+  DataWalletBackup,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
-import {
-  EFieldKey,
-  ERecordKey,
-  IVolatileCursor,
-} from "@snickerdoodlelabs/persistence";
+import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -40,28 +38,22 @@ export interface IDataWalletPersistence {
   // write methods
   updateRecord<T extends VersionedObject>(
     tableName: ERecordKey,
-    value: VolatileStorageMetadata<T>,
+    value: T,
   ): ResultAsync<void, PersistenceError>;
   deleteRecord(
     tableName: ERecordKey,
     key: VolatileStorageKey,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
     value: object,
-    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
 
   // read methods
-  getField<T>(
-    key: EFieldKey,
-    priority?: EBackupPriority,
-  ): ResultAsync<T | null, PersistenceError>;
+  getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError>;
   getObject<T extends VersionedObject>(
     name: ERecordKey,
     key: VolatileStorageKey,
-    priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
     name: ERecordKey,
@@ -69,11 +61,15 @@ export interface IDataWalletPersistence {
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
-    priority?: EBackupPriority,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
     name: ERecordKey,
     indexName?: string,
+  ): ResultAsync<T[], PersistenceError>;
+  getAllByIndex<T extends VersionedObject>(
+    name: ERecordKey,
+    indexName: string,
+    query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
   getAllKeys<T extends VersionedObject>(
@@ -81,24 +77,25 @@ export interface IDataWalletPersistence {
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
-    priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods
-  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
+  postBackups(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
   waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
   unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
 
   listFileNames(): ResultAsync<BackupFileName[], PersistenceError>;
   fetchBackup(
     backupHeader: string,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError>;
+  ): ResultAsync<DataWalletBackup[], PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

@@ -1,6 +1,4 @@
-import {
-ObjectUtils
-} from "@snickerdoodlelabs/common-utils";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { parse } from "querystring";
 import { useEffect, useState } from "react";
 import { Linking } from "react-native";

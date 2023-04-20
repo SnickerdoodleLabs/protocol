@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   Invitation,
   DataPermissions,
@@ -22,6 +20,11 @@ import {
   AdSignature,
   AESEncryptedString,
   PossibleReward,
+  PagingRequest,
+  PagedResponse,
+  DiscordProfile,
+  DiscordGuildProfile,
+  DataWalletBackup,
 } from "@objects/businessObjects";
 import {
   EChain,
@@ -38,11 +41,14 @@ import {
   ConsentError,
   ConsentFactoryContractError,
   CrumbsContractError,
+  DiscordError,
   EvaluationError,
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
+  KeyGenerationError,
   MinimalForwarderContractError,
+  OAuthError,
   PersistenceError,
   QueryFormatError,
   SiftContractError,
@@ -50,13 +56,17 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
 import {
   AccountAddress,
+  AdKey,
+  AdSurfaceId,
   AESKey,
   Age,
+  BearerAuthToken,
+  BackupFileName,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -71,11 +81,18 @@ import {
   HexString,
   HexString32,
   IpfsCID,
+  JsonWebToken,
   LanguageCode,
+  MarketplaceTag,
+  OAuthAuthorizationCode,
+  PEMEncodedRSAPublicKey,
+  SHA256Hash,
   Signature,
+  SnowflakeID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -86,16 +103,27 @@ import {
  */
 
 export interface ICoreMarketplaceMethods {
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean, // make it optional in interface, = true here
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<MarketplaceListing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
-  getListingsTotal(): ResultAsync<
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   /**
@@ -110,6 +138,36 @@ export interface ICoreMarketplaceMethods {
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
+}
+
+
+export interface ICoreDiscordMethods {
+  /**
+   * This method will upsert a users discord profile and
+   * discord guild data given a token which will come from discord api
+   * @param authToken
+   */
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
+
+  /**
+   * This method will return url for the discord api
+   * call to be made. If user gives consent token can be used
+   * to initialize the user
+   */
+  installationUrl(): ResultAsync<URLString, OAuthError>;
+
+  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  /**
+   * This method will remove a users discord profile and
+   * discord guild data given their profile id
+   * @param discordProfileId
+   */
+  unlink(
+    discordProfileId: SnowflakeID,
+  ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
 export interface ICoreIntegrationMethods {
@@ -161,6 +219,83 @@ export interface ICoreIntegrationMethods {
     domain: DomainName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
+
+  /**
+   * Returns the public key used to sign JWTs for the requested domain. This should be requested
+   * the first time a data wallet user interacts with a website, and stored for future visits.
+   * This key along with the generated user ID will allow the website to securely verify the
+   * data wallet as returning.
+   * @param domain
+   */
+  getTokenVerificationPublicKey(
+    domain: DomainName,
+  ): ResultAsync<PEMEncodedRSAPublicKey, PersistenceError | KeyGenerationError>;
+
+  /**
+   * Returns a JWT bearer token, customized for the domain. The domain should be provided and
+   * verified by the form factor, and not via a request, as with all other domain params.
+   * The nonce can be any arbitrary data, and will be encoded as a claim in the token. The
+   * purpose of it is to verify possetion of the key and that the token issued is fresh-
+   * it is not a stolen token captured for elsewhere. A unique ID is generated for the domain,
+   * a UUID, and will remain consistent for all interactions with that domain (sub claim in JWT).
+   * This is meant to be the user ID for the data wallet. It is not traceable to the wallet or
+   * between domains. Email and other identifing information is not included in the token.
+   * The JWT will be signed with 4096 bit RSA key that is also generated per-domain. This key is
+   * available via getTokenVerificationPublicKey() and can verify the token if required. The website
+   * can obtain this public key on the first interaction and store it on their own server. Then,
+   * any time a token is presented, they can verify the authenticity of the token for future visits.
+   * @param nonce Any string, provided by the calling page. Included in the "nonce" claim in the token, to protect against replays. Assures a fresh token.
+   * @param domain The domain requesting the token. The token will be customized for the domain.
+   */
+  getBearerToken(
+    nonce: string,
+    domain: DomainName,
+  ): ResultAsync<
+    JsonWebToken,
+    InvalidSignatureError | PersistenceError | KeyGenerationError
+  >;
+}
+
+export interface IAdMethods {
+  /**
+   * This method returns an EligibleAd that fits the adSurface, if any have been received.
+   * If there are no ads that fit the context, it returns null
+   * This method is where we do Contextual Targeting, as opposed to Demographic Targeting.
+   * This method is also where the ad priority algorithm works, which may be arbitrarily
+   * complex. When given a selection of ads that may be shown, we have to determine which one
+   * goes first. This will be based at least partially on expiration dates and marketplace
+   * stake for rank data.
+   * @param adSurfaceId
+   */
+  getAd(
+    adSurfaceId: AdSurfaceId /*adSurfaceDetails: Details */,
+  ): ResultAsync<EligibleAd | null, PersistenceError>;
+
+  /**
+   * This method is called by the form factor after it displays an eligible ad.
+   * We will store store the content hash with the eligible ad, and then when insights
+   * are delivered, we will also return a list of AdKey:ContentHash pairs. The IP
+   * will use that data to determine if you are eligible for rewards.
+   * This method is the primary trigger for returning insights. Once a user has viewed
+   * ALL EligibleAds for an SDQL Query, that is time for the core to calculate Insights,
+   * and return to the IP.
+   */
+  reportAdShown(
+    queryCID: IpfsCID,
+    consentContractAddress: EVMContractAddress,
+    key: AdKey,
+    adSurfaceId: AdSurfaceId,
+    contentHash: SHA256Hash,
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * This method is used by the form factor to report that the user does not want to watch any
+   * more ads for a particular query.
+   * This method is one trigger for calculating and returning insights to the IP- if the user
+   * does not want to watch all the ElibleAds, then it's time to return insights and Ad
+   * signatures for the ads they did watch.
+   */
+  completeShowingAds(queryCID: IpfsCID): ResultAsync<void, PersistenceError>;
 }
 
 export interface ISnickerdoodleCore {
@@ -178,7 +313,7 @@ export interface ISnickerdoodleCore {
    * and establishes the actual address of the data wallet. After getUnlockMessage(),
    * this should be the second method you call on the Snickerdoodle Core. If this is the first
    * time using this account + unlock message, the Data Wallet will be created.
-   * If this is a subsequent time, you will regain access to the exisitng wallet.
+   * If this is a subsequent time, you will regain access to the existing wallet.
    * For an existing wallet with multiple connected accounts, you can unlock with a
    * signature from any of the accounts (form factor can decide), but you cannot
    * add a new account via unlock, use addAccount() to link a new account once you
@@ -362,7 +497,7 @@ export interface ISnickerdoodleCore {
 
   /**
    * This method will actually burn a user's consent token. This data wallet will no longer
-   * recieve notifications of queries for this cohort.
+   * received notifications of queries for this cohort.
    * @param consentContractAddress
    */
   leaveCohort(
@@ -378,6 +513,13 @@ export interface ISnickerdoodleCore {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+  >;
+
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getAcceptedInvitations(
@@ -437,7 +579,7 @@ export interface ISnickerdoodleCore {
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
-  processQuery(
+  approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],
@@ -479,10 +621,14 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
-  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   unpackBackupChunk(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
+  fetchBackup(
+    backupHeader: string,
+    sourceDomain?: DomainName,
+  ): ResultAsync<DataWalletBackup[], PersistenceError>;
 
   getEarnedRewards(
     sourceDomain?: DomainName | undefined,
@@ -611,6 +757,9 @@ export interface ISnickerdoodleCore {
   clearCloudStore(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  listFileNames(
+    sourceDomain?: DomainName,
+  ): ResultAsync<BackupFileName[], PersistenceError>;
 
   getTokenPrice(
     chainId: ChainId,
@@ -641,6 +790,7 @@ export interface ISnickerdoodleCore {
 
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;
+  discord: ICoreDiscordMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

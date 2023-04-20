@@ -1,7 +1,7 @@
-import {ChainId} from '@snickerdoodlelabs/objects';
-import axios from 'axios';
+import { ChainId } from "@snickerdoodlelabs/objects";
+import axios from "axios";
 axios.defaults.withCredentials = true;
-const BASEURI = 'https://deep-index.moralis.io/api/v2/';
+const BASEURI = "https://deep-index.moralis.io/api/v2/";
 export class MoralisAPI {
   public async getAllNFTs(accountAddress: string, chain: string) {
     try {
@@ -11,9 +11,9 @@ export class MoralisAPI {
           `/nft?chain=${chain}&format=decimal&normalizeMetadata=true`,
         {
           headers: {
-            accept: 'application/json',
-            'X-API-Key':
-              'cZdnDAnnDkx5wAjH1ox1qj5YGvIpCNnct3YaxEyoDuqBpIIVxd13GWujNBbzd10d',
+            accept: "application/json",
+            "X-API-Key":
+              "tyShpEU75uIoFFn0aUjKftEgLQwuq365cfUWwr6DFil68QRW4C86OgbJJjiz2oRp",
           },
         },
       );
@@ -29,8 +29,8 @@ export class MoralisAPI {
         `https://api.covalenthq.com/v1/${chainId}/address/${accountAddress}/balances_v2/?quote-currency=USD&format=JSON&nft=false&no-nft-fetch=false`,
         {
           headers: {
-            accept: 'application/json',
-            Authorization: 'Basic Y2tleV9lZTI3N2UyYTBlOTU0MjgzOGNmMzAzMjU2NjU6',
+            accept: "application/json",
+            Authorization: "Basic Y2tleV9lZTI3N2UyYTBlOTU0MjgzOGNmMzAzMjU2NjU6",
           },
         },
       );

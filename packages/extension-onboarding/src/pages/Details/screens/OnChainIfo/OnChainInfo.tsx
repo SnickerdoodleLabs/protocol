@@ -1,9 +1,10 @@
 import AccountsCard from "@extension-onboarding/components/AccountsCard";
+import Typography from "@extension-onboarding/components/Typography";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Box, Grid } from "@material-ui/core";
 import { AccountAddress } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
 declare const window: IWindowWithSdlDataWallet;
@@ -28,13 +29,13 @@ const OnChainInfo: FC = () => {
   return (
     <Box>
       <Box mb={5}>
-        <Typography className={classes.title}>
-          Crypto Account Settings
-        </Typography>
-        <Typography className={classes.description}>
-          Add or remove wallets to control what web 3 data you store in your
-          data wallet.
-        </Typography>
+        <Typography variant="pageTitle">Crypto Account Settings</Typography>
+        <Box mt={1}>
+          <Typography variant="pageDescription">
+            Add or remove wallets to control what web 3 data you store in your
+            data wallet.
+          </Typography>
+        </Box>
       </Box>
       <Grid container spacing={2}>
         <Grid item sm={12}>

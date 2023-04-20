@@ -27,10 +27,22 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
+  BackupUtils,
+  FieldSchemaProvider,
   IBackupManagerProvider,
   IBackupManagerProviderType,
+  IBackupUtils,
+  IBackupUtilsType,
+  IFieldSchemaProvider,
+  IFieldSchemaProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+  VolatileStorageSchemaProvider,
+  IChunkRendererFactory,
+  IChunkRendererFactoryType,
+  ChunkRendererFactory,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -50,7 +62,9 @@ import { ContainerModule, interfaces } from "inversify";
 
 import {
   AccountIndexerPoller,
+  DiscordPoller,
   BlockchainListener,
+  HeartbeatGenerator,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
@@ -62,9 +76,9 @@ import {
   QueryParsingEngine,
   QueryService,
   SiftContractService,
-  CampaignService,
   MarketplaceService,
   IntegrationService,
+  DiscordService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -93,6 +107,9 @@ import {
   SiftContractRepository,
   CoinGeckoTokenPriceRepository,
   PermissionRepository,
+  DiscordRepository,
+  SocialRepository,
+  DomainCredentialRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
@@ -109,14 +126,18 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
+  IDiscordPoller,
+  IDiscordPollerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -185,6 +206,12 @@ import {
   IDemographicDataRepository,
   IPermissionRepository,
   IPermissionRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
+  IDomainCredentialRepositoryType,
+  IDomainCredentialRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -210,11 +237,17 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    bind<IDiscordPoller>(IDiscordPollerType)
+      .to(DiscordPoller)
+      .inSingletonScope();
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
       .inSingletonScope();
     bind<IAccountIndexerPoller>(IAccountIndexerPollerType)
       .to(AccountIndexerPoller)
+      .inSingletonScope();
+    bind<IHeartbeatGenerator>(IHeartbeatGeneratorType)
+      .to(HeartbeatGenerator)
       .inSingletonScope();
 
     bind<IAccountService>(IAccountServiceType)
@@ -235,14 +268,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
-    bind<ICampaignService>(ICampaignServiceType)
-      .to(CampaignService)
-      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
     bind<ISiftContractService>(ISiftContractServiceType)
       .to(SiftContractService)
+      .inSingletonScope();
+
+    bind<IDiscordService>(IDiscordServiceType)
+      .to(DiscordService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
@@ -276,6 +310,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
       .inSingletonScope();
+    bind<IDomainCredentialRepository>(IDomainCredentialRepositoryType)
+      .to(DomainCredentialRepository)
+      .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
       .inSingletonScope();
@@ -289,6 +326,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IBackupManagerProvider>(IBackupManagerProviderType)
       .to(BackupManagerProvider)
+      .inSingletonScope();
+    bind<IChunkRendererFactory>(IChunkRendererFactoryType)
+      .to(ChunkRendererFactory)
       .inSingletonScope();
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(CoinGeckoTokenPriceRepository)
@@ -313,6 +353,17 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
+      .inSingletonScope();
+    bind<IDiscordRepository>(IDiscordRepositoryType)
+      .to(DiscordRepository)
+      .inSingletonScope();
+    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
+    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
+    bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
+      .to(VolatileStorageSchemaProvider)
+      .inSingletonScope();
+    bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
+      .to(FieldSchemaProvider)
       .inSingletonScope();
 
     // Utilities

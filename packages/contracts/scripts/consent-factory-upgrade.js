@@ -14,7 +14,10 @@ async function upgradeConsentFactory() {
 
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
-  const upgradedConsentFactory = await upgrades.upgradeProxy("0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77", ConsentFactory);
+  const upgradedConsentFactory = await upgrades.upgradeProxy(
+    "0x5540122e78241679Da8d07A04A74D3a7f52aED97",
+    ConsentFactory,
+  );
 
   console.log("ConsentFactory upgraded:", upgradedConsentFactory);
 }
