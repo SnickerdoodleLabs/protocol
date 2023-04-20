@@ -417,15 +417,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     );
   }
 
-  // private evalReturns(
-  //   ast: AST,
-  //   astEvaluator: AST_Evaluator,
-  //   returnExpressions: string[],
-  // ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
-  //   return returnExpressions.map((returnExpr) =>
-  //     astEvaluator
-  //       .evalAny(ast.logic.returns.get(returnExpr))
-  //       .map((insight) => [returnExpr, insight]),
-  //   );
-  // }
+  private evalReturns(
+    ast: AST,
+    astEvaluator: AST_Evaluator,
+    returnExpressions: string[],
+  ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
+    return returnExpressions.map((returnExpr) =>
+      astEvaluator
+        .evalAny(ast.logic.returns.get(returnExpr))
+        .map((insight) => [returnExpr, insight]),
+    );
+  }
 }
