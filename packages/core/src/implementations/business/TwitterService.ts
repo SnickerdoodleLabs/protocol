@@ -1,15 +1,14 @@
 import {
   OAuth1RequstToken,
-  TokenAndSecret,
   OAuthVerifier,
   PersistenceError,
-  TwitterConfig,
+  TokenAndSecret,
   TwitterError,
   TwitterID,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { ITwitterService } from "@core/interfaces/business/index.js";
 import {
@@ -17,8 +16,6 @@ import {
   ITwitterRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
-  IConfigProvider,
-  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
@@ -27,33 +24,24 @@ import { ResultUtils } from "neverthrow-result-utils";
 @injectable()
 export class TwitterService implements ITwitterService {
   public constructor(
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ITwitterRepositoryType) public twitterRepo: ITwitterRepository,
   ) {}
 
   public getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError> {
-    return this.getAPIConfig().andThen((config) => {
-      return this.twitterRepo.getOAuth1aRequestToken(config);
-    });
+    return this.twitterRepo.getOAuth1aRequestToken();
   }
 
   public initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
-    return this.getAPIConfig().andThen((config) => {
-      return ResultUtils.combine([
-        this.contextProvider.getContext(),
-        this.twitterRepo.initTwitterProfile(
-          config,
-          requestToken,
-          oAuthVerifier,
-        ),
-      ]).map(([context, newProfile]) => {
-        context.publicEvents.onTwitterProfileLinked.next(newProfile);
-        return newProfile;
-      });
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.twitterRepo.initTwitterProfile(requestToken, oAuthVerifier),
+    ]).map(([context, newProfile]) => {
+      context.publicEvents.onTwitterProfileLinked.next(newProfile);
+      return newProfile;
     });
   }
 
@@ -69,30 +57,14 @@ export class TwitterService implements ITwitterService {
   }
 
   public poll(): ResultAsync<void, TwitterError | PersistenceError> {
-    return ResultUtils.combine([
-      this.getAPIConfig(),
-      this.twitterRepo.getUserProfiles(),
-    ])
-      .andThen(([config, profiles]) => {
-        return ResultUtils.combine(
-          profiles.map((profile) =>
-            this.twitterRepo.populateProfile(config, profile),
-          ),
-        );
+    return this.getUserProfiles()
+      .andThen((profiles) => {
+        return this.twitterRepo.populateProfile(profiles);
       })
       .map(() => {});
   }
 
   public getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError> {
     return this.twitterRepo.getUserProfiles();
-  }
-
-  private getAPIConfig(): ResultAsync<TwitterConfig, TwitterError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      if (config.twitter == null) {
-        return errAsync(new TwitterError("Twitter configuration is NULL!"));
-      }
-      return okAsync(config.twitter);
-    });
   }
 }

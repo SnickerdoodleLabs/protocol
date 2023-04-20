@@ -32,126 +32,157 @@ import {
   ITwitterRepository,
 } from "@core/interfaces/data/index.js";
 import { ResultUtils } from "neverthrow-result-utils";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class TwitterRepository implements ITwitterRepository {
   public constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(ISocialRepositoryType)
     protected socialRepository: ISocialRepository,
     @inject(IOAuthUtilsType) protected oAuthUtils: IOAuthUtils,
   ) {}
 
-  public getOAuth1aRequestToken(
-    config: TwitterConfig,
-  ): ResultAsync<TokenAndSecret, TwitterError> {
-    const urlString = config.oAuthBaseUrl + "/request_token";
-    const pathParams = {
-      oauth_callback: encodeURIComponent(config.oAuthCallbackUrl),
-    };
-    return this.ajaxUtil
-      .post<string>(new URL(urlString), undefined, {
-        params: pathParams,
-        headers: {
-          authorization: this.oAuthUtils.getOAuth1aString(
-            {
-              url: urlString,
-              method: "POST",
-              data: pathParams,
-            },
-            config.oauth,
-          ),
-        },
-      })
-      .mapErr((error) => {
-        return new TwitterError(error.message);
-      })
-      .andThen((responseStr) => {
-        const queryParams = new URLSearchParams(responseStr);
-        if (!this._responseHasOAuthToken(queryParams)) {
-          return errAsync(
-            new TwitterError(
-              `Requested a "request token" but the response does not include a valid oAuth token`,
+  public getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError> {
+    return this._getAPIConfig().andThen((config) => {
+      const urlString = config.oAuthBaseUrl + "/request_token";
+      const pathParams = {
+        oauth_callback: encodeURIComponent(config.oAuthCallbackUrl),
+      };
+      return this.ajaxUtil
+        .post<string>(new URL(urlString), undefined, {
+          params: pathParams,
+          headers: {
+            authorization: this.oAuthUtils.getOAuth1aString(
+              {
+                url: urlString,
+                method: "POST",
+                data: pathParams,
+              },
+              config.oauth,
+            ),
+          },
+        })
+        .mapErr((error) => {
+          return new TwitterError(error.message);
+        })
+        .andThen((responseStr) => {
+          const queryParams = new URLSearchParams(responseStr);
+          if (!this._responseHasOAuthToken(queryParams)) {
+            return errAsync(
+              new TwitterError(
+                `Requested a "request token" but the response does not include a valid oAuth token`,
+              ),
+            );
+          }
+
+          return okAsync(
+            new TokenAndSecret(
+              queryParams.get("oauth_token")! as BearerToken,
+              queryParams.get("oauth_token_secret")! as TokenSecret,
             ),
           );
-        }
-
-        return okAsync(
-          new TokenAndSecret(
-            queryParams.get("oauth_token")! as BearerToken,
-            queryParams.get("oauth_token_secret")! as TokenSecret,
-          ),
-        );
-      });
+        });
+    });
   }
 
   public initTwitterProfile(
-    config: TwitterConfig,
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
-    const urlString = config.oAuthBaseUrl + "/access_token";
-    const pathParams = {
-      oauth_token: requestToken,
-      oauth_verifier: oAuthVerifier,
-    };
-    return this.ajaxUtil
-      .post<string>(new URL(urlString), undefined, {
-        params: pathParams,
-        headers: {
-          authorization: this.oAuthUtils.getOAuth1aString(
-            {
-              url: urlString,
-              method: "POST",
-              data: pathParams,
-            },
-            config.oauth,
-          ),
-        },
-      })
-      .mapErr((error) => {
-        return new TwitterError(error.message);
-      })
-      .andThen((resposeStr) => {
-        const queryParams = new URLSearchParams(resposeStr);
-        if (this._isAccessTokenResponseValid(queryParams)) {
-          return okAsync(
-            new TwitterProfile(
+    return this._getAPIConfig().andThen((config) => {
+      const urlString = config.oAuthBaseUrl + "/access_token";
+      const pathParams = {
+        oauth_token: requestToken,
+        oauth_verifier: oAuthVerifier,
+      };
+      return this.ajaxUtil
+        .post<string>(new URL(urlString), undefined, {
+          params: pathParams,
+          headers: {
+            authorization: this.oAuthUtils.getOAuth1aString(
               {
-                id: TwitterID(queryParams.get("user_id")!),
-                username: Username(queryParams.get("screen_name")!),
+                url: urlString,
+                method: "POST",
+                data: pathParams,
               },
-              new TokenAndSecret(
-                queryParams.get("oauth_token")! as BearerToken,
-                queryParams.get("oauth_token_secret")! as TokenSecret,
+              config.oauth,
+            ),
+          },
+        })
+        .mapErr((error) => {
+          return new TwitterError(error.message);
+        })
+        .andThen((resposeStr) => {
+          const queryParams = new URLSearchParams(resposeStr);
+          if (this._isAccessTokenResponseValid(queryParams)) {
+            return okAsync(
+              new TwitterProfile(
+                {
+                  id: TwitterID(queryParams.get("user_id")!),
+                  username: Username(queryParams.get("screen_name")!),
+                },
+                new TokenAndSecret(
+                  queryParams.get("oauth_token")! as BearerToken,
+                  queryParams.get("oauth_token_secret")! as TokenSecret,
+                ),
               ),
+            );
+          }
+          return errAsync(
+            new TwitterError(
+              `Received corrupted access token object: ${queryParams}`,
             ),
           );
-        }
-
-        return errAsync(
-          new TwitterError(
-            `Received corrupted access token object: ${queryParams}`,
-          ),
-        );
-      })
-      .andThen((profile) => {
-        return this.populateProfile(config, profile);
-      });
+        })
+        .andThen((profile) => {
+          return this.populateProfile([profile], config).map(
+            ([profile]) => profile,
+          );
+        });
+    });
   }
 
   public populateProfile(
-    config: TwitterConfig,
-    profile: TwitterProfile,
-  ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
-    return ResultUtils.combine([
-      this._fetchUserProfile(config, profile.userObject.id, profile.oAuth1a),
-      this._fetchFollowing(config, profile.userObject.id, profile.oAuth1a),
-      this._fetchFollowers(config, profile.userObject.id, profile.oAuth1a),
-    ]).andThen(([userProfile, following, followers]) => {
-      profile.userObject = userProfile;
-      profile.followData = { following: following, followers: followers };
-      return this.upsertUserProfile(profile).map(() => profile);
+    profiles: TwitterProfile[],
+    config?: TwitterConfig,
+  ): ResultAsync<TwitterProfile[], TwitterError | PersistenceError> {
+    console.log("populateProfile profiles:");
+    console.log(profiles);
+    return ResultAsync.fromPromise(
+      new Promise<TwitterConfig>((resolve) => {
+        if (config != null) {
+          console.log("PASSED IN CONFIG. RETURNING IT.");
+          resolve(config);
+        }
+        this._getAPIConfig().map(resolve);
+      }),
+      (e) =>
+        new TwitterError(
+          "TwitterRepository.populateProfile can't retrieve config",
+          e,
+        ),
+    ).andThen((config) => {
+      console.log("twitterRepository populateProfile config");
+      console.log(config);
+
+      return ResultUtils.combine(
+        profiles.map((p) => {
+          return ResultUtils.combine([
+            this._fetchUserProfile(config, p.userObject.id, p.oAuth1a),
+            this._fetchFollowing(config, p.userObject.id, p.oAuth1a),
+            this._fetchFollowers(config, p.userObject.id, p.oAuth1a),
+          ]).andThen(([userProfile, following, followers]) => {
+            p.userObject = userProfile;
+            p.followData = { following: following, followers: followers };
+            return this.upsertUserProfile(p).map(() => p);
+          });
+        }),
+      );
     });
   }
 
@@ -330,5 +361,14 @@ export class TwitterRepository implements ITwitterRepository {
       responseObj.get("oauth_token") != null &&
       responseObj.get("oauth_token_secret") != null
     );
+  }
+
+  private _getAPIConfig(): ResultAsync<TwitterConfig, TwitterError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      if (config.twitter == null) {
+        return errAsync(new TwitterError("Twitter configuration is NULL!"));
+      }
+      return okAsync(config.twitter);
+    });
   }
 }

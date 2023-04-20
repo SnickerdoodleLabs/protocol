@@ -1,28 +1,23 @@
 import {
   OAuth1RequstToken,
-  TokenAndSecret,
-  PersistenceError,
-  TwitterID,
-  TwitterConfig,
-  TwitterError,
-  TwitterProfile,
   OAuthVerifier,
+  PersistenceError,
+  TokenAndSecret,
+  TwitterError,
+  TwitterID,
+  TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ITwitterRepository {
-  getOAuth1aRequestToken(
-    config: TwitterConfig,
-  ): ResultAsync<TokenAndSecret, TwitterError>;
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError>;
   initTwitterProfile(
-    config: TwitterConfig,
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
   populateProfile(
-    config: TwitterConfig,
-    profile: TwitterProfile,
-  ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
+    profiles: TwitterProfile[],
+  ): ResultAsync<TwitterProfile[], TwitterError | PersistenceError>;
   upsertUserProfile(
     twitterProfile: TwitterProfile,
   ): ResultAsync<void, PersistenceError>;
