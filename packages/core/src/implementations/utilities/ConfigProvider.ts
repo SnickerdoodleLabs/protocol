@@ -98,14 +98,32 @@ export class ConfigProvider
       ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
-      {
-        solana:
-          "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-        solanaTestnet:
-          "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-        polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
-        polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
-      },
+      new Map<EChain, URLString>([
+        [
+          EChain.Solana,
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+        [
+          EChain.SolanaTestnet,
+          URLString(
+            "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+          ),
+        ],
+        [
+          EChain.Polygon,
+          URLString(
+            "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
+          ),
+        ],
+        [
+          EChain.Mumbai,
+          URLString(
+            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+          ),
+        ],
+      ]),
       10000,
       "(localhost|chrome://)",
       false, // enable backup encryption

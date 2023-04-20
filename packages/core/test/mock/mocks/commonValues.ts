@@ -11,6 +11,7 @@ import {
   EVMAccountAddress,
   ControlChainInformation,
   ECurrencyCode,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
@@ -54,7 +55,9 @@ const discordConfig = {
   clientId: "1089994449830027344",
   clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-  oauthRedirectUrl: URLString("https://localhost:9005/data-dashboard/social-media-data"),
+  oauthRedirectUrl: URLString(
+    "https://localhost:9005/data-dashboard/social-media-data",
+  ),
   accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),
@@ -85,9 +88,15 @@ export const testCoreConfig = new CoreConfig(
   new Map(),
   100, // etherscan tx batch size
   5000,
-  { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
+  new Map<EChain, URLString>([
+    // alchemy endpoints
+    [EChain.Solana, URLString("")],
+    [EChain.SolanaTestnet, URLString("")],
+    [EChain.Polygon, URLString("")],
+    [EChain.Mumbai, URLString("")],
+  ]),
   10000,
-  "(localhost|chrome:\/\/)",
+  "(localhost|chrome://)",
   false,
   300000,
   1000,

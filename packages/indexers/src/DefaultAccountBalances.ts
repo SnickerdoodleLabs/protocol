@@ -24,6 +24,7 @@ import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepo
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
+import { AlchemyIndexer } from "@indexers/AlchemyIndexer.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -33,6 +34,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
   protected etherscan: IEVMAccountBalanceRepository;
+  protected alchemy: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -63,6 +65,12 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.logUtils,
     );
     this.etherscan = new EtherscanNativeBalanceRepository(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+    this.alchemy = new AlchemyIndexer(
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
@@ -110,5 +118,12 @@ export class DefaultAccountBalances implements IAccountBalances {
     never
   > {
     return okAsync(this.sol);
+  }
+
+  public getAlchemyBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.alchemy);
   }
 }

@@ -97,7 +97,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   [
     ChainId(EChain.Mumbai),
     new ChainInformation(
-      "Mumbai Testnet",
+      "Mumbai",
       ChainId(EChain.Mumbai),
       EChain.Mumbai,
       EChainTechnology.EVM,

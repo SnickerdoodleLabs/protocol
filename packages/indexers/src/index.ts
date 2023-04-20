@@ -1,3 +1,4 @@
+export * from "@indexers/AlchemyIndexer.js";
 export * from "@indexers/CovalentEVMTransactionRepository.js";
 export * from "@indexers/DefaultAccountBalances.js";
 export * from "@indexers/DefaultAccountIndexers.js";

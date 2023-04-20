@@ -43,6 +43,7 @@ import {
   IContextProviderType,
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
+import { EChainType } from "packages/objects/src/enum";
 
 @injectable()
 export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
@@ -172,6 +173,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getEtherscanBalanceRepository(),
+      this.accountBalances.getAlchemyBalanceRepository(),
     ])
       .andThen(
         ([
@@ -182,6 +184,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           etherscanRepo,
           maticRepo,
           etherscanBalanceRepo,
+          alchemyRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -194,8 +197,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Polygon:
-              return evmRepo.getBalancesForAccount(
+              return alchemyRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -359,10 +366,18 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             );
           }
 
+          if (chainInfo.type == EChainType.Testnet) {
+            return okAsync([]);
+          }
+
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Polygon:
-              return evmRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

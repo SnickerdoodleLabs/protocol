@@ -8,6 +8,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
+import { EChain } from "packages/objects/src/enum";
 
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
@@ -33,12 +34,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
-    public alchemyEndpoints: {
-      solana: string;
-      solanaTestnet: string;
-      polygon: string;
-      polygonMumbai: string;
-    },
+    public alchemyEndpoints: Map<EChain, URLString>,
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
