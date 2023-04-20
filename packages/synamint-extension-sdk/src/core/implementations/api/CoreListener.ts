@@ -1,15 +1,17 @@
 import {
   DataWalletAddress,
-  DiscordID,
-  DiscordProfile, EarnedReward, EDynamicRewardParameterType, IDynamicRewardParameter,
+  EarnedReward,
+  EDynamicRewardParameterType,
+  ESocialType,
+  IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
   SDQLQueryRequest,
   SDQLString,
-  TwitterID,
-  TwitterProfile
+  SocialMediaID,
+  SocialProfile,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -18,13 +20,13 @@ import Browser from "webextension-polyfill";
 import { ICoreListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IInvitationService,
-  IInvitationServiceType
+  IInvitationServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
   IContextProvider,
-  IContextProviderType
+  IContextProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { BrowserUtils } from "@synamint-extension-sdk/enviroment/shared/utils";
 
@@ -48,17 +50,11 @@ export class CoreListener implements ICoreListener {
       events.onEarnedRewardsAdded.subscribe(
         this.onEarnedRewardsAdded.bind(this),
       );
-      events.onDiscordProfileLinked.subscribe(
-        this.onDiscordProfileLinked.bind(this),
+      events.onSocialProfileLinked.subscribe(
+        this.onSocialProfileLinked.bind(this),
       );
-      events.onDiscordProfileUnlinked.subscribe(
-        this.onDiscordProfileUnlinked.bind(this),
-      );
-      events.onTwitterProfileLinked.subscribe(
-        this.onTwitterProfileLinked.bind(this),
-      );
-      events.onTwitterProfileUnlinked.subscribe(
-        this.onTwitterProfileUnlinked.bind(this),
+      events.onSocialProfileUnlinked.subscribe(
+        this.onSocialProfileUnlinked.bind(this),
       );
     });
   }
@@ -119,7 +115,7 @@ export class CoreListener implements ICoreListener {
               compensationId: {
                 type: EDynamicRewardParameterType.CompensationId,
                 value: eligibleReward.compensationKey,
-              }
+              },
             } as IDynamicRewardParameter);
           }
         });
@@ -159,8 +155,6 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 
-  private onDiscordProfileLinked(profile: DiscordProfile): void {}
-  private onDiscordProfileUnlinked(id: DiscordID): void {}
-  private onTwitterProfileLinked(profile: TwitterProfile): void {}
-  private onTwitterProfileUnlinked(id: TwitterID): void {}
+  private onSocialProfileLinked(profile: SocialProfile): void {}
+  private onSocialProfileUnlinked(params: [ESocialType, SocialMediaID]): void {}
 }

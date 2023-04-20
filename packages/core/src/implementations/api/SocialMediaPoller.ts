@@ -48,7 +48,7 @@ export class SocialMediaPoller implements ISocialMediaPoller {
   ): boolean {
     if (this.monitoringService[`poll${platform}`] == null) {
       this.logUtils.warning(
-        `Not initializing ${platform} poller because it doesn't have a polling function.`,
+        `Not initializing ${platform} poller because it doesn't have a polling function named poll${platform}`,
       );
       return false;
     }

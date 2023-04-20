@@ -11,6 +11,7 @@ import {
   PersistenceError,
   DiscordID,
   URLString,
+  ESocialType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -61,7 +62,10 @@ export class DiscordService implements IDiscordService {
       this.contextProvider.getContext(),
       this.discordRepo.deleteProfile(userProfileId),
     ]).map(([context]) => {
-      context.publicEvents.onDiscordProfileUnlinked.next(userProfileId);
+      context.publicEvents.onSocialProfileUnlinked.next([
+        ESocialType.DISCORD,
+        userProfileId,
+      ]);
     });
   }
 
@@ -153,7 +157,7 @@ export class DiscordService implements IDiscordService {
             ),
           ),
         ]).map(([context]) => {
-          context.publicEvents.onDiscordProfileLinked.next(userProfile);
+          context.publicEvents.onSocialProfileLinked.next(userProfile);
         });
       });
   }

@@ -1,4 +1,5 @@
 import {
+  ESocialType,
   OAuth1RequstToken,
   OAuthVerifier,
   PersistenceError,
@@ -40,7 +41,7 @@ export class TwitterService implements ITwitterService {
       this.contextProvider.getContext(),
       this.twitterRepo.initTwitterProfile(requestToken, oAuthVerifier),
     ]).map(([context, newProfile]) => {
-      context.publicEvents.onTwitterProfileLinked.next(newProfile);
+      context.publicEvents.onSocialProfileLinked.next(newProfile);
       return newProfile;
     });
   }
@@ -52,7 +53,10 @@ export class TwitterService implements ITwitterService {
       this.contextProvider.getContext(),
       this.twitterRepo.deleteProfile(id),
     ]).map(([context]) =>
-      context.publicEvents.onTwitterProfileUnlinked.next(id),
+      context.publicEvents.onSocialProfileUnlinked.next([
+        ESocialType.TWITTER,
+        id,
+      ]),
     );
   }
 
