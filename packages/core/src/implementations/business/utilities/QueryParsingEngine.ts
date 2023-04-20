@@ -354,34 +354,34 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
-  protected getAndEvalPermittedReturns(
-    ast: AST,
-    astEvaluator: AST_Evaluator,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    IInsightsReturns,
-    EvaluationError | QueryFormatError | QueryExpiredError
-  > {
-    const allReturns = [...ast.logic.returns.keys()];
+  // protected getAndEvalPermittedReturns(
+  //   ast: AST,
+  //   astEvaluator: AST_Evaluator,
+  //   dataPermissions: DataPermissions,
+  // ): ResultAsync<
+  //   IInsightsReturns,
+  //   EvaluationError | QueryFormatError | QueryExpiredError
+  // > {
+  //   const allReturns = [...ast.logic.returns.keys()];
 
-    return ResultUtils.combine(
-      this.evalReturns(
-        ast,
-        astEvaluator,
-        this.getPermittedReturnExpressions(ast, dataPermissions),
-      ),
-    ).map((results) => {
-      return Object.fromEntries(
-        allReturns.map((returnExpr) => {
-          const sdqlReturn = (results.find(
-            (result) => result[0] === returnExpr,
-          ) || [returnExpr, null])[1];
+  //   return ResultUtils.combine(
+  //     this.evalReturns(
+  //       ast,
+  //       astEvaluator,
+  //       this.getPermittedReturnExpressions(ast, dataPermissions),
+  //     ),
+  //   ).map((results) => {
+  //     return Object.fromEntries(
+  //       allReturns.map((returnExpr) => {
+  //         const sdqlReturn = (results.find(
+  //           (result) => result[0] === returnExpr,
+  //         ) || [returnExpr, null])[1];
 
-          return [returnExpr, this.SDQLReturnToInsight(sdqlReturn)];
-        }),
-      ) as IInsightsReturns;
-    });
-  }
+  //         return [returnExpr, this.SDQLReturnToInsight(sdqlReturn)];
+  //       }),
+  //     ) as IInsightsReturns;
+  //   });
+  // }
 
   // protected getPermittedReturnExpressions(
   //   ast: AST,
@@ -417,15 +417,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     );
   }
 
-  private evalReturns(
-    ast: AST,
-    astEvaluator: AST_Evaluator,
-    returnExpressions: string[],
-  ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
-    return returnExpressions.map((returnExpr) =>
-      astEvaluator
-        .evalAny(ast.logic.returns.get(returnExpr))
-        .map((insight) => [returnExpr, insight]),
-    );
-  }
+  // private evalReturns(
+  //   ast: AST,
+  //   astEvaluator: AST_Evaluator,
+  //   returnExpressions: string[],
+  // ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
+  //   return returnExpressions.map((returnExpr) =>
+  //     astEvaluator
+  //       .evalAny(ast.logic.returns.get(returnExpr))
+  //       .map((insight) => [returnExpr, insight]),
+  //   );
+  // }
 }
