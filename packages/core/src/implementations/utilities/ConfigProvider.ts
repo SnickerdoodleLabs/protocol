@@ -123,6 +123,7 @@ export class ConfigProvider
       120000, // backup placement heartbeat
       discordConfig,
       twitterConfig,
+      60000, // heartbeatIntervalMS
     );
   }
 
@@ -221,7 +222,9 @@ export class ConfigProvider
       twitterConfig.oAuthBaseUrl ?? this.config.twitter.oAuthBaseUrl,
       twitterConfig.oAuthCallbackUrl ?? this.config.twitter.oAuthCallbackUrl,
       twitterConfig.dataAPIUrl ?? this.config.twitter.dataAPIUrl,
-      twitterConfig.pollInterval ?? this.config.twitter.pollInterval
+      twitterConfig.pollInterval ?? this.config.twitter.pollInterval,
     );
+    this.config.heartbeatIntervalMS =
+      overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
   }
 }

@@ -14,12 +14,14 @@ import {
   DataWalletAddress,
   DiscordID,
   DomainName,
+  IpfsCID,
   TwitterID,
 } from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
   onQueryPosted: Observable<SDQLQueryRequest>;
+  onQueryParametersRequired: Subject<IpfsCID>;
   onAccountAdded: Observable<LinkedAccount>;
   onAccountRemoved: Observable<LinkedAccount>;
   onEarnedRewardsAdded: Observable<EarnedReward[]>;

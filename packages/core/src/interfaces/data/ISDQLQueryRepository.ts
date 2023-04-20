@@ -5,6 +5,7 @@ import {
   QueryStatus,
   PersistenceError,
   EVMContractAddress,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,6 +18,14 @@ export interface ISDQLQueryRepository {
   getQueryStatusByConsentContract(
     consentContractAddress: EVMContractAddress,
     queryHorizon: number,
+  ): ResultAsync<QueryStatus[], PersistenceError>;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatusByStatus(
+    status: EQueryProcessingStatus,
   ): ResultAsync<QueryStatus[], PersistenceError>;
 
   upsertQueryStatus(

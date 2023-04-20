@@ -63,6 +63,7 @@ import { ContainerModule, interfaces } from "inversify";
 import {
   AccountIndexerPoller,
   BlockchainListener,
+  HeartbeatGenerator,
   SocialMediaPoller,
 } from "@core/implementations/api/index.js";
 import {
@@ -128,6 +129,8 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
   ISocialMediaPoller,
   ISocialMediaPollerType,
 } from "@core/interfaces/api/index.js";
@@ -252,6 +255,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAccountIndexerPoller>(IAccountIndexerPollerType)
       .to(AccountIndexerPoller)
       .inSingletonScope();
+    bind<IHeartbeatGenerator>(IHeartbeatGeneratorType)
+      .to(HeartbeatGenerator)
+      .inSingletonScope();
 
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
@@ -368,6 +374,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
 
+    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)
       .inSingletonScope();

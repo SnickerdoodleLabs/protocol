@@ -105,6 +105,7 @@ export const testCoreConfig = new CoreConfig(
   1000,
   testDiscordConfig,
   testTwitterConfig,
+  60000, // heartbeatIntervalMS
 );
 
 // #endregion

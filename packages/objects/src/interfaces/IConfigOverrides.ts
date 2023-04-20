@@ -24,4 +24,5 @@ export interface IConfigOverrides {
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
+  heartbeatIntervalMS?: number;
 }
