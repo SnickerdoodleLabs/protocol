@@ -29,7 +29,7 @@ export interface ITokenPriceRepository {
 
   getTokenMarketData(
     ids: string[],
-  ): ResultAsync<TokenMarketData[], AccountIndexingError | AjaxError>;
+  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
 
   getMarketDataForTokens(
     tokens: { chain: ChainId; address: TokenAddress | null }[],

@@ -127,7 +127,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
   public getTokenMarketData(
     ids: string[],
-  ): ResultAsync<TokenMarketData[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<TokenMarketData[], AccountIndexingError> {
     // return okAsync(ids)
     //   .map((ids) => {
     //     return ids.map((id) => {
@@ -199,50 +199,48 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this._contractAddressMap.get(contractAddress);
   }
 
-  public getTokenPriceFromList(
-    protocols: string[],
-  ): ResultAsync<CoinMarketDataResponse[], AjaxError> {
-    return okAsync(protocols).map((protocols) => {
-      return protocols.map((protocol) => {
-        console.log("protocol: ", protocol);
-        console.log(
-          "this._coinPricesMap.get(protocol): ",
-          this._coinPricesMap.get(protocol),
-        );
-        const marketData = this._coinPricesMap.get(protocol);
-        return okAsync(marketData);
-      });
-    }).andThen((balances) => {
-      return Promise.all(balances).then((balance) => {
-        return (
-          balance
-            //@ts-ignore
-            .filter((obj) => obj.value != null)
-            .map((tokenBalance) => {
-              //@ts-ignore
-              return tokenBalance.value;
-            })
-        );
-      });
-    }).map((marketBalances) => {
-
-    })
-
-    console.log("protocol: ", protocol);
-    console.log(
-      "this._coinPricesMap.get(protocol): ",
-      this._coinPricesMap.get(protocol),
-    );
+  protected getCoinResponse(
+    protocol: string,
+  ): ResultAsync<CoinMarketDataResponse, null> {
     const marketData = this._coinPricesMap.get(protocol);
-    if (marketData) {
+    if (marketData !== undefined) {
       return okAsync(marketData);
     }
+
     const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${protocol}&order=market_cap_desc&per_page=100&page=1&sparkline=false`;
     return this.ajaxUtils
       .get<CoinMarketDataResponse[]>(new URL(url))
-      .andThen((response) => {
-        const data = response[0];
-        return okAsync(data);
+      .map((response) => {
+        const firstVal = response[0];
+        return firstVal;
+      })
+      .mapErr((error) => {
+        return null;
+        // return new AjaxError("CoinGecko usd url is down");
+      });
+  }
+
+  public getTokenPriceFromList(
+    protocols: string[],
+  ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
+    return okAsync(protocols)
+      .map((protocols) => {
+        return protocols.map((protocol) => {
+          return this.getCoinResponse(protocol);
+        });
+      })
+      .map((balances) => {
+        return Promise.all(balances).then((balance) => {
+          return (
+            balance
+              //@ts-ignore
+              .filter((obj) => obj.value != null)
+              .map((tokenBalance) => {
+                //@ts-ignore
+                return tokenBalance.value;
+              })
+          );
+        });
       });
   }
 
