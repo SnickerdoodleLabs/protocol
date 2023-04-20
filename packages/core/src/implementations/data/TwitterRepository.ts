@@ -31,11 +31,11 @@ import {
   ISocialRepositoryType,
   ITwitterRepository,
 } from "@core/interfaces/data/index.js";
-import { ResultUtils } from "neverthrow-result-utils";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class TwitterRepository implements ITwitterRepository {

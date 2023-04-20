@@ -15,7 +15,6 @@ export * from "@core/interfaces/data/IPermissionRepository.js";
 export * from "@core/interfaces/data/IPortfolioBalanceRepository.js";
 export * from "@core/interfaces/data/ISDQLQueryRepository.js";
 export * from "@core/interfaces/data/ISiftContractRepository.js";
-export * from "@core/interfaces/data/ISocialRepository.js";
 export * from "@core/interfaces/data/ITransactionHistoryRepository.js";
 export * from "@core/interfaces/data/ITwitterRepository.js";
 export * from "@core/interfaces/data/utilities/index.js";
