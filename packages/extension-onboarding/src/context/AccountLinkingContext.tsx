@@ -1,4 +1,4 @@
-import { EChain } from "@snickerdoodlelabs/objects";
+import { EChain, ESocialType } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import React, {
   createContext,
@@ -12,7 +12,6 @@ import React, {
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
 import {
-  ESocialMediaProviderKeys,
   EWalletProviderKeys,
 } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -78,13 +77,13 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
 
   const discordProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
-      return provider.key === ESocialMediaProviderKeys.DISCORD;
+      return provider.key === ESocialType.DISCORD;
     })?.provider ?? new DiscordProvider()) as IDiscordProvider;
   }, [socialMediaProviderList.length]);
 
   const twitterProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
-      return provider.key === ESocialMediaProviderKeys.TWITTER;
+      return provider.key === ESocialType.TWITTER;
     })?.provider ?? new TwitterProvider()) as ITwitterProvider;
   }, [socialMediaProviderList.length]);
 

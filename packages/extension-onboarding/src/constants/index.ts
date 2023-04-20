@@ -12,11 +12,6 @@ export enum EWalletProviderKeys {
   COINBASE = "coinbase",
 }
 
-export enum ESocialMediaProviderKeys {
-  DISCORD = "discord",
-  TWITTER = "twitter",
-}
-
 export const DOWNLOAD_URL =
   "https://chrome.google.com/webstore/detail/data-wallet/eakgkbblgjcanmmalnebjolplnlijmkc";
 
