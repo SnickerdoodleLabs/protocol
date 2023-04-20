@@ -36,7 +36,6 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     obj: VersionedObject,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    console.log("getKey", { tableName, obj });
     const keyPath = this._keyPaths.get(tableName);
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
@@ -64,12 +63,10 @@ export class MemoryVolatileStorage implements IVolatileStorage {
   }
 
   public persist(): ResultAsync<boolean, PersistenceError> {
-    console.log("persist");
     return okAsync(true);
   }
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
-    console.log("clearObjectStore");
     return okAsync(undefined);
   }
 
@@ -77,15 +74,23 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     name: string,
     obj: T,
   ): ResultAsync<void, PersistenceError> {
-    console.log("putObject");
     return this.getObject(name, "x")
       .andThen((hey) => {
         //@ts-ignore
-        const value = [...(hey ? hey : []), obj];
-        return ResultAsync.fromPromise(
-          AsyncStorage.setItem(name, JSON.stringify(value)),
-          (e) => e as PersistenceError,
-        );
+
+        if (hey.includes(obj)) {
+          return ResultAsync.fromPromise(
+            AsyncStorage.setItem(name, JSON.stringify(hey)),
+            (e) => e as PersistenceError,
+          );
+        } else {
+          //@ts-ignore
+          const value = [...(hey ? hey : []), obj];
+          return ResultAsync.fromPromise(
+            AsyncStorage.setItem(name, JSON.stringify(value)),
+            (e) => e as PersistenceError,
+          );
+        }
       })
       .andThen(() => okAsync(undefined));
   }
@@ -94,7 +99,6 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     name: string,
     key: string,
   ): ResultAsync<VolatileStorageMetadata<any> | null, PersistenceError> {
-    console.log("removeObject");
     AsyncStorage.removeItem(name);
     return okAsync(null);
   }
@@ -103,18 +107,23 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     name: string,
     key: string,
   ): ResultAsync<T | null, PersistenceError> {
+    AsyncStorage.getAllKeys().then((keys) => {});
     const promise = AsyncStorage.getItem(name);
-    console.log("getObjectPromise", promise);
+
     return ResultAsync.fromPromise(
       promise,
-      (e) => new PersistenceError("error getting object", e),
-    ).andThen((result) => {
-      if (result) {
-        return okAsync(JSON.parse(result) as T);
-      } else {
+      (e) => new PersistenceError("error getting object"),
+    )
+      .andThen((result) => {
+        if (result) {
+          return okAsync(JSON.parse(result) as T);
+        } else {
+          return okAsync([] as unknown as T);
+        }
+      })
+      .orElse((e) => {
         return okAsync([] as unknown as T);
-      }
-    });
+      });
   }
 
   public getCursor<T extends VersionedObject>(
@@ -124,7 +133,6 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    console.log("getCursor");
     //@ts-ignore
     return okAsync(null);
   }
@@ -134,7 +142,6 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     indexName?: string,
   ): ResultAsync<T[], PersistenceError> {
     const promise = AsyncStorage.getItem(name);
-    console.log("getAll", { name, indexName });
     return ResultAsync.fromPromise(
       promise,
       (e) => new PersistenceError("error getting object", e),
@@ -179,7 +186,6 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     query?: string | number,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
-    console.log("getAllKeys", { name, indexName, query, count });
     const promise = AsyncStorage.getItem(name);
     return ResultAsync.fromPromise(
       promise,

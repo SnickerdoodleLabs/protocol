@@ -1,17 +1,25 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { LineBreaker } from "../../Marketplace/CardDetails";
 
 export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
-  console.log("indeAndGrouped", { index, groupedTokens });
   const group = groupedTokens[tickerSymbol];
   const tokens = group.tokens;
   const totalQuote = group.totalQuote;
-  const percentageDifference =
-    ((group.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
+  let percentageDifference;
+  if (
+    ((group?.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
       group.tokens[0].quote_rate_24h) *
-    100;
+    100
+  ) {
+    percentageDifference =
+      ((group?.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
+        group.tokens[0].quote_rate_24h) *
+      100;
+  } else {
+    percentageDifference = 0;
+  }
   const unknownImage = (token) => {
     switch (token.contract_ticker_symbol) {
       case "AVAX":
@@ -21,6 +29,8 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
           uri: "https://logos.covalenthq.com/tokens/1/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
         };
       case "BNB":
+        return require("../../../assets/images/chain-bsc.png");
+      case "BNBT":
         return require("../../../assets/images/chain-bsc.png");
 
       default:
@@ -33,6 +43,7 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
     const profit = investmentAfterIncrease - initialInvestment;
     return profit;
   }
+
   return (
     <View>
       <View

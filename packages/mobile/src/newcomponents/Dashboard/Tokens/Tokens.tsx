@@ -38,12 +38,6 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
       const group = groupedTokens?.[tickerSymbol];
       const totalQuote = group?.totalQuote;
       const percentage = (totalQuote / data2?.totalBalance) * 100;
-      console.log("FFFSSSSS", {
-        key: index + 1,
-        value: percentage,
-        svg: { fill: colors[index] },
-        label: "label",
-      });
 
       data.push({
         key: index + 1,
@@ -52,7 +46,6 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
         label: groupedTokens?.[tickerSymbol]?.tokens[0]?.contract_ticker_symbol,
       });
     });
-    console.log("latestData", data);
     if (data.length > 0) {
       data.sort((a, b) => b.value - a.value);
       if (data.length > 4) {
@@ -69,7 +62,6 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
         };
 
         const dataWithOthers = [...topThree, others];
-        console.log("dataWithOthers", dataWithOthers.flat());
 
         const filteredData = dataWithOthers.filter((item) => item.value >= 5);
 
@@ -93,7 +85,6 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
   };
 
   useEffect(() => {
-    console.log("tokens", data?.tokens?.flat());
     const groupedTokens = data?.tokens?.flat().reduce((accumulator, token) => {
       if (!accumulator[token?.contract_ticker_symbol]) {
         accumulator[token?.contract_ticker_symbol] = {
@@ -105,8 +96,6 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
       accumulator[token?.contract_ticker_symbol].totalQuote += token?.quote;
       return accumulator;
     }, {});
-    console.log("groupedTokens22", groupedTokens);
-    console.log("grp33", Object.keys(groupedTokens));
 
     setGroupedTokens(groupedTokens);
   }, [data]);

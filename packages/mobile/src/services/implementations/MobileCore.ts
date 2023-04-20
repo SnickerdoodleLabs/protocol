@@ -124,7 +124,7 @@ export class MobileCore {
           new ChainTransactionMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [
             ["timestamp", false],
             ["chainId", false],
@@ -143,7 +143,7 @@ export class MobileCore {
           new SiteVisitMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [
             ["url", false],
             ["startTime", false],
@@ -160,7 +160,7 @@ export class MobileCore {
           new ClickDataMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [
             ["url", false],
             ["timestamp", false],
@@ -177,7 +177,7 @@ export class MobileCore {
           new LatestBlockMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
         ),
       ],
       [
@@ -202,7 +202,7 @@ export class MobileCore {
           new EligibleAdMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [["type", false]],
         ),
       ],
@@ -215,7 +215,7 @@ export class MobileCore {
           new AdSignatureMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [["type", false]],
         ),
       ],
@@ -228,7 +228,7 @@ export class MobileCore {
           new TokenInfoMigrator(),
           EBackupPriority.DISABLED,
           160000,
-          160000,
+          200000,
           undefined,
         ),
       ],
@@ -241,7 +241,7 @@ export class MobileCore {
           new RestoredBackupMigrator(),
           EBackupPriority.DISABLED,
           160000,
-          160000,
+          200000,
           undefined,
         ),
       ],
@@ -254,7 +254,7 @@ export class MobileCore {
           new ReceivingAccountMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
         ),
       ],
       [
@@ -266,7 +266,7 @@ export class MobileCore {
           new QueryStatusMigrator(),
           EBackupPriority.HIGH,
           160000,
-          160000,
+          200000,
         ),
       ],
       [
@@ -278,7 +278,7 @@ export class MobileCore {
           new DomainCredentialMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
         ),
       ],
       [
@@ -290,7 +290,7 @@ export class MobileCore {
           new SocialProfileMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [["type", false]],
         ),
       ],
@@ -303,7 +303,7 @@ export class MobileCore {
           new SocialGroupProfileMigrator(),
           EBackupPriority.NORMAL,
           160000,
-          160000,
+          200000,
           [
             ["type", false],
             ["ownerId", false],
@@ -417,12 +417,7 @@ export class MobileCore {
         );
         return _invitationService.leaveCohort(consentContractAddress);
       },
-      getInvitationByDomain: (domain: DomainName) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getInvitationByDomain(domain);
-      },
+
       getAcceptedInvitationsCID: () => {
         const _invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
@@ -441,29 +436,51 @@ export class MobileCore {
         );
         return _invitationService.getAvailableInvitationsCID();
       },
-      getAgreementPermissions: (consentAddress: EVMContractAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getAgreementPermissions(consentAddress);
-      },
+
       getConsentContractCID: (consentAddress: EVMContractAddress) => {
         const _invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
         );
         return _invitationService.getConsentContractCID(consentAddress);
       },
-      getMarketplaceListings: (count?: number, headAt?: number) => {
+      getReceivingAddress: (contractAddress) => {
         const _invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
         );
-        return _invitationService.getMarketplaceListings(count, headAt);
+        return _invitationService.getReceivingAddress(contractAddress);
       },
-      getListingsTotal: () => {
+      getAgreementFlags: (contractAddress) => {
         const _invitationService = this.iocContainer.get<IInvitationService>(
           IInvitationServiceType,
         );
-        return _invitationService.getListingsTotal();
+        return _invitationService.getAgreementFlags(contractAddress);
+      },
+      getConsentCapacity: (contractAddress) => {
+        const _invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+        return _invitationService.getConsentCapacity(contractAddress);
+      },
+      getInvitationsByDomain: (domain) => {
+        const _invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+        return _invitationService.getInvitationsByDomain(domain);
+      },
+      setReceivingAddress: (contractAddress, receivingAddress) => {
+        const _invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+        return _invitationService.setReceivingAddress(
+          contractAddress,
+          receivingAddress,
+        );
+      },
+      setDefaultReceivingAddress: (receivingAddress) => {
+        const _invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+        return _invitationService.setDefaultReceivingAddress(receivingAddress);
       },
     };
 

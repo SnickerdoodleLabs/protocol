@@ -208,7 +208,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
               value={item.state.status}
               onValueChange={() => {
                 if (!item.state.status) {
-                  console.log("myITems", item);
                   item.setPermissions((prevItems) => [
                     ...prevItems,
                     item.ewalletType,
@@ -217,7 +216,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
                   const newItems = item.permissions.filter(
                     (val) => val != item.ewalletType,
                   );
-                  console.log("newItems", newItems);
                   item.setPermissions(newItems);
                 }
                 item.setState({
@@ -368,7 +366,6 @@ const LayoutContextProvider = ({ children }) => {
     data: any,
     invitationParams: any,
   ) => {
-    console.log("invitationParams", data);
     setInvitationData(data.value);
     setInvitation(invitationParams);
     _setInvitationStatus({ status, data, invitationParams });
@@ -380,7 +377,6 @@ const LayoutContextProvider = ({ children }) => {
 
   const acceptInvitationHandle = () => {
     mobileCore.dataPermissionUtils.getPermissions().map((perms) => {
-      console.log("GETPERMISSONS", perms);
       if (perms.length == 0) {
         mobileCore.dataPermissionUtils
           .generateDataPermissionsClassWithDataTypes([

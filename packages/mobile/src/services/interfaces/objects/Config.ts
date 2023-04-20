@@ -19,11 +19,12 @@ export const coreConfig = {
   defaultInsightPlatformBaseUrl: URLString(
     "https://insight-api.snickerdoodle.com/v0/",
   ),
-  requestForDataCheckingFrequency: 160000,
-  accountIndexingPollingIntervalMS: 160000,
-  accountBalancePollingIntervalMS: 160000,
-  accountNFTPollingIntervalMS: 160000,
-  dataWalletBackupIntervalMS: 160000,
+  requestForDataCheckingFrequency: 60000,
+  accountIndexingPollingIntervalMS: 60000,
+  accountBalancePollingIntervalMS: 60000,
+  accountNFTPollingIntervalMS: 60000,
+  dataWalletBackupIntervalMS: 60000,
+  heartbeatIntervalMS: 60000,
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:
     "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",

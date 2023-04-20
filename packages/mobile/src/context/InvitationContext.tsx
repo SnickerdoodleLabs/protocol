@@ -62,11 +62,9 @@ const InvitationContextProvider = ({ children }) => {
         tokenId,  
         businessSignature: (signature as Signature) ?? null,
       };
-      console.log("invitation", _invitation);
       return invitationService
         .checkInvitationStatus(_invitation)
         .map((status) => {
-          console.log("INVITATION STATUS", status);
           if (status === EInvitationStatus.New) {
             mobileCore.invitationService
               .getConsentContractCID(
@@ -76,7 +74,6 @@ const InvitationContextProvider = ({ children }) => {
                 mobileCore.invitationService
                   .getInvitationMetadataByCID(ipfsCID)
                   .map((metaData) => {
-                    console.log("MetaData", metaData);
                     setInvitationStatus(true, metaData, _invitation);
                   });
               });

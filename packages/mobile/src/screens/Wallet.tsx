@@ -74,14 +74,12 @@ const Wallet = (props: any) => {
       allNFTs.flat().map((obj) => {
         console.log(obj);
         const image = obj?.normalized_metadata?.image;
-        console.log("image", image);
         if (image) {
           temp.push(
             image.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/"),
           );
         }
       });
-      console.log("temp", temp);
       setMyNFTs(temp);
     });
     /*   await api.getAllNFTs(selectedAccount, "eth").then((res) => {

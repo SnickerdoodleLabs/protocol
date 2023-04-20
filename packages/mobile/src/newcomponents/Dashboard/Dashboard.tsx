@@ -23,6 +23,7 @@ import { useAccountLinkingContext } from "../../context/AccountLinkingContextPro
 import Sidebar from "../Custom/Sidebar";
 import RadioButton from "../Custom/RadioButton";
 import MultiSelect from "../Custom/MultiSelect";
+import CustomSwitch from "../Custom/CustomSwitch";
 export interface IDashboardChildrenProps {
   data: {
     nfts: string[];
@@ -173,7 +174,7 @@ const Dashboard = () => {
     }
   };
   return (
-    <SafeAreaView style={{ backgroundColor: "white",height:'100%' }}>
+    <SafeAreaView style={{ backgroundColor: "white", height: "100%" }}>
       <ScrollView style={{ backgroundColor: "white" }}>
         <SafeAreaView
           style={{
@@ -204,7 +205,7 @@ const Dashboard = () => {
             />
           </View>
           <View style={{ flex: 1 }}>
-            <View style={{backgroundColor:'red',height:'100%'}}>
+            <View style={{ backgroundColor: "red", height: "100%" }}>
               <DashboardTab
                 data={{
                   nfts: myNFTs,
@@ -296,6 +297,26 @@ const Dashboard = () => {
                   options={options}
                   handleSelectChain={handleSelectChain}
                   selectedChains={selectedChains}
+                />
+              </View>
+              <View style={styles.borderBox}>
+                <Text
+                  style={{
+                    fontStyle: "normal",
+                    fontWeight: "700",
+                    fontSize: normalizeWidth(20),
+                    lineHeight: normalizeHeight(29),
+                    color: "#212121",
+                    marginBottom: normalizeHeight(20),
+                  }}
+                >
+                  Testnet / Mainnet
+                </Text>
+                <CustomSwitch
+                  value={isMainnet}
+                  onValueChange={function (value: boolean): void {
+                    setIsMainnet(!isMainnet);
+                  }}
                 />
               </View>
             </Animated.View>

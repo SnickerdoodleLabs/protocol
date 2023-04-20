@@ -47,9 +47,6 @@ const Tabs = ({ data, activeTab, setActiveTab }: any) => {
 
 const DashboardTab = ({ data }: IDashboardChildrenProps) => {
   const [activeTab, setActiveTab] = React.useState("Tokens");
-  useEffect(() => {
-    console.log("data", data);
-  }, [data]);
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <Tabs

@@ -32,7 +32,6 @@ const CardItem: React.FC<CardItemProps> = ({
     fetch(`https://cloudflare-ipfs.com/ipfs/${cid}`).then((res) => {
       res.json().then((data) => {
         setRewardItem(data);
-        console.log("rewardItem2", data);
       });
     });
   }, [cid]);
@@ -44,10 +43,6 @@ const CardItem: React.FC<CardItemProps> = ({
     }
     return `https://cloudflare-ipfs.com/ipfs/${a}`;
   };
-
-  useEffect(() => {
-    console.log("rewardItemBu", rewardItem);
-  }, [rewardItem]);
 
   return (
     <TouchableOpacity

@@ -30,7 +30,6 @@ const MarketplaceOld = () => {
 
   useEffect(() => {
     mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {
-      console.log("earnedRewards2", earnedRewards);
       return setMyRewards(earnedRewards);
     });
   }, []);

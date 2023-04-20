@@ -395,10 +395,6 @@ const OnboardingMain = () => {
     setPrivateKey(privateKey);
     setConnectModal(false);
     setGenerated(true);
-
-    console.log("Private Key:", privateKey);
-    console.log("Public Key:", publicKey);
-    console.log("Address:", address);
   };
 
   const handleCopy = (privateKey: string) => {

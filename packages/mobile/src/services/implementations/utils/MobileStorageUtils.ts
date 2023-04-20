@@ -13,7 +13,6 @@ export class MobileStorageUtils implements IStorageUtils {
   }
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
-    console.log("value", value);
     return ResultAsync.fromPromise(
       AsyncStorage.setItem(key, JSON.stringify(value)),
       (e) => {

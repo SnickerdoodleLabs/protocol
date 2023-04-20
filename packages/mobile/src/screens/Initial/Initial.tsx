@@ -62,7 +62,7 @@ const Initial = ({ navigation }) => {
 
   useEffect(() => {
     if (allChecksCompleted) {
-       navigation.replace(isUnlocked ? "Dashboard" : "Onboarding");
+      navigation.replace(isUnlocked ? "Dashboard" : "Onboarding");
     }
   }, [allChecksCompleted, isUnlocked]);
 

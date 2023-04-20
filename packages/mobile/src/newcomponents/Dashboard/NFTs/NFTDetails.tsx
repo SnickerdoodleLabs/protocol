@@ -87,12 +87,10 @@ const NFTDetails = ({ navigation, route }) => {
   const { mobileCore } = useAppContext();
 
   useEffect(() => {
-    console.log("NFTDETAILS", rewardItem);
     const parsed = rewardItem?.data?.filter(
       (item) =>
         ipfsParse(item?.normalized_metadata?.image) === rewardItem?.image,
     );
-    console.log("parsed", parsed);
     setNFTData(parsed?.[0]);  }, []);
 
   const getTokenId = (tokenId: BigNumberString | undefined) => {
@@ -119,14 +117,12 @@ const NFTDetails = ({ navigation, route }) => {
         .map((status) => {
           console.log("INVITATION STATUS", status);
           if (status === EInvitationStatus.New) {
-            console.log("new Entered");
             mobileCore.invitationService
               .getConsentContractCID(consentAddress as EVMContractAddress)
               .map((ipfsCID) => {
                 mobileCore.invitationService
                   .getInvitationMetadataByCID(ipfsCID)
                   .map((metaData) => {
-                    console.log("MetaData", metaData);
                     setInvitationStatus(true, metaData, _invitation);
                   });
               });

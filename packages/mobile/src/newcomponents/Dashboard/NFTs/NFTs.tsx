@@ -5,18 +5,18 @@ import { ROUTES } from "../../../constants";
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
 import { ipfsParse } from "./NFTDetails";
+import { useAppContext } from "../../../context/AppContextProvider";
 
 export default function NFTs({ data }) {
   const navigation = useNavigation();
+  const { mobileCore } = useAppContext();
   React.useEffect(() => {
-    console.log("NFTSSSS", data);
   }, [data]);
   const NFTs = ({ navigation }: any) => {
     const findNFTData = (image) => {
       const parsed = data?.nfts?.mainObjects?.filter(
         (item) => ipfsParse(item?.normalized_metadata?.image) === image,
       );
-      console.log("parsedBBBB", parsed);
       return parsed;
     };
     return (
@@ -37,34 +37,7 @@ export default function NFTs({ data }) {
               justifyContent: "space-between",
             }}
           >
-            {data?.nfts?.images.length === 0 && (
-              <View
-                style={{
-                  marginTop: normalizeHeight(50),
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <Image
-                  style={{
-                    width: normalizeWidth(225),
-                    height: normalizeHeight(146),
-                  }}
-                  source={require("../../../assets/images/nftEmpty.png")}
-                />
-                <Text
-                  style={{
-                    color: "#616161",
-                    fontWeight: "400",
-                    fontSize: normalizeWidth(16),
-                  }}
-                >
-                  You don’t have any NFTs
-                </Text>
-              </View>
-            )}
-            {data?.nfts?.images.length > 0 &&
+            {data?.nfts?.images.length > 0 ? (
               data?.nfts?.images?.map((image) => (
                 <View style={{ paddingBottom: normalizeHeight(10) }}>
                   <TouchableOpacity
@@ -128,7 +101,34 @@ export default function NFTs({ data }) {
                     </View>
                   </TouchableOpacity>
                 </View>
-              ))}
+              ))
+            ) : (
+              <View
+                style={{
+                  marginTop: normalizeHeight(50),
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <Image
+                  style={{
+                    width: normalizeWidth(225),
+                    height: normalizeHeight(146),
+                  }}
+                  source={require("../../../assets/images/nftEmpty.png")}
+                />
+                <Text
+                  style={{
+                    color: "#616161",
+                    fontWeight: "400",
+                    fontSize: normalizeWidth(16),
+                  }}
+                >
+                  You don’t have any NFTs
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </View>

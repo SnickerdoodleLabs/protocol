@@ -106,16 +106,13 @@ const CardDetails = ({ navigation, route }) => {
       return invitationService
         .checkInvitationStatus(_invitation)
         .map((status) => {
-          console.log("INVITATION STATUS", status);
           if (status === EInvitationStatus.New) {
-            console.log("new Entered");
             mobileCore.invitationService
               .getConsentContractCID(consentAddress as EVMContractAddress)
               .map((ipfsCID) => {
                 mobileCore.invitationService
                   .getInvitationMetadataByCID(ipfsCID)
                   .map((metaData) => {
-                    console.log("MetaData", metaData);
                     setInvitationStatus(true, metaData, _invitation);
                   });
               });
