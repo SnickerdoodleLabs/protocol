@@ -406,7 +406,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
-    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
     bind<IOAuthUtils>(IOAuthUtilsType).to(OAuthUtils).inSingletonScope();
 
     // Utilites/factory
