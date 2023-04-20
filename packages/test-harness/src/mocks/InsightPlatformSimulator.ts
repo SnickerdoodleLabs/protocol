@@ -35,6 +35,7 @@ import {
   SHA256Hash,
   AdSignature,
   InvalidSignatureError,
+  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -44,12 +45,13 @@ import {
   clearCloudBackupsTypes,
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
-import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
-import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -111,7 +113,7 @@ export class InsightPlatformSimulator {
 
       const eligibleRewards: EligibleReward[] = [];
       eligibleRewards[0] = new EligibleReward(
-        "c1",
+        CompensationId("c1"),
         "Sugar to your coffee",
         IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
         "10% discount code for Starbucks",
@@ -120,7 +122,7 @@ export class InsightPlatformSimulator {
         ERewardType.Direct,
       );
       eligibleRewards[1] = new EligibleReward(
-        "c2",
+        CompensationId("c2"),
         "The CryptoPunk Draw",
         IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
         "participate in the draw to win a CryptoPunk NFT",
@@ -129,7 +131,7 @@ export class InsightPlatformSimulator {
         ERewardType.Direct,
       );
       eligibleRewards[2] = new EligibleReward(
-        "c3",
+        CompensationId("c3"),
         "CrazyApesClub NFT distro",
         IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
         "a free CrazyApesClub NFT",

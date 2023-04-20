@@ -45,5 +45,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public marketplaceListingsCacheTime: number,
     public backupHeartbeatIntervalMS: number,
     public discord: DiscordConfig,
+    public heartbeatIntervalMS: number,
   ) {}
 }

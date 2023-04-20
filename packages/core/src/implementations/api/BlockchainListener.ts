@@ -73,11 +73,6 @@ export class BlockchainListener implements IBlockchainListener {
     protected accountRepo: ILinkedAccountRepository,
   ) {}
 
-  protected queryHorizonCache = new Map<
-    EVMContractAddress,
-    BlockNumber | null
-  >();
-
   public initialize(): ResultAsync<
     void,
     BlockchainProviderError | PersistenceError | UninitializedError
@@ -167,7 +162,9 @@ export class BlockchainListener implements IBlockchainListener {
             // Only consent owners can request data
             return ResultUtils.combine([
               consentContract.getConsentOwner(),
-              this.getQueryHorizon(consentContract),
+              this.consentContractRepository.getQueryHorizon(
+                consentContract.getContractAddress(),
+              ),
             ])
               .andThen(([consentOwner, queryHorizon]) => {
                 return ResultUtils.combine([
@@ -220,27 +217,5 @@ export class BlockchainListener implements IBlockchainListener {
           }),
         ).map((result) => {});
       });
-  }
-
-  protected getQueryHorizon(
-    consentContract: IConsentContract,
-  ): ResultAsync<BlockNumber, ConsentContractError> {
-    // Check if the query horizon is in the cache
-    const cachedQueryHorizon = this.queryHorizonCache.get(
-      consentContract.getContractAddress(),
-    );
-
-    if (cachedQueryHorizon != null) {
-      return okAsync(cachedQueryHorizon);
-    }
-
-    return consentContract.getQueryHorizon().map((queryHorizon) => {
-      this.queryHorizonCache.set(
-        consentContract.getContractAddress(),
-        queryHorizon,
-      );
-
-      return queryHorizon;
-    });
   }
 }

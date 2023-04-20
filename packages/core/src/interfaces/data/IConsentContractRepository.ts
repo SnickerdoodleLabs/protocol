@@ -18,6 +18,7 @@ import {
   OptInInfo,
   TokenUri,
   IConsentCapacity,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -113,6 +114,13 @@ export interface IConsentContractRepository {
   ): ResultAsync<
     TokenUri | null,
     ConsentContractError | UninitializedError | BlockchainProviderError
+  >;
+
+  getQueryHorizon(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    BlockNumber,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   // Encoders
