@@ -170,6 +170,7 @@ var options = {
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
+      __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),

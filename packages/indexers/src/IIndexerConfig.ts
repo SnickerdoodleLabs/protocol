@@ -10,6 +10,7 @@ export interface IIndexerConfig {
   moralisApiKey: string;
   nftScanApiKey: string;
   poapApiKey: string;
+  oklinkApiKey: string;
   etherscanApiKeys: Map<ChainId, string>;
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;

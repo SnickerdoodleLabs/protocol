@@ -82,6 +82,7 @@ export const testCoreConfig = new CoreConfig(
   "moralis api key",
   "nftScan api key",
   "poap api key",
+  "oklink api key",
   URLString("http://dnsServerAddress"),
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
