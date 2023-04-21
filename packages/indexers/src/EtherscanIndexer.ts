@@ -100,6 +100,7 @@ export class EtherscanIndexer
           apikey: apiKey,
         }),
       );
+      console.log("EtherscanIndexer url: ", url);
 
       return this.ajaxUtils
         .get<IEtherscanTokenBalanceResponse>(url)
@@ -157,7 +158,9 @@ export class EtherscanIndexer
             .map((response) => {
               const nativeBalance = new TokenBalance(
                 EChainTechnology.EVM,
-                TickerSymbol("ETH"),
+                TickerSymbol(
+                  getChainInfoByChainId(chainId).nativeCurrency.symbol,
+                ),
                 chainId,
                 null,
                 accountAddress,

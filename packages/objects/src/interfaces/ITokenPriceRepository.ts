@@ -40,3 +40,10 @@ export interface ITokenPriceRepository {
 }
 
 export const ITokenPriceRepositoryType = Symbol.for("ITokenPriceRepository");
+
+export interface CoinGeckoTokenInfo {
+  id: string;
+  symbol: string;
+  name: string;
+  protocols: string[];
+}
