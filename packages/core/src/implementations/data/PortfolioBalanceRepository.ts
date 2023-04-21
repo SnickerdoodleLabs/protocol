@@ -174,6 +174,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getEtherscanBalanceRepository(),
       this.accountBalances.getAlchemyBalanceRepository(),
+      this.accountBalances.getOklinkBalanceRepository(),
     ])
       .andThen(
         ([
@@ -185,6 +186,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           maticRepo,
           etherscanBalanceRepo,
           alchemyRepo,
+          oklinkRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -202,7 +204,13 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Polygon:
-              return alchemyRepo.getBalancesForAccount(
+              if (chainInfo.type == EChainType.Testnet) {
+                return alchemyRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                );
+              }
+              return oklinkRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

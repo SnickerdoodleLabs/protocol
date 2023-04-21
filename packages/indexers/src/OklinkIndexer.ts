@@ -6,39 +6,25 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EVMTransaction,
-  IEVMTransactionRepository,
   EChainTechnology,
   TickerSymbol,
   getChainInfoByChainId,
-  EVMTransactionHash,
-  UnixTimestamp,
-  getEtherscanBaseURLForChain,
-  PolygonTransaction,
-  EPolygonTransactionType,
   AccountIndexingError,
   AjaxError,
   ChainId,
   TokenBalance,
-  URLString,
-  SolanaTokenAddress,
   BigNumberString,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
-  getChainInfoByChain,
   EVMAccountAddress,
   IEVMAccountBalanceRepository,
   EVMContractAddress,
-  EChain,
-  HexString,
 } from "@snickerdoodlelabs/objects";
-import { Connection } from "@solana/web3.js";
-import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
-import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
+import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
@@ -92,9 +78,10 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-        this._getOKXConfig(chainId),
-        this.configProvider.getConfig(),
-      ]).andThen(([alchemySettings, config]) => {
+      this._getOKXConfig(chainId),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([alchemySettings, config]) => {
         const chainInfo = getChainInfoByChainId(chainId);
         const url = urlJoinP(
           "https://www.oklink.com/api/v5/explorer/address/",
@@ -105,33 +92,32 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
             protocolType: "token_20",
           },
         );
-        console.log("url: ", url);
-        return this.ajaxUtils
-          .get<IOKXNativeBalanceResponse>(new URL(url), {
-            headers: {
-              "Ok-Access-Key": config.oklinkApiKey,
-            },
-          })
-          .andThen((response) => {
-            const tokenData = response.data[0].tokenList[0];
-            // const val = tokenData.holdingAmount * 10 ** 18;
-            const balances = response.data[0].tokenList.map((token) => {
-                return okAsync(
-                    new TokenBalance(
-                      EChainTechnology.EVM,
-                      token.token,
-                      chainId,
-                      token.tokenContractAddress,
-                      accountAddress,
-                      BigNumberString((token.holdingAmount * 10 ** 18).toString()),
-                      18,
-                    ),
-                  );
-            })
-            return okAsync(balances);
-          });
+        console.log("Oklink url: ", url);
+        return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
+          headers: {
+            "Ok-Access-Key": config.oklinkApiKey,
+          },
+        });
+      })
+      .andThen((response) => {
+        const balances = response.data[0].tokenList.map((token) => {
+          console.log("Oklink token: ", token);
+          console.log("Oklink token: ", token.holdingAmount);
+          console.log("Oklink token: ", Web3.utils.toWei(token.holdingAmount));
+
+          return new TokenBalance(
+            EChainTechnology.EVM,
+            token.token,
+            chainId,
+            token.tokenContractAddress,
+            accountAddress,
+            BigNumberString(Web3.utils.toWei(token.holdingAmount).toString()),
+            18,
+          );
+        });
+        return okAsync(balances);
       });
-}
+  }
 }
 
 interface IOKXNativeBalanceResponse {
@@ -152,7 +138,7 @@ interface typedData {
 interface tokenData {
   token: TickerSymbol;
   tokenId: string;
-  holdingAmount: number; // how much native token you own
+  holdingAmount: string; // how much native token you own
   totalTokenValue: string;
   change24h: string;
   priceUsd: BigNumberString; // usd value per token

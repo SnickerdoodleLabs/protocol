@@ -14,6 +14,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+import { AlchemyIndexer } from "@indexers/AlchemyIndexer.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import { EtherscanNativeBalanceRepository } from "@indexers/EtherscanNativeBalanceRepository.js";
 import {
@@ -21,10 +22,10 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
+import { OklinkIndexer } from "@indexers/OklinkIndexer.js";
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
-import { AlchemyIndexer } from "@indexers/AlchemyIndexer.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -35,6 +36,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected matic: IEVMAccountBalanceRepository;
   protected etherscan: IEVMAccountBalanceRepository;
   protected alchemy: IEVMAccountBalanceRepository;
+  protected oklink: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -71,6 +73,12 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.logUtils,
     );
     this.alchemy = new AlchemyIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+    this.oklink = new OklinkIndexer(
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
@@ -125,5 +133,12 @@ export class DefaultAccountBalances implements IAccountBalances {
     never
   > {
     return okAsync(this.alchemy);
+  }
+
+  public getOklinkBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.oklink);
   }
 }
