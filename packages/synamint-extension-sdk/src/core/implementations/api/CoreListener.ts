@@ -2,7 +2,6 @@ import {
   DataWalletAddress,
   EarnedReward,
   EDynamicRewardParameterType,
-  ESocialType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -10,8 +9,8 @@ import {
   LinkedAccount,
   SDQLQueryRequest,
   SDQLString,
-  SocialMediaID,
-  SocialProfile,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -155,6 +154,6 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 
-  private onSocialProfileLinked(profile: SocialProfile): void {}
-  private onSocialProfileUnlinked(params: [ESocialType, SocialMediaID]): void {}
+  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {}
+  private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
 }

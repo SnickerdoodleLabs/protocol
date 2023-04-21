@@ -3,6 +3,8 @@ import {
   OAuth1RequstToken,
   OAuthVerifier,
   PersistenceError,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
   TokenAndSecret,
   TwitterError,
   TwitterID,
@@ -41,7 +43,9 @@ export class TwitterService implements ITwitterService {
       this.contextProvider.getContext(),
       this.twitterRepo.initTwitterProfile(requestToken, oAuthVerifier),
     ]).map(([context, newProfile]) => {
-      context.publicEvents.onSocialProfileLinked.next(newProfile);
+      context.publicEvents.onSocialProfileLinked.next(
+        new SocialProfileLinkedEvent(ESocialType.TWITTER, newProfile),
+      );
       return newProfile;
     });
   }
@@ -52,12 +56,11 @@ export class TwitterService implements ITwitterService {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.twitterRepo.deleteProfile(id),
-    ]).map(([context]) =>
-      context.publicEvents.onSocialProfileUnlinked.next([
-        ESocialType.TWITTER,
-        id,
-      ]),
-    );
+    ]).map(([context]) => {
+      context.publicEvents.onSocialProfileUnlinked.next(
+        new SocialProfileUnlinkedEvent(ESocialType.TWITTER, id),
+      );
+    });
   }
 
   public poll(): ResultAsync<void, TwitterError | PersistenceError> {

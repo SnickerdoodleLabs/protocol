@@ -7,15 +7,14 @@ import {
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
   SDQLQueryRequest,
-  SocialProfile,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
 } from "@objects/businessObjects/index.js";
 import {
   DataWalletAddress,
   DomainName,
   IpfsCID,
-  SocialMediaID,
 } from "@objects/primitives/index.js";
-import { ESocialType } from "..";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
@@ -28,6 +27,6 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsGranted: Observable<PermissionsGrantedEvent>;
   onPermissionsRequested: Observable<PermissionsRequestedEvent>;
   onPermissionsRevoked: Observable<DomainName>;
-  onSocialProfileLinked: Subject<SocialProfile>;
-  onSocialProfileUnlinked: Subject<[ESocialType, SocialMediaID]>;
+  onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
+  onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
 }

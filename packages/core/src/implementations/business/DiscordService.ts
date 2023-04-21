@@ -1,17 +1,19 @@
 import {
-  OAuth2AccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
+  DiscordID,
   DiscordProfile,
+  ESocialType,
+  OAuth2AccessToken,
   OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
-  DiscordID,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
   URLString,
-  ESocialType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -62,10 +64,9 @@ export class DiscordService implements IDiscordService {
       this.contextProvider.getContext(),
       this.discordRepo.deleteProfile(userProfileId),
     ]).map(([context]) => {
-      context.publicEvents.onSocialProfileUnlinked.next([
-        ESocialType.DISCORD,
-        userProfileId,
-      ]);
+      context.publicEvents.onSocialProfileUnlinked.next(
+        new SocialProfileUnlinkedEvent(ESocialType.DISCORD, userProfileId),
+      );
     });
   }
 
@@ -157,7 +158,9 @@ export class DiscordService implements IDiscordService {
             ),
           ),
         ]).map(([context]) => {
-          context.publicEvents.onSocialProfileLinked.next(userProfile);
+          context.publicEvents.onSocialProfileLinked.next(
+            new SocialProfileLinkedEvent(ESocialType.DISCORD, userProfile),
+          );
         });
       });
   }
