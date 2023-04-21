@@ -66,7 +66,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       TokenAddress,
       CoinGeckoTokenInfo
     >;
-    console.log("Coin Gecko map: ", this._contractAddressMap);
   }
 
   public getTokenInfoFromList(

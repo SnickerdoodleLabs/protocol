@@ -163,7 +163,6 @@ export class AlchemyIndexer
       const url = config.alchemyEndpoints.get(
         EChain[getChainInfoByChainId(chainId).name.toString()],
       );
-      console.log("Alchemy url: ", url);
       if (url == undefined) {
         return errAsync(
           new AccountIndexingError("Alchemy Endpoint is missing"),

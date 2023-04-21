@@ -61,7 +61,6 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
     chain: ChainId,
   ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log("Inside getAlchemyclient chain: ", chain);
       switch (chain) {
         default:
           return okAsync({
@@ -104,7 +103,6 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
             protocolType: "token_20",
           },
         );
-        console.log("Oklink url: ", url);
         return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
           headers: {
             "Ok-Access-Key": config.oklinkApiKey,
@@ -113,10 +111,6 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
       })
       .andThen((response) => {
         const balances = response.data[0].tokenList.map((token) => {
-          console.log("Oklink token: ", token);
-          console.log("Oklink token: ", token.holdingAmount);
-          console.log("Oklink token: ", Web3.utils.toWei(token.holdingAmount));
-
           return new TokenBalance(
             EChainTechnology.EVM,
             token.token,
