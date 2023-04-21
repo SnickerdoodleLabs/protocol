@@ -4,6 +4,8 @@ import {
   ControlChainInformation,
   DataWalletAddress,
   ECurrencyCode,
+  EHashAlgorithm,
+  ESignatureAlgorithm,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
@@ -11,7 +13,6 @@ import {
   SDQLQuery,
   SDQLString,
   TokenSecret,
-  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
@@ -66,14 +67,18 @@ const testDiscordConfig = {
   pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
 };
 
-const testTwitterConfig = new TwitterConfig(
-  "boxruvqZNqFDLsWgc2BkbhHzn",
-  TokenSecret("WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw"),
-  URLString("https://api.twitter.com/oauth"),
-  URLString("oob"),
-  URLString("https://api.twitter.com/2"),
-  1 * 24 * 3600 * 1000,
-);
+const testTwitterConfig = {
+  apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+  apiSecretKey: TokenSecret(
+    "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+  ),
+  signingAlgorithm: ESignatureAlgorithm.HMAC,
+  hashingAlgorithm: EHashAlgorithm.SHA1,
+  oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
+  oAuthCallbackUrl: URLString("oob"),
+  dataAPIUrl: URLString("https://api.twitter.com/2"),
+  pollInterval: 1 * 24 * 3600 * 1000,
+};
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,

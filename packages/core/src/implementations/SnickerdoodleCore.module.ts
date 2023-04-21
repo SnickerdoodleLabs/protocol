@@ -75,7 +75,6 @@ import {
   InvitationService,
   MarketplaceService,
   MonitoringService,
-  OAuthUtils,
   ProfileService,
   QueryParsingEngine,
   QueryService,
@@ -167,8 +166,6 @@ import {
   IConsentTokenUtilsType,
   INftQueryEvaluator,
   INftQueryEvaluatorType,
-  IOAuthUtils,
-  IOAuthUtilsType,
   IPermissionUtils,
   IPermissionUtilsType,
   IQueryEvaluator,
@@ -406,7 +403,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
-    bind<IOAuthUtils>(IOAuthUtilsType).to(OAuthUtils).inSingletonScope();
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)

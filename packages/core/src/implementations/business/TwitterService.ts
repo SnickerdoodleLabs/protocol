@@ -32,7 +32,7 @@ export class TwitterService implements ITwitterService {
   ) {}
 
   public getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError> {
-    return this.twitterRepo.getOAuth1aRequestToken();
+    return this.twitterRepo.getOAuth1RequestToken();
   }
 
   public initTwitterProfile(

@@ -3,14 +3,22 @@ import {
   VersionedObjectMigrator,
 } from "@objects/businessObjects/VersionedObject.js";
 import { ESocialType } from "@objects/enum/index.js";
-import { Integer, ISO8601DateString, DiscordID, SocialPrimaryKey, UnixTimestamp, URLString, Username } from "@objects/primitives/index.js";
+import {
+  DiscordID,
+  Integer,
+  ISO8601DateString,
+  SocialPrimaryKey,
+  UnixTimestamp,
+  URLString,
+  Username,
+} from "@objects/primitives/index.js";
 
 export abstract class SocialGroupProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
   public constructor(
     public pKey: SocialPrimaryKey,
     public type: ESocialType,
-    public ownerId: SocialPrimaryKey,
+    public ownerId?: SocialPrimaryKey,
   ) {
     super();
   }
@@ -61,13 +69,12 @@ export class SocialGroupProfileMigrator extends VersionedObjectMigrator<SocialGr
   }
 }
 
-
 export class DiscordGuildProfile extends SocialGroupProfile {
   public static CURRENT_VERSION = 1;
 
   public constructor(
     public id: DiscordID,
-    public discordUserProfileId: DiscordID, // this should be translated to ownerId
+    public discordUserProfileId: DiscordID | undefined, // this should be translated to ownerId
     public name: string,
     public isOwner: boolean,
     public permissions: Integer,
@@ -77,7 +84,9 @@ export class DiscordGuildProfile extends SocialGroupProfile {
     super(
       SocialPrimaryKey(`discord-group-${id}`),
       ESocialType.DISCORD,
-      SocialPrimaryKey(`discord-${discordUserProfileId}`),
+      discordUserProfileId
+        ? SocialPrimaryKey(`discord-${discordUserProfileId}`)
+        : undefined,
     );
   }
 

@@ -79,16 +79,13 @@ export class SocialDataMock {
   }
 
   public getDiscordGuildProfiles(
-    discordProfileId: DiscordID | null,
+    discordProfileId?: DiscordID,
   ): DiscordGuildProfile[] {
-    if (discordProfileId == null) {
-      discordProfileId = DiscordID("-1");
-    }
     return discordGuildProfileAPIResponses.map(
       (profile) =>
         new DiscordGuildProfile(
           profile.id,
-          discordProfileId!,
+          discordProfileId,
           profile.name,
           profile.owner,
           profile.permissions,

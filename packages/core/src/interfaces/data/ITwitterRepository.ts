@@ -10,7 +10,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ITwitterRepository {
-  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError>;
+  getOAuth1RequestToken(): ResultAsync<TokenAndSecret, TwitterError>;
   initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,

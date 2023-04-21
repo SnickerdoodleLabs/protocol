@@ -5,6 +5,8 @@ import {
   ControlChainInformation,
   EChain,
   ECurrencyCode,
+  EHashAlgorithm,
+  ESignatureAlgorithm,
   IConfigOverrides,
   ProviderUrl,
   TokenSecret,
@@ -66,14 +68,18 @@ export class ConfigProvider
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
     };
 
-    const twitterConfig = new TwitterConfig(
-      "boxruvqZNqFDLsWgc2BkbhHzn",
-      TokenSecret("WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw"),
-      URLString("https://api.twitter.com/oauth"),
-      URLString("oob"),
-      URLString("https://api.twitter.com/2"),
-      1 * 24 * 3600 * 1000,
-    );
+    const twitterConfig = {
+      apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+      apiSecretKey: TokenSecret(
+        "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+      ),
+      signingAlgorithm: ESignatureAlgorithm.HMAC,
+      hashingAlgorithm: EHashAlgorithm.SHA1,
+      oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
+      oAuthCallbackUrl: URLString("oob"),
+      dataAPIUrl: URLString("https://api.twitter.com/2"),
+      pollInterval: 1 * 24 * 3600 * 1000,
+    };
 
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
@@ -206,25 +212,14 @@ export class ConfigProvider
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =
       overrides.enableBackupEncryption ?? false;
-
-    const discordConfig = {
+    this.config.discord = {
       ...this.config.discord,
       ...overrides.discordOverrides,
     };
-    this.config.discord = discordConfig;
-
-    const twitterConfig = {
+    this.config.twitter = {
       ...this.config.twitter,
       ...overrides.twitterOverrides,
     };
-    this.config.twitter = new TwitterConfig(
-      twitterConfig.apiKey ?? this.config.twitter.apiKey,
-      TokenSecret(twitterConfig.apiSecretKey ?? this.config.twitter.apiSecretKey),
-      twitterConfig.oAuthBaseUrl ?? this.config.twitter.oAuthBaseUrl,
-      twitterConfig.oAuthCallbackUrl ?? this.config.twitter.oAuthCallbackUrl,
-      twitterConfig.dataAPIUrl ?? this.config.twitter.dataAPIUrl,
-      twitterConfig.pollInterval ?? this.config.twitter.pollInterval,
-    );
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
   }

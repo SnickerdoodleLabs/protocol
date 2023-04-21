@@ -64,7 +64,6 @@ export * from "@objects/businessObjects/VolatileStorageMetadata.js";
 export * from "@objects/businessObjects/WalletNFT.js";
 export * from "@objects/enum/EHashAlgorithm.js";
 export * from "@objects/enum/ESignatureAlgorithm.js";
-export * from "@objects/enum/ESignatureMethod.js";
 
 export * from "@objects/businessObjects/events/index.js";
 export * from "@objects/businessObjects/rewards/index.js";

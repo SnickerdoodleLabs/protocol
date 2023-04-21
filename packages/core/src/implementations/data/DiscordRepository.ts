@@ -152,7 +152,7 @@ export class DiscordRepository implements IDiscordRepository {
           response.map((profile) => {
             return new DiscordGuildProfile(
               profile.id,
-              DiscordID("-1"), // not set yet
+              undefined,
               profile.name,
               profile.owner,
               profile.permissions,
