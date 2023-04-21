@@ -19,6 +19,7 @@ import {
   EVMAccountAddress,
   IEVMAccountBalanceRepository,
   EVMContractAddress,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -73,6 +74,17 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
     });
   }
 
+  private getChainShortName(chainId: ChainId): string {
+    switch (getChainInfoByChainId(chainId).chain) {
+      case EChain.Avalanche:
+        return "avaxc";
+      case EChain.Polygon:
+        return "matic-network";
+      default:
+        return "ethereum";
+    }
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -81,13 +93,13 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
       this._getOKXConfig(chainId),
       this.configProvider.getConfig(),
     ])
-      .andThen(([alchemySettings, config]) => {
-        const chainInfo = getChainInfoByChainId(chainId);
+      .andThen(([okxSettings, config]) => {
+        const chainInfo = this.getChainShortName(chainId);
         const url = urlJoinP(
           "https://www.oklink.com/api/v5/explorer/address/",
           ["address-balance-fills"],
           {
-            chainShortName: chainInfo.name.toString(),
+            chainShortName: chainInfo.toString(),
             address: accountAddress,
             protocolType: "token_20",
           },
