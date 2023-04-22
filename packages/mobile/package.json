@@ -11,6 +11,9 @@
     "compile": "cd ../.. %% yarn compile && cd packages/mobile && yarn start --reset-cache",
     "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.20.13",
     "@ceramicnetwork/http-client": "^2.10.0",
