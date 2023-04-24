@@ -1,10 +1,4 @@
 import {
-  ConsentRoles,
-  ContractOverrides,
-  Tag,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import {
   ConsentContractError,
   EVMAccountAddress,
   IpfsCID,
@@ -24,6 +18,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import {
+  ConsentRoles,
+  ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract {
   getContractAddress(): EVMContractAddress;
@@ -95,6 +96,7 @@ export interface IConsentContract {
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
+  encodeOptOut(tokenId: TokenId): HexString;
 
   /**
    * Returns the agreementFlagsArray value for the token ID
@@ -109,7 +111,14 @@ export interface IConsentContract {
     maxCapacity: number,
   ): ResultAsync<void, ConsentContractError>;
 
-  encodeOptOut(tokenId: TokenId): HexString;
+  updateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+  ): ResultAsync<void, ConsentContractError>;
+  encodeUpdateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+  ): HexString;
 
   /**
    * Submit for blockchain requestForData event
@@ -234,7 +243,7 @@ export interface IConsentContract {
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
   /**
-   * Returns the tokenId of latest opt-in contract the user has 
+   * Returns the tokenId of latest opt-in contract the user has
    * for given derived opt-in address.
    * @param optInAddress Opt-in contract address
    */

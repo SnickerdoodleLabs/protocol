@@ -46,5 +46,16 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public backupHeartbeatIntervalMS: number,
     public discord: DiscordConfig,
     public heartbeatIntervalMS: number,
+    public gasAmounts: MetatransactionGasAmounts,
+  ) {}
+}
+
+export class MetatransactionGasAmounts {
+  public constructor(
+    public createCrumbGas: number,
+    public removeCrumbGas: number,
+    public optInGas: number,
+    public optOutGas: number,
+    public updateAgreementFlagsGas: number,
   ) {}
 }

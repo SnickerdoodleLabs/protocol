@@ -13,7 +13,10 @@ import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  MetatransactionGasAmounts,
+} from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
 /**
@@ -113,6 +116,13 @@ export class ConfigProvider
       120000, // backup placement heartbeat
       discordConfig,
       60000, // heartbeatIntervalMS
+      new MetatransactionGasAmounts(
+        10000000, // createCrumbGas
+        10000000, // removeCrumbGas,
+        10000000, // optInGas
+        10000000, // optOutGas
+        10000000, // updateAgreementFlagsGas
+      ),
     );
   }
 
