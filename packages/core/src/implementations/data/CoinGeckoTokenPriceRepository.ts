@@ -77,9 +77,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       string,
       CoinMarketDataResponse
     >;
-    console.log("this._coinPricesMap: ", this._coinPricesMap);
-
-    console.log("Coin Gecko map: ", this._contractAddressMap);
   }
 
   public getMarketDataForTokens(
@@ -88,12 +85,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
     AjaxError | AccountIndexingError
   > {
-    console.log("Hitting getMarketDataForTokens: ", tokens);
     const ids = new Map<string, `${ChainId}-${TokenAddress}`>();
     return ResultUtils.combine(
       tokens.map((token) => {
         return this.getTokenInfo(token.chain, token.address).map((info) => {
-          console.log("getTokenInfo: ", info);
           if (info != null) {
             ids.set(info.id, `${token.chain}-${token.address}`);
           }
@@ -101,11 +96,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       }),
     ).andThen(() => {
       return this.getTokenMarketData([...ids.keys()]).map((marketData) => {
-        console.log(
-          "CoinGeckoTokenPriceRepository TokenMarketData: ",
-          marketData,
-        );
-
         const returnVal = new Map<
           `${ChainId}-${TokenAddress}`,
           TokenMarketData
@@ -128,13 +118,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {
-    // return okAsync(ids)
-    //   .map((ids) => {
-    //     return ids.map((id) => {
-    //       console.log("id: ", id);
-    //       return this.getTokenPriceFromList(id);
-    //     });
-    //   })
     return this.getTokenPriceFromList(ids).map((marketResponses) => {
       return marketResponses.map((item) => {
         return new TokenMarketData(
@@ -161,8 +144,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const id = this._nativeIds.get(chainId)!;
     const chainInfo = getChainInfoByChainId(chainId);
-    console.log("id token: ", id);
-
     if (contractAddress == null) {
       return okAsync(
         new TokenInfo(
@@ -177,11 +158,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
     const tokenInfo = this.getTokenInfoFromList(contractAddress);
     if (tokenInfo == undefined) {
-      console.log("bad token: ", tokenInfo);
       return okAsync(null);
     }
-    console.log("good token with contract address: ", tokenInfo);
-
     return okAsync(
       new TokenInfo(
         tokenInfo.id,
@@ -241,20 +219,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this.ajaxUtils
       .get<CoinMarketDataResponse[]>(new URL(url))
       .map((response) => {
-        console.log("marketResponses: ", marketResponses);
-        console.log("response: ", response);
-        const total = [...marketResponses, ...response];
-        console.log("total: ", total);
-
-        return total;
-        // const firstVal = response[0];
-        // return firstVal;
+        return [...marketResponses, ...response];
       })
       .mapErr((error) => {
-        // return null;
-        // return new AjaxError("CoinGecko usd url is down: ", e, e);
         return new AccountIndexingError(
-          `Unable to GET Coingecko ${url}, ${error.message}`,
+          `Unable to parse Coingecko ${url}, ${error.message}`,
           500,
         );
       });
@@ -317,8 +286,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
         return this.getTokenInfo(chainId, contractAddress).andThen(
           (tokenInfo) => {
-            console.log("getTokenPrice tokenInfo: ", tokenInfo);
-
             if (tokenInfo == null) {
               return errAsync(new AccountIndexingError("no token info found"));
             }
@@ -351,7 +318,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this.ajaxUtils
       .get<IMarketDataResponse>(new URL(url))
       .map((response) => {
-        console.log("fetchTokenMarketData response: ", response);
         this.tokenMarketDataCache.set(url.href, {
           marketData: response,
           timeStamp: UnixTimestamp(new Date().getTime()),

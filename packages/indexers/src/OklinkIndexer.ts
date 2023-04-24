@@ -117,17 +117,6 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
           );
         }
         const balances = response.data[0].tokenList.map((token) => {
-          // const listValue = this.tokenPriceRepo.getTokenInfoFromList(
-          //   token.tokenContractAddress,
-          // );
-          // if (
-          //   this.tokenPriceRepo.getTokenInfoFromList(
-          //     token.tokenContractAddress,
-          //   ) == undefined
-          // ) {
-          //   return okAsync(undefined);
-          // }
-
           return new TokenBalance(
             EChainTechnology.EVM,
             token.token,
