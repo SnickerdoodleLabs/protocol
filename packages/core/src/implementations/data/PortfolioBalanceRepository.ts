@@ -199,6 +199,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+              if (chainInfo.type == EChainType.Testnet) {
+                return etherscanBalanceRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                );
+              }
               return ResultUtils.combine([
                 oklinkRepo.getBalancesForAccount(
                   chainId,

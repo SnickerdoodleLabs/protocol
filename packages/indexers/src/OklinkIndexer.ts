@@ -77,10 +77,8 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
     switch (getChainInfoByChainId(chainId).chain) {
       case EChain.Avalanche:
         return "avaxc";
-      case EChain.Polygon:
-        return "matic-network";
       default:
-        return "ethereum";
+        return getChainInfoByChainId(chainId).name;
     }
   }
 
@@ -103,6 +101,8 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
             protocolType: "token_20",
           },
         );
+        console.log(chainId + ": url: " + url);
+
         return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
           headers: {
             "Ok-Access-Key": config.oklinkApiKey,
@@ -110,6 +110,12 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
         });
       })
       .andThen((response) => {
+        console.log(chainId + ": responses: " + JSON.stringify(response));
+        if (response.code != "0") {
+          return errAsync(
+            new AccountIndexingError("Bad url response from Oklink"),
+          );
+        }
         const balances = response.data[0].tokenList.map((token) => {
           return new TokenBalance(
             EChainTechnology.EVM,
