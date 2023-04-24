@@ -177,28 +177,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this._contractAddressMap.get(contractAddress);
   }
 
-  protected getCoinResponse(
-    protocol: string,
-  ): ResultAsync<CoinMarketDataResponse, null> {
-    const marketData = this._coinPricesMap.get(protocol);
-    if (marketData !== undefined) {
-      return okAsync(marketData);
-    }
-
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${protocol}&order=market_cap_desc&per_page=100&page=1&sparkline=false`;
-    return this.ajaxUtils
-      .get<CoinMarketDataResponse[]>(new URL(url))
-      .map((response) => {
-        const firstVal = response[0];
-        return firstVal;
-      })
-      .mapErr((error) => {
-        return null;
-        // return new AjaxError("CoinGecko usd url is down");
-      });
-  }
-
-  protected aggregateCoinsHeader(
+  public getTokenPriceFromList(
     protocols: string[],
   ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
     let protocolHeader = "";
@@ -227,34 +206,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           500,
         );
       });
-  }
-
-  public getTokenPriceFromList(
-    protocols: string[],
-  ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    return this.aggregateCoinsHeader(protocols);
-    // return okAsync(protocols).map((protocols) => {
-    //   return this.aggregateCoinsHeader(protocols);
-    // })
-    // .map((balances) => {
-    //   return okAsync(balances);
-    // }).mapErr((error) => {
-    //   return error;
-    // });
-    
-    // .map((balances) => {
-    //   return Promise.all(balances).then((balance) => {
-    //     return (
-    //       balance
-    //         //@ts-ignore
-    //         .filter((obj) => obj.value != null)
-    //         .map((tokenBalance) => {
-    //           //@ts-ignore
-    //           return tokenBalance.value;
-    //         })
-    //     );
-    //   });
-    // });
   }
 
   public getTokenPrice(
@@ -302,28 +253,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         );
       })
       .mapErr((e) => new AccountIndexingError("error getting price", e));
-  }
-
-  private _fetchTokenMarketData(url: URL) {
-    const cached = this.tokenMarketDataCache.get(url.href);
-    // console.log("this.tokenMarketDataCache: ", this.tokenMarketDataCache);
-    // console.log("cached: ", cached);
-
-    // if (
-    //   cached &&
-    //   new Date().getTime() - cached.timeStamp < tokenMarketDataLifeSpanMS
-    // ) {
-    //   return okAsync(cached.marketData);
-    // }
-    return this.ajaxUtils
-      .get<IMarketDataResponse>(new URL(url))
-      .map((response) => {
-        this.tokenMarketDataCache.set(url.href, {
-          marketData: response,
-          timeStamp: UnixTimestamp(new Date().getTime()),
-        });
-        return response;
-      });
   }
 
   private getPrice(
