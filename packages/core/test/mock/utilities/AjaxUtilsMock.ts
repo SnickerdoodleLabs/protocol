@@ -34,7 +34,7 @@ export class AjaxUtilsMock implements IAxiosAjaxUtils {
       return okAsync(val as T);
     }
 
-    return errAsync(new AjaxError(`No return configured for url ${url}`));
+    return errAsync(new AjaxError(`No return configured for url ${url}`, 500));
   }
 
   public post<T>(

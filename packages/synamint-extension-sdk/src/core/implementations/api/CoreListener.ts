@@ -1,17 +1,20 @@
 import {
   DataWalletAddress,
+  EDynamicRewardParameterType,
   EarnedReward,
-  EVMContractAddress,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
-  RecipientAddressType,
   SDQLQueryRequest,
   SDQLString,
   SnowflakeID,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+import Browser from "webextension-polyfill";
+
 import { ICoreListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IInvitationService,
@@ -24,9 +27,6 @@ import {
   IContextProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { BrowserUtils } from "@synamint-extension-sdk/enviroment/shared/utils";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import Browser from "webextension-polyfill";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -48,8 +48,12 @@ export class CoreListener implements ICoreListener {
       events.onEarnedRewardsAdded.subscribe(
         this.onEarnedRewardsAdded.bind(this),
       );
-      events.onDiscordProfileLinked.subscribe(this.onDiscordProfileLinked.bind(this));
-      events.onDiscordProfileUnlinked.subscribe(this.onDiscordProfileUnlinked.bind(this));
+      events.onDiscordProfileLinked.subscribe(
+        this.onDiscordProfileLinked.bind(this),
+      );
+      events.onDiscordProfileUnlinked.subscribe(
+        this.onDiscordProfileUnlinked.bind(this),
+      );
     });
   }
 
@@ -99,19 +103,23 @@ export class CoreListener implements ICoreListener {
     this.invitationService
       .getReceivingAddress(request.consentContractAddress)
       .map((accountAddress) => {
-        request.rewardsPreview.forEach((element) => {
+        request.rewardsPreview.forEach((eligibleReward) => {
           if (request.dataWalletAddress !== null) {
             parameters.push({
               recipientAddress: {
-                type: "address",
-                value: RecipientAddressType(accountAddress),
+                type: EDynamicRewardParameterType.Address,
+                value: accountAddress,
               },
+              compensationId: {
+                type: EDynamicRewardParameterType.CompensationId,
+                value: eligibleReward.compensationKey,
+              }
             } as IDynamicRewardParameter);
           }
         });
 
         this.core
-          .processQuery(
+          .approveQuery(
             request.consentContractAddress,
             {
               cid: request.query.cid,
@@ -143,7 +151,7 @@ export class CoreListener implements ICoreListener {
 
   private onEarnedRewardsAdded(rewards: EarnedReward[]): void {
     this.contextProvider.onEarnedRewardsAdded(rewards);
-}
+  }
   private onDiscordProfileLinked(id: SnowflakeID): void {}
 
   private onDiscordProfileUnlinked(id: SnowflakeID): void {}
