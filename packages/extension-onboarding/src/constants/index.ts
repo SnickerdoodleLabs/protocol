@@ -15,9 +15,11 @@ export enum EWalletProviderKeys {
 export enum ESocialMediaProviderKeys {
   DISCORD = "discord"
 }
+export const DOWNLOAD_URL_IOS =
+  "https://apps.apple.com/us/app/snickerdoodle/id6446097751";
 
 export const DOWNLOAD_URL =
-  "https://chrome.google.com/webstore/detail/data-wallet/eakgkbblgjcanmmalnebjolplnlijmkc";
+  "https://chrome.google.com/webstore/detail/snickerdoodle-own-your-da/eakgkbblgjcanmmalnebjolplnlijmkc";
 
 export const googleScopes =
   "profile email https://www.googleapis.com/auth/user.addresses.read https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/user.phonenumbers.read https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";

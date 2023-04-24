@@ -1,15 +1,18 @@
+import facebookIcon from "@extension-onboarding/assets/icons/facebook-icon.svg";
+import instagramIcon from "@extension-onboarding/assets/icons/instagram-icon.svg";
+import linkedinIcon from "@extension-onboarding/assets/icons/linkedin-icon.svg";
+import tiktokIcon from "@extension-onboarding/assets/icons/tiktok-icon.svg";
+import twitterIcon from "@extension-onboarding/assets/icons/twitter-icon.svg";
+import youtubeIcon from "@extension-onboarding/assets/icons/youtube-icon.svg";
+import mobileBanner from "@extension-onboarding/assets/images/mobile-banner.svg";
+import mobileDescription from "@extension-onboarding/assets/images/mobile-description.svg";
+import mobileDownload from "@extension-onboarding/assets/images/mobile-download.svg";
 import mobile1 from "@extension-onboarding/assets/images/mobile-sc1.svg";
 import mobile2 from "@extension-onboarding/assets/images/mobile-sc2.svg";
 import mobile3 from "@extension-onboarding/assets/images/mobile-sc3.svg";
-import instagramIcon from "@extension-onboarding/assets/icons/instagram-icon.svg";
-import twitterIcon from "@extension-onboarding/assets/icons/twitter-icon.svg";
-import linkedinIcon from "@extension-onboarding/assets/icons/linkedin-icon.svg";
-import facebookIcon from "@extension-onboarding/assets/icons/facebook-icon.svg";
-import tiktokIcon from "@extension-onboarding/assets/icons/tiktok-icon.svg";
-import youtubeIcon from "@extension-onboarding/assets/icons/youtube-icon.svg";
-import React, { useState } from "react";
-import { Box, Grid, Typography } from "@material-ui/core";
+import mobileUpperSection from "@extension-onboarding/assets/images/mobile-upper-section.svg";
 import {
+  DOWNLOAD_URL_IOS,
   FACEBOOK_URL,
   INSTAGRAM_URL,
   LINKEDIN_URL,
@@ -18,40 +21,56 @@ import {
   TWITTER_URL,
   YOUTUBE_URL,
 } from "@extension-onboarding/constants";
+import useUserAgent, {
+  EUserAgent,
+} from "@extension-onboarding/hooks/useUserAgent";
+import { Box, Grid, Typography } from "@material-ui/core";
+import React, { useState } from "react";
 
 const MobileScreen = () => {
+  const userAgent = useUserAgent();
   return (
     <>
-      <Box>
-        <img width="100%" src={mobile1} />
-      </Box>
-      <Box style={{ background: "#E5E5E5" }}>
-        <Box pt={3} pb={4}>
-          <Typography
-            style={{
-              fontFamily: "Shrikhand",
-              fontWeight: 400,
-              fontStyle: "italic",
-              fontSize: "24px",
-              lineHeight: "35px",
-              textAlign: "center",
-              color: "#232039",
-            }}
-          >
-            What is <br></br> Snickerdoodle?
-          </Typography>
+      <Box
+        bgcolor="#FFF3DE"
+        pt={7}
+        pb={8}
+        display="flex"
+        flexDirection="column"
+        position="relative"
+      >
+        <img src={mobileBanner} />
+        <Box mt={4} display="flex" justifyContent="center">
+          <img src={mobileDescription} />
         </Box>
-        <Box display="flex" justifyContent="center">
+        {userAgent === EUserAgent.IOS && (
+          <Box
+            mt={4}
+            px={3}
+            style={{ cursor: "pointer" }}
+            onClick={() => window.open(DOWNLOAD_URL_IOS, "_self")}
+          >
+            <img src={mobileDownload} width="100%" />
+          </Box>
+        )}
+        <Box
+          position="absolute"
+          bottom={-40}
+          width="100%"
+          display="flex"
+          justifyContent="center"
+        >
+          <img src={mobileUpperSection} />
+        </Box>
+      </Box>
+      <Box py={7} bgcolor="##F2F2F8">
+        <Box display="flex" justifyContent="center" px={3}>
           <video
-            style={{ width: 325, borderRadius: 12, objectFit: "cover" }}
+            style={{ width: "100%", borderRadius: 12, objectFit: "cover" }}
             controls
           >
             <source src={PRODUCT_VIDEO_URL} />
           </video>
-        </Box>
-
-        <Box py={5} px={3}>
-          <img width="100%" src={mobile2} />
         </Box>
       </Box>
       <Box style={{ background: "#383354" }}>
