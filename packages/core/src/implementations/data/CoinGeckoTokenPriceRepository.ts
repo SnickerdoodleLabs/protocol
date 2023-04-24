@@ -220,28 +220,72 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       });
   }
 
+  protected aggregateCoinsHeader(
+    protocols: string[],
+  ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
+    let protocolHeader = "";
+    const marketResponses: CoinMarketDataResponse[] = [];
+    protocols.map((protocol) => {
+      const marketData = this._coinPricesMap.get(protocol);
+      if (marketData !== undefined) {
+        marketResponses.push(marketData);
+      } else {
+        if (protocolHeader.length !== 0) {
+          protocolHeader += ",";
+        }
+        protocolHeader += protocol;
+      }
+    });
+
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${protocolHeader}&order=market_cap_desc&per_page=100&page=1&sparkline=false`;
+    return this.ajaxUtils
+      .get<CoinMarketDataResponse[]>(new URL(url))
+      .map((response) => {
+        console.log("marketResponses: ", marketResponses);
+        console.log("response: ", response);
+        const total = [...marketResponses, ...response];
+        console.log("total: ", total);
+
+        return total;
+        // const firstVal = response[0];
+        // return firstVal;
+      })
+      .mapErr((error) => {
+        // return null;
+        // return new AjaxError("CoinGecko usd url is down: ", e, e);
+        return new AccountIndexingError(
+          `Unable to GET Coingecko ${url}, ${error.message}`,
+          500,
+        );
+      });
+  }
+
   public getTokenPriceFromList(
     protocols: string[],
   ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    return okAsync(protocols)
-      .map((protocols) => {
-        return protocols.map((protocol) => {
-          return this.getCoinResponse(protocol);
-        });
-      })
-      .map((balances) => {
-        return Promise.all(balances).then((balance) => {
-          return (
-            balance
-              //@ts-ignore
-              .filter((obj) => obj.value != null)
-              .map((tokenBalance) => {
-                //@ts-ignore
-                return tokenBalance.value;
-              })
-          );
-        });
-      });
+    return this.aggregateCoinsHeader(protocols);
+    // return okAsync(protocols).map((protocols) => {
+    //   return this.aggregateCoinsHeader(protocols);
+    // })
+    // .map((balances) => {
+    //   return okAsync(balances);
+    // }).mapErr((error) => {
+    //   return error;
+    // });
+    
+    // .map((balances) => {
+    //   return Promise.all(balances).then((balance) => {
+    //     return (
+    //       balance
+    //         //@ts-ignore
+    //         .filter((obj) => obj.value != null)
+    //         .map((tokenBalance) => {
+    //           //@ts-ignore
+    //           return tokenBalance.value;
+    //         })
+    //     );
+    //   });
+    // });
   }
 
   public getTokenPrice(
