@@ -95,6 +95,8 @@ export const testCoreConfig = new CoreConfig(
     [EChain.SolanaTestnet, URLString("")],
     [EChain.Polygon, URLString("")],
     [EChain.Mumbai, URLString("")],
+    [EChain.Arbitrum, URLString("")],
+    [EChain.Optimism, URLString("")],
   ]),
   10000,
   "(localhost|chrome://)",
