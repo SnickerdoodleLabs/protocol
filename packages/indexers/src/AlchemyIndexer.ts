@@ -141,6 +141,17 @@ export class AlchemyIndexer
           TickerSymbol("MATIC"),
           ChainId(137),
         ];
+      case EChain.Mumbai:
+        return [
+          JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            params: [accountAddress],
+            method: "eth_getBalance",
+          }),
+          TickerSymbol("MATIC"),
+          ChainId(80001),
+        ];
       default:
         return [
           JSON.stringify({
