@@ -3,6 +3,7 @@ import {
   ChainId,
   ControlChainInformation,
   DataWalletAddress,
+  EChain,
   ECurrencyCode,
   EHashAlgorithm,
   ESignatureAlgorithm,
@@ -97,13 +98,20 @@ export const testCoreConfig = new CoreConfig(
   "moralis api key",
   "nftScan api key",
   "poap api key",
+  "oklink api key",
   URLString("http://dnsServerAddress"),
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
   new Map(),
   100, // etherscan tx batch size
   5000,
-  { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
+  new Map<EChain, URLString>([
+    // alchemy endpoints
+    [EChain.Solana, URLString("")],
+    [EChain.SolanaTestnet, URLString("")],
+    [EChain.Polygon, URLString("")],
+    [EChain.Mumbai, URLString("")],
+  ]),
   10000,
   "(localhost|chrome://)",
   false,

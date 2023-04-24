@@ -27,6 +27,7 @@ declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
 declare const __NFTSCAN_API_KEY__: string;
 declare const __POAP_API_KEY__: string;
+declare const __OKLINK_API_KEY__: string;
 declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
 declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
@@ -108,6 +109,9 @@ class ConfigProvider implements IConfigProvider {
         : undefined,
       typeof __POAP_API_KEY__ !== "undefined" && !!__POAP_API_KEY__
         ? __POAP_API_KEY__
+        : undefined,
+      typeof __OKLINK_API_KEY__ !== "undefined" && !!__OKLINK_API_KEY__
+        ? __OKLINK_API_KEY__
         : undefined,
       typeof __DNS_SERVER_ADDRESS__ !== "undefined" && !!__DNS_SERVER_ADDRESS__
         ? __DNS_SERVER_ADDRESS__
