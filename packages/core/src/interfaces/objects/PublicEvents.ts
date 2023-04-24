@@ -1,11 +1,10 @@
 import {
   DataWalletAddress,
   DataWalletBackupID,
-  DomainName,
   EarnedReward,
+  DomainName,
   EVMContractAddress,
   EVMTransaction,
-  IpfsCID,
   ISnickerdoodleCoreEvents,
   LinkedAccount,
   MetatransactionSignatureRequest,
@@ -13,10 +12,10 @@ import {
   PermissionsRequestedEvent,
   PortfolioUpdate,
   SDQLQueryRequest,
-  SocialProfileLinkedEvent,
-  SocialProfileUnlinkedEvent,
+  SnowflakeID,
   TokenBalance,
-  WalletNFT
+  WalletNFT,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -37,8 +36,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
   public onPermissionsRevoked: Subject<DomainName>;
-  public onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
-  public onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
+  public onDiscordProfileLinked: Subject<SnowflakeID>;
+  public onDiscordProfileUnlinked: Subject<SnowflakeID>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -57,7 +56,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsGranted = new Subject();
     this.onPermissionsRequested = new Subject();
     this.onPermissionsRevoked = new Subject();
-    this.onSocialProfileLinked = new Subject();
-    this.onSocialProfileUnlinked = new Subject();
+    this.onDiscordProfileLinked = new Subject();
+    this.onDiscordProfileUnlinked = new Subject();
   }
 }

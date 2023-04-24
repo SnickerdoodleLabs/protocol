@@ -1,4 +1,4 @@
-import { EChain, ESocialType } from "@snickerdoodlelabs/objects";
+import { EChain } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import React, {
   createContext,
@@ -12,6 +12,7 @@ import React, {
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
 import {
+  ESocialMediaProviderKeys,
   EWalletProviderKeys,
 } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -21,8 +22,8 @@ import {
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IDiscordProvider, ITwitterProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { DiscordProvider, TwitterProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
+import { IDiscordProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import { DiscordProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -30,8 +31,7 @@ interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
   walletConnect: IProvider | null;
-  discordProvider: IDiscordProvider;
-  twitterProvider: ITwitterProvider;
+  discordMediaDataProvider: IDiscordProvider;
   onProviderConnectClick: (
     providerObj: IProvider,
   ) => ResultAsync<void, unknown>;
@@ -75,16 +75,10 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
       );
     }, [providerList.length]);
 
-  const discordProvider = useMemo(() => {
+  const discordMediaDataProvider = useMemo(() => {
     return (socialMediaProviderList.find((provider) => {
-      return provider.key === ESocialType.DISCORD;
+      return provider.key === ESocialMediaProviderKeys.DISCORD;
     })?.provider ?? new DiscordProvider()) as IDiscordProvider;
-  }, [socialMediaProviderList.length]);
-
-  const twitterProvider = useMemo(() => {
-    return (socialMediaProviderList.find((provider) => {
-      return provider.key === ESocialType.TWITTER;
-    })?.provider ?? new TwitterProvider()) as ITwitterProvider;
   }, [socialMediaProviderList.length]);
 
   useEffect(() => {
@@ -161,8 +155,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         detectedProviders,
         unDetectedProviders,
         walletConnect,
-        discordProvider,
-        twitterProvider,
+        discordMediaDataProvider,
         onProviderConnectClick,
       }}
     >

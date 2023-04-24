@@ -1,8 +1,9 @@
 import {
+  BearerAuthToken,
   DiscordGuildProfile,
   DiscordProfile,
   OAuthAuthorizationCode,
-  DiscordID,
+  SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -19,7 +20,7 @@ export interface IDiscordService {
     SnickerDoodleCoreError
   >;
   unlink(
-    discordProfileId: DiscordID,
+    discordProfileId: SnowflakeID,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 }
 

@@ -1,18 +1,15 @@
 import {
+  DiscordAccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
-  DiscordID,
   DiscordProfile,
-  ESocialType,
-  OAuth2AccessToken,
-  OAuth2RefreshToken,
+  DiscordRefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
-  SocialProfileLinkedEvent,
-  SocialProfileUnlinkedEvent,
+  SnowflakeID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -58,26 +55,24 @@ export class DiscordService implements IDiscordService {
   }
 
   public unlink(
-    userProfileId: DiscordID,
+    userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.discordRepo.deleteProfile(userProfileId),
     ]).map(([context]) => {
-      context.publicEvents.onSocialProfileUnlinked.next(
-        new SocialProfileUnlinkedEvent(ESocialType.DISCORD, userProfileId),
-      );
+      context.publicEvents.onDiscordProfileUnlinked.next(userProfileId);
     });
   }
 
   public isAuthTokenValid(
-    authToken: OAuth2AccessToken,
+    authToken: DiscordAccessToken,
   ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }
 
   public refreshAuthToken(
-    refreshToken: OAuth2RefreshToken,
+    refreshToken: DiscordRefreshToken,
   ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }
@@ -158,16 +153,14 @@ export class DiscordService implements IDiscordService {
             ),
           ),
         ]).map(([context]) => {
-          context.publicEvents.onSocialProfileLinked.next(
-            new SocialProfileLinkedEvent(ESocialType.DISCORD, userProfile),
-          );
+          context.publicEvents.onDiscordProfileLinked.next(userProfile.id);
         });
       });
   }
 
   protected addDiscordProfileIdToGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
-    discordProfileId: DiscordID,
+    discordProfileId: SnowflakeID,
   ): DiscordGuildProfile[] {
     return discordGuildProfiles.map((profile) => {
       profile.discordUserProfileId = discordProfileId;

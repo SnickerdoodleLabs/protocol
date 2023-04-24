@@ -3,10 +3,11 @@ import {
   DataWalletBackup,
   EVMPrivateKey,
   DataWalletBackupID,
-  EBackupPriority,
+  AjaxError,
   BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
 export interface ICloudStorage {
   putBackup(

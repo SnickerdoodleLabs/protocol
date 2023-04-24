@@ -16,7 +16,7 @@ export * from "@core/implementations/data/PermissionRepository.js";
 export * from "@core/implementations/data/PortfolioBalanceRepository.js";
 export * from "@core/implementations/data/SDQLQueryRepository.js";
 export * from "@core/implementations/data/SiftContractRepository.js";
+export * from "@core/implementations/data/SocialRepository.js";
 export * from "@core/implementations/data/TransactionHistoryRepository.js";
-export * from "@core/implementations/data/TwitterRepository.js";
 
 export * from "@core/implementations/data/utilities/index.js";

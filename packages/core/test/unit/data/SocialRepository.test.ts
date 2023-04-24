@@ -6,7 +6,7 @@ import {
   SocialGroupProfile,
   SocialProfile,
 } from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import "reflect-metadata";
 import * as td from "testdouble";
 
@@ -55,11 +55,11 @@ class SocialRepositoryMock {
         "type",
         td.matchers.anything(),
       ),
-    ).thenReturn(okAsync(this.socialDataMocks.getDiscordGuildProfiles()));
+    ).thenReturn(okAsync(this.socialDataMocks.getDiscordGuildProfiles(null)));
   }
 
   public getDiscordGuildProfiles(): DiscordGuildProfile[] {
-    return this.socialDataMocks.getDiscordGuildProfiles();
+    return this.socialDataMocks.getDiscordGuildProfiles(null);
   }
 
   public getDiscordProfiles(): DiscordProfile[] {
@@ -67,7 +67,7 @@ class SocialRepositoryMock {
   }
 
   public factory(): ISocialRepository {
-    return new SocialRepository(this.persistence);
+    return new SocialRepository(this.configProvider, this.persistence);
   }
 }
 

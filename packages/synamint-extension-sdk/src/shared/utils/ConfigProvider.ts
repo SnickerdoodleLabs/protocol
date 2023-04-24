@@ -2,14 +2,13 @@ import {
   ChainId,
   DiscordConfig,
   ProviderUrl,
-  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { urlJoin } from "url-join-ts";
 
 import {
-  EManifestVersion,
   EPlatform,
+  EManifestVersion,
 } from "@synamint-extension-sdk/shared/enums/config";
 import { IConfigProvider } from "@synamint-extension-sdk/shared/interfaces/configProvider";
 import { ExtensionConfig } from "@synamint-extension-sdk/shared/objects/businessObjects/Config";
@@ -41,9 +40,6 @@ declare const __ENABLE_BACKUP_ENCRYPTION__: string;
 declare const __DISCORD_CLIENT_ID__: string;
 declare const __DISCORD_CLIENT_KEY__: string;
 declare const __DISCORD_POLL_INTERVAL__: string;
-declare const __TWITTER_CONSUMER_KEY__: string;
-declare const __TWITTER_CONSUMER_SECRET__: string;
-declare const __TWITTER_POLL_INTERVAL__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -144,7 +140,6 @@ class ConfigProvider implements IConfigProvider {
         ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
         : false,
       this._buildDiscordConfig(),
-      this._buildTwitterConfig(),
     );
   }
 
@@ -186,42 +181,6 @@ class ConfigProvider implements IConfigProvider {
     }
 
     return discordConfig;
-  }
-
-  private _buildTwitterConfig(): Partial<TwitterConfig> {
-    const oauthRedirectUrl =
-      typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
-        ? URLString(
-            urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-          )
-        : URLString(
-            "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-          );
-
-    let twitterConfig = {
-      callbackUrl: URLString(oauthRedirectUrl),
-    } as Partial<TwitterConfig>;
-
-    if (
-      typeof __TWITTER_CONSUMER_KEY__ !== "undefined" &&
-      !!__TWITTER_CONSUMER_KEY__
-    ) {
-      twitterConfig["apiKey"] = __TWITTER_CONSUMER_KEY__;
-    }
-    if (
-      typeof __TWITTER_CONSUMER_SECRET__ !== "undefined" &&
-      !!__TWITTER_CONSUMER_SECRET__
-    ) {
-      twitterConfig["apiSecretKey"] = __TWITTER_CONSUMER_SECRET__;
-    }
-    if (
-      typeof __TWITTER_POLL_INTERVAL__ !== "undefined" &&
-      !!__TWITTER_POLL_INTERVAL__
-    ) {
-      twitterConfig["pollInterval"] = parseInt(__TWITTER_POLL_INTERVAL__);
-    }
-
-    return twitterConfig;
   }
 }
 

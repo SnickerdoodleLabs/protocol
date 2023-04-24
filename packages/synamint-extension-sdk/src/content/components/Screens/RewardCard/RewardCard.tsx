@@ -1,3 +1,8 @@
+import AccountIdentIcon from "@synamint-extension-sdk/content/components/AccountIdentIcon";
+import Radio from "@synamint-extension-sdk/content/components/Radio";
+import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
+import { EAPP_STATE, IRewardItem } from "@synamint-extension-sdk/content/constants";
+import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   Box,
   Typography,
@@ -8,6 +13,7 @@ import {
 } from "@material-ui/core";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
+import { IInvitationDomainWithUUID } from "@synamint-extension-sdk/shared/interfaces/actions";
 import {
   AccountAddress,
   EVMContractAddress,
@@ -16,22 +22,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState } from "react";
 import Browser from "webextension-polyfill";
-
-import AccountIdentIcon from "@synamint-extension-sdk/content/components/AccountIdentIcon";
-import Radio from "@synamint-extension-sdk/content/components/Radio";
-import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
-import {
-  EAPP_STATE,
-  IRewardItem,
-} from "@synamint-extension-sdk/content/constants";
-import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
-import {
-  GetReceivingAddressParams,
-  RejectInvitationParams,
-  SetReceivingAddressParams,
-  IInvitationDomainWithUUID,
-} from "@synamint-extension-sdk/shared/interfaces/index.js";
-
 interface IRewardCardProps {
   emptyReward: () => void;
   acceptInvitation: () => void;
@@ -67,20 +57,13 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   };
 
   const getRecievingAccount = (contractAddress: EVMContractAddress) => {
-    coreGateway
-      .getReceivingAddress(new GetReceivingAddressParams(contractAddress))
-      .map(setReceivingAccount);
+    coreGateway.getReceivingAddress(contractAddress).map(setReceivingAccount);
   };
 
   const setReceivingAccountForConsent = (accountAddress) => {
     setExpandAccounts(false);
     coreGateway
-      .setReceivingAddress(
-        new SetReceivingAddressParams(
-          invitationDomain!.consentAddress!,
-          accountAddress,
-        ),
-      )
+      .setReceivingAddress(invitationDomain!.consentAddress!, accountAddress)
       .map(() => {
         getRecievingAccount(invitationDomain!.consentAddress!);
       });
@@ -97,13 +80,9 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   };
 
   const onSecondaryButtonClick = () => {
-    coreGateway
-      .rejectInvitation(
-        new RejectInvitationParams(invitationDomain?.id as UUID),
-      )
-      .map(() => {
-        emptyReward();
-      });
+    coreGateway.rejectInvitation(invitationDomain?.id as UUID).map(() => {
+      emptyReward();
+    });
   };
 
   return (

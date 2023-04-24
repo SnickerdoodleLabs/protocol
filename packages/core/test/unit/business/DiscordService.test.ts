@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  OAuth1RequstToken,
+  BearerAuthToken,
   DiscordProfile,
   Integer,
   PersistenceError,
-  DiscordID,
+  SnowflakeID,
   UnixTimestamp,
   Username,
 } from "@snickerdoodlelabs/objects";

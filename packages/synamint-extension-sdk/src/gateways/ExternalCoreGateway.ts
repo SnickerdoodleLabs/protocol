@@ -1,29 +1,33 @@
 import {
-  AccountAddress,
   Age,
-  OAuth1RequstToken,
-  BigNumberString,
-  ChainId,
   CountryCode,
+  DomainName,
   EmailAddressString,
-  EVMContractAddress,
-  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
+  LanguageCode,
+  Signature,
+  UnixTimestamp,
+  UUID,
+  EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
+  EChain,
+  EWalletDataType,
+  AccountAddress,
   LinkedAccount,
   DataWalletAddress,
+  BigNumberString,
   EInvitationStatus,
   WalletNFT,
   TokenBalance,
   EarnedReward,
+  ChainId,
+  TokenAddress,
   TokenInfo,
   TokenMarketData,
-  TwitterID,
-  TwitterProfile,
-  UnixTimestamp,
+  SiteVisit,
   URLString,
   MarketplaceListing,
   IConsentCapacity,
@@ -32,14 +36,11 @@ import {
   MarketplaceTag,
   PagedResponse,
   ISdlDiscordMethods,
+  BearerAuthToken,
   DiscordProfile,
   DiscordGuildProfile,
+  SnowflakeID,
   OAuthAuthorizationCode,
-  ISdlTwitterMethods,
-  DiscordID,
-  OAuthVerifier,
-  TokenAndSecret,
-  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -47,124 +48,76 @@ import { ResultAsync } from "neverthrow";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   SnickerDoodleCoreError,
-  AcceptInvitationParams,
-  GetInvitationMetadataByCIDParams,
-  GetInvitationWithDomainParams,
-  GetUnlockMessageParams,
+  EExternalActions,
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  IGetInvitationMetadataByCIDParams,
+  IGetInvitationWithDomainParams,
+  IGetUnlockMessageParams,
   IInvitationDomainWithUUID,
-  LeaveCohortParams,
-  RejectInvitationParams,
-  SetBirthdayParams,
-  SetEmailParams,
-  SetFamilyNameParams,
-  SetGenderParams,
-  SetGivenNameParams,
-  SetLocationParams,
-  CheckURLParams,
-  AcceptInvitationByUUIDParams,
-  GetAgreementPermissionsParams,
-  SetDefaultPermissionsWithDataTypesParams,
-  SetApplyDefaultPermissionsParams,
-  ScamFilterSettingsParams,
-  GetConsentContractCIDParams,
-  CheckInvitationStatusParams,
-  GetTokenPriceParams,
-  GetTokenMarketDataParams,
-  GetTokenInfoParams,
-  SetDefaultReceivingAddressParams,
-  SetReceivingAddressParams,
-  GetReceivingAddressParams,
+  ILeaveCohortParams,
+  IRejectInvitationParams,
+  ISetBirthdayParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  IUnlockParams,
+  ICheckURLParams,
+  IAcceptInvitationByUUIDParams,
+  IGetAgreementPermissionsParams,
+  ISetDefaultPermissionsWithDataTypesParams,
+  ISetApplyDefaultPermissionsParams,
+  IUnlinkAccountParams,
+  IScamFilterSettingsParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
+  IGetTokenPriceParams,
+  IGetTokenMarketDataParams,
+  IGetTokenInfoParams,
+  IGetMarketplaceListingsByTagParams,
+  ISetDefaultReceivingAddressParams,
+  ISetReceivingAddressParams,
+  IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
-  UnlockParams,
-  AddAccountParams,
-  UnlinkAccountParams,
-  GetSiteVisitsMapParams,
-  GetSiteVisitsParams,
-  GetEarnedRewardsParams,
-  GetDataWalletAddressParams,
-  CloseTabParams,
-  IsDataWalletAddressInitializedParams,
-  GetLocationParams,
-  GetGenderParams,
-  GetEmailParams,
-  GetBirthdayParams,
-  GetGivenNameParams,
-  GetFamilyNameParams,
-  GetAgeParams,
-  GetAccountNFTsParams,
-  GetAccountBalancesParams,
-  GetAccountsParams,
-  GetApplyDefaultPermissionsOptionParams,
-  GetAcceptedInvitationsCIDParams,
-  GetScamFilterSettingsParams,
-  SetDefaultPermissionsToAllParams,
-  GetDefaultPermissionsParams,
-  GetAvailableInvitationsCIDParams,
-  GetStateParams,
-  InitializeDiscordUserParams,
-  GetDiscordInstallationUrlParams,
-  GetDiscordUserProfilesParams,
-  GetDiscordGuildProfilesParams,
-  UnlinkDiscordAccountParams,
-  GetMarketplaceListingsByTagParams,
-  GetListingsTotalByTagParams,
-  GetConsentCapacityParams,
-  GetPossibleRewardsParams,
-  TwitterLinkProfileParams,
-  TwitterUnlinkProfileParams,
-  TwitterGetRequestTokenParams,
-  TwitterGetLinkedProfilesParams,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
+  IGetListingsTotalByTagParams,
+  IInitializeDiscordUser,
+  IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
   public discord: ISdlDiscordMethods;
-  public twitter: ISdlTwitterMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
-
     this.discord = {
       initializeUserWithAuthorizationCode: (
         code: OAuthAuthorizationCode,
       ): ResultAsync<void, JsonRpcError> => {
-        return this._handler.call(new InitializeDiscordUserParams(code));
+        return this._handler.call(EExternalActions.INITIALIZE_DISCORD_USER, {
+          code,
+        } as IInitializeDiscordUser);
       },
       installationUrl: (): ResultAsync<URLString, JsonRpcError> => {
-        return this._handler.call(new GetDiscordInstallationUrlParams());
+        return this._handler.call(EExternalActions.INSTALLATION_DISCORD_URL);
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], JsonRpcError> => {
-        return this._handler.call(new GetDiscordUserProfilesParams());
+        return this._handler.call(EExternalActions.GET_DISCORD_USER_PROFILES);
       },
       getGuildProfiles: (): ResultAsync<
         DiscordGuildProfile[],
         JsonRpcError
       > => {
-        return this._handler.call(new GetDiscordGuildProfilesParams());
+        return this._handler.call(EExternalActions.GET_DISCORD_GUILD_PROFILES);
       },
-      unlink: (discordProfileId: DiscordID) => {
-        return this._handler.call(
-          new UnlinkDiscordAccountParams(discordProfileId),
-        );
-      },
-    };
-    this.twitter = {
-      getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, JsonRpcError> => {
-        return this._handler.call(new TwitterGetRequestTokenParams());
-      },
-      initTwitterProfile: (
-        requestToken: OAuth1RequstToken,
-        oAuthVerifier: OAuthVerifier,
-      ): ResultAsync<TwitterProfile, JsonRpcError> => {
-        return this._handler.call(
-          new TwitterLinkProfileParams(requestToken, oAuthVerifier),
-        );
-      },
-      unlinkProfile: (id: TwitterID): ResultAsync<void, JsonRpcError> => {
-        return this._handler.call(new TwitterUnlinkProfileParams(id));
-      },
-      getUserProfiles: (): ResultAsync<TwitterProfile[], JsonRpcError> => {
-        return this._handler.call(new TwitterGetLinkedProfilesParams());
+      unlink: (discordProfileId: SnowflakeID) => {
+        return this._handler.call(EExternalActions.UNLINK_DISCORD_ACCOUNT, {
+          discordProfileId,
+        } as IUnlinkDiscordAccount);
       },
     };
   }
@@ -174,273 +127,393 @@ export class ExternalCoreGateway {
   }
 
   public getState(): ResultAsync<IExternalState, JsonRpcError> {
-    return this._handler.call(new GetStateParams());
+    return this._handler.call(EExternalActions.GET_STATE);
   }
 
   public getInvitationsByDomain(
-    params: GetInvitationWithDomainParams,
+    domain: DomainName,
+    path: string,
   ): ResultAsync<IInvitationDomainWithUUID | null, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(
+      EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
+      { domain, path } as IGetInvitationWithDomainParams,
+    );
   }
-
   public acceptInvitationByUUID(
-    params: AcceptInvitationByUUIDParams,
+    dataTypes: EWalletDataType[] | null,
+    id: UUID,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION_BY_UUID, {
+      dataTypes,
+      id,
+    } as IAcceptInvitationByUUIDParams);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
     Record<EVMContractAddress, IpfsCID>,
     JsonRpcError
   > {
-    return this._handler.call(new GetAvailableInvitationsCIDParams());
+    return this._handler.call(EExternalActions.GET_AVAILABLE_INVITATIONS_CID);
   }
 
   public acceptInvitation(
-    params: AcceptInvitationParams,
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
+      dataTypes,
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+    } as IAcceptInvitationParams);
   }
 
   public getAgreementPermissions(
-    params: GetAgreementPermissionsParams,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.GET_AGREEMENT_PERMISSIONS, {
+      consentContractAddress,
+    } as IGetAgreementPermissionsParams);
   }
 
   public getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError> {
-    return this._handler.call(new GetDefaultPermissionsParams());
+    return this._handler.call(EExternalActions.GET_DEFAULT_PERMISSIONS);
   }
 
   public setDefaultPermissionsWithDataTypes(
-    params: SetDefaultPermissionsWithDataTypesParams,
+    dataTypes: EWalletDataType[],
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS, {
+      dataTypes,
+    } as ISetDefaultPermissionsWithDataTypesParams);
   }
 
   public setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(new SetDefaultPermissionsToAllParams());
+    return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
   }
-
   public getScamFilterSettings(): ResultAsync<
     IScamFilterPreferences,
     JsonRpcError
   > {
-    return this._handler.call(new GetScamFilterSettingsParams());
+    return this._handler.call(EExternalActions.GET_SCAM_FILTER_SETTINGS);
   }
 
   public setScamFilterSettings(
-    params: ScamFilterSettingsParams,
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.SET_SCAM_FILTER_SETTINGS, {
+      isScamFilterActive,
+      showMessageEveryTime,
+    } as IScamFilterSettingsParams);
   }
 
-  public rejectInvitation(
-    params: RejectInvitationParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public rejectInvitation(id: UUID): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.REJECT_INVITATION, {
+      id,
+    } as IRejectInvitationParams);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
     Record<EVMContractAddress, IpfsCID>,
     JsonRpcError
   > {
-    return this._handler.call(new GetAcceptedInvitationsCIDParams());
+    return this._handler.call(EExternalActions.GET_ACCEPTED_INVITATIONS_CID);
   }
 
   public getInvitationMetadataByCID(
-    params: GetInvitationMetadataByCIDParams,
+    ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.GET_INVITATION_METADATA_BY_CID, {
+      ipfsCID,
+    } as IGetInvitationMetadataByCIDParams);
   }
 
   public leaveCohort(
-    params: LeaveCohortParams,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.LEAVE_COHORT, {
+      consentContractAddress,
+    } as ILeaveCohortParams);
   }
 
-  public addAccount(params: AddAccountParams): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public addAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.ADD_ACCOUNT, {
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    } as IAddAccountParams);
   }
-  public unlock(params: UnlockParams): ResultAsync<void, JsonRpcError> {
-    return this._handler.call<UnlockParams>(params);
+  public unlock(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.UNLOCK, {
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    } as IUnlockParams);
   }
   public unlinkAccount(
-    params: UnlinkAccountParams,
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.UNLINK_ACCOUNT, {
+      accountAddress,
+      chain,
+      languageCode,
+      signature,
+    } as IUnlinkAccountParams);
   }
   public getUnlockMessage(
-    params: GetUnlockMessageParams,
+    languageCode: LanguageCode,
   ): ResultAsync<string, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.GET_UNLOCK_MESSAGE, {
+      languageCode,
+    } as IGetUnlockMessageParams);
   }
   public getApplyDefaultPermissionsOption(): ResultAsync<
     boolean,
     JsonRpcError
   > {
-    return this._handler.call(new GetApplyDefaultPermissionsOptionParams());
+    return this._handler.call(
+      EExternalActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+    );
   }
   public setApplyDefaultPermissionsOption(
-    params: SetApplyDefaultPermissionsParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    option: boolean,
+  ): ResultAsync<boolean, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+      { option } as ISetApplyDefaultPermissionsParams,
+    );
   }
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
-    return this._handler.call(new GetAccountsParams());
+    return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
   public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
-    return this._handler.call(new GetAccountBalancesParams());
+    return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
   }
-
   public getTokenPrice(
-    params: GetTokenPriceParams,
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
   ): ResultAsync<number, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.GET_TOKEN_PRICE, {
+      chainId,
+      address,
+      timestamp,
+    } as IGetTokenPriceParams);
   }
-
   public getTokenMarketData(
-    params: GetTokenMarketDataParams,
-  ): ResultAsync<TokenMarketData[], JsonRpcError> {
-    return this._handler.call(params);
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_MARKET_DATA, {
+      ids,
+    } as IGetTokenMarketDataParams);
   }
   public getTokenInfo(
-    params: GetTokenInfoParams,
-  ): ResultAsync<TokenInfo | null, JsonRpcError> {
-    return this._handler.call(params);
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_INFO, {
+      chainId,
+      contractAddress,
+    } as IGetTokenInfoParams);
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
-    return this._handler.call(new GetAccountNFTsParams());
+    return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 
   public setFamilyName(
-    params: SetFamilyNameParams,
+    familyName: FamilyName,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.SET_FAMILY_NAME, {
+      familyName,
+    } as ISetFamilyNameParams);
   }
-  public setGivenName(
-    params: SetGivenNameParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_GIVEN_NAME, {
+      givenName,
+    } as ISetGivenNameParams);
   }
-  public setBirtday(
-    params: SetBirthdayParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public setBirtday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_BIRTHDAY, {
+      birthday,
+    } as ISetBirthdayParams);
   }
-  public setEmail(params: SetEmailParams): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public setEmail(email: EmailAddressString): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_EMAIL, {
+      email,
+    } as ISetEmailParams);
   }
-  public setGender(params: SetGenderParams): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public setGender(gender: Gender): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_GENDER, {
+      gender,
+    } as ISetGenderParams);
   }
-  public setLocation(
-    params: SetLocationParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+  public setLocation(location: CountryCode): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_LOCATION, {
+      location,
+    } as ISetLocationParams);
   }
 
   public getAge(): ResultAsync<Age | null, JsonRpcError> {
-    return this._handler.call(new GetAgeParams());
+    return this._handler.call(EExternalActions.GET_AGE);
   }
   public getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError> {
-    return this._handler.call(new GetFamilyNameParams());
+    return this._handler.call(EExternalActions.GET_FAMILY_NAME);
   }
   public getGivenName(): ResultAsync<GivenName | null, JsonRpcError> {
-    return this._handler.call(new GetGivenNameParams());
+    return this._handler.call(EExternalActions.GET_GIVEN_NAME);
   }
   public getBirtday(): ResultAsync<UnixTimestamp | null, JsonRpcError> {
-    return this._handler.call(new GetBirthdayParams());
+    return this._handler.call(EExternalActions.GET_BIRTHDAY);
   }
   public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {
-    return this._handler.call(new GetEmailParams());
+    return this._handler.call(EExternalActions.GET_EMAIL);
   }
   public getGender(): ResultAsync<Gender | null, JsonRpcError> {
-    return this._handler.call(new GetGenderParams());
+    return this._handler.call(EExternalActions.GET_GENDER);
   }
   public getLocation(): ResultAsync<CountryCode | null, JsonRpcError> {
-    return this._handler.call(new GetLocationParams());
+    return this._handler.call(EExternalActions.GET_LOCATION);
   }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {
-    return this._handler.call(new IsDataWalletAddressInitializedParams());
+    return this._handler.call(
+      EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
+    );
   }
   public closeTab(): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(new CloseTabParams());
+    return this._handler.call(EExternalActions.CLOSE_TAB);
   }
   public getDataWalletAddress(): ResultAsync<
     DataWalletAddress | null,
     JsonRpcError
   > {
-    return this._handler.call(new GetDataWalletAddressParams());
+    return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
   }
-  public checkURL(params: CheckURLParams): ResultAsync<string, JsonRpcError> {
-    return this._handler.call(params);
+  public checkURL(domain: DomainName): ResultAsync<string, JsonRpcError> {
+    return this._handler.call(EExternalActions.CHECK_URL, {
+      domain,
+    } as ICheckURLParams);
   }
 
   public checkInvitationStatus(
-    params: CheckInvitationStatusParams,
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
   ): ResultAsync<EInvitationStatus, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.CHECK_INVITATION_STATUS, {
+      consentAddress,
+      signature,
+      tokenId,
+    } as ICheckInvitationStatusParams);
   }
 
   public getContractCID(
-    params: GetConsentContractCIDParams,
+    consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, JsonRpcError> {
-    return this._handler.call(params);
+    return this._handler.call(EExternalActions.GET_CONTRACT_CID, {
+      consentAddress,
+    } as IGetConsentContractCIDParams);
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
-    return this._handler.call(new GetEarnedRewardsParams());
+    return this._handler.call(EExternalActions.GET_EARNED_REWARDS);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError> {
-    return this._handler.call(new GetSiteVisitsParams());
+    return this._handler.call(EExternalActions.GET_SITE_VISITS);
   }
 
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError> {
-    return this._handler.call(new GetSiteVisitsMapParams());
+  public getSiteVisitsMap(): ResultAsync<
+    Record<URLString, number>,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_SITE_VISITS_MAP);
   }
 
   public getMarketplaceListingsByTag(
-    params: GetMarketplaceListingsByTagParams,
-  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError> {
-    return this._handler.call(params);
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
+    return this._handler.call(
+      EExternalActions.GET_MARKETPLACE_LISTINGS_BY_TAG,
+      {
+        pagingReq,
+        tag,
+        filterActive,
+      } as IGetMarketplaceListingsByTagParams,
+    );
   }
 
   public getListingsTotalByTag(
-    params: GetListingsTotalByTagParams,
-  ): ResultAsync<number, JsonRpcError> {
-    return this._handler.call(params);
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_LISTING_TOTAL_BY_TAG, {
+      tag,
+    } as IGetListingsTotalByTagParams);
   }
 
   public setDefaultReceivingAddress(
-    params: SetDefaultReceivingAddressParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.SET_DEFAULT_RECEIVING_ACCOUNT, {
+      receivingAddress,
+    } as ISetDefaultReceivingAddressParams);
   }
 
   public setReceivingAddress(
-    params: SetReceivingAddressParams,
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(params);
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.SET_RECEIVING_ACCOUNT, {
+      contractAddress,
+      receivingAddress,
+    } as ISetReceivingAddressParams);
   }
 
   public getReceivingAddress(
-    params: GetReceivingAddressParams,
-  ): ResultAsync<AccountAddress, JsonRpcError> {
-    return this._handler.call(params);
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_RECEIVING_ACCOUNT, {
+      contractAddress,
+    } as IGetReceivingAddressParams);
   }
 
   public getConsentCapacity(
-    params: GetConsentCapacityParams,
-  ): ResultAsync<IConsentCapacity, JsonRpcError> {
-    return this._handler.call(params);
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_CONSENT_CAPACITY, {
+      contractAddress,
+    } as IGetConsentCapacityParams);
   }
 
   public getPossibleRewards(
-    params: GetPossibleRewardsParams,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError> {
-    return this._handler.call(params);
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this._handler.call(EExternalActions.GET_POSSIBLE_REWARDS, {
+      contractAddresses,
+      timeoutMs,
+    } as IGetPossibleRewardsParams);
   }
 }

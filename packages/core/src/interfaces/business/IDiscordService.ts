@@ -3,7 +3,7 @@ import {
   DiscordError,
   DiscordGuildProfile,
   PersistenceError,
-  DiscordID,
+  SnowflakeID,
   OAuthAuthorizationCode,
   OAuth2Tokens,
 } from "@snickerdoodlelabs/objects";
@@ -19,7 +19,7 @@ export interface IDiscordService extends IOAuthService {
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
   poll(): ResultAsync<void, DiscordError | PersistenceError>;
   unlink(
-    userProfileId: DiscordID,
+    userProfileId: SnowflakeID,
   ): ResultAsync<void, DiscordError | PersistenceError>;
   getOAuth2Tokens(): ResultAsync<OAuth2Tokens[], PersistenceError>;
 }

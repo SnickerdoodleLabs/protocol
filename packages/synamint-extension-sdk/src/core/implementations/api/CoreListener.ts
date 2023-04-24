@@ -1,7 +1,7 @@
 import {
   DataWalletAddress,
-  EarnedReward,
   EDynamicRewardParameterType,
+  EarnedReward,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -9,8 +9,7 @@ import {
   LinkedAccount,
   SDQLQueryRequest,
   SDQLString,
-  SocialProfileLinkedEvent,
-  SocialProfileUnlinkedEvent,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -49,11 +48,11 @@ export class CoreListener implements ICoreListener {
       events.onEarnedRewardsAdded.subscribe(
         this.onEarnedRewardsAdded.bind(this),
       );
-      events.onSocialProfileLinked.subscribe(
-        this.onSocialProfileLinked.bind(this),
+      events.onDiscordProfileLinked.subscribe(
+        this.onDiscordProfileLinked.bind(this),
       );
-      events.onSocialProfileUnlinked.subscribe(
-        this.onSocialProfileUnlinked.bind(this),
+      events.onDiscordProfileUnlinked.subscribe(
+        this.onDiscordProfileUnlinked.bind(this),
       );
     });
   }
@@ -114,7 +113,7 @@ export class CoreListener implements ICoreListener {
               compensationId: {
                 type: EDynamicRewardParameterType.CompensationId,
                 value: eligibleReward.compensationKey,
-              },
+              }
             } as IDynamicRewardParameter);
           }
         });
@@ -153,7 +152,7 @@ export class CoreListener implements ICoreListener {
   private onEarnedRewardsAdded(rewards: EarnedReward[]): void {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
+  private onDiscordProfileLinked(id: SnowflakeID): void {}
 
-  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {}
-  private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
+  private onDiscordProfileUnlinked(id: SnowflakeID): void {}
 }

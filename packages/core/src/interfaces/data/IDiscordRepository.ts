@@ -2,11 +2,11 @@ import {
   DiscordError,
   DiscordGuildProfile,
   DiscordProfile,
-  OAuth2RefreshToken,
+  DiscordRefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PersistenceError,
-  DiscordID,
+  SnowflakeID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -20,7 +20,7 @@ export interface IDiscordRepository {
   ): ResultAsync<OAuth2Tokens, DiscordError>;
 
   refreshAuthToken(
-    refreshToken: OAuth2RefreshToken,
+    refreshToken: DiscordRefreshToken,
   ): ResultAsync<OAuth2Tokens, DiscordError>;
 
   fetchUserProfile(
@@ -37,7 +37,7 @@ export interface IDiscordRepository {
 
   getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
   getProfileById(
-    id: DiscordID,
+    id: SnowflakeID,
   ): ResultAsync<DiscordProfile | null, PersistenceError>;
 
   upsertGuildProfiles(
@@ -45,7 +45,8 @@ export interface IDiscordRepository {
   ): ResultAsync<void, PersistenceError>;
 
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
-  deleteProfile(id: DiscordID): ResultAsync<void, PersistenceError>;
+  deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
+  // deleteGroupProfile(id: SnowflakeID): ResultAsync<void, PersistenceError>;
 }
 
 export const IDiscordRepositoryType = Symbol.for("IDiscordRepository");

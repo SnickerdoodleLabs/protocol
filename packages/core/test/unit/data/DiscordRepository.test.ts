@@ -60,7 +60,7 @@ class DiscordRepositoryMock {
 
     td.when(
       this.socialRepository.getGroupProfiles(ESocialType.DISCORD),
-    ).thenReturn(okAsync(this.socialDataMocks.getDiscordGuildProfiles()));
+    ).thenReturn(okAsync(this.socialDataMocks.getDiscordGuildProfiles(null)));
 
     td.when(
       this.socialRepository.getProfileByPK<DiscordProfile>(
@@ -91,6 +91,7 @@ class DiscordRepositoryMock {
     return new DiscordRepository(
       this.ajaxUtil,
       this.configProvider,
+      this.persistence,
       this.socialRepository,
       this.timeUtils,
     );
@@ -122,7 +123,7 @@ describe("DiscordRepository discord API fetch tests", () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
     const expectedProfiles =
-      mocks.socialDataMocks.getDiscordGuildProfiles();
+      mocks.socialDataMocks.getDiscordGuildProfiles(null);
 
     // Act
     const result = await repository.fetchGuildProfiles(
@@ -169,7 +170,7 @@ describe("DiscordRepository persistence tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const guildProfiles = mocks.socialDataMocks.getDiscordGuildProfiles();
+    const guildProfiles = mocks.socialDataMocks.getDiscordGuildProfiles(null);
 
     // Action
     const result = await repository.upsertGuildProfiles(guildProfiles);
@@ -181,7 +182,7 @@ describe("DiscordRepository persistence tests", () => {
   test("get saved guild profiles", async () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const expectedData = mocks.socialDataMocks.getDiscordGuildProfiles();
+    const expectedData = mocks.socialDataMocks.getDiscordGuildProfiles(null);
 
     // Act
     const result = await repository.getGuildProfiles();

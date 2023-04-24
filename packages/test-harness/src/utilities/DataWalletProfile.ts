@@ -43,7 +43,6 @@ import {
   EVMContractAddress,
   EBackupPriority,
   AESKey,
-  TokenSecret,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -184,7 +183,7 @@ export class DataWalletProfile {
   protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
     const discordConfig = {
       clientId: "1093307083102887996",
-      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
+      clientSecret: "w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK",
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString(
         "https://localhost:9005/data-dashboard/social-media-data",
