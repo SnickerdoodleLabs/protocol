@@ -13,7 +13,6 @@ export interface IConfigOverrides {
   moralisApiKey?: string;
   nftScanApiKey?: string;
   poapApiKey?: string;
-  oklinkApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;

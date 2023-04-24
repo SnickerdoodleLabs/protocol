@@ -70,7 +70,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000,
       EIndexer.Ethereum,
-      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Testnet,
       "https://goerli.etherscan.io/tx/",
       getExplorerUrl,
@@ -97,7 +97,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   [
     ChainId(EChain.Mumbai),
     new ChainInformation(
-      "Mumbai",
+      "Mumbai Testnet",
       ChainId(EChain.Mumbai),
       EChain.Mumbai,
       EChainTechnology.EVM,
@@ -109,7 +109,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       ],
       10000,
       EIndexer.Polygon,
-      new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
+      new NativeCurrencyInformation("MATIC", 18, "MATIC"),
       EChainType.Testnet,
       "https://mumbai.polygonscan.com/tx/",
       getExplorerUrl,
@@ -175,14 +175,14 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       ],
       4000,
       EIndexer.EVM,
-      new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
+      new NativeCurrencyInformation("AVAX", 18, "AVAX"),
       EChainType.Testnet,
       "https://testnet.snowtrace.io/block/",
       EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
       EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
-      URLString("https://api-testnet.snowtrace.io/"),
+      URLString("https://api.snowtrace.io/"),
     ),
   ],
   [
