@@ -3,11 +3,15 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
-  ECurrencyCode,
   EChain,
+  ECurrencyCode,
+  EHashAlgorithm,
+  ESignatureAlgorithm,
   IConfigOverrides,
-  URLString,
   ProviderUrl,
+  TokenSecret,
+  TwitterConfig,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
@@ -54,7 +58,7 @@ export class ConfigProvider
 
     const discordConfig = {
       clientId: "1093307083102887996",
-      clientSecret: "w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK",
+      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString("spa-url"),
       accessTokenUrl: URLString("https://discord.com/api/oauth2/token"),
@@ -62,6 +66,19 @@ export class ConfigProvider
       dataAPIUrl: URLString("https://discord.com/api"),
       iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
+    };
+
+    const twitterConfig = {
+      apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+      apiSecretKey: TokenSecret(
+        "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+      ),
+      signingAlgorithm: ESignatureAlgorithm.HMAC,
+      hashingAlgorithm: EHashAlgorithm.SHA1,
+      oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
+      oAuthCallbackUrl: URLString("oob"),
+      dataAPIUrl: URLString("https://api.twitter.com/2"),
+      pollInterval: 1 * 24 * 3600 * 1000,
     };
 
     // All the default config below is for testing on local, using the test-harness package
@@ -112,6 +129,7 @@ export class ConfigProvider
       300000,
       120000, // backup placement heartbeat
       discordConfig,
+      twitterConfig,
       60000, // heartbeatIntervalMS
     );
   }
@@ -194,14 +212,14 @@ export class ConfigProvider
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =
       overrides.enableBackupEncryption ?? false;
-
-    const discordConfig = {
+    this.config.discord = {
       ...this.config.discord,
       ...overrides.discordOverrides,
     };
-
-    this.config.discord = discordConfig;
-
+    this.config.twitter = {
+      ...this.config.twitter,
+      ...overrides.twitterOverrides,
+    };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
   }

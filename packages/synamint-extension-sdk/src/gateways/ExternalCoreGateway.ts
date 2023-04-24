@@ -1,16 +1,18 @@
 import {
+  AccountAddress,
   Age,
+  OAuth1RequstToken,
+  BigNumberString,
+  ChainId,
   CountryCode,
   EmailAddressString,
+  EVMContractAddress,
+  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
-  UnixTimestamp,
-  EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
-  EWalletDataType,
-  AccountAddress,
   LinkedAccount,
   DataWalletAddress,
   EInvitationStatus,
@@ -19,7 +21,9 @@ import {
   EarnedReward,
   TokenInfo,
   TokenMarketData,
-  SiteVisit,
+  TwitterID,
+  TwitterProfile,
+  UnixTimestamp,
   URLString,
   MarketplaceListing,
   IConsentCapacity,
@@ -30,8 +34,12 @@ import {
   ISdlDiscordMethods,
   DiscordProfile,
   DiscordGuildProfile,
-  SnowflakeID,
   OAuthAuthorizationCode,
+  ISdlTwitterMethods,
+  DiscordID,
+  OAuthVerifier,
+  TokenAndSecret,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -103,10 +111,15 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
+  TwitterLinkProfileParams,
+  TwitterUnlinkProfileParams,
+  TwitterGetRequestTokenParams,
+  TwitterGetLinkedProfilesParams,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
   public discord: ISdlDiscordMethods;
+  public twitter: ISdlTwitterMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -129,10 +142,29 @@ export class ExternalCoreGateway {
       > => {
         return this._handler.call(new GetDiscordGuildProfilesParams());
       },
-      unlink: (discordProfileId: SnowflakeID) => {
+      unlink: (discordProfileId: DiscordID) => {
         return this._handler.call(
           new UnlinkDiscordAccountParams(discordProfileId),
         );
+      },
+    };
+    this.twitter = {
+      getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, JsonRpcError> => {
+        return this._handler.call(new TwitterGetRequestTokenParams());
+      },
+      initTwitterProfile: (
+        requestToken: OAuth1RequstToken,
+        oAuthVerifier: OAuthVerifier,
+      ): ResultAsync<TwitterProfile, JsonRpcError> => {
+        return this._handler.call(
+          new TwitterLinkProfileParams(requestToken, oAuthVerifier),
+        );
+      },
+      unlinkProfile: (id: TwitterID): ResultAsync<void, JsonRpcError> => {
+        return this._handler.call(new TwitterUnlinkProfileParams(id));
+      },
+      getUserProfiles: (): ResultAsync<TwitterProfile[], JsonRpcError> => {
+        return this._handler.call(new TwitterGetLinkedProfilesParams());
       },
     };
   }

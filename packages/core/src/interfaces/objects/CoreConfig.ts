@@ -5,6 +5,7 @@ import {
   ControlChainInformation,
   DiscordConfig,
   ECurrencyCode,
+  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
@@ -45,6 +46,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public marketplaceListingsCacheTime: number,
     public backupHeartbeatIntervalMS: number,
     public discord: DiscordConfig,
+    public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
   ) {}
 }

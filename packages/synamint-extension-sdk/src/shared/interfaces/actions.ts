@@ -1,8 +1,11 @@
 import {
   BigNumberString,
+  ChainId,
   CountryCode,
+  DiscordID,
   DomainName,
   EmailAddressString,
+  EVMContractAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -10,12 +13,10 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  EVMContractAddress,
   IpfsCID,
   EChain,
   EWalletDataType,
   AccountAddress,
-  ChainId,
   TokenAddress,
   IOpenSeaMetadata,
   LinkedAccount,
@@ -32,14 +33,17 @@ import {
   MarketplaceListing,
   PagingRequest,
   MarketplaceTag,
-  BearerAuthToken,
-  SnowflakeID,
   OAuthAuthorizationCode,
   DiscordProfile,
   DiscordGuildProfile,
   PagedResponse,
   IConsentCapacity,
   PossibleReward,
+  OAuth1RequstToken,
+  OAuthVerifier,
+  TwitterID,
+  TwitterProfile,
+  TokenAndSecret,
 } from "@snickerdoodlelabs/objects";
 
 import {
@@ -675,10 +679,55 @@ export class GetDiscordGuildProfilesParams extends CoreActionParams<
 }
 
 export class UnlinkDiscordAccountParams extends CoreActionParams<void> {
-  public constructor(public discordProfileId: SnowflakeID) {
+  public constructor(public discordProfileId: DiscordID) {
     super(UnlinkDiscordAccountParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.UNLINK_DISCORD_ACCOUNT;
+  }
+}
+
+export class TwitterGetRequestTokenParams extends CoreActionParams<TokenAndSecret> {
+  public constructor() {
+    super(TwitterGetRequestTokenParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.TWITTER_GET_REQUEST_TOKEN;
+  }
+}
+
+export class TwitterLinkProfileParams extends CoreActionParams<TwitterProfile> {
+  public constructor(
+    public requestToken: OAuth1RequstToken,
+    public oAuthVerifier: OAuthVerifier,
+  ) {
+    super(TwitterLinkProfileParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.TWITTER_LINK_PROFILE;
+  }
+}
+
+export class TwitterUnlinkProfileParams extends CoreActionParams<void> {
+  public constructor(public id: TwitterID) {
+    super(TwitterUnlinkProfileParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.TWITTER_UNLINK_PROFILE;
+  }
+}
+
+export class TwitterGetLinkedProfilesParams extends CoreActionParams<
+  TwitterProfile[]
+> {
+  public constructor() {
+    super(TwitterGetLinkedProfilesParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.TWITTER_GET_LINKED_PROFILES;
   }
 }

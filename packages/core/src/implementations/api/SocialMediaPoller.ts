@@ -1,21 +1,19 @@
-import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IDiscordPoller } from "@core/interfaces/api/index.js";
+import { ISocialMediaPoller } from "@core/interfaces/api/index.js";
 import {
-  IDiscordService,
-  IDiscordServiceType,
   IMonitoringService,
   IMonitoringServiceType,
 } from "@core/interfaces/business/index.js";
 import {
-  IConfigProviderType,
   IConfigProvider,
+  IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
-export class DiscordPoller implements IDiscordPoller {
+export class SocialMediaPoller implements ISocialMediaPoller {
   public constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
@@ -25,14 +23,12 @@ export class DiscordPoller implements IDiscordPoller {
 
   initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      this.logUtils.debug(
-        `Initializing Discord Poller with ${config.discord.pollInterval} MS`,
-      );
       setInterval(() => {
-        this.monitoringService.pollDiscord().mapErr((e) => {
-          this.logUtils.error(e);
-        });
+        this.monitoringService.pollDiscord().mapErr(this.logUtils.error);
       }, config.discord.pollInterval);
+      setInterval(() => {
+        this.monitoringService.pollTwitter().mapErr(this.logUtils.error);
+      }, config.twitter.pollInterval);
     });
   }
 }

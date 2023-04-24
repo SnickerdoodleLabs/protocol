@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 
 import {
   AccountAddress,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -14,28 +15,28 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  IConsentCapacity,
   IpfsCID,
   ISdlDataWallet,
+  ISdlDiscordMethods,
+  ISdlTwitterMethods,
   LanguageCode,
+  MarketplaceListing,
+  MarketplaceTag,
+  OAuthAuthorizationCode,
+  PagedResponse,
+  PagingRequest,
+  PossibleReward,
   Signature,
+  SiteVisit,
+  DiscordID,
   TokenAddress,
   TokenInfo,
   TokenMarketData,
-  SiteVisit,
   UnixTimestamp,
   URLString,
-  MarketplaceListing,
-  IConsentCapacity,
-  PossibleReward,
-  PagingRequest,
-  MarketplaceTag,
-  PagedResponse,
-  ISdlDiscordMethods,
-  BearerAuthToken,
-  DiscordProfile,
-  DiscordGuildProfile,
-  SnowflakeID,
-  OAuthAuthorizationCode,
+  TwitterID,
+  OAuthVerifier,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -46,9 +47,9 @@ import pump from "pump";
 
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
-  ONBOARDING_PROVIDER_SUBSTREAM,
-  ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  ONBOARDING_PROVIDER_SUBSTREAM,
   PORT_NOTIFICATION,
   TNotification,
   AddAccountParams,
@@ -131,6 +132,7 @@ initConnection();
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   discord: ISdlDiscordMethods;
+  twitter: ISdlTwitterMethods;
 
   constructor() {
     super();
@@ -149,8 +151,28 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getGuildProfiles: () => {
         return coreGateway.discord.getGuildProfiles();
       },
-      unlink: (discordProfileId: SnowflakeID) => {
+      unlink: (discordProfileId: DiscordID) => {
         return coreGateway.discord.unlink(discordProfileId);
+      },
+    };
+    this.twitter = {
+      getOAuth1aRequestToken: () => {
+        return coreGateway.twitter.getOAuth1aRequestToken();
+      },
+      initTwitterProfile: (
+        requestToken: OAuth1RequstToken,
+        oAuthVerifier: OAuthVerifier,
+      ) => {
+        return coreGateway.twitter.initTwitterProfile(
+          requestToken,
+          oAuthVerifier,
+        );
+      },
+      unlinkProfile: (id: TwitterID) => {
+        return coreGateway.twitter.unlinkProfile(id);
+      },
+      getUserProfiles: () => {
+        return coreGateway.twitter.getUserProfiles();
       },
     };
     eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {

@@ -7,6 +7,8 @@ import {
 import {
   Invitation,
   DomainName,
+  EarnedReward,
+  EChain,
   EInvitationStatus,
   TokenId,
   BigNumberString,
@@ -31,15 +33,15 @@ import {
   IInvitationServiceType,
   IPIIService,
   IPIIServiceType,
+  IScamFilterService,
+  IScamFilterServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
+  ITwitterService,
+  ITwitterServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
 import {
   IContextProvider,
   IContextProviderType,
@@ -52,7 +54,6 @@ import {
 } from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
-  DEFAULT_SUBDOMAIN,
   DEFAULT_RPC_SUCCESS_RESULT,
   ECoreActions,
   UnlockParams,
@@ -119,6 +120,11 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
+  DEFAULT_SUBDOMAIN,
+  TwitterGetRequestTokenParams,
+  TwitterLinkProfileParams,
+  TwitterUnlinkProfileParams,
+  TwitterGetLinkedProfilesParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -623,6 +629,33 @@ export class RpcCallHandler implements IRpcCallHandler {
           .map((res) => mapToObj(res));
       },
     ),
+    new CoreActionHandler<TwitterGetRequestTokenParams>(
+      TwitterGetRequestTokenParams.getCoreAction(),
+      (_params) => {
+        return this.twitterService.getOAuth1aRequestToken();
+      },
+    ),
+    new CoreActionHandler<TwitterLinkProfileParams>(
+      TwitterLinkProfileParams.getCoreAction(),
+      (params) => {
+        return this.twitterService.initTwitterProfile(
+          params.requestToken,
+          params.oAuthVerifier,
+        );
+      },
+    ),
+    new CoreActionHandler<TwitterUnlinkProfileParams>(
+      TwitterUnlinkProfileParams.getCoreAction(),
+      (params) => {
+        return this.twitterService.unlinkProfile(params.id);
+      },
+    ),
+    new CoreActionHandler<TwitterGetLinkedProfilesParams>(
+      TwitterGetLinkedProfilesParams.getCoreAction(),
+      (_params) => {
+        return this.twitterService.getUserProfiles();
+      },
+    ),
   ];
 
   constructor(
@@ -644,6 +677,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected userSiteInteractionService: IUserSiteInteractionService,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
+    @inject(ITwitterServiceType)
+    protected twitterService: ITwitterService,
   ) {}
 
   public async handleRpcCall(

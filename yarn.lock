@@ -7510,6 +7510,7 @@ __metadata:
     inversify: ^5.1.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
+    oauth-1.0a: ^2.2.6
     pino: ^8.1.0
     tweetnacl: ^1.0.3
     uuid: ^8.3.0
@@ -30625,6 +30626,13 @@ __metadata:
   dependencies:
     capability: ^0.2.5
   checksum: 3b4d0686c94ac21b3c8bd66fb2c93a4daef7b8f52a20b04595754f8dc4102550de9a7b1cdffa3db2191d47a4ae70ca568f21d9f3ba29bb15c3f004dbf636c33c
+  languageName: node
+  linkType: hard
+
+"oauth-1.0a@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "oauth-1.0a@npm:2.2.6"
+  checksum: d791da3dd44aa0f19cea262a9f8ff5154fc9c831e219f820ec8a72bb7d4993edf1f1240bade6e5c5b4878c1f2644c0813090f71f10fb6ddff41eb9c5d16893c6
   languageName: node
   linkType: hard
 
