@@ -51,7 +51,7 @@ describe("SDQLParser on avalanche", () => {
       ast = astRes.value;
     } else {
       // fail(astRes.error.message);
-      console.error(astRes.error.message);
+      console.error(`Build AST failed with message: ${astRes.error.message}`);
       expect(1).toBe(2);
     }
   });

@@ -107,9 +107,7 @@ export class ExprParser {
 
   tokensToAst(tokens: Token[]): AST_Expr | Command {
     const postFix: Array<Token> = this.infixToPostFix(tokens);
-    const ast = this.buildAstFromPostfix(postFix);
-    // console.log(ast);
-    return ast;
+    return this.buildAstFromPostfix(postFix);
   }
 
   // #region infix to postfix, $q1and$q2 -> $q1$q2and
@@ -158,14 +156,8 @@ export class ExprParser {
           stack.push(token);
           break;
         case TokenType.parenthesisClose:
-          // pop up to the last open
-          // console.log("stack before", stack);
           popped = this.popHigherEqTypes(stack, token);
           postFix.push(...popped);
-          // console.log("popped", popped);
-          // assume next pop has a opening one
-          // TODO raise error if
-          // console.log("stack after", stack);
           const parenthesisOpen = stack.pop();
           if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
             const e = new ParserError(
@@ -201,10 +193,7 @@ export class ExprParser {
 
     const precedence = this.precedence.get(token.type);
     if (precedence) {
-      // console.log("precedence", precedence);
-      // let lastStackItem = stack[stack.length - 1];
       while (stack.length > 0) {
-        // console.log("peeking", stack[stack.length - 1]);
         if (precedence.includes(stack[stack.length - 1].type)) {
           const lastStackItem = stack.pop();
           popped.push(lastStackItem as Token);
@@ -283,12 +272,9 @@ export class ExprParser {
       TokenType.boolean,
     ];
 
-    // console.log(postFix);
-
     const expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
-      // console.log(`processing token: ${token.type}, ${token.val}`);
       if (exprTypes.includes(token.type)) {
         expList.push(this.getExecutableFromContext(token));
       } else {
@@ -405,9 +391,7 @@ export class ExprParser {
     const rval = expList.pop() as ConditionOperandTypes;
     const lval = expList.pop() as ConditionOperandTypes;
     const condition = new ConditionAnd(SDQL_OperatorName(id), lval, rval);
-    const and = new AST_ConditionExpr(SDQL_Name(id), condition);
-    // console.log('and constructed to', and);
-    return and;
+    return new AST_ConditionExpr(SDQL_Name(id), condition);;
   }
 
   createOr(
@@ -458,17 +442,14 @@ export class ExprParser {
   public getUnifiedQueryDependencies(
     expressions: ISDQLAnyEvaluatableString[],
   ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
-    return ResultUtils.combine(expressions.map(this.getQueryDependencies)).map(
-      (depsArrays) => Array.from(new Set(depsArrays.flat())),
-    );
+    return ResultUtils.combine(
+      expressions.map((expr) => this.getQueryDependencies(expr)),
+    ).map((depsArrays) => Array.from(new Set(depsArrays.flat())));
   }
 
   public getQueryDependencies(
     exprStr: ISDQLAnyEvaluatableString,
   ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
-    console.log("ExprParser getQueryDependencies expStr" + exprStr);
-    console.log("muktadir this: ");
-    console.log(this);
     return new Tokenizer(exprStr).all().map((tokens) => {
       return Array.from(
         tokens.reduce((deps, token) => {

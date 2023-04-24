@@ -66,10 +66,7 @@ export class SDQLParser {
     readonly schema: SDQLQueryWrapper,
     readonly queryObjectFactory: IQueryObjectFactory,
   ) {
-    console.log("CONSTRUCTING SDQLPARSER....");
     this.exprParser = new ExprParser(this.context);
-    console.log("ozan")
-    console.log(this.exprParser);
   }
 
   private saveInContext(name: string, val: ParserContextDataTypes): void {
@@ -89,21 +86,10 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
-    console.log("ozan0");
-    console.log(this.exprParser);
     return this.parseQueries().andThen(() => {
-      console.log("ozan1");
-            console.log(this.exprParser);
       return this.parseAds().andThen(() => {
-        console.log("ozan2");
-            console.log(this.exprParser);
         return this.parseInsights().andThen(() => {
-          console.log("ozan3");
-            console.log(this.exprParser);
-          return this.parseCompensations().map(() => {
-            console.log("ozan4");
-            console.log(this.exprParser);
-          })
+          return this.parseCompensations();
         });
       });
     });
