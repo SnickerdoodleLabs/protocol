@@ -182,7 +182,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
       EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
-      URLString("https://api.snowtrace.io/"),
+      URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],
   [
