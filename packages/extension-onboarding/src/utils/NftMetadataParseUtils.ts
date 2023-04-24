@@ -128,9 +128,6 @@ export class NftMetadataParseUtils {
     } else {
       res = res.replace("ipfs://", "https://ipfs.io/ipfs/");
     }
-
-    // added for location base issues
-    res = res.replace("https://ipfs.io/ipfs/", "https://cf-ipfs.com/ipfs/");
     return res;
   }
 }

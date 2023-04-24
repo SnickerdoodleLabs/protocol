@@ -26,7 +26,6 @@ export class ExtensionConfig {
     public moralisApiKey?: string,
     public nftScanApiKey?: string,
     public poapApiKey?: string,
-    public oklinkApiKey?: string,
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
