@@ -7,8 +7,14 @@ import {
   PermissionsGrantedEvent,
   PermissionsRequestedEvent,
   SDQLQueryRequest,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
 } from "@objects/businessObjects/index.js";
-import { DataWalletAddress, DomainName, IpfsCID, SnowflakeID } from "@objects/primitives/index.js";
+import {
+  DataWalletAddress,
+  DomainName,
+  IpfsCID,
+} from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
@@ -21,6 +27,6 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsGranted: Observable<PermissionsGrantedEvent>;
   onPermissionsRequested: Observable<PermissionsRequestedEvent>;
   onPermissionsRevoked: Observable<DomainName>;
-  onDiscordProfileLinked: Subject<SnowflakeID>;
-  onDiscordProfileUnlinked: Subject<SnowflakeID>;
+  onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
+  onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
 }
