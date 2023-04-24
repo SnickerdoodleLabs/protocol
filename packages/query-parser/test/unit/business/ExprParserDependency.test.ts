@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
+import { ISDQLExpressionString, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 import { AST_Query } from "@query-parser/interfaces";
@@ -10,9 +10,11 @@ describe("Expression parser dependencies", () => {
   test("dependencies if($q1and$q2)then$c1 is q1, q2", async () => {
     const mocks = new ExprParserMocks();
     const exprParser = (await mocks.createExprParser(null))._unsafeUnwrap();
-    const expr = "if($q1and$q2)then$c1";
+    const expr = ISDQLExpressionString("if($q1and$q2)then$c1");
 
-    const dependencies = exprParser.getQueryDependencies(expr);
+    const dependencies = (
+      await exprParser.getQueryDependencies(expr)
+    )._unsafeUnwrap();
 
     expect(dependencies.length).toBe(2);
     const q1 = dependencies[0] as AST_Query;
@@ -25,9 +27,11 @@ describe("Expression parser dependencies", () => {
   test("dependencies if($q1and$q2)or$q3then$c1else$c2 is q1, q2, q3", async () => {
     const mocks = new ExprParserMocks();
     const exprParser = (await mocks.createExprParser(null))._unsafeUnwrap();
-    const expr = "if($q1and$q2)or$q3then$c1else$c2";
+    const expr = ISDQLExpressionString("if($q1and$q2)or$q3then$c1else$c2");
 
-    const dependencies = exprParser.getQueryDependencies(expr);
+    const dependencies = (
+      await exprParser.getQueryDependencies(expr)
+    )._unsafeUnwrap();
 
     expect(dependencies.length).toBe(3);
     const q1 = dependencies[0] as AST_Query;

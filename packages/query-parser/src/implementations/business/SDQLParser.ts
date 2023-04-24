@@ -50,32 +50,26 @@ import {
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr";
 
-
 export class SDQLParser {
-  public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
+  public exprParser: ExprParser | null = null;
+
+  public context = new Map<string, ParserContextDataTypes>();
+
   public ads = new Map<SDQL_Name, AST_Ad>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public insights = new Map<SDQL_Name, AST_Insight>();
-  // public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
-  // public logicReturns = new Map<string, AST_Expr | Command>();
-  // public requiresCompensations = new Map<string, AST_Expr | Command>();
-  // public targetAds = new Map<string, AST_Expr | Command>();
-  // public targetInsights = new Map<string, AST_Expr | Command>();
-
-  // public insightPermissions = new Map<string, DataPermissions>();
-  // public adPermissions = new Map<string, DataPermissions>();
-
-  public exprParser: ExprParser | null = null;
 
   constructor(
     readonly cid: IpfsCID,
     readonly schema: SDQLQueryWrapper,
     readonly queryObjectFactory: IQueryObjectFactory,
   ) {
-    // this.returns = null;
+    console.log("CONSTRUCTING SDQLPARSER....");
     this.exprParser = new ExprParser(this.context);
+    console.log("ozan")
+    console.log(this.exprParser);
   }
 
   private saveInContext(name: string, val: ParserContextDataTypes): void {
@@ -95,10 +89,21 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
+    console.log("ozan0");
+    console.log(this.exprParser);
     return this.parseQueries().andThen(() => {
+      console.log("ozan1");
+            console.log(this.exprParser);
       return this.parseAds().andThen(() => {
+        console.log("ozan2");
+            console.log(this.exprParser);
         return this.parseInsights().andThen(() => {
-          return this.parseCompensations();
+          console.log("ozan3");
+            console.log(this.exprParser);
+          return this.parseCompensations().map(() => {
+            console.log("ozan4");
+            console.log(this.exprParser);
+          })
         });
       });
     });
@@ -297,7 +302,6 @@ export class SDQLParser {
         AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery
       >();
       for (const qName in querySchema) {
-        // console.log(`parsing query ${qName}`);
         const queryName = SDQL_Name(qName);
         const schema = querySchema[qName];
         const schemaName = schema.name;
@@ -339,28 +343,19 @@ export class SDQLParser {
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
     const insightSchema = this.schema.getInsightSchema();
-    if (!insightSchema) {
+    if (!insightSchema || Object.keys(insightSchema).length == 0) {
       return okAsync(undefined);
     }
 
-    const insightResults: ResultAsync<
-      AST_Insight,
-      DuplicateIdInSchema | QueryFormatError | MissingASTError
-    >[] = [];
-    for (const iName in insightSchema) {
-      // console.log(`parsing insight ${iName}`);
-
-      const name = SDQL_Name(iName);
-      const schema = insightSchema[iName];
-      insightResults.push(this.parseInsight(name, schema));
-    }
-
-    return ResultUtils.combine(insightResults).andThen((insights) => {
+    return ResultUtils.combine(
+      Array.from(Object.keys(insightSchema)).map((iName) => {
+        return this.parseInsight(SDQL_Name(iName), insightSchema[iName]);
+      }),
+    ).map((insights) => {
       insights.map((insight) => {
         this.insights.set(insight.name, insight);
         this.saveInContext(insight.name, insight);
       });
-      return okAsync(undefined);
     });
   }
 
@@ -371,28 +366,21 @@ export class SDQLParser {
     AST_Insight,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    const targetResult = this.parseTargetExpString(schema.target);
-    const returnResult = this.parseExpString(schema.returns);
-    const permissionResult = this.parseUnifiedDataPermissions([
-      schema.target,
-      schema.returns,
-    ]);
-
-    return ResultUtils.combine([targetResult, returnResult, permissionResult])
-      .andThen(([targetAst, returnsAst, dataPermissions]) => {
-        return okAsync(
-          new AST_Insight(
-            name,
-            targetAst as AST_ConditionExpr,
-            schema.target,
-            returnsAst as AST_Expr,
-            schema.returns,
-            dataPermissions,
-          ),
+    return ResultUtils.combine([
+      this.parseTargetExpString(schema.target),
+      this.parseExpString(schema.returns),
+      this.parseUnifiedDataPermissions([schema.target, schema.returns]),
+    ])
+      .mapErr(this.transformError)
+      .map(([targetAst, returnsAst, dataPermissions]) => {
+        return new AST_Insight(
+          name,
+          targetAst as AST_ConditionExpr,
+          schema.target,
+          returnsAst as AST_Expr,
+          schema.returns,
+          dataPermissions,
         );
-      })
-      .orElse((err) => {
-        return errAsync(this.transformError(err as Error));
       });
   }
 
@@ -403,7 +391,6 @@ export class SDQLParser {
     const compensationSchema = this.schema.getCompensationSchema();
     const compensations: [SDQL_Name, ISDQLCompensations][] = [];
     for (const cName in compensationSchema) {
-      // console.log(`parsing compensation ${cName}`);
 
       if (cName == "parameters") {
         // this is the parameters block
@@ -412,21 +399,21 @@ export class SDQLParser {
         ] as ISDQLCompensationParameters;
       } else {
         // This is a compensation
-        const name = SDQL_Name(cName);
-        const schema = compensationSchema[cName] as ISDQLCompensations;
-        compensations.push([name, schema]);
+        compensations.push([
+          SDQL_Name(cName),
+          compensationSchema[cName] as ISDQLCompensations,
+        ]);
       }
     }
 
-    const results = compensations.map(([name, schema]) => {
-      return this.parseCompensation(name, schema).andThen((ast) => {
-        this.compensations.set(name, ast);
-        this.saveInContext(name, ast);
-        return okAsync(undefined);
-      });
-    });
-
-    return ResultUtils.combine(results).map(() => {});
+    return ResultUtils.combine(
+      compensations.map(([name, schema]) => {
+        return this.parseCompensation(name, schema).map((ast) => {
+          this.compensations.set(name, ast);
+          this.saveInContext(name, ast);
+        });
+      }),
+    ).map(() => {});
   }
 
   private parseCompensation(
@@ -436,22 +423,19 @@ export class SDQLParser {
     AST_Compensation,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
+
     return this.parseExpString(schema.requires)
-      .andThen((ast) => {
-        const requiresAst = ast as AST_RequireExpr;
-        const compensation = new AST_Compensation(
+      .mapErr(this.transformError)
+      .map((ast) => {
+        return new AST_Compensation(
           name,
           schema.description,
-          requiresAst,
+          ast as AST_RequireExpr,
           schema.requires,
           schema.chainId,
           schema.callback,
           schema.alternatives ? schema.alternatives : [],
         );
-        return okAsync(compensation);
-      })
-      .orElse((err) => {
-        return errAsync(this.transformError(err as Error));
       });
   }
 
@@ -493,7 +477,9 @@ export class SDQLParser {
   public parseExpString(
     expStr: string,
   ): ResultAsync<AST_Expr | Command, ParserError | InvalidRegularExpression> {
-    return this.exprParser!.parse(expStr);
+    return this.exprParser!.parse(expStr).map((result) => {
+      return result;
+    });
     // if (this.exprParser) return this.exprParser.parse(expStr);
     // throw new Error("Expression Parser not found.");
   }
@@ -525,8 +511,10 @@ export class SDQLParser {
   private parseUnifiedDataPermissions(
     expressions: ISDQLAnyEvaluatableString[],
   ): ResultAsync<DataPermissions, ParserError | InvalidRegularExpression> {
-    return this.exprParser!.getUnifiedQueryDependencies(expressions).andThen(
-      (queryDeps) => okAsync(this.queriesToDataPermission(queryDeps)),
+    return this.exprParser!.getUnifiedQueryDependencies(expressions).map(
+      (queryDeps) => {
+        return this.queriesToDataPermission(queryDeps);
+      },
     );
   }
 
