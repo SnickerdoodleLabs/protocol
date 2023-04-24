@@ -13,7 +13,7 @@ export enum EWalletProviderKeys {
 }
 
 export enum ESocialMediaProviderKeys {
-  DISCORD = "discord"
+  DISCORD = "discord",
 }
 export const DOWNLOAD_URL_IOS =
   "https://apps.apple.com/us/app/snickerdoodle/id6446097751";
@@ -30,8 +30,10 @@ export const LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION =
   "rewardsMarketplaceIntroduction";
 
 export const PRIVACY_POLICY_URL =
-  "https://policy.snickerdoodle.com/snickerdoodle-labs-data-privacy-policy";
-
+  "https://policy.snickerdoodle.com/data-privacy-policy";
+export const HOTJAR_DISCLAIMER_URL =
+  "https://policy.snickerdoodle.com/hotjar-disclaimer";
+export const TERMS_OF_SERVICE_URL = "https://policy.snickerdoodle.com/";
 export const ZENDEKS_URL =
   "https://data-wallet.zendesk.com/hc/en-us/requests/new";
 export const SURVEY_URL = "https://ndhg1975huo.typeform.com/to/lEcLm7e2";
