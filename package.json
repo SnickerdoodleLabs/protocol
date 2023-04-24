@@ -48,6 +48,7 @@
     "postCompile": "yarn workspaces foreach -p run postCompile",
     "prepare-for-publish": "cd packages/objects && yarn build && cd ../gateway-connector && yarn build && cd ../utils && yarn build && cd ../hypernet-core && yarn build && cd ../web-ui && yarn build && cd ../web-integration && yarn build && cd ../",
     "scrap-coin-list": "python3 infra/scrapper/coin_list_gen.py && mv data.json packages/indexers/coinList.json",
+    "scrap-price-list": "python3 infra/price/coin_price_gen.py && mv data.json packages/indexers/coinPrices.json",
     "setup-windows": "yarn install --global --production windows-build-tools",
     "start": "docker-compose up",
     "test": "yarn compile && yarn workspaces foreach -p run test",

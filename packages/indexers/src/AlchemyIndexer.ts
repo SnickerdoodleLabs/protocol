@@ -102,7 +102,6 @@ export class AlchemyIndexer
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      config.covalentApiKey;
       const apiKey = config.etherscanApiKeys.get(chain);
       if (apiKey == null) {
         return errAsync(
