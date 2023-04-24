@@ -7,8 +7,10 @@ import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccoun
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
   FAQ_URL,
+  HOTJAR_DISCLAIMER_URL,
   PRIVACY_POLICY_URL,
   SURVEY_URL,
+  TERMS_OF_SERVICE_URL,
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -239,6 +241,16 @@ const Sidebar = () => {
             }}
           >
             Privacy Policy
+          </Typography>
+        </Box>
+        <Box pb={1.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(HOTJAR_DISCLAIMER_URL, "_blank");
+            }}
+          >
+            Hotjar Disclaimer
           </Typography>
         </Box>
       </Box>
