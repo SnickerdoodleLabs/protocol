@@ -1,8 +1,8 @@
-import { TokenSecret, URLString } from "@objects/primitives/index.js";
+import { URLString } from "@objects/primitives/URLString.js";
 
-export interface OAuth2Config {
+export interface OAuthConfig {
   clientId: string;
-  clientSecret: TokenSecret;
+  clientSecret: string;
   oauthBaseUrl: URLString;
   oauthRedirectUrl: URLString;
   accessTokenUrl?: URLString;

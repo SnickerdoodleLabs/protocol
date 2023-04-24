@@ -49,7 +49,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
 
   public post<T>(
     url: URL,
-    data?:
+    data:
       | string
       | Record<string, unknown>
       | ArrayBuffer

@@ -2,7 +2,6 @@ import {
   ChainId,
   DiscordConfig,
   ProviderUrl,
-  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
@@ -37,6 +36,5 @@ export class ExtensionConfig {
     public backupPollingIntervalMS?: number,
     public enableBackupEncryption?: boolean,
     public discordOverrides?: Partial<DiscordConfig>,
-    public twitterOverrides?: Partial<TwitterConfig>,
   ) {}
 }

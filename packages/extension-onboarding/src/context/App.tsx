@@ -17,6 +17,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -28,16 +29,16 @@ import {
 } from "@extension-onboarding/constants";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
-  getProviderList as getChainProviderList,
+  getProviderList,
   IProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
@@ -88,7 +89,7 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
+  const [providerList, setProviderList] = useState<IProvider[]>([]);
   const [socialMediaProviderList, setSocialMediaProviderList] = useState<
     ISocialMediaWrapper[]
   >([]);
@@ -256,11 +257,17 @@ export const AppContextProvider: FC = ({ children }) => {
     setSDLDataWalletDetected(true);
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();
-      setChainProviderList(getChainProviderList());
-      setSocialMediaProviderList(getSocialMediaProviderList());
+      const providerList = getProviderList();
+      setProviderList(providerList);
+      const socialMediaProviderList = getSocialMediaProviderList();
+      setSocialMediaProviderList(socialMediaProviderList);
       setIsLoading(false);
     }, 500);
   }, []);
+
+  const getSocialMediaAccounts = () => {
+    //return window.sdlDataWallet.get
+  };
 
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
@@ -298,7 +305,7 @@ export const AppContextProvider: FC = ({ children }) => {
         optedInContracts,
         apiGateway: new ApiGateway(),
         dataWalletGateway: new DataWalletGateway(),
-        providerList: chainProviderList,
+        providerList,
         socialMediaProviderList,
         isSDLDataWalletDetected,
         linkedAccounts,

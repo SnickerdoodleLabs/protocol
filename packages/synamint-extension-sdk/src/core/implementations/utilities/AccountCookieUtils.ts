@@ -11,7 +11,7 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
 
 import { IAccountCookieUtils } from "@synamint-extension-sdk/core/interfaces/utilities";
-import { UnlockParams } from "@synamint-extension-sdk/shared/interfaces/actions";
+import { IUnlockParams } from "@synamint-extension-sdk/shared/interfaces/actions";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -91,14 +91,14 @@ export class AccountCookieUtils implements IAccountCookieUtils {
   }
 
   public readAccountInfoFromCookie(): ResultAsync<
-    UnlockParams[],
+    IUnlockParams[],
     ExtensionCookieError
   > {
     return this._getCookie(ECookieName.AccountInfo).andThen((cookie) => {
       if (!cookie?.value) {
         return okAsync([]);
       }
-      return okAsync(JSON.parse(cookie.value) as UnlockParams[]);
+      return okAsync(JSON.parse(cookie.value) as IUnlockParams[]);
     });
   }
 

@@ -1,33 +1,30 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountAddress,
-  AccountIndexingError,
-  AjaxError,
-  ChainId,
-  ChainTransaction,
-  DataWalletBackupID,
-  DiscordError,
-  EIndexer,
-  EVMAccountAddress,
+  SiteVisit,
   IAccountIndexing,
   IAccountIndexingType,
-  isAccountValidForChain,
-  PersistenceError,
-  SiteVisit,
-  SolanaAccountAddress,
-  TwitterError,
+  EVMAccountAddress,
+  ChainId,
+  AccountIndexingError,
+  EIndexer,
   UnixTimestamp,
+  AjaxError,
+  PersistenceError,
+  AccountAddress,
+  ChainTransaction,
+  SolanaAccountAddress,
+  isAccountValidForChain,
+  DiscordError,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { injectable, inject } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IDiscordService,
   IDiscordServiceType,
   IMonitoringService,
-  ITwitterService,
-  ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBrowsingDataRepository,
@@ -40,9 +37,9 @@ import {
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
+  IContextProvider,
   IConfigProvider,
   IConfigProviderType,
-  IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 
@@ -63,8 +60,6 @@ export class MonitoringService implements IMonitoringService {
     protected browsingDataRepo: IBrowsingDataRepository,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
-    @inject(ITwitterServiceType)
-    protected twitterService: ITwitterService,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -215,10 +210,6 @@ export class MonitoringService implements IMonitoringService {
 
   public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
     return this.discordService.poll();
-  }
-
-  public pollTwitter(): ResultAsync<void, PersistenceError | TwitterError> {
-    return this.twitterService.poll();
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {

@@ -1,20 +1,17 @@
 import {
-  chainConfig,
+  URLString,
   ChainId,
-  ControlChainInformation,
+  chainConfig,
   DataWalletAddress,
-  EChain,
-  ECurrencyCode,
-  EHashAlgorithm,
-  ESignatureAlgorithm,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
   SDQLQuery,
   SDQLString,
-  TokenSecret,
-  URLString,
+  EVMAccountAddress,
+  ControlChainInformation,
+  ECurrencyCode,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
@@ -54,9 +51,9 @@ export const defaultInsightPlatformBaseUrl = URLString(
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
-const testDiscordConfig = {
+const discordConfig = {
   clientId: "1089994449830027344",
-  clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
+  clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
   oauthRedirectUrl: URLString(
     "https://localhost:9005/data-dashboard/social-media-data",
@@ -66,19 +63,6 @@ const testDiscordConfig = {
   dataAPIUrl: URLString("https://discord.com/api"),
   iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
   pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
-};
-
-const testTwitterConfig = {
-  apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
-  apiSecretKey: TokenSecret(
-    "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
-  ),
-  signingAlgorithm: ESignatureAlgorithm.HMAC,
-  hashingAlgorithm: EHashAlgorithm.SHA1,
-  oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
-  oAuthCallbackUrl: URLString("oob"),
-  dataAPIUrl: URLString("https://api.twitter.com/2"),
-  pollInterval: 1 * 24 * 3600 * 1000,
 };
 
 export const testCoreConfig = new CoreConfig(
@@ -117,8 +101,7 @@ export const testCoreConfig = new CoreConfig(
   false,
   300000,
   1000,
-  testDiscordConfig,
-  testTwitterConfig,
+  discordConfig,
   60000, // heartbeatIntervalMS
 );
 

@@ -1,17 +1,4 @@
 import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, { useEffect, useMemo, useState } from "react";
-import { parse } from "tldts";
-import Browser, { urlbar } from "webextension-polyfill";
-
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@synamint-extension-sdk/content/components/ScamFilterComponent";
@@ -34,11 +21,19 @@ import {
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   configProvider,
-  GetInvitationWithDomainParams,
-  AcceptInvitationByUUIDParams,
-  RejectInvitationParams,
-  CheckURLParams,
 } from "@synamint-extension-sdk/shared";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+import { parse } from "tldts";
+import Browser, { urlbar } from "webextension-polyfill";
 
 interface ISafeURLHistory {
   url: string;
@@ -128,7 +123,7 @@ const App = () => {
 
     ResultUtils.combine([
       coreGateway.getScamFilterSettings(),
-      coreGateway.checkURL(new CheckURLParams(url as DomainName)),
+      coreGateway.checkURL(url as DomainName),
     ]).andThen(([scamSettings, scamStatus]) => {
       if (scamSettings.isScamFilterActive) {
         if (scamSettings.showMessageEveryTime) {
@@ -184,16 +179,12 @@ const App = () => {
           const domain = urlInfo.domain;
           const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
           const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
-          coreGateway
-            .getInvitationsByDomain(
-              new GetInvitationWithDomainParams(domainName, url),
-            )
-            .map((result) => {
-              if (result) {
-                setInvitationDomain(result);
-                initiateRewardPopup(result);
-              }
-            });
+          coreGateway.getInvitationsByDomain(domainName, url).map((result) => {
+            if (result) {
+              setInvitationDomain(result);
+              initiateRewardPopup(result);
+            }
+          });
         }
       });
   };
@@ -222,28 +213,19 @@ const App = () => {
 
   const acceptInvitation = () => {
     coreGateway
-      .acceptInvitationByUUID(
-        new AcceptInvitationByUUIDParams([], invitationDomain?.id as UUID),
-      )
+      .acceptInvitationByUUID(null, invitationDomain?.id as UUID)
       .map(() => emptyReward());
   };
 
   const rejectInvitation = () => {
     coreGateway
-      .rejectInvitation(
-        new RejectInvitationParams(invitationDomain?.id as UUID),
-      )
+      .rejectInvitation(invitationDomain?.id as UUID)
       .map(() => emptyReward());
   };
 
   const acceptInvitationWithDataTypes = (dataTypes: EWalletDataType[]) => {
     coreGateway
-      .acceptInvitationByUUID(
-        new AcceptInvitationByUUIDParams(
-          dataTypes,
-          invitationDomain?.id as UUID,
-        ),
-      )
+      .acceptInvitationByUUID(dataTypes, invitationDomain?.id as UUID)
       .map(() => emptyReward());
   };
 

@@ -1,11 +1,20 @@
 import ExclamationIcon from "@extension-onboarding/assets/icons/exclamationIcon.svg";
-import { useStyles } from "@extension-onboarding/components/Modals/SocialUnlinkingModal/SocialUnlinkingModal.style";
-import { Box, Button, Dialog, Typography } from "@material-ui/core";
+import { useStyles } from "@extension-onboarding/components/Modals/DiscordUnlinkingModal/DiscordUnlinkingModal.style";
+import {
+  Box,
+  Button,
+  Dialog,
+  Grid,
+  IconButton,
+  Input,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import clsx from "clsx";
 import React, { FC, useMemo, useState } from "react";
 
-interface ISocialUnlinkingModal {
+interface IDiscordUnlinkingModal {
   profileName: string;
   closeModal: () => void;
   unlinkAccount: () => void;
@@ -13,11 +22,11 @@ interface ISocialUnlinkingModal {
 
 const OTP_DIGIT_COUNT = 4;
 
-const SocialUnlinkingModal: FC<ISocialUnlinkingModal> = ({
+const DiscordUnlinkingModal: FC<IDiscordUnlinkingModal> = ({
   closeModal,
   unlinkAccount,
   profileName,
-}: ISocialUnlinkingModal) => {
+}: IDiscordUnlinkingModal) => {
   const randomNumber = () => {
     return Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
   };
@@ -179,4 +188,4 @@ const SocialUnlinkingModal: FC<ISocialUnlinkingModal> = ({
   );
 };
 
-export default SocialUnlinkingModal;
+export default DiscordUnlinkingModal;

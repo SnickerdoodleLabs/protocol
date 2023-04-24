@@ -1,11 +1,7 @@
-import { JsonRpcEngine, JsonRpcError, JsonRpcRequest } from "json-rpc-engine";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@synamint-extension-sdk/shared";
+import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import { v4 } from "uuid";
-
-import {
-  CoreActionParams,
-  DEFAULT_RPC_SUCCESS_RESULT,
-} from "@synamint-extension-sdk/shared";
 
 export default class CoreHandler {
   constructor(protected rpcEngine: JsonRpcEngine) {}
@@ -14,14 +10,10 @@ export default class CoreHandler {
     this.rpcEngine = rpcEngine;
   }
 
-  public call<
-    TParams extends CoreActionParams<ReturnType<TParams["returnMethodMarker"]>>,
-  >(
-    params: TParams,
-  ): ResultAsync<ReturnType<TParams["returnMethodMarker"]>, JsonRpcError> {
-    return ResultAsync.fromPromise(
+  public call<T, K>(method, params?): ResultAsync<T, K> {
+    return ResultAsync.fromPromise<T, K>(
       new Promise((resolve, reject) => {
-        const requestObject = this._createRequestObject(params);
+        const requestObject = this._createRequestObject(method, params);
         this.rpcEngine.handle(requestObject, async (error, result) => {
           console.log("callRes", result);
           console.log("callErr", error);
@@ -40,18 +32,12 @@ export default class CoreHandler {
           );
         });
       }),
-      (e) => {
-        return e as JsonRpcError;
-      },
+      (e) => e as K,
     );
   }
 
-  private _createRequestObject(params): JsonRpcRequest<unknown> {
-    let requestObject = {
-      id: v4(),
-      jsonrpc: "2.0" as const,
-      method: params.method,
-    };
+  private _createRequestObject(method, params?): JsonRpcRequest<unknown> {
+    let requestObject = { id: v4(), jsonrpc: "2.0" as const, method };
     if (params) {
       requestObject = Object.assign(requestObject, { params: params });
     }

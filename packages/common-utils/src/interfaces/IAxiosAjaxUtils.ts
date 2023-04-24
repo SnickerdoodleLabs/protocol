@@ -11,7 +11,7 @@ export interface IAxiosAjaxUtils {
   get<T>(url: URL, config?: IRequestConfig): ResultAsync<T, AjaxError>;
   post<T>(
     url: URL,
-    data?:
+    data:
       | string
       | Record<string, unknown>
       | ArrayBuffer

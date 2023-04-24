@@ -3,54 +3,9 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-  ISocialMediaPoller,
-  ISocialMediaPollerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  IDiscordService,
-  IDiscordServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-  ITwitterService,
-  ITwitterServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
-import {
-  DefaultAccountBalances,
   DefaultAccountIndexers,
+  DefaultAccountBalances,
   DefaultAccountNFTs,
 } from "@snickerdoodlelabs/indexers";
 import {
@@ -75,7 +30,6 @@ import {
   DataWalletAddress,
   DataWalletBackup,
   DataWalletBackupID,
-  DiscordID,
   DomainName,
   EarnedReward,
   EChain,
@@ -95,11 +49,9 @@ import {
   IAccountNFTsType,
   IAdMethods,
   IConfigOverrides,
-  IConsentCapacity,
   ICoreDiscordMethods,
   ICoreIntegrationMethods,
   ICoreMarketplaceMethods,
-  ICoreTwitterMethods,
   IDynamicRewardParameter,
   InvalidParametersError,
   InvalidSignatureError,
@@ -113,14 +65,9 @@ import {
   ITokenPriceRepositoryType,
   LanguageCode,
   LinkedAccount,
-  MarketplaceListing,
-  MarketplaceTag,
   MinimalForwarderContractError,
-  OAuth1RequstToken,
   OAuthAuthorizationCode,
-  OAuthVerifier,
   PageInvitation,
-  PagingRequest,
   PersistenceError,
   QueryFormatError,
   SDQLQuery,
@@ -128,27 +75,32 @@ import {
   SiftContractError,
   Signature,
   SiteVisit,
+  SnowflakeID,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
   TransactionPaymentCounter,
-  TwitterID,
   UnauthorizedError,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  MarketplaceListing,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import {
-  GoogleCloudStorage,
+  IVolatileStorage,
   ICloudStorage,
   ICloudStorageType,
-  IndexedDBVolatileStorage,
-  IVolatileStorage,
+  GoogleCloudStorage,
   IVolatileStorageType,
+  IndexedDBVolatileStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -159,10 +111,51 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+  IDiscordPoller,
+  IDiscordPollerType,
   IHeartbeatGenerator,
   IHeartbeatGeneratorType,
 } from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+  IDiscordService,
+  IDiscordServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -170,7 +163,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
   public discord: ICoreDiscordMethods;
-  public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
 
   public constructor(
@@ -331,32 +323,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
     };
-    // Social Media Methods ----------------------------------------------------------
-    this.twitter = {
-      getOAuth1aRequestToken: () => {
-        return this.iocContainer
-          .get<ITwitterService>(ITwitterServiceType)
-          .getOAuth1aRequestToken();
-      },
-      initTwitterProfile: (
-        requestToken: OAuth1RequstToken,
-        oAuthVerifier: OAuthVerifier,
-      ) => {
-        return this.iocContainer
-          .get<ITwitterService>(ITwitterServiceType)
-          .initTwitterProfile(requestToken, oAuthVerifier);
-      },
-      unlinkProfile: (id: TwitterID) => {
-        return this.iocContainer
-          .get<ITwitterService>(ITwitterServiceType)
-          .unlinkProfile(id);
-      },
-      getUserProfiles: () => {
-        return this.iocContainer
-          .get<ITwitterService>(ITwitterServiceType)
-          .getUserProfiles();
-      },
-    };
+
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         const discordService =
@@ -381,7 +348,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getGuildProfiles();
       },
-      unlink: (discordProfileId: DiscordID) => {
+      unlink: (discordProfileId: SnowflakeID) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.unlink(discordProfileId);
@@ -495,9 +462,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IBlockchainListenerType,
     );
 
-    const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
-      ISocialMediaPollerType,
-    );
+    const discordPoller =
+      this.iocContainer.get<IDiscordPoller>(IDiscordPollerType);
 
     const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
       IHeartbeatGeneratorType,
@@ -522,7 +488,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return ResultUtils.combine([
           accountIndexerPoller.initialize(),
           blockchainListener.initialize(),
-          socialPoller.initialize(),
+          discordPoller.initialize(),
           heartbeatGenerator.initialize(),
         ]);
       })

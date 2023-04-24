@@ -6,12 +6,10 @@ import {
   SnackbarOrigin,
   Typography,
 } from "@material-ui/core";
-import React, { FC } from "react";
-import Browser from "webextension-polyfill";
-
 import { useStyles } from "@synamint-extension-sdk/content/components/ScamFilterComponent/SafeUrlNotification";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
-import { ScamFilterSettingsParams } from "@synamint-extension-sdk/shared/interfaces/actions.js";
+import React, { FC } from "react";
+import Browser from "webextension-polyfill";
 
 export interface State extends SnackbarOrigin {
   open: boolean;
@@ -38,9 +36,7 @@ const SafeUrlNotification: FC<ISafeURLNotificationProps> = ({
   };
 
   const handleDontShow = () => {
-    coreGateway.setScamFilterSettings(
-      new ScamFilterSettingsParams(true, dontShow),
-    );
+    coreGateway.setScamFilterSettings(true, dontShow);
     setDontShow(!dontShow);
   };
 
