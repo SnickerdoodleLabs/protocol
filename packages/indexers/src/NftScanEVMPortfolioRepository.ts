@@ -16,6 +16,7 @@ import {
   IEVMNftRepository,
   TokenUri,
   UnixTimestamp,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -50,6 +51,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
           .andThen((response) => {
             return this.getPages(chainId, response);
           });
+        // .mapErr((e) => new AjaxError("error fetching nfts from nftscan", e));
       },
     );
   }
@@ -58,6 +60,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     chainId: ChainId,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    console.log(chainId + ": response: " + response);
     const items: EVMNFT[] = response.data.map((token) => {
       return new EVMNFT(
         EVMContractAddress(token.contract_address),
@@ -76,14 +79,15 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     return okAsync(items);
   }
 
-  private generateBaseUrl(chainId: ChainId): string {
-    switch (chainId) {
-      case ChainId(1):
+  private generateBaseChain(chainId: ChainId): string {
+    const chainInfo = getChainInfoByChain(chainId);
+    switch (chainInfo.chain) {
+      case EChain.EthereumMainnet:
         return "rest";
-      case ChainId(56):
-        return "bnb";
-      case ChainId(43114):
+      case EChain.Avalanche:
         return "avax";
+      case EChain.Binance:
+        return "bnb";
       default:
         return getChainInfoByChain(chainId).name;
     }
@@ -93,15 +97,17 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IRequestConfig, never> {
-    const chainName = this.generateBaseUrl(chainId);
-    const url = urlJoinP(`https://${chainName}api.nftscan.com`, [
-      "api",
-      "v2",
-      "account",
-      "own",
-      "all",
-      accountAddress.toString() + "?erc_type=&show_attribute=false",
-    ]);
+    const url = urlJoinP(
+      `https://${this.generateBaseChain(chainId)}api.nftscan.com`,
+      [
+        "api",
+        "v2",
+        "account",
+        "own",
+        "all",
+        accountAddress.toString() + "?erc_type=&show_attribute=false",
+      ],
+    );
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
