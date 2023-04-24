@@ -1,5 +1,7 @@
 import {
   DataWalletAddress,
+  EarnedReward,
+  EVMContractAddress,
   Invitation,
   LinkedAccount,
   UUID,
@@ -8,7 +10,10 @@ import { Subject } from "rxjs";
 
 import { AccountContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AppContext";
-import { IInternalState, IExternalState } from "@synamint-extension-sdk/shared/interfaces/states";
+import {
+  IInternalState,
+  IExternalState,
+} from "@synamint-extension-sdk/shared/interfaces/states";
 
 export interface IContextProvider {
   getAccountContext(): AccountContext;
@@ -21,6 +26,7 @@ export interface IContextProvider {
   setAccountContext(dataWalletAddress: DataWalletAddress): void;
   onAccountAdded(accountAddress: LinkedAccount): void;
   onAccountRemoved(accountAddress: LinkedAccount): void;
+  onEarnedRewardsAdded(rewards: EarnedReward[]): void;
 }
 
 export const IContextProviderType = Symbol.for("IContextProvider");

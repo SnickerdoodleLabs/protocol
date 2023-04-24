@@ -1,11 +1,3 @@
-import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
-import {
-  IClearCloudBackupsParams,
-  IDeliverInsightsParams,
-  IExecuteMetatransactionParams,
-  IReceivePreviewsParams,
-  ISignedUrlParams,
-} from "@insightPlatform/params/index.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -40,6 +32,15 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
+
+import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
+import {
+  IClearCloudBackupsParams,
+  IDeliverInsightsParams,
+  IExecuteMetatransactionParams,
+  IReceivePreviewsParams,
+  ISignedUrlParams,
+} from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {

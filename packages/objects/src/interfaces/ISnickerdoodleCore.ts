@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   Invitation,
   DataPermissions,
@@ -22,6 +20,8 @@ import {
   AdSignature,
   AESEncryptedString,
   PossibleReward,
+  PagingRequest,
+  PagedResponse,
   DiscordProfile,
   DiscordGuildProfile,
   DataWalletBackup,
@@ -58,6 +58,7 @@ import {
 } from "@objects/errors";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
 import {
   AccountAddress,
   AdKey,
@@ -82,6 +83,7 @@ import {
   IpfsCID,
   JsonWebToken,
   LanguageCode,
+  MarketplaceTag,
   OAuthAuthorizationCode,
   PEMEncodedRSAPublicKey,
   SHA256Hash,
@@ -90,6 +92,7 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -100,16 +103,27 @@ import {
  */
 
 export interface ICoreMarketplaceMethods {
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean, // make it optional in interface, = true here
   ): ResultAsync<
-    MarketplaceListing,
+    PagedResponse<MarketplaceListing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
-  getListingsTotal(): ResultAsync<
+
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   /**
@@ -126,13 +140,7 @@ export interface ICoreMarketplaceMethods {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
-/**
- ************************ MAINTENANCE HAZARD ***********************************************
- Whenever you add or change a method in this class, you also need to look at and probably update
- ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
- clones this interface, with some methods removed or added, but all of them updated to remove
- sourceDomain (which is managed by the integration package)
- */
+
 export interface ICoreDiscordMethods {
   /**
    * This method will upsert a users discord profile and
@@ -162,13 +170,6 @@ export interface ICoreDiscordMethods {
   ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
-/**
- ************************ MAINTENANCE HAZARD ***********************************************
- Whenever you add or change a method in this class, you also need to look at and probably update
- ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
- clones this interface, with some methods removed or added, but all of them updated to remove
- sourceDomain (which is managed by the integration package)
- */
 export interface ICoreIntegrationMethods {
   /**
    * This method grants the requested permissions to the wallet to the specified domain name.
@@ -312,7 +313,7 @@ export interface ISnickerdoodleCore {
    * and establishes the actual address of the data wallet. After getUnlockMessage(),
    * this should be the second method you call on the Snickerdoodle Core. If this is the first
    * time using this account + unlock message, the Data Wallet will be created.
-   * If this is a subsequent time, you will regain access to the exisitng wallet.
+   * If this is a subsequent time, you will regain access to the existing wallet.
    * For an existing wallet with multiple connected accounts, you can unlock with a
    * signature from any of the accounts (form factor can decide), but you cannot
    * add a new account via unlock, use addAccount() to link a new account once you
@@ -496,7 +497,7 @@ export interface ISnickerdoodleCore {
 
   /**
    * This method will actually burn a user's consent token. This data wallet will no longer
-   * recieve notifications of queries for this cohort.
+   * received notifications of queries for this cohort.
    * @param consentContractAddress
    */
   leaveCohort(
@@ -512,6 +513,13 @@ export interface ISnickerdoodleCore {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+  >;
+
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getAcceptedInvitations(
@@ -571,7 +579,7 @@ export interface ISnickerdoodleCore {
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
-  processQuery(
+  approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],

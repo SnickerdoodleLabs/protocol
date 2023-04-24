@@ -38,7 +38,7 @@ const CampaignPopup: FC = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
-  const { invitationInfo, setInvitationInfo } = useAppContext();
+  const { invitationInfo, updateOptedInContracts, setInvitationInfo } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
   const [expandAccounts, setExpandAccounts] = useState<boolean>(false);
@@ -168,6 +168,7 @@ const CampaignPopup: FC = () => {
         setLoadingStatus(false);
       })
       .map(() => {
+        updateOptedInContracts();
         setLoadingStatus(false);
         setVisualAlert(true);
         handleClose();
@@ -192,12 +193,15 @@ const CampaignPopup: FC = () => {
       .getApplyDefaultPermissionsOption()
       .map((option) => {
         if (option) {
-          acceptInvitation(
-            null,
-            invitationInfo.consentAddress!,
-            invitationInfo.tokenId,
-            invitationInfo.signature,
-          );
+          window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
+            acceptInvitation(
+              permissions,
+              invitationInfo.consentAddress!,
+              invitationInfo.tokenId,
+              invitationInfo.signature,
+            );
+          });
+
           return;
         }
         setModal({

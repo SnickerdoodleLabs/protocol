@@ -30,6 +30,11 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  IConsentCapacity,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  PagedResponse,
   ISdlDiscordMethods,
   BearerAuthToken,
   DiscordProfile,
@@ -71,12 +76,15 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
-  IGetMarketplaceListingsParams,
+  IGetMarketplaceListingsByTagParams,
   ISetDefaultReceivingAddressParams,
   ISetReceivingAddressParams,
   IGetReceivingAddressParams,
   IScamFilterPreferences,
   IExternalState,
+  IGetConsentCapacityParams,
+  IGetPossibleRewardsParams,
+  IGetListingsTotalByTagParams,
   IInitializeDiscordUser,
   IUnlinkDiscordAccount,
 } from "@synamint-extension-sdk/shared";
@@ -439,18 +447,27 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_SITE_VISITS_MAP);
   }
 
-  public getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this._handler.call(EExternalActions.GET_MARKETPLACE_LISTINGS, {
-      count,
-      headAt,
-    } as IGetMarketplaceListingsParams);
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive: boolean = true,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
+    return this._handler.call(
+      EExternalActions.GET_MARKETPLACE_LISTINGS_BY_TAG,
+      {
+        pagingReq,
+        tag,
+        filterActive,
+      } as IGetMarketplaceListingsByTagParams,
+    );
   }
 
-  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this._handler.call(EExternalActions.GET_LISTING_TOTAL);
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_LISTING_TOTAL_BY_TAG, {
+      tag,
+    } as IGetListingsTotalByTagParams);
   }
 
   public setDefaultReceivingAddress(
@@ -477,5 +494,26 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_RECEIVING_ACCOUNT, {
       contractAddress,
     } as IGetReceivingAddressParams);
+  }
+
+  public getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_CONSENT_CAPACITY, {
+      contractAddress,
+    } as IGetConsentCapacityParams);
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<
+    Record<EVMContractAddress, PossibleReward[]>,
+    SnickerDoodleCoreError
+  > {
+    return this._handler.call(EExternalActions.GET_POSSIBLE_REWARDS, {
+      contractAddresses,
+      timeoutMs,
+    } as IGetPossibleRewardsParams);
   }
 }

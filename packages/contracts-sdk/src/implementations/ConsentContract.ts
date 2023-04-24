@@ -1,6 +1,7 @@
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ConsentRoles, Tag } from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
@@ -20,6 +21,7 @@ import {
   InvalidParametersError,
   ConsentToken,
   DataPermissions,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -953,6 +955,165 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
+  // Marketplace functions
+  public getMaxTags(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.maxTags() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
+
+  public getNumberOfStakedTags(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call getNumberOfStakedTags()",
+          "Unknown",
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
+
+  public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getTagArray() as Promise<ITagStruct[]>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call getTagArray()",
+          "Unknown",
+          e,
+        );
+      },
+    ).map((tags) => {
+      return tags.map((tag) => {
+        return new Tag(
+          tag.slot ? BigNumberString(tag.slot.toString()) : null,
+          tag.tag,
+          tag.staker,
+        );
+      });
+    });
+  }
+
+  public newGlobalTag(
+    tag: string,
+    newStakeAmount: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.newGlobalTag(
+        tag,
+        newStakeAmount,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call newGlobalTag()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
+  }
+
+  public newLocalTagUpstream(
+    tag: string,
+    newStakeAmount: BigNumberString,
+    existingStakeAmount: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.newLocalTagUpstream(
+        tag,
+        newStakeAmount,
+        existingStakeAmount,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call newLocalTagUpstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
+  }
+
+  public newLocalTagDownstream(
+    tag: string,
+    existingStakeAmount: BigNumberString,
+    newStakeAmount: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.newLocalTagDownstream(
+        tag,
+        existingStakeAmount,
+        newStakeAmount,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call newLocalTagDownstream()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
+  }
+
+  public replaceExpiredListing(
+    tag: string,
+    stakeAmount: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.replaceExpiredListing(
+        tag,
+        stakeAmount,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call replaceExpiredListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
+  }
+
+  public removeListing(
+    tag: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.removeListing(
+        tag,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call removeListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
@@ -1022,4 +1183,10 @@ export class ConsentContract implements IConsentContract {
       ]),
     );
   }
+}
+
+interface ITagStruct {
+  slot: BigNumber | null;
+  tag: string | null;
+  staker: EVMAccountAddress | null;
 }

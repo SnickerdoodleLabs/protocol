@@ -24,6 +24,11 @@ export interface IBackupUtils {
   getBackupHash(
     blob: BackupBlob | EncryptedBackupBlob,
   ): ResultAsync<DataWalletBackupID, never>;
+
+  encryptBlob(
+    blob: BackupBlob,
+    privateKey: EVMPrivateKey | null,
+  ): ResultAsync<BackupBlob | EncryptedBackupBlob, never>;
 }
 
 export const IBackupUtilsType = Symbol.for("IBackupUtils");

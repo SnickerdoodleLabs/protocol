@@ -1,6 +1,8 @@
 import {
   ConsentRoles,
   ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import {
   ConsentContractError,
@@ -18,6 +20,7 @@ import {
   EVMContractAddress,
   HexString32,
   InvalidParametersError,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -352,6 +355,41 @@ export interface IConsentContract {
   ): ResultAsync<Signature, InvalidParametersError>;
 
   filters: IConsentContractFilters;
+
+  /**
+   * Marketplace functions
+   */
+  getMaxTags(): ResultAsync<number, ConsentContractError>;
+
+  getNumberOfStakedTags(): ResultAsync<number, ConsentContractError>;
+
+  getTagArray(): ResultAsync<Tag[], ConsentContractError>;
+
+  newGlobalTag(
+    tag: string,
+    newSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  newLocalTagUpstream(
+    tag: string,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  newLocalTagDownstream(
+    tag: string,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  replaceExpiredListing(
+    tag: string,
+    slot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  removeListing(
+    tag: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 }
 
 export interface IConsentContractFilters {

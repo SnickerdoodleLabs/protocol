@@ -83,11 +83,16 @@ import {
   TransactionFilter,
   TransactionPaymentCounter,
   UnauthorizedError,
+  PossibleReward,
+  PagingRequest,
+  MarketplaceTag,
+  MarketplaceListing,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import {
   IVolatileStorage,
@@ -114,14 +119,14 @@ import {
   IBlockchainListenerType,
   IDiscordPoller,
   IDiscordPollerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  IDiscordService,
-  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
@@ -134,6 +139,8 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
+  IDiscordService,
+  IDiscordServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IAdDataRepository,
@@ -275,21 +282,34 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Marketplace Methods ---------------------------------------------------------------------------
     this.marketplace = {
-      getMarketplaceListings: (
-        count?: number | undefined,
-        headAt?: number | undefined,
+      getMarketplaceListingsByTag: (
+        pagingReq: PagingRequest,
+        tag: MarketplaceTag,
+        filterActive?: boolean,
       ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getMarketplaceListings(count, headAt);
+        return marketplaceService.getMarketplaceListingsByTag(
+          pagingReq,
+          tag,
+          filterActive,
+        );
       },
-      getListingsTotal: () => {
+      getListingsTotalByTag: (tag: MarketplaceTag) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getListingsTotal();
+        return marketplaceService.getListingsTotalByTag(tag);
       },
+
+      getRecommendationsByListing: (listing: MarketplaceListing) => {
+        const marketplaceService = this.iocContainer.get<IMarketplaceService>(
+          IMarketplaceServiceType,
+        );
+        return marketplaceService.getRecommendationsByListing(listing);
+      },
+
       getPossibleRewards: (
         contractAddresses: EVMContractAddress[],
         timeoutMs?: number,
@@ -352,6 +372,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         throw new Error("Unimplemented");
       },
     };
+  }
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getConsentCapacity(consentContractAddress);
   }
 
   public getConsentContractCID(
@@ -423,12 +455,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
     const blockchainListener = this.iocContainer.get<IBlockchainListener>(
       IBlockchainListenerType,
     );
 
     const discordPoller =
       this.iocContainer.get<IDiscordPoller>(IDiscordPollerType);
+
+    const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+      IHeartbeatGeneratorType,
+    );
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
@@ -441,10 +480,16 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       })
       .andThen(() => {
+        // Service Layer
+        return ResultUtils.combine([queryService.initialize()]);
+      })
+      .andThen(() => {
+        // API Layer
         return ResultUtils.combine([
           accountIndexerPoller.initialize(),
           blockchainListener.initialize(),
           discordPoller.initialize(),
+          heartbeatGenerator.initialize(),
         ]);
       })
       .map(() => {});
@@ -709,7 +754,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getInvitationMetadataByCID(ipfsCID);
   }
 
-  public processQuery(
+  public approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],
@@ -726,7 +771,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, query, parameters);
+    return queryService.approveQuery(consentContractAddress, query, parameters);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

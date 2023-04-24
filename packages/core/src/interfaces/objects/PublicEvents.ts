@@ -1,6 +1,7 @@
 import {
   DataWalletAddress,
   DataWalletBackupID,
+  EarnedReward,
   DomainName,
   EVMContractAddress,
   EVMTransaction,
@@ -12,14 +13,17 @@ import {
   PermissionsUpdatedEvent,
   PortfolioUpdate,
   SDQLQueryRequest,
+  SnowflakeID,
   TokenBalance,
   WalletNFT,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
   public onQueryPosted: Subject<SDQLQueryRequest>;
+  public onQueryParametersRequired: Subject<IpfsCID>;
   public onAccountAdded: Subject<LinkedAccount>;
   public onAccountRemoved: Subject<LinkedAccount>;
   public onCohortJoined: Subject<EVMContractAddress>;
@@ -29,14 +33,18 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
   public onBackupRestored: Subject<DataWalletBackupID>;
+  public onEarnedRewardsAdded: Subject<EarnedReward[]>;
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
   public onPermissionsRevoked: Subject<DomainName>;
   public onPermissionsUpdated: Subject<PermissionsUpdatedEvent>;
+  public onDiscordProfileLinked: Subject<SnowflakeID>;
+  public onDiscordProfileUnlinked: Subject<SnowflakeID>;
 
   public constructor() {
     this.onInitialized = new Subject();
     this.onQueryPosted = new Subject();
+    this.onQueryParametersRequired = new Subject();
     this.onAccountAdded = new Subject();
     this.onAccountRemoved = new Subject();
     this.onCohortJoined = new Subject();
@@ -46,9 +54,12 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onTokenBalanceUpdate = new Subject();
     this.onNftBalanceUpdate = new Subject();
     this.onBackupRestored = new Subject();
+    this.onEarnedRewardsAdded = new Subject();
     this.onPermissionsGranted = new Subject();
     this.onPermissionsRequested = new Subject();
     this.onPermissionsRevoked = new Subject();
     this.onPermissionsUpdated = new Subject();
+    this.onDiscordProfileLinked = new Subject();
+    this.onDiscordProfileUnlinked = new Subject();
   }
 }

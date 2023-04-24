@@ -12,7 +12,6 @@ import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 const Router: FC = () => {
   const { appMode } = useAppContext();
   const routes = useMemo(() => {
-   
     if (!appMode) {
       return null;
     }
@@ -39,7 +38,7 @@ const Router: FC = () => {
                     to={
                       appMode === EAppModes.ONBOARDING_FLOW
                         ? EPaths.ONBOARDING_LINK_ACCOUNT
-                        : EPaths.MY_REWARDS
+                        : EPaths.MARKETPLACE
                     }
                   />
                 }

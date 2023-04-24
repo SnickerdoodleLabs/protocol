@@ -109,8 +109,10 @@ export class ConfigProvider
       10000,
       "(localhost|chrome://)",
       false, // enable backup encryption
+      300000,
       120000, // backup placement heartbeat
       discordConfig,
+      60000, // heartbeatIntervalMS
     );
   }
 
@@ -199,5 +201,8 @@ export class ConfigProvider
     };
 
     this.config.discord = discordConfig;
+
+    this.config.heartbeatIntervalMS =
+      overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
   }
 }

@@ -44,7 +44,7 @@ export class SocialProfileMigrator extends VersionedObjectMigrator<SocialProfile
         return this.discordMigrator.factory(data);
         break;
     }
-    return new InvalidSocialProfile(
+    return new InvalidSocialProfile( // Cannot return null
       SocialPrimaryKey(data["pKey"] as string),
       ESocialType[data["type"] as string],
     );

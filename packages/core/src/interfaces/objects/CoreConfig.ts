@@ -42,7 +42,9 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
+    public marketplaceListingsCacheTime: number,
     public backupHeartbeatIntervalMS: number,
     public discord: DiscordConfig,
+    public heartbeatIntervalMS: number,
   ) {}
 }

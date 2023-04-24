@@ -1,4 +1,30 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { IInvitationService } from "@core/interfaces/business/index.js";
+import {
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  IDNSRepository,
+  IDNSRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -28,46 +54,20 @@ import {
   IpfsCID,
   IPFSError,
   LinkedAccount,
+  IConsentCapacity,
   MinimalForwarderContractError,
   PageInvitation,
   PersistenceError,
   Signature,
   TokenId,
   UninitializedError,
-  PermissionsUpdatedEvent
+  PermissionsUpdatedEvent,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { getDomain, parse } from "tldts";
-
-import { IInvitationService } from "@core/interfaces/business/index.js";
-import {
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  IDNSRepository,
-  IDNSRepositoryType,
-  IInvitationRepository,
-  IInvitationRepositoryType,
-  ILinkedAccountRepository,
-  ILinkedAccountRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMetatransactionForwarderRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -110,9 +110,7 @@ export class InvitationService implements IInvitationService {
       // isAddressOptedIn() just checks for a balance- it does not require that the persistence
       // layer actually know about the token
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
-      this.consentRepo.getAvailableOptInCount(
-        invitation.consentContractAddress,
-      ),
+      this.getConsentCapacity(invitation.consentContractAddress),
       this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
     ])
       .andThen(
@@ -120,7 +118,7 @@ export class InvitationService implements IInvitationService {
           rejectedConsentContracts,
           acceptedInvitations,
           optedInOnChain,
-          availableOptIns,
+          consentCapacity,
           openOptInDisabled,
         ]) => {
           const rejected = rejectedConsentContracts.includes(
@@ -177,7 +175,7 @@ export class InvitationService implements IInvitationService {
           }
 
           // Next up, if there are no slots available, then it's an Invalid invitation
-          if (availableOptIns == 0) {
+          if (consentCapacity.availableOptInCount == 0) {
             return okAsync(EInvitationStatus.OutOfCapacity);
           }
 
@@ -635,6 +633,15 @@ export class InvitationService implements IInvitationService {
       );
   }
 
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo.getConsentCapacity(consentContractAddress);
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
@@ -663,10 +670,10 @@ export class InvitationService implements IInvitationService {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
-      this.consentRepo.getAvailableOptInCount(consentContractAddress),
-    ]).andThen(([invitationUrls, ipfsCID, availableOptIns]) => {
+      this.getConsentCapacity(consentContractAddress),
+    ]).andThen(([invitationUrls, ipfsCID, consentCapacity]) => {
       // If there's no slots, there's no invites
-      if (availableOptIns == 0) {
+      if (consentCapacity.availableOptInCount == 0) {
         return okAsync([]);
       }
 
@@ -916,49 +923,51 @@ export class InvitationService implements IInvitationService {
             this.consentRepo.encodeUpdateAgreementFlags(
               consentContractAddress,
               consentToken.tokenId,
-              newDataPermissions
+              newDataPermissions,
             ),
             this.forwarderRepo.getNonce(optInAccountAddress),
             this.configProvider.getConfig(),
-          ]).andThen(([callData, nonce, config]) => {
-            const request = new MetatransactionRequest(
-              consentContractAddress, // Contract address for the metatransaction
-              optInAccountAddress, // EOA to run the transaction as
-              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(10000000), // The amount of gas to pay.
-              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-              callData, // The actual bytes of the request, encoded as a hex string
-            );
+          ])
+            .andThen(([callData, nonce, config]) => {
+              const request = new MetatransactionRequest(
+                consentContractAddress, // Contract address for the metatransaction
+                optInAccountAddress, // EOA to run the transaction as
+                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                BigNumber.from(10000000), // The amount of gas to pay.
+                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                callData, // The actual bytes of the request, encoded as a hex string
+              );
 
-            return this.forwarderRepo
-              .signMetatransactionRequest(request, optInPrivateKey)
-              .andThen((metatransactionSignature) => {
-                // Got the signature for the metatransaction, now we can execute it.
-                // .executeMetatransaction will sign everything and have the server run
-                // the metatransaction.
-                return this.insightPlatformRepo.executeMetatransaction(
-                  optInAccountAddress, // account address
-                  consentContractAddress, // contract address
-                  BigNumberString(BigNumber.from(nonce).toString()),
-                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
-                  callData,
-                  metatransactionSignature,
-                  optInPrivateKey,
-                  config.defaultInsightPlatformBaseUrl,
-                );
-              });
-          }).andThen(() => {
-            // TODO: then update the permissions in the DB?
-                return this.accountRepo.removeAcceptedInvitationsByContractAddress([
-                    consentContractAddress,
-                ]);
+              return this.forwarderRepo
+                .signMetatransactionRequest(request, optInPrivateKey)
+                .andThen((metatransactionSignature) => {
+                  // Got the signature for the metatransaction, now we can execute it.
+                  // .executeMetatransaction will sign everything and have the server run
+                  // the metatransaction.
+                  return this.insightPlatformRepo.executeMetatransaction(
+                    optInAccountAddress, // account address
+                    consentContractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                    callData,
+                    metatransactionSignature,
+                    optInPrivateKey,
+                    config.defaultInsightPlatformBaseUrl,
+                  );
+                });
             })
             .map(() => {
-            // Notify the world that that permissions have been updated
-            context.publicEvents.onPermissionsUpdated.next(new PermissionsUpdatedEvent(consentContractAddress, consentToken.tokenId, newDataPermissions) );
+              // Notify the world that that permissions have been updated
+              context.publicEvents.onPermissionsUpdated.next(
+                new PermissionsUpdatedEvent(
+                  consentContractAddress,
+                  consentToken.tokenId,
+                  newDataPermissions,
+                ),
+              );
             });
-        })
+        });
     });
   }
 
@@ -1056,12 +1065,10 @@ export class InvitationService implements IInvitationService {
             );
           })
           .map((consentAddress) =>
-            this.consentRepo
-              .getAvailableOptInCount(consentAddress)
-              .map((availableOptIns) => ({
-                availableOptIns,
-                consentAddress,
-              })),
+            this.getConsentCapacity(consentAddress).map((consentCapacity) => ({
+              availableOptIns: consentCapacity.availableOptInCount,
+              consentAddress,
+            })),
           ),
       ).map((results) =>
         results

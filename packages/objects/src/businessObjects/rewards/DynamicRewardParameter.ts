@@ -1,23 +1,12 @@
-import { RecipientAddressType } from "@objects/primitives";
+import { EDynamicRewardParameterType } from "@objects/enum/index.js";
+
 export interface ITypeAndValue {
-  type: string;
+  type: EDynamicRewardParameterType;
   value: string;
 }
 
-type recipientAddressType = "address";
-export interface IRecipientAddress extends ITypeAndValue {
-  type: recipientAddressType;
-}
-
 export interface IDynamicRewardParameter {
-  recipientAddress: IRecipientAddress;
+  compensationId: ITypeAndValue;
+  recipientAddress: ITypeAndValue;
   [index: string]: ITypeAndValue;
-}
-
-export class DynamicRewardParameter {
-  recipientAddress: RecipientAddressType;
-
-  constructor(recipientAddress: RecipientAddressType) {
-    this.recipientAddress = recipientAddress;
-  }
 }
