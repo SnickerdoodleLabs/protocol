@@ -21,6 +21,7 @@ import {
   IAccountNFTs,
   IAccountNFTsType,
   BigNumberString,
+  EChainType,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -172,6 +173,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getEtherscanBalanceRepository(),
+      this.accountBalances.getAlchemyBalanceRepository(),
+      this.accountBalances.getOklinkBalanceRepository(),
     ])
       .andThen(
         ([
@@ -182,6 +185,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           etherscanRepo,
           maticRepo,
           etherscanBalanceRepo,
+          alchemyRepo,
+          oklinkRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -194,11 +199,43 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+              if (chainInfo.type == EChainType.Testnet) {
+                return etherscanBalanceRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                );
+              }
+              return ResultUtils.combine([
+                oklinkRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                ),
+                etherscanBalanceRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                ),
+              ]).map(([nonNativeBalance, nativeBalance]) => {
+                return [...nativeBalance, ...nonNativeBalance];
+              });
             case EIndexer.Polygon:
-              return evmRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
+              if (chainInfo.type == EChainType.Testnet) {
+                return alchemyRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                );
+              }
+              return ResultUtils.combine([
+                oklinkRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                ),
+                alchemyRepo.getBalancesForAccount(
+                  chainId,
+                  accountAddress as EVMAccountAddress,
+                ),
+              ]).map(([nonNativeBalance, nativeBalance]) => {
+                return [...nativeBalance, ...nonNativeBalance];
+              });
             case EIndexer.Simulator:
               return simulatorRepo.getBalancesForAccount(
                 chainId,
@@ -359,10 +396,18 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             );
           }
 
+          if (chainInfo.type == EChainType.Testnet) {
+            return okAsync([]);
+          }
+
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+              return nftScanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Polygon:
-              return evmRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -377,7 +422,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as SolanaAccountAddress,
               );
             case EIndexer.Ethereum:
-              return etherscanRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -387,7 +432,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Binance:
-              return etherscanRepo.getTokensForAccount(
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
