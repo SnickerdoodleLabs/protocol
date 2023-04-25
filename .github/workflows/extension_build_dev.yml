@@ -21,7 +21,7 @@ jobs:
           mv data.json packages/indexers/coinList.json   
       - name: prices
         run: |-
-          python infra/prices/coin_price_gen.py
+          python infra/scrapper/coin_price_gen.py
           mv data.json packages/indexers/coinPrices.json  
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
