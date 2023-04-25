@@ -609,6 +609,21 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+    sourceDomain?: DomainName,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  >;
+
   getAvailableInvitationsCID(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<

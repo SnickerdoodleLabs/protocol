@@ -711,6 +711,30 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return invitationService.getAgreementFlags(consentContractAddress);
   }
 
+  public updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.updateDataPermissions(
+      consentContractAddress,
+      dataPermissions,
+    );
+  }
+
   public getAvailableInvitationsCID(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
