@@ -2,7 +2,7 @@ import {
   DiscordGuildProfile,
   DiscordProfile,
   OAuthAuthorizationCode,
-  SnowflakeID,
+  DiscordID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -19,7 +19,7 @@ export interface IDiscordProvider extends ISocialMediaProvider {
   initializeUserWithAuthorizationCode(
     params: IDiscordInitParams,
   ): ResultAsync<void, unknown>;
-  unlink(discordProfileId: SnowflakeID): ResultAsync<void, unknown>;
+  unlink(discordProfileId: DiscordID): ResultAsync<void, unknown>;
   installationUrl(): ResultAsync<URLString, unknown>;
 }
 

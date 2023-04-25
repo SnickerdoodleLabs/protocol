@@ -1,13 +1,13 @@
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import pump from "pump";
+import Browser from "webextension-polyfill";
+
 import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 import { InternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import { EPortNames, PORT_NOTIFICATION } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { errAsync, okAsync } from "neverthrow";
-import pump from "pump";
-import Browser from "webextension-polyfill";
 
 export class BackgroundConnector {
   protected coreGateway!: InternalCoreGateway;

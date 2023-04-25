@@ -83,6 +83,7 @@ export class ExtensionCore {
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
       enableBackupEncryption: config.enableBackupEncryption,
       discordOverrides: config.discordOverrides,
+      twitterOverrides: config.twitterOverrides,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

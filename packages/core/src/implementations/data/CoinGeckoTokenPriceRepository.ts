@@ -1,3 +1,5 @@
+// import fs from "fs";
+
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -118,24 +120,30 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {
-    return this.getTokenPriceFromList(ids).map((marketResponses) => {
-      return marketResponses.map((item) => {
-        return new TokenMarketData(
-          item.id,
-          item.symbol,
-          item.name,
-          item.image,
-          item.current_price,
-          item.market_cap,
-          item.market_cap_rank,
-          item.price_change_24h,
-          item.price_change_percentage_24h,
-          item.circulating_supply,
-          item.total_supply,
-          item.max_supply,
+    return this.getTokenPriceFromList(ids)
+      .map((marketResponses) => {
+        return marketResponses.map((item) => {
+          return new TokenMarketData(
+            item.id,
+            item.symbol,
+            item.name,
+            item.image,
+            item.current_price,
+            item.market_cap,
+            item.market_cap_rank,
+            item.price_change_24h,
+            item.price_change_percentage_24h,
+            item.circulating_supply,
+            item.total_supply,
+            item.max_supply,
+          );
+        });
+      })
+      .mapErr((error) => {
+        return new AccountIndexingError(
+          `Cannot parse Coingecko data with error ${error}`,
         );
       });
-    });
   }
 
   public getTokenInfo(
@@ -177,40 +185,39 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this._contractAddressMap.get(contractAddress);
   }
 
-  public getTokenPriceFromList(
+  private getTokenPriceFromList(
     protocols: string[],
-  ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    let protocolIds = "";
-    const localJSONData: CoinMarketDataResponse[] = [];
-    protocols.map((protocol) => {
-      const marketData = this._coinPricesMap.get(protocol);
-      if (marketData !== undefined) {
-        localJSONData.push(marketData);
-      } else {
-        protocolIds += protocol + ",";
-      }
-    });
-
+  ): ResultAsync<CoinMarketDataResponse[], AjaxError> {
     const url = new URL(
       urlJoinP("https://api.coingecko.com/api/v3/coins", ["markets"], {
         vs_currency: "usd",
-        ids: protocolIds,
+        ids: String(protocols),
         order: "market_cap_desc",
         per_page: "100",
         page: "1",
         sparkline: "false",
       }),
     );
+    console.log("url: " + url);
+
     return this.ajaxUtils
       .get<CoinMarketDataResponse[]>(new URL(url))
       .map((coinGeckoApiData) => {
-        return [...localJSONData, ...coinGeckoApiData];
+        return coinGeckoApiData;
       })
-      .mapErr((error) => {
-        return new AccountIndexingError(
-          `Unable to retrieve Coingecko ${url}, ${error.message}`,
-          500,
+      .orElse((error) => {
+        console.warn(
+          `Cannot GET Coingecko data - ${error}. Retrieving Data from Cache`,
         );
+
+        const localJSONData: CoinMarketDataResponse[] = [];
+        protocols.map((protocol) => {
+          const marketData = this._coinPricesMap.get(protocol);
+          if (marketData !== undefined) {
+            localJSONData.push(marketData);
+          }
+        });
+        return okAsync(localJSONData);
       });
   }
 
@@ -488,7 +495,7 @@ interface PriceVsUSD {
   last_updated: string;
 }
 
-type CoinMarketDataResponse = {
+interface CoinMarketDataResponse {
   id: string;
   symbol: TickerSymbol;
   name: string;
@@ -519,4 +526,11 @@ type CoinMarketDataResponse = {
     percentage: number;
   };
   last_updated: string;
-};
+}
+
+interface CoinGeckoRateLimit {
+  status: {
+    error_code: number;
+    error_message: string;
+  };
+}

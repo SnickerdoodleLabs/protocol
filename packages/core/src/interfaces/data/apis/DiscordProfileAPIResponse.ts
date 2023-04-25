@@ -1,7 +1,7 @@
-import { Integer, SnowflakeID, Username } from "@snickerdoodlelabs/objects";
+import { Integer, DiscordID, Username } from "@snickerdoodlelabs/objects";
 
 export interface DiscordProfileAPIResponse {
-  id: SnowflakeID;
+  id: DiscordID;
   username: Username;
   display_name: string | null;
   avatar: string | null;

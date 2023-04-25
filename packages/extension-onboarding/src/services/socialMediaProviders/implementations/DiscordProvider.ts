@@ -2,7 +2,7 @@
 import {
   DiscordGuildProfile,
   DiscordProfile,
-  SnowflakeID,
+  DiscordID,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, ResultAsync } from "neverthrow";
@@ -23,7 +23,7 @@ export class DiscordProvider implements IDiscordProvider {
       .getUserProfiles()
       .mapErr(() => new Error("Could not get discord user profiles!"));
   }
-  public unlink(discordProfileId: SnowflakeID): ResultAsync<void, unknown> {
+  public unlink(discordProfileId: DiscordID): ResultAsync<void, unknown> {
     return window.sdlDataWallet.discord
       .unlink(discordProfileId)
       .mapErr(() => new Error("Could not get unlink discord profile!"));
