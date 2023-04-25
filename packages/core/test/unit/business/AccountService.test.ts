@@ -911,57 +911,6 @@ describe("AccountService unlock() tests", () => {
     );
   });
 
-  test("unlock() fails when we can't factory the MinimalFowarder", async () => {
-    // Arrange
-    const mocks = new AccountServiceMocks();
-
-    // No existing crumb
-    td.when(
-      mocks.crumbsRepo.getCrumb(
-        evmDerivedEVMAccount.accountAddress,
-        languageCode,
-      ),
-    ).thenReturn(okAsync(null));
-
-    td.when(mocks.contractFactory.factoryMinimalForwarderContract()).thenReturn(
-      errAsync(new BlockchainProviderError(ChainId(evmChain))),
-    );
-
-    const service = mocks.factory();
-
-    // Act
-    const result = await service.unlock(
-      evmAccountAddress,
-      evmSignature,
-      languageCode,
-      evmChain,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeTruthy();
-    const err = result._unsafeUnwrapErr();
-    expect(err).toBeInstanceOf(BlockchainProviderError);
-
-    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
-    expect(mocks.contextProvider.setContextValues.length).toBe(2);
-    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
-    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
-      null,
-    );
-    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
-      true,
-    );
-
-    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(null);
-    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
-      null,
-    );
-    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
-      false,
-    );
-  });
-
   test("unlock() fails when we can't factory the CrumbsContract", async () => {
     // Arrange
     const mocks = new AccountServiceMocks();
@@ -1026,7 +975,7 @@ describe("AccountService unlock() tests", () => {
     ).thenReturn(okAsync(null));
 
     td.when(
-      mocks.minimalForwarderContract.getNonce(
+      mocks.metatransactionForwarderRepo.getNonce(
         evmDerivedEVMAccount.accountAddress,
       ),
     ).thenReturn(errAsync(new MinimalForwarderContractError()));
@@ -1305,42 +1254,6 @@ describe("AccountService addAccount() tests", () => {
     expect(mocks.contextProvider.setContextValues.length).toBe(0);
   });
 
-  test("addAccount() fails when we can't factory the MinimalFowarder", async () => {
-    // Arrange
-    const mocks = new AccountServiceMocks(false, true);
-
-    // No existing crumb
-    td.when(
-      mocks.crumbsRepo.getCrumb(
-        evmDerivedEVMAccount.accountAddress,
-        languageCode,
-      ),
-    ).thenReturn(okAsync(null));
-
-    td.when(mocks.contractFactory.factoryMinimalForwarderContract()).thenReturn(
-      errAsync(new BlockchainProviderError(ChainId(evmChain))),
-    );
-
-    const service = mocks.factory();
-
-    // Act
-    const result = await service.addAccount(
-      evmAccountAddress,
-      evmSignature,
-      languageCode,
-      evmChain,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeTruthy();
-    const err = result._unsafeUnwrapErr();
-    expect(err).toBeInstanceOf(BlockchainProviderError);
-
-    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
-    expect(mocks.contextProvider.setContextValues.length).toBe(0);
-  });
-
   test("addAccount() fails when we can't factory the CrumbsContract", async () => {
     // Arrange
     const mocks = new AccountServiceMocks(false, true);
@@ -1390,7 +1303,7 @@ describe("AccountService addAccount() tests", () => {
     ).thenReturn(okAsync(null));
 
     td.when(
-      mocks.minimalForwarderContract.getNonce(
+      mocks.metatransactionForwarderRepo.getNonce(
         evmDerivedEVMAccount.accountAddress,
       ),
     ).thenReturn(errAsync(new MinimalForwarderContractError()));

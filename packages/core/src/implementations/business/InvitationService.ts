@@ -740,6 +740,7 @@ export class InvitationService implements IInvitationService {
       return this.accountRepo
         .getAcceptedInvitations()
         .andThen((invitations) => {
+          console.log("CHARLIE got accepted invitations");
           const currentInvitation = invitations.find((invitation) => {
             return invitation.consentContractAddress == consentContractAddress;
           });
@@ -759,13 +760,24 @@ export class InvitationService implements IInvitationService {
           ]);
         })
         .andThen(([consentToken, optInPrivateKey]) => {
+          console.log("CHARLIE got consentToken and optInPrivateKey");
           if (consentToken == null) {
             // You're not actually opted in!
             // But we think we are. We should remove this from persistence
             this.logUtils.warning(
               `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!`,
             );
-            return okAsync(undefined);
+            return this.accountRepo
+              .removeAcceptedInvitationsByContractAddress([
+                consentContractAddress,
+              ])
+              .andThen(() => {
+                return errAsync(
+                  new ConsentError(
+                    `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removed from persistence!`,
+                  ),
+                );
+              });
           }
 
           this.logUtils.debug("Existing consent token ", consentToken);
@@ -788,51 +800,55 @@ export class InvitationService implements IInvitationService {
             ),
             this.forwarderRepo.getNonce(optInAccountAddress),
             this.configProvider.getConfig(),
-          ]).andThen(([callData, nonce, config]) => {
-            const request = new MetatransactionRequest(
-              consentContractAddress, // Contract address for the metatransaction
-              optInAccountAddress, // EOA to run the transaction as
-              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(config.gasAmounts.updateAgreementFlagsGas), // The amount of gas to pay.
-              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-              callData, // The actual bytes of the request, encoded as a hex string
-            );
+          ])
+            .andThen(([callData, nonce, config]) => {
+              const request = new MetatransactionRequest(
+                consentContractAddress, // Contract address for the metatransaction
+                optInAccountAddress, // EOA to run the transaction as
+                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                BigNumber.from(config.gasAmounts.updateAgreementFlagsGas), // The amount of gas to pay.
+                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                callData, // The actual bytes of the request, encoded as a hex string
+              );
 
-            return this.forwarderRepo
-              .signMetatransactionRequest(request, optInPrivateKey)
-              .andThen((metatransactionSignature) => {
-                // Got the signature for the metatransaction, now we can execute it.
-                // .executeMetatransaction will sign everything and have the server run
-                // the metatransaction.
-                return this.insightPlatformRepo.executeMetatransaction(
-                  optInAccountAddress, // account address
-                  consentContractAddress, // contract address
-                  BigNumberString(BigNumber.from(nonce).toString()),
-                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                  BigNumberString(
-                    BigNumber.from(
-                      config.gasAmounts.updateAgreementFlagsGas,
-                    ).toString(),
-                  ), // The amount of gas to pay.
-                  callData,
-                  metatransactionSignature,
-                  optInPrivateKey,
-                  config.defaultInsightPlatformBaseUrl,
-                );
-              });
-          });
-        })
-        .map(() => {
-          // Metatransaction complete. We don't actually store the permissions in our
-          // persistence layer, they are only stored on the chain, so there's nothing more
-          // to do for that. We should let the world know we made this change though.
-          // Notify the world that we've opted in to the cohort
-          context.publicEvents.onDataPermissionsUpdated.next(
-            new DataPermissionsUpdatedEvent(
-              consentContractAddress,
-              dataPermissions,
-            ),
-          );
+              console.log("CHARLIE got encoded stuff and nonce", request);
+
+              return this.forwarderRepo
+                .signMetatransactionRequest(request, optInPrivateKey)
+                .andThen((metatransactionSignature) => {
+                  console.log("CHARLIE signed metatransaction");
+                  // Got the signature for the metatransaction, now we can execute it.
+                  // .executeMetatransaction will sign everything and have the server run
+                  // the metatransaction.
+                  return this.insightPlatformRepo.executeMetatransaction(
+                    optInAccountAddress, // account address
+                    consentContractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(
+                      BigNumber.from(
+                        config.gasAmounts.updateAgreementFlagsGas,
+                      ).toString(),
+                    ), // The amount of gas to pay.
+                    callData,
+                    metatransactionSignature,
+                    optInPrivateKey,
+                    config.defaultInsightPlatformBaseUrl,
+                  );
+                });
+            })
+            .map(() => {
+              // Metatransaction complete. We don't actually store the permissions in our
+              // persistence layer, they are only stored on the chain, so there's nothing more
+              // to do for that. We should let the world know we made this change though.
+              // Notify the world that we've opted in to the cohort
+              context.publicEvents.onDataPermissionsUpdated.next(
+                new DataPermissionsUpdatedEvent(
+                  consentContractAddress,
+                  dataPermissions,
+                ),
+              );
+            });
         });
     });
   }

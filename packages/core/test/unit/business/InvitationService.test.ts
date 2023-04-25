@@ -3,6 +3,7 @@ import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
   BigNumberString,
+  ConsentError,
   ConsentToken,
   DataPermissions,
   DomainName,
@@ -44,8 +45,8 @@ import {
   ContextProviderMock,
 } from "@core-tests/mock/utilities";
 
-const metatransactionNonce = BigNumberString("nonce");
-const metatransactionValue = BigNumberString("value");
+const metatransactionNonce = BigNumberString("123456789");
+const metatransactionValue = BigNumberString("0");
 const metatransactionGas = BigNumberString("gas");
 const optInCallData = HexString("0xOptIn");
 const optOutCallData = HexString("0xOptOut");
@@ -159,7 +160,9 @@ class InvitationServiceMocks {
       this.consentRepo.encodeUpdateAgreementFlags(
         consentContractAddress1,
         tokenId1,
-        dataPermissions,
+        td.matchers.contains({
+          agreementFlags: newPermissionsHex,
+        }),
       ),
     ).thenReturn(okAsync(encodedUpdateAgreementFlagsContent));
 
@@ -182,6 +185,11 @@ class InvitationServiceMocks {
     td.when(this.accountRepo.getAcceptedInvitations()).thenReturn(
       okAsync([acceptedInvitation]),
     );
+    td.when(
+      this.accountRepo.removeAcceptedInvitationsByContractAddress([
+        consentContractAddress1,
+      ]),
+    ).thenReturn(okAsync(undefined));
 
     // DataWalletUtils --------------------------------------------
     td.when(
@@ -201,13 +209,6 @@ class InvitationServiceMocks {
         td.matchers.contains({
           to: consentContractAddress1,
           from: optInAccountAddress,
-          value: metatransactionValue,
-          gas: BigNumberString(
-            BigNumber.from(
-              this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
-            ).toString(),
-          ),
-          nonce: metatransactionNonce, // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
           data: encodedUpdateAgreementFlagsContent, // The actual bytes of the request, encoded as a hex string
         }),
         optInPrivateKey,
@@ -324,6 +325,56 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     expect(result.isErr()).toBeFalsy();
     mocks.contextProvider.assertEventCounts({
       onDataPermissionsUpdated: 1,
+    });
+  });
+
+  test("No invitation found in persistence, fails", async () => {
+    // Arrange
+    const mocks = new InvitationServiceMocks();
+
+    td.when(mocks.accountRepo.getAcceptedInvitations()).thenReturn(okAsync([]));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.updateDataPermissions(
+      consentContractAddress1,
+      new DataPermissions(newPermissionsHex),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(ConsentError);
+    mocks.contextProvider.assertEventCounts({
+      onDataPermissionsUpdated: 0,
+    });
+  });
+
+  test("No consent token but invitation exists in persistence, removes invite from persistence, fails", async () => {
+    // Arrange
+    const mocks = new InvitationServiceMocks();
+
+    td.when(mocks.consentRepo.getConsentToken(acceptedInvitation)).thenReturn(
+      okAsync(null),
+    );
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.updateDataPermissions(
+      consentContractAddress1,
+      new DataPermissions(newPermissionsHex),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(ConsentError);
+    mocks.contextProvider.assertEventCounts({
+      onDataPermissionsUpdated: 0,
     });
   });
 });
