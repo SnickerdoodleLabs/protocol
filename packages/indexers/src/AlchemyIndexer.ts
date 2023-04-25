@@ -220,59 +220,59 @@ export class AlchemyIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    // const chainInfo = getChainInfoByChainId(chainId);
-    return okAsync([]);
-    // return this.retrieveAlchemyUrl(
-    //   EChain[getChainInfoByChainId(chainId).name.toString()],
-    //   chainId,
-    // ).andThen((url) => {
-    //   // const url = config.alchemyEndpoints[chainInfo.name.toString()];
-    //   return this.ajaxUtils
-    //     .post<IAlchemyNonNativeReponse>(
-    //       new URL(url),
-    //       JSON.stringify({
-    //         id: 0,
-    //         jsonrpc: "2.0",
-    //         method: "alchemy_getTokenBalances",
-    //         params: [accountAddress, "erc20"],
-    //       }),
-    //       {
-    //         headers: {
-    //           "Content-Type": `application/json`,
-    //         },
-    //       },
-    //     )
-    //     .andThen((response) => {
-    //       return ResultUtils.combine(
-    //         response.result.tokenBalances.map((entry) => {
-    //           const weiValue = Web3.utils.hexToNumberString(entry.tokenBalance);
-    //           return this.tokenPriceRepo
-    //             .getTokenInfo(chainId, entry.contractAddress)
-    //             .andThen((tokenInfo) => {
-    //               if (tokenInfo == null) {
-    //                 return okAsync(undefined);
-    //               }
+    const chainInfo = getChainInfoByChainId(chainId);
+    // return okAsync([]);
+    return this.retrieveAlchemyUrl(
+      EChain[getChainInfoByChainId(chainId).name.toString()],
+      chainId,
+    ).andThen((url) => {
+      // const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      return this.ajaxUtils
+        .post<IAlchemyNonNativeReponse>(
+          new URL(url),
+          JSON.stringify({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "alchemy_getTokenBalances",
+            params: [accountAddress, "erc20"],
+          }),
+          {
+            headers: {
+              "Content-Type": `application/json`,
+            },
+          },
+        )
+        .andThen((response) => {
+          return ResultUtils.combine(
+            response.result.tokenBalances.map((entry) => {
+              const weiValue = Web3.utils.hexToNumberString(entry.tokenBalance);
+              return this.tokenPriceRepo
+                .getTokenInfo(chainId, entry.contractAddress)
+                .andThen((tokenInfo) => {
+                  if (tokenInfo == null) {
+                    return okAsync(undefined);
+                  }
 
-    //               return okAsync(
-    //                 new TokenBalance(
-    //                   EChainTechnology.EVM,
-    //                   TickerSymbol(tokenInfo.symbol),
-    //                   chainId,
-    //                   entry.contractAddress,
-    //                   accountAddress,
-    //                   BigNumberString(weiValue),
-    //                   getChainInfoByChainId(chainId).nativeCurrency.decimals,
-    //                 ),
-    //               );
-    //             });
-    //         }),
-    //       ).andThen((balances) => {
-    //         return okAsync(
-    //           balances.filter((x) => x != undefined) as TokenBalance[],
-    //         );
-    //       });
-    //     });
-    // });
+                  return okAsync(
+                    new TokenBalance(
+                      EChainTechnology.EVM,
+                      TickerSymbol(tokenInfo.symbol),
+                      chainId,
+                      entry.contractAddress,
+                      accountAddress,
+                      BigNumberString(weiValue),
+                      getChainInfoByChainId(chainId).nativeCurrency.decimals,
+                    ),
+                  );
+                });
+            }),
+          ).andThen((balances) => {
+            return okAsync(
+              balances.filter((x) => x != undefined) as TokenBalance[],
+            );
+          });
+        });
+    });
   }
 }
 
