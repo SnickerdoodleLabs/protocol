@@ -157,9 +157,7 @@ export class EtherscanIndexer
             .map((response) => {
               const nativeBalance = new TokenBalance(
                 EChainTechnology.EVM,
-                TickerSymbol(
-                  getChainInfoByChainId(chainId).nativeCurrency.symbol,
-                ),
+                TickerSymbol("ETH"),
                 chainId,
                 null,
                 accountAddress,
@@ -222,9 +220,7 @@ export class EtherscanIndexer
                 tx.from == "" ? null : EVMAccountAddress(tx.from),
                 tx.value == "" ? null : BigNumberString(tx.value),
                 tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
-                tx.contractAddress == ""
-                  ? null
-                  : EVMContractAddress(tx.contractAddress),
+                tx.contractAddress == "" ? null : EVMContractAddress(tx.contractAddress),
                 tx.input == "" ? null : tx.input,
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,

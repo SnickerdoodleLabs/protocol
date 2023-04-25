@@ -4,7 +4,6 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import coinList from "@snickerdoodlelabs/indexers/coinList.json";
 import {
   AccountIndexingError,
   chainConfig,
@@ -47,7 +46,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
   private _initialized?: ResultAsync<void, AccountIndexingError>;
   private _nativeIds: Map<ChainId, string>;
-  private _contractAddressMap: Map<TokenAddress, CoinGeckoTokenInfo>;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -62,16 +60,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
-    this._contractAddressMap = new Map(Object.entries(coinList)) as Map<
-      TokenAddress,
-      CoinGeckoTokenInfo
-    >;
-  }
-
-  public getTokenInfoFromList(
-    contractAddress: TokenAddress,
-  ): CoinGeckoTokenInfo | undefined {
-    return this._contractAddressMap.get(contractAddress);
   }
 
   public getMarketDataForTokens(
@@ -427,11 +415,4 @@ type IMarketDataResponse = {
 interface AssetPlatformMapping {
   forward: { [key: string]: ChainId };
   backward: { [key: ChainId]: string };
-}
-
-interface CoinGeckoTokenInfo {
-  id: string;
-  symbol: string;
-  name: string;
-  protocols: string[];
 }
