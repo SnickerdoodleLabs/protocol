@@ -87,89 +87,115 @@ export class EtherscanIndexer
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
+      this.getNonNativeBalance(chainId, accountAddress),
+      this.getNativeBalance(chainId, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
+    });
+  }
+
+  private getNativeBalance(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
       this._getEtherscanApiKey(chainId),
       getEtherscanBaseURLForChain(chainId),
-    ]).andThen(([apiKey, baseURL]) => {
-      const url = new URL(
-        urlJoinP(baseURL, ["api"], {
-          module: "account",
-          action: "addresstokenbalance",
-          address: accountAddress,
-          page: 1,
-          offset: 1000,
-          apikey: apiKey,
-        }),
-      );
+    ])
+      .andThen(([apiKey, baseURL]) => {
+        const url = new URL(
+          urlJoinP(baseURL, ["api"], {
+            module: "account",
+            action: "balance",
+            address: accountAddress,
+            tag: "latest",
+            apikey: apiKey,
+          }),
+        );
+        return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
+      })
+      .map((response) => {
+        const nativeBalance = new TokenBalance(
+          EChainTechnology.EVM,
+          TickerSymbol(getChainInfoByChainId(chainId).nativeCurrency.symbol),
+          chainId,
+          null,
+          accountAddress,
+          BigNumberString(response.result),
+          getChainInfoByChainId(chainId).nativeCurrency.decimals,
+        );
+        return nativeBalance;
+      });
+    // .mapErr((error) => {
+    //   return errAsync(
+    //     new AccountIndexingError(
+    //       "error fetching transactions from etherscan",
+    //       error.message,
+    //     ),
+    //   );
+    // })
+  }
 
-      return this.ajaxUtils
-        .get<IEtherscanTokenBalanceResponse>(url)
-        .andThen((response) => {
-          if (response.status != "1") {
-            this.logUtils.warning(
-              "error fetching erc20 balances from etherscan",
-              response.message,
-              "usually indicates that the address has no tokens",
-            );
-            return okAsync([]);
-          }
-
-          return ResultUtils.combine(
-            response.result.map((item) => {
-              return this.tokenPriceRepo
-                .getTokenInfo(chainId, item.TokenAddress)
-                .andThen((info) => {
-                  if (info == null) {
-                    return okAsync(undefined);
-                  }
-
-                  return okAsync(
-                    new TokenBalance(
-                      EChainTechnology.EVM,
-                      TickerSymbol(item.TokenSymbol),
-                      chainId,
-                      EVMContractAddress(item.TokenAddress),
-                      accountAddress,
-                      BigNumberString(item.TokenQuantity),
-                      Number.parseInt(item.TokenDivisor),
-                    ),
-                  );
-                });
-            }),
-          ).andThen((balances) => {
-            return okAsync(
-              balances.filter((x) => x != undefined) as TokenBalance[],
-            );
-          });
-        })
-        .andThen((balances) => {
-          const url = new URL(
-            urlJoinP(baseURL, ["api"], {
-              module: "account",
-              action: "balance",
-              address: accountAddress,
-              tag: "latest",
-              apikey: apiKey,
-            }),
+  private getNonNativeBalance(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this._getEtherscanApiKey(chainId),
+      getEtherscanBaseURLForChain(chainId),
+    ])
+      .andThen(([apiKey, baseURL]) => {
+        const url = new URL(
+          urlJoinP(baseURL, ["api"], {
+            module: "account",
+            action: "addresstokenbalance",
+            address: accountAddress,
+            page: 1,
+            offset: 1000,
+            apikey: apiKey,
+          }),
+        );
+        return this.ajaxUtils.get<IEtherscanTokenBalanceResponse>(url);
+      })
+      .andThen((response) => {
+        if (response.status != "1") {
+          this.logUtils.warning(
+            "error fetching erc20 balances from etherscan",
+            response.message,
+            "usually indicates that the address has no tokens",
           );
+          return okAsync([]);
+        }
 
-          return this.ajaxUtils
-            .get<IEtherscanNativeBalanceResponse>(url)
-            .map((response) => {
-              const nativeBalance = new TokenBalance(
+        return ResultUtils.combine(
+          response.result.map((item) => {
+            if (
+              this.tokenPriceRepo.getTokenInfoFromList(item.TokenAddress) ==
+              undefined
+            ) {
+              return okAsync(undefined);
+            }
+
+            return okAsync(
+              new TokenBalance(
                 EChainTechnology.EVM,
-                TickerSymbol(
-                  getChainInfoByChainId(chainId).nativeCurrency.symbol,
-                ),
+                TickerSymbol(item.TokenSymbol),
                 chainId,
-                null,
+                EVMContractAddress(item.TokenAddress),
                 accountAddress,
-                BigNumberString(response.result),
-                getChainInfoByChainId(chainId).nativeCurrency.decimals,
-              );
-              return [nativeBalance, ...balances];
-            });
-        });
-    });
+                BigNumberString(item.TokenQuantity),
+                Number.parseInt(item.TokenDivisor),
+              ),
+            );
+          }),
+        );
+      })
+
+      .andThen((balances) => {
+        return okAsync(
+          balances.filter((x) => x != undefined) as TokenBalance[],
+        );
+      });
   }
 
   protected _paginateTransactions(

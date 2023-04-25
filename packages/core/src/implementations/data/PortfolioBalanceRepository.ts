@@ -199,24 +199,16 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
-              if (chainInfo.type == EChainType.Testnet) {
-                return etherscanBalanceRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                );
-              }
-              return ResultUtils.combine([
-                oklinkRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                ),
-                etherscanBalanceRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                ),
-              ]).map(([nonNativeBalance, nativeBalance]) => {
-                return [...nativeBalance, ...nonNativeBalance];
-              });
+              // if (chainInfo.type == EChainType.Testnet) {
+              //   return etherscanBalanceRepo.getBalancesForAccount(
+              //     chainId,
+              //     accountAddress as EVMAccountAddress,
+              //   );
+              // }
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Polygon:
               if (chainInfo.type == EChainType.Testnet) {
                 return alchemyRepo.getBalancesForAccount(
@@ -224,18 +216,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   accountAddress as EVMAccountAddress,
                 );
               }
-              return ResultUtils.combine([
-                oklinkRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                ),
-                alchemyRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                ),
-              ]).map(([nonNativeBalance, nativeBalance]) => {
-                return [...nativeBalance, ...nonNativeBalance];
-              });
+              return alchemyRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             case EIndexer.Simulator:
               return simulatorRepo.getBalancesForAccount(
                 chainId,
