@@ -89,9 +89,6 @@ export class MobileCore {
       reactVolatileStorage,
       undefined,
     );
-
-    console.log("thhis", this.core);
-
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
     this.dataPermissionUtils = {
       defaultFlags: this.iocContainer.get<IDataPermissionsRepository>(

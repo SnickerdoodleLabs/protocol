@@ -14,17 +14,23 @@ const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
 
 export const coreConfig = {
   controlChainId: ChainId(43113),
-  supportedChains: [ChainId(43113), ChainId(1)],
+  supportedChains: [
+    ChainId(43113),
+    ChainId(43114),
+    ChainId(137),
+    ChainId(56),
+    ChainId(1),
+  ],
   ipfsFetchBaseUrl: URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
   defaultInsightPlatformBaseUrl: URLString(
     "https://insight-api.snickerdoodle.com/v0/",
   ),
-  requestForDataCheckingFrequency: 60000,
-  accountIndexingPollingIntervalMS: 60000,
-  accountBalancePollingIntervalMS: 60000,
-  accountNFTPollingIntervalMS: 60000,
-  dataWalletBackupIntervalMS: 60000,
-  heartbeatIntervalMS: 60000,
+  requestForDataCheckingFrequency: 25000,
+  accountIndexingPollingIntervalMS: 25000,
+  accountBalancePollingIntervalMS: 25000,
+  accountNFTPollingIntervalMS: 25000,
+  dataWalletBackupIntervalMS: 25000,
+  heartbeatIntervalMS: 25000,
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:
     "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",

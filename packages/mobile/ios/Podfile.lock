@@ -369,7 +369,7 @@ PODS:
     - React-Core
   - RNOS (1.2.6):
     - React
-  - RNReanimated (2.13.0):
+  - RNReanimated (3.1.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -675,7 +675,7 @@ SPEC CHECKSUMS:
   RNDateTimePicker: 65e1d202799460b286ff5e741d8baf54695e8abd
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
-  RNReanimated: ce445c233a6ff5600223484a88ad5704945d972a
+  RNReanimated: 47df570b2e2b9eba34e78a299dd6d44596ff7bb6
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   RNSVG: a53a5de0d90ec96a6502cc3a4534dfcc0c130622
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
