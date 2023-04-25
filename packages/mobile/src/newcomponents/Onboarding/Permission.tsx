@@ -19,7 +19,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
               value={item.state.status}
               onValueChange={() => {
                 if (!item.state.status) {
-                  console.log("myITems", item);
                   item.setPermissions((prevItems) => [
                     ...prevItems,
                     item.ewalletType,
@@ -28,7 +27,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
                   const newItems = item.permissions.filter(
                     (val) => val != item.ewalletType,
                   );
-                  console.log("newItems", newItems);
                   item.setPermissions(newItems);
                 }
                 item.setState({
@@ -91,7 +89,6 @@ const Permission = () => {
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   React.useEffect(() => {
     mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
-      console.log("permission", permission);
       if (permission.length === 0) {
         mobileCore.dataPermissionUtils.setPermissions([
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
@@ -106,7 +103,6 @@ const Permission = () => {
   useEffect(() => {
     mobileCore.dataPermissionUtils.setPermissions(permissions);
     permissions.map((perm) => {
-      console.log("perm", perm);
       if (age.walletDataType == perm) {
         setAge({ walletDataType: perm, status: true });
       }
