@@ -146,7 +146,6 @@
     "fake-indexeddb": "^4.0.0",
     "file-loader": "^6.2.0",
     "format-package": "^6.1.0",
-    "fs": "^0.0.1-security",
     "fs-extra": "^10.1.0",
     "gulp-sass": "^5.1.0",
     "html-loader": "^1.3.2",
