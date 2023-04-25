@@ -77,9 +77,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       string,
       CoinMarketDataResponse
     >;
-    console.log("this._coinPricesMap: ", this._coinPricesMap);
-
-    console.log("Coin Gecko map: ", this._contractAddressMap);
   }
 
   public getMarketDataForTokens(
@@ -88,12 +85,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
     AjaxError | AccountIndexingError
   > {
-    console.log("Hitting getMarketDataForTokens: ", tokens);
     const ids = new Map<string, `${ChainId}-${TokenAddress}`>();
     return ResultUtils.combine(
       tokens.map((token) => {
         return this.getTokenInfo(token.chain, token.address).map((info) => {
-          console.log("getTokenInfo: ", info);
           if (info != null) {
             ids.set(info.id, `${token.chain}-${token.address}`);
           }
@@ -101,11 +96,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       }),
     ).andThen(() => {
       return this.getTokenMarketData([...ids.keys()]).map((marketData) => {
-        console.log(
-          "CoinGeckoTokenPriceRepository TokenMarketData: ",
-          marketData,
-        );
-
         const returnVal = new Map<
           `${ChainId}-${TokenAddress}`,
           TokenMarketData
@@ -128,13 +118,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {
-    // return okAsync(ids)
-    //   .map((ids) => {
-    //     return ids.map((id) => {
-    //       console.log("id: ", id);
-    //       return this.getTokenPriceFromList(id);
-    //     });
-    //   })
     return this.getTokenPriceFromList(ids).map((marketResponses) => {
       return marketResponses.map((item) => {
         return new TokenMarketData(
@@ -161,8 +144,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     const id = this._nativeIds.get(chainId)!;
     const chainInfo = getChainInfoByChainId(chainId);
-    console.log("id token: ", id);
-
     if (contractAddress == null) {
       return okAsync(
         new TokenInfo(
@@ -177,11 +158,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
     const tokenInfo = this.getTokenInfoFromList(contractAddress);
     if (tokenInfo == undefined) {
-      console.log("bad token: ", tokenInfo);
       return okAsync(null);
     }
-    console.log("good token with contract address: ", tokenInfo);
-
     return okAsync(
       new TokenInfo(
         tokenInfo.id,
@@ -199,93 +177,41 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this._contractAddressMap.get(contractAddress);
   }
 
-  protected getCoinResponse(
-    protocol: string,
-  ): ResultAsync<CoinMarketDataResponse, null> {
-    const marketData = this._coinPricesMap.get(protocol);
-    if (marketData !== undefined) {
-      return okAsync(marketData);
-    }
-
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${protocol}&order=market_cap_desc&per_page=100&page=1&sparkline=false`;
-    return this.ajaxUtils
-      .get<CoinMarketDataResponse[]>(new URL(url))
-      .map((response) => {
-        const firstVal = response[0];
-        return firstVal;
-      })
-      .mapErr((error) => {
-        return null;
-        // return new AjaxError("CoinGecko usd url is down");
-      });
-  }
-
-  protected aggregateCoinsHeader(
-    protocols: string[],
-  ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    let protocolHeader = "";
-    const marketResponses: CoinMarketDataResponse[] = [];
-    protocols.map((protocol) => {
-      const marketData = this._coinPricesMap.get(protocol);
-      if (marketData !== undefined) {
-        marketResponses.push(marketData);
-      } else {
-        if (protocolHeader.length !== 0) {
-          protocolHeader += ",";
-        }
-        protocolHeader += protocol;
-      }
-    });
-
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${protocolHeader}&order=market_cap_desc&per_page=100&page=1&sparkline=false`;
-    return this.ajaxUtils
-      .get<CoinMarketDataResponse[]>(new URL(url))
-      .map((response) => {
-        console.log("marketResponses: ", marketResponses);
-        console.log("response: ", response);
-        const total = [...marketResponses, ...response];
-        console.log("total: ", total);
-
-        return total;
-        // const firstVal = response[0];
-        // return firstVal;
-      })
-      .mapErr((error) => {
-        // return null;
-        // return new AjaxError("CoinGecko usd url is down: ", e, e);
-        return new AccountIndexingError(
-          `Unable to GET Coingecko ${url}, ${error.message}`,
-          500,
-        );
-      });
-  }
-
   public getTokenPriceFromList(
     protocols: string[],
   ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    return this.aggregateCoinsHeader(protocols);
-    // return okAsync(protocols).map((protocols) => {
-    //   return this.aggregateCoinsHeader(protocols);
-    // })
-    // .map((balances) => {
-    //   return okAsync(balances);
-    // }).mapErr((error) => {
-    //   return error;
-    // });
-    
-    // .map((balances) => {
-    //   return Promise.all(balances).then((balance) => {
-    //     return (
-    //       balance
-    //         //@ts-ignore
-    //         .filter((obj) => obj.value != null)
-    //         .map((tokenBalance) => {
-    //           //@ts-ignore
-    //           return tokenBalance.value;
-    //         })
-    //     );
-    //   });
-    // });
+    let protocolIds = "";
+    const localJSONData: CoinMarketDataResponse[] = [];
+    protocols.map((protocol) => {
+      const marketData = this._coinPricesMap.get(protocol);
+      if (marketData !== undefined) {
+        localJSONData.push(marketData);
+      } else {
+        protocolIds += protocol + ",";
+      }
+    });
+
+    const url = new URL(
+      urlJoinP("https://api.coingecko.com/api/v3/coins", ["markets"], {
+        vs_currency: "usd",
+        ids: protocolIds,
+        order: "market_cap_desc",
+        per_page: "100",
+        page: "1",
+        sparkline: "false",
+      }),
+    );
+    return this.ajaxUtils
+      .get<CoinMarketDataResponse[]>(new URL(url))
+      .map((coinGeckoApiData) => {
+        return [...localJSONData, ...coinGeckoApiData];
+      })
+      .mapErr((error) => {
+        return new AccountIndexingError(
+          `Unable to retrieve Coingecko ${url}, ${error.message}`,
+          500,
+        );
+      });
   }
 
   public getTokenPrice(
@@ -317,8 +243,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
         return this.getTokenInfo(chainId, contractAddress).andThen(
           (tokenInfo) => {
-            console.log("getTokenPrice tokenInfo: ", tokenInfo);
-
             if (tokenInfo == null) {
               return errAsync(new AccountIndexingError("no token info found"));
             }
@@ -335,29 +259,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         );
       })
       .mapErr((e) => new AccountIndexingError("error getting price", e));
-  }
-
-  private _fetchTokenMarketData(url: URL) {
-    const cached = this.tokenMarketDataCache.get(url.href);
-    // console.log("this.tokenMarketDataCache: ", this.tokenMarketDataCache);
-    // console.log("cached: ", cached);
-
-    // if (
-    //   cached &&
-    //   new Date().getTime() - cached.timeStamp < tokenMarketDataLifeSpanMS
-    // ) {
-    //   return okAsync(cached.marketData);
-    // }
-    return this.ajaxUtils
-      .get<IMarketDataResponse>(new URL(url))
-      .map((response) => {
-        console.log("fetchTokenMarketData response: ", response);
-        this.tokenMarketDataCache.set(url.href, {
-          marketData: response,
-          timeStamp: UnixTimestamp(new Date().getTime()),
-        });
-        return response;
-      });
   }
 
   private getPrice(
