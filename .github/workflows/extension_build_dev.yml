@@ -18,15 +18,11 @@ jobs:
       - name: scrapping coin list
         run: |-
           python infra/scrapper/coin_list_gen.py
-<<<<<<< HEAD
           mv data.json packages/indexers/coinList.json   
       - name: scrapping price list
         run: |-
           python infra/scrapper/coin_price_gen.py
           mv data.json packages/indexers/coinPrices.json  
-=======
-          mv data.json packages/indexers/coinList.json     
->>>>>>> develop
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:

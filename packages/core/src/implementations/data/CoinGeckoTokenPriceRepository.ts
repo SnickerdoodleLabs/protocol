@@ -1,3 +1,5 @@
+import fs from "fs";
+
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -177,34 +179,51 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return this._contractAddressMap.get(contractAddress);
   }
 
-  public getTokenPriceFromList(
+  private getTokenPriceFromList(
     protocols: string[],
   ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    let protocolIds = "";
-    const localJSONData: CoinMarketDataResponse[] = [];
-    protocols.map((protocol) => {
-      const marketData = this._coinPricesMap.get(protocol);
-      if (marketData !== undefined) {
-        localJSONData.push(marketData);
-      } else {
-        protocolIds += protocol + ",";
-      }
-    });
-
+    console.log("protocols: " + protocols);
+    console.log("String(protocols): " + String(protocols));
     const url = new URL(
       urlJoinP("https://api.coingecko.com/api/v3/coins", ["markets"], {
         vs_currency: "usd",
-        ids: protocolIds,
+        ids: String(protocols),
         order: "market_cap_desc",
         per_page: "100",
         page: "1",
         sparkline: "false",
       }),
     );
+    console.log("url: " + url);
+
     return this.ajaxUtils
-      .get<CoinMarketDataResponse[]>(new URL(url))
+      .get<CoinMarketDataResponse[] | CoinGeckoError>(new URL(url))
       .map((coinGeckoApiData) => {
-        return [...localJSONData, ...coinGeckoApiData];
+        const coinMarketData = coinGeckoApiData as CoinMarketDataResponse[];
+        const error = coinGeckoApiData as CoinGeckoError;
+        console.log("coinMarketData: " + coinMarketData);
+        console.log("error: " + error);
+
+        if (error) {
+          /* If CoinGecko fails, return saved data */
+          let protocolIds = "";
+          const localJSONData: CoinMarketDataResponse[] = [];
+          protocols.map((protocol) => {
+            const marketData = this._coinPricesMap.get(protocol);
+            if (marketData !== undefined) {
+              localJSONData.push(marketData);
+            } else {
+              protocolIds += protocol + ",";
+            }
+          });
+          return localJSONData;
+        }
+
+        fs.writeFileSync(
+          "~/packages/indexers/coinPrices.json",
+          JSON.stringify(coinMarketData),
+        );
+        return coinMarketData;
       })
       .mapErr((error) => {
         return new AccountIndexingError(
@@ -488,7 +507,7 @@ interface PriceVsUSD {
   last_updated: string;
 }
 
-type CoinMarketDataResponse = {
+interface CoinMarketDataResponse {
   id: string;
   symbol: TickerSymbol;
   name: string;
@@ -519,4 +538,11 @@ type CoinMarketDataResponse = {
     percentage: number;
   };
   last_updated: string;
-};
+}
+
+interface CoinGeckoError {
+  status: {
+    error_code: number;
+    error_message: string;
+  };
+}
