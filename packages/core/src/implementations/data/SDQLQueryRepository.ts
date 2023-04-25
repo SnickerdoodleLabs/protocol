@@ -89,13 +89,20 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
     // TODO: Make this more efficient in the future
+
+    console.log("DEBUG getQueryStatusByQueryCID", { queryCID });
     return this.persistence
       .getAll<QueryStatus>(ERecordKey.QUERY_STATUS)
       .map((queryStatii) => {
+        console.log("DEBUG getQueryStatusByQueryCID_QUERYSTATII", queryStatii);
         // Return only those status from after the query horizon and for the requested
         // contract
         return (
           queryStatii.find((queryStatus) => {
+            console.log(
+              "DEBUG getQueryStatusByQueryCID_QUERYSTATII_QUERYSTATUS",
+              queryStatus,
+            );
             return queryStatus.queryCID == queryCID;
           }) || null
         );
@@ -105,6 +112,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   public upsertQueryStatus(
     queryStatii: QueryStatus[],
   ): ResultAsync<void, PersistenceError> {
+    console.log("upsertQueryStatus", queryStatii);
     return ResultUtils.combine(
       queryStatii.map((queryStatus) => {
         return this.persistence.updateRecord(

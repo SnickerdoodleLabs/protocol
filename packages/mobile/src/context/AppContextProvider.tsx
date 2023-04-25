@@ -52,7 +52,9 @@ const AppContextProvider = ({ children }) => {
   };
 
   const updateLinkedAccounts = () => {
+    console.log('updateLinkedAccountsSTARTED')
     mobileCore.accountService.getAccounts().map((accounts) => {
+      console.log("getAccounts()", accounts);
       setLinkedAccounts(
         Array.from(
           new Set([

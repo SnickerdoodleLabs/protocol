@@ -1,4 +1,6 @@
 import {
+  ERecordKey,
+  JSONString,
   PersistenceError,
   VersionedObject,
   VolatileStorageDataKey,
@@ -11,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
+import { MMKV } from "react-native-mmkv";
 
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
@@ -18,6 +21,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
   public constructor(
     public name: string,
     private schema: VolatileTableIndex<VersionedObject>[],
+    private MMKVStorage: MMKV,
   ) {
     this._keyPaths = new Map();
     this.schema.forEach((x) => {
@@ -29,6 +33,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     index: VolatileStorageKey,
     query: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    console.log("getAllByIndex", { name, index, query });
     throw new Error("Method not implemented.");
   }
   getKey(
@@ -67,6 +72,8 @@ export class MemoryVolatileStorage implements IVolatileStorage {
   }
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
+    console.log("clearObjectStore", name);
+    this.MMKVStorage.delete(name);
     return okAsync(undefined);
   }
 
@@ -74,56 +81,103 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     name: string,
     obj: T,
   ): ResultAsync<void, PersistenceError> {
-    return this.getObject(name, "x")
-      .andThen((hey) => {
+    if (obj == null) {
+      console.warn("null object placed in volatile store");
+      return okAsync(undefined);
+    }
+    const keyPath = this.getKeyWithTableName(name);
+    if (Array.isArray(keyPath)) {
+      const storageKey = [];
+      keyPath.map((keyItem) => {
         //@ts-ignore
+        storageKey.push(obj.data[keyItem]);
+      });
 
-        if (hey.includes(obj)) {
-          return ResultAsync.fromPromise(
-            AsyncStorage.setItem(name, JSON.stringify(hey)),
-            (e) => e as PersistenceError,
-          );
+      obj["key"] = storageKey;
+      console.log("PUTOBJECT", { name, obj });
+      const allObjects = this.MMKVStorage.getString(name);
+      if (allObjects) {
+        const parsedAllObjects: Array<any> = JSON.parse(allObjects);
+        console.log("PUTOBJECT_ELSE_PARSEDALLOBJECTS", parsedAllObjects);
+        if (parsedAllObjects.includes(obj)) {
+          return okAsync(undefined);
         } else {
-          //@ts-ignore
-          const value = [...(hey ? hey : []), obj];
-          return ResultAsync.fromPromise(
-            AsyncStorage.setItem(name, JSON.stringify(value)),
-            (e) => e as PersistenceError,
-          );
+          const newObject = [...parsedAllObjects, obj];
+          console.log("PUTOBJECT_ELSE_NEWOBJECT", newObject);
+          this.MMKVStorage.set(name, JSON.stringify(newObject));
+          return okAsync(undefined);
         }
-      })
-      .andThen(() => okAsync(undefined));
+      } else {
+        this.MMKVStorage.set(name, JSON.stringify(obj));
+        return okAsync(undefined);
+      }
+    } else {
+      //@ts-ignore
+      obj["key"] = obj.data[keyPath];
+      console.log("PUTOBJECT_ELSE", { name, obj });
+      const allObjects = this.MMKVStorage.getString(name);
+      if (allObjects) {
+        const parsedAllObjects: Array<any> = JSON.parse(allObjects);
+        console.log("PUTOBJECT_ELSE_PARSEDALLOBJECTS", parsedAllObjects);
+        if (parsedAllObjects.includes(obj)) {
+          return okAsync(undefined);
+        } else {
+          const newObject = [...parsedAllObjects, obj];
+          console.log("PUTOBJECT_ELSE_NEWOBJECT", newObject);
+          this.MMKVStorage.set(name, JSON.stringify(newObject));
+          return okAsync(undefined);
+        }
+      } else {
+        this.MMKVStorage.set(name, JSON.stringify(obj));
+        return okAsync(undefined);
+      }
+    }
   }
 
   public removeObject(
     name: string,
     key: string,
   ): ResultAsync<VolatileStorageMetadata<any> | null, PersistenceError> {
-    AsyncStorage.removeItem(name);
-    return okAsync(null);
+    console.log("removeObject", { name, key });
+    const getTable = this.MMKVStorage.getString(name);
+    if (getTable) {
+      const arrayObj = JSON.parse(getTable);
+      const filteredArray = arrayObj.filter((obj) => obj.key === key);
+      const UnfilteredArray = arrayObj.filter((obj) => obj.key !== key);
+      if (UnfilteredArray) {
+        this.MMKVStorage.set(name, JSON.stringify(filteredArray));
+      }
+      if (filteredArray) {
+        return filteredArray[0];
+      } else {
+        return okAsync(null);
+      }
+    } else {
+      return okAsync(null);
+    }
   }
 
   public getObject<T>(
     name: string,
     key: string,
   ): ResultAsync<T | null, PersistenceError> {
-    AsyncStorage.getAllKeys().then((keys) => {});
-    const promise = AsyncStorage.getItem(name);
-
-    return ResultAsync.fromPromise(
-      promise,
-      (e) => new PersistenceError("error getting object"),
-    )
-      .andThen((result) => {
-        if (result) {
-          return okAsync(JSON.parse(result) as T);
-        } else {
-          return okAsync([] as unknown as T);
-        }
-      })
-      .orElse((e) => {
+    console.log("GETOBJECT", { name, key });
+    const get = this.MMKVStorage.getString(name);
+    if (get) {
+      const allObjects = JSON.parse(get);
+      console.log("GETOBJECT_ALLOBJECTS", JSON.parse(get));
+      const filteredArray = allObjects.filter((obj) => obj.key === key);
+      if (filteredArray.length > 0) {
+        console.log("GETOBJECT_FILTEREDARRAY", filteredArray);
+        return okAsync(filteredArray[0]);
+      } else {
+        console.log("GETOBJECT_FILTEREDARRAY<0");
         return okAsync([] as unknown as T);
-      });
+      }
+    } else {
+      console.log(`GETOBJECT ${name} not found on persistence`);
+      return okAsync([] as unknown as T);
+    }
   }
 
   public getCursor<T extends VersionedObject>(
@@ -133,6 +187,13 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
+    console.log("getCursor", {
+      name,
+      indexName,
+      query,
+      direction,
+      mode,
+    });
     //@ts-ignore
     return okAsync(null);
   }
@@ -141,18 +202,17 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     name: string,
     indexName?: string,
   ): ResultAsync<T[], PersistenceError> {
-    const promise = AsyncStorage.getItem(name);
-    return ResultAsync.fromPromise(
-      promise,
-      (e) => new PersistenceError("error getting object", e),
-      //@ts-ignore
-    ).andThen((result) => {
-      if (result) {
-        return okAsync(JSON.parse(result) as T[]);
-      } else {
-        return okAsync([] as unknown as T[]);
-      }
-    });
+    console.log("GETALL", { name, indexName });
+    const all = this.MMKVStorage.getString(name);
+    if (all) {
+      const arrayObj = JSON.parse(all);
+      console.log("GETALL_ARRAYOBJ", arrayObj);
+      return okAsync(arrayObj);
+    } else {
+      console.log(`GETALL ${name} not found in persistence)`);
+
+      return okAsync([] as unknown as T[]);
+    }
   }
   private _getRecursiveKey(obj: object, path: string): string | number {
     const items = path.split(".");
@@ -186,6 +246,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     query?: string | number,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
+    console.log("getAllKeys", { name, indexName, query, count });
     const promise = AsyncStorage.getItem(name);
     return ResultAsync.fromPromise(
       promise,
@@ -198,5 +259,37 @@ export class MemoryVolatileStorage implements IVolatileStorage {
         return okAsync([] as unknown as T[]);
       }
     });
+  }
+
+  public getKeyWithTableName(tableName: string) {
+    switch (tableName) {
+      case ERecordKey.ACCOUNT:
+        return "sourceAccountAddress";
+      case ERecordKey.TRANSACTIONS:
+        return "hash";
+      case ERecordKey.LATEST_BLOCK:
+        return "contract";
+      case ERecordKey.EARNED_REWARDS:
+        return ["queryCID", "name", "contractAddress", "chainId"];
+      case ERecordKey.ELIGIBLE_ADS:
+        return ["queryCID", "key"];
+      case ERecordKey.AD_SIGNATURES:
+        return ["queryCID", "adKey"];
+      case ERecordKey.COIN_INFO:
+        return ["chain", "address"];
+      case ERecordKey.RECEIVING_ADDRESSES:
+        return "contractAddress";
+      case ERecordKey.QUERY_STATUS:
+        return "queryCID";
+      case ERecordKey.DOMAIN_CREDENTIALS:
+        return "domain";
+      case ERecordKey.SOCIAL_PROFILE:
+        return "pKey";
+      case ERecordKey.SOCIAL_GROUP:
+        return "pKey";
+
+      default:
+        return "id";
+    }
   }
 }

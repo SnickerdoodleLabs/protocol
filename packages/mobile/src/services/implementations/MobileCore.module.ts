@@ -46,8 +46,14 @@ import {
   IDataPermissionsRepositoryType,
 } from "../interfaces/data/IDataPermissionsRepository";
 import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
-import { IConfigProvider, IConfigProviderType } from "@snickerdoodlelabs/core/dist/interfaces/utilities";
-import { IIndexerConfigProvider, IIndexerConfigProviderType } from "@snickerdoodlelabs/indexers";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 
 export const mobileCoreModule = new ContainerModule(

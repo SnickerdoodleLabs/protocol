@@ -1,45 +1,36 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
+import { MMKV } from "react-native-mmkv";
 
 export class MobileStorageUtils implements IStorageUtils {
+  constructor(private MMKVStorage: MMKV) {}
   public remove<T = any>(key: string): ResultAsync<void, PersistenceError> {
-    return ResultAsync.fromPromise(AsyncStorage.removeItem(key), (e) => {
-      return new PersistenceError(
-        `Cannot remove key ${key} from mobile storage, ${e}`,
-      );
-    });
+    console.log("MOBILESTORAGE_REMOVE", key);
+    this.MMKVStorage.delete(key);
+    return okAsync(undefined);
   }
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
-    return ResultAsync.fromPromise(
-      AsyncStorage.setItem(key, JSON.stringify(value)),
-      (e) => {
-        return new PersistenceError(
-          `Cannot write key ${key} to mobile storage, ${e}`,
-        );
-      },
-    );
+    console.log("MOBILESTORAGE_WRITE", { key, value });
+    this.MMKVStorage.set(key, JSON.stringify(value));
+    return okAsync(undefined);
   }
 
   public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
-    return ResultAsync.fromPromise(AsyncStorage.getItem(key), (e) => {
-      return new PersistenceError(
-        `Cannot read key ${key} from mobile storage, ${e}`,
-      );
-    }).map((val) => {
-      if (val) {
-        return JSON.parse(val) as T;
-      } else {
-        return null;
-      }
-    });
+    console.log("MOBILESTORAGE_READ", { key });
+    const readData = this.MMKVStorage.getString(key);
+    if (readData) {
+      return okAsync(JSON.parse(readData));
+    } else {
+      return okAsync(null);
+    }
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
-    return ResultAsync.fromPromise(AsyncStorage.clear(), (e) => {
-      return new PersistenceError(`Cannot clear storage storage: ${e}`);
-    });
+    console.log("MOBILESTORAGE_CLEAR");
+    this.MMKVStorage.clearAll();
+    return okAsync(undefined);
   }
 }

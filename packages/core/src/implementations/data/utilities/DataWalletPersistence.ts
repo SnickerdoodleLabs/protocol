@@ -204,11 +204,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     tableName: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError> {
+    console.log("updateRecord", { tableName, value });
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
       this.waitForUnlock(),
     ]).andThen(([backupManager]) => {
       if (tableName == ERecordKey.ACCOUNT) {
+        console.log("UpdateRecordsBeforePut");
         return this.volatileStorage
           .putObject(
             tableName,
@@ -223,6 +225,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                   return this.volatileStorage.getObject(tableName, key!);
                 })
                 .andThen((found) => {
+                  console.log("updateRecord_FOUND", found);
                   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   if (found!.lastUpdate == 0) {
                     return backupManager.addRecord(

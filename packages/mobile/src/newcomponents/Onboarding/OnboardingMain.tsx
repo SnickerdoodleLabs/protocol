@@ -367,7 +367,6 @@ const OnboardingMain = () => {
   ];
 
   const handleUsePublicKey = () => {
-    AsyncStorage.setItem("public-key-connected", publicKey);
     setConnectModal(false);
     handleNextButtonPress();
   };

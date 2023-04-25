@@ -287,13 +287,14 @@ export class InvitationService implements IInvitationService {
             new UninitializedError("Data wallet has not been unlocked yet!"),
           );
         }
-
+        console.log("DEBUG ACCEPTINVITATION1");
         return this.dataWalletUtils
           .deriveOptInPrivateKey(
             invitation.consentContractAddress,
             context.dataWalletKey!,
           )
           .andThen((optInPrivateKey) => {
+            console.log("DEBUG ACCEPTINVITATION2");
             if (invitation.businessSignature == null) {
               // If the invitation includes a domain, we will check that DNS records
               // just to be extra safe.
@@ -302,6 +303,7 @@ export class InvitationService implements IInvitationService {
                 invitationCheck = this.consentContractHasMatchingTXT(
                   invitation.consentContractAddress,
                 ).andThen((matchingTxt) => {
+                  console.log("DEBUG ACCEPTINVITATION3");
                   if (!matchingTxt) {
                     return errAsync(
                       new ConsentError(
@@ -314,6 +316,8 @@ export class InvitationService implements IInvitationService {
               }
               // Only thing left is the actual opt in data
               return invitationCheck.map(() => {
+                console.log("DEBUG ACCEPTINVITATION4");
+
                 return {
                   optInData: this.consentRepo.encodeOptIn(
                     invitation.consentContractAddress,
@@ -325,6 +329,7 @@ export class InvitationService implements IInvitationService {
                 };
               });
             }
+            console.log("DEBUG ACCEPTINVITATION5");
 
             // It's a private invitation
             return okAsync({
@@ -340,6 +345,8 @@ export class InvitationService implements IInvitationService {
           });
       })
       .andThen(({ optInData, context, optInPrivateKey }) => {
+        console.log("DEBUG ACCEPTINVITATION6");
+
         const optInAddress =
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
             optInPrivateKey,
@@ -359,6 +366,8 @@ export class InvitationService implements IInvitationService {
           this.accountRepo.addAcceptedInvitations([invitation]),
         ])
           .andThen(([callData, nonce, config]) => {
+            console.log("DEBUG ACCEPTINVITATION7");
+
             // We need to take the types, and send it to the account signer
             const request = new MetatransactionRequest(
               invitation.consentContractAddress, // Contract address for the metatransaction
@@ -372,6 +381,8 @@ export class InvitationService implements IInvitationService {
             return this.forwarderRepo
               .signMetatransactionRequest(request, optInPrivateKey)
               .andThen((metatransactionSignature) => {
+                console.log("DEBUG ACCEPTINVITATION8");
+
                 // Got the signature for the metatransaction, now we can execute it.
                 // .executeMetatransaction will sign everything and have the server run
                 // the metatransaction.
@@ -388,6 +399,8 @@ export class InvitationService implements IInvitationService {
                 );
               })
               .map(() => {
+                console.log("DEBUG ACCEPTINVITATION9");
+
                 this.consentRepo
                   .getConsentToken(invitation)
                   .map((consentToken) => {
@@ -405,11 +418,15 @@ export class InvitationService implements IInvitationService {
               .orElse((e) => {
                 // Metatransaction failed!
                 // Need to do some cleanup
+                console.log("DEBUG ACCEPTINVITATION10");
+
                 return this.accountRepo
                   .removeAcceptedInvitationsByContractAddress([
                     invitation.consentContractAddress,
                   ])
                   .andThen(() => {
+                    console.log("DEBUG ACCEPTINVITATION11");
+
                     // Still an error
                     return errAsync(e);
                   });
@@ -417,6 +434,7 @@ export class InvitationService implements IInvitationService {
           })
           .map(() => {
             // Notify the world that we've opted in to the cohort
+            console.log("DEBUG ACCEPTINVITATION12");
             context.publicEvents.onCohortJoined.next(
               invitation.consentContractAddress,
             );

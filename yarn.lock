@@ -7808,6 +7808,7 @@ __metadata:
     react-native-get-random-values: ^1.8.0
     react-native-level-fs: ^3.0.1
     react-native-linear-gradient: ^2.6.2
+    react-native-mmkv: ^2.8.0
     react-native-multiple-select: ^0.5.12
     react-native-orientation-locker: ^1.5.0
     react-native-os: ^1.2.6
@@ -7889,6 +7890,7 @@ __metadata:
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.1.0
     neverthrow: ^5.1.0
+    react-native-mmkv: ^2.8.0
   languageName: unknown
   linkType: soft
 
@@ -34069,6 +34071,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-mmkv@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "react-native-mmkv@npm:2.8.0"
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.71.0"
+  checksum: 993b486533b00c0b8092ea0b7682428fe704726ec03daf244fbd046bd772e3cfc0aba67b8a9eece31adcb6492c76d838f167eeed877657349a0cae51c8844b8d
+  languageName: node
+  linkType: hard
+
 "react-native-multiple-select@npm:^0.5.12":
   version: 0.5.12
   resolution: "react-native-multiple-select@npm:0.5.12"
@@ -36929,6 +36941,7 @@ __metadata:
     prettier: ^2.2.1
     process: ^0.11.10
     randomstring: ^1.1.5
+    react-native-mmkv: ^2.8.0
     rimraf: ^3.0.2
     sass-loader: ^11.1.1
     solidity-coverage: ^0.7.9

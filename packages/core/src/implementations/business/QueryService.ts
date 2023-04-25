@@ -223,6 +223,7 @@ export class QueryService implements IQueryService {
       .andThen((queryStatus) => {
         // Make sure the query is actually one we have a record of
         if (queryStatus == null) {
+          console.log("DEBUG_QUERYSTATUSNULL");
           this.logUtils.warning(
             `No record of having recieved query ${query.cid}, but processing it anyway`,
           );
@@ -243,6 +244,7 @@ export class QueryService implements IQueryService {
         // the query for ads here.
         queryStatus.status = EQueryProcessingStatus.AdsCompleted;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
+        console.log("DEBUG QUERYSTATUS", { queryStatus });
         return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]);
       });
   }

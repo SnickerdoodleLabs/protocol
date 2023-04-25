@@ -88,10 +88,12 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import { MMKV } from "react-native-mmkv";
 
 export class MobileCore {
   protected iocContainer: Container;
   protected core: ISnickerdoodleCore;
+  private MMKVStorage: MMKV;
 
   public invitationService: IInvitationService;
   public accountService: IAccountService;
@@ -102,6 +104,7 @@ export class MobileCore {
   constructor() {
     this.iocContainer = new Container();
     this.iocContainer.load(...[mobileCoreModule]);
+    this.MMKVStorage = new MMKV();
 
     const provider = new Map<ERecordKey, VolatileTableIndex<VersionedObject>>([
       [
@@ -313,14 +316,16 @@ export class MobileCore {
         ),
       ],
     ]);
-
+    this.MMKVStorage.clearAll();
     this.core = new SnickerdoodleCore(
       coreConfig,
-      new MobileStorageUtils(),
-      new MemoryVolatileStorage("SD_Wallet", Array.from(provider.values())),
-      undefined,
+      new MobileStorageUtils(this.MMKVStorage),
+      new MemoryVolatileStorage(
+        "SD_Wallet",
+        Array.from(provider.values()),
+        this.MMKVStorage,
+      ),
     );
-
     console.log("thhis", this.core);
 
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);

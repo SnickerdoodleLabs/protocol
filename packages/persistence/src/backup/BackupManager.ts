@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ICryptoUtils, ITimeUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ITimeUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletAddress,
   VersionedObjectMigrator,
@@ -98,21 +102,25 @@ export class BackupManager implements IBackupManager {
     recordKey: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
+    console.log("DEBUG ADD RECORD");
     return this.volatileStorage.getKey(recordKey, value.data).andThen((key) => {
+      console.log("ADDRECORD_KEY", key);
       return this._checkRecordUpdateRecency(
         recordKey,
         key,
         value.lastUpdate,
       ).andThen((valid) => {
+        console.log("ADDRECORD VALID", valid);
         if (!valid) {
           return okAsync(undefined);
         }
-
+        console.log("ADDRECORDPUTOBJECTBEFORE", { recordKey, value });
         return this.volatileStorage.putObject(recordKey, value).andThen(() => {
           const tableRenderer = this.tableRenderers.get(recordKey);
           if (tableRenderer == null) {
             return okAsync(undefined);
           }
+          console.log("ADDRECORDPUTOBJECTAFTER");
 
           return this.schemaProvider
             .getCurrentVersionForTable(recordKey)
@@ -130,6 +138,8 @@ export class BackupManager implements IBackupManager {
                   ),
                 )
                 .map((backup) => {
+                  console.log("ADDRECORDPUTOBJECTAFTER_BACKUP", backup);
+
                   if (backup != null) {
                     this.renderedChunks.set(backup.header.hash, backup);
                   }
