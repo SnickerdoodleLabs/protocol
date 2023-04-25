@@ -1,4 +1,4 @@
-import fs from "fs";
+// import fs from "fs";
 
 import {
   IAxiosAjaxUtils,
@@ -182,8 +182,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   private getTokenPriceFromList(
     protocols: string[],
   ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    console.log("protocols: " + protocols);
-    console.log("String(protocols): " + String(protocols));
+    // console.log("protocols: " + protocols);
+    // console.log("String(protocols): " + String(protocols));
     const url = new URL(
       urlJoinP("https://api.coingecko.com/api/v3/coins", ["markets"], {
         vs_currency: "usd",
@@ -197,32 +197,27 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     console.log("url: " + url);
 
     return this.ajaxUtils
-      .get<CoinMarketDataResponse[] | CoinGeckoError>(new URL(url))
+      .get<CoinMarketDataResponse[] | CoinGeckoRateLimit>(new URL(url))
       .map((coinGeckoApiData) => {
         const coinMarketData = coinGeckoApiData as CoinMarketDataResponse[];
-        const error = coinGeckoApiData as CoinGeckoError;
-        console.log("coinMarketData: " + coinMarketData);
-        console.log("error: " + error);
+        const error = coinGeckoApiData as CoinGeckoRateLimit;
 
-        if (error) {
+        if (error["status"] !== undefined) {
           /* If CoinGecko fails, return saved data */
-          let protocolIds = "";
           const localJSONData: CoinMarketDataResponse[] = [];
           protocols.map((protocol) => {
             const marketData = this._coinPricesMap.get(protocol);
             if (marketData !== undefined) {
               localJSONData.push(marketData);
-            } else {
-              protocolIds += protocol + ",";
             }
           });
           return localJSONData;
         }
 
-        fs.writeFileSync(
-          "~/packages/indexers/coinPrices.json",
-          JSON.stringify(coinMarketData),
-        );
+        // fs.writeFileSync(
+        //   "~/packages/indexers/coinPrices.json",
+        //   JSON.stringify(coinMarketData),
+        // );
         return coinMarketData;
       })
       .mapErr((error) => {
@@ -540,7 +535,7 @@ interface CoinMarketDataResponse {
   last_updated: string;
 }
 
-interface CoinGeckoError {
+interface CoinGeckoRateLimit {
   status: {
     error_code: number;
     error_message: string;
