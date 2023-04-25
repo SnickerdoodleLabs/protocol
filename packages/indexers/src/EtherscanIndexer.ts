@@ -296,7 +296,6 @@ export class EtherscanIndexer
       return this.ajaxUtils
         .get<IEtherscanBlockNumberResponse>(url)
         .andThen((resp) => {
-          console.log(chain + ": resp: " + resp);
           if (resp.status != "1") {
             // this is a bit noisy
             // this.logUtils.warning(

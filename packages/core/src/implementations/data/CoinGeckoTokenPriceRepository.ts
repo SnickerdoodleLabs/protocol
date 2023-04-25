@@ -198,8 +198,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         sparkline: "false",
       }),
     );
-    console.log("url: " + url);
-
     return this.ajaxUtils
       .get<CoinMarketDataResponse[]>(new URL(url))
       .map((coinGeckoApiData) => {
