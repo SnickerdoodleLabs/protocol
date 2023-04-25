@@ -1,4 +1,3 @@
-export * from "@indexers/AlchemyIndexer.js";
 export * from "@indexers/CovalentEVMTransactionRepository.js";
 export * from "@indexers/DefaultAccountBalances.js";
 export * from "@indexers/DefaultAccountIndexers.js";
@@ -10,7 +9,6 @@ export * from "@indexers/IIndexerConfig.js";
 export * from "@indexers/IIndexerConfigProvider.js";
 export * from "@indexers/MoralisEVMPortfolioRepository.js";
 export * from "@indexers/NftScanEVMPortfolioRepository.js";
-export * from "@indexers/OklinkIndexer.js";
 export * from "@indexers/PoapRepository.js";
 export * from "@indexers/PolygonIndexer.js";
 export * from "@indexers/SimulatorEVMTransactionRepository.js";
