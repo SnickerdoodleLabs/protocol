@@ -87,8 +87,8 @@ export const tags: ITagItem[] = [
     iconUrl: "https://storage.googleapis.com/dw-assets/spa/tags/metaverse.png",
   },
   {
-    tag: ETag.Gambeling,
-    defaultDisplayName: "Gambeling",
+    tag: ETag.Gambling,
+    defaultDisplayName: "Gambling",
     iconUrl: "https://storage.googleapis.com/dw-assets/spa/tags/gambeling.png",
   },
   {

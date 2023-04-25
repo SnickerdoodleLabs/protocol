@@ -101,7 +101,6 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
             protocolType: "token_20",
           },
         );
-        console.log(chainId + ": url: " + url);
 
         return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
           headers: {
@@ -110,7 +109,6 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
         });
       })
       .andThen((response) => {
-        console.log(chainId + ": responses: " + JSON.stringify(response));
         if (response.code != "0") {
           return errAsync(
             new AccountIndexingError("Bad url response from Oklink"),

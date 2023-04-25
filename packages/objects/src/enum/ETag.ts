@@ -14,7 +14,7 @@ export enum ETag {
   DAOs = "daos",
   Event_Tickets = "event-tickets",
   Metaverse = "metaverse",
-  Gambeling = "gambeling",
+  Gambling = "gambling",
   Sports = "sports",
   PFPs = "pfps",
   // special tag
