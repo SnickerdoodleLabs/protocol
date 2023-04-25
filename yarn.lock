@@ -7870,6 +7870,7 @@ __metadata:
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.1.0
     neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
   languageName: unknown
   linkType: soft
 

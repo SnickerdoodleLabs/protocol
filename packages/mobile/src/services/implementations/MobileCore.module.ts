@@ -9,15 +9,28 @@ import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-
+import { ConfigProvider } from "@snickerdoodlelabs/core";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
+import {
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+  VolatileStorageSchemaProvider,
+  IAsyncStorageWrapper,
+  IAsyncStorageWrapperType,
+  AsyncStorageWrapper,
+  IVolatileStorage,
+  IVolatileStorageType,
+  ReactNativeVolatileStorage,
+} from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
-import {
-  AccountService,
-  PIIService,
-  InvitationService,
-  TokenPriceService,
-} from "./business";
 import {
   IAccountService,
   IAccountServiceType,
@@ -34,9 +47,6 @@ import {
   ITokenPriceService,
   ITokenPriceServiceType,
 } from "../interfaces/business/ITokenPriceService";
-import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
-import { ErrorUtils } from "./utils/ErrorUtils";
-import { AccountStorageRepository } from "./data/AccountStorageRepository";
 import {
   IAccountStorageRepository,
   IAccountStorageRepositoryType,
@@ -45,10 +55,17 @@ import {
   IDataPermissionsRepository,
   IDataPermissionsRepositoryType,
 } from "../interfaces/data/IDataPermissionsRepository";
+import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
+
+import {
+  AccountService,
+  PIIService,
+  InvitationService,
+  TokenPriceService,
+} from "./business";
+import { AccountStorageRepository } from "./data/AccountStorageRepository";
 import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
-import { IConfigProvider, IConfigProviderType } from "@snickerdoodlelabs/core/dist/interfaces/utilities";
-import { IIndexerConfigProvider, IIndexerConfigProviderType } from "@snickerdoodlelabs/indexers";
-import { ConfigProvider } from "@snickerdoodlelabs/core";
+import { ErrorUtils } from "./utils/ErrorUtils";
 
 export const mobileCoreModule = new ContainerModule(
   (
@@ -88,5 +105,16 @@ export const mobileCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
+      .to(VolatileStorageSchemaProvider)
+      .inSingletonScope();
+    bind<IAsyncStorageWrapper>(IAsyncStorageWrapperType)
+      .to(AsyncStorageWrapper)
+      .inSingletonScope();
+
+    bind<IVolatileStorage>(IVolatileStorageType)
+      .to(ReactNativeVolatileStorage)
+      .inSingletonScope();
   },
 );
