@@ -37,7 +37,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
@@ -163,14 +163,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAllByIndex<T extends VersionedObject>(
-    name: string,
+    schemaKey: ERecordKey,
     indexName: string,
     query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
     return this.waitForPriority(priority).andThen(() => {
       return this.volatileStorage
-        .getAllByIndex<T>(name, indexName, query)
+        .getAllByIndex<T>(schemaKey, indexName, query)
         .map((values) => {
           return values.map((x) => x.data);
         });

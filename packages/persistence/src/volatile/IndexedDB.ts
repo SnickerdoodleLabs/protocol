@@ -399,7 +399,7 @@ export class IndexedDB {
           return result.filter((x) => {
             return x.deleted == EBoolean.FALSE;
           });
-        }); 
+        });
       });
     });
   }
@@ -449,7 +449,6 @@ export class IndexedDB {
     tableName: string,
     obj: VersionedObject,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
@@ -461,7 +460,7 @@ export class IndexedDB {
 
     try {
       if (Array.isArray(keyPath)) {
-        const ret: VolatileStorageKey[] = [];
+        const ret: VolatileStorageKey = [];
         keyPath.forEach((item) => {
           ret.push(this._getRecursiveKey(obj, item));
         });

@@ -1,1 +1,1 @@
-export type VolatileStorageKey = string | number | VolatileStorageKey[];
+export type VolatileStorageKey = string | number | (string | number)[];
