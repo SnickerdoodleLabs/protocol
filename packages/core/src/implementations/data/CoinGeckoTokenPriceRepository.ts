@@ -180,39 +180,35 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public getTokenPriceFromList(
     protocols: string[],
   ): ResultAsync<CoinMarketDataResponse[], AccountIndexingError> {
-    let protocolHeader = "";
-    const marketResponses: CoinMarketDataResponse[] = [];
+    let protocolIds = "";
+    const localJSONData: CoinMarketDataResponse[] = [];
     protocols.map((protocol) => {
       const marketData = this._coinPricesMap.get(protocol);
       if (marketData !== undefined) {
-        marketResponses.push(marketData);
+        localJSONData.push(marketData);
       } else {
-        if (protocolHeader.length !== 0) {
-          protocolHeader += ",";
-        }
-        protocolHeader += protocol;
+        protocolIds += protocol + ",";
       }
     });
 
     const url = new URL(
       urlJoinP("https://api.coingecko.com/api/v3/coins", ["markets"], {
         vs_currency: "usd",
-        ids: protocolHeader,
+        ids: protocolIds,
         order: "market_cap_desc",
         per_page: "100",
         page: "1",
         sparkline: "false",
       }),
     );
-    console.log("coingecko token price repo: " + url);
     return this.ajaxUtils
       .get<CoinMarketDataResponse[]>(new URL(url))
-      .map((response) => {
-        return [...marketResponses, ...response];
+      .map((coinGeckoApiData) => {
+        return [...localJSONData, ...coinGeckoApiData];
       })
       .mapErr((error) => {
         return new AccountIndexingError(
-          `Unable to parse Coingecko ${url}, ${error.message}`,
+          `Unable to retrieve Coingecko ${url}, ${error.message}`,
           500,
         );
       });
