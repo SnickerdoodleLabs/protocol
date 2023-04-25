@@ -196,7 +196,6 @@ export class SDQLQueryUtils {
   protected extractCompensationIdFromAst(
     ast: AST_Expr | Command,
   ): CompensationId {
-    // console.log("extractCompensationIdFromAst: ast", ast);
     const compensationAst = this.getCompensationAstFromAst(ast);
     return CompensationId(compensationAst.name as string);
   }
@@ -204,7 +203,6 @@ export class SDQLQueryUtils {
   protected extractCompensationIdFromAstWithAlternatives(
     ast: AST_Expr | Command,
   ): CompensationId[] {
-    // console.log("extractCompensationIdFromAst: ast", ast);
     const comIds = new Set<CompensationId>();
     const compensationAst = this.getCompensationAstFromAst(ast);
     comIds.add(CompensationId(compensationAst.name as string));
@@ -299,7 +297,6 @@ export class SDQLQueryUtils {
 
     const queryPermissions =
       parser.queryIdsToDataPermissions(permittedQueryIds);
-
     parser.insights.forEach((insightAst, insightName) => {
       if (queryPermissions.contains(insightAst.requiredPermissions)) {
         permittedInsightKeys.add(InsightKey(insightName));
@@ -371,14 +368,15 @@ export class SDQLQueryUtils {
   ): ResultAsync<CompensationId[], ParserError> {
     return ResultUtils.combine(
       (
-        Object.entries(parser.compensations) as [SDQL_Name, AST_Compensation][]
+        Array.from(parser.compensations.entries()) as [
+          SDQL_Name,
+          AST_Compensation,
+        ][]
       ).map(([compKey, comAst]) => {
-
         return ResultUtils.combine([
           parser.parseInsightDependencies(comAst.requiresRaw),
           parser.parseAdDependencies(comAst.requiresRaw),
         ]).map(([insightDeps, adDeps]) => {
-
           if (
             this.hasRequiredInsights(permittedInsightKeys, insightDeps) &&
             this.hasRequiredAds(permittedAdKeys, adDeps)
@@ -388,10 +386,9 @@ export class SDQLQueryUtils {
           return undefined;
         });
       }),
-    ).map(
-      (expectedComps) =>
-        expectedComps.filter((comp) => !!comp) as CompensationId[],
-    );
+    ).map((expectedComps) => {
+      return expectedComps.filter((comp) => !!comp) as CompensationId[];
+    });
   }
 
   private hasRequiredInsights(
@@ -399,7 +396,7 @@ export class SDQLQueryUtils {
     requiredInsights: AST_Insight[],
   ): boolean {
     return requiredInsights.every((required) => {
-      permittedInsightKeys.includes(InsightKey(required.name));
+      return permittedInsightKeys.includes(InsightKey(required.name));
     });
   }
 
@@ -408,7 +405,7 @@ export class SDQLQueryUtils {
     requiredAds: AST_Ad[],
   ): boolean {
     return requiredAds.every((required) => {
-      permittedAdKeys.includes(AdKey(required.name));
+      return permittedAdKeys.includes(AdKey(required.name));
     });
   }
 

@@ -287,7 +287,7 @@ describe("Testing order of results", () => {
       })
       .mapErr((e) => {
         console.log(e);
-        fail(e.message);
+        expect(1).toBe(2);
       });
   });
 });

@@ -48,11 +48,11 @@ describe("SDQLQueryUtils query to compensation tests", () => {
     expect(resultWrapped._unsafeUnwrap()).toEqual(expected);
   });
 
-  test("avalanche 1: ['q2'] -> ['c2', 'c3']", async () => {
+  test("avalanche 1: ['q2'] -> ['c2']", async () => {
     // input-output
     const schemaString = SDQLString(avalanche1SchemaStr);
     const queryIds = ["q2"].map(QueryIdentifier);
-    const expected = ["c2", "c3"];
+    const expected = ["c2"];
 
     const mocks = new SDQLQueryUtilsMocks();
     const result = await mocks
@@ -62,11 +62,11 @@ describe("SDQLQueryUtils query to compensation tests", () => {
     expect(result.isOk()).toBeTruthy();
     expect(result._unsafeUnwrap()).toEqual(expected);
   });
-  test("avalanche 1: ['q3'] -> ['c2', 'c3']", async () => {
+  test("avalanche 1: ['q3'] -> ['c3']", async () => {
     // input-output
     const schemaString = SDQLString(avalanche1SchemaStr);
     const queryIds = ["q3"].map(QueryIdentifier);
-    const expected = ["c3", "c2"];
+    const expected = ["c3"];
 
     const mocks = new SDQLQueryUtilsMocks();
     const result = await mocks
@@ -77,11 +77,11 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
     expect(result._unsafeUnwrap()).toEqual(expected);
   });
-  test("avalanche 1: ['q1', 'q2'] -> ['c1', 'c2', 'c3']", async () => {
+  test("avalanche 1: ['q1', 'q2'] -> ['c1', 'c2']", async () => {
     // input-output
     const schemaString = SDQLString(avalanche1SchemaStr);
     const queryIds = ["q1", "q2"].map(QueryIdentifier);
-    const expected = ["c1", "c2", "c3"];
+    const expected = ["c1", "c2"];
 
     const mocks = new SDQLQueryUtilsMocks();
     const result = await mocks
