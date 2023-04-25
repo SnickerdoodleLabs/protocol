@@ -4,7 +4,7 @@ with urllib.request.urlopen("https://api.coingecko.com/api/v3/coins/markets?vs_c
     page1_data = json.load(page1)
 with urllib.request.urlopen("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=300&page=2")  as page2:
     page2_data = json.load(page2)
-with urllib.request.urlopen("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=xdai,weth&order=market_cap_desc&per_page=300&page=1")  as specialData:
+with urllib.request.urlopen("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=xdai,weth,usd&order=market_cap_desc&per_page=300&page=1")  as specialData:
     specialData = json.load(specialData)
 
 
