@@ -28,6 +28,8 @@ import {
   IVolatileStorage,
   IVolatileStorageType,
   ReactNativeVolatileStorage,
+  IPersistenceConfigProviderType,
+  IPersistenceConfigProvider,
 } from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
@@ -99,6 +101,10 @@ export const mobileCoreModule = new ContainerModule(
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
       configProvider,
     );
+    bind<IPersistenceConfigProvider>(
+      IPersistenceConfigProviderType,
+    ).toConstantValue(configProvider);
+
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
