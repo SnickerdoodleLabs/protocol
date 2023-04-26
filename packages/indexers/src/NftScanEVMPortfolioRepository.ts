@@ -105,7 +105,6 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
       "all",
       accountAddress.toString() + "?erc_type=&show_attribute=false",
     ]);
-    console.log(chainId + ": url: " + url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
