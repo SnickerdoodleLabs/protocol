@@ -1,3 +1,4 @@
+export * from "@persistence/volatile/AsyncStorageCursor.js";
 export * from "@persistence/volatile/AsyncStorageWrapper.js";
 export * from "@persistence/volatile/FakeDBVolatileStorage.js";
 export * from "@persistence/volatile/IAsyncStorageWrapper.js";
