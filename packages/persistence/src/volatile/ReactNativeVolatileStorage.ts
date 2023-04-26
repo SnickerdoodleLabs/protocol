@@ -20,6 +20,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { AsyncStorageCursor } from "@persistence/volatile/AsyncStorageCursor.js";
 import {
   IAsyncStorageWrapper,
   IAsyncStorageWrapperType,
@@ -51,7 +52,7 @@ export class ReactNativeVolatileStorage implements IVolatileStorage {
     index: VolatileStorageKey,
     query: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    throw new Error("Method not implemented.");
+    return okAsync([]);
   }
 
   // Taken directly from IndexDB.js
@@ -219,8 +220,7 @@ export class ReactNativeVolatileStorage implements IVolatileStorage {
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    //@ts-ignore
-    return okAsync(null);
+    return okAsync(new AsyncStorageCursor());
   }
 
   public getAll<T extends VersionedObject>(
