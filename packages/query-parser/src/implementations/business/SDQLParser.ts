@@ -329,7 +329,7 @@ export class SDQLParser {
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
     const insightSchema = this.schema.getInsightSchema();
-    if (!insightSchema || Object.keys(insightSchema).length == 0) {
+    if (!insightSchema) {
       return okAsync(undefined);
     }
 
@@ -357,7 +357,9 @@ export class SDQLParser {
       this.parseExpString(schema.returns),
       this.parseUnifiedDataPermissions([schema.target, schema.returns]),
     ])
-      .mapErr(this.transformError)
+      .mapErr((error) => {
+        return this.transformError(error);
+      })
       .map(([targetAst, returnsAst, dataPermissions]) => {
         return new AST_Insight(
           name,
@@ -377,7 +379,6 @@ export class SDQLParser {
     const compensationSchema = this.schema.getCompensationSchema();
     const compensations: [SDQL_Name, ISDQLCompensations][] = [];
     for (const cName in compensationSchema) {
-
       if (cName == "parameters") {
         // this is the parameters block
         this.compensationParameters = compensationSchema[
@@ -409,9 +410,10 @@ export class SDQLParser {
     AST_Compensation,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-
     return this.parseExpString(schema.requires)
-      .mapErr(this.transformError)
+      .mapErr((error) => {
+        return this.transformError(error);
+      })
       .map((ast) => {
         return new AST_Compensation(
           name,
