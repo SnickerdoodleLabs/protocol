@@ -54,19 +54,12 @@ export interface ISDQLQueryUtils {
   filterQueryByPermissions(
     schemaString: SDQLString,
     dataPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryFilteredByPermissions,
-    | QueryFormatError
-    | ParserError
-    | DuplicateIdInSchema
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  >;
+  ): ResultAsync<QueryFilteredByPermissions, ParserError>;
 
   getQueryTypeDependencies(
     parser: SDQLParser,
     compId: CompensationId,
-  ): QueryTypes[];
+  ): ResultAsync<QueryTypes[], ParserError>;
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");

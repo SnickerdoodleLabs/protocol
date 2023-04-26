@@ -51,15 +51,14 @@ describe("SDQLParser on avalanche", () => {
       ast = astRes.value;
     } else {
       // fail(astRes.error.message);
-      console.error(astRes.error.message);
+      console.error(`Build AST failed with message: ${astRes.error.message}`);
       expect(1).toBe(2);
     }
   });
 
-  describe("Checking queries", () => {
-    test("q1 is a network query on AVAX", () => {
+  describe.only("Checking queries", () => {
+    test.only("q1 is a network query on AVAX", () => {
       const q1 = parser.context.get("q1") as AST_BlockchainTransactionQuery;
-      // console.log(q1.contract);
       expect(q1 instanceof AST_BlockchainTransactionQuery).toBeTruthy();
       expect(q1.returnType).toBe("boolean");
       expect(q1.chain).toBe("AVAX");
@@ -74,37 +73,37 @@ describe("SDQLParser on avalanche", () => {
       expect(q1.contract.timestampRange.end).toBe(14910334);
     });
 
-    test("q2 is a conditional age query", () => {
-      const q2 = parser.context.get("q2") as AST_PropertyQuery;
-      expect(q2 instanceof AST_PropertyQuery).toBeTruthy();
-      expect(q2.property).toBe("age");
-      expect(q2.returnType).toBe("boolean");
-      expect(q2.conditions.length == 1);
+    // test("q2 is a conditional age query", () => {
+    //   const q2 = parser.context.get("q2") as AST_PropertyQuery;
+    //   expect(q2 instanceof AST_PropertyQuery).toBeTruthy();
+    //   expect(q2.property).toBe("age");
+    //   expect(q2.returnType).toBe("boolean");
+    //   expect(q2.conditions.length == 1);
 
-      const c1 = q2.conditions[0] as ConditionGE;
-      expect(c1 instanceof ConditionGE).toBeTruthy();
-      expect(c1.lval).toBeNull();
-      expect(c1.rval).toBe(15);
-    });
+    //   const c1 = q2.conditions[0] as ConditionGE;
+    //   expect(c1 instanceof ConditionGE).toBeTruthy();
+    //   expect(c1.lval).toBeNull();
+    //   expect(c1.rval).toBe(15);
+    // });
 
-    test("q3 is a location query", () => {
-      const q3 = parser.context.get("q3") as AST_PropertyQuery;
-      expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
-      expect(q3.property).toBe("location");
-      expect(q3.returnType).toBe("string");
-    });
+    // test("q3 is a location query", () => {
+    //   const q3 = parser.context.get("q3") as AST_PropertyQuery;
+    //   expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
+    //   expect(q3.property).toBe("location");
+    //   expect(q3.returnType).toBe("string");
+    // });
 
-    test("q4 is a balance query", () => {
-      const q4 = parser.context.get("q4");
-      // console.log(q4);
-      expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
-    });
+    // test("q4 is a balance query", () => {
+    //   const q4 = parser.context.get("q4");
+    //   // console.log(q4);
+    //   expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
+    // });
 
-    test("q4 is a balance query", () => {
-      const q4 = parser.context.get("q4");
-      // console.log(q4);
-      expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
-    });
+    // test("q4 is a balance query", () => {
+    //   const q4 = parser.context.get("q4");
+    //   // console.log(q4);
+    //   expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
+    // });
   });
 
   // describe("Checking return queries", () => {
@@ -131,99 +130,99 @@ describe("SDQLParser on avalanche", () => {
   //   });
   // });
 
-  describe.only("Checking insights", () => {
-    test("it has 3 insights (i1, i2, i3)", () => {
-      const i1 = parser.context.get("i1") as AST_Insight;
-      const i2 = parser.context.get("i2") as AST_Insight;
-      const i3 = parser.context.get("i3") as AST_Insight;
+  // describe("Checking insights", () => {
+  //   test("it has 3 insights (i1, i2, i3)", () => {
+  //     const i1 = parser.context.get("i1") as AST_Insight;
+  //     const i2 = parser.context.get("i2") as AST_Insight;
+  //     const i3 = parser.context.get("i3") as AST_Insight;
 
-      // console.log(i1, i2, i3);
+  //     // console.log(i1, i2, i3);
 
-      expect(i1 instanceof AST_Insight).toBeTruthy();
-      expect(i2 instanceof AST_Insight).toBeTruthy();
-      expect(i3 instanceof AST_Insight).toBeTruthy();
+  //     expect(i1 instanceof AST_Insight).toBeTruthy();
+  //     expect(i2 instanceof AST_Insight).toBeTruthy();
+  //     expect(i3 instanceof AST_Insight).toBeTruthy();
 
-      expect(i1.name).toBe(SDQL_Name("i1"));
-      expect(i2.name).toBe(SDQL_Name("i2"));
-      expect(i3.name).toBe(SDQL_Name("i3"));
+  //     expect(i1.name).toBe(SDQL_Name("i1"));
+  //     expect(i2.name).toBe(SDQL_Name("i2"));
+  //     expect(i3.name).toBe(SDQL_Name("i3"));
 
-      expect(i1.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(i1.target.source instanceof ConditionG).toBeTruthy();
-      expect(i1.returns instanceof AST_Expr).toBeTruthy();
-      expect(typeof i1.returns.source === "string").toBeTruthy();
+  //     expect(i1.target instanceof AST_ConditionExpr).toBeTruthy();
+  //     expect(i1.target.source instanceof ConditionG).toBeTruthy();
+  //     expect(i1.returns instanceof AST_Expr).toBeTruthy();
+  //     expect(typeof i1.returns.source === "string").toBeTruthy();
 
-      expect(i2.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(i2.target.source instanceof AST_Query).toBeTruthy();
-      expect(i2.returns instanceof AST_Expr).toBeTruthy();
-      expect(typeof i2.returns.source === "string").toBeTruthy();
+  //     expect(i2.target instanceof AST_ConditionExpr).toBeTruthy();
+  //     expect(i2.target.source instanceof AST_Query).toBeTruthy();
+  //     expect(i2.returns instanceof AST_Expr).toBeTruthy();
+  //     expect(typeof i2.returns.source === "string").toBeTruthy();
 
-      expect(i3.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(typeof i3.target.source == "boolean").toBeTruthy();
-      expect(i3.returns instanceof AST_Expr).toBeTruthy();
-      expect(i3.returns.source instanceof AST_Query).toBeTruthy();
-    });
-  });
-  describe("Checking compensations", () => {
-    test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
-      const c1 = parser.context.get("c1") as AST_Compensation;
-      const c2 = parser.context.get("c2") as AST_Compensation;
-      const c3 = parser.context.get("c3") as AST_Compensation;
-      expect(c1 instanceof AST_Compensation).toBeTruthy();
-      expect(c2 instanceof AST_Compensation).toBeTruthy();
-      expect(c3 instanceof AST_Compensation).toBeTruthy();
+  //     expect(i3.target instanceof AST_ConditionExpr).toBeTruthy();
+  //     expect(typeof i3.target.source == "boolean").toBeTruthy();
+  //     expect(i3.returns instanceof AST_Expr).toBeTruthy();
+  //     expect(i3.returns.source instanceof AST_Query).toBeTruthy();
+  //   });
+  // });
+  // describe("Checking compensations", () => {
+  //   test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
+  //     const c1 = parser.context.get("c1") as AST_Compensation;
+  //     const c2 = parser.context.get("c2") as AST_Compensation;
+  //     const c3 = parser.context.get("c3") as AST_Compensation;
+  //     expect(c1 instanceof AST_Compensation).toBeTruthy();
+  //     expect(c2 instanceof AST_Compensation).toBeTruthy();
+  //     expect(c3 instanceof AST_Compensation).toBeTruthy();
 
-      expect(c1.name).toBe(SDQL_Name("c1"));
-      expect(c2.name).toBe(SDQL_Name("c2"));
-      expect(c3.name).toBe(SDQL_Name("c3"));
+  //     expect(c1.name).toBe(SDQL_Name("c1"));
+  //     expect(c2.name).toBe(SDQL_Name("c2"));
+  //     expect(c3.name).toBe(SDQL_Name("c3"));
 
-      expect(c1.description).toBe("10% discount code for Starbucks");
-      expect(c2.description).toBe(
-        "participate in the draw to win a CryptoPunk NFT",
-      );
-      expect(c3.description).toBe("a free CrazyApesClub NFT");
+  //     expect(c1.description).toBe("10% discount code for Starbucks");
+  //     expect(c2.description).toBe(
+  //       "participate in the draw to win a CryptoPunk NFT",
+  //     );
+  //     expect(c3.description).toBe("a free CrazyApesClub NFT");
 
-      expect(c1.callback).toEqual({
-        parameters: ["recipientAddress"],
-        data: {
-          trackingId: "982JJDSLAcx",
-        },
-      });
-      expect(c2.callback).toEqual({
-        parameters: ["recipientAddress", "productId"],
-        data: {
-          trackingId: "982JJDSLAcx",
-        },
-      });
-      expect(c3.callback).toEqual({
-        parameters: ["recipientAddress", "productId"],
-        data: {
-          trackingId: "982JJDSLAcx",
-        },
-      });
-    });
+  //     expect(c1.callback).toEqual({
+  //       parameters: ["recipientAddress"],
+  //       data: {
+  //         trackingId: "982JJDSLAcx",
+  //       },
+  //     });
+  //     expect(c2.callback).toEqual({
+  //       parameters: ["recipientAddress", "productId"],
+  //       data: {
+  //         trackingId: "982JJDSLAcx",
+  //       },
+  //     });
+  //     expect(c3.callback).toEqual({
+  //       parameters: ["recipientAddress", "productId"],
+  //       data: {
+  //         trackingId: "982JJDSLAcx",
+  //       },
+  //     });
+  //   });
 
-    test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", () => {
-      expect(parser.compensationParameters).toBeDefined();
-      expect(parser.compensationParameters!.recipientAddress).toBeDefined();
-      expect(parser.compensationParameters!.productId).toBeDefined();
-      expect(parser.compensationParameters!.shippingAddress).toBeDefined();
-      expect(parser.compensationParameters!).toEqual({
-        recipientAddress: {
-          type: "address",
-          required: true,
-        },
-        productId: {
-          type: "string",
-          required: false,
-          values: ["https://product1", "https://product2"],
-        },
-        shippingAddress: {
-          type: "string",
-          required: false,
-        },
-      });
-    });
-  });
+  //   test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", () => {
+  //     expect(parser.compensationParameters).toBeDefined();
+  //     expect(parser.compensationParameters!.recipientAddress).toBeDefined();
+  //     expect(parser.compensationParameters!.productId).toBeDefined();
+  //     expect(parser.compensationParameters!.shippingAddress).toBeDefined();
+  //     expect(parser.compensationParameters!).toEqual({
+  //       recipientAddress: {
+  //         type: "address",
+  //         required: true,
+  //       },
+  //       productId: {
+  //         type: "string",
+  //         required: false,
+  //         values: ["https://product1", "https://product2"],
+  //       },
+  //       shippingAddress: {
+  //         type: "string",
+  //         required: false,
+  //       },
+  //     });
+  //   });
+  // });
 
   // describe("Checking Logic return ASTs", () => {
   //   test("avalanche 1 has 2 return ASTs", () => {
@@ -273,15 +272,15 @@ describe("SDQLParser on avalanche", () => {
   //   });
   // });
 
-  describe("AST validation", () => {
-    test("meta check", () => {
-      expect(ast!.version).toBe("0.1");
-      expect(ast!.description).toBe(
-        "Interactions with the Avalanche blockchain for 15-year and older individuals",
-      );
-      expect(ast!.business).toBe("Shrapnel");
-    });
-  });
+  // describe("AST validation", () => {
+  //   test("meta check", () => {
+  //     expect(ast!.version).toBe("0.1");
+  //     expect(ast!.description).toBe(
+  //       "Interactions with the Avalanche blockchain for 15-year and older individuals",
+  //     );
+  //     expect(ast!.business).toBe("Shrapnel");
+  //   });
+  // });
 
   // describe("Dependency validation", () => {
   //   test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {

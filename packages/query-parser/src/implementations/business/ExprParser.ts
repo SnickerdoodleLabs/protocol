@@ -1,15 +1,12 @@
-import { ParseError } from "@babel/parser";
 import {
   InvalidRegularExpression,
   ISDQLAnyEvaluatableString,
-  ISDQLConditionString,
-  ISDQLExpressionString,
   MissingTokenConstructorError,
   ParserError,
   SDQL_Name,
   SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -23,7 +20,6 @@ import {
   AST_ConditionExpr,
   AST_Expr,
   AST_Query,
-  AST_ReturnExpr,
   Command,
   Command_IF,
   Condition,
@@ -101,10 +97,8 @@ export class ExprParser {
     /**
      * Builds a AST expression or a command from the input string
      */
-    const tokenizer = new Tokenizer(exprStr);
-    return tokenizer.all().andThen((tokens) => {
-      const ast = this.tokensToAst(tokens); // TODO this to be result async, too.
-      return okAsync(ast);
+    return new Tokenizer(exprStr).all().map((tokens) => {
+      return this.tokensToAst(tokens); // TODO this to be result async, too.
     });
     // const tokens = tokenizer.all(); // TODO fix
     // const ast = this.tokensToAst(tokens);
@@ -113,9 +107,7 @@ export class ExprParser {
 
   tokensToAst(tokens: Token[]): AST_Expr | Command {
     const postFix: Array<Token> = this.infixToPostFix(tokens);
-    const ast = this.buildAstFromPostfix(postFix);
-    // console.log(ast);
-    return ast;
+    return this.buildAstFromPostfix(postFix);
   }
 
   // #region infix to postfix, $q1and$q2 -> $q1$q2and
@@ -137,7 +129,7 @@ export class ExprParser {
         case TokenType.boolean:
         case TokenType.ad:
         case TokenType.query:
-        // case TokenType.return:
+        case TokenType.insight:
         case TokenType.compensation:
           postFix.push(token);
           break;
@@ -164,14 +156,8 @@ export class ExprParser {
           stack.push(token);
           break;
         case TokenType.parenthesisClose:
-          // pop up to the last open
-          // console.log("stack before", stack);
           popped = this.popHigherEqTypes(stack, token);
           postFix.push(...popped);
-          // console.log("popped", popped);
-          // assume next pop has a opening one
-          // TODO raise error if
-          // console.log("stack after", stack);
           const parenthesisOpen = stack.pop();
           if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
             const e = new ParserError(
@@ -207,10 +193,7 @@ export class ExprParser {
 
     const precedence = this.precedence.get(token.type);
     if (precedence) {
-      // console.log("precedence", precedence);
-      // let lastStackItem = stack[stack.length - 1];
       while (stack.length > 0) {
-        // console.log("peeking", stack[stack.length - 1]);
         if (precedence.includes(stack[stack.length - 1].type)) {
           const lastStackItem = stack.pop();
           popped.push(lastStackItem as Token);
@@ -282,22 +265,18 @@ export class ExprParser {
     const exprTypes: Array<TokenType> = [
       TokenType.ad,
       TokenType.query,
-      // TokenType.return,
+      TokenType.insight,
       TokenType.compensation,
       TokenType.number,
       TokenType.string,
       TokenType.boolean,
     ];
 
-    // console.log(postFix);
-
     const expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
-      // console.log(`processing token: ${token.type}, ${token.val}`);
       if (exprTypes.includes(token.type)) {
-        const executable = this.getExecutableFromContext(token);
-        expList.push(executable);
+        expList.push(this.getExecutableFromContext(token));
       } else {
         // we have a operator type
         const newExp: any = this.createExp(expList, token);
@@ -310,13 +289,10 @@ export class ExprParser {
           console.error(err);
           throw err;
         } else {
-          // expList = [newExp];
           expList.push(newExp);
         }
       }
     }
-
-    // const expr = expList.pop() as AST_Expr | Command;
 
     const expr = expList.pop();
     if (typeof expr === "number") {
@@ -350,41 +326,6 @@ export class ExprParser {
       console.error(err);
       throw err;
     }
-  }
-
-  getExecutableFromContext(token: Token): ParserContextDataTypes {
-    let nameStr = "";
-    switch (token.type) {
-      case TokenType.ad:
-      case TokenType.query:
-      // case TokenType.return:
-      case TokenType.compensation:
-        nameStr = token.val.substring(1);
-        break;
-      case TokenType.number:
-      case TokenType.string:
-      case TokenType.boolean:
-        return token.val;
-      default:
-        const err = new ParserError(
-          token.position,
-          `invalid executable type for ${token.val}`,
-        );
-        console.error(err);
-        throw err;
-    }
-
-    const executable = this.context.get(nameStr);
-    if (!executable) {
-      const err = new ParserError(
-        token.position,
-        `no executable for token ${token.val} in the context`,
-      );
-      console.error(err);
-      throw err;
-    }
-
-    return executable;
   }
 
   createG(
@@ -450,9 +391,7 @@ export class ExprParser {
     const rval = expList.pop() as ConditionOperandTypes;
     const lval = expList.pop() as ConditionOperandTypes;
     const condition = new ConditionAnd(SDQL_OperatorName(id), lval, rval);
-    const and = new AST_ConditionExpr(SDQL_Name(id), condition);
-    // console.log('and constructed to', and);
-    return and;
+    return new AST_ConditionExpr(SDQL_Name(id), condition);;
   }
 
   createOr(
@@ -500,84 +439,92 @@ export class ExprParser {
 
   // #region parse dependencies only
 
-  public getQueryDependencies(
-    exprStr: ISDQLAnyEvaluatableString,
-  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
-    return this.getTokens(exprStr).andThen((tokens) => {
-      const deps: AST_Query[] = [];
-
-      tokens.reduce((deps, token) => {
-        if (token.type == TokenType.query) {
-          deps.push(this.getExecutableFromContext(token) as AST_Query);
-        }
-        // else if (token.type == TokenType.return) {
-        //   const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
-        //   if (r.source instanceof AST_Query) {
-        //     deps.push(r.source);
-        //   }
-        // }
-        return deps;
-      }, deps);
-      return okAsync(Array.from(new Set(deps)));
-    });
-  }
-
   public getUnifiedQueryDependencies(
     expressions: ISDQLAnyEvaluatableString[],
   ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
-    const results = expressions.map((expr) => {
-      return this.getQueryDependencies(expr);
-    });
+    return ResultUtils.combine(
+      expressions.map((expr) => this.getQueryDependencies(expr)),
+    ).map((depsArrays) => Array.from(new Set(depsArrays.flat())));
+  }
 
-    const allDeps: AST_Query[] = [];
-
-    return ResultUtils.combine(results).andThen((depsArrays) => {
-      // const flat = depsArrays.reduce((all, deps) => all.concat(deps), []);
-      const flat = depsArrays.flat();
-      const unique = Array.from(new Set(flat));
-      return okAsync(unique);
+  public getQueryDependencies(
+    exprStr: ISDQLAnyEvaluatableString,
+  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
+    return new Tokenizer(exprStr).all().map((tokens) => {
+      return Array.from(
+        tokens.reduce((deps, token) => {
+          if (token.type == TokenType.query) {
+            deps.add(this.getExecutableFromContext(token) as AST_Query);
+          }
+          return deps;
+        }, new Set<AST_Query>()),
+      );
     });
   }
 
   public getAdDependencies(
     exprStr: ISDQLAnyEvaluatableString,
   ): ResultAsync<AST_Ad[], ParserError | InvalidRegularExpression> {
-    return this.getTokens(exprStr).andThen((tokens) => {
-      const deps: AST_Ad[] = [];
-
-      tokens.reduce((deps, token) => {
-        if (token.type == TokenType.ad) {
-          deps.push(this.getExecutableFromContext(token) as AST_Ad);
-        }
-        return deps;
-      }, deps);
-
-      return okAsync(Array.from(new Set(deps)));
+    return new Tokenizer(exprStr).all().map((tokens) => {
+      return Array.from(
+        tokens.reduce((deps, token) => {
+          if (token.type == TokenType.ad) {
+            deps.add(this.getExecutableFromContext(token) as AST_Ad);
+          }
+          return deps;
+        }, new Set<AST_Ad>()),
+      );
     });
   }
 
   public getInsightDependencies(
     exprStr: ISDQLAnyEvaluatableString,
   ): ResultAsync<AST_Insight[], ParserError | InvalidRegularExpression> {
-    return this.getTokens(exprStr).andThen((tokens) => {
-      const deps: AST_Insight[] = [];
-
-      tokens.reduce((deps, token) => {
-        if (token.type == TokenType.insight) {
-          deps.push(this.getExecutableFromContext(token) as AST_Insight);
-        }
-        return deps;
-      }, deps);
-
-      return okAsync(Array.from(new Set(deps)));
+    return new Tokenizer(exprStr).all().map((tokens) => {
+      return Array.from(
+        tokens.reduce((deps, token) => {
+          if (token.type == TokenType.insight) {
+            deps.add(this.getExecutableFromContext(token) as AST_Insight);
+          }
+          return deps;
+        }, new Set<AST_Insight>()),
+      );
     });
   }
 
-  public getTokens(
-    exprStr: string,
-  ): ResultAsync<Token[], ParserError | InvalidRegularExpression> {
-    const tokenizer = new Tokenizer(exprStr);
-    return tokenizer.all();
+  private getExecutableFromContext(token: Token): ParserContextDataTypes {
+    let nameStr = "";
+    switch (token.type) {
+      case TokenType.ad:
+      case TokenType.query:
+      case TokenType.insight:
+      case TokenType.compensation:
+        nameStr = token.val.substring(1);
+        break;
+      case TokenType.number:
+      case TokenType.string:
+      case TokenType.boolean:
+        return token.val;
+      default:
+        const err = new ParserError(
+          token.position,
+          `invalid executable type for ${token.val}`,
+        );
+        console.error(err);
+        throw err;
+    }
+
+    const executable = this.context.get(nameStr);
+    if (!executable) {
+      const err = new ParserError(
+        token.position,
+        `no executable for token ${token.val} in the context`,
+      );
+      console.error(err);
+      throw err;
+    }
+
+    return executable;
   }
 
   // #endregion

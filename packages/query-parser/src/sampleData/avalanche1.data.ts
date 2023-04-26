@@ -30,7 +30,6 @@ export const avalanche1SchemaStr = SDQLString(
           },
         },
       },
-
       q2: {
         name: "age",
         return: "boolean",
@@ -96,18 +95,6 @@ export const avalanche1SchemaStr = SDQLString(
             trackingId: "982JJDSLAcx",
           },
         },
-        q3: {
-          name: "location",
-          return: "string",
-        },
-        q4: {
-          name: "balance",
-          networkid: "1",
-          conditions: {
-            ge: 10,
-          },
-          return: "array",
-        },
       },
       c2: {
         name: "The CryptoPunk Draw",
@@ -134,32 +121,6 @@ export const avalanche1SchemaStr = SDQLString(
           data: {
             trackingId: "982JJDSLAcx",
           },
-        },
-        c2: {
-          name: "The CryptoPunk Draw",
-          image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
-          description: "participate in the draw to win a CryptoPunk NFT",
-          chainId: 1,
-          callback: {
-            parameters: ["recipientAddress", "productId"],
-            data: {
-              trackingId: "982JJDSLAcx",
-            },
-          },
-          alternatives: ["c3"],
-        },
-        c3: {
-          name: "CrazyApesClub NFT distro",
-          image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
-          description: "a free CrazyApesClub NFT",
-          chainId: 1,
-          callback: {
-            parameters: ["recipientAddress", "productId"],
-            data: {
-              trackingId: "982JJDSLAcx",
-            },
-          },
-          alternatives: ["c2"],
         },
       },
     },

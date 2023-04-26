@@ -170,23 +170,30 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         return parser.buildAST().map(() => parser);
       })
       .andThen((parser) => {
-        const rewardList: PossibleReward[] = [];
-        for (const currentKeyAsString in compensationsMap) {
-          const currentCompId = CompensationId(currentKeyAsString);
-          rewardList.push(
-            new PossibleReward(
-              cid,
-              currentCompId,
-              this.queryUtils.getQueryTypeDependencies(parser, currentCompId),
-              compensationsMap[currentCompId].name,
-              compensationsMap[currentCompId].image,
-              compensationsMap[currentCompId].description,
-              compensationsMap[currentCompId].chainId,
-              ERewardType.Direct,
-            ),
-          );
-        }
-        return okAsync(rewardList);
+        return ResultUtils.combine(
+          (
+            Object.entries(compensationsMap) as [
+              CompensationId,
+              ISDQLCompensations,
+            ][]
+          ).map(([compKey, compBlock]) => {
+            return this.queryUtils
+              .getQueryTypeDependencies(parser, compKey)
+              .map(
+                (deps) =>
+                  new PossibleReward(
+                    cid,
+                    compKey,
+                    deps,
+                    compBlock.name,
+                    compBlock.image,
+                    compBlock.description,
+                    compBlock.chainId,
+                    ERewardType.Direct,
+                  ),
+              );
+          }),
+        );
       });
   }
 
