@@ -2,7 +2,7 @@ import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { ConfigProvider, SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   AccountAddress,
   ChainId,
@@ -26,6 +26,7 @@ import {
   Signature,
   TokenAddress,
   UnixTimestamp,
+  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import {
   IVolatileStorage,
@@ -82,6 +83,40 @@ export class MobileCore {
 
     const reactVolatileStorage =
       this.iocContainer.get<IVolatileStorage>(IVolatileStorageType);
+
+    const config = new ConfigProvider();
+    const configO = config.getConfig().map((config) => {
+      return config;
+    });
+
+    //TODO
+    const a = configO.map((config) => {
+      const coreConfig = {
+        controlChainId: config.controlChainId,
+        supportedChains: config.supportedChains,
+        ipfsFetchBaseUrl: config.ipfsFetchBaseUrl,
+        defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
+        covalentApiKey: config.covalentApiKey,
+        moralisApiKey: config.moralisApiKey,
+        nftScanApiKey: config.nftScanApiKey,
+        poapApiKey: config.poapApiKey,
+        oklinkApiKey: config.oklinkApiKey,
+        dnsServerAddress: config.dnsServerAddress,
+        ceramicNodeUrl: config.ceramicNodeURL,
+
+        accountBalancePollingIntervalMS: config.accountBalancePollingIntervalMS,
+        accountIndexingPollingIntervalMS:
+          config.accountIndexingPollingIntervalMS,
+        accountNFTPollingIntervalMS: config.accountNFTPollingIntervalMS,
+        dataWalletBackupIntervalMS: config.dataWalletBackupIntervalMS,
+        requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
+        domainFilter: config.domainFilter,
+        defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
+        enableBackupEncryption: config.enableBackupEncryption,
+        discordOverrides: config.discord,
+        twitterOverrides: config.twitter,
+      } as IConfigOverrides;
+    });
 
     this.core = new SnickerdoodleCore(
       coreConfig,
@@ -359,9 +394,11 @@ export class MobileCore {
         return _tokenPriceService.getTokenPrice(chainId, address, timestamp);
       },
       getTokenMarketData: (ids: string[]) => {
+        console.log("ids", ids);
         const _tokenPriceService = this.iocContainer.get<ITokenPriceService>(
           ITokenPriceServiceType,
         );
+        console.log("a", _tokenPriceService.getTokenMarketData(ids));
         return _tokenPriceService.getTokenMarketData(ids);
       },
       getTokenInfo: (

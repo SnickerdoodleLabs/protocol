@@ -51,8 +51,6 @@ const permissionImage = {
   "Aggregated token holdings and NFT collections": require("../../../assets/images/renting-nfts.png"),
 };
 
-const testData = [data, data, data];
-
 export interface IInvitationParams {
   consentAddress: EVMContractAddress | undefined;
   tokenId: BigNumberString | undefined;
@@ -87,11 +85,8 @@ const NFTDetails = ({ navigation, route }) => {
   const { mobileCore } = useAppContext();
 
   useEffect(() => {
-    const parsed = rewardItem?.data?.filter(
-      (item) =>
-        ipfsParse(item?.normalized_metadata?.image) === rewardItem?.image,
-    );
-    setNFTData(parsed?.[0]);  }, []);
+    console.log("asdasdas", rewardItem);
+  }, []);
 
   const getTokenId = (tokenId: BigNumberString | undefined) => {
     if (tokenId) {
@@ -158,17 +153,12 @@ const NFTDetails = ({ navigation, route }) => {
           <Image
             style={styles.image}
             source={{
-              uri: ipfsParse(nftData?.normalized_metadata?.image),
+              uri: ipfsParse(rewardItem?.data?.parsed_metadata?.image),
             }}
           />
-          <Text style={styles.title}>{nftData?.name}</Text>
+          <Text style={styles.title}>{rewardItem?.data?.name}</Text>
           <Text style={styles.subTitle}>
-            Created By{" "}
-            {
-              rewardItem?.attributes?.filter(
-                (attribute) => attribute?.trait_type === "createdBy",
-              )[0].value
-            }
+           
           </Text>
           <LineBreaker />
           {/*  <Text style={styles.claimed}>{data.claimed}</Text>
@@ -186,7 +176,7 @@ const NFTDetails = ({ navigation, route }) => {
               }
             </Text>
             <Text style={styles.description}>
-              {nftData?.normalized_metadata?.description}
+              {rewardItem.data?.parsed_metadata?.description}
             </Text>
             <View
               style={{ flexDirection: "row", marginTop: 50, marginBottom: 20 }}
@@ -206,27 +196,29 @@ const NFTDetails = ({ navigation, route }) => {
             <View style={{ marginVertical: normalizeHeight(20) }}>
               <LineBreaker />
             </View>
-            {nftData?.normalized_metadata.attributes.map((data, index) => {
-              return (
-                <View>
-                  <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
-                    {data.trait_type.toUpperCase()}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.subTitle,
-                      { fontWeight: "700", marginTop: normalizeHeight(8) },
-                    ]}
-                  >
-                    {data.value}
-                  </Text>
-
+            {rewardItem?.data?.parsed_metadata?.attributes?.map?.(
+              (data, index) => {
+                return (
                   <View>
-                    {index + 1 !== testData.length && <LineBreaker />}
+                    <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
+                      {data.trait_type.toUpperCase()}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.subTitle,
+                        { fontWeight: "700", marginTop: normalizeHeight(8) },
+                      ]}
+                    >
+                      {data.value}
+                    </Text>
+
+                    <View>
+                      {index + 1 !== rewardItem?.data?.parsed_metadata?.attributes?.length && <LineBreaker />}
+                    </View>
                   </View>
-                </View>
-              );
-            })}
+                );
+              },
+            )}
           </View>
         </View>
       </SafeAreaView>

@@ -43,7 +43,7 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
 };
 
 const Permission = () => {
-  const { mobileCore } = useAppContext();
+  const { mobileCore, isUnlocked } = useAppContext();
 
   interface IPermissionStateProps {
     walletDataType: EWalletDataType;
@@ -83,30 +83,54 @@ const Permission = () => {
     });
   // Discord
   const [discord, setDiscord] = useState<IPermissionStateProps>({
-    walletDataType: 11,
-    status: true,
+    walletDataType: EWalletDataType.Discord,
+    status: false,
   });
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
-  React.useEffect(() => {
-    mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
-      if (permission.length === 0) {
-        mobileCore.dataPermissionUtils.setPermissions([
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-        ]);
-        setPermissions([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-      } else {
-        setPermissions(permission);
-      }
-    });
-  }, []);
+  useEffect(() => {
+    console.log("test");
+    if (isUnlocked) {
+      mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
+        console.log("perm", permission);
+        if (permission.length === 0) {
+          console.log("permission1", permission);
+          mobileCore.dataPermissionUtils.setPermissions([
+            EWalletDataType.Age,
+            EWalletDataType.Gender,
+            EWalletDataType.Location,
+            EWalletDataType.SiteVisits,
+            EWalletDataType.AccountNFTs,
+            EWalletDataType.AccountBalances,
+            EWalletDataType.EVMTransactions,
+            EWalletDataType.Discord,
+          ]);
+
+          setPermissions([
+            EWalletDataType.Age,
+            EWalletDataType.Gender,
+            EWalletDataType.Location,
+            EWalletDataType.SiteVisits,
+            EWalletDataType.AccountNFTs,
+            EWalletDataType.AccountBalances,
+            EWalletDataType.EVMTransactions,
+            EWalletDataType.Discord,
+          ]);
+        } else {
+          setPermissions(permission);
+        }
+      });
+    }
+  }, [isUnlocked]);
 
   useEffect(() => {
     mobileCore.dataPermissionUtils.setPermissions(permissions);
+    console.log("permission3", permissions);
+
     permissions.map((perm) => {
-      if (age.walletDataType == perm) {
+      if (age.walletDataType === perm) {
         setAge({ walletDataType: perm, status: true });
       }
-      if (gender.walletDataType == perm) {
+      if (gender.walletDataType === perm) {
         setGender({ walletDataType: perm, status: true });
       }
       if (location.walletDataType == perm) {
@@ -124,11 +148,11 @@ const Permission = () => {
       if (transactionHistory.walletDataType == perm) {
         setTransactionHistory({ walletDataType: perm, status: true });
       }
-      if (discord.walletDataType == perm) {
+      if (discord.walletDataType === perm) {
         setDiscord({ walletDataType: perm, status: true });
       }
     });
-  }, [permissions]);
+  }, [permissions, isUnlocked]);
 
   return (
     <View style={styles.container}>
@@ -205,7 +229,7 @@ const Permission = () => {
             name: "Discord",
             state: discord,
             setState: setDiscord,
-            ewalletType: 11,
+            ewalletType: EWalletDataType.Discord,
             permissions,
             setPermissions,
           },

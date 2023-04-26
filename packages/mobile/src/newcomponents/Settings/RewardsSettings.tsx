@@ -48,7 +48,7 @@ export default function RewardsSettings() {
 
   useEffect(() => {
     mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {});
-    mobileCore.accountService.getAccountBalances().map((data) => {
+    mobileCore.accountService.getAccountNFTs().map((data) => {
       console.log("getAccountBalances", data);
     });
     setIsLoading([]);

@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Dropdown from "./Dropdown";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -24,17 +24,8 @@ import Sidebar from "../Custom/Sidebar";
 import RadioButton from "../Custom/RadioButton";
 import MultiSelect from "../Custom/MultiSelect";
 import CustomSwitch from "../Custom/CustomSwitch";
-import { TokenBalance } from "@snickerdoodlelabs/objects";
+import { TokenBalance, WalletNFT } from "@snickerdoodlelabs/objects";
 
-function calculateTotalBalance(data: TokenBalance[]): number {
-  const totalBalance = data.reduce((accumulator, item) => {
-    const balanceInWei = item.balance;
-    const divisor = Math.pow(10, item.decimals);
-    const balanceInEther = Number(balanceInWei) / divisor;
-    return accumulator + balanceInEther;
-  }, 0);
-  return totalBalance;
-}
 export interface IDashboardChildrenProps {
   data: {
     nfts: string[];
@@ -44,6 +35,7 @@ export interface IDashboardChildrenProps {
     setSelectedAccount: any;
     isMainnet: boolean;
     pickerLinkedAccounts: any[];
+    myNFTsNew: WalletNFT[];
   };
 }
 const Dashboard = () => {
@@ -65,8 +57,6 @@ const Dashboard = () => {
 
   const [isOpen, setIsOpen] = React.useState(false);
   const animatedWidth = React.useState(new Animated.Value(0))[0];
-
-  const [selected, setSelected] = React.useState(linkedAccounts[0]);
   const [selectedChains, setSelectedChains] = React.useState<string[]>([
     "1",
     "137",
@@ -74,26 +64,6 @@ const Dashboard = () => {
     "56",
   ]);
   const [tokens, setTokens] = React.useState<TokenBalance[]>([]);
-
-  const accountBalances = useMemo(() => {
-    mobileCore.accountService.getAccountBalances().map((balances) => {
-      const filteredBalance = balances.filter(
-        (item) =>
-          item.accountAddress === selectedAccount &&
-          selectedChains.includes(String(item.chainId)),
-      );
-      setTokens(filteredBalance);
-      const totalBLNC = calculateTotalBalance(filteredBalance);
-      console.log("filteredBalance", { filteredBalance, totalBLNC });
-
-      return filteredBalance;
-    });
-  }, [selectedAccount, selectedChains]);
-
-  const totalBalance = useMemo(() => {
-    const total = calculateTotalBalance(tokens);
-    console.log("totalBALANCE", total);
-  }, [tokens]);
 
   const options = [
     {
@@ -124,7 +94,6 @@ const Dashboard = () => {
   };
 
   const handleSelect = (value: string) => {
-    setSelected(value);
     setSelectedAccount(value);
   };
 
@@ -205,6 +174,44 @@ const Dashboard = () => {
       setMyTokens(allTokens);
     }
   };
+
+  const [myNFTsNew, setMyNFTsNew] = useState<WalletNFT[]>([]);
+  const [myTokensNew, setMyTokensNew] = useState<TokenBalance[]>([]);
+
+  useEffect(() => {
+    const testnet = ["43113", "8001", "97"];
+    mobileCore.accountService.getAccountNFTs().map((nfts) => {
+      const filteredNFTs = nfts.filter(
+        (item) =>
+          item.owner === selectedAccount.toLocaleLowerCase() &&
+          (isMainnet
+            ? selectedChains.includes(item.chain.toString())
+            : testnet.includes(item.chain.toString())),
+      );
+      console.log("filteredNFTs", filteredNFTs);
+
+      const parsedArr = filteredNFTs.map((obj) => {
+        const parsedMetadata = JSON.parse(obj?.metadata.raw ?? null);
+        return {
+          ...obj,
+          parsed_metadata: parsedMetadata,
+        };
+      });
+
+      setMyNFTsNew(parsedArr);
+    });
+
+    /*    mobileCore.accountService.getAccountBalances().map((balances) => {
+      console.log("balances", balances);
+      const filteredBalances = balances.filter(
+        (item) =>
+          item.accountAddress === selected.toLocaleLowerCase() &&
+          selectedChains.includes(item.chainId.toString()),
+      );
+      setMyTokensNew(filteredBalances);
+    }); */
+  }, [selectedAccount, selectedChains, isMainnet]);
+
   return (
     <SafeAreaView style={{ backgroundColor: "white", height: "100%" }}>
       <ScrollView style={{ backgroundColor: "white" }}>
@@ -247,6 +254,7 @@ const Dashboard = () => {
                   setSelectedAccount,
                   isMainnet,
                   pickerLinkedAccounts,
+                  myNFTsNew,
                 }}
               />
             </View>
@@ -331,7 +339,7 @@ const Dashboard = () => {
                   selectedChains={selectedChains}
                 />
               </View>
-              <View style={styles.borderBox}>
+           {/*    <View style={styles.borderBox}>
                 <Text
                   style={{
                     fontStyle: "normal",
@@ -350,7 +358,7 @@ const Dashboard = () => {
                     setIsMainnet(!isMainnet);
                   }}
                 />
-              </View>
+              </View> */}
             </Animated.View>
           )}
         </SafeAreaView>

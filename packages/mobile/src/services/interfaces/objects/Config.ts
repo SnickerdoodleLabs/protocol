@@ -37,6 +37,11 @@ export const coreConfig = {
   nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
   poapApiKey:
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
+  oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
+  dnsServerAddress: URLString("https://cloudflare-dns.com/dns-query"),
+  backupChunkSizeTarget: 5,
+  ceramicNodeURL: URLString("https://ceramic.snickerdoodle.dev/"),
+  enableBackupEncryption: false,
   etherscanApiKeys: new Map([
     [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
     // [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
