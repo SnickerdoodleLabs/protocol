@@ -58,22 +58,25 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     chainId: ChainId,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    const items: EVMNFT[] = response.data.map((token) => {
-      return new EVMNFT(
-        EVMContractAddress(token.contract_address),
-        BigNumberString(token.assets[0].token_id),
-        token.assets[0].erc_type,
-        EVMAccountAddress(token.assets[0].owner),
-        TokenUri(token.assets[0].token_uri),
-        { raw: token.assets[0].metadata_json },
-        BigNumberString(token.assets[0].amount),
-        token.assets[0].name,
-        chainId,
-        undefined,
-        UnixTimestamp(Number(token.assets[0].own_timestamp)),
-      );
+    const items = response.data.map((token) => {
+      const assets = token.assets.map((asset) => {
+        return new EVMNFT(
+          EVMContractAddress(asset.contract_address),
+          BigNumberString(asset.token_id),
+          asset.erc_type,
+          EVMAccountAddress(asset.owner),
+          TokenUri(asset.token_uri),
+          { raw: asset.metadata_json },
+          BigNumberString(asset.amount),
+          asset.name,
+          chainId,
+          undefined,
+          UnixTimestamp(Number(asset.own_timestamp)),
+        );
+      });
+      return assets;
     });
-    return okAsync(items);
+    return okAsync(items.flat(1));
   }
 
   private generateBaseUrl(chainId: ChainId): string {
