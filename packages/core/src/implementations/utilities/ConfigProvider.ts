@@ -3,11 +3,15 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
-  ECurrencyCode,
   EChain,
+  ECurrencyCode,
+  EHashAlgorithm,
+  ESignatureAlgorithm,
   IConfigOverrides,
-  URLString,
   ProviderUrl,
+  TokenSecret,
+  TwitterConfig,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
@@ -54,7 +58,7 @@ export class ConfigProvider
 
     const discordConfig = {
       clientId: "1093307083102887996",
-      clientSecret: "w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK",
+      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString("spa-url"),
       accessTokenUrl: URLString("https://discord.com/api/oauth2/token"),
@@ -62,6 +66,19 @@ export class ConfigProvider
       dataAPIUrl: URLString("https://discord.com/api"),
       iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
+    };
+
+    const twitterConfig = {
+      apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+      apiSecretKey: TokenSecret(
+        "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+      ),
+      signingAlgorithm: ESignatureAlgorithm.HMAC,
+      hashingAlgorithm: EHashAlgorithm.SHA1,
+      oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
+      oAuthCallbackUrl: URLString("oob"),
+      dataAPIUrl: URLString("https://api.twitter.com/2"),
+      pollInterval: 1 * 24 * 3600 * 1000,
     };
 
     // All the default config below is for testing on local, using the test-harness package
@@ -82,6 +99,7 @@ export class ConfigProvider
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
       "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
+      "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
@@ -98,20 +116,39 @@ export class ConfigProvider
       ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
-      {
-        solana:
-          "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-        solanaTestnet:
-          "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-        polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
-        polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
-      },
+      new Map<EChain, URLString>([
+        [
+          EChain.Solana,
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+        [
+          EChain.SolanaTestnet,
+          URLString(
+            "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+          ),
+        ],
+        [
+          EChain.Polygon,
+          URLString(
+            "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
+          ),
+        ],
+        [
+          EChain.Mumbai,
+          URLString(
+            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+          ),
+        ],
+      ]),
       10000,
       "(localhost|chrome://)",
       false, // enable backup encryption
       300000,
       120000, // backup placement heartbeat
       discordConfig,
+      twitterConfig,
       60000, // heartbeatIntervalMS
     );
   }
@@ -178,6 +215,7 @@ export class ConfigProvider
     this.config.nftScanApiKey =
       overrides.nftScanApiKey ?? this.config.nftScanApiKey;
     this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
+    this.config.oklinkApiKey = overrides.oklinkApiKey ?? this.config.oklinkApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -194,14 +232,14 @@ export class ConfigProvider
       overrides.domainFilter ?? this.config.domainFilter;
     this.config.enableBackupEncryption =
       overrides.enableBackupEncryption ?? false;
-
-    const discordConfig = {
+    this.config.discord = {
       ...this.config.discord,
       ...overrides.discordOverrides,
     };
-
-    this.config.discord = discordConfig;
-
+    this.config.twitter = {
+      ...this.config.twitter,
+      ...overrides.twitterOverrides,
+    };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
   }

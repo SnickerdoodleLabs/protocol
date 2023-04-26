@@ -70,6 +70,7 @@ export class ExtensionCore {
       moralisApiKey: config.moralisApiKey,
       nftScanApiKey: config.nftScanApiKey,
       poapApiKey: config.poapApiKey,
+      oklinkApiKey: config.oklinkApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
@@ -82,6 +83,7 @@ export class ExtensionCore {
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
       enableBackupEncryption: config.enableBackupEncryption,
       discordOverrides: config.discordOverrides,
+      twitterOverrides: config.twitterOverrides,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

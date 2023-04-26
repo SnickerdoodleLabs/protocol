@@ -6,18 +6,18 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  DiscordAccessToken,
+  OAuth2AccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
   DiscordGuildProfileAPIResponse,
   DiscordProfile,
-  DiscordRefreshToken,
+  OAuth2RefreshToken,
   ESocialType,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   PersistenceError,
-  SnowflakeID,
+  DiscordID,
   SocialPrimaryKey,
   UnixTimestamp,
   URLString,
@@ -33,8 +33,6 @@ import {
 } from "@core/interfaces/data/apis";
 import { IDiscordRepository } from "@core/interfaces/data/IDiscordRepository";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   ISocialRepository,
   ISocialRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -48,8 +46,6 @@ export class DiscordRepository implements IDiscordRepository {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(ISocialRepositoryType)
     protected socialRepository: ISocialRepository,
     @inject(ITimeUtilsType)
@@ -63,7 +59,7 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public refreshAuthToken(
-    refreshToken: DiscordRefreshToken,
+    refreshToken: OAuth2RefreshToken,
   ): ResultAsync<OAuth2Tokens, DiscordError> {
     return ResultUtils.combine([
       this.tokenAPICallBaseConfig(),
@@ -76,7 +72,9 @@ export class DiscordRepository implements IDiscordRepository {
           refresh_token: refreshToken,
         })
         .map(this.factoryAccessToken)
-        .mapErr((error) => new DiscordError(error.message));
+        .mapErr((error) => {
+          return new DiscordError(error.message);
+        });
     });
   }
 
@@ -135,7 +133,9 @@ export class DiscordRepository implements IDiscordRepository {
               oauth2Tokens,
             ),
         )
-        .mapErr((error) => new DiscordError(error.message));
+        .mapErr((error) => {
+          return new DiscordError(error.message);
+        });
     });
   }
 
@@ -152,7 +152,7 @@ export class DiscordRepository implements IDiscordRepository {
           response.map((profile) => {
             return new DiscordGuildProfile(
               profile.id,
-              SnowflakeID("-1"), // not set yet
+              undefined,
               profile.name,
               profile.owner,
               profile.permissions,
@@ -161,7 +161,9 @@ export class DiscordRepository implements IDiscordRepository {
             );
           }),
         )
-        .mapErr((error) => new DiscordError(error.message));
+        .mapErr((error) => {
+          return new DiscordError(error.message);
+        });
     });
   }
 
@@ -178,7 +180,7 @@ export class DiscordRepository implements IDiscordRepository {
   }
 
   public getProfileById(
-    id: SnowflakeID,
+    id: DiscordID,
   ): ResultAsync<DiscordProfile | null, PersistenceError> {
     const pKey = SocialPrimaryKey(`discord-${id}`); // Should be in a Utils class.
     return this.socialRepository.getProfileByPK<DiscordProfile>(pKey);
@@ -201,7 +203,7 @@ export class DiscordRepository implements IDiscordRepository {
     );
   }
 
-  public deleteProfile(id: SnowflakeID): ResultAsync<void, PersistenceError> {
+  public deleteProfile(id: DiscordID): ResultAsync<void, PersistenceError> {
     // 1. find the profile
     // 2. if exists delete the profile and all the guild profiles associated with it. We do not have cascading deletion. So, need to read and delete all the groups.
     return this.getProfileById(id).andThen((uProfile) => {
@@ -259,7 +261,7 @@ export class DiscordRepository implements IDiscordRepository {
     );
   }
 
-  protected getRequestConfig(authToken: DiscordAccessToken): IRequestConfig {
+  protected getRequestConfig(authToken: OAuth2AccessToken): IRequestConfig {
     return {
       headers: {
         Authorization: `Bearer ${authToken}`,
