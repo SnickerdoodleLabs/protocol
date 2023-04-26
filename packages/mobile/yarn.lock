@@ -5027,6 +5027,7 @@ __metadata:
     typescript: ^4.8.3
     url: ^0.10.3
     url-join-ts: ^1.0.5
+    use-deep-compare-effect: ^1.8.1
     util: ^0.10.4
     web3: ^1.9.0
     yarn: ^1.22.19
@@ -24493,6 +24494,18 @@ __metadata:
   peerDependencies:
     react: ">=16.13"
   checksum: 3724473628570ccf62706b6775b2bdbdad57e4e72aaa70965388b5a4ae322a8bd0f9647d13d85f3a892cdcb4bb6d0dbdf7eedded5f7040ac3888ff7c96b381a9
+  languageName: node
+  linkType: hard
+
+"use-deep-compare-effect@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "use-deep-compare-effect@npm:1.8.1"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    dequal: ^2.0.2
+  peerDependencies:
+    react: ">=16.13"
+  checksum: 2b9b6291df3f772f44d259b352e5d998963ccee0db2efeb76bb05525d928064aeeb69bb0dee5a5e428fea7cf3db67c097a770ebd30caa080662b565f6ef02b2e
   languageName: node
   linkType: hard
 

@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Dropdown from "./Dropdown";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -24,6 +24,17 @@ import Sidebar from "../Custom/Sidebar";
 import RadioButton from "../Custom/RadioButton";
 import MultiSelect from "../Custom/MultiSelect";
 import CustomSwitch from "../Custom/CustomSwitch";
+import { TokenBalance } from "@snickerdoodlelabs/objects";
+
+function calculateTotalBalance(data: TokenBalance[]): number {
+  const totalBalance = data.reduce((accumulator, item) => {
+    const balanceInWei = item.balance;
+    const divisor = Math.pow(10, item.decimals);
+    const balanceInEther = Number(balanceInWei) / divisor;
+    return accumulator + balanceInEther;
+  }, 0);
+  return totalBalance;
+}
 export interface IDashboardChildrenProps {
   data: {
     nfts: string[];
@@ -57,32 +68,53 @@ const Dashboard = () => {
 
   const [selected, setSelected] = React.useState(linkedAccounts[0]);
   const [selectedChains, setSelectedChains] = React.useState<string[]>([
-    "0x1",
-    "0x89",
-    "0xa86a",
-    "0x38",
+    "1",
+    "137",
+    "43114",
+    "56",
   ]);
+  const [tokens, setTokens] = React.useState<TokenBalance[]>([]);
+
+  const accountBalances = useMemo(() => {
+    mobileCore.accountService.getAccountBalances().map((balances) => {
+      const filteredBalance = balances.filter(
+        (item) =>
+          item.accountAddress === selectedAccount &&
+          selectedChains.includes(String(item.chainId)),
+      );
+      setTokens(filteredBalance);
+      const totalBLNC = calculateTotalBalance(filteredBalance);
+      console.log("filteredBalance", { filteredBalance, totalBLNC });
+
+      return filteredBalance;
+    });
+  }, [selectedAccount, selectedChains]);
+
+  const totalBalance = useMemo(() => {
+    const total = calculateTotalBalance(tokens);
+    console.log("totalBALANCE", total);
+  }, [tokens]);
 
   const options = [
     {
       image: require("../../assets/images/chain-eth.png"),
       label: "Ethereum",
-      value: "0x1",
+      value: "1",
     },
     {
       image: require("../../assets/images/chain-polygon.png"),
       label: "Polygon",
-      value: "0x89",
+      value: "137",
     },
     {
       image: require("../../assets/images/chain-avax.png"),
       label: "Avalanche",
-      value: "0xa86a",
+      value: "43114",
     },
     {
       image: require("../../assets/images/chain-bsc.png"),
       label: "Binance Smart Chain",
-      value: "0x38",
+      value: "56",
     },
   ];
 

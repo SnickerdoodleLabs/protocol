@@ -134,6 +134,7 @@
     "tweetnacl": "^1.0.3",
     "url": "^0.10.3",
     "url-join-ts": "^1.0.5",
+    "use-deep-compare-effect": "^1.8.1",
     "util": "^0.10.4",
     "web3": "^1.9.0",
     "yarn": "^1.22.19",

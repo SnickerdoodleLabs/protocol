@@ -405,9 +405,9 @@ const LayoutContextProvider = ({ children }) => {
     });
   };
   const rejectInvitationHandle = () => {
-    mobileCore.invitationService.rejectInvitation(
+  /*   mobileCore.invitationService.rejectInvitation(
       invitationStatus.invitationParams!,
-    );
+    ); */
     setInvitationStatus(
       false,
       invitationStatus.data,
