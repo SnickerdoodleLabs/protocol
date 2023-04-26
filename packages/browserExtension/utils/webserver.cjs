@@ -13,6 +13,7 @@ process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
 process.env.__NFTSCAN_API_KEY__ = "";
 process.env.__POAP_API_KEY__ = "";
+process.env.__OKLINK_API_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
 process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
 process.env.__DOMAIN_FILTER__ = "(localhost|chrome://)";
@@ -24,7 +25,9 @@ process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
 process.env.__DISCORD_CLIENT_ID__ = "1089994449830027344";
 process.env.__DISCORD_CLIENT_KEY__ = "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ";
 process.env.__DISCORD_POLL_INTERVAL__ = "86400000";
-
+process.env.__TWITTER_CONSUMER_KEY__ = "boxruvqZNqFDLsWgc2BkbhHzn";
+process.env.__TWITTER_CONSUMER_SECRET__ = "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw";
+process.env.__TWITTER_POLL_INTERVAL__ = "86400000";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
