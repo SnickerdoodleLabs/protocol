@@ -35,6 +35,7 @@ import {
   Signature,
   TokenId,
   UninitializedError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -105,8 +106,8 @@ export class InvitationService implements IInvitationService {
   > {
     let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
-      this.accountRepo.getRejectedCohorts(),
-      this.accountRepo.getAcceptedInvitations(),
+      this.invitationRepo.getRejectedInvitations(),
+      this.invitationRepo.getAcceptedInvitations(),
       // isAddressOptedIn() just checks for a balance- it does not require that the persistence
       // layer actually know about the token
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
@@ -144,7 +145,7 @@ export class InvitationService implements IInvitationService {
             return this.consentRepo
               .getLatestConsentTokenId(invitation.consentContractAddress)
               .andThen((tokenIdOrNull) => {
-                return this.accountRepo
+                return this.invitationRepo
                   .addAcceptedInvitations([
                     new Invitation(
                       invitation.domain,
@@ -164,7 +165,7 @@ export class InvitationService implements IInvitationService {
             // Fortunately the rest of the stuff doesn't care about acceptedInvitation,
             // so we'll just add a cleanupAction.
             cleanupActions =
-              this.accountRepo.removeAcceptedInvitationsByContractAddress([
+              this.invitationRepo.removeAcceptedInvitationsByContractAddress([
                 invitation.consentContractAddress,
               ]);
           }
@@ -356,7 +357,7 @@ export class InvitationService implements IInvitationService {
           optInData,
           this.forwarderRepo.getNonce(optInAddress),
           this.configProvider.getConfig(),
-          this.accountRepo.addAcceptedInvitations([invitation]),
+          this.invitationRepo.addAcceptedInvitations([invitation]),
         ])
           .andThen(([callData, nonce, config]) => {
             // We need to take the types, and send it to the account signer
@@ -405,7 +406,7 @@ export class InvitationService implements IInvitationService {
               .orElse((e) => {
                 // Metatransaction failed!
                 // Need to do some cleanup
-                return this.accountRepo
+                return this.invitationRepo
                   .removeAcceptedInvitationsByContractAddress([
                     invitation.consentContractAddress,
                   ])
@@ -426,6 +427,7 @@ export class InvitationService implements IInvitationService {
 
   public rejectInvitation(
     invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -448,9 +450,10 @@ export class InvitationService implements IInvitationService {
           );
         }
 
-        return this.accountRepo.addRejectedCohorts([
-          invitation.consentContractAddress,
-        ]);
+        return this.invitationRepo.addRejectedInvitations(
+          [invitation.consentContractAddress],
+          rejectUntil ?? null,
+        );
       });
   }
 
@@ -476,7 +479,7 @@ export class InvitationService implements IInvitationService {
       }
 
       // We need to find your opt-in token
-      return this.accountRepo
+      return this.invitationRepo
         .getAcceptedInvitations()
         .andThen((invitations) => {
           const currentInvitation = invitations.find((invitation) => {
@@ -557,9 +560,9 @@ export class InvitationService implements IInvitationService {
           });
         })
         .andThen(() => {
-          return this.accountRepo.removeAcceptedInvitationsByContractAddress([
-            consentContractAddress,
-          ]);
+          return this.invitationRepo.removeAcceptedInvitationsByContractAddress(
+            [consentContractAddress],
+          );
         })
         .map(() => {
           // Notify the world that we've opted in to the cohort
@@ -569,7 +572,7 @@ export class InvitationService implements IInvitationService {
   }
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
-    return this.accountRepo.getAcceptedInvitations();
+    return this.invitationRepo.getAcceptedInvitations();
   }
 
   public getInvitationsByDomain(
@@ -606,7 +609,7 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | PersistenceError
   > {
-    return this.accountRepo
+    return this.invitationRepo
       .getAcceptedInvitations()
       .andThen((optInInfo) => {
         return this.consentRepo.getConsentContracts(
@@ -930,8 +933,8 @@ export class InvitationService implements IInvitationService {
       // can be fetched via insight-platform API call
       // or indexing can be used to avoid this relatively expensive look through
       this.consentRepo.getDeployedConsentContractAddresses(),
-      this.accountRepo.getAcceptedInvitations(),
-      this.accountRepo.getRejectedCohorts(),
+      this.invitationRepo.getAcceptedInvitations(),
+      this.invitationRepo.getRejectedInvitations(),
     ]).andThen(([consents, acceptedInvitations, rejectedConsents]) => {
       return ResultUtils.combine(
         consents

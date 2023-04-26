@@ -1,8 +1,8 @@
-import { ChainTransaction } from "@objects/businessObjects/ChainTransaction";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction";
 import { EVMEvent } from "@objects/businessObjects/EVMEvent";
-import { EVMTransaction } from "@objects/businessObjects/EVMTransaction";
+import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction";
 import { SolanaTransaction } from "@objects/businessObjects/SolanaTransaction";
-import { VersionedObjectMigrator } from "@objects/businessObjects/VersionedObject";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject";
 import { getChainInfoByChainId } from "@objects/configuration";
 import { EChainTechnology } from "@objects/enum";
 import {

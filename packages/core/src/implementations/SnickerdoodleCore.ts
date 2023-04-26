@@ -3,51 +3,6 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-import {
-  IAccountIndexerPoller,
-  IAccountIndexerPollerType,
-  IBlockchainListener,
-  IBlockchainListenerType,
-  ISocialMediaPoller,
-  ISocialMediaPollerType,
-} from "@core/interfaces/api/index.js";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IAdService,
-  IAdServiceType,
-  IDiscordService,
-  IDiscordServiceType,
-  IIntegrationService,
-  IIntegrationServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IMarketplaceService,
-  IMarketplaceServiceType,
-  IProfileService,
-  IProfileServiceType,
-  IQueryService,
-  IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
-  ITwitterService,
-  ITwitterServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@core/interfaces/data/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities/index.js";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -101,6 +56,7 @@ import {
   ICoreMarketplaceMethods,
   ICoreTwitterMethods,
   IDynamicRewardParameter,
+  IInvitationMethods,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -159,14 +115,58 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
+  ISocialMediaPoller,
+  ISocialMediaPollerType,
   IHeartbeatGenerator,
   IHeartbeatGeneratorType,
 } from "@core/interfaces/api/index.js";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IAdService,
+  IAdServiceType,
+  IDiscordService,
+  IDiscordServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
+  ISiftContractService,
+  ISiftContractServiceType,
+  ITwitterService,
+  ITwitterServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
+  public invitation: IInvitationMethods;
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
   public discord: ICoreDiscordMethods;
@@ -238,6 +238,106 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+
+    // Invitation Methods ----------------------------------------------------------------------------
+    this.invitation = {
+      checkInvitationStatus: (
+        invitation: Invitation,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.checkInvitationStatus(invitation);
+      },
+      acceptInvitation: (
+        invitation: Invitation,
+        dataPermissions: DataPermissions | null,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.acceptInvitation(invitation, dataPermissions);
+      },
+      rejectInvitation: (
+        invitation: Invitation,
+        rejectUntil: UnixTimestamp | undefined = undefined,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.rejectInvitation(invitation, rejectUntil);
+      },
+      leaveCohort: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.leaveCohort(consentContractAddress);
+      },
+      getAcceptedInvitations: (
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAcceptedInvitations();
+      },
+      getInvitationsByDomain: (
+        domain: DomainName,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getInvitationsByDomain(domain);
+      },
+      getAgreementFlags: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAgreementFlags(consentContractAddress);
+      },
+      getAvailableInvitationsCID: (
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAvailableInvitationsCID();
+      },
+      getAcceptedInvitationsCID: (
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAcceptedInvitationsCID();
+      },
+      getInvitationMetadataByCID: (ipfsCID: IpfsCID) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getInvitationMetadataByCID(ipfsCID);
+      },
+    };
 
     // Integration Methods ---------------------------------------------------------------------------
     this.integration = {
@@ -617,175 +717,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         chain,
       );
     });
-  }
-
-  public checkInvitationStatus(
-    invitation: Invitation,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    EInvitationStatus,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.checkInvitationStatus(invitation);
-  }
-
-  public acceptInvitation(
-    invitation: Invitation,
-    dataPermissions: DataPermissions | null,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | ConsentError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.acceptInvitation(invitation, dataPermissions);
-  }
-
-  public rejectInvitation(
-    invitation: Invitation,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.rejectInvitation(invitation);
-  }
-
-  public leaveCohort(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | AjaxError
-    | PersistenceError
-    | MinimalForwarderContractError
-    | ConsentError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.leaveCohort(consentContractAddress);
-  }
-
-  public getAcceptedInvitations(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<Invitation[], PersistenceError> {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAcceptedInvitations();
-  }
-
-  public getInvitationsByDomain(
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    PageInvitation[],
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | IPFSError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getInvitationsByDomain(domain);
-  }
-
-  public getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    HexString32,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | ConsentError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAgreementFlags(consentContractAddress);
-  }
-
-  public getAvailableInvitationsCID(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | PersistenceError
-    | ConsentContractError
-    | ConsentFactoryContractError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAvailableInvitationsCID();
-  }
-
-  public getAcceptedInvitationsCID(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAcceptedInvitationsCID();
-  }
-  public getInvitationMetadataByCID(
-    ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getInvitationMetadataByCID(ipfsCID);
   }
 
   public approveQuery(

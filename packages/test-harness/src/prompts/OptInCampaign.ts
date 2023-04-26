@@ -25,7 +25,7 @@ export class OptInCampaign extends Prompt {
     | AjaxError
     | ConsentContractRepositoryError
   > {
-    return this.core
+    return this.core.invitation
       .getInvitationsByDomain(this.mocks.domainName)
       .andThen((invitations) => {
         return inquiryWrapper([
@@ -74,7 +74,7 @@ export class OptInCampaign extends Prompt {
               return okAsync(undefined);
             }
 
-            return this.core
+            return this.core.invitation
               .checkInvitationStatus(invitation.invitation)
               .andThen((invitationStatus) => {
                 if (invitationStatus != EInvitationStatus.New) {
@@ -85,7 +85,10 @@ export class OptInCampaign extends Prompt {
                   );
                 }
                 // Accept with no conditions
-                return this.core.acceptInvitation(invitation.invitation, null);
+                return this.core.invitation.acceptInvitation(
+                  invitation.invitation,
+                  null,
+                );
               })
               .map(() => {
                 console.log(
