@@ -7,13 +7,13 @@ Q[Query] --> Comp[Compensation Evaluator]
 
 
 Comp --> AdExists{Query have ads?}
-AdExists ---Y0--> ExpiryCheck{Expiry Close?}
-AdExists ---No1--> Eval[Evaluate the compensations \nand return to IP]
-ExpiryCheck---No2--> AdSignature{Does have \nrequired signatures for \nall the compensations}
-ExpiryCheck---Y1--> Eval
-AdSignature --Y2--->Eval
-AdSignature ---N3--->Wait[Return to Query Scheduler]
-Wait --After 1 hour--->Q
+AdExists --Y--> ExpiryCheck{Expiry Close?}
+AdExists --N: No Ads--> Eval[Evaluate the compensations \nand return to IP]
+ExpiryCheck--N--> AdSignature{Does have \nrequired signatures for \nall the compensations}
+ExpiryCheck--Y: No Time--> Eval
+AdSignature --Y: Have all signatures -->Eval
+AdSignature --N-->Wait[Return to Query Scheduler]
+Wait --Interval-->Q
 
 ```
 
@@ -23,4 +23,4 @@ Either one of the following must be TRUE before we can evaluate the compensation
 
 1. No Ads
 2. No **time** to wait for Ads (grace period is over)
-3. No **need** to wait for Ads (got all the signatures)
+3. Have required signatures
