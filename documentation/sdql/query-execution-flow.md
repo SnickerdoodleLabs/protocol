@@ -1,5 +1,5 @@
 ## Objective
-Queries can have Ads. When it has Ads, we wait till the expiration of the query (with a grace period) to collect as many ad signatures as possible. This process is complicated as should be extracted to a process class.
+Queries can have Ads. When it has Ads, we wait till the expiration of the query (**with a grace period**) to collect as many ad signatures as possible. This process is complicated as should be extracted to a process class.
 
 ```mermaid
 flowchart TD
@@ -22,5 +22,5 @@ Wait --After 1 hour--->Q
 Either one of the following must be TRUE before we can evaluate the compensations of a query
 
 1. No Ads
-2. No **time** to wait for Ads
+2. No **time** to wait for Ads (grace period is over)
 3. No **need** to wait for Ads (got all the signatures)
