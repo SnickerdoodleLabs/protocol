@@ -363,7 +363,7 @@ export interface IInvitationMethods {
    * right?)
    * If rejectUtil is provided, the rejection will be temporary instead- acting like
    * an "ask me later" feature. The invitation will be treated as rejected until the timestamp
-   * is passed. 
+   * is passed.
    */
   rejectInvitation(
     invitation: Invitation,
@@ -416,6 +416,7 @@ export interface IInvitationMethods {
     | AjaxError
     | IPFSError
     | UnauthorizedError
+    | PersistenceError
   >;
 
   getAgreementFlags(

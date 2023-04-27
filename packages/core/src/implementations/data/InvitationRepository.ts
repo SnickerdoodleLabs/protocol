@@ -194,7 +194,7 @@ export class InvitationRepository implements IInvitationRepository {
           .filter((rejectedInvitation) => {
             return (
               rejectedInvitation.rejectUntil == null ||
-              rejectedInvitation.rejectUntil < now
+              rejectedInvitation.rejectUntil > now
             );
           })
           .map((filteredRejection) => {

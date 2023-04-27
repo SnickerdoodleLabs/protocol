@@ -1,3 +1,4 @@
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -7,14 +8,23 @@ import {
   PageInvitation,
   PersistenceError,
   UninitializedError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
+import { Environment } from "@test-harness/mocks/index.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 
 export class OptInCampaign extends Prompt {
+  public constructor(
+    environment: Environment,
+    protected timeUtils: ITimeUtils,
+  ) {
+    super(environment);
+  }
+
   public start(): ResultAsync<
     void,
     | Error
@@ -60,18 +70,55 @@ export class OptInCampaign extends Prompt {
               choices: [
                 {
                   name: "Yes",
-                  value: true,
+                  value: "yes",
                 },
                 {
                   name: "No",
-                  value: false,
+                  value: "no",
+                },
+                {
+                  name: "Reject",
+                  value: "reject",
+                },
+                {
+                  name: "Reject for 30 seconds",
+                  value: "reject30",
                 },
               ],
             },
           ]).andThen((acceptAnswers) => {
-            // You can reject the invitation
-            if (!acceptAnswers.acceptInvitation) {
+            // You can reject the invitation without rejecting it
+            if (acceptAnswers.acceptInvitation == "no") {
               return okAsync(undefined);
+            }
+
+            if (acceptAnswers.acceptInvitation == "reject") {
+              return this.core.invitation
+                .rejectInvitation(invitation.invitation)
+                .map(() => {
+                  console.log(
+                    `Rejected invitation to ${invitation.invitation.consentContractAddress} permanently`,
+                  );
+                });
+            }
+
+            if (acceptAnswers.acceptInvitation == "reject30") {
+              // Calculate a time 30s in the future
+              const rejectUntil = UnixTimestamp(
+                this.timeUtils.getUnixNow() + 30,
+              );
+              return this.core.invitation
+                .rejectInvitation(invitation.invitation, rejectUntil)
+                .map(() => {
+                  console.log(
+                    `Rejected invitation to ${invitation.invitation.consentContractAddress} until ${rejectUntil}`,
+                  );
+                  setTimeout(() => {
+                    console.log(
+                      `Rejected invitation to ${invitation.invitation.consentContractAddress} should be available again`,
+                    );
+                  }, 30 * 1000);
+                });
             }
 
             return this.core.invitation

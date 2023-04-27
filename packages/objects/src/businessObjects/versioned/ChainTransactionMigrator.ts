@@ -1,10 +1,10 @@
-import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction";
-import { EVMEvent } from "@objects/businessObjects/EVMEvent";
-import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction";
-import { SolanaTransaction } from "@objects/businessObjects/SolanaTransaction";
-import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject";
-import { getChainInfoByChainId } from "@objects/configuration";
-import { EChainTechnology } from "@objects/enum";
+import { EVMEvent } from "@objects/businessObjects/EVMEvent.js";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
+import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction.js";
+import { SolanaTransaction } from "@objects/businessObjects/versioned/SolanaTransaction.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { getChainInfoByChainId } from "@objects/configuration/index.js";
+import { EChainTechnology } from "@objects/enum/index.js";
 import {
   BigNumberString,
   ChainId,

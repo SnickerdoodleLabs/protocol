@@ -1,3 +1,4 @@
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BackupFileName,
   BigNumberString,
@@ -38,14 +39,14 @@ export class CorePrompt extends DataWalletPrompt {
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
 
-  public constructor(public env: Environment) {
+  public constructor(public env: Environment, protected timeUtils: ITimeUtils) {
     super(env);
 
     this.unlockCore = new UnlockCore(this.env);
     this.addAccount = new AddAccount(this.env);
     this.checkAccount = new CheckAccount(this.env);
     this.removeAccount = new RemoveAccount(this.env);
-    this.optInCampaign = new OptInCampaign(this.env);
+    this.optInCampaign = new OptInCampaign(this.env, this.timeUtils);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
   }

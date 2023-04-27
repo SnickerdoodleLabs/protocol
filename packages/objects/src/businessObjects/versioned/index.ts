@@ -14,5 +14,6 @@ export * from "@objects/businessObjects/versioned/RestoredBackup.js";
 export * from "@objects/businessObjects/versioned/SiteVisit.js";
 export * from "@objects/businessObjects/versioned/SocialGroupProfile.js";
 export * from "@objects/businessObjects/versioned/SocialProfile.js";
+export * from "@objects/businessObjects/versioned/SolanaTransaction.js";
 export * from "@objects/businessObjects/versioned/TokenInfo.js";
 export * from "@objects/businessObjects/versioned/VersionedObject.js";

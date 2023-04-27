@@ -584,6 +584,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+    | PersistenceError
   > {
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
@@ -669,46 +670,58 @@ export class InvitationService implements IInvitationService {
     | UninitializedError
     | ConsentContractError
     | IPFSError
+    | PersistenceError
   > {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
       this.getConsentCapacity(consentContractAddress),
-    ]).andThen(([invitationUrls, ipfsCID, consentCapacity]) => {
-      // If there's no slots, there's no invites
-      if (consentCapacity.availableOptInCount == 0) {
-        return okAsync([]);
-      }
+      this.invitationRepo.getRejectedInvitations(),
+    ]).andThen(
+      ([invitationUrls, ipfsCID, consentCapacity, rejectedInvitations]) => {
+        // If there's no slots, there's no invites
+        if (consentCapacity.availableOptInCount == 0) {
+          return okAsync([]);
+        }
 
-      // The baseUri is an IPFS CID
-      return this.invitationRepo
-        .getInvitationDomainByCID(ipfsCID, domain)
-        .andThen((invitationDomain) => {
-          if (invitationDomain == null) {
-            return errAsync(
-              new IPFSError(
-                `No invitation details could be found at IPFS CID ${ipfsCID}`,
-              ),
-            );
-          }
-          return ResultUtils.combine(
-            invitationUrls.map((invitationUrl) => {
-              return this.cryptoUtils.getTokenId().map((tokenId) => {
-                return new PageInvitation(
-                  invitationUrl, // getDomains() is actually misnamed, it returns URLs now
-                  new Invitation(
-                    domain,
-                    consentContractAddress,
-                    tokenId,
-                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
-                  ),
-                  invitationDomain,
-                );
-              });
-            }),
-          );
+        const rejected = rejectedInvitations.find((rejectedInvitation) => {
+          return rejectedInvitation == consentContractAddress;
         });
-    });
+
+        if (rejected != null) {
+          return okAsync([]);
+        }
+
+        // The baseUri is an IPFS CID
+        return this.invitationRepo
+          .getInvitationDomainByCID(ipfsCID, domain)
+          .andThen((invitationDomain) => {
+            if (invitationDomain == null) {
+              return errAsync(
+                new IPFSError(
+                  `No invitation details could be found at IPFS CID ${ipfsCID}`,
+                ),
+              );
+            }
+            return ResultUtils.combine(
+              invitationUrls.map((invitationUrl) => {
+                return this.cryptoUtils.getTokenId().map((tokenId) => {
+                  return new PageInvitation(
+                    invitationUrl, // getDomains() is actually misnamed, it returns URLs now
+                    new Invitation(
+                      domain,
+                      consentContractAddress,
+                      tokenId,
+                      null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+                    ),
+                    invitationDomain,
+                  );
+                });
+              }),
+            );
+          });
+      },
+    );
   }
 
   public getAgreementFlags(

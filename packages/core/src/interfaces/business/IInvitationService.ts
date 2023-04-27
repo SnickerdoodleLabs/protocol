@@ -106,6 +106,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+    | PersistenceError
   >;
 
   getAcceptedInvitationsCID(): ResultAsync<
