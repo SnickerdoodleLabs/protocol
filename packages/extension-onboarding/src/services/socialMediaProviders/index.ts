@@ -21,10 +21,10 @@ export const getProviderList = (): ISocialMediaWrapper[] => [
     name: "Discord",
     key: ESocialType.DISCORD,
   },
-  // {
-  //   provider: new TwitterProvider(),
-  //   icon: TwitterIcon,
-  //   name: "Twitter",
-  //   key: ESocialType.TWITTER,
-  // },
+  {
+    provider: new TwitterProvider(),
+    icon: TwitterIcon,
+    name: "Twitter",
+    key: ESocialType.TWITTER,
+  },
 ];
