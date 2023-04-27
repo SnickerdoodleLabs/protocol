@@ -26,6 +26,7 @@ import {
   TransactionPaymentCounter,
   TwitterProfile,
   WalletNFT,
+  QueryStatus,
 } from "@objects/businessObjects";
 import {
   EChain,
@@ -799,6 +800,10 @@ export interface ISnickerdoodleCore {
     transactions: ChainTransaction[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+
+  getQueryStatusByQueryCID(
+    cid: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;

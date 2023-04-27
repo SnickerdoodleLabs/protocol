@@ -19,6 +19,7 @@ import {
   TokenMarketData,
   TwitterProfile,
   WalletNFT,
+  QueryStatus,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
@@ -155,8 +156,6 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
-
   getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
@@ -186,6 +185,12 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
+
+  getQueryStatusByQueryCID(
+    cid: IpfsCID,
+  ): ResultAsync<QueryStatus | null, JsonRpcError>;
+
+  getSupportedChainIDs(): ResultAsync<ChainId[], JsonRpcError>;
 
   discord: ISdlDiscordMethods;
   twitter: ISdlTwitterMethods;

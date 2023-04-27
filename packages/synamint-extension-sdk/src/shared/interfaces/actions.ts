@@ -44,6 +44,7 @@ import {
   TwitterID,
   TwitterProfile,
   TokenAndSecret,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 
 import {
@@ -384,17 +385,6 @@ export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   }
 }
 
-export class GetSiteVisitsMapParams extends CoreActionParams<
-  Map<URLString, number>
-> {
-  public constructor() {
-    super(GetSiteVisitsMapParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_SITE_VISITS_MAP;
-  }
-}
-
 export class GetSiteVisitsParams extends CoreActionParams<SiteVisit[]> {
   public constructor() {
     super(GetSiteVisitsParams.getCoreAction());
@@ -614,6 +604,24 @@ export class SetDefaultReceivingAddressParams extends CoreActionParams<void> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.SET_DEFAULT_RECEIVING_ACCOUNT;
+  }
+}
+
+export class GetQueryStatusByQueryCIDParams extends CoreActionParams<QueryStatus | null> {
+  public constructor(public cid: IpfsCID) {
+    super(GetQueryStatusByQueryCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUS_BY_QUERY_CID;
+  }
+}
+
+export class GetSupportedChainIDsParams extends CoreActionParams<ChainId[]> {
+  public constructor() {
+    super(GetSupportedChainIDsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_SUPPORTED_CHAIN_IDS;
   }
 }
 

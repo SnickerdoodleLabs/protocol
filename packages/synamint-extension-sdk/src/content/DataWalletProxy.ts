@@ -37,6 +37,7 @@ import {
   URLString,
   TwitterID,
   OAuthVerifier,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -81,6 +82,7 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
+  GetQueryStatusByQueryCIDParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -431,9 +433,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getSiteVisits(): ResultAsync<SiteVisit[], unknown> {
     return coreGateway.getSiteVisits();
   }
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, unknown> {
-    return coreGateway.getSiteVisitsMap();
-  }
 
   public getConsentCapacity(
     contractAddress: EVMContractAddress,
@@ -450,6 +449,18 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getPossibleRewards(
       new GetPossibleRewardsParams(contractAddresses, timeoutMs),
     );
+  }
+
+  public getQueryStatusByQueryCID(
+    cid: IpfsCID,
+  ): ResultAsync<QueryStatus | null, JsonRpcError> {
+    return coreGateway.getQuertStatusByQueryCID(
+      new GetQueryStatusByQueryCIDParams(cid),
+    );
+  }
+
+  public getSupportedChainIDs(): ResultAsync<ChainId[], JsonRpcError> {
+    return coreGateway.getSupportedChainIDs();
   }
 }
 

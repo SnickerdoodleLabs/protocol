@@ -15,5 +15,6 @@ export class MarketplaceListing {
     public cid: IpfsCID,
     public stakeAmount: BigNumberString,
     public tag: MarketplaceTag,
+    public isPrivate?: boolean,
   ) {}
 }

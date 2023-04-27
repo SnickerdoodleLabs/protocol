@@ -12,6 +12,8 @@ import {
   EInvitationStatus,
   TokenId,
   BigNumberString,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -98,7 +100,6 @@ import {
   GetGenderParams,
   GetLocationParams,
   GetSiteVisitsParams,
-  GetSiteVisitsMapParams,
   GetAcceptedInvitationsCIDParams,
   GetAvailableInvitationsCIDParams,
   GetDefaultPermissionsParams,
@@ -125,6 +126,10 @@ import {
   TwitterLinkProfileParams,
   TwitterUnlinkProfileParams,
   TwitterGetLinkedProfilesParams,
+  GetQueryStatusByQueryCIDParams,
+  IConfigProviderType,
+  IConfigProvider,
+  GetSupportedChainIDsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -291,12 +296,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetSiteVisitsParams.getCoreAction(),
       (_params) => {
         return this.userSiteInteractionService.getSiteVisits();
-      },
-    ),
-    new CoreActionHandler<GetSiteVisitsMapParams>(
-      GetSiteVisitsMapParams.getCoreAction(),
-      (_params) => {
-        return this.userSiteInteractionService.getSiteVisitsMap();
       },
     ),
     new CoreActionHandler<GetAcceptedInvitationsCIDParams>(
@@ -656,6 +655,18 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.twitterService.getUserProfiles();
       },
     ),
+    new CoreActionHandler<GetQueryStatusByQueryCIDParams>(
+      GetQueryStatusByQueryCIDParams.getCoreAction(),
+      (params) => {
+        return this.core.getQueryStatusByQueryCID(params.cid);
+      },
+    ),
+    new CoreActionHandler<GetSupportedChainIDsParams>(
+      GetSupportedChainIDsParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.configProvider.getConfig().supportedChains);
+      },
+    ),
   ];
 
   constructor(
@@ -679,6 +690,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected discordService: IDiscordService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   public async handleRpcCall(

@@ -40,6 +40,7 @@ import {
   OAuthVerifier,
   TokenAndSecret,
   SiteVisit,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -79,7 +80,6 @@ import {
   UnlockParams,
   AddAccountParams,
   UnlinkAccountParams,
-  GetSiteVisitsMapParams,
   GetSiteVisitsParams,
   GetEarnedRewardsParams,
   GetDataWalletAddressParams,
@@ -115,6 +115,8 @@ import {
   TwitterUnlinkProfileParams,
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
+  GetQueryStatusByQueryCIDParams,
+  GetSupportedChainIDsParams,
 } from "@synamint-extension-sdk/shared";
 
 export class ExternalCoreGateway {
@@ -398,10 +400,6 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetSiteVisitsParams());
   }
 
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError> {
-    return this._handler.call(new GetSiteVisitsMapParams());
-  }
-
   public getMarketplaceListingsByTag(
     params: GetMarketplaceListingsByTagParams,
   ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError> {
@@ -442,5 +440,15 @@ export class ExternalCoreGateway {
     params: GetPossibleRewardsParams,
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError> {
     return this._handler.call(params);
+  }
+
+  public getQuertStatusByQueryCID(
+    params: GetQueryStatusByQueryCIDParams,
+  ): ResultAsync<QueryStatus | null, JsonRpcError> {
+    return this._handler.call(params);
+  }
+
+  public getSupportedChainIDs(): ResultAsync<ChainId[], JsonRpcError> {
+    return this._handler.call(new GetSupportedChainIDsParams());
   }
 }

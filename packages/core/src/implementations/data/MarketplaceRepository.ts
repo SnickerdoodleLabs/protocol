@@ -30,6 +30,7 @@ import {
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class MarketplaceRepository implements IMarketplaceRepository {
@@ -150,14 +151,34 @@ export class MarketplaceRepository implements IMarketplaceRepository {
       .andThen((consentFactoryContract) => {
         return consentFactoryContract.getListingsByTag(tag);
       })
-      .map((listings) => {
-        const cache = new MarketplaceTagCache(
-          tag,
-          this.timeUtils.getUnixNow(),
-          listings,
-        );
-        this.tagCache.set(tag, cache);
-        return listings;
+      .andThen((listings) => {
+        return ResultUtils.combine(
+          listings.map((listing) => {
+            return this.contractFactory
+              .factoryConsentContracts([listing.consentContract])
+              .andThen(([consentContract]) => {
+                return consentContract
+                  .openOptInDisabled()
+                  .map((isOpenOptInDisabled) => {
+                    return {
+                      ...listing,
+                      isPrivate: isOpenOptInDisabled,
+                    } as MarketplaceListing;
+                  })
+                  .orElse(() => {
+                    return okAsync(listing);
+                  });
+              });
+          }),
+        ).map((listings) => {
+          const cache = new MarketplaceTagCache(
+            tag,
+            this.timeUtils.getUnixNow(),
+            listings,
+          );
+          this.tagCache.set(tag, cache);
+          return listings;
+        });
       });
   }
 

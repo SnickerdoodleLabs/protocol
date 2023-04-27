@@ -39,6 +39,8 @@ import {
   IAdDataRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -123,6 +125,7 @@ import {
   PagingRequest,
   PersistenceError,
   QueryFormatError,
+  QueryStatus,
   SDQLQuery,
   SHA256Hash,
   SiftContractError,
@@ -1167,5 +1170,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ITokenPriceRepositoryType,
     );
     return tokenPriceRepo.getTokenMarketData(ids);
+  }
+
+  public getQueryStatusByQueryCID(
+    cid: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    const sdqlQueryRepository = this.iocContainer.get<ISDQLQueryRepository>(
+      ISDQLQueryRepositoryType,
+    );
+    return sdqlQueryRepository.getQueryStatusByQueryCID(cid);
   }
 }
