@@ -1,3 +1,6 @@
+import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -14,9 +17,7 @@ import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { EdgeInsetsPropType } from "react-native";
 
-import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { WrappedTransactionResponse } from "..";
 
 @injectable()
 export class SiftContract implements ISiftContract {
@@ -52,7 +53,9 @@ export class SiftContract implements ISiftContract {
     );
   }
 
-  public verifyURL(domain: DomainName): ResultAsync<void, SiftContractError> {
+  public verifyURL(
+    domain: DomainName,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return ResultAsync.fromPromise(
       this.contract.verifyURL(
         domain,
@@ -65,22 +68,14 @@ export class SiftContract implements ISiftContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new SiftContractError(
-            "Wait for verifyURL() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public maliciousURL(
     domain: DomainName,
-  ): ResultAsync<void, SiftContractError> {
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return ResultAsync.fromPromise(
       this.contract.maliciousURL(
         domain,
@@ -93,20 +88,14 @@ export class SiftContract implements ISiftContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new SiftContractError(
-            "Wait for maliciousURL() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
-  public setBaseURI(baseUri: BaseURI): ResultAsync<void, SiftContractError> {
+  public setBaseURI(
+    baseUri: BaseURI,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return ResultAsync.fromPromise(
       this.contract.setBaseURI(
         baseUri,
@@ -118,17 +107,9 @@ export class SiftContract implements ISiftContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new SiftContractError(
-            "Wait for setBaseURI() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public getContract(): ethers.Contract {

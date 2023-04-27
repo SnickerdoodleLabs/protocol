@@ -1,4 +1,8 @@
 import {
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
+import {
   EVMAccountAddress,
   MinimalForwarderContractError,
   BigNumberString,
@@ -6,8 +10,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { IMinimalForwarderRequest } from "@contracts-sdk/interfaces/objects";
 
 export interface IMinimalForwarderContract {
   getNonce(
@@ -22,10 +24,7 @@ export interface IMinimalForwarderContract {
   execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<
-    ethers.providers.TransactionResponse,
-    MinimalForwarderContractError
-  >;
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError>;
 
   getContract(): ethers.Contract;
 }

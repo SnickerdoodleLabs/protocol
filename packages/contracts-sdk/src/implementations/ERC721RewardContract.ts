@@ -1,5 +1,8 @@
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
-import { IERC721RewardContract } from "@contracts-sdk/interfaces/index.js";
+import {
+  IERC721RewardContract,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   EVMAccountAddress,
@@ -14,6 +17,7 @@ import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { WrapElementHandle } from "puppeteer";
 
 @injectable()
 export class ERC721RewardContract implements IERC721RewardContract {
@@ -163,7 +167,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public setBaseURI(
     baseUri: BaseURI,
-  ): ResultAsync<void, ERC721RewardContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.setBaseURI(
         baseUri,
@@ -175,17 +179,9 @@ export class ERC721RewardContract implements IERC721RewardContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for setBaseURI() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public balanceOf(
@@ -260,7 +256,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.grantRole(
         ERewardRoles[role],
@@ -273,23 +269,15 @@ export class ERC721RewardContract implements IERC721RewardContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for grantRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.revokeRole(
         ERewardRoles[role],
@@ -302,23 +290,15 @@ export class ERC721RewardContract implements IERC721RewardContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for revokeRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
       this.contract.renounceRole(
         ERewardRoles[role],
@@ -331,17 +311,9 @@ export class ERC721RewardContract implements IERC721RewardContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for renounceRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public filters = {

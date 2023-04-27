@@ -1,4 +1,10 @@
 import {
+  IMinimalForwarderContract,
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import {
   EVMAccountAddress,
   EVMContractAddress,
   MinimalForwarderContractError,
@@ -9,12 +15,6 @@ import {
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-
-import {
-  IMinimalForwarderContract,
-  IMinimalForwarderRequest,
-} from "@contracts-sdk/interfaces";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 
 @injectable()
 export class MinimalForwarderContract implements IMinimalForwarderContract {
@@ -69,10 +69,7 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<
-    ethers.providers.TransactionResponse,
-    MinimalForwarderContractError
-  > {
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
     return ResultAsync.fromPromise(
       this.contract.execute(
         request,
@@ -85,7 +82,9 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
           e,
         );
       },
-    );
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public getContract(): ethers.Contract {

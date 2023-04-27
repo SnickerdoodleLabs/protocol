@@ -1,3 +1,4 @@
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   SiftContractError,
   EVMAccountAddress,
@@ -13,7 +14,7 @@ import {
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { WrappedTransactionResponse } from "./objects";
 
 export interface ISiftContract {
   /**
@@ -21,14 +22,18 @@ export interface ISiftContract {
    * Marks the domain tokenURI value as VERIFIED
    * @param domain Domain name to verify
    */
-  verifyURL(domain: DomainName): ResultAsync<void, SiftContractError>;
+  verifyURL(
+    domain: DomainName,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 
   /**
    * Sets a URL as malicious
    * Marks the domain tokenURI value as MALICIOUS
    * @param domain Domain name to set as malicious
    */
-  maliciousURL(domain: DomainName): ResultAsync<void, SiftContractError>;
+  maliciousURL(
+    domain: DomainName,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 
   /**
    * Checks a URL
@@ -42,7 +47,9 @@ export interface ISiftContract {
    * Sets a new base uri for the contract
    * @param baseUri New base uri
    */
-  setBaseURI(baseUri: BaseURI): ResultAsync<void, SiftContractError>;
+  setBaseURI(
+    baseUri: BaseURI,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 }
 
 export const ISiftContractType = Symbol.for("ISiftContract");

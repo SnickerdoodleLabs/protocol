@@ -53,7 +53,7 @@ export class ConsentContract implements IConsentContract {
   public optIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.optIn(
         tokenId,
@@ -66,17 +66,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for optIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   // TODO: add data permissions param
@@ -93,7 +85,7 @@ export class ConsentContract implements IConsentContract {
     tokenId: TokenId,
     agreementFlags: HexString32,
     signature: Signature,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.restrictedOptIn(
         tokenId,
@@ -107,17 +99,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for restrictedOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public encodeRestrictedOptIn(
@@ -138,7 +122,7 @@ export class ConsentContract implements IConsentContract {
     tokenId: TokenId,
     agreementFlags: HexString32,
     signature: Signature,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.anonymousRestrictedOptIn(
         tokenId,
@@ -152,17 +136,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for anonymousRestrictedOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public encodeAnonymousRestrictedOptIn(
@@ -179,7 +155,9 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  public optOut(tokenId: TokenId): ResultAsync<void, ConsentContractError> {
+  public optOut(
+    tokenId: TokenId,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.optOut(
         tokenId,
@@ -191,17 +169,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for optOut() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public encodeOptOut(tokenId: TokenId): HexString {
@@ -242,7 +212,7 @@ export class ConsentContract implements IConsentContract {
 
   public updateMaxCapacity(
     maxCapacity: number,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.updateMaxCapacity(
         maxCapacity,
@@ -254,17 +224,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for updateMaxCapacity() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public requestForData(
@@ -584,7 +546,9 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
-  public addDomain(domain: string): ResultAsync<void, ConsentContractError> {
+  public addDomain(
+    domain: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.addDomain(
         domain,
@@ -596,20 +560,14 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for addDomain() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
-  public removeDomain(domain: string): ResultAsync<void, ConsentContractError> {
+  public removeDomain(
+    domain: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.removeDomain(
         domain,
@@ -621,17 +579,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for removeDomain() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public getDomains(): ResultAsync<DomainName[], ConsentContractError> {
@@ -701,7 +651,10 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
-  public disableOpenOptIn(): ResultAsync<void, ConsentContractError> {
+  public disableOpenOptIn(): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError
+  > {
     return ResultAsync.fromPromise(
       this.contract.disableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -711,20 +664,15 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for disableOpenOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
-  public enableOpenOptIn(): ResultAsync<void, ConsentContractError> {
+  public enableOpenOptIn(): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError
+  > {
     return ResultAsync.fromPromise(
       this.contract.enableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -734,17 +682,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for enableOpenOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public baseURI(): ResultAsync<BaseURI, ConsentContractError> {
@@ -760,7 +700,9 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  public setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError> {
+  public setBaseURI(
+    baseUri: BaseURI,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.setBaseURI(
         baseUri,
@@ -772,17 +714,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for setBaseURI() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public hasRole(
@@ -804,7 +738,7 @@ export class ConsentContract implements IConsentContract {
   public grantRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.grantRole(
         ConsentRoles[role],
@@ -817,23 +751,15 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for grantRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public revokeRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.revokeRole(
         ConsentRoles[role],
@@ -846,23 +772,15 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for revokeRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public renounceRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.renounceRole(
         ConsentRoles[role],
@@ -875,17 +793,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for renounceRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
@@ -903,7 +813,7 @@ export class ConsentContract implements IConsentContract {
 
   public setQueryHorizon(
     blockNumber: BlockNumber,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.setQueryHorizon(
         blockNumber,
@@ -915,17 +825,9 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for setQueryHorizon() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   // Get the number of opted in addresses

@@ -1,3 +1,6 @@
+import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -11,9 +14,7 @@ import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 
-import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { WrappedTransactionResponse } from "..";
 
 @injectable()
 export class CrumbsContract implements ICrumbsContract {
@@ -79,7 +80,7 @@ export class CrumbsContract implements ICrumbsContract {
     crumbId: TokenId,
     tokenUri: TokenUri,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, CrumbsContractError> {
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.createCrumb(
         crumbId,
@@ -93,17 +94,9 @@ export class CrumbsContract implements ICrumbsContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new CrumbsContractError(
-            "Wait for createCrumb() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public encodeCreateCrumb(
@@ -121,7 +114,7 @@ export class CrumbsContract implements ICrumbsContract {
   public burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void, CrumbsContractError> {
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.burnCrumb(
         crumbId,
@@ -135,17 +128,9 @@ export class CrumbsContract implements ICrumbsContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new CrumbsContractError(
-            "Wait for burnCrumb() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public encodeBurnCrumb(crumbId: TokenId): HexString {
@@ -157,7 +142,7 @@ export class CrumbsContract implements ICrumbsContract {
   public updateTokenURI(
     crumbId: TokenId,
     tokenURI: TokenUri,
-  ): ResultAsync<void, CrumbsContractError> {
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.updateCrumb(
         crumbId,
@@ -171,17 +156,9 @@ export class CrumbsContract implements ICrumbsContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new CrumbsContractError(
-            "Wait for updateCrumbId() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
   }
 
   public getContract(): ethers.Contract {

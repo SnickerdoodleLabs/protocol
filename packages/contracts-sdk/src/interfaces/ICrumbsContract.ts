@@ -1,4 +1,8 @@
 import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
+import {
   EVMAccountAddress,
   CrumbsContractError,
   TokenId,
@@ -8,8 +12,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface ICrumbsContract {
   /**
@@ -46,7 +48,7 @@ export interface ICrumbsContract {
     crumbId: TokenId,
     tokenUri: TokenUri,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, CrumbsContractError>;
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
 
   /**
    * Returns an encoded call to createCrumb. Useful for metatransactions
@@ -62,7 +64,8 @@ export interface ICrumbsContract {
   burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, CrumbsContractError>;
+  ): ResultAsync<
+  WrappedTransactionResponse, CrumbsContractError>;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
 

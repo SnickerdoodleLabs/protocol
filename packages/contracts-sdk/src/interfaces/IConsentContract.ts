@@ -38,7 +38,7 @@ export interface IConsentContract {
     tokenId: TokenId,
     agreementFlags: HexString32,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
 
@@ -57,7 +57,7 @@ export interface IConsentContract {
     agreementFlags: HexString32,
     signature: Signature,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeRestrictedOptIn(
     tokenId: TokenId,
@@ -79,7 +79,7 @@ export interface IConsentContract {
     agreementFlags: HexString32,
     signature: Signature,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeAnonymousRestrictedOptIn(
     tokenId: TokenId,
@@ -94,7 +94,7 @@ export interface IConsentContract {
   optOut(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns the agreementFlagsArray value for the token ID
@@ -107,7 +107,7 @@ export interface IConsentContract {
   getMaxCapacity(): ResultAsync<number, ConsentContractError>;
   updateMaxCapacity(
     maxCapacity: number,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeOptOut(tokenId: TokenId): HexString;
 
@@ -206,7 +206,9 @@ export interface IConsentContract {
    * If domain already exists, reverts with error message "Consent : Domain already added"
    * @param domain Domain name
    */
-  addDomain(domain: string): ResultAsync<void, ConsentContractError>;
+  addDomain(
+    domain: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Removes a domain to the contract storage
@@ -214,7 +216,9 @@ export interface IConsentContract {
    * If domain does not exist, reverts with error message "Consent : Domain is not in the list"
    * @param domain Domain name
    */
-  removeDomain(domain: string): ResultAsync<void, ConsentContractError>;
+  removeDomain(
+    domain: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns an array of domains added to the contract
@@ -234,7 +238,7 @@ export interface IConsentContract {
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
   /**
-   * Returns the tokenId of latest opt-in contract the user has 
+   * Returns the tokenId of latest opt-in contract the user has
    * for given derived opt-in address.
    * @param optInAddress Opt-in contract address
    */
@@ -246,13 +250,19 @@ export interface IConsentContract {
    * Disables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
    */
-  disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+  disableOpenOptIn(): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError
+  >;
 
   /**
    * Enables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
    */
-  enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+  enableOpenOptIn(): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError
+  >;
 
   /**
    * Returns the baseURI of the Consent contract
@@ -263,7 +273,9 @@ export interface IConsentContract {
    * Sets a new baseURI for the Consent contract
    * Only callable by addresses that have the DEFAULT_ADMIN_ROLE on the Consent contract
    */
-  setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError>;
+  setBaseURI(
+    baseUri: BaseURI,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Checks if an address has a specific role in the Consent contract
@@ -283,7 +295,7 @@ export interface IConsentContract {
   grantRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Revokes a role of an address
@@ -293,7 +305,7 @@ export interface IConsentContract {
   revokeRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Allows an address to renounce its role
@@ -303,7 +315,7 @@ export interface IConsentContract {
   renounceRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns the earliest block that should be looked at for requestForData events
@@ -319,7 +331,7 @@ export interface IConsentContract {
    */
   setQueryHorizon(
     blockNumber: BlockNumber,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Get the number of opted in addresses
