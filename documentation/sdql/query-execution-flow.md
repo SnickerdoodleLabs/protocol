@@ -3,17 +3,20 @@ Queries can have Ads. When it has Ads, we wait till the expiration of the query 
 
 ```mermaid
 flowchart TD
-Q[Query] --> Comp[Compensation Evaluator]
+
+QS[[Query Scheduler]]--Interval, Query-->Q[[Query Service]]
+Q --> Comp[[Compensation Evaluator]]
 
 
-Comp --> AdExists{Query have ads?}
+Comp --> AdExists{Have ads?}
 AdExists --Y--> ExpiryCheck{Expiry Close?}
-AdExists --N: No Ads--> Eval[Evaluate the compensations \nand return to IP]
-ExpiryCheck--N--> AdSignature{Does have \nrequired signatures for \nall the compensations}
+AdExists --N: No Ads--> Eval[/Evaluate the compensations \nand return to IP/]
+ExpiryCheck--N--> AdSignature{Does have \nrequired signatures\n for all the \ncompensations}
 ExpiryCheck--Y: No Time--> Eval
 AdSignature --Y: Have all signatures -->Eval
-AdSignature --N-->Wait[Return to Query Scheduler]
-Wait --Interval-->Q
+AdSignature --N -->Re[/Reschedule/]
+Re --Interval, Query--> QS
+
 
 ```
 
