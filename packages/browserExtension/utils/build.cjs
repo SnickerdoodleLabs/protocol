@@ -17,10 +17,14 @@ console.log(`Building extension for ${buildEnv} to build-${buildEnv}`);
 
 config.mode = "development";
 
-webpack(config, function (err) {
-  if (err) throw err;
+webpack(config, function (err, stats) {
+  if (err) {
+    console.log(err);
+    throw err;
+  }
 
-  console.log("Complete webpack build");
+  console.log(stats);
+  console.log("Completed webpack build");
 
   const envBuildPath = path.join(__dirname, `../build-${buildEnv}`);
 
