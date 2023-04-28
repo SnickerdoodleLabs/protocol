@@ -65,21 +65,6 @@ export class RewardsContractFactory implements IRewardsContractFactory {
           deployedContract.deployTransaction,
         );
       });
-      // Move to IP side
-      /* .andThen((contract) => {
-        return ResultAsync.fromPromise(
-          contract.deployTransaction.wait(),
-          (e) => {
-            return new RewardsFactoryError(
-              "Failed to wait() for contract deployment",
-              (e as IBlockchainError).reason,
-              e,
-            );
-          },
-        ).map((receipt) => {
-          return EVMContractAddress(receipt.contractAddress);
-        });
-      }); */
     });
   }
 
