@@ -7,7 +7,12 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   IConsentContract,
   IConsentFactoryContract,
@@ -41,6 +46,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     protected timeUtils: ITimeUtils,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getListingsTotalByTag(
@@ -160,12 +166,11 @@ export class MarketplaceRepository implements IMarketplaceRepository {
                 return consentContract
                   .openOptInDisabled()
                   .map((isOpenOptInDisabled) => {
-                    return {
-                      ...listing,
-                      isPrivate: isOpenOptInDisabled,
-                    } as MarketplaceListing;
+                    listing.isPrivate = isOpenOptInDisabled;
+                    return listing;
                   })
-                  .orElse(() => {
+                  .orElse((err) => {
+                    this.logUtils.warning(`error reading contract !`, err);
                     return okAsync(listing);
                   });
               });

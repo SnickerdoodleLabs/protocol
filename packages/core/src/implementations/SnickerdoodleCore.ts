@@ -1174,6 +1174,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getQueryStatusByQueryCID(
     cid: IpfsCID,
+    sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
     const sdqlQueryRepository = this.iocContainer.get<ISDQLQueryRepository>(
       ISDQLQueryRepositoryType,

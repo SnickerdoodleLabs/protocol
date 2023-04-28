@@ -803,6 +803,7 @@ export interface ISnickerdoodleCore {
 
   getQueryStatusByQueryCID(
     cid: IpfsCID,
+    sourceDomain?: DomainName | undefined,
   ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   marketplace: ICoreMarketplaceMethods;
