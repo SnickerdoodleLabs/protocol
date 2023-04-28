@@ -64,8 +64,7 @@ export interface ICrumbsContract {
   burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<
-  WrappedTransactionResponse, CrumbsContractError>;
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
 
