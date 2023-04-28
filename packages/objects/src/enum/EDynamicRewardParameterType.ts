@@ -1,4 +1,4 @@
 export enum EDynamicRewardParameterType {
-  Address = "address",
-  CompensationId = "compensationId",
+  Address = "Address",
+  CompensationId = "CompensationId",
 }
