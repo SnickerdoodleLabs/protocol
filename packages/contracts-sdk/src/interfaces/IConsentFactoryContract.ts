@@ -1,6 +1,8 @@
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
+import {
+  WrappedTransactionResponse,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
   BigNumberString,
@@ -32,7 +34,7 @@ export interface IConsentFactoryContract {
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   /**
    *  Return the number Consent addresses that user has deployed

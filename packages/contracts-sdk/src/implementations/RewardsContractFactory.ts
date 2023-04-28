@@ -1,4 +1,12 @@
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import {
+  ContractOverrides,
+  IRewardsContractFactory,
+} from "@contracts-sdk/interfaces/index.js";
+import {
+  ContractsAbis,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import {
   EVMContractAddress,
   IBlockchainError,
@@ -9,11 +17,6 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import {
-  ContractOverrides,
-  IRewardsContractFactory,
-} from "@contracts-sdk/interfaces/index.js";
-import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
 
 @injectable()
 export class RewardsContractFactory implements IRewardsContractFactory {
@@ -41,7 +44,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     symbol: string,
     baseURI: BaseURI,
     overrides: ContractOverrides | null = null,
-  ): ResultAsync<EVMContractAddress, RewardsFactoryError> {
+  ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
     return GasUtils.getGasFee<RewardsFactoryError>(
       this.providerOrSigner,
     ).andThen((gasFee) => {
@@ -57,7 +60,13 @@ export class RewardsContractFactory implements IRewardsContractFactory {
             e,
           );
         },
-      ).andThen((contract) => {
+      ).map((deployedContract) => {
+        return new WrappedTransactionResponse(
+          deployedContract.deployTransaction,
+        );
+      });
+      // Move to IP side
+      /* .andThen((contract) => {
         return ResultAsync.fromPromise(
           contract.deployTransaction.wait(),
           (e) => {
@@ -70,7 +79,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
         ).map((receipt) => {
           return EVMContractAddress(receipt.contractAddress);
         });
-      });
+      }); */
     });
   }
 
