@@ -32,6 +32,7 @@ import {
   Gender,
   PersistenceError,
   SDQL_Return,
+  TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -48,7 +49,7 @@ import {
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -171,6 +172,17 @@ export class QueryEvaluator implements IQueryEvaluator {
                 name: profile.name,
                 icon: profile.icon,
                 joinedAt: profile.joinedAt,
+              };
+            }),
+          )
+          .map(SDQL_Return);
+      case "social_twitter":
+        return this.socialRepo
+          .getProfiles<TwitterProfile>(ESocialType.TWITTER)
+          .map((profiles) =>
+            profiles.map((profile) => {
+              return {
+                following: profile.followData?.following || [],
               };
             }),
           )

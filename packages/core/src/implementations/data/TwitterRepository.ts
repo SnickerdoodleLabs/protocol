@@ -52,18 +52,16 @@ export class TwitterRepository implements ITwitterRepository {
       const urlString = URLString(
         urlJoin(config.oAuthBaseUrl, "/request_token"),
       );
-      const pathParams = {
-        oauth_callback: encodeURIComponent(config.oAuthCallbackUrl),
-      };
       return this.ajaxUtil
         .post<string>(new URL(urlString), undefined, {
-          params: pathParams,
           headers: {
             authorization: this.cryptoUtils.packOAuth1Credentials(
               config,
               urlString,
               "POST",
-              pathParams,
+              {
+                oauth_callback: config.oAuthCallbackUrl,
+              },
             ),
           },
         })
@@ -169,11 +167,13 @@ export class TwitterRepository implements ITwitterRepository {
         profiles.map((p) => {
           return ResultUtils.combine([
             this._fetchUserProfile(config, p.userObject.id, p.oAuth1a),
-            this._fetchFollowing(config, p.userObject.id, p.oAuth1a),
-            this._fetchFollowers(config, p.userObject.id, p.oAuth1a),
+            // this._fetchFollowing(config, p.userObject.id, p.oAuth1a),
+            // this._fetchFollowers(config, p.userObject.id, p.oAuth1a),
           ]).andThen(([userProfile, following, followers]) => {
             p.userObject = userProfile;
-            p.followData = new TwitterFollowData(following, followers);
+            // I did this to simulate following and follwer data.
+            // I'll change it before merging to develop.
+            p.followData = new TwitterFollowData([userProfile], [userProfile]);
             return this.upsertUserProfile(p).map(() => p);
           });
         }),
@@ -219,7 +219,7 @@ export class TwitterRepository implements ITwitterRepository {
     userId: TwitterID,
     oAuth1Access: TokenAndSecret,
   ): ResultAsync<TwitterUserObject, TwitterError> {
-    const url = URLString(urlJoin(config.dataAPIUrl, `/users/${userId}`));
+    const url = URLString(urlJoin(config.dataAPIUrl, `/users/me`));
     return this.ajaxUtil
       .get<{ data: TwitterUserObject }>(new URL(url), {
         headers: {

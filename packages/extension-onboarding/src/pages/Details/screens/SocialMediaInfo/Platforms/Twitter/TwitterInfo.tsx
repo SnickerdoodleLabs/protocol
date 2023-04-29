@@ -23,9 +23,6 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
   ({ name, icon }: ISocialMediaPlatformProps) => {
     const { twitterProvider: provider } = useAccountLinkingContext();
 
-    const [requestTokenAndSecret, setRequestTokenAndSecret] =
-      useState<TokenAndSecret | null>(null);
-
     const [userProfiles, setUserProfiles] = useState<TwitterProfile[]>([]);
     const getUserProfiles = () =>
       provider.getUserProfiles().map(setUserProfiles);
@@ -37,7 +34,6 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
       useState<TwitterProfile | null>(null);
 
     const [requestPin, setRequestPin] = useState<boolean>(false);
-    const [pinValue, setPinValue] = useState<string>();
 
     const initTwitterProfile = (
       requestToken: OAuth1RequstToken,
@@ -65,19 +61,12 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
       const verifier = new URLSearchParams(window.location.search).get(
         "oauth_verifier",
       );
-      if (!verifier || !incomingRequestToken || !requestTokenAndSecret) {
-        return;
-      }
-      if (incomingRequestToken != requestTokenAndSecret.token) {
-        console.error(
-          `Initial requestToken ${requestTokenAndSecret.token} and incoming request token ${incomingRequestToken} do not match!`,
+      !!verifier &&
+        !!incomingRequestToken &&
+        initTwitterProfile(
+          incomingRequestToken as OAuth1RequstToken,
+          verifier as OAuthVerifier,
         );
-        return;
-      }
-      initTwitterProfile(
-        incomingRequestToken as OAuth1RequstToken,
-        verifier as OAuthVerifier,
-      );
     }, [JSON.stringify(window.location.search)]);
 
     useEffect(() => {
@@ -123,60 +112,19 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
               </Box>
             </Box>
             <Box justifyContent="center" alignItems="center">
-              {!requestPin && (
-                <Button
-                  variant="outlined"
-                  onClick={() =>
-                    provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
-                      setRequestTokenAndSecret(tokenAndSecret);
-                      window
-                        .open(
-                          `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}`,
-                          "_blank",
-                        )
-                        ?.focus();
-                      setRequestPin(true);
-                    })
-                  }
-                >
-                  Link Account
-                </Button>
-              )}
-              {requestPin && (
-                <form
-                  onSubmit={(e) => {
-                    if (e && e.preventDefault) {
-                      e.preventDefault();
-                    }
-                    if (!requestTokenAndSecret) {
-                      console.warn(
-                        "Tried to initialize Twitter Profile but request token doesn't seem to be in place.",
-                      );
-                      return;
-                    }
-                    if (pinValue?.toString().length != 7) {
-                      console.error("Pin value consists of 7 numbers");
-                    } else {
-                      setRequestPin(false);
-                      initTwitterProfile(
-                        requestTokenAndSecret.token as string as OAuth1RequstToken,
-                        pinValue as OAuthVerifier,
-                      );
-                    }
-                  }}
-                >
-                  <label>
-                    PIN:
-                    <input
-                      type="text"
-                      value={pinValue}
-                      onChange={(e) => setPinValue(e.target.value)}
-                      name="PIN"
-                    />
-                  </label>
-                  <input type="submit" name="Submit" />
-                </form>
-              )}
+              <Button
+                variant="outlined"
+                onClick={() =>
+                  provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
+                    window.open(
+                      `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}&oauth_token_secret=${tokenAndSecret.secret}&oauth_callback_confirmed=true`,
+                      `_self`,
+                    );
+                  })
+                }
+              >
+                Link Account
+              </Button>
             </Box>
           </Box>
           {userProfiles.map((twitterProfile, index) => {

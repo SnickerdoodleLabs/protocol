@@ -69,14 +69,14 @@ export class ConfigProvider
     };
 
     const twitterConfig = {
-      apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+      apiKey: "7BS8ZDZokCcafXJ5rVu9cCDpm",
       apiSecretKey: TokenSecret(
-        "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+        "eQGIIkpNiqy0Y8zFoZrEur2H8RiztYj8yJLAxksZAkuXRu5qfP",
       ),
       signingAlgorithm: ESignatureAlgorithm.HMAC,
       hashingAlgorithm: EHashAlgorithm.SHA1,
       oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
-      oAuthCallbackUrl: URLString("oob"),
+      oAuthCallbackUrl: URLString("spa-url"),
       dataAPIUrl: URLString("https://api.twitter.com/2"),
       pollInterval: 1 * 24 * 3600 * 1000,
     };
