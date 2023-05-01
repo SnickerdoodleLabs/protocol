@@ -1,6 +1,6 @@
 import {
   VersionedObject,
-} from "@objects/businessObjects/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject";
 import {
   ChainId,
   TransactionHash,

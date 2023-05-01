@@ -1,4 +1,4 @@
-import { EVMTransaction } from "@objects/businessObjects/EVMTransaction";
+import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction";
 import {
   BigNumberString,
   ChainId,

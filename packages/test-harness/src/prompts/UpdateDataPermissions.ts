@@ -26,7 +26,7 @@ export class UpdateDataPermissions extends Prompt {
     | AjaxError
     | ConsentContractRepositoryError
   > {
-    return this.core
+    return this.core.invitation
       .getAcceptedInvitations()
       .andThen((invitations) => {
         return inquiryWrapper([
@@ -85,7 +85,7 @@ export class UpdateDataPermissions extends Prompt {
               permissions = DataPermissions.createWithPermissions([]);
             }
 
-            return this.core
+            return this.core.invitation
               .updateDataPermissions(consentContractAddress, permissions)
               .map(() => {
                 console.log(

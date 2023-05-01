@@ -170,6 +170,14 @@ class InvitationServiceMocks {
     td.when(
       this.invitationRepo.getInvitationDomainByCID(ipfsCID, domain),
     ).thenReturn(okAsync(invitationDomain));
+    td.when(this.invitationRepo.getAcceptedInvitations()).thenReturn(
+      okAsync([acceptedInvitation]),
+    );
+    td.when(
+      this.invitationRepo.removeAcceptedInvitationsByContractAddress([
+        consentContractAddress1,
+      ]),
+    ).thenReturn(okAsync(undefined));
 
     // CryptoUtils ----------------------------------------------------------
     // Will return different nonces each time, just in case
@@ -182,14 +190,6 @@ class InvitationServiceMocks {
     ).thenReturn(optInAccountAddress as never);
 
     // AccountRepo ------------------------------------------------
-    td.when(this.accountRepo.getAcceptedInvitations()).thenReturn(
-      okAsync([acceptedInvitation]),
-    );
-    td.when(
-      this.accountRepo.removeAcceptedInvitationsByContractAddress([
-        consentContractAddress1,
-      ]),
-    ).thenReturn(okAsync(undefined));
 
     // DataWalletUtils --------------------------------------------
     td.when(
@@ -332,7 +332,9 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
 
-    td.when(mocks.accountRepo.getAcceptedInvitations()).thenReturn(okAsync([]));
+    td.when(mocks.invitationRepo.getAcceptedInvitations()).thenReturn(
+      okAsync([]),
+    );
 
     const service = mocks.factory();
 

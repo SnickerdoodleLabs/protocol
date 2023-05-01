@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject";
 import { AccountAddress } from "@objects/primitives/AccountAddress";
 import { EVMContractAddress } from "@objects/primitives/EVMContractAddress";
 

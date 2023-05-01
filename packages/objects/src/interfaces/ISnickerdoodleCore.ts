@@ -1,3 +1,5 @@
+import { ResultAsync } from "neverthrow";
+
 import {
   AdSignature,
   ChainTransaction,
@@ -93,7 +95,6 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
-import { ResultAsync } from "neverthrow";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -310,6 +311,172 @@ export interface IAdMethods {
   completeShowingAds(queryCID: IpfsCID): ResultAsync<void, PersistenceError>;
 }
 
+export interface IInvitationMethods {
+  /**
+   * This method checks the status of the invitation in relationship to the data wallet.
+   * An invitation may be either "New" (haven't dealt with it one way or the other),
+   * "Rejected" (previously, positively turned down), or "Accepted" (if we are already opted
+   * in to the cohort)
+   * @param invitation
+   */
+  checkInvitationStatus(
+    invitation: Invitation,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    EInvitationStatus,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UnauthorizedError
+  >;
+
+  /**
+   * This method will accept an invitation, even if the user had previously rejected it.
+   * Note that this is different than reject invitation, which will not opt you out of the
+   * cohort
+   * @param invitation The actual invitation to the cohort
+   * @param dataPermissions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
+   */
+  acceptInvitation(
+    invitation: Invitation,
+    dataPermissions: DataPermissions | null,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
+    | ConsentError
+    | UnauthorizedError
+  >;
+
+  /**
+   * This method will reject an invitation, which simply puts it on a list for future
+   * auto-rejection by the form factor. Calling this will NOT opt the user out of a cohort
+   * they have already opted into. You need to call leaveCohort() instead. It will return
+   * an error if the user has already consented (you did check the status first with checkInvitationStatus(),
+   * right?)
+   * If rejectUtil is provided, the rejection will be temporary instead- acting like
+   * an "ask me later" feature. The invitation will be treated as rejected until the timestamp
+   * is passed.
+   */
+  rejectInvitation(
+    invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UnauthorizedError
+  >;
+
+  /**
+   * This method will actually burn a user's consent token. This data wallet will no longer
+   * received notifications of queries for this cohort.
+   * @param consentContractAddress
+   */
+  leaveCohort(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | AjaxError
+    | PersistenceError
+    | MinimalForwarderContractError
+    | ConsentError
+    | UnauthorizedError
+  >;
+
+  getAcceptedInvitations(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
+
+  getInvitationsByDomain(
+    domain: DomainName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
+    | UnauthorizedError
+    | PersistenceError
+  >;
+
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentFactoryContractError
+    | PersistenceError
+    | ConsentError
+    | UnauthorizedError
+  >;
+
+  getAvailableInvitationsCID(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | PersistenceError
+    | UnauthorizedError
+  >;
+
+  getAcceptedInvitationsCID(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentFactoryContractError
+    | PersistenceError
+    | UnauthorizedError
+  >;
+
+  getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
+
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+    sourceDomain?: DomainName,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  >;
+}
+
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
    * The Form Factor must have this string signed by the user's key (via Metamask,
@@ -442,113 +609,11 @@ export interface ISnickerdoodleCore {
     | UnauthorizedError
   >;
 
-  /**
-   * This method checks the status of the invitation in relationship to the data wallet.
-   * An invitation may be either "New" (haven't dealt with it one way or the other),
-   * "Rejected" (previously, positively turned down), or "Accepted" (if we are already opted
-   * in to the cohort)
-   * @param invitation
-   */
-  checkInvitationStatus(
-    invitation: Invitation,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    EInvitationStatus,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UnauthorizedError
-  >;
-
-  /**
-   * This method will accept an invitation, even if the user had previously rejected it.
-   * Note that this is different than reject invitation, which will not opt you out of the
-   * cohort
-   * @param invitation The actual invitation to the cohort
-   * @param dataPermissions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
-   */
-  acceptInvitation(
-    invitation: Invitation,
-    dataPermissions: DataPermissions | null,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
-    | UnauthorizedError
-  >;
-
-  /**
-   * This method will reject an invitation, which simply puts it on a list for future
-   * auto-rejection by the form factor. Calling this will NOT opt the user out of a cohort
-   * they have already opted into. You need to call leaveCohort() instead. It will return
-   * an error if the user has already consented (you did check the status first with checkInvitationStatus(),
-   * right?)
-   */
-  rejectInvitation(
-    invitation: Invitation,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UnauthorizedError
-  >;
-
-  /**
-   * This method will actually burn a user's consent token. This data wallet will no longer
-   * received notifications of queries for this cohort.
-   * @param consentContractAddress
-   */
-  leaveCohort(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | AjaxError
-    | PersistenceError
-    | MinimalForwarderContractError
-    | ConsentError
-    | UnauthorizedError
-  >;
-
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
-  >;
-
-  getAcceptedInvitations(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
-
-  getInvitationsByDomain(
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    PageInvitation[],
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | IPFSError
-    | UnauthorizedError
   >;
 
   getConsentContractCID(
@@ -560,22 +625,6 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | UnauthorizedError
   >;
-
-  getAcceptedInvitationsCID(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | UnauthorizedError
-  >;
-
-  getInvitationMetadataByCID(
-    ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
 
   checkURL(
     domain: DomainName,
@@ -604,47 +653,6 @@ export interface ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | EvaluationError
-    | UnauthorizedError
-  >;
-
-  getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    HexString32,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | ConsentError
-    | UnauthorizedError
-  >;
-
-  updateDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-    sourceDomain?: DomainName,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | ConsentContractError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | AjaxError
-  >;
-
-  getAvailableInvitationsCID(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentFactoryContractError
-    | ConsentContractError
-    | PersistenceError
     | UnauthorizedError
   >;
 
@@ -815,6 +823,7 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
+  invitation: IInvitationMethods;
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;
   discord: ICoreDiscordMethods;

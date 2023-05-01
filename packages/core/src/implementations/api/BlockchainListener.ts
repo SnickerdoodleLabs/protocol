@@ -30,6 +30,8 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
   ISDQLQueryRepository,
@@ -61,6 +63,8 @@ export class BlockchainListener implements IBlockchainListener {
     protected consentContractRepository: IConsentContractRepository,
     @inject(ISDQLQueryRepositoryType)
     protected sdqlQueryRepository: ISDQLQueryRepository,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType)
@@ -149,7 +153,7 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.accountRepo
+    return this.invitationRepo
       .getAcceptedInvitations()
       .andThen((optIns) => {
         return this.consentContractRepository.getConsentContracts(
