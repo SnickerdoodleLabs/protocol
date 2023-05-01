@@ -76,6 +76,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api-goerli.etherscan.io/"),
     ),
   ],
+  [
+    ChainId(EChain.Sepolia),
+    new ChainInformation(
+      "Sepolia",
+      ChainId(EChain.Sepolia),
+      EChain.Sepolia,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000,
+      EIndexer.Ethereum,
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
+      EChainType.Testnet,
+      "https://sepolia.etherscan.io/tx/",
+      getExplorerUrl,
+      URLString("https://api-sepolia.etherscan.io/"),
+    ),
+  ],
   // [
   //   ChainId(EChain.Kovan),
   //   new ChainInformation(
