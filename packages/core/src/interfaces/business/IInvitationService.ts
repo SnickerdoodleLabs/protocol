@@ -139,6 +139,19 @@ export interface IInvitationService {
     | PersistenceError
     | ConsentFactoryContractError
   >;
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  >;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

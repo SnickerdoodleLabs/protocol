@@ -337,6 +337,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getInvitationMetadataByCID(ipfsCID);
       },
+      updateDataPermissions: (
+        consentContractAddress: EVMContractAddress,
+        dataPermissions: DataPermissions,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.updateDataPermissions(
+          consentContractAddress,
+          dataPermissions,
+        );
+      },
     };
 
     // Integration Methods ---------------------------------------------------------------------------

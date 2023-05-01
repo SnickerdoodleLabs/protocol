@@ -36,6 +36,7 @@ import {
   TokenId,
   UninitializedError,
   UnixTimestamp,
+  DataPermissionsUpdatedEvent,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -365,7 +366,7 @@ export class InvitationService implements IInvitationService {
               invitation.consentContractAddress, // Contract address for the metatransaction
               optInAddress, // EOA to run the transaction as
               BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(config.gasAmounts.optInGas), // The amount of gas to pay.
               BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
               callData, // The actual bytes of the request, encoded as a hex string
             );
@@ -381,7 +382,9 @@ export class InvitationService implements IInvitationService {
                   invitation.consentContractAddress, // contract address
                   BigNumberString(BigNumber.from(nonce).toString()),
                   BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  BigNumberString(
+                    BigNumber.from(config.gasAmounts.optInGas).toString(),
+                  ), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
                   optInPrivateKey,
@@ -534,7 +537,7 @@ export class InvitationService implements IInvitationService {
               consentContractAddress, // Contract address for the metatransaction
               optInAccountAddress, // EOA to run the transaction as
               BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(config.gasAmounts.optOutGas), // The amount of gas to pay.
               BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
               callData, // The actual bytes of the request, encoded as a hex string
             );
@@ -550,7 +553,9 @@ export class InvitationService implements IInvitationService {
                   consentContractAddress, // contract address
                   BigNumberString(BigNumber.from(nonce).toString()),
                   BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  BigNumberString(
+                    BigNumber.from(config.gasAmounts.optOutGas).toString(),
+                  ), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
                   optInPrivateKey,
@@ -722,6 +727,144 @@ export class InvitationService implements IInvitationService {
           });
       },
     );
+  }
+
+  public updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  > {
+    // This will actually create a metatransaction. We need to update the on-chain
+    // DataPermissions. You can only do this every so often, which we will need to
+    // enforce in the contract itself.
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
+      }
+
+      // We need to find your opt-in token
+      return this.invitationRepo
+        .getAcceptedInvitations()
+        .andThen((invitations) => {
+          const currentInvitation = invitations.find((invitation) => {
+            return invitation.consentContractAddress == consentContractAddress;
+          });
+          if (currentInvitation == null) {
+            return errAsync(
+              new ConsentError(
+                "Cannot update permissions for a consent contract you haven't opted in to",
+              ),
+            );
+          }
+          return ResultUtils.combine([
+            this.consentRepo.getConsentToken(currentInvitation),
+            this.dataWalletUtils.deriveOptInPrivateKey(
+              consentContractAddress,
+              context.dataWalletKey!,
+            ),
+          ]);
+        })
+        .andThen(([consentToken, optInPrivateKey]) => {
+          if (consentToken == null) {
+            // You're not actually opted in!
+            // But we think we are. We should remove this from persistence
+            this.logUtils.warning(
+              `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!`,
+            );
+            return this.invitationRepo
+              .removeAcceptedInvitationsByContractAddress([
+                consentContractAddress,
+              ])
+              .andThen(() => {
+                return errAsync(
+                  new ConsentError(
+                    `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removed from persistence!`,
+                  ),
+                );
+              });
+          }
+
+          this.logUtils.debug("Existing consent token ", consentToken);
+
+          const optInAccountAddress =
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              optInPrivateKey,
+            );
+
+          this.logUtils.log(
+            `Updating data permissions on consent contract ${consentContractAddress} with derived account ${optInAccountAddress}`,
+          );
+
+          // Encode the call to the consent contract and get the nonce for the forwarder
+          return ResultUtils.combine([
+            this.consentRepo.encodeUpdateAgreementFlags(
+              consentContractAddress,
+              consentToken.tokenId,
+              dataPermissions,
+            ),
+            this.forwarderRepo.getNonce(optInAccountAddress),
+            this.configProvider.getConfig(),
+          ])
+            .andThen(([callData, nonce, config]) => {
+              const request = new MetatransactionRequest(
+                consentContractAddress, // Contract address for the metatransaction
+                optInAccountAddress, // EOA to run the transaction as
+                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                BigNumber.from(config.gasAmounts.updateAgreementFlagsGas), // The amount of gas to pay.
+                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                callData, // The actual bytes of the request, encoded as a hex string
+              );
+
+              console.log("CHARLIE got encoded stuff and nonce", request);
+
+              return this.forwarderRepo
+                .signMetatransactionRequest(request, optInPrivateKey)
+                .andThen((metatransactionSignature) => {
+                  console.log("CHARLIE signed metatransaction");
+                  // Got the signature for the metatransaction, now we can execute it.
+                  // .executeMetatransaction will sign everything and have the server run
+                  // the metatransaction.
+                  return this.insightPlatformRepo.executeMetatransaction(
+                    optInAccountAddress, // account address
+                    consentContractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(
+                      BigNumber.from(
+                        config.gasAmounts.updateAgreementFlagsGas,
+                      ).toString(),
+                    ), // The amount of gas to pay.
+                    callData,
+                    metatransactionSignature,
+                    optInPrivateKey,
+                    config.defaultInsightPlatformBaseUrl,
+                  );
+                });
+            })
+            .map(() => {
+              // Metatransaction complete. We don't actually store the permissions in our
+              // persistence layer, they are only stored on the chain, so there's nothing more
+              // to do for that. We should let the world know we made this change though.
+              // Notify the world that we've opted in to the cohort
+              context.publicEvents.onDataPermissionsUpdated.next(
+                new DataPermissionsUpdatedEvent(
+                  consentContractAddress,
+                  dataPermissions,
+                ),
+              );
+            });
+        });
+    });
   }
 
   public getAgreementFlags(

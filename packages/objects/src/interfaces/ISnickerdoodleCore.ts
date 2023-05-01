@@ -460,6 +460,21 @@ export interface IInvitationMethods {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
+
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+    sourceDomain?: DomainName,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  >;
 }
 
 export interface ISnickerdoodleCore {
