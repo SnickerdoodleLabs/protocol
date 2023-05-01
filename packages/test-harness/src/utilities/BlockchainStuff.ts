@@ -116,7 +116,7 @@ export class BlockchainStuff {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentFactoryContractError(
-            "Wait for optIn() failed",
+            "Wait for createConsent() failed",
             "Unknown",
             e,
           );
