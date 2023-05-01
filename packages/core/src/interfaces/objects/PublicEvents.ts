@@ -17,7 +17,6 @@ import {
   SocialProfileUnlinkedEvent,
   TokenBalance,
   WalletNFT,
-  IpfsCID,
   DataPermissionsUpdatedEvent,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
