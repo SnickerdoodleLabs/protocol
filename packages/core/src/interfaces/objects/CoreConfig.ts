@@ -5,7 +5,9 @@ import {
   ControlChainInformation,
   DiscordConfig,
   ECurrencyCode,
+  TwitterConfig,
   URLString,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -27,24 +29,21 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public moralisApiKey: string,
     public nftScanApiKey: string,
     public poapApiKey: string,
+    public oklinkApiKey: string,
     public dnsServerAddress: URLString,
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
-    public alchemyEndpoints: {
-      solana: string;
-      solanaTestnet: string;
-      polygon: string;
-      polygonMumbai: string;
-    },
+    public alchemyEndpoints: Map<EChain, URLString>,
     public restoreTimeoutMS: number,
     public domainFilter: string,
     public enableBackupEncryption: boolean,
     public marketplaceListingsCacheTime: number,
     public backupHeartbeatIntervalMS: number,
     public discord: DiscordConfig,
+    public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
   ) {}
