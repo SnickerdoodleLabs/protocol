@@ -21,7 +21,7 @@ import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { WrappedTransactionResponseFactory } from "@contracts-sdk/implementations/WrappedTransactionResponseFactory";
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -472,7 +472,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     functionName: string,
     functionParams: any[],
   ): WrappedTransactionResponse {
-    const wrappedTransactionFactory = new WrappedTransactionResponseFactory(
+    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
       transactionResponse,
       EVMContractAddress(this.contract.address),
       EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -480,7 +480,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       functionParams,
       ContractsAbis.ConsentFactoryAbi.abi,
     );
-    return wrappedTransactionFactory.factoryWrappedTransactionResponse();
+    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }
 interface IListingStruct {

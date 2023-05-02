@@ -7,7 +7,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 @injectable()
-export class WrappedTransactionResponseFactory {
+export class WrappedTransactionResponseBuilder {
   public constructor(
     protected transactionResponse: ethers.providers.TransactionResponse,
     protected contractAddress: EVMContractAddress,
@@ -17,7 +17,7 @@ export class WrappedTransactionResponseFactory {
     protected contractAbi: any,
   ) {}
 
-  factoryWrappedTransactionResponse(): WrappedTransactionResponse {
+  public buildWrappedTransactionResponse(): WrappedTransactionResponse {
     return new WrappedTransactionResponse(
       this.transactionResponse,
       this.contractAddress,
