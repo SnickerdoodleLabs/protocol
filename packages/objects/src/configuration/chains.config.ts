@@ -148,7 +148,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [
         ProviderUrl(
-          "https://avalanche-mainnet.infura.io/v3/a8ae124ed6aa44bb97a7166cda30f1bc",
+          "https://avalanche-mainnet.infura.io/v3/a6271a49218848a7ad939ee62d225914",
         ),
       ],
       4000,
@@ -170,7 +170,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [
         ProviderUrl(
-          "https://avalanche-fuji.infura.io/v3/a8ae124ed6aa44bb97a7166cda30f1bc",
+          "https://avalanche-fuji.infura.io/v3/a6271a49218848a7ad939ee62d225914",
         ),
       ],
       4000,
