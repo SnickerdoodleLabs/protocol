@@ -3,16 +3,13 @@ import "reflect-metadata";
 import {
   AdKey,
   CompensationId,
-  DataPermissions,
   DuplicateIdInSchema,
-  EWalletDataType,
   InsightKey,
   InvalidRegularExpression,
   IpfsCID,
   ISDQLAd,
   ISDQLCompensationParameters,
   ISDQLCompensations,
-  ISDQLConditionString,
   ISDQLInsightBlock,
   MissingASTError,
   MissingTokenConstructorError,
@@ -489,29 +486,6 @@ export class SDQLParser {
         ),
       );
     });
-  }
-
-  public subqueryKeysToDataPermissions(ids: string[]): DataPermissions {
-    return this.subqueriesToDataPermissions(
-      ids.reduce<AST_Subquery[]>((queries, id) => {
-        if (this.context.has(SDQL_Name(id))) {
-          queries.push(this.context.get(SDQL_Name(id)) as AST_Subquery);
-        }
-        return queries;
-      }, [] as AST_Subquery[]),
-    );
-  }
-
-  public subqueriesToDataPermissions(queries: AST_Subquery[]): DataPermissions {
-    return DataPermissions.createWithPermissions(
-      queries.reduce<EWalletDataType[]>((array, query) => {
-        const permission = query.getPermission();
-        if (permission.isOk()) {
-          array.push(permission.value);
-        }
-        return array;
-      }, []),
-    );
   }
   // #endregion
 
