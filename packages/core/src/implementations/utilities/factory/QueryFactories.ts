@@ -1,11 +1,11 @@
 import {
+  DataPermissions,
   IpfsCID,
-  SDQLString,
   QueryFormatError,
   SDQLQuery,
+  SDQLString,
 } from "@snickerdoodlelabs/objects";
 import {
-  AST,
   IQueryObjectFactory,
   IQueryObjectFactoryType,
   ISDQLQueryWrapperFactory,
@@ -13,10 +13,13 @@ import {
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IQueryRepository,
+  IQueryRepositoryType,
+} from "@core/interfaces/business/utilities/query/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
@@ -26,13 +29,16 @@ export class QueryFactories implements IQueryFactories {
     readonly queryObjectFactory: IQueryObjectFactory,
     @inject(ISDQLQueryWrapperFactoryType)
     readonly queryWrapperFactory: ISDQLQueryWrapperFactory,
+    @inject(IQueryRepositoryType)
+    readonly queryRepository: IQueryRepository,
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
-    const schema = this.queryWrapperFactory.makeWrapper(
-      new SDQLQuery(cid, schemaString),
+    return new SDQLParser(
+      cid,
+      this.queryWrapperFactory.makeWrapper(new SDQLQuery(cid, schemaString)),
+      this.queryObjectFactory,
     );
-    return new SDQLParser(cid, schema, this.queryObjectFactory);
   }
 
   makeParserAsync(
@@ -40,22 +46,21 @@ export class QueryFactories implements IQueryFactories {
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError> {
     try {
-      const schema = this.queryWrapperFactory.makeWrapper(
-        new SDQLQuery(cid, schemaString),
+      return okAsync(
+        new SDQLParser(
+          cid,
+          this.queryWrapperFactory.makeWrapper(
+            new SDQLQuery(cid, schemaString),
+          ),
+          this.queryObjectFactory,
+        ),
       );
-      return okAsync(new SDQLParser(cid, schema, this.queryObjectFactory));
     } catch (e) {
       return errAsync(new QueryFormatError((e as Error).message));
     }
   }
 
-  makeAstEvaluator(
-    cid: IpfsCID,
-    ast: AST | null,
-    queryRepository: IQueryRepository,
-  ): AST_Evaluator {
-    const astEvaluator = new AST_Evaluator(cid, ast, queryRepository);
-    // astEvaluator.postConstructor();
-    return astEvaluator;
+  makeAstEvaluator(dataPermissions: DataPermissions): AST_Evaluator {
+    return new AST_Evaluator(this.queryRepository, dataPermissions);
   }
 }

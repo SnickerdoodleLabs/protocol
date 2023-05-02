@@ -7,7 +7,7 @@ import {
   ParserError,
   PossibleReward,
   QueryFormatError,
-  QueryIdentifier,
+  SubqueryKey,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -17,7 +17,7 @@ export interface IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError>;
+  ): ResultAsync<[SubqueryKey[], ExpectedReward[]], EvaluationError>;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,

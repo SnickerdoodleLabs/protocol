@@ -31,7 +31,7 @@ import {
   LinkedAccount,
   PersistenceError,
   QueryFormatError,
-  QueryIdentifier,
+  SubqueryKey,
   QueryStatus,
   RequestForData,
   SDQLQuery,
@@ -418,7 +418,7 @@ export class QueryService implements IQueryService {
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
-    permittedQueryIds: QueryIdentifier[],
+    permittedQueryIds: SubqueryKey[],
     expectedRewards: ExpectedReward[],
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
     return this.getEligibleRewardsFromInsightPlatform(
@@ -457,7 +457,7 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     queryCID: IpfsCID,
     config: CoreConfig,
-    answeredQueries: QueryIdentifier[],
+    answeredQueries: SubqueryKey[],
   ): ResultAsync<EligibleReward[], AjaxError> {
     return this.insightPlatformRepo.receivePreviews(
       consentContractAddress,

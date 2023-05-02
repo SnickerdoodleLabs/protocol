@@ -7,12 +7,12 @@ import {
   AdKey,
   CompensationId,
   InsightKey,
-  QueryIdentifier,
+  SubqueryKey,
 } from "@objects/primitives";
 
 export class QueryFilteredByPermissions {
   public constructor(
-    public permittedQueryIds: QueryIdentifier[],
+    public permittedQueryIds: SubqueryKey[],
     public expectedCompensationsMap: Map<CompensationId, ISDQLCompensations>,
     public eligibleAdsMap: Map<AdKey, ISDQLAd>,
     public eligibleInsightsMap: Map<InsightKey, ISDQLInsightBlock>,

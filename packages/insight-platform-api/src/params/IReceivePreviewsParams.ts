@@ -1,7 +1,7 @@
 import {
   EVMContractAddress,
   IpfsCID,
-  QueryIdentifier,
+  SubqueryKey,
   Signature,
 } from "@snickerdoodlelabs/objects";
 
@@ -9,6 +9,6 @@ export interface IReceivePreviewsParams {
   consentContractId: EVMContractAddress;
   queryCID: IpfsCID;
   tokenId: string;
-  queries: QueryIdentifier[];
+  queries: SubqueryKey[];
   signature: Signature;
 }

@@ -2,12 +2,9 @@ import {
   InvalidRegularExpression,
   ParserError,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 export enum TokenType {
-  if = "if",
-  else = "else",
-  then = "then",
   and = "and",
   or = "or",
   query = "query",
@@ -39,9 +36,6 @@ export class Token {
 const rules = new Array<[RegExp, TokenType]>();
 // Order matters. The string rule should be the last one for unambiguous parsing.
 rules.push(
-  [/if/y, TokenType.if],
-  [/else/y, TokenType.else],
-  [/then/y, TokenType.then],
   [/\(/y, TokenType.parenthesisOpen],
   [/\)/y, TokenType.parenthesisClose],
   [/and/y, TokenType.and],
@@ -58,49 +52,30 @@ rules.push(
   [/\$c[0-9]+/y, TokenType.compensation],
   [/\$a[0-9]+/y, TokenType.ad],
   [/\s+/y, TokenType.whitespace],
-  // [/["']{1}.*["']{1}/y, TokenType.string],
-  // [/'{1}.*(?<=\\)'{1}/y, TokenType.string], //match unescaped character.
-  // [/["']{1}[A-Za-z0-9_ ]*["']{1}/y, TokenType.string],
-  [/'{1}[A-Za-z0-9_ ]*'{1}/y, TokenType.string],
-  [/"{1}[A-Za-z0-9_ ]*"{1}/y, TokenType.string],
+  [/'{1}[^']*'{1}/y, TokenType.string], //TODO: think
 );
 export class Tokenizer {
   /**
    * @remarks regex.lastIndex is reset to 0 when there is no match. So, we need to set it before any test. Also, regex can output a lastIndex which is out of range. So, first rule may invalidly fail
    */
-  position = 0;
+  private position = 0;
   private _hasNext = true;
-  constructor(readonly exprStr: string, readonly debug: boolean = false) {
-    // if (this.exprStr.length == 0) {
-    //   const err = new ParserError(
-    //     this.position,
-    //     "cannot parse empty expressions",
-    //   );
-    //   // console.error(err);
-    //   throw err;
-    // }
-    // this.validateRules(); it went to all method.
-  }
+  constructor(readonly exprStr: string, readonly debug: boolean = false) {}
 
-  reset() {
+  public reset() {
     this.position = 0;
-    if (this.exprStr.length == 0) {
-      this._hasNext = false;
-    } else {
-      this._hasNext = true;
-    }
+    this._hasNext = this.exprStr.length != 0;
   }
 
-  hasNext(): boolean {
+  public hasNext(): boolean {
     return this._hasNext;
   }
 
-  next(): Token {
+  public next(): Token {
     if (!this.hasNext()) {
-      const err = new ParserError(this.position, "no more tokens");
-      // console.error(err);
-      throw err;
+      throw new ParserError(this.position, "no more tokens");
     }
+
     for (const rule of rules) {
       const rexp = rule[0];
       const tokenType = rule[1];
@@ -109,44 +84,42 @@ export class Tokenizer {
         console.log("searching at", rexp.lastIndex);
         console.log("testing regex", rexp);
       }
-      // if test True, extract from stream, set position to lastIndex if lastIndex is < len, finish otherwise
 
       const token = this.getTokenByRule(rexp, tokenType);
       if (token != null) {
         return token;
       }
-      // if false, do nothing
     }
 
-    const err = new ParserError(
+    throw new ParserError(
       this.position,
       `No matching tokens found at ${this.exprStr.slice(this.position)} of ${
         this.exprStr
       }`,
     );
-    // console.error(err);
-    throw err;
   }
 
   public getTokenByRule(rexp: RegExp, tokenType: TokenType): Token | null {
-    if (rexp.test(this.exprStr)) {
-      if (this.debug) {
-        console.log(`found token at ${this.position}, ${rexp.lastIndex}`);
-      }
-      const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
-      const tokenVal = this.convertVal(tokenType, rawVal);
-      const token = new Token(tokenType, tokenVal, this.position);
-      if (rexp.lastIndex >= this.exprStr.length) {
-        this._hasNext = false;
-        this.position = 0;
-      } else {
-        this.position = rexp.lastIndex;
-      }
-
-      return token;
+    if (!rexp.test(this.exprStr)) {
+      return null;
     }
 
-    return null;
+    if (this.debug) {
+      console.log(`found token at ${this.position}, ${rexp.lastIndex}`);
+    }
+
+    const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
+    const tokenVal = this.convertVal(tokenType, rawVal);
+    const token = new Token(tokenType, tokenVal, this.position);
+
+    if (rexp.lastIndex >= this.exprStr.length) {
+      this._hasNext = false;
+      this.position = 0;
+    } else {
+      this.position = rexp.lastIndex;
+    }
+
+    return token;
   }
 
   public all(): ResultAsync<
@@ -166,29 +139,26 @@ export class Tokenizer {
     });
   }
 
-  validateRules(): ResultAsync<void, InvalidRegularExpression> {
-    for (const rule of rules) {
-      const rexp = rule[0];
-      if (rexp.sticky != true) {
-        const err = new InvalidRegularExpression(`${rexp} is not sticky`);
-        // console.error(err);
-        return errAsync(err);
-      }
-    }
+  private validateRules(): ResultAsync<void, InvalidRegularExpression> {
+    rules
+      .find((rule) => !rule[0].sticky)
+      ?.map((problematicRule) => {
+        return errAsync(
+          new InvalidRegularExpression(`${problematicRule[0]} is not sticky`),
+        );
+      });
     return okAsync(undefined);
   }
 
-  convertVal(type: TokenType, rawVal: string): unknown {
+  private convertVal(type: TokenType, rawVal: string): unknown {
     switch (type) {
       case TokenType.number:
         return +rawVal;
       case TokenType.boolean:
         return Boolean(rawVal.toLowerCase() == "true");
       case TokenType.string:
-        const rawStrippedQuotes = rawVal.slice(1, rawVal.length - 1);
-        return rawStrippedQuotes;
-      default:
-        return rawVal;
+        return rawVal.slice(1, rawVal.length - 1);
     }
+    return rawVal;
   }
 }

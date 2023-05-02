@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IpfsCID,
@@ -7,7 +6,8 @@ import {
   SDQLQuery,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
+import "reflect-metadata";
 
 import {
   QueryObjectFactory,
@@ -19,7 +19,7 @@ const cid = IpfsCID("0");
 const timeUtils = new TimeUtils();
 const sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(timeUtils);
 
-describe.only("Schema validation", () => {
+describe("Schema validation", () => {
   test("missing version", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -35,12 +35,12 @@ describe.only("Schema validation", () => {
 
     await parser
       .validateSchema(schema, cid)
-      .andThen(() => {
-        fail("didn't return error");
-      })
       .mapErr((err) => {
         expect(err.constructor).toBe(QueryFormatError);
         expect(err.message.includes("version")).toBeTruthy();
+      })
+      .map(() => {
+        expect(1).toBe(2);
       });
   });
   test("missing description", async () => {
@@ -55,9 +55,7 @@ describe.only("Schema validation", () => {
       new SDQLQuery(cid, schemaStr),
     );
 
-    const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
-
-    await parser
+    await new SDQLParser(cid, schema, new QueryObjectFactory())
       .validateSchema(schema, cid)
       .andThen(() => {
         fail("didn't return error");
@@ -81,9 +79,8 @@ describe.only("Schema validation", () => {
     const schema = sdqlQueryWrapperFactory.makeWrapper(
       new SDQLQuery(cid, schemaStr),
     );
-    const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
-    await parser
+    await new SDQLParser(cid, schema, new QueryObjectFactory())
       .validateSchema(schema, cid)
       .andThen(() => {
         fail("didn't return error");
@@ -93,7 +90,6 @@ describe.only("Schema validation", () => {
         expect(err.message.includes("business")).toBeTruthy();
       });
   });
-
   test("missing timestamp", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -120,7 +116,6 @@ describe.only("Schema validation", () => {
         expect(err.message.includes("timestamp")).toBeTruthy();
       });
   });
-
   test("missing expiry", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -146,7 +141,6 @@ describe.only("Schema validation", () => {
         expect(err.constructor).toBe(QueryExpiredError);
       });
   });
-
   test("invalid timestamp iso 8601", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -174,7 +168,6 @@ describe.only("Schema validation", () => {
         expect(err.message.includes("timestamp")).toBeTruthy();
       });
   });
-
   test("invalid expiry iso 8601", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -203,7 +196,6 @@ describe.only("Schema validation", () => {
         expect(err.message.includes("expiry")).toBeTruthy();
       });
   });
-
   test("missing timezone fix", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -222,7 +214,7 @@ describe.only("Schema validation", () => {
     const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
     await parser
-      .validateTimeStampExpiry(schema, cid)
+      .validateTimestampExpiry(schema, cid)
       .andThen(() => {
         expect(schema.internalObj.timestamp).toBe("2021-11-13T20:20:39Z");
         expect(schema.internalObj.expiry).toBe("2023-11-13T20:20:39+00:00");
@@ -233,7 +225,7 @@ describe.only("Schema validation", () => {
         fail("There must be no error");
       });
   });
-  test("missing queries", async () => {
+  test("missing queries is OK", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
         version: 0.1,
@@ -248,19 +240,13 @@ describe.only("Schema validation", () => {
     const schema = sdqlQueryWrapperFactory.makeWrapper(
       new SDQLQuery(cid, schemaStr),
     );
-    const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
-    await parser
+    await new SDQLParser(cid, schema, new QueryObjectFactory())
       .validateSchema(schema, cid)
-      .andThen(() => {
-        fail("didn't return error");
-      })
       .mapErr((err) => {
-        expect(err.constructor).toBe(QueryFormatError);
-        expect(err.message.includes("queries")).toBeTruthy();
+        expect("").toBe(err.message);
       });
   });
-
   test("missing returns is OK", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
@@ -285,20 +271,13 @@ describe.only("Schema validation", () => {
     const schema = sdqlQueryWrapperFactory.makeWrapper(
       new SDQLQuery(cid, schemaStr),
     );
-    const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
-
-    await parser
+    await new SDQLParser(cid, schema, new QueryObjectFactory())
       .validateSchema(schema, cid)
-      .andThen(() => {
-        fail("didn't return error");
-      })
       .mapErr((err) => {
-        expect(err.constructor).toBe(QueryFormatError);
-        expect(err.message.includes("return")).toBeFalsy();
+        expect("").toBe(err.message);
       });
   });
-
-  test("missing compensations", async () => {
+  test("missing compensations is OK", async () => {
     const schemaStr = SDQLString(
       JSON.stringify({
         version: 0.1,
@@ -328,16 +307,10 @@ describe.only("Schema validation", () => {
     const schema = sdqlQueryWrapperFactory.makeWrapper(
       new SDQLQuery(cid, schemaStr),
     );
-    const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
-
-    await parser
+    await new SDQLParser(cid, schema, new QueryObjectFactory())
       .validateSchema(schema, cid)
-      .andThen(() => {
-        fail("didn't return error");
-      })
       .mapErr((err) => {
-        expect(err.constructor).toBe(QueryFormatError);
-        expect(err.message.includes("compensations")).toBeTruthy();
+        expect("").toBe(err.message);
       });
   });
 });

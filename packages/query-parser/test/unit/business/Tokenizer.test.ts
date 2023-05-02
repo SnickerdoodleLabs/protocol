@@ -83,7 +83,6 @@ describe("Tokenizer type tests", () => {
       TokenType.whitespace,
       TokenType.string,
     ];
-
     testExpectedValuesAndTypes(expr, expectedValues, expectedTypes);
   });
 

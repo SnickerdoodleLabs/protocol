@@ -38,7 +38,7 @@ import {
   AST_BlockchainTransactionQuery,
   AST_NftQuery,
   AST_PropertyQuery,
-  AST_Query,
+  AST_Subquery,
   BinaryCondition,
   ConditionE,
   ConditionG,
@@ -74,7 +74,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   protected age: Age = Age(0);
   protected location: CountryCode = CountryCode("12345");
 
-  public eval<T extends AST_Query>(
+  public eval<T extends AST_Subquery>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     if (query instanceof AST_BlockchainTransactionQuery) {

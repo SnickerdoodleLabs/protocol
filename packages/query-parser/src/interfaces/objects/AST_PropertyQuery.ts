@@ -10,7 +10,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { err, ok, Result } from "neverthrow";
 
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import { AST_Subquery } from "@query-parser/interfaces/objects/AST_Subquery.js";
 import {
   BinaryCondition,
   ConditionE,
@@ -21,7 +21,7 @@ import {
   ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
 
-export class AST_PropertyQuery extends AST_Query {
+export class AST_PropertyQuery extends AST_Subquery {
   /**
    * @param name - the key of the query from schema, e.g., q1, q2, a3 ...
    * @param property - the name of the query from the schema, e.g., "age"

@@ -58,7 +58,7 @@ export * from "@objects/primitives/PEMEncodedRSAPrivateKey.js";
 export * from "@objects/primitives/PEMEncodedRSAPublicKey.js";
 export * from "@objects/primitives/ProviderUrl.js";
 export * from "@objects/primitives/PublicKey.js";
-export * from "@objects/primitives/QueryIdentifier.js";
+export * from "@objects/primitives/SubqueryKey.js";
 export * from "@objects/primitives/QueryTypePermissionMap.js";
 export * from "@objects/primitives/QueryTypes.js";
 export * from "@objects/primitives/RewardFunctionParam.js";
