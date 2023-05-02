@@ -21,6 +21,7 @@ import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { WrappedTransactionResponseFactory } from "@contracts-sdk/implementations/WrappedTransactionResponseFactory";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -43,18 +44,16 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     return EVMContractAddress(this.contract?.address || "");
   }
 
-  // Function to help user create consent
-  // After creating consent, call getUserDeployedConsentsCount to get total number of deployed consents
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    const functionParams = [ownerAddress, baseUri, name];
+    const functionName = "createConsent";
     return ResultAsync.fromPromise(
-      this.contract.createConsent(
-        ownerAddress,
-        baseUri,
-        name,
+      this.contract[functionName](
+        ...functionParams,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -64,7 +63,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
     });
   }
 
@@ -234,10 +237,12 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   public setListingDuration(
     listingDuration: number,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    const functionParams = [listingDuration];
+    const functionName = "setListingDuration";
     return ResultAsync.fromPromise(
-      this.contract.setListingDuration(
-        listingDuration,
-      ) as Promise<WrappedTransactionResponse>,
+      this.contract[functionName](
+        ...functionParams,
+      ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call setListingDuration()",
@@ -245,16 +250,24 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    );
+    ).map((tx) => {
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
+    });
   }
 
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    const functionParams = [maxTagsPerListing];
+    const functionName = "setMaxTagsPerListing";
     return ResultAsync.fromPromise(
-      this.contract.setMaxTagsPerListing(
-        maxTagsPerListing,
-      ) as Promise<WrappedTransactionResponse>,
+      this.contract[functionName](
+        ...functionParams,
+      ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call setListingDuration()",
@@ -262,17 +275,24 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    );
+    ).map((tx) => {
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
+    });
   }
 
   public adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    const functionParams = [tag, removedSlot];
+    const functionName = "adminRemoveListing";
     return ResultAsync.fromPromise(
-      this.contract.adminRemoveListing(
-        tag,
-        removedSlot,
+      this.contract[functionName](
+        ...functionParams,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -282,7 +302,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
     });
   }
 
@@ -441,6 +465,22 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         true,
       );
     });
+  }
+
+  protected toWrappedTransactionResponse(
+    transactionResponse: ethers.providers.TransactionResponse,
+    functionName: string,
+    functionParams: any[],
+  ): WrappedTransactionResponse {
+    const wrappedTransactionFactory = new WrappedTransactionResponseFactory(
+      transactionResponse,
+      EVMContractAddress(this.contract.address),
+      EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+      functionName,
+      functionParams,
+      ContractsAbis.ConsentFactoryAbi.abi,
+    );
+    return wrappedTransactionFactory.factoryWrappedTransactionResponse();
   }
 }
 interface IListingStruct {
