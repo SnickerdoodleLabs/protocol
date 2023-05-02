@@ -23,7 +23,7 @@ import {
   Username,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
   ISocialRepository,
@@ -167,13 +167,11 @@ export class TwitterRepository implements ITwitterRepository {
         profiles.map((p) => {
           return ResultUtils.combine([
             this._fetchUserProfile(config, p.userObject.id, p.oAuth1a),
-            // this._fetchFollowing(config, p.userObject.id, p.oAuth1a),
-            // this._fetchFollowers(config, p.userObject.id, p.oAuth1a),
+            this._fetchFollowing(config, p.userObject.id, p.oAuth1a),
+            this._fetchFollowers(config, p.userObject.id, p.oAuth1a),
           ]).andThen(([userProfile, following, followers]) => {
             p.userObject = userProfile;
-            // I did this to simulate following and follwer data.
-            // I'll change it before merging to develop.
-            p.followData = new TwitterFollowData([userProfile], [userProfile]);
+            p.followData = new TwitterFollowData(following, followers);
             return this.upsertUserProfile(p).map(() => p);
           });
         }),
@@ -219,7 +217,7 @@ export class TwitterRepository implements ITwitterRepository {
     userId: TwitterID,
     oAuth1Access: TokenAndSecret,
   ): ResultAsync<TwitterUserObject, TwitterError> {
-    const url = URLString(urlJoin(config.dataAPIUrl, `/users/me`));
+    const url = URLString(urlJoin(config.dataAPIUrl, `/users/${userId}`));
     return this.ajaxUtil
       .get<{ data: TwitterUserObject }>(new URL(url), {
         headers: {

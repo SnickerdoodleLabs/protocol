@@ -72,9 +72,9 @@ export class ConfigProvider
     };
 
     const twitterConfig = {
-      apiKey: "7BS8ZDZokCcafXJ5rVu9cCDpm",
+      apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
       apiSecretKey: TokenSecret(
-        "eQGIIkpNiqy0Y8zFoZrEur2H8RiztYj8yJLAxksZAkuXRu5qfP",
+        "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx",
       ),
       signingAlgorithm: ESignatureAlgorithm.HMAC,
       hashingAlgorithm: EHashAlgorithm.SHA1,
