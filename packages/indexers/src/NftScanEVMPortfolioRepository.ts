@@ -38,9 +38,9 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    return this.generateQueryConfig(chainId, accountAddress).andThen(
-      (requestConfig) => {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    return this.generateQueryConfig(chainId, accountAddress)
+      .andThen((requestConfig) => {
         return this.ajaxUtils
           .get<INftScanResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -50,8 +50,10 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
           .andThen((response) => {
             return this.getPages(chainId, response);
           });
-      },
-    );
+      })
+      .mapErr(
+        (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
+      );
   }
 
   private getPages(

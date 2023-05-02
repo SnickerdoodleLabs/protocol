@@ -2,7 +2,7 @@ import { AdContent } from "@objects/businessObjects/AdContent.js";
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject.js";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   AdKey,
   EVMContractAddress,

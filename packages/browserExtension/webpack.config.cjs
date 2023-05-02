@@ -50,7 +50,7 @@ var options = {
   // mode: env.NODE_ENV || "development",
   mode: "development",
   entry: {
-    popup: path.join(__dirname, "src", "popup", "index.jsx"),
+    popup: path.join(__dirname, "src", "popup", "index.tsx"),
     background: path.join(__dirname, "src", "background", "index.ts"),
     contentScript: path.join(__dirname, "src", "content", "index.ts"),
     dataWalletProxy: path.join(
@@ -114,18 +114,18 @@ var options = {
           },
         },
       },
-      {
-        test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: "source-map-loader",
-          },
-          {
-            loader: "babel-loader",
-          },
-        ],
-        exclude: /node_modules/,
-      },
+      // {
+      //   test: /\.(js|jsx)$/,
+      //   use: [
+      //     {
+      //       loader: "source-map-loader",
+      //     },
+      //     {
+      //       loader: "babel-loader",
+      //     },
+      //   ],
+      //   exclude: /node_modules/,
+      // },
     ],
   },
   resolve: {

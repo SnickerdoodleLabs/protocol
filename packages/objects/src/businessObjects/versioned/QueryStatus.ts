@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject.js";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
 import { EQueryProcessingStatus } from "@objects/enum/index.js";
 import {
   BlockNumber,

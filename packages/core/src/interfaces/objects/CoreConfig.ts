@@ -45,5 +45,16 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public discord: DiscordConfig,
     public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
+    public gasAmounts: MetatransactionGasAmounts,
+  ) {}
+}
+
+export class MetatransactionGasAmounts {
+  public constructor(
+    public createCrumbGas: number,
+    public removeCrumbGas: number,
+    public optInGas: number,
+    public optOutGas: number,
+    public updateAgreementFlagsGas: number,
   ) {}
 }

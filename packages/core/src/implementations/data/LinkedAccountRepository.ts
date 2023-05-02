@@ -1,16 +1,12 @@
 import {
   AccountAddress,
-  DomainName,
   EarnedReward,
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
-  Invitation,
   LinkedAccount,
   PersistenceError,
   ReceivingAccount,
-  Signature,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -21,7 +17,10 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
-import { IContextProviderType, IContextProvider } from "@core/interfaces/utilities/index.js";
+import {
+  IContextProviderType,
+  IContextProvider,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class LinkedAccountRepository implements ILinkedAccountRepository {
@@ -33,64 +32,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
     return this.persistence.getAll<LinkedAccount>(ERecordKey.ACCOUNT);
-  }
-
-  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
-      .map((storedInvitations) => {
-        if (storedInvitations == null) {
-          return [];
-        }
-
-        return storedInvitations.map((storedInvitation) => {
-          return InvitationForStorage.toInvitation(storedInvitation);
-        });
-      });
-  }
-
-  public addAcceptedInvitations(
-    invitations: Invitation[],
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
-      .andThen((storedInvitations) => {
-        if (storedInvitations == null) {
-          storedInvitations = [];
-        }
-
-        const allInvitations = storedInvitations.concat(
-          invitations.map((invitation) => {
-            return InvitationForStorage.fromInvitation(invitation);
-          }),
-        );
-
-        return this.persistence.updateField(
-          EFieldKey.ACCEPTED_INVITATIONS,
-          allInvitations,
-        );
-      });
-  }
-
-  public removeAcceptedInvitationsByContractAddress(
-    addressesToRemove: EVMContractAddress[],
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<InvitationForStorage[]>(EFieldKey.ACCEPTED_INVITATIONS)
-      .andThen((storedInvitations) => {
-        if (storedInvitations == null) {
-          storedInvitations = [];
-        }
-
-        const invitations = storedInvitations.filter((optIn) => {
-          return !addressesToRemove.includes(optIn.consentContractAddress);
-        });
-
-        return this.persistence.updateField(
-          EFieldKey.ACCEPTED_INVITATIONS,
-          invitations,
-        );
-      });
   }
 
   public addEarnedRewards(
@@ -115,31 +56,6 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       ERecordKey.EARNED_REWARDS,
       undefined,
     );
-  }
-
-  public addRejectedCohorts(
-    consentContractAddresses: EVMContractAddress[],
-  ): ResultAsync<void, PersistenceError> {
-    return this.persistence
-      .getField<EVMContractAddress[]>(EFieldKey.REJECTED_COHORTS)
-      .andThen((raw) => {
-        const saved = raw ?? [];
-        return this.persistence.updateField(EFieldKey.REJECTED_COHORTS, [
-          ...saved,
-          ...consentContractAddresses,
-        ]);
-      });
-  }
-
-  public getRejectedCohorts(): ResultAsync<
-    EVMContractAddress[],
-    PersistenceError
-  > {
-    return this.persistence
-      .getField<EVMContractAddress[]>(EFieldKey.REJECTED_COHORTS)
-      .map((raw) => {
-        return raw ?? [];
-      });
   }
 
   public addAccount(
@@ -199,32 +115,5 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
         contractAddress,
       )
       .map((entry) => (!entry ? null : entry.receivingAddress));
-  }
-}
-
-class InvitationForStorage {
-  public constructor(
-    public domain: DomainName,
-    public consentContractAddress: EVMContractAddress,
-    public tokenId: string,
-    public businessSignature: Signature | null,
-  ) {}
-
-  static toInvitation(src: InvitationForStorage): Invitation {
-    return new Invitation(
-      src.domain,
-      src.consentContractAddress,
-      TokenId(BigInt(src.tokenId)),
-      src.businessSignature,
-    );
-  }
-
-  static fromInvitation(src: Invitation): InvitationForStorage {
-    return new InvitationForStorage(
-      src.domain,
-      src.consentContractAddress,
-      src.tokenId.toString(),
-      src.businessSignature,
-    );
   }
 }
