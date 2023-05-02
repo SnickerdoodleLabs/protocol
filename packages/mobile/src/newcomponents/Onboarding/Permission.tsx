@@ -19,7 +19,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
               value={item.state.status}
               onValueChange={() => {
                 if (!item.state.status) {
-                  console.log("myITems", item);
                   item.setPermissions((prevItems) => [
                     ...prevItems,
                     item.ewalletType,
@@ -28,7 +27,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
                   const newItems = item.permissions.filter(
                     (val) => val != item.ewalletType,
                   );
-                  console.log("newItems", newItems);
                   item.setPermissions(newItems);
                 }
                 item.setState({
@@ -55,33 +53,33 @@ const Permission = () => {
   // Personal Info
   const [age, setAge] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.Age,
-    status: true,
+    status: false,
   });
   const [gender, setGender] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.Gender,
-    status: true,
+    status: false,
   });
   const [location, setLocation] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.Location,
-    status: true,
+    status: false,
   });
   const [siteVisited, setSiteVisited] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.SiteVisits,
-    status: true,
+    status: false,
   });
   // Crypto Accounts
   const [nfts, setNFTs] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.AccountNFTs,
-    status: true,
+    status: false,
   });
   const [tokenBalance, setTokenBalance] = useState<IPermissionStateProps>({
     walletDataType: EWalletDataType.AccountBalances,
-    status: true,
+    status: false,
   });
   const [transactionHistory, setTransactionHistory] =
     useState<IPermissionStateProps>({
       walletDataType: EWalletDataType.EVMTransactions,
-      status: true,
+      status: false,
     });
   // Discord
   const [discord, setDiscord] = useState<IPermissionStateProps>({
@@ -91,43 +89,45 @@ const Permission = () => {
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   React.useEffect(() => {
     mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
-      if ((permission.length == 0)) {
+      if (permission.length === 0) {
         mobileCore.dataPermissionUtils.setPermissions([
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
         ]);
+        setPermissions([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+      } else {
+        setPermissions(permission);
       }
-      else{
-        
-      }
-      setPermissions(permission);
     });
   }, []);
 
   useEffect(() => {
+    mobileCore.dataPermissionUtils.setPermissions(permissions);
     permissions.map((perm) => {
-      if (age.walletDataType === perm) {
+      if (age.walletDataType == perm) {
         setAge({ walletDataType: perm, status: true });
       }
-      if (gender.walletDataType === perm) {
+      if (gender.walletDataType == perm) {
         setGender({ walletDataType: perm, status: true });
       }
-      if (location.walletDataType === perm) {
+      if (location.walletDataType == perm) {
         setLocation({ walletDataType: perm, status: true });
       }
-      if (siteVisited.walletDataType === perm) {
+      if (siteVisited.walletDataType == perm) {
         setSiteVisited({ walletDataType: perm, status: true });
       }
-      if (nfts.walletDataType === perm) {
+      if (nfts.walletDataType == perm) {
         setNFTs({ walletDataType: perm, status: true });
       }
-      if (tokenBalance.walletDataType === perm) {
+      if (tokenBalance.walletDataType == perm) {
         setTokenBalance({ walletDataType: perm, status: true });
       }
-      if (transactionHistory.walletDataType === perm) {
+      if (transactionHistory.walletDataType == perm) {
         setTransactionHistory({ walletDataType: perm, status: true });
       }
+      if (discord.walletDataType == perm) {
+        setDiscord({ walletDataType: perm, status: true });
+      }
     });
-    mobileCore.dataPermissionUtils.setPermissions(permissions);
   }, [permissions]);
 
   return (

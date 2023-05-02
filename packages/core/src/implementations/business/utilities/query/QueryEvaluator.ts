@@ -27,7 +27,6 @@ import {
   Age,
   CountryCode,
   DiscordGuildProfile,
-  DiscordProfile,
   ESocialType,
   EvalNotImplementedError,
   Gender,
@@ -50,7 +49,6 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {

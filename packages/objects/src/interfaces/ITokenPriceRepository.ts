@@ -5,7 +5,11 @@ import {
   TokenInfo,
   TokenMarketData,
 } from "@objects/businessObjects";
-import { AccountIndexingError, PersistenceError } from "@objects/errors";
+import {
+  AccountIndexingError,
+  AjaxError,
+  PersistenceError,
+} from "@objects/errors";
 import { ChainId, UnixTimestamp } from "@objects/primitives";
 
 export interface ITokenPriceRepository {
@@ -31,8 +35,19 @@ export interface ITokenPriceRepository {
     tokens: { chain: ChainId; address: TokenAddress | null }[],
   ): ResultAsync<
     Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
-    AccountIndexingError
+    AccountIndexingError | AjaxError
   >;
+
+  getTokenInfoFromList(
+    contractAddress: TokenAddress,
+  ): CoinGeckoTokenInfo | undefined;
 }
 
 export const ITokenPriceRepositoryType = Symbol.for("ITokenPriceRepository");
+
+export interface CoinGeckoTokenInfo {
+  id: string;
+  symbol: string;
+  name: string;
+  protocols: string[];
+}

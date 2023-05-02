@@ -1,3 +1,4 @@
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BackupFileName,
   BigNumberString,
@@ -28,6 +29,7 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+import { UpdateDataPermissions } from "@test-harness/prompts/UpdateDataPermissions.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -37,17 +39,19 @@ export class CorePrompt extends DataWalletPrompt {
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
+  private updateDataPermissions: UpdateDataPermissions;
 
-  public constructor(public env: Environment) {
+  public constructor(public env: Environment, protected timeUtils: ITimeUtils) {
     super(env);
 
     this.unlockCore = new UnlockCore(this.env);
     this.addAccount = new AddAccount(this.env);
     this.checkAccount = new CheckAccount(this.env);
     this.removeAccount = new RemoveAccount(this.env);
-    this.optInCampaign = new OptInCampaign(this.env);
+    this.optInCampaign = new OptInCampaign(this.env, this.timeUtils);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
+    this.updateDataPermissions = new UpdateDataPermissions(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -68,6 +72,10 @@ export class CorePrompt extends DataWalletPrompt {
       {
         name: "Opt Out of Campaign",
         value: "optOutCampaign",
+      },
+      {
+        name: "Update Data Permissions",
+        value: "updateDataPermissions",
       },
       new inquirer.Separator(),
       { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
@@ -172,6 +180,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optInCampaign.start();
         case "optOutCampaign":
           return this.optOutCampaign.start();
+        case "updateDataPermissions":
+          return this.updateDataPermissions.start();
         case "getAge":
           return this.core.getAge().map(console.log);
         case "setGender":

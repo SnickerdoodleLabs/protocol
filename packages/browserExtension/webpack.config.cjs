@@ -50,7 +50,7 @@ var options = {
   // mode: env.NODE_ENV || "development",
   mode: "development",
   entry: {
-    popup: path.join(__dirname, "src", "popup", "index.jsx"),
+    popup: path.join(__dirname, "src", "popup", "index.tsx"),
     background: path.join(__dirname, "src", "background", "index.ts"),
     contentScript: path.join(__dirname, "src", "content", "index.ts"),
     dataWalletProxy: path.join(
@@ -114,18 +114,18 @@ var options = {
           },
         },
       },
-      {
-        test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: "source-map-loader",
-          },
-          {
-            loader: "babel-loader",
-          },
-        ],
-        exclude: /node_modules/,
-      },
+      // {
+      //   test: /\.(js|jsx)$/,
+      //   use: [
+      //     {
+      //       loader: "source-map-loader",
+      //     },
+      //     {
+      //       loader: "babel-loader",
+      //     },
+      //   ],
+      //   exclude: /node_modules/,
+      // },
     ],
   },
   resolve: {
@@ -170,6 +170,7 @@ var options = {
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
+      __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),
@@ -195,6 +196,15 @@ var options = {
       ),
       __DISCORD_POLL_INTERVAL__: JSON.stringify(
         process.env.__DISCORD_POLL_INTERVAL__,
+      ),
+      __TWITTER_CONSUMER_KEY__: JSON.stringify(
+        process.env.__TWITTER_CONSUMER_KEY__,
+      ),
+      __TWITTER_CONSUMER_SECRET__: JSON.stringify(
+        process.env.__TWITTER_CONSUMER_SECRET__,
+      ),
+      __TWITTER_POLL_INTERVAL__: JSON.stringify(
+        process.env.__TWITTER_POLL_INTERVAL__,
       ),
     }),
 
