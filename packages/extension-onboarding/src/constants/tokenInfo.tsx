@@ -1,3 +1,6 @@
+import arbitrumCircle from "@extension-onboarding/assets/images/arbitrum-circle.png";
+import optimismCircle from "@extension-onboarding/assets/images/optimism-circle.png";
+
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
 import solanaCircle from "@extension-onboarding/assets/icons/solana-circle.svg";
 import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
@@ -34,4 +37,6 @@ export const stableCoins = [
   "xDAI",
   "BNB",
   "GLMR",
+  "ARB",
+  "OP",
 ];
