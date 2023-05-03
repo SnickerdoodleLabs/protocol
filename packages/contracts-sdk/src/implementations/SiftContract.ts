@@ -1,3 +1,4 @@
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
@@ -56,63 +57,63 @@ export class SiftContract implements ISiftContract {
   public verifyURL(
     domain: DomainName,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.verifyURL(
-        domain,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new SiftContractError(
-          "Unable to call verifyURL()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("verifyURL", [domain]);
   }
 
   public maliciousURL(
     domain: DomainName,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.maliciousURL(
-        domain,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new SiftContractError(
-          "Unable to call maliciousURL()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("maliciousURL", [domain]);
   }
 
   public setBaseURI(
     baseUri: BaseURI,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+    return this.writeToContract("setBaseURI", [baseUri]);
+  }
+
+  public getContract(): ethers.Contract {
+    return this.contract;
+  }
+
+  // Takes the Sift contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return ResultAsync.fromPromise(
-      this.contract.setBaseURI(
-        baseUri,
+      this.contract[functionName](
+        ...functionParams,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new SiftContractError(
-          "Unable to call setBaseURI()",
+          `Unable to call ${functionName}()`,
           (e as IBlockchainError).reason,
           e,
         );
       },
     ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
     });
   }
 
-  public getContract(): ethers.Contract {
-    return this.contract;
+  protected toWrappedTransactionResponse(
+    transactionResponse: ethers.providers.TransactionResponse,
+    functionName: string,
+    functionParams: any[],
+  ): WrappedTransactionResponse {
+    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+      transactionResponse,
+      EVMContractAddress(this.contract.address),
+      EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+      functionName,
+      functionParams,
+      ContractsAbis.ConsentFactoryAbi.abi,
+    );
+    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }

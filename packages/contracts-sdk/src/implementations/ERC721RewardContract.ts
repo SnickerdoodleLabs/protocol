@@ -1,3 +1,4 @@
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import {
   IERC721RewardContract,
@@ -168,20 +169,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   public setBaseURI(
     baseUri: BaseURI,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setBaseURI(
-        baseUri,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call setBaseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("setBaseURI", [baseUri]);
   }
 
   public balanceOf(
@@ -257,63 +245,21 @@ export class ERC721RewardContract implements IERC721RewardContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.grantRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call grantRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("grantRole", [ERewardRoles[role], address]);
   }
 
   public revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.revokeRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call revokeRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("revokeRole", [ERewardRoles[role], address]);
   }
 
   public renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.renounceRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call renounceRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("renounceRole", [ERewardRoles[role], address]);
   }
 
   public filters = {
@@ -327,5 +273,46 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public getContract(): ethers.Contract {
     return this.contract;
+  }
+
+  // Takes the ERC721 Reward contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
+    return ResultAsync.fromPromise(
+      this.contract[functionName](
+        ...functionParams,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ERC721RewardContractError(
+          `Unable to call ${functionName}()`,
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
+    });
+  }
+
+  protected toWrappedTransactionResponse(
+    transactionResponse: ethers.providers.TransactionResponse,
+    functionName: string,
+    functionParams: any[],
+  ): WrappedTransactionResponse {
+    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+      transactionResponse,
+      EVMContractAddress(this.contract.address),
+      EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+      functionName,
+      functionParams,
+      ContractsAbis.ConsentFactoryAbi.abi,
+    );
+    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }

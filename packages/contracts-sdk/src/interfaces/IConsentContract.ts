@@ -115,7 +115,7 @@ export interface IConsentContract {
    * Submit for blockchain requestForData event
    * @param ipfsCID ipfs conent id of a query
    */
-  requestForData(ipfsCID: IpfsCID): ResultAsync<void, ConsentContractError>;
+  requestForData(ipfsCID: IpfsCID): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns array of addresses that has the DEFAULT_ADMIN_ROLE

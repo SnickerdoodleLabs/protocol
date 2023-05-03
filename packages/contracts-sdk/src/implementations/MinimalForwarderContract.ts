@@ -1,3 +1,4 @@
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import {
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
@@ -70,24 +71,51 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
     request: IMinimalForwarderRequest,
     signature: Signature,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+    return this.writeToContract("execute", [request, signature]);
+  }
+
+  public getContract(): ethers.Contract {
+    return this.contract;
+  }
+
+  // Takes the MinimalForwarder Reward contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
     return ResultAsync.fromPromise(
-      this.contract.execute(
-        request,
-        signature,
+      this.contract[functionName](
+        ...functionParams,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new MinimalForwarderContractError(
-          `Unable to call execute()`,
+          `Unable to call ${functionName}()`,
           (e as IBlockchainError).reason,
           e,
         );
       },
     ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
+      return this.toWrappedTransactionResponse(
+        tx,
+        functionName,
+        functionParams,
+      );
     });
   }
 
-  public getContract(): ethers.Contract {
-    return this.contract;
+  protected toWrappedTransactionResponse(
+    transactionResponse: ethers.providers.TransactionResponse,
+    functionName: string,
+    functionParams: any[],
+  ): WrappedTransactionResponse {
+    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+      transactionResponse,
+      EVMContractAddress(this.contract.address),
+      EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+      functionName,
+      functionParams,
+      ContractsAbis.ConsentFactoryAbi.abi,
+    );
+    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }
