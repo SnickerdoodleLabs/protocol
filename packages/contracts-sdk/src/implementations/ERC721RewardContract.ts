@@ -305,7 +305,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
     functionName: string,
     functionParams: any[],
   ): WrappedTransactionResponse {
-    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
       transactionResponse,
       EVMContractAddress(this.contract.address),
       EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -313,6 +313,5 @@ export class ERC721RewardContract implements IERC721RewardContract {
       functionParams,
       ContractsAbis.ConsentFactoryAbi.abi,
     );
-    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }

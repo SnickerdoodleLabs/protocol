@@ -137,6 +137,7 @@ export class CrumbsContract implements ICrumbsContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    
   ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract[functionName](
@@ -163,7 +164,7 @@ export class CrumbsContract implements ICrumbsContract {
     functionName: string,
     functionParams: any[],
   ): WrappedTransactionResponse {
-    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
       transactionResponse,
       EVMContractAddress(this.contract.address),
       EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -171,6 +172,5 @@ export class CrumbsContract implements ICrumbsContract {
       functionParams,
       ContractsAbis.ConsentFactoryAbi.abi,
     );
-    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }

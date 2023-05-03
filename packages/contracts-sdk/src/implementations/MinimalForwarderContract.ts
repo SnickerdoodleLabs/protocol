@@ -108,7 +108,7 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
     functionName: string,
     functionParams: any[],
   ): WrappedTransactionResponse {
-    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
       transactionResponse,
       EVMContractAddress(this.contract.address),
       EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -116,6 +116,5 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
       functionParams,
       ContractsAbis.ConsentFactoryAbi.abi,
     );
-    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }

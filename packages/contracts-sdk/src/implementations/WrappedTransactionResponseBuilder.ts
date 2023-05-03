@@ -8,27 +8,25 @@ import {
 
 @injectable()
 export class WrappedTransactionResponseBuilder {
-  public constructor(
-    protected transactionResponse: ethers.providers.TransactionResponse,
-    protected contractAddress: EVMContractAddress,
-    protected signerAddress: EVMAccountAddress,
-    protected functionName: string,
-    protected functionParams: any[],
-    protected contractAbi: any,
-  ) {}
-
-  public buildWrappedTransactionResponse(): WrappedTransactionResponse {
+  static buildWrappedTransactionResponse(
+    transactionResponse: ethers.providers.TransactionResponse,
+    contractAddress: EVMContractAddress,
+    signerAddress: EVMAccountAddress,
+    functionName: string,
+    functionParams: any[],
+    contractAbi: any,
+  ): WrappedTransactionResponse {
     return new WrappedTransactionResponse(
-      this.transactionResponse,
-      this.contractAddress,
-      this.signerAddress,
-      this.functionName,
-      JSON.stringify(this.functionParams || []),
-      this.extractFunctionAbi(this.functionName, this.contractAbi),
+      transactionResponse,
+      contractAddress,
+      signerAddress,
+      functionName,
+      JSON.stringify(functionParams || []),
+      this.extractFunctionAbi(functionName, contractAbi),
     );
   }
 
-  protected extractFunctionAbi(functionName: string, contractAbi: any): string {
+  static extractFunctionAbi(functionName: string, contractAbi: any): string {
     if (contractAbi == null || contractAbi.abi instanceof Array === false) {
       return "";
     }

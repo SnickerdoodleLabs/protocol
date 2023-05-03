@@ -106,7 +106,7 @@ export class SiftContract implements ISiftContract {
     functionName: string,
     functionParams: any[],
   ): WrappedTransactionResponse {
-    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
       transactionResponse,
       EVMContractAddress(this.contract.address),
       EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -114,6 +114,5 @@ export class SiftContract implements ISiftContract {
       functionParams,
       ContractsAbis.ConsentFactoryAbi.abi,
     );
-    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }

@@ -115,7 +115,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     functionName: string,
     functionParams: any[],
   ): WrappedTransactionResponse {
-    const wrappedTransactionFactory = new WrappedTransactionResponseBuilder(
+    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
       transactionResponse,
       EVMContractAddress(""),
       EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -123,6 +123,5 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       functionParams,
       ContractsAbis.ConsentFactoryAbi.abi,
     );
-    return wrappedTransactionFactory.buildWrappedTransactionResponse();
   }
 }
