@@ -222,10 +222,10 @@ export class QueryService implements IQueryService {
 
   /**
    * THis method assums that the ads are completed if there is any.
-   * @param consentContractAddress 
-   * @param query 
-   * @param rewardParameters 
-   * @returns 
+   * @param consentContractAddress
+   * @param query
+   * @param rewardParameters
+   * @returns
    */
   public approveQuery(
     consentContractAddress: EVMContractAddress,
