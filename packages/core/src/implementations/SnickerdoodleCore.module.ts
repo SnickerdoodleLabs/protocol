@@ -96,15 +96,16 @@ import {
   CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
   CrumbsRepository,
+  DNSRepository,
   DataWalletPersistence,
   DemographicDataRepository,
   DiscordRepository,
-  DNSRepository,
   DomainCredentialRepository,
   InvitationRepository,
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  OAuthRepository,
   PermissionRepository,
   PortfolioBalanceRepository,
   SDQLQueryRepository,
@@ -186,14 +187,14 @@ import {
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDNSRepository,
+  IDNSRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   IDemographicDataRepository,
   IDemographicDataRepositoryType,
   IDiscordRepository,
   IDiscordRepositoryType,
-  IDNSRepository,
-  IDNSRepositoryType,
   IDomainCredentialRepository,
   IDomainCredentialRepositoryType,
   IInvitationRepository,
@@ -204,6 +205,8 @@ import {
   IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
+  IOAuthRepository,
+  IOAuthRepositoryType,
   IPermissionRepository,
   IPermissionRepositoryType,
   IPortfolioBalanceRepository,
@@ -362,6 +365,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
+      .inSingletonScope();
+    bind<IOAuthRepository>(IOAuthRepositoryType)
+      .to(OAuthRepository)
       .inSingletonScope();
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
