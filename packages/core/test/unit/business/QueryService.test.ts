@@ -111,7 +111,7 @@ const receivedQueryStatus = new QueryStatus(
   consentContractAddress,
   queryCID1,
   BlockNumber(345),
-  EQueryProcessingStatus.Recieved,
+  EQueryProcessingStatus.Received,
   then,
   null,
 );
@@ -210,7 +210,7 @@ class QueryServiceMocks {
     );
     td.when(
       this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.Recieved,
+        EQueryProcessingStatus.Received,
       ),
     ).thenReturn(okAsync([receivedQueryStatus]));
     td.when(

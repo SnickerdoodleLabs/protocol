@@ -213,13 +213,20 @@ export class QueryService implements IQueryService {
         requestForData.consentContractAddress,
         requestForData.requestedCID,
         requestForData.blockNumber,
-        EQueryProcessingStatus.Recieved,
+        EQueryProcessingStatus.Received,
         queryWrapper.expiry,
         null,
       ),
     ]);
   }
 
+  /**
+   * THis method assums that the ads are completed if there is any.
+   * @param consentContractAddress 
+   * @param query 
+   * @param rewardParameters 
+   * @returns 
+   */
   public approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
