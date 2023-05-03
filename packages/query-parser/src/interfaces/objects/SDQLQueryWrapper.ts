@@ -1,7 +1,7 @@
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AdKey,
-  CompensationId,
+  CompensationKey,
   InsightKey,
   ISDQLAd,
   ISDQLAdsBlock,
@@ -83,7 +83,7 @@ export class SDQLQueryWrapper {
 
     (
       Array.from(Object.entries(compSchema)) as [
-        CompensationId,
+        CompensationKey,
         ISDQLCompensations,
       ][]
     ).forEach(([cKey, comp]) => {

@@ -99,8 +99,8 @@ const rewardParameter = {
     type: EDynamicRewardParameterType.Address,
     value: "Phoebe",
   },
-  compensationId: {
-    type: EDynamicRewardParameterType.CompensationId,
+  CompensationKey: {
+    type: EDynamicRewardParameterType.CompensationKey,
     value: "c1",
   },
 } as IDynamicRewardParameter;
@@ -181,9 +181,9 @@ class QueryServiceMocks {
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
             val.length == 1 &&
-            val[0].compensationId.type == rewardParameter.compensationId.type &&
-            val[0].compensationId.value ==
-              rewardParameter.compensationId.value &&
+            val[0].CompensationKey.type == rewardParameter.CompensationKey.type &&
+            val[0].CompensationKey.value ==
+              rewardParameter.CompensationKey.value &&
             val[0].recipientAddress.type ==
               rewardParameter.recipientAddress.type &&
             val[0].recipientAddress.value ==

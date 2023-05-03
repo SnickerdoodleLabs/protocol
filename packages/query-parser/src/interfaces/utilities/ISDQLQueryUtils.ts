@@ -1,6 +1,6 @@
 import {
   AdKey,
-  CompensationId,
+  CompensationKey,
   DuplicateIdInSchema,
   InsightKey,
   MissingTokenConstructorError,
@@ -17,7 +17,7 @@ export interface ISDQLQueryUtils {
     ads: AdKey[],
     insights: InsightKey[],
   ): ResultAsync<
-    CompensationId[],
+    CompensationKey[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError

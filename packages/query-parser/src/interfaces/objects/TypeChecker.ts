@@ -1,7 +1,7 @@
+import { AST_Ad } from "@query-parser/interfaces/objects/AST_Ad.js";
 import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr.js";
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight.js";
-import { AST_Ad } from "@query-parser/interfaces/objects/AST_Ad.js";
-import { AST_Subquery } from "@query-parser/interfaces/objects/AST_Subquery.js";
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 import { Command } from "@query-parser/interfaces/objects/Command.js";
 import { Operator } from "@query-parser/interfaces/objects/Operator.js";
 import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
@@ -12,7 +12,7 @@ export type AstAllowedTypes =
   | number
   | boolean
   | AST_Expr
-  | AST_Subquery
+  | AST_SubQuery
   | AST_Insight
   | Operator
   | Command;
@@ -21,7 +21,7 @@ export class TypeChecker {
   static isValue(expr: any): boolean {
     return !(
       expr instanceof AST_Expr ||
-      TypeChecker.isSubquery(expr) ||
+      TypeChecker.isSubQuery(expr) ||
       TypeChecker.isAd(expr) ||
       TypeChecker.isInsight(expr) ||
       TypeChecker.isOperator(expr) ||
@@ -29,8 +29,8 @@ export class TypeChecker {
     );
   }
 
-  static isSubquery(expr: any): boolean {
-    return expr instanceof AST_Subquery;
+  static isSubQuery(expr: any): boolean {
+    return expr instanceof AST_SubQuery;
   }
 
   static isAd(expr: any): boolean {

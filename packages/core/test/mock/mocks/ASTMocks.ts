@@ -5,7 +5,8 @@ import {
   Age,
   CountryCode,
   DataPermissions,
-  SubqueryKey,
+  IpfsCID,
+  SubQueryKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -86,6 +87,7 @@ export class ASTMocks {
 
   public factory() {
     return this.queryFactories.makeAstEvaluator(
+      IpfsCID(""),
       DataPermissions.createWithAllPermissions(),
     );
   }

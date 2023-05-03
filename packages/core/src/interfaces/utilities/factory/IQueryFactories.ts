@@ -15,7 +15,10 @@ export interface IQueryFactories {
     cid: IpfsCID,
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError>;
-  makeAstEvaluator(dataPermissions: DataPermissions): AST_Evaluator;
+  makeAstEvaluator(
+    cid: IpfsCID,
+    dataPermissions: DataPermissions,
+  ): AST_Evaluator;
 }
 
 export const IQueryFactoriesType = Symbol.for("IQueryFactories");

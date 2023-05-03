@@ -5,7 +5,7 @@ import { ESDQLQueryReturn } from "@objects/enum/index.js";
 import {
   AccountAddress,
   ChainId,
-  CompensationId,
+  CompensationKey,
   EVMContractAddress,
   IpfsCID,
   URLString,
@@ -110,7 +110,7 @@ export interface ISDQLAd {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
+  [index: CompensationKey]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 
@@ -121,7 +121,7 @@ export interface ISDQLCompensations {
   requires?: ISDQLConditionString;
   chainId: ChainId;
   callback: ISDQLCallback;
-  alternatives?: CompensationId[];
+  alternatives?: CompensationKey[];
 }
 
 export interface ISDQLCallback {

@@ -15,10 +15,12 @@ import {
 import {
   AST_Ad,
   AST_BoolExpr,
-  AST_Expr,
-  AST_Subquery,
   AST_ConditionExpr,
+  AST_Expr,
+  AST_SubQuery,
   Command,
+  Command_IF,
+  Condition,
   ConditionAnd,
   ConditionE,
   ConditionG,
@@ -27,12 +29,12 @@ import {
   ConditionLE,
   ConditionOperandTypes,
   ConditionOr,
+  IfOperandTypes,
   ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
 
 export class ExprParser {
-
   protected precedence: Map<TokenType, Array<TokenType>> = new Map();
   protected tokenToExpMap: Map<TokenType, Function> = new Map();
   protected id = 0;
@@ -50,6 +52,9 @@ export class ExprParser {
     this.precedence.set(TokenType.parenthesisClose, [
       ...compOps,
       ...logicOps,
+      TokenType.if,
+      TokenType.then,
+      TokenType.else,
     ]);
 
     logicOps.forEach((cond) =>
@@ -64,11 +69,12 @@ export class ExprParser {
     this.tokenToExpMap.set(TokenType.eq, this.createE);
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
+    this.tokenToExpMap.set(TokenType.if, this.createIf);
 
     // this.tokenToExpMap.set(TokenType.in, this.createIn);
 
     if (!this.context.has("dependencies")) {
-      this.context.set("dependencies", new Map<string, Set<AST_Subquery>>());
+      this.context.set("dependencies", new Map<string, Set<AST_SubQuery>>());
     }
   }
 
@@ -82,7 +88,8 @@ export class ExprParser {
   }
 
   public tokensToAst(tokens: Token[]): AST_Expr | Command {
-    return this.buildAstFromPostfix(this.infixToPostFix(tokens));
+    const postFix = this.infixToPostFix(tokens);
+    return this.buildAstFromPostfix(postFix);
   }
 
   // #region infix to postfix, $q1and$q2 -> $q1$q2and
@@ -101,6 +108,10 @@ export class ExprParser {
         case TokenType.insight:
         case TokenType.compensation:
           postFix.push(token);
+          break;
+
+        case TokenType.if:
+          stack.push(token);
           break;
 
         case TokenType.lt:
@@ -132,9 +143,15 @@ export class ExprParser {
             throw e;
           }
           break;
+
+        case TokenType.then:
+        case TokenType.else:
+          popped = this.popBefore(stack, token, TokenType.if); // condition output
+          postFix.push(...popped);
+
+          break;
       }
     }
-
 
     postFix.push(...stack.reverse());
     return postFix;
@@ -241,7 +258,7 @@ export class ExprParser {
       return new AST_BoolExpr(SDQL_Name("boolean"), expr as boolean);
     }
     if (
-      expr instanceof AST_Subquery ||
+      expr instanceof AST_SubQuery ||
       expr instanceof AST_Ad ||
       expr instanceof AST_Insight
     ) {
@@ -287,6 +304,31 @@ export class ExprParser {
   }
   // #endregion
 
+  private createIf(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): Command_IF {
+    const conditionExpr = expList[0] as Condition | AST_SubQuery;
+    const trueExpr = expList[1] as IfOperandTypes;
+    const falseExpr = (
+      expList.length > 2 ? expList[2] : null
+    ) as IfOperandTypes;
+    const id = this.getNextId(token.val);
+
+    if (conditionExpr.constructor != AST_ConditionExpr) {
+      return new Command_IF(
+        SDQL_Name(id),
+        trueExpr!,
+        falseExpr,
+        new AST_ConditionExpr(
+          SDQL_Name(conditionExpr.name as string),
+          conditionExpr,
+        ),
+      );
+    }
+    return new Command_IF(SDQL_Name(id), trueExpr!, falseExpr, conditionExpr);
+  }
+
   private createExp(
     expList: Array<ParserContextDataTypes>,
     token: Token,
@@ -321,10 +363,8 @@ export class ExprParser {
     const id = this.getNextId(token.val);
     const rval = expList.pop() as ConditionOperandTypes;
     const lval = expList.pop() as ConditionOperandTypes;
-    return new AST_ConditionExpr(
-      SDQL_Name(id),
-      new ConditionGE(SDQL_OperatorName(id), lval, rval),
-    );
+    const condition = new ConditionGE(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
   }
 
   private createL(

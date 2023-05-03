@@ -1,9 +1,10 @@
 import {
   DataPermissions,
+  IpfsCID,
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { AST_Subquery } from "@snickerdoodlelabs/query-parser";
+import { AST_SubQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
@@ -21,16 +22,17 @@ export class QueryRepository implements IQueryRepository {
   ) {}
 
   get(
-    q: AST_Subquery,
+    cid: IpfsCID,
+    q: AST_SubQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.isSubqueryPermitted(q, dataPermissions)
+    return this.isSubQueryPermitted(q, dataPermissions)
       ? this.queryValuator.eval(q)
-      : okAsync(SDQL_Return(false));
+      : okAsync(SDQL_Return(null));
   }
 
-  private isSubqueryPermitted(
-    q: AST_Subquery,
+  private isSubQueryPermitted(
+    q: AST_SubQuery,
     dataPermissions: DataPermissions,
   ): boolean {
     const flag = q.getPermission();

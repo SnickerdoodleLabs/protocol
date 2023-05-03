@@ -2,13 +2,14 @@ import {
   DataPermissions,
   EvalNotImplementedError,
   EvaluationError,
+  IpfsCID,
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
   AST_Expr,
-  AST_Subquery,
+  AST_SubQuery,
   BinaryCondition,
   Command_IF,
   ConditionAnd,
@@ -32,6 +33,7 @@ export class AST_Evaluator {
   readonly expMap = new Map<Function, Function>();
 
   constructor(
+    readonly cid: IpfsCID,
     readonly queryRepository: IQueryRepository,
     readonly dataPermissions: DataPermissions,
   ) {
@@ -56,8 +58,8 @@ export class AST_Evaluator {
     }
     if (TypeChecker.isValue(expr)) {
       return okAsync(expr);
-    } else if (TypeChecker.isSubquery(expr)) {
-      return this.evalSubquery(expr);
+    } else if (TypeChecker.isSubQuery(expr)) {
+      return this.evalSubQuery(expr);
     }
     return this.evalExpr(expr);
   }
@@ -82,8 +84,8 @@ export class AST_Evaluator {
   public evalConditionExpr(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    if (TypeChecker.isSubquery(expr.source)) {
-      return this.evalSubquery(expr.source as AST_Subquery);
+    if (TypeChecker.isSubQuery(expr.source)) {
+      return this.evalSubQuery(expr.source as AST_SubQuery);
     } else if (TypeChecker.isOperator(expr.source)) {
       return this.evalOperator(expr.source as Operator);
     } else {
@@ -153,6 +155,19 @@ export class AST_Evaluator {
     });
   }
 
+  public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalAny(eef.conditionExpr).andThen((val) => {
+      if (val == true) {
+        return this.evalExpr(eef.trueExpr);
+      } else if (!eef.falseExpr) {
+        return errAsync(
+          new EvaluationError(`if ${eef.name} do not have a falseExpr`),
+        );
+      }
+      return this.evalExpr(eef.falseExpr);
+    });
+  }
+
   // public evalReturn(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError> {
   //   return okAsync(SDQL_Return(r.message));
   // }
@@ -163,9 +178,9 @@ export class AST_Evaluator {
     return okAsync((expr as AST_Expr).source as SDQL_Return);
   }
 
-  public evalSubquery(
-    q: AST_Subquery,
+  public evalSubQuery(
+    q: AST_SubQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.queryRepository.get(q, this.dataPermissions);
+    return this.queryRepository.get(this.cid, q, this.dataPermissions);
   }
 }

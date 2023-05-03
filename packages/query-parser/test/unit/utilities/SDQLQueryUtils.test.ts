@@ -38,7 +38,7 @@ describe("Dummy describe block", () => {
 //   test("avalanche 1: ['q1'] -> ['c1']", async () => {
 //     // input-output
 //     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q1"].map(SubqueryKey);
+//     const queryIds = ["q1"].map(SubQueryKey);
 //     const expected = ["c1"];
 
 //     const mocks = new SDQLQueryUtilsMocks();
@@ -53,7 +53,7 @@ describe("Dummy describe block", () => {
 //   test("avalanche 1: ['q2'] -> ['c2']", async () => {
 //     // input-output
 //     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q2"].map(SubqueryKey);
+//     const queryIds = ["q2"].map(SubQueryKey);
 //     const expected = ["c2"];
 
 //     const mocks = new SDQLQueryUtilsMocks();
@@ -67,7 +67,7 @@ describe("Dummy describe block", () => {
 //   test("avalanche 1: ['q3'] -> ['c3']", async () => {
 //     // input-output
 //     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q3"].map(SubqueryKey);
+//     const queryIds = ["q3"].map(SubQueryKey);
 //     const expected = ["c3"];
 
 //     const mocks = new SDQLQueryUtilsMocks();
@@ -82,7 +82,7 @@ describe("Dummy describe block", () => {
 //   test("avalanche 1: ['q1', 'q2'] -> ['c1', 'c2']", async () => {
 //     // input-output
 //     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q1", "q2"].map(SubqueryKey);
+//     const queryIds = ["q1", "q2"].map(SubQueryKey);
 //     const expected = ["c1", "c2"];
 
 //     const mocks = new SDQLQueryUtilsMocks();

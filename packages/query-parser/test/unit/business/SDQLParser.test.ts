@@ -18,7 +18,7 @@ import {
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
-  AST_Subquery,
+  AST_SubQuery,
   ConditionG,
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
@@ -101,14 +101,14 @@ describe("SDQLParser on avalanche", () => {
       expect(typeof i1.returns.source === "string").toBeTruthy();
 
       expect(i2.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(i2.target.source instanceof AST_Subquery).toBeTruthy();
+      expect(i2.target.source instanceof AST_SubQuery).toBeTruthy();
       expect(i2.returns instanceof AST_Expr).toBeTruthy();
       expect(typeof i2.returns.source === "string").toBeTruthy();
 
       expect(i3.target instanceof AST_ConditionExpr).toBeTruthy();
       expect(typeof i3.target.source == "boolean").toBeTruthy();
       expect(i3.returns instanceof AST_Expr).toBeTruthy();
-      expect(i3.returns.source instanceof AST_Subquery).toBeTruthy();
+      expect(i3.returns.source instanceof AST_SubQuery).toBeTruthy();
     });
   });
 
@@ -130,7 +130,7 @@ describe("SDQLParser on avalanche", () => {
       expect(typeof a1.target.source == "boolean").toBeTruthy();
 
       expect(a2.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(a2.target.source instanceof AST_Subquery).toBeTruthy();
+      expect(a2.target.source instanceof AST_SubQuery).toBeTruthy();
 
       expect(a3.target instanceof AST_ConditionExpr).toBeTruthy();
       expect(a3.target.source instanceof ConditionG).toBeTruthy();

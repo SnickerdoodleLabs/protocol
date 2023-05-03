@@ -4,7 +4,7 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   ChainId,
-  CompensationId,
+  CompensationKey,
   CountryCode,
   DataPermissions,
   ERewardType,
@@ -16,7 +16,7 @@ import {
   SDQLQuery,
   SDQLString,
   SDQL_Return,
-  SubqueryKey,
+  SubQueryKey,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -112,19 +112,19 @@ class QueryParsingMocks {
     );
 
     const expectedCompensationsMap = new Map<
-      CompensationId,
+      CompensationKey,
       ISDQLCompensations
     >();
     expectedCompensationsMap
-      .set(CompensationId("c1"), {
+      .set(CompensationKey("c1"), {
         description: "Only the chainId is compared, so this can be random.",
         chainId: ChainId(1),
       } as ISDQLCompensations)
-      .set(CompensationId("c2"), {
+      .set(CompensationKey("c2"), {
         description: "Only the chainId is compared, so this can be random.",
         chainId: ChainId(1),
       } as ISDQLCompensations)
-      .set(CompensationId("c3"), {
+      .set(CompensationKey("c3"), {
         description: "Only the chainId is compared, so this can be random.",
         chainId: ChainId(1),
       } as ISDQLCompensations);
@@ -178,14 +178,14 @@ class QueryParsingMocks {
     );
   }
 
-  public SDQLReturnToSubqueryKey(sdqlR: SDQL_Return): SubqueryKey {
+  public SDQLReturnToSubQueryKey(sdqlR: SDQL_Return): SubQueryKey {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
     if (typeof actualTypeData == "string") {
-      return SubqueryKey(actualTypeData);
+      return SubQueryKey(actualTypeData);
     } else if (actualTypeData == null) {
-      return SubqueryKey("");
+      return SubQueryKey("");
     } else {
-      return SubqueryKey(JSON.stringify(actualTypeData));
+      return SubQueryKey(JSON.stringify(actualTypeData));
     }
   }
 

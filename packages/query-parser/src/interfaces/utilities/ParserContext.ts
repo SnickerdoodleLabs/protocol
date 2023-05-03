@@ -2,19 +2,18 @@ import { SDQL_Return } from "@snickerdoodlelabs/objects";
 
 import {
   AST_Ad,
-  AST_BoolExpr,
   AST_Compensation,
   AST_Expr,
   AST_Insight,
-  AST_Subquery
+  AST_SubQuery,
 } from "@query-parser/interfaces/objects";
 
 export type ParserContextDataTypes =
-  | AST_Subquery
+  | AST_SubQuery
   | string
   | number
   | boolean
-  | Map<string, Set<AST_Subquery>>
+  | Map<string, Set<AST_SubQuery>>
   | AST_Compensation
   | AST_Ad
   | AST_Expr
@@ -28,5 +27,6 @@ export type ConditionOperandTypes =
   | SDQL_Return
   | Array<string | number>
   | AST_Insight
-  | AST_Subquery;
+  | AST_SubQuery;
 
+export type IfOperandTypes = AST_Expr | null;

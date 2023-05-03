@@ -1,6 +1,6 @@
 import {
   AdKey,
-  CompensationId,
+  CompensationKey,
   DuplicateIdInSchema,
   ISDQLAd,
   ISDQLCompensations,
@@ -43,7 +43,7 @@ export class SDQLQueryUtils {
     ads: AdKey[],
     insights: InsightKey[],
   ): ResultAsync<
-    CompensationId[],
+    CompensationKey[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -53,19 +53,19 @@ export class SDQLQueryUtils {
     throw new Error("");
   }
 
-  protected extractCompensationIdFromAst(
+  protected extractCompensationKeyFromAst(
     ast: AST_Expr | Command,
-  ): CompensationId {
+  ): CompensationKey {
     const compensationAst = this.getCompensationAstFromAst(ast);
-    return CompensationId(compensationAst.name as string);
+    return CompensationKey(compensationAst.name as string);
   }
 
-  protected extractCompensationIdFromAstWithAlternatives(
+  protected extractCompensationKeyFromAstWithAlternatives(
     ast: AST_Expr | Command,
-  ): CompensationId[] {
-    const comIds = new Set<CompensationId>();
+  ): CompensationKey[] {
+    const comIds = new Set<CompensationKey>();
     const compensationAst = this.getCompensationAstFromAst(ast);
-    comIds.add(CompensationId(compensationAst.name as string));
+    comIds.add(CompensationKey(compensationAst.name as string));
     for (const altId of compensationAst.alternatives) {
       comIds.add(altId);
     }
@@ -145,14 +145,14 @@ export class SDQLQueryUtils {
 
   private buildExpectedCompensationsMap(
     parser: SDQLParser,
-    expectedCompensationIds: CompensationId[],
-  ): Map<CompensationId, ISDQLCompensations> {
-    const expectedCompensationBlocks: Map<CompensationId, ISDQLCompensations> =
+    expectedCompensationKeys: CompensationKey[],
+  ): Map<CompensationKey, ISDQLCompensations> {
+    const expectedCompensationBlocks: Map<CompensationKey, ISDQLCompensations> =
       new Map();
 
     const compensationSchema = parser.schema.getCompensationSchema();
     for (const compensationKey in compensationSchema) {
-      if (!expectedCompensationIds.includes(CompensationId(compensationKey))) {
+      if (!expectedCompensationKeys.includes(CompensationKey(compensationKey))) {
         continue;
       }
       expectedCompensationBlocks[compensationKey] = // 'c1': ISDQLCompensations object

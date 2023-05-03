@@ -1,4 +1,4 @@
 import { Brand, make } from "ts-brand";
 
-export type SubqueryKey = Brand<string, "SubqueryKey">;
-export const SubqueryKey = make<SubqueryKey>();
+export type SubQueryKey = Brand<string, "SubQueryKey">;
+export const SubQueryKey = make<SubQueryKey>();

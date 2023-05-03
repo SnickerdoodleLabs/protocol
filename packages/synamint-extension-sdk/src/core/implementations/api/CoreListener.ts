@@ -111,8 +111,8 @@ export class CoreListener implements ICoreListener {
                 type: EDynamicRewardParameterType.Address,
                 value: accountAddress,
               },
-              compensationId: {
-                type: EDynamicRewardParameterType.CompensationId,
+              CompensationKey: {
+                type: EDynamicRewardParameterType.CompensationKey,
                 value: eligibleReward.compensationKey,
               },
             } as IDynamicRewardParameter);

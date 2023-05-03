@@ -5,6 +5,9 @@ import {
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 export enum TokenType {
+  if = "if",
+  else = "else",
+  then = "then",
   and = "and",
   or = "or",
   query = "query",
@@ -36,6 +39,9 @@ export class Token {
 const rules = new Array<[RegExp, TokenType]>();
 // Order matters. The string rule should be the last one for unambiguous parsing.
 rules.push(
+  [/if/y, TokenType.if],
+  [/else/y, TokenType.else],
+  [/then/y, TokenType.then],
   [/\(/y, TokenType.parenthesisOpen],
   [/\)/y, TokenType.parenthesisClose],
   [/and/y, TokenType.and],

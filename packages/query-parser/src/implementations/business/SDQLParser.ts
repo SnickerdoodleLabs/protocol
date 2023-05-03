@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import {
   AdKey,
-  CompensationId,
+  CompensationKey,
   DuplicateIdInSchema,
   InsightKey,
   InvalidRegularExpression,
@@ -32,7 +32,8 @@ import {
   AST_ConditionExpr,
   AST_Expr,
   AST_PropertyQuery,
-  AST_Subquery,
+  AST_RequireExpr as AST_RequiresExpr,
+  AST_SubQuery,
   AST_Web3Query,
   Condition,
   IQueryObjectFactory,
@@ -45,7 +46,7 @@ export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
   public exprParser: ExprParser;
 
-  public queries = new Map<SDQL_Name, AST_Subquery>();
+  public queries = new Map<SDQL_Name, AST_SubQuery>();
   public ads = new Map<SDQL_Name, AST_Ad>();
   public insights = new Map<SDQL_Name, AST_Insight>();
   public compensations = new Map<SDQL_Name, AST_Compensation>();
@@ -205,7 +206,7 @@ export class SDQLParser {
       return okAsync(undefined);
     }
     return ResultUtils.combine(
-      (Array.from(Object.keys(compSchema)) as CompensationId[]).map((cKey) => {
+      (Array.from(Object.keys(compSchema)) as CompensationKey[]).map((cKey) => {
         if (cKey == "parameters") {
           return okAsync(undefined);
         }
@@ -220,7 +221,7 @@ export class SDQLParser {
   }
 
   private validateCompensation(
-    cKey: CompensationId,
+    cKey: CompensationKey,
     c: ISDQLCompensations,
   ): ResultAsync<void, QueryFormatError> {
     if (
@@ -439,7 +440,7 @@ export class SDQLParser {
         return new AST_Compensation(
           name,
           schema.description,
-          ast as AST_ConditionExpr,
+          ast as AST_RequiresExpr,
           schema.requires!,
           schema.chainId,
           schema.callback,
@@ -468,11 +469,11 @@ export class SDQLParser {
         return okAsync(
           new AST_ConditionExpr(
             ast.name,
-            (ast.source as Condition | AST_Subquery | boolean) || false,
+            (ast.source as Condition | AST_SubQuery | boolean) || false,
           ),
         );
       }
-      if (ast instanceof AST_Expr && ast.source instanceof AST_Subquery) {
+      if (ast instanceof AST_Expr && ast.source instanceof AST_SubQuery) {
         return okAsync(new AST_ConditionExpr(ast.name, ast.source));
       }
       if (ast instanceof Condition) {

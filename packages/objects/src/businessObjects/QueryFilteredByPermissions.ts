@@ -5,15 +5,15 @@ import {
 } from "@objects/interfaces";
 import {
   AdKey,
-  CompensationId,
+  CompensationKey,
   InsightKey,
-  SubqueryKey,
+  SubQueryKey,
 } from "@objects/primitives";
 
 export class QueryFilteredByPermissions {
   public constructor(
-    public permittedQueryIds: SubqueryKey[],
-    public expectedCompensationsMap: Map<CompensationId, ISDQLCompensations>,
+    public permittedQueryIds: SubQueryKey[],
+    public expectedCompensationsMap: Map<CompensationKey, ISDQLCompensations>,
     public eligibleAdsMap: Map<AdKey, ISDQLAd>,
     public eligibleInsightsMap: Map<InsightKey, ISDQLInsightBlock>,
   ) {}

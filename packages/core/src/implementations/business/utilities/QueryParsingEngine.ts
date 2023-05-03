@@ -1,6 +1,6 @@
 import {
   AdKey,
-  CompensationId,
+  CompensationKey,
   DataPermissions,
   ERewardType,
   EVMContractAddress,
@@ -19,7 +19,7 @@ import {
   QueryFormatError,
   SDQLQuery,
   SDQL_Return,
-  SubqueryKey,
+  SubQueryKey,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -31,6 +31,7 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
 import { BaseOf } from "ts-brand";
 
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
@@ -42,7 +43,6 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
-import { AST_Evaluator } from "./query/AST_Evaluator";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -61,7 +61,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[SubqueryKey[], ExpectedReward[]], EvaluationError> {
+  ): ResultAsync<[SubQueryKey[], ExpectedReward[]], EvaluationError> {
     throw new Error("");
   }
 
@@ -87,11 +87,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   }
 
   protected constructExpectedRewards(
-    iSDQLCompensationsMap: Map<CompensationId, ISDQLCompensations>,
+    iSDQLCompensationsMap: Map<CompensationKey, ISDQLCompensations>,
   ): ExpectedReward[] {
     const expectedRewardList: ExpectedReward[] = [];
     for (const currentKeyAsString in iSDQLCompensationsMap) {
-      const currentSDQLCompensationsKey = CompensationId(currentKeyAsString);
+      const currentSDQLCompensationsKey = CompensationKey(currentKeyAsString);
       const currentSDQLCompensationsObject: ISDQLCompensations =
         iSDQLCompensationsMap[currentSDQLCompensationsKey];
 
@@ -150,8 +150,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return eligibleAdList;
   }
 
-
   protected getAstAndAstEvaluator(
+    cid: IpfsCID,
     sdqlParser: SDQLParser,
     dataPermissions: DataPermissions,
   ): ResultAsync<
@@ -159,7 +159,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     QueryFormatError | QueryExpiredError | ParserError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
-      return [ast, this.queryFactories.makeAstEvaluator(dataPermissions)];
+      return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];
     });
   }
 
