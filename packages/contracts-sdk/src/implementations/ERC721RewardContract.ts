@@ -1,6 +1,7 @@
 import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import {
+  ContractOverrides,
   IERC721RewardContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
@@ -168,8 +169,9 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public setBaseURI(
     baseUri: BaseURI,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("setBaseURI", [baseUri]);
+    return this.writeToContract("setBaseURI", [baseUri, overrides]);
   }
 
   public balanceOf(
@@ -244,22 +246,37 @@ export class ERC721RewardContract implements IERC721RewardContract {
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("grantRole", [ERewardRoles[role], address]);
+    return this.writeToContract("grantRole", [
+      ERewardRoles[role],
+      address,
+      overrides,
+    ]);
   }
 
   public revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("revokeRole", [ERewardRoles[role], address]);
+    return this.writeToContract("revokeRole", [
+      ERewardRoles[role],
+      address,
+      overrides,
+    ]);
   }
 
   public renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("renounceRole", [ERewardRoles[role], address]);
+    return this.writeToContract("renounceRole", [
+      ERewardRoles[role],
+      address,
+      overrides,
+    ]);
   }
 
   public filters = {

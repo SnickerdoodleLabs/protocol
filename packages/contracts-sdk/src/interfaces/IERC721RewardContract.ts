@@ -1,5 +1,5 @@
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
+import { ContractOverrides, WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
 import {
   ERC721RewardContractError,
   EVMAccountAddress,
@@ -61,6 +61,7 @@ export interface IERC721RewardContract {
    */
   setBaseURI(
     baseUri: BaseURI,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   /**
@@ -81,6 +82,7 @@ export interface IERC721RewardContract {
   grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   /**
@@ -91,6 +93,7 @@ export interface IERC721RewardContract {
   revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   /**
@@ -101,6 +104,7 @@ export interface IERC721RewardContract {
   renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   filters: IERC721Filters;

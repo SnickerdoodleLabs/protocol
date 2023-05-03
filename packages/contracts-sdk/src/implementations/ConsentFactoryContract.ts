@@ -2,6 +2,7 @@ import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementation
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import {
   ConsentRoles,
+  ContractOverrides,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -48,8 +49,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("createConsent", [ownerAddress, baseUri, name]);
+    return this.writeToContract("createConsent", [
+      ownerAddress,
+      baseUri,
+      name,
+      overrides,
+    ]);
   }
 
   // Gets the count of user's deployed Consents
@@ -217,21 +224,34 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public setListingDuration(
     listingDuration: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("setListingDuration", [listingDuration]);
+    return this.writeToContract("setListingDuration", [
+      listingDuration,
+      overrides,
+    ]);
   }
 
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("setMaxTagsPerListing", [maxTagsPerListing]);
+    return this.writeToContract("setMaxTagsPerListing", [
+      maxTagsPerListing,
+      overrides,
+    ]);
   }
 
   public adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("setMaxTagsPerListing", [tag, removedSlot]);
+    return this.writeToContract("setMaxTagsPerListing", [
+      tag,
+      removedSlot,
+      overrides,
+    ]);
   }
 
   public getListingDetail(

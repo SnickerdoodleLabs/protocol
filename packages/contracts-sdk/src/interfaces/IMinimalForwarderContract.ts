@@ -1,4 +1,5 @@
 import {
+    ContractOverrides,
   IMinimalForwarderRequest,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
@@ -24,6 +25,7 @@ export interface IMinimalForwarderContract {
   execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError>;
 
   getContract(): ethers.Contract;

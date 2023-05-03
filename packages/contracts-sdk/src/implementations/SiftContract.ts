@@ -56,20 +56,23 @@ export class SiftContract implements ISiftContract {
 
   public verifyURL(
     domain: DomainName,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return this.writeToContract("verifyURL", [domain]);
+    return this.writeToContract("verifyURL", [domain, overrides]);
   }
 
   public maliciousURL(
     domain: DomainName,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return this.writeToContract("maliciousURL", [domain]);
+    return this.writeToContract("maliciousURL", [domain, overrides]);
   }
 
   public setBaseURI(
     baseUri: BaseURI,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return this.writeToContract("setBaseURI", [baseUri]);
+    return this.writeToContract("setBaseURI", [baseUri, overrides]);
   }
 
   public getContract(): ethers.Contract {

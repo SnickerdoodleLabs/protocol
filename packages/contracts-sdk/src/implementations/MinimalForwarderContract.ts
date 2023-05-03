@@ -1,5 +1,6 @@
 import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import {
+  ContractOverrides,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
   WrappedTransactionResponse,
@@ -70,8 +71,9 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
-    return this.writeToContract("execute", [request, signature]);
+    return this.writeToContract("execute", [request, signature, overrides]);
   }
 
   public getContract(): ethers.Contract {
