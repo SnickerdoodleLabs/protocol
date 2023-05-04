@@ -285,14 +285,9 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    const adsSchema = this.schema.getAdsSchema();
-    if (!adsSchema) {
-      return okAsync(undefined);
-    }
-
     return ResultUtils.combine(
-      Array.from(Object.keys(adsSchema)).map((adKey) => {
-        return this.parseAd(SDQL_Name(adKey), adsSchema[adKey]);
+      this.schema.getAdEntries().map(([adKey, ad]) => {
+        return this.parseAd(SDQL_Name(adKey), ad);
       }),
     ).map((ads) => {
       ads.forEach((ad) => {
@@ -333,14 +328,9 @@ export class SDQLParser {
     void,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    const insightSchema = this.schema.getInsightSchema();
-    if (!insightSchema) {
-      return okAsync(undefined);
-    }
-
     return ResultUtils.combine(
-      Array.from(Object.keys(insightSchema)).map((iName) => {
-        return this.parseInsight(SDQL_Name(iName), insightSchema[iName]);
+      this.schema.getInsightEntries().map(([iKey, insight]) => {
+        return this.parseInsight(SDQL_Name(iKey), insight);
       }),
     ).map((insights) => {
       insights.forEach((insight) => {
