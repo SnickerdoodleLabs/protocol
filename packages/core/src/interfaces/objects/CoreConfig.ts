@@ -8,6 +8,7 @@ import {
   TwitterConfig,
   URLString,
   EChain,
+  ProviderUrl,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -46,6 +47,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
+    public primaryInfuraKey: string,
+    public devChainProviderURL: ProviderUrl,
   ) {}
 }
 
