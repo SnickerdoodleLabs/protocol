@@ -50,6 +50,7 @@ import {
   ICrumbsRepository,
   IDataWalletPersistence,
   ILinkedAccountRepository,
+  IMetatransactionForwarderRepository,
   IPortfolioBalanceRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
@@ -134,6 +135,7 @@ class AccountServiceMocks {
   public permissionsUtils: IPermissionUtils;
   public insightPlatformRepo: IInsightPlatformRepository;
   public crumbsRepo: ICrumbsRepository;
+  public metatransactionForwarderRepo: IMetatransactionForwarderRepository;
   public dataWalletPersistence: IDataWalletPersistence;
   public contextProvider: ContextProviderMock;
   public configProvider: ConfigProviderMock;
@@ -154,6 +156,8 @@ class AccountServiceMocks {
     this.permissionsUtils = new PermissionsUtilsMock();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.crumbsRepo = td.object<ICrumbsRepository>();
+    this.metatransactionForwarderRepo =
+      td.object<IMetatransactionForwarderRepository>();
     this.dataWalletPersistence = td.object<IDataWalletPersistence>();
     this.accountRepo = td.object<ILinkedAccountRepository>();
     this.tokenPriceRepo = td.object<ITokenPriceRepository>();
@@ -341,70 +345,6 @@ class AccountServiceMocks {
       okAsync(tokenId1),
       okAsync(tokenId2),
     );
-    td.when(
-      this.cryptoUtils.signTypedData(
-        getMinimalForwarderSigningDomain(
-          this.configProvider.config.controlChainInformation.chainId,
-          this.configProvider.config.controlChainInformation
-            .metatransactionForwarderAddress,
-        ),
-        forwardRequestTypes,
-        td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
-          from: evmDerivedEVMAccount.accountAddress, // EOA to run the transaction as
-          data: evmEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
-        } as IMinimalForwarderRequest),
-        evmDerivedEVMAccount.privateKey,
-      ),
-    ).thenReturn(okAsync(evmAddCrumbMetatransactionSignature));
-    td.when(
-      this.cryptoUtils.signTypedData(
-        getMinimalForwarderSigningDomain(
-          this.configProvider.config.controlChainInformation.chainId,
-          this.configProvider.config.controlChainInformation
-            .metatransactionForwarderAddress,
-        ),
-        forwardRequestTypes,
-        td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
-          from: solanaDerivedEVMAccount.accountAddress, // EOA to run the transaction as
-          data: solanaEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
-        } as IMinimalForwarderRequest),
-        solanaDerivedEVMAccount.privateKey,
-      ),
-    ).thenReturn(okAsync(solanaAddCrumbMetatransactionSignature));
-    td.when(
-      this.cryptoUtils.signTypedData(
-        getMinimalForwarderSigningDomain(
-          this.configProvider.config.controlChainInformation.chainId,
-          this.configProvider.config.controlChainInformation
-            .metatransactionForwarderAddress,
-        ),
-        forwardRequestTypes,
-        td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
-          from: evmDerivedEVMAccount.accountAddress, // EOA to run the transaction as
-          data: evmEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
-        } as IMinimalForwarderRequest),
-        evmDerivedEVMAccount.privateKey,
-      ),
-    ).thenReturn(okAsync(evmBurnCrumbMetatransactionSignature));
-    td.when(
-      this.cryptoUtils.signTypedData(
-        getMinimalForwarderSigningDomain(
-          this.configProvider.config.controlChainInformation.chainId,
-          this.configProvider.config.controlChainInformation
-            .metatransactionForwarderAddress,
-        ),
-        forwardRequestTypes,
-        td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
-          from: solanaDerivedEVMAccount.accountAddress, // EOA to run the transaction as
-          data: solanaEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
-        } as IMinimalForwarderRequest),
-        solanaDerivedEVMAccount.privateKey,
-      ),
-    ).thenReturn(okAsync(solanaBurnCrumbMetatransactionSignature));
 
     // Data Wallet Persistence --------------------------------------------------
     td.when(this.dataWalletPersistence.unlock(dataWalletKey)).thenReturn(
@@ -453,24 +393,9 @@ class AccountServiceMocks {
     );
 
     // ContractFactory --------------------------------------------------
-    td.when(this.contractFactory.factoryMinimalForwarderContract()).thenReturn(
-      okAsync(this.minimalForwarderContract),
-    );
     td.when(this.contractFactory.factoryCrumbsContract()).thenReturn(
       okAsync(this.crumbsContract),
     );
-
-    // Minimal Forwarder Contract --------------------------------------------------
-    td.when(
-      this.minimalForwarderContract.getNonce(
-        evmDerivedEVMAccount.accountAddress,
-      ),
-    ).thenReturn(okAsync(evmDerivedNonce));
-    td.when(
-      this.minimalForwarderContract.getNonce(
-        solanaDerivedEVMAccount.accountAddress,
-      ),
-    ).thenReturn(okAsync(solanaDerivedNonce));
 
     // Crumbs Contract --------------------------------------------------
     td.when(
@@ -530,6 +455,63 @@ class AccountServiceMocks {
       ),
     );
     this.crumbsContract.contractAddress = crumbsContractAddress;
+
+    // metatransactionForwarderRepo
+    td.when(
+      this.metatransactionForwarderRepo.getNonce(
+        evmDerivedEVMAccount.accountAddress,
+      ),
+    ).thenReturn(okAsync(evmDerivedNonce));
+    td.when(
+      this.metatransactionForwarderRepo.getNonce(
+        solanaDerivedEVMAccount.accountAddress,
+      ),
+    ).thenReturn(okAsync(solanaDerivedNonce));
+
+    td.when(
+      this.metatransactionForwarderRepo.signMetatransactionRequest(
+        td.matchers.contains({
+          to: crumbsContractAddress, // Contract address for the metatransaction
+          from: evmDerivedEVMAccount.accountAddress, // EOA to run the transaction as
+          data: evmEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
+        }),
+        evmDerivedEVMAccount.privateKey,
+      ),
+    ).thenReturn(okAsync(evmAddCrumbMetatransactionSignature));
+
+    td.when(
+      this.metatransactionForwarderRepo.signMetatransactionRequest(
+        td.matchers.contains({
+          to: crumbsContractAddress, // Contract address for the metatransaction
+          from: solanaDerivedEVMAccount.accountAddress, // EOA to run the transaction as
+          data: solanaEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
+        }),
+        solanaDerivedEVMAccount.privateKey,
+      ),
+    ).thenReturn(okAsync(solanaAddCrumbMetatransactionSignature));
+
+    td.when(
+      this.metatransactionForwarderRepo.signMetatransactionRequest(
+        td.matchers.contains({
+          to: crumbsContractAddress, // Contract address for the metatransaction
+          from: evmDerivedEVMAccount.accountAddress, // EOA to run the transaction as
+          data: evmEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
+        }),
+        evmDerivedPrivateKey,
+      ),
+    ).thenReturn(okAsync(evmBurnCrumbMetatransactionSignature));
+
+    td.when(
+      this.metatransactionForwarderRepo.signMetatransactionRequest(
+        td.matchers.contains({
+          to: crumbsContractAddress, // Contract address for the metatransaction
+          from: solanaDerivedEVMAccount.accountAddress, // EOA to run the transaction as
+          data: solanaEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
+        }),
+        solanaDerivedEVMAccount.privateKey,
+      ),
+    ).thenReturn(okAsync(solanaBurnCrumbMetatransactionSignature));
+
   }
 
   public factory(): IAccountService {
@@ -537,6 +519,7 @@ class AccountServiceMocks {
       this.permissionsUtils,
       this.insightPlatformRepo,
       this.crumbsRepo,
+      this.metatransactionForwarderRepo,
       this.contextProvider,
       this.configProvider,
       this.dataWalletUtils,
@@ -928,57 +911,6 @@ describe("AccountService unlock() tests", () => {
     );
   });
 
-  test("unlock() fails when we can't factory the MinimalFowarder", async () => {
-    // Arrange
-    const mocks = new AccountServiceMocks();
-
-    // No existing crumb
-    td.when(
-      mocks.crumbsRepo.getCrumb(
-        evmDerivedEVMAccount.accountAddress,
-        languageCode,
-      ),
-    ).thenReturn(okAsync(null));
-
-    td.when(mocks.contractFactory.factoryMinimalForwarderContract()).thenReturn(
-      errAsync(new BlockchainProviderError(ChainId(evmChain))),
-    );
-
-    const service = mocks.factory();
-
-    // Act
-    const result = await service.unlock(
-      evmAccountAddress,
-      evmSignature,
-      languageCode,
-      evmChain,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeTruthy();
-    const err = result._unsafeUnwrapErr();
-    expect(err).toBeInstanceOf(BlockchainProviderError);
-
-    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
-    expect(mocks.contextProvider.setContextValues.length).toBe(2);
-    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
-    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
-      null,
-    );
-    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
-      true,
-    );
-
-    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(null);
-    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
-      null,
-    );
-    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
-      false,
-    );
-  });
-
   test("unlock() fails when we can't factory the CrumbsContract", async () => {
     // Arrange
     const mocks = new AccountServiceMocks();
@@ -1043,7 +975,7 @@ describe("AccountService unlock() tests", () => {
     ).thenReturn(okAsync(null));
 
     td.when(
-      mocks.minimalForwarderContract.getNonce(
+      mocks.metatransactionForwarderRepo.getNonce(
         evmDerivedEVMAccount.accountAddress,
       ),
     ).thenReturn(errAsync(new MinimalForwarderContractError()));
@@ -1322,42 +1254,6 @@ describe("AccountService addAccount() tests", () => {
     expect(mocks.contextProvider.setContextValues.length).toBe(0);
   });
 
-  test("addAccount() fails when we can't factory the MinimalFowarder", async () => {
-    // Arrange
-    const mocks = new AccountServiceMocks(false, true);
-
-    // No existing crumb
-    td.when(
-      mocks.crumbsRepo.getCrumb(
-        evmDerivedEVMAccount.accountAddress,
-        languageCode,
-      ),
-    ).thenReturn(okAsync(null));
-
-    td.when(mocks.contractFactory.factoryMinimalForwarderContract()).thenReturn(
-      errAsync(new BlockchainProviderError(ChainId(evmChain))),
-    );
-
-    const service = mocks.factory();
-
-    // Act
-    const result = await service.addAccount(
-      evmAccountAddress,
-      evmSignature,
-      languageCode,
-      evmChain,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeTruthy();
-    const err = result._unsafeUnwrapErr();
-    expect(err).toBeInstanceOf(BlockchainProviderError);
-
-    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
-    expect(mocks.contextProvider.setContextValues.length).toBe(0);
-  });
-
   test("addAccount() fails when we can't factory the CrumbsContract", async () => {
     // Arrange
     const mocks = new AccountServiceMocks(false, true);
@@ -1407,7 +1303,7 @@ describe("AccountService addAccount() tests", () => {
     ).thenReturn(okAsync(null));
 
     td.when(
-      mocks.minimalForwarderContract.getNonce(
+      mocks.metatransactionForwarderRepo.getNonce(
         evmDerivedEVMAccount.accountAddress,
       ),
     ).thenReturn(errAsync(new MinimalForwarderContractError()));

@@ -1,4 +1,4 @@
-import { ChainTransaction } from "@objects/businessObjects";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
 import {
   ChainId,
   SolanaTransactionSignature,

@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject";
 import { EChain } from "@objects/enum";
 import { AccountAddress, EVMAccountAddress } from "@objects/primitives";
 

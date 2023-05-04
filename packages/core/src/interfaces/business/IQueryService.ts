@@ -33,6 +33,7 @@ export interface IQueryService {
     | EvaluationError
     | QueryExpiredError
     | ServerRewardError
+    | PersistenceError
   >;
 
   approveQuery(
