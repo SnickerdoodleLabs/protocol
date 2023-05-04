@@ -10,7 +10,6 @@ import {
   AST_ConditionExpr,
   AST_Expr,
   AST_SubQuery,
-  BinaryCondition,
   Command_IF,
   ConditionAnd,
   ConditionE,
