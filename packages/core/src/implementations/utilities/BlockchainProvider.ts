@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  JsonRpcSigner,
-  JsonRpcProvider,
-  FallbackProvider,
-} from "@ethersproject/providers";
+import { JsonRpcSigner, JsonRpcProvider } from "@ethersproject/providers";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { ChainId, BlockchainProviderError } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  BlockchainProviderError,
+  EChain,
+} from "@snickerdoodlelabs/objects";
 import { ethers, Wallet } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -43,10 +43,10 @@ export class BlockchainProvider implements IBlockchainProvider {
     this.providerInitializationResult = this.configProvider
       .getConfig()
       .map((config) => {
-        config.controlChainInformation.networkName;
-        this.primaryProvider = new ethers.providers.InfuraProvider(
-          config.controlChainInformation.networkName,
-          config.primaryInfuraKey,
+        this.primaryProvider = new ethers.providers.JsonRpcProvider(
+          config.controlChainId === EChain.DevDoodle
+            ? config.devChainProviderURL
+            : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.primaryInfuraKey}`,
         );
       });
 
