@@ -1,5 +1,4 @@
-import { InsightString } from "@objects/primitives";
-import { SubQueryKey } from "@objects/primitives/SubQueryKey.js";
+import { InsightString, SubQueryKey } from "@objects/primitives";
 
 export interface IInsightsQueries {
   [queryId: SubQueryKey]: InsightString | null;
