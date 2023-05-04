@@ -168,10 +168,6 @@ export class AST_Evaluator {
     });
   }
 
-  // public evalReturn(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError> {
-  //   return okAsync(SDQL_Return(r.message));
-  // }
-
   public evalPrimitiveExpr(
     expr: AST_Expr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
