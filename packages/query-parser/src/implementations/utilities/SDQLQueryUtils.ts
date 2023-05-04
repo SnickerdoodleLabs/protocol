@@ -1,4 +1,17 @@
 import {
+  AST_Ad,
+  AST_Compensation,
+  AST_Expr,
+  AST_Insight,
+  Command,
+  Command_IF,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  SDQLParser,
+} from "@query-parser/index.js";
+import {
   AdKey,
   CompensationKey,
   DuplicateIdInSchema,
@@ -14,20 +27,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-
-import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
-import {
-  AST_Ad,
-  AST_Compensation,
-  AST_Expr,
-  Command,
-  Command_IF,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-} from "@query-parser/interfaces/index.js";
-import { AST_Insight } from "@query-parser/interfaces/objects/index.js";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -152,7 +151,9 @@ export class SDQLQueryUtils {
 
     const compensationSchema = parser.schema.getCompensationSchema();
     for (const compensationKey in compensationSchema) {
-      if (!expectedCompensationKeys.includes(CompensationKey(compensationKey))) {
+      if (
+        !expectedCompensationKeys.includes(CompensationKey(compensationKey))
+      ) {
         continue;
       }
       expectedCompensationBlocks[compensationKey] = // 'c1': ISDQLCompensations object

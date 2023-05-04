@@ -22,7 +22,6 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import {
   AST,
   AST_Ad,
@@ -31,16 +30,17 @@ import {
   AST_Compensation,
   AST_ConditionExpr,
   AST_Expr,
+  AST_Insight,
   AST_PropertyQuery,
-  AST_RequireExpr as AST_RequiresExpr,
+  AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
   Condition,
+  ExprParser,
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-} from "@query-parser/interfaces/index.js";
-import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
+} from "@query-parser/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
@@ -92,9 +92,9 @@ export class SDQLParser {
     return ResultUtils.combine([
       this.validateMeta(schema),
       this.validateTimestampExpiry(schema, cid),
-      this.validateAds(schema),
-      this.validateInsights(schema),
-      this.validateCompensations(schema),
+      this.validateAds(),
+      this.validateInsights(),
+      this.validateCompensations(),
     ])
       .mapErr((e) => e)
       .map(() => {});
@@ -137,16 +137,10 @@ export class SDQLParser {
     return okAsync(undefined);
   }
 
-  private validateAds(
-    schema: SDQLQueryWrapper,
-  ): ResultAsync<void, QueryFormatError> {
-    const adSchema = schema.getAdsSchema();
-    if (adSchema == null || Object.keys(adSchema).length == 0) {
-      return okAsync(undefined);
-    }
+  private validateAds(): ResultAsync<void, QueryFormatError> {
     return ResultUtils.combine(
-      (Array.from(Object.keys(adSchema)) as AdKey[]).map((adKey) => {
-        return this.validateAd(adKey, adSchema[adKey]);
+      this.schema.getAdEntries().map(([adKey, ad]) => {
+        return this.validateAd(adKey, ad);
       }),
     )
       .mapErr((e) => e)
@@ -172,16 +166,10 @@ export class SDQLParser {
     return okAsync(undefined);
   }
 
-  private validateInsights(
-    schema: SDQLQueryWrapper,
-  ): ResultAsync<void, QueryFormatError> {
-    const insightSchema = schema.getInsightSchema();
-    if (insightSchema == null || Object.keys(insightSchema).length == 0) {
-      return okAsync(undefined);
-    }
+  private validateInsights(): ResultAsync<void, QueryFormatError> {
     return ResultUtils.combine(
-      (Array.from(Object.keys(insightSchema)) as InsightKey[]).map((iKey) => {
-        return this.validateInsight(iKey, insightSchema[iKey]);
+      this.schema.getInsightEntries().map(([iKey, insight]) => {
+        return this.validateInsight(iKey, insight);
       }),
     )
       .mapErr((e) => e)
@@ -198,22 +186,13 @@ export class SDQLParser {
     return okAsync(undefined);
   }
 
-  private validateCompensations(
-    schema: SDQLQueryWrapper,
-  ): ResultAsync<void, QueryFormatError> {
-    const compSchema = schema.getCompensationSchema();
-    if (compSchema == null || Object.keys(compSchema).length == 0) {
-      return okAsync(undefined);
-    }
+  private validateCompensations(): ResultAsync<void, QueryFormatError> {
     return ResultUtils.combine(
-      (Array.from(Object.keys(compSchema)) as CompensationKey[]).map((cKey) => {
+      this.schema.getCompensationEntries().map(([cKey, compensation]) => {
         if (cKey == "parameters") {
           return okAsync(undefined);
         }
-        return this.validateCompensation(
-          cKey,
-          compSchema[cKey] as ISDQLCompensations,
-        );
+        return this.validateCompensation(cKey, compensation);
       }),
     )
       .mapErr((e) => e)
@@ -440,7 +419,7 @@ export class SDQLParser {
         return new AST_Compensation(
           name,
           schema.description,
-          ast as AST_RequiresExpr,
+          ast as AST_RequireExpr,
           schema.requires!,
           schema.chainId,
           schema.callback,
@@ -469,7 +448,9 @@ export class SDQLParser {
         return okAsync(
           new AST_ConditionExpr(
             ast.name,
-            (ast.source as Condition | AST_SubQuery | boolean) || false,
+            ast.source == null
+              ? false
+              : (ast.source as Condition | AST_SubQuery | boolean),
           ),
         );
       }

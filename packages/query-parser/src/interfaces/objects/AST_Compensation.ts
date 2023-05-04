@@ -6,7 +6,7 @@ import {
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 
-import { AST_RequireExpr } from "@query-parser/interfaces/index.js";
+import { AST_RequireExpr } from "@query-parser/index.js";
 
 export class AST_Compensation {
   constructor(

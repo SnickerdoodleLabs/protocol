@@ -8,15 +8,11 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import {
-  Token,
-  Tokenizer,
-  TokenType,
-} from "@query-parser/implementations/business/Tokenizer.js";
-import {
   AST_Ad,
   AST_BoolExpr,
   AST_ConditionExpr,
   AST_Expr,
+  AST_Insight,
   AST_SubQuery,
   Command,
   Command_IF,
@@ -31,8 +27,10 @@ import {
   ConditionOr,
   IfOperandTypes,
   ParserContextDataTypes,
-} from "@query-parser/interfaces/index.js";
-import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
+  Token,
+  TokenType,
+  Tokenizer,
+} from "@query-parser/index.js";
 
 export class ExprParser {
   protected precedence: Map<TokenType, Array<TokenType>> = new Map();
@@ -315,12 +313,12 @@ export class ExprParser {
     ) as IfOperandTypes;
     const id = this.getNextId(token.val);
 
-    if (conditionExpr.constructor != AST_ConditionExpr) {
+    if (conditionExpr.constructor != AST_BoolExpr) {
       return new Command_IF(
         SDQL_Name(id),
         trueExpr!,
         falseExpr,
-        new AST_ConditionExpr(
+        new AST_BoolExpr(
           SDQL_Name(conditionExpr.name as string),
           conditionExpr,
         ),

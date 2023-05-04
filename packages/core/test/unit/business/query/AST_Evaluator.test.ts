@@ -236,7 +236,7 @@ describe("IF Command: evalIf()", () => {
   const mocks = new ASTMocks();
   const astEvaluator = mocks.factory();
 
-  test.only("true q1 and true q2, return r1", async () => {
+  test("true q1 and true q2, return r1", async () => {
     const and = new ConditionAnd(SDQL_OperatorName("And1"), true, true);
     const commandIf = new Command_IF(
       SDQL_Name("if1"),

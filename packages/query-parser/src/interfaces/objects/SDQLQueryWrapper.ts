@@ -2,6 +2,7 @@ import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AdKey,
   CompensationKey,
+  EVMAccountAddress,
   InsightKey,
   ISDQLAd,
   ISDQLAdsBlock,
@@ -42,32 +43,27 @@ export class SDQLQueryWrapper {
 
   public preProcessAds() {
     const adSchema = this.getAdsSchema();
-    if (adSchema == null || Object.keys(adSchema).length == 0) {
+    if (adSchema == null) {
+      this.internalObj.ads = {};
       return;
     }
 
-    (Array.from(Object.entries(adSchema)) as [AdKey, ISDQLAd][]).forEach(
-      ([adKey, ad]) => {
-        if (!ad.target || ad.target.trim().length == 0) {
-          ad.target = ISDQLConditionString("true");
-        }
-        this.internalObj.ads[adKey] = ad;
-      },
-    );
+    this.getAdEntries().forEach(([adKey, ad]) => {
+      if (!ad.target || ad.target.trim().length == 0) {
+        ad.target = ISDQLConditionString("true");
+      }
+      this.internalObj.ads[adKey] = ad;
+    });
   }
 
   public preProcessInsights() {
     const insightSchema = this.getInsightSchema();
-    if (insightSchema == null || Object.keys(insightSchema).length == 0) {
+    if (insightSchema == null) {
+      this.internalObj.insights = {};
       return;
     }
 
-    (
-      Array.from(Object.entries(insightSchema)) as [
-        InsightKey,
-        ISDQLInsightBlock,
-      ][]
-    ).forEach(([iKey, insight]) => {
+    this.getInsightEntries().forEach(([iKey, insight]) => {
       if (!insight.target || insight.target.trim().length == 0) {
         insight.target = ISDQLConditionString("true");
       }
@@ -77,16 +73,19 @@ export class SDQLQueryWrapper {
 
   public preProcessCompensations() {
     const compSchema = this.getCompensationSchema();
-    if (compSchema == null || Object.keys(compSchema).length == 0) {
+    if (compSchema == null) {
+      this.internalObj.compensations = {
+        parameters: {
+          recipientAddress: {
+            type: EVMAccountAddress(""),
+            required: false,
+          }
+        }
+      };
       return;
     }
 
-    (
-      Array.from(Object.entries(compSchema)) as [
-        CompensationKey,
-        ISDQLCompensations,
-      ][]
-    ).forEach(([cKey, comp]) => {
+    this.getCompensationEntries().forEach(([cKey, comp]) => {
       if (cKey == "parameters") {
         return;
       }
@@ -160,22 +159,19 @@ export class SDQLQueryWrapper {
     return this.internalObj.business;
   }
 
-  public get queries(): {
-    [queryId: string]: ISDQLQueryClause;
-  } {
-    return this.getQuerySchema();
+  public getInsightEntries(): [InsightKey, ISDQLInsightBlock][] {
+    const insights = this.getInsightSchema();
+    return this._getEntries<InsightKey, ISDQLInsightBlock>(insights);
   }
 
-  public get insights(): ISDQLInsightsBlock {
-    return this.getInsightSchema();
+  public getAdEntries(): [AdKey, ISDQLAd][] {
+    const ads = this.getAdsSchema();
+    return this._getEntries<AdKey, ISDQLAd>(ads);
   }
 
-  public get ads(): ISDQLAdsBlock {
-    return this.getAdsSchema();
-  }
-
-  public get compensations(): ISDQLCompensationBlock {
-    return this.getCompensationSchema();
+  public getCompensationEntries(): [CompensationKey, ISDQLCompensations][] {
+    const comps = this.getCompensationSchema();
+    return this._getEntries<CompensationKey, ISDQLCompensations>(comps);
   }
 
   public getQuerySchema(): {
@@ -194,5 +190,12 @@ export class SDQLQueryWrapper {
 
   public getInsightSchema(): ISDQLInsightsBlock {
     return this.internalObj.insights;
+  }
+
+  private _getEntries<K, V>(o: { [s: string]: any }): [K, V][] {
+    return (Array.from(Object.entries(o))).map(([k, v]) => [
+      k as unknown as K,
+      v,
+    ]);
   }
 }
