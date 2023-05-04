@@ -116,7 +116,7 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     requestForData: RequestForData,
-  ): ResultAsync<void, EvaluationError> {
+  ): ResultAsync<void, EvaluationError | PersistenceError> {
     /**
      * TODO
      * This method, for Ads Flow, will no longer process insights immediately. It will process the
@@ -144,64 +144,89 @@ export class QueryService implements IQueryService {
       // Check and make sure a consent token exists
       if (consentToken == null) {
         // Record the query as having been received, but ignore it
-        return this.sdqlQueryRepo
-          .upsertQueryStatus([
-            new QueryStatus(
-              requestForData.consentContractAddress,
-              requestForData.requestedCID,
-              requestForData.blockNumber,
-              EQueryProcessingStatus.NoConsentToken,
-              queryWrapper.expiry,
-              null,
-            ),
-          ])
-          .andThen(() => {
-            return errAsync(new EvaluationError(`Consent token not found!`));
-          });
+        return this.createQueryStatusWithNoConsent(
+          requestForData,
+          queryWrapper,
+        );
       }
 
       // Now we will record the query as having been recieved; it is now at the start of the processing pipeline
       // This is just a prototype, we probably need to do the parsing before this becuase QueryStatus
       // should grow significantly
-      return this.sdqlQueryRepo
-        .upsertQueryStatus([
-          new QueryStatus(
+      return this.createQueryStatusWithConsent(
+        requestForData,
+        queryWrapper,
+      ).andThen(() => {
+        return ResultUtils.combine([
+          this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+            queryWrapper.sdqlQuery,
+            consentToken.dataPermissions,
             requestForData.consentContractAddress,
-            requestForData.requestedCID,
-            requestForData.blockNumber,
-            EQueryProcessingStatus.Recieved,
-            queryWrapper.expiry,
-            null,
           ),
-        ])
-        .andThen(() => {
-          return ResultUtils.combine([
-            this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-              queryWrapper.sdqlQuery,
-              consentToken.dataPermissions,
-              requestForData.consentContractAddress,
-            ),
-            this.dataWalletUtils.deriveOptInPrivateKey(
-              requestForData.consentContractAddress,
-              context.dataWalletKey!,
-            ),
-          ]).andThen(([[permittedQueryIds, expectedRewards], optInKey]) => {
-            return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-              consentToken,
-              optInKey,
-              requestForData.consentContractAddress,
-              queryWrapper.sdqlQuery,
-              accounts,
-              context,
-              config,
-              permittedQueryIds,
-              expectedRewards,
-            );
-          });
+          this.dataWalletUtils.deriveOptInPrivateKey(
+            requestForData.consentContractAddress,
+            context.dataWalletKey!,
+          ),
+        ]).andThen(([[permittedQueryIds, expectedRewards], optInKey]) => {
+          return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+            consentToken,
+            optInKey,
+            requestForData.consentContractAddress,
+            queryWrapper.sdqlQuery,
+            accounts,
+            context,
+            config,
+            permittedQueryIds,
+            expectedRewards,
+          );
         });
+      });
     });
   }
 
+  public createQueryStatusWithNoConsent(
+    requestForData: RequestForData,
+    queryWrapper: SDQLQueryWrapper,
+  ): ResultAsync<void, EvaluationError> {
+    return this.sdqlQueryRepo
+      .upsertQueryStatus([
+        new QueryStatus(
+          requestForData.consentContractAddress,
+          requestForData.requestedCID,
+          requestForData.blockNumber,
+          EQueryProcessingStatus.NoConsentToken,
+          queryWrapper.expiry,
+          null,
+        ),
+      ])
+      .andThen(() => {
+        return errAsync(new EvaluationError(`Consent token not found!`));
+      });
+  }
+
+  public createQueryStatusWithConsent(
+    requestForData: RequestForData,
+    queryWrapper: SDQLQueryWrapper,
+  ): ResultAsync<void, PersistenceError> {
+    return this.sdqlQueryRepo.upsertQueryStatus([
+      new QueryStatus(
+        requestForData.consentContractAddress,
+        requestForData.requestedCID,
+        requestForData.blockNumber,
+        EQueryProcessingStatus.Received,
+        queryWrapper.expiry,
+        null,
+      ),
+    ]);
+  }
+
+  /**
+   * THis method assums that the ads are completed if there is any.
+   * @param consentContractAddress
+   * @param query
+   * @param rewardParameters
+   * @returns
+   */
   public approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,

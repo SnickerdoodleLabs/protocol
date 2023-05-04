@@ -1,6 +1,6 @@
 import { Interface } from "ethers/lib/utils";
 
-import { ChainTransaction } from "@objects/businessObjects/ChainTransaction";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction";
 import { EVMEvent } from "@objects/businessObjects/EVMEvent";
 import {
   EVMFunctionParameter,

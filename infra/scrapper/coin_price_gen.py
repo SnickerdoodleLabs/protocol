@@ -20,5 +20,5 @@ for val in specialData:
 
 
 print("writing to file...")
-with open('data.json', 'w') as f:
+with open('packages/core/src/implementations/data/coinPrices.json', 'w') as f:
     json.dump(response, f)

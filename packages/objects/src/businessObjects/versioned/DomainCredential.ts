@@ -2,7 +2,7 @@ import { RSAKeyPair } from "@objects/businessObjects/RSAKeyPair.js";
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject.js";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   DomainName,
   PEMEncodedRSAPrivateKey,
