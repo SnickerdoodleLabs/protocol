@@ -5,6 +5,7 @@ import {
   Age,
   CountryCode,
   DataPermissions,
+  Gender,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -64,6 +65,7 @@ export class ASTMocks {
     this.profileService = new ProfileService(this.demoRepo);
 
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoRepo.getGender()).thenReturn(okAsync(Gender('female')));
     td.when(this.demoRepo.getLocation()).thenReturn(okAsync(CountryCode("1")));
 
     this.queryEvaluator = new QueryEvaluator(

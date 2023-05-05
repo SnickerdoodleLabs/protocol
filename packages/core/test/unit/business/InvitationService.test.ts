@@ -1,4 +1,30 @@
+import { BigNumber } from "ethers";
+import { okAsync } from "neverthrow";
 import "reflect-metadata";
+import * as td from "testdouble";
+
+import {
+  consentContractAddress1,
+  dataWalletAddress,
+  dataWalletKey,
+  defaultInsightPlatformBaseUrl,
+  externalAccountAddress1,
+} from "@core-tests/mock/mocks/commonValues.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities";
+import { InvitationService } from "@core/implementations/business/index.js";
+import { IInvitationService } from "@core/interfaces/business/index.js";
+import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentContractRepository,
+  IDNSRepository,
+  IInvitationRepository,
+  ILinkedAccountRepository,
+  IMetatransactionForwarderRepository,
+} from "@core/interfaces/data/index.js";
+import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
@@ -18,32 +44,6 @@ import {
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
-
-import { InvitationService } from "@core/implementations/business/index.js";
-import { IInvitationService } from "@core/interfaces/business/index.js";
-import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  IDNSRepository,
-  IInvitationRepository,
-  ILinkedAccountRepository,
-  IMetatransactionForwarderRepository,
-} from "@core/interfaces/data/index.js";
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
-import {
-  dataWalletAddress,
-  consentContractAddress1,
-  defaultInsightPlatformBaseUrl,
-  externalAccountAddress1,
-  dataWalletKey,
-} from "@core-tests/mock/mocks/commonValues.js";
-import {
-  ConfigProviderMock,
-  ContextProviderMock,
-} from "@core-tests/mock/utilities";
 
 const metatransactionNonce = BigNumberString("123456789");
 const metatransactionValue = BigNumberString("0");

@@ -1,11 +1,21 @@
 import "reflect-metadata";
 
-import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
+import {
+  ESDQLQueryReturn,
+  ISDQLConditionString,
+  ISDQLExpressionString,
+  SDQL_Name,
+  SDQL_OperatorName,
+} from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
   AST_Expr,
+  AST_Insight,
+  AST_PropertyQuery,
   Command_IF,
   ConditionAnd,
+  ConditionE,
+  ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
@@ -305,6 +315,57 @@ describe("IF Command: evalIf()", () => {
     const result = await astEvaluator.evalIf(commandIf);
     expect(result.isOk()).toBeTruthy();
     expect(result._unsafeUnwrap()).toEqual(false);
+  });
+});
+
+// #region Conditions
+describe("Insights", () => {
+  test("1", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
+    const insight = new AST_Insight(
+      SDQL_Name("i1"),
+      new AST_ConditionExpr(
+        SDQL_Name(">1"),
+        new ConditionG(
+          SDQL_OperatorName(">1"),
+          new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            ESDQLQueryReturn.Integer,
+            "age",
+            [],
+          ),
+          35,
+        ),
+      ),
+      ISDQLConditionString("$q1>35"),
+      new AST_Expr(
+        SDQL_Name("complex"),
+        new ConditionE(
+          SDQL_OperatorName("==1"),
+          new AST_PropertyQuery(
+            SDQL_Name("q2"),
+            ESDQLQueryReturn.String,
+            "gender",
+            [],
+          ),
+          "nonbinary",
+        ),
+      ),
+      ISDQLExpressionString("$q2 == 'nonbinary'"),
+    );
+
+    // Act
+    const result = await astEvaluator.evalAny(insight);
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+
+    console.log(value);
+    // expect(value).toBeTruthy();
   });
 });
 

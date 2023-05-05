@@ -30,7 +30,7 @@ import {
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
-  AST_RequireExpr,
+  AST_RequiresExpr,
   ParserContextDataTypes,
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
@@ -94,7 +94,7 @@ export class ExprParserMocks {
     return new AST_Compensation(
       SDQL_Name(name),
       "",
-      new AST_RequireExpr(SDQL_Name(name), true),
+      new AST_RequiresExpr(SDQL_Name(name), true),
       ISDQLConditionString("True"),
       ChainId(1),
       {

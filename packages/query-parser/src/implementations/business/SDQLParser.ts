@@ -32,7 +32,7 @@ import {
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
-  AST_RequireExpr,
+  AST_RequiresExpr,
   AST_SubQuery,
   AST_Web3Query,
   Condition,
@@ -409,7 +409,7 @@ export class SDQLParser {
         return new AST_Compensation(
           name,
           schema.description,
-          ast as AST_RequireExpr,
+          ast as AST_RequiresExpr,
           schema.requires!,
           schema.chainId,
           schema.callback,

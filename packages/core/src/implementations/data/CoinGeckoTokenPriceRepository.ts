@@ -9,23 +9,22 @@ import {
 import {
   AccountIndexingError,
   AjaxError,
-  chainConfig,
   ChainId,
   ECurrencyCode,
   ERecordKey,
-  getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
   TickerSymbol,
   TokenAddress,
   TokenInfo,
   TokenMarketData,
-  UnixTimestamp,
   URLString,
-  VolatileStorageMetadata,
+  UnixTimestamp,
+  chainConfig,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
