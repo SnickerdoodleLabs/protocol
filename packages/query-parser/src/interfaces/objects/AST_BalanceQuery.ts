@@ -1,5 +1,3 @@
-import { AST_SubQuery } from "@query-parser/index.js";
-import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 import {
   ChainId,
   ESDQLQueryReturn,
@@ -8,6 +6,9 @@ import {
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 import { Result, ok } from "neverthrow";
+
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
+import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 
 export class AST_BalanceQuery extends AST_SubQuery {
   /**
