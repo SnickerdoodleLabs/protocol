@@ -214,7 +214,7 @@ describe("Postfix to AST", () => {
     expect(expr.source).toBe(true);
   });
 
-  test("True and True to ast", async () => {
+  test("true and true to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
