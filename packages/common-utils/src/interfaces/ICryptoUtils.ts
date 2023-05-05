@@ -22,9 +22,10 @@ import {
   URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
+import { OAuth1Config } from "@snickerdoodlelabs/objects/src/businessObjects/oauth/OAuth1Config.js";
+
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config";
 
 export interface ICryptoUtils {
   getUUID(): UUID;

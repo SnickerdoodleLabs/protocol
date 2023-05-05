@@ -14,39 +14,38 @@ import {
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
-  BlockchainProviderError,
   BlockNumber,
+  BlockchainProviderError,
   ConsentContractError,
   ConsentError,
   ConsentToken,
-  EligibleReward,
   EQueryProcessingStatus,
-  EvaluationError,
   EVMContractAddress,
   EVMPrivateKey,
+  EligibleReward,
+  EvaluationError,
   ExpectedReward,
   IDynamicRewardParameter,
-  IpfsCID,
   IPFSError,
+  IpfsCID,
   LinkedAccount,
   PersistenceError,
   QueryFormatError,
-  QueryIdentifier,
   QueryStatus,
   RequestForData,
   SDQLQuery,
   SDQLQueryRequest,
   ServerRewardError,
+  SubQueryKey,
   UninitializedError,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
+  SDQLQueryWrapper,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
-  SDQLQueryWrapper,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
@@ -443,7 +442,7 @@ export class QueryService implements IQueryService {
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
-    permittedQueryIds: QueryIdentifier[],
+    permittedQueryIds: SubQueryKey[],
     expectedRewards: ExpectedReward[],
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
     return this.getEligibleRewardsFromInsightPlatform(
@@ -482,7 +481,7 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     queryCID: IpfsCID,
     config: CoreConfig,
-    answeredQueries: QueryIdentifier[],
+    answeredQueries: SubQueryKey[],
   ): ResultAsync<EligibleReward[], AjaxError> {
     return this.insightPlatformRepo.receivePreviews(
       consentContractAddress,

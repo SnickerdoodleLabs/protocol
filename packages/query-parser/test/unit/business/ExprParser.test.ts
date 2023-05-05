@@ -2,28 +2,17 @@ import "reflect-metadata";
 
 import { okAsync } from "neverthrow";
 
+import { ExprParserMocks } from "@query-parser-test/mocks";
 import { Token, TokenType } from "@query-parser/implementations";
 import {
-  AST_BlockchainTransactionQuery,
   AST_ConditionExpr,
-  AST_Expr,
-  AST_PropertyQuery,
-  AST_Query,
-  AST_Return,
-  AST_ReturnExpr,
-  Command_IF,
   ConditionAnd,
   ConditionE,
   ConditionG,
   ConditionL,
   ConditionLE,
   ConditionOr,
-  ParserContextDataTypes,
 } from "@query-parser/interfaces";
-import { ExprParserMocks } from "@query-parser-test/mocks";
-
-// const context = new Map<string, ParserContextDataTypes>();
-// context.set()
 
 describe("Postfix to AST", () => {
   test("$q1$q2andq3or to ast", () => {
@@ -38,13 +27,8 @@ describe("Postfix to AST", () => {
           new Token(TokenType.query, "$q3", 11),
           new Token(TokenType.or, "or", 9),
         ];
-        // console.log(context.keys());
-        const expr = exprParser.buildAstFromPostfix(
-          postFix,
-        ) as AST_ConditionExpr;
-        // console.log(expr);
+        const expr = exprParser.buildAstFromPostfix(postFix) as AST_ConditionExpr;
         expect(expr.constructor).toBe(AST_ConditionExpr);
-        // const cond = expr.source as ConditionOr;
         expect(expr.source.constructor).toBe(ConditionOr);
         const or = expr.source as ConditionOr;
         expect(or.lval!.constructor).toBe(AST_ConditionExpr);
@@ -196,7 +180,7 @@ describe("Postfix to AST", () => {
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
-    // // Action
+    // Action
     const expr = (
       await parser.parse("$q1>35and$q1<40and($q2or$q3)")
     )._unsafeUnwrap() as AST_ConditionExpr;
@@ -224,15 +208,13 @@ describe("Postfix to AST", () => {
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
     // // Action
-    const expr = (
-      await parser.parse("True")
-    )._unsafeUnwrap() as AST_ConditionExpr;
+    const expr = (await parser.parse("True"))._unsafeUnwrap() as AST_ConditionExpr;
 
     // Assert
     expect(expr.source).toBe(true);
   });
 
-  test("True and True to ast", async () => {
+  test("true and true to ast", async () => {
     // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
@@ -243,7 +225,6 @@ describe("Postfix to AST", () => {
     )._unsafeUnwrap() as AST_ConditionExpr;
 
     // Assert
-    // console.log(expr);
     expect(expr.source.constructor).toBe(ConditionAnd);
     const mainAnd = expr.source as ConditionAnd;
     expect(mainAnd.lval!).toBe(true);
@@ -261,10 +242,47 @@ describe("Postfix to AST", () => {
     )._unsafeUnwrap() as AST_ConditionExpr;
 
     // Assert
-    // console.log(expr);
     expect(expr.source.constructor).toBe(ConditionE);
     const cond = expr.source as ConditionE;
     expect(cond.lval!).toEqual(mocks.context!.get("q3"));
     expect(cond.rval).toBe("US");
+  });
+
+  test("$a1 and $i1<40 and ($a2or$a3) to ast", async () => {
+    // Acquire
+    const mocks = new ExprParserMocks();
+    const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
+
+    // Action
+    const expr = (
+      await parser.parse("$a1 and $i1<40 and ($a2or$a3)")
+    )._unsafeUnwrap() as AST_ConditionExpr;
+
+    // Assert
+    expect(expr.source.constructor).toBe(ConditionAnd);
+    const mainAnd = expr.source as ConditionAnd;
+
+    expect(mainAnd.lval!.constructor).toBe(AST_ConditionExpr);
+    const mainAndLval = mainAnd.lval as AST_ConditionExpr;
+    expect(mainAndLval.source.constructor).toBe(ConditionAnd);
+
+    const leftAnd = mainAndLval.source as ConditionAnd;
+    expect(leftAnd.lval!).toEqual(mocks.context!.get("a1"));
+
+    expect(leftAnd.rval.constructor).toBe(AST_ConditionExpr);
+    const leftAndRvalExpr = leftAnd.rval as AST_ConditionExpr;
+
+    expect(leftAndRvalExpr.source.constructor).toBe(ConditionL);
+    const insightComparison = leftAndRvalExpr.source as ConditionL;
+
+    expect(insightComparison.lval).toEqual(mocks.context!.get("i1"));
+
+    expect(mainAnd.rval.constructor).toBe(AST_ConditionExpr);
+    const mainAndRval = mainAnd.rval as AST_ConditionExpr;
+    expect(mainAndRval.source.constructor).toBe(ConditionOr);
+    const or = mainAndRval.source as ConditionOr;
+
+    expect(or.lval!).toEqual(mocks.context!.get("a2"));
+    expect(or.rval).toEqual(mocks.context!.get("a3"));
   });
 });

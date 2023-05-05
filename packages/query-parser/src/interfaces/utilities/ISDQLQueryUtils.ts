@@ -1,65 +1,29 @@
-import { SDQLParser } from "@query-parser/implementations";
 import {
-  CompensationId,
+  AdKey,
+  CompensationKey,
   DuplicateIdInSchema,
+  InsightKey,
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
   QueryFormatError,
   SDQLString,
-  DataPermissions,
-  QueryFilteredByPermissions,
-  QueryIdentifier,
-  QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ISDQLQueryUtils {
   getEligibleCompensations(
     schemaString: SDQLString,
-    queryIds: QueryIdentifier[],
+    ads: AdKey[],
+    insights: InsightKey[],
   ): ResultAsync<
-    CompensationId[],
+    CompensationKey[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
   >;
-
-  getPermittedQueryIdsFromSchemaString(
-    schemaString: SDQLString,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryIdentifier[],
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  >;
-
-  getPermittedQueryIds(
-    parser: SDQLParser,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryIdentifier[],
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  >;
-
-  filterQueryByPermissions(
-    schemaString: SDQLString,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<QueryFilteredByPermissions, ParserError>;
-
-  getQueryTypeDependencies(
-    parser: SDQLParser,
-    compId: CompensationId,
-  ): ResultAsync<QueryTypes[], ParserError>;
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");

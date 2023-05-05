@@ -1,17 +1,21 @@
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  AdKey,
+  CompensationKey,
+  EVMAccountAddress,
+  InsightKey,
+  ISDQLAd,
   ISDQLAdsBlock,
   ISDQLCompensationBlock,
+  ISDQLCompensations,
+  ISDQLConditionString,
   ISDQLInsightBlock,
   ISDQLInsightsBlock,
   ISDQLQueryClause,
   ISDQLQueryObject,
-  // ISDQLReturnProperties,
   ISO8601DateString,
   SDQLQuery,
-  SDQLString,
   UnixTimestamp,
-  URLString,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLQueryWrapper {
@@ -24,19 +28,72 @@ export class SDQLQueryWrapper {
     readonly internalObj: ISDQLQueryObject,
     readonly timeUtils: ITimeUtils,
   ) {
-    // console.log("internalObj: " + internalObj)
     this.fixDateFormats();
+    this.preProcessAds();
+    this.preProcessInsights();
+    this.preProcessCompensations();
   }
-
-  // static fromString(s: SDQLString, timeUtils: ITimeUtils): SDQLQueryWrapper {
-  //   return new SDQLQueryWrapper(JSON.parse(s)  as ISDQLQueryObject, timeUtils);
-  // }
 
   public get version(): string | undefined {
     if (!this.internalObj.version) {
       return undefined;
     }
     return `${this.internalObj.version}`;
+  }
+
+  public preProcessAds() {
+    const adSchema = this.getAdsSchema();
+    if (adSchema == null) {
+      this.internalObj.ads = {};
+      return;
+    }
+
+    this.getAdEntries().forEach(([adKey, ad]) => {
+      if (!ad.target || ad.target.trim().length == 0) {
+        ad.target = ISDQLConditionString("true");
+      }
+      this.internalObj.ads[adKey] = ad;
+    });
+  }
+
+  public preProcessInsights() {
+    const insightSchema = this.getInsightSchema();
+    if (insightSchema == null) {
+      this.internalObj.insights = {};
+      return;
+    }
+
+    this.getInsightEntries().forEach(([iKey, insight]) => {
+      if (!insight.target || insight.target.trim().length == 0) {
+        insight.target = ISDQLConditionString("true");
+      }
+      this.internalObj.insights[iKey] = insight;
+    });
+  }
+
+  public preProcessCompensations() {
+    const compSchema = this.getCompensationSchema();
+    if (compSchema == null) {
+      this.internalObj.compensations = {
+        parameters: {
+          recipientAddress: {
+            type: EVMAccountAddress(""),
+            required: false,
+          }
+        }
+      };
+      return;
+    }
+
+    this.getCompensationEntries().forEach(([cKey, comp]) => {
+      if (cKey == "parameters") {
+        return;
+      }
+      if (!comp.requires || comp.requires.trim().length == 0) {
+        comp.requires = ISDQLConditionString("true");
+      }
+      this.internalObj.compensations[cKey] = comp;
+    });
   }
 
   public fixDateFormats() {
@@ -50,6 +107,7 @@ export class SDQLQueryWrapper {
       this.internalObj.expiry = this.fixDateFormat(this.internalObj.expiry);
     }
   }
+
   public fixDateFormat(isoDate: ISO8601DateString): ISO8601DateString {
     // Adds time zone if missing
     // 1. check if has time zone in +- format
@@ -101,32 +159,19 @@ export class SDQLQueryWrapper {
     return this.internalObj.business;
   }
 
-  public get ads(): ISDQLAdsBlock {
-    return this.getAdsSchema();
+  public getInsightEntries(): [InsightKey, ISDQLInsightBlock][] {
+    const insights = this.getInsightSchema();
+    return this._getEntries<InsightKey, ISDQLInsightBlock>(insights);
   }
 
-  public get queries(): {
-    [queryId: string]: ISDQLQueryClause;
-  } {
-    return this.getQuerySchema();
-  }
-  // public get returns(): {
-  //   [returnsObject: string]: ISDQLReturnProperties;
-  //   url: any;
-  // } {
-  //   return this.getReturnSchema();
-  // }
-
-  public get compensations(): ISDQLCompensationBlock {
-    return this.getCompensationSchema();
+  public getAdEntries(): [AdKey, ISDQLAd][] {
+    const ads = this.getAdsSchema();
+    return this._getEntries<AdKey, ISDQLAd>(ads);
   }
 
-  // public get logic(): ISDQLLogicObjects {
-  //   return this.getLogicSchema();
-  // }
-
-  public getAdsSchema(): ISDQLAdsBlock {
-    return this.internalObj.ads;
+  public getCompensationEntries(): [CompensationKey, ISDQLCompensations][] {
+    const comps = this.getCompensationSchema();
+    return this._getEntries<CompensationKey, ISDQLCompensations>(comps);
   }
 
   public getQuerySchema(): {
@@ -135,23 +180,22 @@ export class SDQLQueryWrapper {
     return this.internalObj.queries;
   }
 
-  // getReturnSchema(): {
-  //   [returnsObject: string]: ISDQLReturnProperties;
-  //   url: any;
-  // } {
-  //   // return this.internalObj.returns;
-  //   return { url: URLString("") };
-  // }
+  public getAdsSchema(): ISDQLAdsBlock {
+    return this.internalObj.ads;
+  }
 
   public getCompensationSchema(): ISDQLCompensationBlock {
     return this.internalObj.compensations;
   }
 
-  // getLogicSchema(): ISDQLLogicObjects {
-  //   return this.internalObj.logic;
-  // }
-
   public getInsightSchema(): ISDQLInsightsBlock {
     return this.internalObj.insights;
+  }
+
+  private _getEntries<K, V>(o: { [s: string]: any }): [K, V][] {
+    return (Array.from(Object.entries(o))).map(([k, v]) => [
+      k as unknown as K,
+      v,
+    ]);
   }
 }

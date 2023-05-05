@@ -56,7 +56,7 @@ erDiagram
         string description
         ChainId chainId
         ISDQLCallback callback
-        CompensationId[] alternatives
+        CompensationKey[] alternatives
         
     }
 

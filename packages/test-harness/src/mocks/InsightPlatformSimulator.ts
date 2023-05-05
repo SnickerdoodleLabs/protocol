@@ -35,7 +35,7 @@ import {
   SHA256Hash,
   AdSignature,
   InvalidSignatureError,
-  CompensationId,
+  CompensationKey,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -113,7 +113,7 @@ export class InsightPlatformSimulator {
 
       const eligibleRewards: EligibleReward[] = [];
       eligibleRewards[0] = new EligibleReward(
-        CompensationId("c1"),
+        CompensationKey("c1"),
         "Sugar to your coffee",
         IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
         "10% discount code for Starbucks",
@@ -122,7 +122,7 @@ export class InsightPlatformSimulator {
         ERewardType.Direct,
       );
       eligibleRewards[1] = new EligibleReward(
-        CompensationId("c2"),
+        CompensationKey("c2"),
         "The CryptoPunk Draw",
         IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
         "participate in the draw to win a CryptoPunk NFT",
@@ -131,7 +131,7 @@ export class InsightPlatformSimulator {
         ERewardType.Direct,
       );
       eligibleRewards[2] = new EligibleReward(
-        CompensationId("c3"),
+        CompensationKey("c3"),
         "CrazyApesClub NFT distro",
         IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
         "a free CrazyApesClub NFT",

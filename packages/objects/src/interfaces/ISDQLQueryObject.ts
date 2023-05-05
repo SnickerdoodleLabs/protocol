@@ -5,7 +5,7 @@ import { ESDQLQueryReturn } from "@objects/enum/index.js";
 import {
   AccountAddress,
   ChainId,
-  CompensationId,
+  CompensationKey,
   EVMContractAddress,
   IpfsCID,
   URLString,
@@ -90,14 +90,9 @@ export interface ISDQLInsightsBlock {
 }
 export interface ISDQLInsightBlock {
   name: string;
-  target: ISDQLConditionString;
+  target?: ISDQLConditionString;
   returns: ISDQLExpressionString;
 }
-// export interface ISDQLReturnProperties {
-//   name: string;
-//   message?: string;
-//   query?: string;
-// }
 
 export interface ISDQLAdsBlock {
   [index: AdKey]: ISDQLAd;
@@ -111,11 +106,11 @@ export interface ISDQLAd {
   weight: number;
   expiry: UnixTimestamp;
   keywords: string[];
-  target: ISDQLConditionString;
+  target?: ISDQLConditionString;
 }
 
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
+  [index: CompensationKey]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 
@@ -123,10 +118,10 @@ export interface ISDQLCompensations {
   name: string;
   image: IpfsCID | URLString | null;
   description: string;
-  requires: ISDQLConditionString;
+  requires?: ISDQLConditionString;
   chainId: ChainId;
   callback: ISDQLCallback;
-  alternatives?: CompensationId[];
+  alternatives?: CompensationKey[];
 }
 
 export interface ISDQLCallback {
@@ -140,16 +135,10 @@ export interface ISDQLCompensationParameters {
     type: unknown;
     required: boolean;
     values?: unknown[];
-  }; // TODO composition with unknowns?
+  };
 
   recipientAddress: {
     type: AccountAddress;
     required: boolean;
   };
 }
-
-// export interface ISDQLLogicObjects {
-//   returns: string[];
-//   ads: string[];
-//   compensations: string[];
-// }

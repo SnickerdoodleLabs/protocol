@@ -13,6 +13,46 @@ export const avalanche1SchemaStr = SDQLString(
     description:
       "Interactions with the Avalanche blockchain for 15-year and older individuals",
     business: "Shrapnel",
+    ads: {
+      a3: {
+        name: "a3",
+        content: {
+          type: "image",
+          src: "testSrc",
+        },
+        text: "text",
+        displayType: "banner",
+        weight: 8,
+        expiry: 1735678800,
+        keywords: ["q", "w", "e"],
+        target: "$q1>30",
+      },
+      a2: {
+        name: "a2",
+        content: {
+          type: "video",
+          src: "testSrc",
+        },
+        text: "ASDASD",
+        displayType: "popup",
+        weight: 7,
+        expiry: 1735678,
+        keywords: ["1", "2", "3"],
+        target: "$q2",
+      },
+      a1: {
+        name: "a1",
+        content: {
+          type: "image",
+          src: "testSrc",
+        },
+        text: "QWEQWEWQE",
+        displayType: "banner",
+        weight: 6,
+        expiry: 1735678800,
+        keywords: ["a", "b", "c"],
+      },
+    },
     queries: {
       q1: {
         name: "network",
@@ -32,10 +72,7 @@ export const avalanche1SchemaStr = SDQLString(
       },
       q2: {
         name: "age",
-        return: "boolean",
-        conditions: {
-          ge: 15,
-        },
+        return: "number"
       },
       q3: {
         name: "location",
@@ -63,7 +100,7 @@ export const avalanche1SchemaStr = SDQLString(
       },
       i3: {
         name: "query_response",
-        target: "True",
+        target: "true",
         returns: "$q3",
       },
     },
@@ -100,7 +137,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "The CryptoPunk Draw",
         image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
         description: "participate in the draw to win a CryptoPunk NFT",
-        requires: "$i2",
+        requires: "$i2>10",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],

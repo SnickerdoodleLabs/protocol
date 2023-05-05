@@ -1,7 +1,7 @@
-import { InsightString, QueryIdentifier } from "@objects/primitives";
+import { InsightString } from "@objects/primitives";
 
 export interface IInsightsQueries {
-  [queryId: QueryIdentifier]: InsightString | null;
+  [queryId: string]: InsightString | null;
 }
 
 export interface IInsightsReturns {

@@ -1,25 +1,19 @@
 import {
   InvalidRegularExpression,
-  ISDQLAnyEvaluatableString,
   MissingTokenConstructorError,
   ParserError,
   SDQL_Name,
   SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  Token,
-  Tokenizer,
-  TokenType,
-} from "@query-parser/implementations/business/Tokenizer.js";
 import {
   AST_Ad,
   AST_BoolExpr,
   AST_ConditionExpr,
   AST_Expr,
-  AST_Query,
+  AST_Insight,
+  AST_SubQuery,
   Command,
   Command_IF,
   Condition,
@@ -33,19 +27,15 @@ import {
   ConditionOr,
   IfOperandTypes,
   ParserContextDataTypes,
-} from "@query-parser/interfaces/index.js";
-import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight";
+  Token,
+  TokenType,
+  Tokenizer,
+} from "@query-parser/index.js";
 
 export class ExprParser {
-  /**
-   * Grammar:
-   * IF ::= "if" WS Condition "then" WS Expr
-   * IF ::= "if" WS Condition "then" WS Expr "else" WS Expr
-   */
-
   protected precedence: Map<TokenType, Array<TokenType>> = new Map();
-  protected id = 0;
   protected tokenToExpMap: Map<TokenType, Function> = new Map();
+  protected id = 0;
 
   constructor(readonly context: Map<string, ParserContextDataTypes>) {
     const logicOps = [TokenType.and, TokenType.or];
@@ -63,7 +53,7 @@ export class ExprParser {
       TokenType.if,
       TokenType.then,
       TokenType.else,
-    ]); // TODO everything up to a opening parenthesis
+    ]);
 
     logicOps.forEach((cond) =>
       this.precedence.set(cond, [...compOps, ...logicOps]),
@@ -79,51 +69,35 @@ export class ExprParser {
     this.tokenToExpMap.set(TokenType.or, this.createOr);
     this.tokenToExpMap.set(TokenType.if, this.createIf);
 
-    if (!this.context.has("dependencies")) {
-      this.context.set("dependencies", new Map<string, Set<AST_Query>>());
-    }
-  }
+    // this.tokenToExpMap.set(TokenType.in, this.createIn);
 
-  private getNextId(name: string) {
-    this.id++;
-    const nextId = `${name}${this.id}`;
-    return nextId;
+    if (!this.context.has("dependencies")) {
+      this.context.set("dependencies", new Map<string, Set<AST_SubQuery>>());
+    }
   }
 
   // #region building ast
   public parse(
     exprStr: string,
   ): ResultAsync<AST_Expr | Command, ParserError | InvalidRegularExpression> {
-    /**
-     * Builds a AST expression or a command from the input string
-     */
     return new Tokenizer(exprStr).all().map((tokens) => {
       return this.tokensToAst(tokens); // TODO this to be result async, too.
     });
-    // const tokens = tokenizer.all(); // TODO fix
-    // const ast = this.tokensToAst(tokens);
-    // return ast;
   }
 
-  tokensToAst(tokens: Token[]): AST_Expr | Command {
-    const postFix: Array<Token> = this.infixToPostFix(tokens);
+  public tokensToAst(tokens: Token[]): AST_Expr | Command {
+    const postFix = this.infixToPostFix(tokens);
     return this.buildAstFromPostfix(postFix);
   }
 
   // #region infix to postfix, $q1and$q2 -> $q1$q2and
-  infixToPostFix(infix: Token[]): Array<Token> {
+  public infixToPostFix(infix: Token[]): Array<Token> {
     const stack: Array<Token> = [];
     const postFix: Array<Token> = [];
+
     for (const token of infix) {
-      /**
-       * if token is
-       */
       let popped: Array<Token> = [];
-
-      // Conver to a Map later.
-
       switch (token.type) {
-        // when token is a literal or a variable
         case TokenType.number:
         case TokenType.string:
         case TokenType.boolean:
@@ -146,7 +120,6 @@ export class ExprParser {
         case TokenType.and:
         case TokenType.or:
           // pop everything that has higher or equal precedence
-
           popped = this.popHigherEqTypes(stack, token);
           stack.push(token);
           postFix.push(...popped);
@@ -178,47 +151,31 @@ export class ExprParser {
       }
     }
 
-    // pop all and add to the postFix
-
     postFix.push(...stack.reverse());
-
     return postFix;
   }
 
-  popHigherEqTypes(stack: Array<Token>, token: Token): Array<Token> {
-    /**
-     * it pops everything that has higher or equal precedence as the token
-     */
-    const popped: Array<Token> = new Array<Token>();
-
-    const precedence = this.precedence.get(token.type);
-    if (precedence) {
-      while (stack.length > 0) {
-        if (precedence.includes(stack[stack.length - 1].type)) {
-          const lastStackItem = stack.pop();
-          popped.push(lastStackItem as Token);
-        } else {
-          break;
-        }
-      }
+  public popHigherEqTypes(stack: Array<Token>, token: Token): Array<Token> {
+    const popped = new Array<Token>();
+    while (
+      stack.length > 0 &&
+      this.precedence.has(token.type) &&
+      this.precedence.get(token.type)!.includes(stack[stack.length - 1].type)
+    ) {
+      popped.push(stack.pop() as Token);
     }
-
     return popped;
   }
 
-  popToType(
+  public popToType(
     stack: Array<Token>,
     token: Token,
     toType: TokenType,
   ): Array<Token> {
-    /**
-     * it pops everything that has higher or equal precedence as the token
-     */
     const popped: Array<Token> = new Array<Token>();
     while (stack.length > 0) {
       const lastStackItem = stack.pop() as Token;
       popped.push(lastStackItem as Token);
-
       if (lastStackItem.type === toType) {
         return popped;
       }
@@ -232,24 +189,19 @@ export class ExprParser {
     throw err;
   }
 
-  popBefore(
+  public popBefore(
     stack: Array<Token>,
     token: Token,
     toType: TokenType,
   ): Array<Token> {
-    /**
-     * it pops everything that has higher or equal precedence as the token
-     */
-    const popped: Array<Token> = new Array<Token>();
+    const popped = new Array<Token>();
     while (stack.length > 0) {
       const lastStackItem = stack.pop() as Token;
-
       if (lastStackItem.type === toType) {
         stack.push(lastStackItem);
         return popped;
-      } else {
-        popped.push(lastStackItem as Token);
       }
+      popped.push(lastStackItem);
     }
 
     const err = new ParserError(
@@ -261,18 +213,17 @@ export class ExprParser {
   }
   // #endregion
 
-  buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
+  public buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
     const exprTypes: Array<TokenType> = [
-      TokenType.ad,
-      TokenType.query,
-      TokenType.insight,
-      TokenType.compensation,
-      TokenType.number,
-      TokenType.string,
-      TokenType.boolean,
-    ];
-
-    const expList: Array<ParserContextDataTypes> = [];
+        TokenType.ad,
+        TokenType.query,
+        TokenType.insight,
+        TokenType.compensation,
+        TokenType.number,
+        TokenType.string,
+        TokenType.boolean,
+      ],
+      expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
       if (exprTypes.includes(token.type)) {
@@ -305,7 +256,7 @@ export class ExprParser {
       return new AST_BoolExpr(SDQL_Name("boolean"), expr as boolean);
     }
     if (
-      expr instanceof AST_Query ||
+      expr instanceof AST_SubQuery ||
       expr instanceof AST_Ad ||
       expr instanceof AST_Insight
     ) {
@@ -313,183 +264,6 @@ export class ExprParser {
     }
 
     return expr as AST_Expr | Command;
-  }
-
-  createExp(expList: Array<ParserContextDataTypes>, token: Token): AST_Expr {
-    const evaluator = this.tokenToExpMap.get(token.type);
-    if (evaluator) {
-      return evaluator.apply(this, [expList, token]);
-    } else {
-      const err = new MissingTokenConstructorError(
-        "No Token type constructor defined for " + token.type,
-      );
-      console.error(err);
-      throw err;
-    }
-  }
-
-  createG(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionG(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
-  }
-
-  createGE(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionGE(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
-  }
-
-  createL(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionL(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
-  }
-
-  createLE(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionLE(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
-  }
-
-  createE(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionE(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
-  }
-
-  createAnd(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionAnd(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);;
-  }
-
-  createOr(
-    expList: Array<ParserContextDataTypes>,
-    token: Token,
-  ): AST_ConditionExpr {
-    const id = this.getNextId(token.val);
-    const rval = expList.pop() as ConditionOperandTypes;
-    const lval = expList.pop() as ConditionOperandTypes;
-    const condition = new ConditionOr(SDQL_OperatorName(id), lval, rval);
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
-  }
-
-  createIf(expList: Array<ParserContextDataTypes>, token: Token): Command_IF {
-    // const rval = expList.pop();
-    // const lval = expList.pop();
-    // throw new Error("createIf");
-    const conditionExpr = expList[0] as Condition | AST_Query;
-    const trueExpr = expList[1] as IfOperandTypes;
-    const falseExpr = (
-      expList.length > 2 ? expList[2] : null
-    ) as IfOperandTypes;
-
-    if (conditionExpr.constructor != AST_ConditionExpr) {
-      // conditionExpr = new AST_ConditionExpr(
-      //   SDQL_Name(conditionExpr.name as string),
-      //   conditionExpr,
-      // );
-      const id = this.getNextId(token.val);
-      return new Command_IF(
-        SDQL_Name(id),
-        trueExpr!,
-        falseExpr,
-        new AST_ConditionExpr(
-          SDQL_Name(conditionExpr.name as string),
-          conditionExpr,
-        ),
-      );
-    } else {
-      const id = this.getNextId(token.val);
-      return new Command_IF(SDQL_Name(id), trueExpr!, falseExpr, conditionExpr);
-    }
-  }
-  // #endregion
-
-  // #region parse dependencies only
-
-  public getUnifiedQueryDependencies(
-    expressions: ISDQLAnyEvaluatableString[],
-  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
-    return ResultUtils.combine(
-      expressions.map((expr) => this.getQueryDependencies(expr)),
-    ).map((depsArrays) => Array.from(new Set(depsArrays.flat())));
-  }
-
-  public getQueryDependencies(
-    exprStr: ISDQLAnyEvaluatableString,
-  ): ResultAsync<AST_Query[], ParserError | InvalidRegularExpression> {
-    return new Tokenizer(exprStr).all().map((tokens) => {
-      return Array.from(
-        tokens.reduce((deps, token) => {
-          if (token.type == TokenType.query) {
-            deps.add(this.getExecutableFromContext(token) as AST_Query);
-          }
-          return deps;
-        }, new Set<AST_Query>()),
-      );
-    });
-  }
-
-  public getAdDependencies(
-    exprStr: ISDQLAnyEvaluatableString,
-  ): ResultAsync<AST_Ad[], ParserError | InvalidRegularExpression> {
-    return new Tokenizer(exprStr).all().map((tokens) => {
-      return Array.from(
-        tokens.reduce((deps, token) => {
-          if (token.type == TokenType.ad) {
-            deps.add(this.getExecutableFromContext(token) as AST_Ad);
-          }
-          return deps;
-        }, new Set<AST_Ad>()),
-      );
-    });
-  }
-
-  public getInsightDependencies(
-    exprStr: ISDQLAnyEvaluatableString,
-  ): ResultAsync<AST_Insight[], ParserError | InvalidRegularExpression> {
-    return new Tokenizer(exprStr).all().map((tokens) => {
-      return Array.from(
-        tokens.reduce((deps, token) => {
-          if (token.type == TokenType.insight) {
-            deps.add(this.getExecutableFromContext(token) as AST_Insight);
-          }
-          return deps;
-        }, new Set<AST_Insight>()),
-      );
-    });
   }
 
   private getExecutableFromContext(token: Token): ParserContextDataTypes {
@@ -526,6 +300,128 @@ export class ExprParser {
 
     return executable;
   }
-
   // #endregion
+
+  private createIf(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): Command_IF {
+    const conditionExpr = expList[0] as Condition | AST_SubQuery;
+    const trueExpr = expList[1] as IfOperandTypes;
+    const falseExpr = (
+      expList.length > 2 ? expList[2] : null
+    ) as IfOperandTypes;
+    const id = this.getNextId(token.val);
+
+    if (conditionExpr.constructor != AST_BoolExpr) {
+      return new Command_IF(
+        SDQL_Name(id),
+        trueExpr!,
+        falseExpr,
+        new AST_BoolExpr(
+          SDQL_Name(conditionExpr.name as string),
+          conditionExpr,
+        ),
+      );
+    }
+    return new Command_IF(SDQL_Name(id), trueExpr!, falseExpr, conditionExpr);
+  }
+
+  private createExp(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_Expr {
+    const evaluator = this.tokenToExpMap.get(token.type);
+    if (evaluator) {
+      return evaluator.apply(this, [expList, token]);
+    } else {
+      const err = new MissingTokenConstructorError(
+        "No Token type constructor defined for " + token.type,
+      );
+      console.error(err);
+      throw err;
+    }
+  }
+
+  private createG(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionG(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private createGE(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionGE(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private createL(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionL(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private createLE(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionLE(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private createE(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionE(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private createAnd(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionAnd(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private createOr(
+    expList: Array<ParserContextDataTypes>,
+    token: Token,
+  ): AST_ConditionExpr {
+    const id = this.getNextId(token.val);
+    const rval = expList.pop() as ConditionOperandTypes;
+    const lval = expList.pop() as ConditionOperandTypes;
+    const condition = new ConditionOr(SDQL_OperatorName(id), lval, rval);
+    return new AST_ConditionExpr(SDQL_Name(id), condition);
+  }
+
+  private getNextId(name: string) {
+    this.id++;
+    return `${name}${this.id}`;
+  }
 }

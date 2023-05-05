@@ -1,7 +1,7 @@
 import { ERewardType } from "@objects/enum";
 import {
   ChainId,
-  CompensationId,
+  CompensationKey,
   IpfsCID,
   QueryTypes,
   URLString,
@@ -10,7 +10,7 @@ import {
 export class PossibleReward {
   constructor(
     readonly queryCID: IpfsCID,
-    readonly compensationKey: CompensationId,
+    readonly compensationKey: CompensationKey,
     readonly queryDependencies: QueryTypes[],
     readonly name: string,
     readonly image: IpfsCID | URLString | null,

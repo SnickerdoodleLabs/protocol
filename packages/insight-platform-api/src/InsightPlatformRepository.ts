@@ -16,7 +16,7 @@ import {
   IDynamicRewardParameter,
   IInsights,
   IpfsCID,
-  QueryIdentifier,
+  SubQueryKey,
   Signature,
   TokenId,
   URLString,
@@ -115,7 +115,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    answeredQueries: QueryIdentifier[],
+    answeredQueries: SubQueryKey[],
   ): ResultAsync<EligibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,

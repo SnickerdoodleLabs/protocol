@@ -14,6 +14,7 @@ export class ListExpectedError extends OperandTypeError {}
 export class URLExpectedError extends OperandTypeError {}
 
 export class EvaluationError extends Error {}
+export class SimulationError extends Error {}
 
 export class ParserError extends Error {
   constructor(position: number, message: string) {

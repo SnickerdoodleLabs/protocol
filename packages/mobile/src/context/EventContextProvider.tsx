@@ -71,8 +71,8 @@ const EventContextProvider = ({ children }) => {
                 type: EDynamicRewardParameterType.Address,
                 value: accountAddress,
               },
-              compensationId: {
-                type: EDynamicRewardParameterType.CompensationId,
+              CompensationKey: {
+                type: EDynamicRewardParameterType.CompensationKey,
                 value: eligibleReward.compensationKey,
               },
             } as IDynamicRewardParameter);

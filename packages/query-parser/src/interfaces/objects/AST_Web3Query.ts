@@ -1,12 +1,12 @@
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
   ESDQLQueryReturn,
   SDQL_Name,
   Web3QueryTypes,
   web3QueryTypes,
 } from "@snickerdoodlelabs/objects";
+import { AST_SubQuery } from "@query-parser/index.js";
 
-export abstract class AST_Web3Query extends AST_Query {
+export abstract class AST_Web3Query extends AST_SubQuery {
   constructor(
     readonly name: SDQL_Name,
     readonly returnType: ESDQLQueryReturn,

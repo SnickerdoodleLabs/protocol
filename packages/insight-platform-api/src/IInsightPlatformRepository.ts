@@ -10,7 +10,7 @@ import {
   IDynamicRewardParameter,
   IInsights,
   IpfsCID,
-  QueryIdentifier,
+  SubQueryKey,
   Signature,
   TokenId,
   URLString,
@@ -35,7 +35,7 @@ export interface IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    answeredQueries: QueryIdentifier[],
+    answeredQueries: SubQueryKey[],
   ): ResultAsync<EligibleReward[], AjaxError>;
 
   deliverInsights(

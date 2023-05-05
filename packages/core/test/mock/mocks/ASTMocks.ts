@@ -1,7 +1,12 @@
 import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  Age,
+  CountryCode,
+  DataPermissions,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
   ISDQLQueryWrapperFactory,
@@ -12,11 +17,11 @@ import * as td from "testdouble";
 
 import { ProfileService } from "@core/implementations/business";
 import {
+  BalanceQueryEvaluator,
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
-  BalanceQueryEvaluator,
 } from "@core/implementations/business/utilities/query/index.js";
 import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
 import { IProfileService } from "@core/interfaces/business/index.js";
@@ -24,18 +29,12 @@ import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepository,
   IDemographicDataRepository,
+  IPortfolioBalanceRepository,
   ISocialRepository,
+  ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-
-// const ast = new AST(
-//     Version("0.1"),
-//     "Interactions with the Avalanche blockchain for 15-year and older individuals",
-//     "Shrapnel"
-//     );
+import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 
 export class ASTMocks {
   public demoRepo = td.object<IDemographicDataRepository>();
@@ -56,10 +55,7 @@ export class ASTMocks {
 
   public constructor() {
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.queryFactories = new QueryFactories(
-      this.queryObjectFactory,
-      this.queryWrapperFactory,
-    );
+
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
     this.blockchainTransactionEvaluator =
       new BlockchainTransactionQueryEvaluator(this.txRepo);
@@ -78,16 +74,20 @@ export class ASTMocks {
       this.demoRepo,
       this.browsingRepo,
       this.txRepo,
-      this.socialRepo
+      this.socialRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
+    this.queryFactories = new QueryFactories(
+      this.queryObjectFactory,
+      this.queryWrapperFactory,
+      this.queryRepository,
+    );
   }
 
   public factory() {
     return this.queryFactories.makeAstEvaluator(
-      IpfsCID("000"),
-      null,
-      this.queryRepository,
+      IpfsCID(""),
+      DataPermissions.createWithAllPermissions(),
     );
   }
 }

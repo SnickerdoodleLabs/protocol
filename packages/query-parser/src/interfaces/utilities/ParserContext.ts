@@ -3,20 +3,17 @@ import { SDQL_Return } from "@snickerdoodlelabs/objects";
 import {
   AST_Ad,
   AST_Compensation,
-  AST_CompensationExpr,
   AST_Expr,
-  AST_Query,
-  AST_ReturnExpr,
   AST_Insight,
-} from "@query-parser/interfaces/objects";
+  AST_SubQuery,
+} from "@query-parser/index.js";
 
 export type ParserContextDataTypes =
-  | AST_Query
+  | AST_SubQuery
   | string
   | number
   | boolean
-  | Map<string, Set<AST_Query>>
-  | AST_ReturnExpr
+  | Map<string, Set<AST_SubQuery>>
   | AST_Compensation
   | AST_Ad
   | AST_Expr
@@ -29,6 +26,7 @@ export type ConditionOperandTypes =
   | AST_Expr
   | SDQL_Return
   | Array<string | number>
-  | AST_Insight;
+  | AST_Insight
+  | AST_SubQuery;
 
-export type IfOperandTypes = AST_ReturnExpr | AST_CompensationExpr | null;
+export type IfOperandTypes = AST_Expr | null;
