@@ -7,7 +7,7 @@ import {
   SDQLQueryWrapperFactory,
 } from "@query-parser/implementations";
 import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLParserFactory";
-import { ISDQLParserFactory } from "@query-parser/interfaces";
+import { ISDQLParserFactory } from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
 class SDQLQueryUtilsMocks {

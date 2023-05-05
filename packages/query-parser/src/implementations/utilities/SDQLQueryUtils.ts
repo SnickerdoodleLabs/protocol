@@ -5,12 +5,16 @@ import {
   AST_Insight,
   Command,
   Command_IF,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
   SDQLParser,
 } from "@query-parser/index.js";
+import {
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+} from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
+import {
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+} from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
 import {
   AdKey,
   CompensationKey,

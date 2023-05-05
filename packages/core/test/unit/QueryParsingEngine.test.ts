@@ -6,7 +6,6 @@ import {
   ChainId,
   CompensationKey,
   CountryCode,
-  DataPermissions,
   ERewardType,
   ExpectedReward,
   Gender,

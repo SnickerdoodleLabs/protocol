@@ -6,7 +6,6 @@ import {
   CountryCode,
   DataPermissions,
   IpfsCID,
-  SubQueryKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,

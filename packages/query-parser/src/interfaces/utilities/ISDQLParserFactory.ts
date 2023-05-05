@@ -4,8 +4,7 @@ import {
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
 
 export interface ISDQLParserFactory {
   makeParser(

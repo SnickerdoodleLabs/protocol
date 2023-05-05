@@ -1,49 +1,55 @@
-import "reflect-metadata";
 import {
   ICryptoUtils,
   ILogUtils,
   ITimeUtils,
   ObjectUtils,
-  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  AjaxError,
-  EligibleReward,
+  BlockNumber,
+  ConsentToken,
+  DataPermissions,
+  EDynamicRewardParameterType,
+  EQueryProcessingStatus,
+  ERewardType,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
-  InsightString,
-  SDQLQuery,
-  SDQLString,
-  UninitializedError,
-  DataPermissions,
-  ConsentToken,
-  TokenId,
-  IPFSError,
-  SDQLQueryRequest,
-  HexString32,
   EVMPrivateKey,
+  EarnedReward,
+  EligibleReward,
+  HexString32,
   IDynamicRewardParameter,
   IInsights,
-  EDynamicRewardParameterType,
-  QueryStatus,
-  EQueryProcessingStatus,
-  BlockNumber,
-  UnixTimestamp,
+  IPFSError,
+  InsightString,
+  IpfsCID,
   PersistenceError,
-  EarnedReward,
-  ERewardType,
+  QueryStatus,
+  SDQLQuery,
+  SDQLQueryRequest,
+  SDQLString,
+  TokenId,
+  UninitializedError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  avalanche1SchemaStr,
   ISDQLQueryWrapperFactory,
-  SDQLQueryWrapperFactory,
+  avalanche1SchemaStr,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import "reflect-metadata";
 import * as td from "testdouble";
 
+import {
+  dataWalletAddress,
+  dataWalletKey,
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks/index.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities/index.js";
 import { QueryService } from "@core/implementations/business/index.js";
 import {
   IConsentTokenUtils,
@@ -58,15 +64,6 @@ import {
   IConfigProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
-import {
-  dataWalletKey,
-  dataWalletAddress,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/index.js";
-import {
-  ConfigProviderMock,
-  ContextProviderMock,
-} from "@core-tests/mock/utilities/index.js";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
@@ -181,7 +178,8 @@ class QueryServiceMocks {
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
             val.length == 1 &&
-            val[0].CompensationKey.type == rewardParameter.CompensationKey.type &&
+            val[0].CompensationKey.type ==
+              rewardParameter.CompensationKey.type &&
             val[0].CompensationKey.value ==
               rewardParameter.CompensationKey.value &&
             val[0].recipientAddress.type ==
