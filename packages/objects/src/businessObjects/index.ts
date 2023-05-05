@@ -26,7 +26,6 @@ export * from "@objects/businessObjects/PagedResponse.js";
 export * from "@objects/businessObjects/PageInvitation.js";
 export * from "@objects/businessObjects/PagingRequest.js";
 export * from "@objects/businessObjects/PortfolioUpdate.js";
-export * from "@objects/businessObjects/QueryFilteredByPermissions.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/RSAKeyPair.js";
