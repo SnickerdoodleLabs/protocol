@@ -3,7 +3,9 @@ import {
   ISDQLCompensations,
   ISDQLInsightBlock,
 } from "@objects/interfaces";
-import { AdKey, CompensationKey, InsightKey, SubQueryKey } from "@objects/primitives";
+import { AdKey, CompensationKey, InsightKey } from "@objects/primitives";
+
+import {SubQueryKey} from "@objects/primitives/SubQueryKey.js";
 
 export class QueryFilteredByPermissions {
   public constructor(
