@@ -9,7 +9,7 @@ import {
   AST_Compensation,
   AST_Insight,
   AST_SubQuery,
-} from "@query-parser/interfaces";
+} from "@query-parser/interfaces/index.js";
 
 export class AST {
   constructor(

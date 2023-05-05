@@ -1,7 +1,7 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
+import { AST_SubQuery } from "@query-parser/index.js";
 import { AST_BoolExpr } from "@query-parser/interfaces/objects/AST_BoolExpr.js";
-import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 import { Condition } from "@query-parser/interfaces/objects/condition/Condition.js";
 
 export class AST_ConditionExpr extends AST_BoolExpr {

@@ -1,4 +1,4 @@
-import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
+import { AST_SubQuery } from "@query-parser/index.js";
 import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 import {
   ChainId,

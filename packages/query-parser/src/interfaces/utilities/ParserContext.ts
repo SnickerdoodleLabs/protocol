@@ -6,7 +6,7 @@ import {
   AST_Expr,
   AST_Insight,
   AST_SubQuery,
-} from "@query-parser/interfaces/objects";
+} from "@query-parser/index.js";
 
 export type ParserContextDataTypes =
   | AST_SubQuery
