@@ -9,6 +9,7 @@ import {
 import {
   AST_ConditionExpr,
   AST_Expr,
+  AST_RequiresExpr,
   AST_SubQuery,
   Command_IF,
   ConditionAnd,
@@ -65,12 +66,17 @@ export class AST_Evaluator {
   public evalExpr(
     expr: AST_Expr | Command_IF | Operator,
   ): ResultAsync<SDQL_Return, EvaluationError> {
+    console.log(`evalExpr expr: `);
+    console.log(expr);
     if (TypeChecker.isPrimitiveExpr(expr)) {
+      console.log(`evalExpr is primitive: ` + expr);
       return okAsync(
         SDQL_Return((expr as AST_Expr).source ?? (false as SDQL_Return)),
       );
     } else {
       const evaluator = this.expMap.get(expr.constructor);
+      console.log(`evalExpr with evaluator: `);
+      console.log(evaluator);
       if (evaluator) {
         return evaluator.apply(this, [expr]);
       } else {
@@ -83,6 +89,20 @@ export class AST_Evaluator {
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
     if (TypeChecker.isSubQuery(expr.source)) {
+      return this.evalSubQuery(expr.source as AST_SubQuery);
+    } else if (TypeChecker.isOperator(expr.source)) {
+      return this.evalOperator(expr.source as Operator);
+    } else {
+      return errAsync<SDQL_Return, EvaluationError>(
+        new EvaluationError("Condition has wrong type"),
+      );
+    }
+  }
+
+  public evalRequiresExpr(
+    expr: AST_RequiresExpr,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
+    if (TypeChecker.isInsight(expr.source)) {
       return this.evalSubQuery(expr.source as AST_SubQuery);
     } else if (TypeChecker.isOperator(expr.source)) {
       return this.evalOperator(expr.source as Operator);
