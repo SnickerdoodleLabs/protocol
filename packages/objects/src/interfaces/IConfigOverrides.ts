@@ -18,7 +18,6 @@ export interface IConfigOverrides {
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
   ceramicNodeURL?: URLString;
-  controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
@@ -26,4 +25,6 @@ export interface IConfigOverrides {
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
+  primaryInfuraKey: string;
+  devChainProviderURL?: ProviderUrl;
 }

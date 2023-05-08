@@ -11,6 +11,7 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  ProviderUrl,
   SDQLQuery,
   SDQLString,
   TokenSecret,
@@ -130,6 +131,8 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
+  "",
+  ProviderUrl(""),
 );
 
 // #endregion
