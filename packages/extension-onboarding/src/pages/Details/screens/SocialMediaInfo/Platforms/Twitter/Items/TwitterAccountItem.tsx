@@ -18,16 +18,12 @@ export const TwitterAccountItem: FC<ITwitterAccountItemProps> = memo(
     return (
       <Box mt={3} borderRadius={12} border="1px solid #D7D5D5" p={3}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" alignItems="center">
-            <img
-              src="https://www.bluestarprogramme.ie/wp-content/uploads/2019/08/2-27646_twitter-logo-png-transparent-background-logo-twitter-png.jpg"
-              height={32}
-              style={{ borderRadius: "50%" }}
-            />
-          </Box>
           <Box mt={2.5}>
+            <Typography className={classes.guildsName}>
+              {userObject.name}
+            </Typography>
             <Typography className={classes.guildsTitle}>
-              @{userObject.username}, #{userObject.id}, {userObject.name}
+              @{userObject.username}
             </Typography>
           </Box>
           <Box>
@@ -41,13 +37,24 @@ export const TwitterAccountItem: FC<ITwitterAccountItemProps> = memo(
         </Box>
 
         <Box mt={2} mb={3} className={classes.divider} />
-        <Box px={2.5}>
-          <Typography className={classes.guildsTitle}>
-          Following {followData?.following ? followData.following.length : 0} 
-          </Typography>
-          <Typography className={classes.guildsTitle}>
-          Followers {followData?.followers ? followData.followers.length : 0} 
-          </Typography>
+
+        <Box px={2.5} className={classes.fallowerMainContainer}>
+          <Box className={classes.fallowerContainer}>
+            <Typography className={classes.fallowerNumberFont}>
+              {followData?.following ? followData.following.length : 0}
+            </Typography>
+            <Typography className={classes.fallowerTextFont}>
+              Following
+            </Typography>
+          </Box>
+          <Box className={classes.fallowerContainer}>
+            <Typography className={classes.fallowerNumberFont}>
+              {followData?.followers ? followData.followers.length : 0}
+            </Typography>
+            <Typography className={classes.fallowerTextFont}>
+              Followers
+            </Typography>
+          </Box>
         </Box>
       </Box>
     );

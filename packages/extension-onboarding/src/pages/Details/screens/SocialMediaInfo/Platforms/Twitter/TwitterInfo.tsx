@@ -114,6 +114,7 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
             <Box justifyContent="center" alignItems="center">
               <Button
                 variant="outlined"
+                className={classes.linkAccountButton}
                 onClick={() =>
                   provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
                     window.open(
