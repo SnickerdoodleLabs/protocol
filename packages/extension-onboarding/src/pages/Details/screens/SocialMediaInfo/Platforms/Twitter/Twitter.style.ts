@@ -94,4 +94,26 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "160%",
     color: "#000000",
   },
+  fallowerToolTip : {
+    display: "flex",
+    flexDirection: "column",
+    justifyCntent: "center",
+    alignItems: "flex-start",
+    padding: "8px",
+    gap: "8px",
+    background: "#8079B4",
+    borderRadius: "8px",
+
+    '& .MuiTooltip-arrow': {
+      color: "#8079B4",
+      marginTop : "5px"
+    },
+    fontFamily: 'Roboto',
+    fontstyle: "normal",
+    fontWeight: 400,
+    fontSize: "12px",
+    lineHeight: "16px",
+    color: "#FFFFFF",
+
+  },
 }));

@@ -1,6 +1,6 @@
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Twitter.style";
-import { Box, Button, Typography } from "@material-ui/core";
-import { TwitterProfile } from "@snickerdoodlelabs/objects";
+import { Box, Button, Tooltip, Typography } from "@material-ui/core";
+import { TwitterFollowData, TwitterProfile } from "@snickerdoodlelabs/objects";
 import React, { FC, memo } from "react";
 
 interface ITwitterAccountItemProps {
@@ -15,6 +15,21 @@ export const TwitterAccountItem: FC<ITwitterAccountItemProps> = memo(
   }: ITwitterAccountItemProps) => {
     const classes = useStyles();
 
+    const formatter = new Intl.NumberFormat("en-GB", {
+      notation: "compact",
+      compactDisplay: "short",
+    });
+
+    const getFollowNumber = <Key extends keyof TwitterFollowData>(
+      data: TwitterFollowData | undefined,
+      key: Key,
+    ): number => {
+    
+      if (!(data && data[key])) {
+        return 0;
+      }
+      return data[key].length;
+    };
     return (
       <Box mt={3} borderRadius={12} border="1px solid #D7D5D5" p={3}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -40,17 +55,37 @@ export const TwitterAccountItem: FC<ITwitterAccountItemProps> = memo(
 
         <Box px={2.5} className={classes.fallowerMainContainer}>
           <Box className={classes.fallowerContainer}>
-            <Typography className={classes.fallowerNumberFont}>
-              {followData?.following ? followData.following.length : 0}
-            </Typography>
+            <Tooltip
+              title={
+                getFollowNumber(followData, "followers") > 9999
+                  ? getFollowNumber(followData, "followers")
+                  : ""
+              }
+              arrow
+              classes={{ tooltip: classes.fallowerToolTip }}
+            >
+              <Typography className={classes.fallowerNumberFont}>
+                {formatter.format(getFollowNumber(followData, "following"))}
+              </Typography>
+            </Tooltip>
             <Typography className={classes.fallowerTextFont}>
               Following
             </Typography>
           </Box>
           <Box className={classes.fallowerContainer}>
-            <Typography className={classes.fallowerNumberFont}>
-              {followData?.followers ? followData.followers.length : 0}
-            </Typography>
+            <Tooltip
+              title={
+                getFollowNumber(followData, "followers") > 9999
+                  ? getFollowNumber(followData, "followers")
+                  : ""
+              }
+              arrow
+              classes={{ tooltip: classes.fallowerToolTip }}
+            >
+              <Typography className={classes.fallowerNumberFont}>
+                {formatter.format(getFollowNumber(followData, "followers"))}
+              </Typography>
+            </Tooltip>
             <Typography className={classes.fallowerTextFont}>
               Followers
             </Typography>
