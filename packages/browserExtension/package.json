@@ -8,7 +8,6 @@
     "build-local": "yarn precompile && yarn compile && node utils/build.cjs local",
     "build-dev": "yarn precompile && yarn compile && node utils/build.cjs dev",
     "build-dev-webpack": "yarn precompile && yarn compile && node utils/build.cjs dev-webpack",
-
     "build-demo-01": "yarn precompile && yarn compile && node utils/build.cjs demo-01",
     "build-demo-02": "yarn precompile && yarn compile && node utils/build.cjs demo-02",
     "build-demo-03": "yarn precompile && yarn compile && node utils/build.cjs demo-03",

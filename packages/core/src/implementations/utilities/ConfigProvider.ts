@@ -146,6 +146,18 @@ export class ConfigProvider
             "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
           ),
         ],
+        [
+          EChain.Arbitrum,
+          URLString(
+            "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
+          ),
+        ],
+        [
+          EChain.Optimism,
+          URLString(
+            "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+          ),
+        ],
       ]),
       10000,
       "(localhost|chrome://)",

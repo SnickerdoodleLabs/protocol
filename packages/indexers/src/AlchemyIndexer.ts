@@ -193,6 +193,8 @@ export class AlchemyIndexer
     ).andThen((url) => {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chainId, accountAddress);
+      console.log("Chain: " + chainId + "; Native Balance request: " + url);
+
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {
@@ -201,6 +203,10 @@ export class AlchemyIndexer
         })
         .andThen((response) => {
           const weiValue = Web3.utils.hexToNumberString(response.result);
+          console.log(
+            "Chain: " + chainId + "; Native Balance response: " + weiValue,
+          );
+
           const balance = new TokenBalance(
             EChainTechnology.EVM,
             nativeTickerSymbol,
@@ -209,6 +215,9 @@ export class AlchemyIndexer
             accountAddress,
             BigNumberString(weiValue),
             getChainInfoByChainId(chainId).nativeCurrency.decimals,
+          );
+          console.log(
+            "Chain: " + chainId + "; Native Balance balance: " + balance,
           );
           return okAsync(balance);
         });
@@ -226,6 +235,7 @@ export class AlchemyIndexer
       chainId,
     ).andThen((url) => {
       // const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      console.log("Chain: " + chainId + "non nativve request: " + url);
       return this.ajaxUtils
         .post<IAlchemyNonNativeReponse>(
           new URL(url),
@@ -242,6 +252,9 @@ export class AlchemyIndexer
           },
         )
         .andThen((response) => {
+          console.log(
+            "Chain: " + chainId + "non native response: " + JSON.stringify(response),
+          );
           return ResultUtils.combine(
             response.result.tokenBalances.map((entry) => {
               const weiValue = Web3.utils.hexToNumberString(entry.tokenBalance);

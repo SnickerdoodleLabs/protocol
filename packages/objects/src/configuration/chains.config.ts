@@ -249,7 +249,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Arbitrum,
       EChainTechnology.EVM,
       true,
-      [],
+      "arbitrum",
       10000, // average block mining time
       EIndexer.Arbitrum,
       new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
@@ -267,7 +267,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Optimism,
       EChainTechnology.EVM,
       true,
-      [],
+      "optimism",
       10000, // average block mining time
       EIndexer.Optimism,
       new NativeCurrencyInformation("OP", 18, "OP", "optimism"),
