@@ -8,19 +8,9 @@ export interface IBlockchainProvider {
 
   // There is only a single signer that we will deal with, which uses the
   // derived DataWallet Key.
-  getControlSigner(): ResultAsync<Wallet, BlockchainProviderError>;
+  getPrimarySigner(): ResultAsync<Wallet, BlockchainProviderError>;
 
-  // If no chain ID is given, it returns the provider for the DoodleChain
-  getProvider(
-    chainId?: ChainId,
-  ): ResultAsync<JsonRpcProvider, BlockchainProviderError>;
-
-  getControlProvider(): ResultAsync<JsonRpcProvider, BlockchainProviderError>;
-
-  /**
-   * Returns a map of providers for all the chains we support to their chain ID.
-   */
-  getAllProviders(): ResultAsync<Map<ChainId, JsonRpcProvider>, never>;
+  getPrimaryProvider(): ResultAsync<JsonRpcProvider, BlockchainProviderError>;
 
   getLatestBlock(
     chainId?: ChainId,
