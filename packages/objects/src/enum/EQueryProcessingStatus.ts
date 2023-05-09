@@ -1,7 +1,7 @@
 export enum EQueryProcessingStatus {
-  Recieved,
-  WaitingForAds,
-  AdsCompleted,
+  Received,
+  ReadyForDelivery,
+  WaitingForAdSignatures,
   InsightsPosted,
   RewardsReceived,
   NoConsentToken,

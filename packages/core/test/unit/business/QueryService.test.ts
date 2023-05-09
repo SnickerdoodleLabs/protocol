@@ -111,16 +111,16 @@ const receivedQueryStatus = new QueryStatus(
   consentContractAddress,
   queryCID1,
   BlockNumber(345),
-  EQueryProcessingStatus.Recieved,
+  EQueryProcessingStatus.Received,
   then,
   null,
 );
 
-const adsCompletedQueryStatus = new QueryStatus(
+const ReadyForDeliveryQueryStatus = new QueryStatus(
   consentContractAddress,
   queryCID2,
   BlockNumber(123),
-  EQueryProcessingStatus.AdsCompleted,
+  EQueryProcessingStatus.ReadyForDelivery,
   then,
   ObjectUtils.serialize(rewardParameters),
 );
@@ -206,18 +206,18 @@ class QueryServiceMocks {
       okAsync(receivedQueryStatus),
     );
     td.when(this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID2)).thenReturn(
-      okAsync(adsCompletedQueryStatus),
+      okAsync(ReadyForDeliveryQueryStatus),
     );
     td.when(
       this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.Recieved,
+        EQueryProcessingStatus.Received,
       ),
     ).thenReturn(okAsync([receivedQueryStatus]));
     td.when(
       this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
+        EQueryProcessingStatus.ReadyForDelivery,
       ),
-    ).thenReturn(okAsync([adsCompletedQueryStatus]));
+    ).thenReturn(okAsync([ReadyForDeliveryQueryStatus]));
     td.when(
       this.sdqlQueryRepo.upsertQueryStatus([
         td.matchers.contains(
@@ -225,7 +225,7 @@ class QueryServiceMocks {
             receivedQueryStatus.consentContractAddress,
             receivedQueryStatus.queryCID,
             receivedQueryStatus.receivedBlock,
-            EQueryProcessingStatus.AdsCompleted,
+            EQueryProcessingStatus.ReadyForDelivery,
             receivedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
           ),
@@ -238,9 +238,9 @@ class QueryServiceMocks {
           new QueryStatus(
             consentContractAddress,
             queryCID2,
-            adsCompletedQueryStatus.receivedBlock,
+            ReadyForDeliveryQueryStatus.receivedBlock,
             EQueryProcessingStatus.RewardsReceived,
-            adsCompletedQueryStatus.expirationDate,
+            ReadyForDeliveryQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
           ),
         ),
@@ -354,7 +354,7 @@ describe("QueryService.approveQuery() tests", () => {
             consentContractAddress,
             queryCID1,
             BlockNumber(1),
-            EQueryProcessingStatus.AdsCompleted,
+            EQueryProcessingStatus.ReadyForDelivery,
             now,
             ObjectUtils.serialize(rewardParameters),
           ),
@@ -457,13 +457,13 @@ describe("QueryService.returnQueries() tests", () => {
       consentContractAddress,
       queryCID2,
       BlockNumber(123),
-      EQueryProcessingStatus.AdsCompleted,
+      EQueryProcessingStatus.ReadyForDelivery,
       then,
       null,
     );
     td.when(
       mocks.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
+        EQueryProcessingStatus.ReadyForDelivery,
       ),
     ).thenReturn(okAsync([queryStatus]));
 

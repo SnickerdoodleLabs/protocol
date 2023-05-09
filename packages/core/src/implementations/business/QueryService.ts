@@ -169,7 +169,7 @@ export class QueryService implements IQueryService {
             requestForData.consentContractAddress,
             requestForData.requestedCID,
             requestForData.blockNumber,
-            EQueryProcessingStatus.Recieved,
+            EQueryProcessingStatus.Received,
             queryWrapper.expiry,
             null,
           ),
@@ -231,7 +231,7 @@ export class QueryService implements IQueryService {
               consentContractAddress,
               query.cid,
               BlockNumber(1),
-              EQueryProcessingStatus.AdsCompleted,
+              EQueryProcessingStatus.ReadyForDelivery,
               this.timeUtils.getUnixNow(),
               ObjectUtils.serialize(rewardParameters),
             ),
@@ -241,7 +241,7 @@ export class QueryService implements IQueryService {
         // Update the query status and store the reward parameters
         // TODO: We're skipping over the WaitingForAds status because we need to process
         // the query for ads here.
-        queryStatus.status = EQueryProcessingStatus.AdsCompleted;
+        queryStatus.status = EQueryProcessingStatus.ReadyForDelivery;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
         return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]);
       });
@@ -272,7 +272,7 @@ export class QueryService implements IQueryService {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.AdsCompleted,
+        EQueryProcessingStatus.ReadyForDelivery,
       ),
     ])
       .andThen(([context, config, queryStatii]) => {
@@ -524,5 +524,15 @@ export class QueryService implements IQueryService {
         expectedRewardKeysSet.has(elem.compensationKey),
       )
     );
+  }
+
+  private changeQueryStatus(
+    queryStatus: QueryStatus,
+    newStatus: EQueryProcessingStatus,
+  ): ResultAsync<void, Error> {
+    return this.contextProvider.getContext().map((context) => {
+      queryStatus.status = newStatus;
+      context.publicEvents.onQueryStatusChanged.next(queryStatus);
+    });
   }
 }

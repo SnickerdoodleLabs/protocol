@@ -18,6 +18,7 @@ import {
   TokenBalance,
   WalletNFT,
   DataPermissionsUpdatedEvent,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -41,6 +42,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsRevoked: Subject<DomainName>;
   public onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
   public onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
+  public onQueryStatusChanged: Subject<QueryStatus>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -62,5 +64,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsRevoked = new Subject();
     this.onSocialProfileLinked = new Subject();
     this.onSocialProfileUnlinked = new Subject();
+    this.onQueryStatusChanged = new Subject();
   }
 }
