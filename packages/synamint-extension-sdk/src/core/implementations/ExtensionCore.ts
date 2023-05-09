@@ -33,12 +33,11 @@ import {
   IAccountCookieUtilsType,
   IErrorUtils,
   IErrorUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities";
-import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
-import {
   IConfigProvider,
   IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
+import { IExtensionConfigOverrides } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -46,7 +45,7 @@ export class ExtensionCore {
   // snickerdooldle Core
   protected core: ISnickerdoodleCore;
 
-  constructor() {
+  constructor(configOverrides: IExtensionConfigOverrides) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
@@ -54,6 +53,9 @@ export class ExtensionCore {
 
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+    // override configs
+    configProvider.setConfigOverrides(configOverrides);
+
     const config = configProvider.getConfig();
 
     const SIX_HOURS_MS = 21600000;
