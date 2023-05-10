@@ -185,12 +185,21 @@ describe("Logical Operand tests", () => {
       // Act
       await testCondition(astEvaluator, cond, expected);
     });
-    test("eq with null is false", async () => {
+    test("eq with immediate types", async () => {
       // Arrange
       const mocks = new ASTMocks();
       const astEvaluator = mocks.factory();
 
-      const testCases = [[true, null, false]];
+      const testCases = [
+        [true, 10, false],
+        [10, 10, true],
+        [10, 11, false],
+        [10, "10", false],
+        [10, "hello", false],
+        [10, [10], false],
+        ["hello", "hello", true],
+        ["hello", "hell", false],
+      ];
 
       const testResults = await Promise.all(
         testCases.map(async (testCase) => {
@@ -214,7 +223,6 @@ describe("Logical Operand tests", () => {
       );
       testResults.map((v) => expect(v).toBeTruthy());
     });
-
   });
 
   test("anything with null is false", async () => {
@@ -224,7 +232,11 @@ describe("Logical Operand tests", () => {
 
     const testCases = [
       [true, null, false],
-      [true, null, false],
+      [null, null, false],
+      [null, false, false],
+      [null, [], false],
+      [null, "Hello", false],
+      [10, null, false],
     ] as [ConditionOperandTypes, ConditionOperandTypes, boolean][];
 
     const testResultPromies = testCases.map(async (testCase) => {
@@ -241,6 +253,9 @@ describe("Logical Operand tests", () => {
       return val;
     });
 
-    (await Promise.all(testResultPromies)).map((v) => expect(v).toBeTruthy());
+    const received = await Promise.all(testResultPromies);
+    received.map((val, idx) => {
+      expect(val).toBe(testCases[idx][2]);
+    });
   });
 });
