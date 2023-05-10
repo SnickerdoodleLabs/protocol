@@ -24,9 +24,9 @@ import {
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class AST_Evaluator {
   readonly operatorMap = new Map<Function, Function>();
@@ -194,6 +194,43 @@ export class AST_Evaluator {
       return vals.map((val) => {
         if (val == null) {
           return SDQL_Return(false);
+        }
+        return val;
+      });
+    });
+  }
+
+  /***
+   * comparison operators keeps nulls as nulls
+   */
+  public evalComparisonOperands(
+    vals: (ConditionOperandTypes | null)[],
+  ): ResultAsync<SDQL_Return[], EvaluationError> {
+    return ResultUtils.combine(
+      vals.map((val) => {
+        return this.evalAny(val);
+      }),
+    );
+  }
+
+  /***
+   * Returns false if an operand is null or false. Returns true otherwise
+   */
+  public evalLogicalOperands(
+    vals: (ConditionOperandTypes | null)[],
+  ): ResultAsync<SDQL_Return[], EvaluationError> {
+    return ResultUtils.combine(
+      vals.map((val) => {
+        return this.evalAny(val);
+      }),
+    ).map((vals) => {
+      return vals.map((val) => {
+        if (val == null) {
+          return SDQL_Return(false);
+        }
+
+        if (val !== false) {
+          return SDQL_Return(true);
         }
         return val;
       });
