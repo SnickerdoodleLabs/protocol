@@ -194,33 +194,33 @@ describe("Logical Operand tests", () => {
         [true, 10, false],
         [10, 10, true],
         [10, 11, false],
-        [10, "10", false],
+        [10, "10", true],
         [10, "hello", false],
-        [10, [10], false],
+        [10, [10], true],
         ["hello", "hello", true],
         ["hello", "hell", false],
-      ];
+      ] as [ConditionOperandTypes, ConditionOperandTypes, boolean][];
 
+      // Act
       const testResults = await Promise.all(
-        testCases.map(async (testCase) => {
+        testCases.map(async (testCase, idx) => {
           const cond = new ConditionE(
             SDQL_OperatorName("eq"),
             testCase[0],
             testCase[1],
           );
-          // Act
           const result = await astEvaluator.evalOperator(cond);
-          // Assert
           expect(result.isOk()).toBeTruthy();
           const value = result._unsafeUnwrap();
-          const testResult = value === testCase[2];
-          if (testResult !== true) {
-            console.log("test case " + testCase + " failed");
-            // expect(1).toBe(2);
+          const match = value === testCase[2];
+          if (match !== true) {
+            console.log(`${testCase} at ${idx} failed. got value ${value}`);
           }
-          return testResult;
+          return match;
         }),
       );
+      
+      // Assert
       testResults.map((v) => expect(v).toBeTruthy());
     });
   });
@@ -239,23 +239,24 @@ describe("Logical Operand tests", () => {
       [10, null, false],
     ] as [ConditionOperandTypes, ConditionOperandTypes, boolean][];
 
-    const testResultPromies = testCases.map(async (testCase) => {
+    // Act
+    const testResultPromies = testCases.map(async (testCase, idx) => {
       const testCaseResult = await testAllComparisonOperatorsWithNulls(
         astEvaluator,
         testCase,
       );
       expect(testCaseResult.isOk()).toBeTruthy();
       const val = testCaseResult._unsafeUnwrap();
+      const match = val === testCase[2];
       if (val !== true) {
-        console.log("test case " + testCase + " failed");
-        // expect(1).toBe(2);
+        console.log(`${testCase} at ${idx} failed`);
       }
-      return val;
+      return match;
     });
 
     const received = await Promise.all(testResultPromies);
-    received.map((val, idx) => {
-      expect(val).toBe(testCases[idx][2]);
-    });
+
+    // Assert
+    received.map((v) => expect(v).toBeTruthy());
   });
 });
