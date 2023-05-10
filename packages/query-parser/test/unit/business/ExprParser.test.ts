@@ -136,7 +136,7 @@ describe("Postfix to AST", () => {
     const and = expr.source as ConditionAnd;
     expect(and.lval).toEqual(mocks.context!.get("q1"));
 
-    expect(and.rval.constructor).toBe(AST_ConditionExpr);
+    expect(and.rval!.constructor).toBe(AST_ConditionExpr);
     const orExpr = and.rval as AST_ConditionExpr;
 
     expect(orExpr.source.constructor).toBe(ConditionOr);
@@ -193,7 +193,7 @@ describe("Postfix to AST", () => {
     const mainAndLval = mainAnd.lval as AST_ConditionExpr;
     expect(mainAndLval.source.constructor).toBe(ConditionAnd);
 
-    expect(mainAnd.rval.constructor).toBe(AST_ConditionExpr);
+    expect(mainAnd.rval!.constructor).toBe(AST_ConditionExpr);
     const mainAndRval = mainAnd.rval as AST_ConditionExpr;
     expect(mainAndRval.source.constructor).toBe(ConditionOr);
     const or = mainAndRval.source as ConditionOr;
@@ -269,7 +269,7 @@ describe("Postfix to AST", () => {
     const leftAnd = mainAndLval.source as ConditionAnd;
     expect(leftAnd.lval!).toEqual(mocks.context!.get("a1"));
 
-    expect(leftAnd.rval.constructor).toBe(AST_ConditionExpr);
+    expect(leftAnd.rval!.constructor).toBe(AST_ConditionExpr);
     const leftAndRvalExpr = leftAnd.rval as AST_ConditionExpr;
 
     expect(leftAndRvalExpr.source.constructor).toBe(ConditionL);
@@ -277,7 +277,7 @@ describe("Postfix to AST", () => {
 
     expect(insightComparison.lval).toEqual(mocks.context!.get("i1"));
 
-    expect(mainAnd.rval.constructor).toBe(AST_ConditionExpr);
+    expect(mainAnd.rval!.constructor).toBe(AST_ConditionExpr);
     const mainAndRval = mainAnd.rval as AST_ConditionExpr;
     expect(mainAndRval.source.constructor).toBe(ConditionOr);
     const or = mainAndRval.source as ConditionOr;

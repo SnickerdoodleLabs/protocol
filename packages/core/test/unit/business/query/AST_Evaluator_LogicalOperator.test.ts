@@ -251,4 +251,140 @@ describe("Logical Operand tests", () => {
       await testCondition(astEvaluator, cond, expected);
     });
   });
+  describe("Or tests", () => {
+    test("true or true == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(SDQL_OperatorName("and"), true, true);
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+    test("true or false == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(SDQL_OperatorName("and"), true, false);
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("true or null == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        true,
+        SDQL_Return(null),
+      );
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("null or false == false", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        SDQL_Return(null),
+        false,
+      );
+      const expected = SDQL_Return(false);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("null or null == false", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        SDQL_Return(null),
+        SDQL_Return(null),
+      );
+      const expected = SDQL_Return(false);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("true or string == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        true,
+        SDQL_Return("Hello"),
+      );
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("false or string == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        false,
+        SDQL_Return("Hello"),
+      );
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("array or string == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        SDQL_Return([]),
+        SDQL_Return("Hello"),
+      );
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+
+    test("array or null == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionOr(
+        SDQL_OperatorName("and"),
+        SDQL_Return([]),
+        SDQL_Return(null),
+      );
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
+  });
 });
