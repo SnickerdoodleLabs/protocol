@@ -11,13 +11,17 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  ProviderUrl,
   SDQLQuery,
   SDQLString,
   TokenSecret,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
-import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  MetatransactionGasAmounts,
+} from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
   "ExternalAccountAddress1",
@@ -120,6 +124,15 @@ export const testCoreConfig = new CoreConfig(
   testDiscordConfig,
   testTwitterConfig,
   60000, // heartbeatIntervalMS
+  new MetatransactionGasAmounts(
+    10000000, // createCrumbGas
+    10000000, // removeCrumbGas,
+    10000000, // optInGas
+    10000000, // optOutGas
+    10000000, // updateAgreementFlagsGas
+  ), // metatransactionGasAmounts
+  "",
+  ProviderUrl(""),
 );
 
 // #endregion

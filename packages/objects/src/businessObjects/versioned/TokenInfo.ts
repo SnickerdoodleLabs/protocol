@@ -2,7 +2,7 @@ import { TokenAddress } from "@objects/businessObjects/TokenAddress";
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject";
 import { EChain } from "@objects/enum";
 import { TickerSymbol } from "@objects/primitives";
 

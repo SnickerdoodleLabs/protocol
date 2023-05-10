@@ -17,7 +17,10 @@ import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  MetatransactionGasAmounts,
+} from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
 /**
@@ -150,6 +153,15 @@ export class ConfigProvider
       discordConfig,
       twitterConfig,
       60000, // heartbeatIntervalMS
+      new MetatransactionGasAmounts(
+        10000000, // createCrumbGas
+        10000000, // removeCrumbGas,
+        10000000, // optInGas
+        10000000, // optOutGas
+        10000000, // updateAgreementFlagsGas
+      ),
+      "a8ae124ed6aa44bb97a7166cda30f1bc",
+      ProviderUrl("http://127.0.0.1:8545"),
     );
   }
 
@@ -185,10 +197,9 @@ export class ConfigProvider
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
     if (this.config.controlChainId == EChain.DevDoodle) {
-      this.config.controlChainInformation.providerUrls = [
-        overrides.controlChainProviderURL ||
-          ProviderUrl("http://127.0.0.1:8545"),
-      ];
+      this.config.devChainProviderURL =
+        overrides.devChainProviderURL ||
+        ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
@@ -215,7 +226,8 @@ export class ConfigProvider
     this.config.nftScanApiKey =
       overrides.nftScanApiKey ?? this.config.nftScanApiKey;
     this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
-    this.config.oklinkApiKey = overrides.oklinkApiKey ?? this.config.oklinkApiKey;
+    this.config.oklinkApiKey =
+      overrides.oklinkApiKey ?? this.config.oklinkApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -242,5 +254,7 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
+    this.config.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
   }
 }

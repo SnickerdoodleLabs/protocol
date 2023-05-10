@@ -45,7 +45,7 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getControlProvider(),
+      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
     ]).map(([provider, config]) => {
       return new ConsentFactoryContract(
@@ -61,7 +61,7 @@ export class ContractFactory implements IContractFactory {
     IConsentContract[],
     BlockchainProviderError | UninitializedError
   > {
-    return this.blockchainProvider.getControlProvider().map((provider) => {
+    return this.blockchainProvider.getPrimaryProvider().map((provider) => {
       return consentContractAddresses.map((consentContractAddress) => {
         return new ConsentContract(
           provider,
@@ -77,7 +77,7 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getControlProvider(),
+      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
     ]).map(([provider, config]) => {
       return new CrumbsContract(
@@ -92,7 +92,7 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getControlProvider(),
+      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
     ]).map(([provider, config]) => {
       return new MinimalForwarderContract(
@@ -107,11 +107,11 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getAllProviders(),
+      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
     ]).map(([provider, config]) => {
       return new SiftContract(
-        provider.get(config.controlChainId)!,
+        provider,
         config.controlChainInformation.siftContractAddress,
       );
     });
