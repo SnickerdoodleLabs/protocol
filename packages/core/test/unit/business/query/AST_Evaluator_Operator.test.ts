@@ -5,9 +5,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BoolExpr,
+  Condition,
   ConditionAnd,
   ConditionOperandTypes,
   ConditionOr,
+  Operator,
 } from "@snickerdoodlelabs/query-parser";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
@@ -20,6 +22,20 @@ async function testLogicalOperands(
 ) {
   // Act
   const result = await astEvaluator.evalLogicalOperands(operands);
+
+  // Assert
+  expect(result.isOk()).toBeTruthy();
+  const value = result._unsafeUnwrap();
+  expect(value).toEqual(expected);
+}
+
+async function testCondition(
+  astEvaluator: AST_Evaluator,
+  opAst: Operator,
+  expected: SDQL_Return,
+) {
+  // Act
+  const result = await astEvaluator.evalOperator(opAst);
 
   // Assert
   expect(result.isOk()).toBeTruthy();
@@ -90,5 +106,21 @@ describe("Logical Operand tests", () => {
     ];
 
     await testLogicalOperands(astEvaluator, operands, expected);
+  });
+});
+
+describe("Logical Operand tests", () => {
+  describe("And tests", () => {
+    test("true && true == true", async () => {
+      // Arrange
+      const mocks = new ASTMocks();
+      const astEvaluator = mocks.factory();
+
+      const cond = new ConditionAnd(SDQL_OperatorName("and"), true, true);
+      const expected = SDQL_Return(true);
+
+      // Act
+      await testCondition(astEvaluator, cond, expected);
+    });
   });
 });
