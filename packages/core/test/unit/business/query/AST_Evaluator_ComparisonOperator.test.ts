@@ -1,4 +1,5 @@
 import {
+  EvaluationError,
   SDQL_Name,
   SDQL_OperatorName,
   SDQL_Return,
@@ -8,10 +9,17 @@ import {
   Condition,
   ConditionAnd,
   ConditionE,
+  ConditionG,
+  ConditionGE,
+  ConditionIn,
+  ConditionL,
+  ConditionLE,
   ConditionOperandTypes,
   ConditionOr,
   Operator,
 } from "@snickerdoodlelabs/query-parser";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
 import { ASTMocks } from "@core-tests/mock/mocks";
@@ -42,6 +50,39 @@ async function testCondition(
   expect(result.isOk()).toBeTruthy();
   const value = result._unsafeUnwrap();
   expect(value).toEqual(expected);
+}
+
+function testAllComparisonOperatorsWithNulls(
+  astEvaluator: AST_Evaluator,
+  testCase: [ConditionOperandTypes, ConditionOperandTypes, boolean],
+): ResultAsync<boolean, EvaluationError> {
+  const opClasses = [
+    ConditionE,
+    ConditionG,
+    ConditionGE,
+    ConditionL,
+    ConditionLE,
+  ];
+
+  if (Array.isArray(testCase[1])) {
+    opClasses.push(ConditionIn);
+  }
+
+  return ResultUtils.combine(
+    opClasses.map((opClass) => {
+      const opAst = new opClass(
+        SDQL_OperatorName(opClass.name),
+        testCase[0],
+        testCase[1],
+      );
+      return astEvaluator.evalOperator(opAst);
+    }),
+  ).map((opResults) => {
+    const res = opResults.reduce((prev, curr) => {
+      return prev && curr;
+    }, SDQL_Return(true));
+    return res as boolean;
+  });
 }
 
 describe("Comparison Operand tests", () => {
@@ -144,7 +185,7 @@ describe("Logical Operand tests", () => {
       // Act
       await testCondition(astEvaluator, cond, expected);
     });
-    test("anything with null is false", async () => {
+    test("eq with null is false", async () => {
       // Arrange
       const mocks = new ASTMocks();
       const astEvaluator = mocks.factory();
@@ -168,9 +209,38 @@ describe("Logical Operand tests", () => {
             console.log("test case " + testCase + " failed");
             // expect(1).toBe(2);
           }
+          return testResult;
         }),
       );
       testResults.map((v) => expect(v).toBeTruthy());
     });
+
+  });
+
+  test("anything with null is false", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
+    const testCases = [
+      [true, null, false],
+      [true, null, false],
+    ] as [ConditionOperandTypes, ConditionOperandTypes, boolean][];
+
+    const testResultPromies = testCases.map(async (testCase) => {
+      const testCaseResult = await testAllComparisonOperatorsWithNulls(
+        astEvaluator,
+        testCase,
+      );
+      expect(testCaseResult.isOk()).toBeTruthy();
+      const val = testCaseResult._unsafeUnwrap();
+      if (val !== true) {
+        console.log("test case " + testCase + " failed");
+        // expect(1).toBe(2);
+      }
+      return val;
+    });
+
+    (await Promise.all(testResultPromies)).map((v) => expect(v).toBeTruthy());
   });
 });
