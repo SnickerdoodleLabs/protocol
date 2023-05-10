@@ -215,8 +215,8 @@ export class ExprParser {
 
   public buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
     const exprTypes: Array<TokenType> = [
-        TokenType.ad,
         TokenType.query,
+        TokenType.ad,
         TokenType.insight,
         TokenType.compensation,
         TokenType.number,
@@ -247,12 +247,15 @@ export class ExprParser {
 
     const expr = expList.pop();
     if (typeof expr === "number") {
+      console.log("ExprParser buildAstFromPostfix expr is number");
       return new AST_Expr(SDQL_Name("number"), expr as number);
     }
     if (typeof expr === "string") {
+      console.log("ExprParser buildAstFromPostfix expr is string");
       return new AST_Expr(SDQL_Name("string"), expr as string);
     }
     if (typeof expr === "boolean") {
+      console.log("ExprParser buildAstFromPostfix expr is boolean");
       return new AST_BoolExpr(SDQL_Name("boolean"), expr as boolean);
     }
     if (

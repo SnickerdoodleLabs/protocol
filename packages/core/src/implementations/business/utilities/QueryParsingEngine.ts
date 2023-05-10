@@ -159,7 +159,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     QueryFormatError | QueryExpiredError | ParserError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
-      return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];
+      return [ast, this.queryFactories.makeFullAstEvaluator(cid, dataPermissions)];
     });
   }
 

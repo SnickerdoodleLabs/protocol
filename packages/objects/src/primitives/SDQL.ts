@@ -1,9 +1,10 @@
 import { Brand, make } from "ts-brand";
 
 import {
-  TokenBalance,
+  AdSignature,
   ChainTransaction,
   NftHolding,
+  TokenBalance,
 } from "@objects/businessObjects";
 import { ChainId } from "@objects/primitives/ChainId.js";
 import { URLString } from "@objects/primitives/URLString.js";
@@ -16,6 +17,7 @@ export type SDQL_Return = Brand<
   | string
   | boolean
   | number
+  | AdSignature
   | Array<any>
   | Map<URLString, number>
   | Map<ChainId, number>

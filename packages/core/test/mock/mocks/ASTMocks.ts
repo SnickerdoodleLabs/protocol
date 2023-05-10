@@ -2,11 +2,15 @@ import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  AdKey,
+  AdSignature,
   Age,
   CountryCode,
   DataPermissions,
+  EVMContractAddress,
   Gender,
   IpfsCID,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -29,6 +33,7 @@ import { IProfileService } from "@core/interfaces/business/index.js";
 import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
+  IAdDataRepository,
   IBrowsingDataRepository,
   IDemographicDataRepository,
   IPortfolioBalanceRepository,
@@ -44,6 +49,7 @@ export class ASTMocks {
   public queryObjectFactory = td.object<IQueryObjectFactory>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public socialRepo = td.object<ISocialRepository>();
+  public adRepo = td.object<IAdDataRepository>();
 
   public queryFactories: IQueryFactories;
   protected queryWrapperFactory: ISDQLQueryWrapperFactory;
@@ -67,6 +73,16 @@ export class ASTMocks {
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoRepo.getGender()).thenReturn(okAsync(Gender('female')));
     td.when(this.demoRepo.getLocation()).thenReturn(okAsync(CountryCode("1")));
+    td.when(this.adRepo.getAdSignatures()).thenReturn(
+      okAsync([
+        new AdSignature(
+          EVMContractAddress("123"),
+          IpfsCID(""),
+          AdKey("a1"),
+          Signature("dummyAdSignature"),
+        ),
+      ]),
+    );
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
@@ -83,11 +99,12 @@ export class ASTMocks {
       this.queryObjectFactory,
       this.queryWrapperFactory,
       this.queryRepository,
+      this.adRepo
     );
   }
 
   public factory() {
-    return this.queryFactories.makeAstEvaluator(
+    return this.queryFactories.makeFullAstEvaluator(
       IpfsCID(""),
       DataPermissions.createWithAllPermissions(),
     );

@@ -2,11 +2,14 @@ import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  AdKey,
+  AdSignature,
   Age,
   ChainId,
   CompensationKey,
   CountryCode,
   ERewardType,
+  EVMContractAddress,
   ExpectedReward,
   Gender,
   HexString32,
@@ -15,6 +18,7 @@ import {
   SDQLQuery,
   SDQLString,
   SDQL_Return,
+  Signature,
   SubQueryKey,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
@@ -48,6 +52,7 @@ import {
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { SnickerdoodleCore } from "@core/index";
 import {
+  IAdDataRepository,
   IBrowsingDataRepository,
   IDataWalletPersistence,
   IDemographicDataRepository,
@@ -81,6 +86,7 @@ class QueryParsingMocks {
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
+  public adRepo = td.object<IAdDataRepository>();
 
   public blockchainTransactionQueryEvaluator =
     new BlockchainTransactionQueryEvaluator(this.transactionRepo);
@@ -144,6 +150,7 @@ class QueryParsingMocks {
       this.queryObjectFactory,
       this.queryWrapperFactory,
       this.queryRepository,
+      this.adRepo,
     );
     this.adContentRepository = new AdContentRepository(
       new AjaxUtilsMock(),
@@ -153,7 +160,16 @@ class QueryParsingMocks {
     td.when(this.demoDataRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
     );
-    // td.when(this.snickerDoodleCore.getAge()).thenReturn(okAsync(Age(10)));
+    td.when(this.adRepo.getAdSignatures()).thenReturn(
+      okAsync([
+        new AdSignature(
+          EVMContractAddress("123"),
+          IpfsCID(""),
+          AdKey("a1"),
+          Signature("dummyAdSignature"),
+        ),
+      ]),
+    );
     td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(10)));
     td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
     td.when(

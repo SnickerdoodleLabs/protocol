@@ -15,7 +15,7 @@ export interface IQueryFactories {
     cid: IpfsCID,
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError>;
-  makeAstEvaluator(
+  makeFullAstEvaluator(
     cid: IpfsCID,
     dataPermissions: DataPermissions,
   ): AST_Evaluator;

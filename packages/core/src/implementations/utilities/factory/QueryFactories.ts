@@ -1,5 +1,7 @@
 import {
+  AdKey,
   DataPermissions,
+  InsightKey,
   IpfsCID,
   QueryFormatError,
   SDQLQuery,
@@ -21,6 +23,10 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/query/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
@@ -31,6 +37,8 @@ export class QueryFactories implements IQueryFactories {
     readonly queryWrapperFactory: ISDQLQueryWrapperFactory,
     @inject(IQueryRepositoryType)
     readonly queryRepository: IQueryRepository,
+    @inject(IAdDataRepositoryType)
+    readonly adRepo: IAdDataRepository,
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
@@ -54,10 +62,24 @@ export class QueryFactories implements IQueryFactories {
     }
   }
 
-  makeAstEvaluator(
+  makeFullAstEvaluator(
     cid: IpfsCID,
     dataPermissions: DataPermissions,
   ): AST_Evaluator {
-    return new AST_Evaluator(cid, this.queryRepository, dataPermissions);
+    return new AST_Evaluator(
+      undefined,
+      cid,
+      this.queryRepository,
+      this.adRepo,
+      dataPermissions,
+    );
+  }
+
+  makeAstEvaluatorForCompensations(
+    baseTruth: (AdKey | InsightKey)[]
+  ): AST_Evaluator {
+    return new AST_Evaluator(
+      baseTruth
+    );
   }
 }

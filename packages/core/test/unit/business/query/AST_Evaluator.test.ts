@@ -1,17 +1,25 @@
 import "reflect-metadata";
 
 import {
+  AdContent,
+  EAdContentType,
+  EAdDisplayType,
   ESDQLQueryReturn,
   ISDQLConditionString,
   ISDQLExpressionString,
+  IpfsCID,
   SDQL_Name,
   SDQL_OperatorName,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
+  AST_Ad,
   AST_ConditionExpr,
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
+  AST_RequiresExpr,
+  AST_ReturnsExpr,
   Command_IF,
   ConditionAnd,
   ConditionE,
@@ -23,14 +31,87 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 
 import { ASTMocks } from "@core-tests/mock/mocks";
+import { ResultUtils } from "neverthrow-result-utils";
 
-// const ast = new AST(
-//     Version("0.1"),
-//     "Interactions with the Avalanche blockchain for 15-year and older individuals",
-//     "Shrapnel"
-//     );
+describe("IF Command: evalIf()", () => {
+  // Arrange
+  const mocks = new ASTMocks();
+  const astEvaluator = mocks.factory();
 
-// #region Conditions
+  test("true q1 and true q2, return r1", async () => {
+    const and = new ConditionAnd(SDQL_OperatorName("And1"), true, true);
+    const commandIf = new Command_IF(
+      SDQL_Name("if1"),
+      new AST_ConditionExpr(SDQL_Name("1"), true),
+      new AST_ConditionExpr(SDQL_Name("2"), false),
+      new AST_ConditionExpr(SDQL_Name("cond1"), and),
+    );
+
+    const result = await astEvaluator.evalIf(commandIf);
+
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(true);
+  });
+  test("false q1 and true q2, return r2", async () => {
+    const and = new ConditionAnd(SDQL_OperatorName("And1"), false, true);
+
+    const commandIf = new Command_IF(
+      SDQL_Name("if1"),
+      new AST_ConditionExpr(SDQL_Name("1"), true),
+      new AST_ConditionExpr(SDQL_Name("2"), false),
+      new AST_ConditionExpr(SDQL_Name("cond1"), and),
+    );
+
+    const result = await astEvaluator.evalIf(commandIf);
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(false);
+  });
+  test("false q1 and false q2, return r2", async () => {
+    const and = new ConditionAnd(SDQL_OperatorName("And1"), false, false);
+
+    const commandIf = new Command_IF(
+      SDQL_Name("if1"),
+      new AST_ConditionExpr(SDQL_Name("1"), true),
+      new AST_ConditionExpr(SDQL_Name("2"), false),
+      new AST_ConditionExpr(SDQL_Name("cond1"), and),
+    );
+
+    const result = await astEvaluator.evalIf(commandIf);
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(false);
+  });
+
+  test("true q1 or true q2, return r1", async () => {
+    const or = new ConditionOr(SDQL_OperatorName("Or1"), true, true);
+
+    const commandIf = new Command_IF(
+      SDQL_Name("if1"),
+      new AST_ConditionExpr(SDQL_Name("1"), true),
+      new AST_ConditionExpr(SDQL_Name("2"), false),
+      new AST_ConditionExpr(SDQL_Name("cond1"), or),
+    );
+
+    const result = await astEvaluator.evalIf(commandIf);
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(true);
+  });
+
+  test("false q1 or false q2, return r2", async () => {
+    const or = new ConditionOr(SDQL_OperatorName("Or1"), false, false);
+
+    const commandIf = new Command_IF(
+      SDQL_Name("if1"),
+      new AST_ConditionExpr(SDQL_Name("1"), true),
+      new AST_ConditionExpr(SDQL_Name("2"), false),
+      new AST_ConditionExpr(SDQL_Name("cond1"), or),
+    );
+
+    const result = await astEvaluator.evalIf(commandIf);
+    expect(result.isOk()).toBeTruthy();
+    expect(result._unsafeUnwrap()).toEqual(false);
+  });
+});
+
 describe("Conditions", () => {
   test("boolean true and true is true", async () => {
     // Arrange
@@ -238,135 +319,246 @@ describe("Conditions", () => {
   });
 });
 
-// #region IF Command
-describe("IF Command: evalIf()", () => {
-  // Arrange
-  const mocks = new ASTMocks();
-  const astEvaluator = mocks.factory();
-
-  test("true q1 and true q2, return r1", async () => {
-    const and = new ConditionAnd(SDQL_OperatorName("And1"), true, true);
-    const commandIf = new Command_IF(
-      SDQL_Name("if1"),
-      new AST_ConditionExpr(SDQL_Name("1"), true),
-      new AST_ConditionExpr(SDQL_Name("2"), false),
-      new AST_ConditionExpr(SDQL_Name("cond1"), and),
-    );
-
-    const result = await astEvaluator.evalIf(commandIf);
-
-    expect(result.isOk()).toBeTruthy();
-    expect(result._unsafeUnwrap()).toEqual(true);
-  });
-  test("false q1 and true q2, return r2", async () => {
-    const and = new ConditionAnd(SDQL_OperatorName("And1"), false, true);
-
-    const commandIf = new Command_IF(
-      SDQL_Name("if1"),
-      new AST_ConditionExpr(SDQL_Name("1"), true),
-      new AST_ConditionExpr(SDQL_Name("2"), false),
-      new AST_ConditionExpr(SDQL_Name("cond1"), and),
-    );
-
-    const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBeTruthy();
-    expect(result._unsafeUnwrap()).toEqual(false);
-  });
-  test("false q1 and false q2, return r2", async () => {
-    const and = new ConditionAnd(SDQL_OperatorName("And1"), false, false);
-
-    const commandIf = new Command_IF(
-      SDQL_Name("if1"),
-      new AST_ConditionExpr(SDQL_Name("1"), true),
-      new AST_ConditionExpr(SDQL_Name("2"), false),
-      new AST_ConditionExpr(SDQL_Name("cond1"), and),
-    );
-
-    const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBeTruthy();
-    expect(result._unsafeUnwrap()).toEqual(false);
+describe("AST_ReturnsExpr", () => {
+  let astEvaluator;
+  beforeAll(() => {
+    astEvaluator = new ASTMocks().factory();
   });
 
-  test("true q1 or true q2, return r1", async () => {
-    const or = new ConditionOr(SDQL_OperatorName("Or1"), true, true);
+  test("Source: primitive", async () => {
+    const returns = [
+      new AST_ReturnsExpr(SDQL_Name("complex"), true),
+      new AST_ReturnsExpr(SDQL_Name("complex"), false),
+      new AST_ReturnsExpr(SDQL_Name("complex"), 10),
+      new AST_ReturnsExpr(SDQL_Name("complex"), "not qualified"),
+      new AST_ReturnsExpr(SDQL_Name("complex"), null),
+    ];
 
-    const commandIf = new Command_IF(
-      SDQL_Name("if1"),
-      new AST_ConditionExpr(SDQL_Name("1"), true),
-      new AST_ConditionExpr(SDQL_Name("2"), false),
-      new AST_ConditionExpr(SDQL_Name("cond1"), or),
+    const result = await ResultUtils.combine(
+      returns.map((ret) => astEvaluator.evalAny(ret)),
     );
-
-    const result = await astEvaluator.evalIf(commandIf);
     expect(result.isOk()).toBeTruthy();
-    expect(result._unsafeUnwrap()).toEqual(true);
-  });
 
-  test("false q1 or false q2, return r2", async () => {
-    const or = new ConditionOr(SDQL_OperatorName("Or1"), false, false);
-
-    const commandIf = new Command_IF(
-      SDQL_Name("if1"),
-      new AST_ConditionExpr(SDQL_Name("1"), true),
-      new AST_ConditionExpr(SDQL_Name("2"), false),
-      new AST_ConditionExpr(SDQL_Name("cond1"), or),
-    );
-
-    const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBeTruthy();
-    expect(result._unsafeUnwrap()).toEqual(false);
-  });
-});
-
-// #region Conditions
-describe("Insights", () => {
-  test("1", async () => {
-    // Arrange
-    const mocks = new ASTMocks();
-    const astEvaluator = mocks.factory();
-
-    const insight = new AST_Insight(
-      SDQL_Name("i1"),
-      new AST_ConditionExpr(
-        SDQL_Name(">1"),
-        new ConditionG(
-          SDQL_OperatorName(">1"),
-          new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            ESDQLQueryReturn.Integer,
-            "age",
-            [],
-          ),
-          35,
-        ),
-      ),
-      ISDQLConditionString("$q1>35"),
-      new AST_Expr(
-        SDQL_Name("complex"),
-        new ConditionE(
-          SDQL_OperatorName("==1"),
-          new AST_PropertyQuery(
-            SDQL_Name("q2"),
-            ESDQLQueryReturn.String,
-            "gender",
-            [],
-          ),
-          "nonbinary",
-        ),
-      ),
-      ISDQLExpressionString("$q2 == 'nonbinary'"),
-    );
-
-    // Act
-    const result = await astEvaluator.evalAny(insight);
-
-    // Assert
-    expect(result.isOk()).toBeTruthy();
     const value = result._unsafeUnwrap();
+    expect(value.includes(true)).toBe(true);
+    expect(value.filter((val) => val == false).length == 2).toBe(true);
+    expect(value.includes(10)).toBe(true);
+    expect(value.includes("not qualified")).toBe(true);
+  });
 
-    console.log(value);
-    // expect(value).toBeTruthy();
+  test("Source: operator", async () => {
+    const returns = new AST_ReturnsExpr(
+      SDQL_Name("complex"),
+      new ConditionE(
+        SDQL_OperatorName("==1"),
+        new AST_PropertyQuery(
+          SDQL_Name("q2"),
+          ESDQLQueryReturn.String,
+          "gender",
+          [],
+        ),
+        "nonbinary",
+      ),
+    );
+
+    const result = await astEvaluator.evalAny(returns);
+    expect(result.isOk()).toBeTruthy();
+
+    const value = result._unsafeUnwrap();
+    expect(value).toBe(false);
+  });
+
+  // Returning raw queries is not a good idea, but ...
+  test("Source: subquery", async () => {
+    const returns = new AST_ReturnsExpr(
+      SDQL_Name("complex"),
+      new AST_PropertyQuery(
+        SDQL_Name("q2"),
+        ESDQLQueryReturn.Enum,
+        "gender",
+        [],
+        ["male", "female", "nonbinary"],
+      ),
+    );
+
+    const result = await astEvaluator.evalAny(returns);
+    expect(result.isOk()).toBeTruthy();
+
+    const value = result._unsafeUnwrap();
+    expect(value).toBe("female");
   });
 });
 
-// #endregion
+describe("AST_RequiresExpr", () => {
+  let astEvaluator;
+  beforeAll(() => {
+    astEvaluator = new ASTMocks().factory();
+  });
+
+  describe("AST_RequiresExpr with Insights", () => {
+    test("1", async () => {
+      const insight = new AST_RequiresExpr(
+        SDQL_Name("c1"),
+        new AST_Insight(
+          SDQL_Name("i1"),
+          new AST_ConditionExpr(
+            SDQL_Name(">1"),
+            new ConditionG(
+              SDQL_OperatorName(">1"),
+              new AST_PropertyQuery(
+                SDQL_Name("q1"),
+                ESDQLQueryReturn.Integer,
+                "age",
+                [],
+              ),
+              35,
+            ),
+          ),
+          ISDQLConditionString("$q1>35"),
+          new AST_ReturnsExpr(
+            SDQL_Name("complex"),
+            new ConditionE(
+              SDQL_OperatorName("==1"),
+              new AST_PropertyQuery(
+                SDQL_Name("q2"),
+                ESDQLQueryReturn.String,
+                "gender",
+                [],
+              ),
+              "nonbinary",
+            ),
+          ),
+          ISDQLExpressionString("$q2 == 'nonbinary'"),
+        ),
+      );
+
+      const result = await astEvaluator.evalAny(insight);
+      expect(result.isOk()).toBeTruthy();
+
+      const value = result._unsafeUnwrap();
+      expect(value).toBe(null);
+    });
+
+    test("2", async () => {
+      const insight = new AST_RequiresExpr(
+        SDQL_Name("c1"),
+        new AST_Insight(
+          SDQL_Name("i1"),
+          new AST_ConditionExpr(
+            SDQL_Name(">1"),
+            new ConditionG(
+              SDQL_OperatorName(">1"),
+              new AST_PropertyQuery(
+                SDQL_Name("q1"),
+                ESDQLQueryReturn.Integer,
+                "age",
+                [],
+              ),
+              15,
+            ),
+          ),
+          ISDQLConditionString("$q1>35"),
+          new AST_ReturnsExpr(
+            SDQL_Name("complex"),
+            new ConditionE(
+              SDQL_OperatorName("==1"),
+              new AST_PropertyQuery(
+                SDQL_Name("q2"),
+                ESDQLQueryReturn.Enum,
+                "gender",
+                [],
+                ["male", "female", "nonbinary"],
+              ),
+              "female",
+            ),
+          ),
+          ISDQLExpressionString("$q2 == 'male'"),
+        ),
+      );
+
+      const result = await astEvaluator.evalAny(insight);
+      expect(result.isOk()).toBeTruthy();
+
+      const value = result._unsafeUnwrap();
+      expect(value).toBe(true);
+    });
+
+    test("3", async () => {
+      const insight = new AST_RequiresExpr(
+        SDQL_Name("c1"),
+        new AST_Insight(
+          SDQL_Name("i1"),
+          new AST_ConditionExpr(
+            SDQL_Name(">1"),
+            new ConditionG(
+              SDQL_OperatorName(">1"),
+              new AST_PropertyQuery(
+                SDQL_Name("q1"),
+                ESDQLQueryReturn.Integer,
+                "age",
+                [],
+              ),
+              15,
+            ),
+          ),
+          ISDQLConditionString("$q1>35"),
+          new AST_ReturnsExpr(
+            SDQL_Name("complex"),
+            new AST_PropertyQuery(
+              SDQL_Name("q2"),
+              ESDQLQueryReturn.Enum,
+              "gender",
+              [],
+              ["male", "female", "nonbinary"],
+            ),
+          ),
+          ISDQLExpressionString("$q2"),
+        ),
+      );
+
+      const result = await astEvaluator.evalAny(insight);
+      expect(result.isOk()).toBeTruthy();
+
+      const value = result._unsafeUnwrap();
+      expect(value).toBe("female");
+    });
+  });
+
+  describe("AST_RequiresExpr with ads", () => {
+    test("With a WATCHED ad", async () => {
+      const insight = new AST_RequiresExpr(
+        SDQL_Name("c1"),
+        new AST_Ad(
+          SDQL_Name("a1"),
+          SDQL_Name("a1"),
+          new AdContent(EAdContentType.IMAGE, IpfsCID("Is life a theatre?")),
+          "ads",
+          EAdDisplayType.BANNER,
+          15,
+          UnixTimestamp(123),
+          [],
+          new AST_ConditionExpr(
+            SDQL_Name(">1"),
+            new ConditionG(
+              SDQL_OperatorName(">1"),
+              new AST_PropertyQuery(
+                SDQL_Name("q1"),
+                ESDQLQueryReturn.Integer,
+                "age",
+                [],
+              ),
+              35,
+            ),
+          ),
+          ISDQLConditionString("$q1>35"),
+        ),
+      );
+
+      const result = await astEvaluator.evalAny(insight);
+      expect(result.isOk()).toBeTruthy();
+
+      const value = result._unsafeUnwrap();
+      expect(value).toBe(null);
+    });
+  });
+});

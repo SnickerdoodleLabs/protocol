@@ -33,12 +33,16 @@ import {
   AST_Insight,
   AST_PropertyQuery,
   AST_RequiresExpr,
+  AST_ReturnsExpr,
   AST_SubQuery,
   AST_Web3Query,
+  Command_IF,
   Condition,
   ExprParser,
   IQueryObjectFactory,
   ParserContextDataTypes,
+  RequiresExprSourceTypes,
+  ReturnsExprAllowedTypes,
   SDQLQueryWrapper,
 } from "@query-parser/index.js";
 
@@ -355,11 +359,17 @@ export class SDQLParser {
         return this.transformError(error);
       })
       .map(([targetAst, returnsAst]) => {
+        if (returnsAst instanceof AST_Expr) {
+          returnsAst = new AST_ReturnsExpr(
+            returnsAst.name,
+            returnsAst.source as ReturnsExprAllowedTypes
+          );
+        }
         return new AST_Insight(
           name,
           targetAst as AST_ConditionExpr,
           schema.target!,
-          returnsAst as AST_Expr,
+          returnsAst as AST_ReturnsExpr,
           schema.returns,
         );
       });
@@ -406,6 +416,12 @@ export class SDQLParser {
         return this.transformError(error);
       })
       .map((ast) => {
+        if (ast instanceof AST_ConditionExpr) {
+          ast = new AST_RequiresExpr(
+            ast.name,
+            ast.source as RequiresExprSourceTypes
+          );
+        }
         return new AST_Compensation(
           name,
           schema.description,
