@@ -84,7 +84,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Sepolia,
       EChainTechnology.EVM,
       true,
-      [],
+      "sepolia",
       10000,
       EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
