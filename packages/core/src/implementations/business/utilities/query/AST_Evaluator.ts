@@ -24,9 +24,9 @@ import {
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class AST_Evaluator {
   readonly operatorMap = new Map<Function, Function>();
@@ -108,54 +108,62 @@ export class AST_Evaluator {
   private evalAnd(
     cond: ConditionAnd,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval && rval);
-    });
+    return this.evalLogicalOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval && rval);
+      },
+    );
   }
-  private evalOr(
-    cond: ConditionAnd,
-  ): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval || rval);
-    });
+  private evalOr(cond: ConditionOr): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalLogicalOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval || rval);
+      },
+    );
   }
-  private evalE(cond: ConditionAnd): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval == rval);
-    });
+  private evalE(cond: ConditionE): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalComparisonOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval == rval);
+      },
+    );
   }
-  private evalG(cond: ConditionAnd): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval > rval);
-    });
+  private evalG(cond: ConditionG): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalComparisonOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval > rval);
+      },
+    );
   }
-  private evalGE(
-    cond: ConditionAnd,
-  ): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval >= rval);
-    });
+  private evalGE(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalComparisonOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval >= rval);
+      },
+    );
   }
-  private evalL(cond: ConditionAnd): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval < rval);
-    });
+  private evalL(cond: ConditionL): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalComparisonOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval < rval);
+      },
+    );
   }
-  private evalLE(
-    cond: ConditionAnd,
-  ): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(lval <= rval);
-    });
+  private evalLE(cond: ConditionLE): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalComparisonOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(lval <= rval);
+      },
+    );
   }
-  private evalIn(
-    cond: ConditionAnd,
-  ): ResultAsync<SDQL_Return, EvaluationError> {
-    return this._evalOperands(cond.lval, cond.rval).map(([lval, rval]) => {
-      return SDQL_Return(
-        (rval as Array<string | number | SDQL_Return>).includes(lval),
-      );
-    });
+  private evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalComparisonOperands([cond.lval, cond.rval]).map(
+      ([lval, rval]) => {
+        return SDQL_Return(
+          (rval as Array<string | number | SDQL_Return>).includes(lval),
+        );
+      },
+    );
   }
 
   public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
@@ -183,8 +191,24 @@ export class AST_Evaluator {
     return this.queryRepository.get(this.cid, q, this.dataPermissions);
   }
 
-  private _evalOperands(
-    ...vals: (ConditionOperandTypes | null)[]
+  /***
+   * comparison operators keeps nulls as nulls
+   */
+  public evalComparisonOperands(
+    vals: (ConditionOperandTypes | null)[],
+  ): ResultAsync<SDQL_Return[], EvaluationError> {
+    return ResultUtils.combine(
+      vals.map((val) => {
+        return this.evalAny(val);
+      }),
+    );
+  }
+
+  /***
+   * Returns false if an operand is null or false. Returns true otherwise
+   */
+  public evalLogicalOperands(
+    vals: (ConditionOperandTypes | null)[],
   ): ResultAsync<SDQL_Return[], EvaluationError> {
     return ResultUtils.combine(
       vals.map((val) => {
@@ -194,6 +218,10 @@ export class AST_Evaluator {
       return vals.map((val) => {
         if (val == null) {
           return SDQL_Return(false);
+        }
+
+        if (val !== false) {
+          return SDQL_Return(true);
         }
         return val;
       });
