@@ -73,7 +73,7 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
     signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
-    return this.writeToContract("execute", [request, signature, overrides]);
+    return this.writeToContract("execute", [request, signature], overrides);
   }
 
   public getContract(): ethers.Contract {
@@ -84,11 +84,12 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
     return ResultAsync.fromPromise(
-      this.contract[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new MinimalForwarderContractError(
           `Unable to call ${functionName}()`,

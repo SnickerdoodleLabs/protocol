@@ -45,7 +45,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     name: string,
     symbol: string,
     baseURI: BaseURI,
-    overrides: ContractOverrides | null = null,
+    overrides: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
     return GasUtils.getGasFee<RewardsFactoryError>(
       this.providerOrSigner,
@@ -54,12 +54,11 @@ export class RewardsContractFactory implements IRewardsContractFactory {
         ...gasFee,
         ...overrides,
       };
-      return this.writeToContract("deploy", [
-        name,
-        symbol,
-        baseURI,
+      return this.writeToContract(
+        "deploy",
+        [name, symbol, baseURI],
         contractOverrides,
-      ]);
+      );
     });
   }
 
@@ -89,11 +88,12 @@ export class RewardsContractFactory implements IRewardsContractFactory {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
     return ResultAsync.fromPromise(
-      this.contractFactory[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contractFactory[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new RewardsFactoryError(
           `Unable to call ${functionName}()`,
