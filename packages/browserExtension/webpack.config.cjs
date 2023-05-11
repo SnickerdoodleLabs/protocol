@@ -163,9 +163,6 @@ var options = {
       __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
       ),
-      __CONTROL_CHAIN_PROVIDER_URL__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_PROVIDER_URL__,
-      ),
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
@@ -205,6 +202,12 @@ var options = {
       ),
       __TWITTER_POLL_INTERVAL__: JSON.stringify(
         process.env.__TWITTER_POLL_INTERVAL__,
+      ),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
+        process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
     }),
 

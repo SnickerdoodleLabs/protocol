@@ -11,6 +11,7 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  ProviderUrl,
   SDQLQuery,
   SDQLString,
   TokenSecret,
@@ -114,6 +115,8 @@ export const testCoreConfig = new CoreConfig(
     [EChain.SolanaTestnet, URLString("")],
     [EChain.Polygon, URLString("")],
     [EChain.Mumbai, URLString("")],
+    [EChain.Arbitrum, URLString("")],
+    [EChain.Optimism, URLString("")],
   ]),
   10000,
   "(localhost|chrome://)",
@@ -130,6 +133,8 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
+  "",
+  ProviderUrl(""),
 );
 
 // #endregion

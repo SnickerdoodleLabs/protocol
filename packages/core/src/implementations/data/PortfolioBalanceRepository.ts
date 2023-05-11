@@ -242,6 +242,16 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Arbitrum:
+              return alchemyRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Optimism:
+              return alchemyRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             default:
               return errAsync(
                 new AccountIndexingError(
@@ -421,6 +431,16 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Moonbeam:
+              return nftScanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Arbitrum:
+              return nftScanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Optimism:
               return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,

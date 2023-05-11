@@ -116,6 +116,8 @@ export class ConfigProvider
         [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
         [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
         [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
+        [ChainId(10), "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3"],
+        [ChainId(42161), "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV"],
       ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
@@ -144,6 +146,18 @@ export class ConfigProvider
             "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
           ),
         ],
+        [
+          EChain.Arbitrum,
+          URLString(
+            "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
+          ),
+        ],
+        [
+          EChain.Optimism,
+          URLString(
+            "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
+          ),
+        ],
       ]),
       10000,
       "(localhost|chrome://)",
@@ -160,6 +174,8 @@ export class ConfigProvider
         10000000, // optOutGas
         10000000, // updateAgreementFlagsGas
       ),
+      "a8ae124ed6aa44bb97a7166cda30f1bc",
+      ProviderUrl("http://127.0.0.1:8545"),
     );
   }
 
@@ -195,10 +211,9 @@ export class ConfigProvider
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
     if (this.config.controlChainId == EChain.DevDoodle) {
-      this.config.controlChainInformation.providerUrls = [
-        overrides.controlChainProviderURL ||
-          ProviderUrl("http://127.0.0.1:8545"),
-      ];
+      this.config.devChainProviderURL =
+        overrides.devChainProviderURL ||
+        ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
@@ -225,7 +240,8 @@ export class ConfigProvider
     this.config.nftScanApiKey =
       overrides.nftScanApiKey ?? this.config.nftScanApiKey;
     this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
-    this.config.oklinkApiKey = overrides.oklinkApiKey ?? this.config.oklinkApiKey;
+    this.config.oklinkApiKey =
+      overrides.oklinkApiKey ?? this.config.oklinkApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -252,5 +268,7 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
+    this.config.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
   }
 }

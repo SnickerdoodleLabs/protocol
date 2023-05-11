@@ -31,8 +31,6 @@ import {
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
@@ -42,8 +40,6 @@ import {
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
   public constructor(
-    @inject(IBlockchainProviderType)
-    protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IContractFactoryType)
     protected consentContractFactory: IContractFactory,
@@ -313,12 +309,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public isOpenOptInDisabled(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     boolean,
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.openOptInDisabled();
       },
@@ -326,12 +322,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getSignerRoleMembers(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.getSignerRoleMembers();
       },
