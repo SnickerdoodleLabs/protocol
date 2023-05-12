@@ -252,6 +252,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Astar:
+              return alchemyRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             default:
               return errAsync(
                 new AccountIndexingError(
@@ -445,6 +450,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Astar:
+              return okAsync([]);
             default:
               return errAsync(
                 new AccountIndexingError(

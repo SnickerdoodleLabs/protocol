@@ -158,6 +158,12 @@ export class ConfigProvider
             "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
           ),
         ],
+        [
+          EChain.Astar,
+          URLString(
+            "https://astar-mainnet.g.alchemy.com/v2/Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
+          ),
+        ],
       ]),
       10000,
       "(localhost|chrome://)",
