@@ -13,4 +13,6 @@ export enum EChain {
   Gnosis = 100,
   Binance = 56,
   Moonbeam = 1284,
+  Arbitrum = 42161,
+  Optimism = 10,
 }

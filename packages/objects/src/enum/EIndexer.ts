@@ -8,4 +8,6 @@ export enum EIndexer {
   Gnosis = 6,
   Binance = 7,
   Moonbeam = 8,
+  Arbitrum = 9,
+  Optimism = 10,
 }

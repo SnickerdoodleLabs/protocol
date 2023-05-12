@@ -148,6 +148,18 @@ module.exports = {
       chainId: 1284,
       url: urlOverride || "http://127.0.0.1:8549",
     },
+    arbitrum: {
+      // arbitrum mainnet - ARB
+      accounts: accounts,
+      chainId: 42161,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
+    optimism: {
+      // optimism mainnet - OP
+      accounts: accounts,
+      chainId: 10,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
   },
   gasReporter: {
     enabled: true,
