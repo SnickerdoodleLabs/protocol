@@ -17,4 +17,3 @@ export const web3QueryTypes = ["nft", "network"] as const;
 export type Web3QueryTypes = (typeof web3QueryTypes)[number];
 
 export type QueryTypes = Web2QueryTypes | Web3QueryTypes;
-
