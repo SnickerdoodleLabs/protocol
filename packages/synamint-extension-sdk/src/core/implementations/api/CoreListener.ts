@@ -1,7 +1,7 @@
 import {
   DataWalletAddress,
   EarnedReward,
-  EDynamicRewardParameterType,
+  ESolidityAbiParameterType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -108,11 +108,11 @@ export class CoreListener implements ICoreListener {
           if (request.dataWalletAddress !== null) {
             parameters.push({
               recipientAddress: {
-                type: EDynamicRewardParameterType.Address,
+                type: ESolidityAbiParameterType.address,
                 value: accountAddress,
               },
               compensationId: {
-                type: EDynamicRewardParameterType.CompensationId,
+                type: ESolidityAbiParameterType.string,
                 value: eligibleReward.compensationKey,
               },
             } as IDynamicRewardParameter);
