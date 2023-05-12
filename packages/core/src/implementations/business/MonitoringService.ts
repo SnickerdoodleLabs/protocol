@@ -205,6 +205,7 @@ export class MonitoringService implements IMonitoringService {
           case EIndexer.Optimism:
             return okAsync([]);
           case EIndexer.Astar:
+            /* Waiting for Nft reponse service */
             return okAsync([]);
           default:
             this.logUtils.error(
