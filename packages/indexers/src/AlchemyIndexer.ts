@@ -56,6 +56,9 @@ export class AlchemyIndexer
       this.getNonNativeBalance(chainId, accountAddress),
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+      if (nonNativeBalance.length == 0) {
+        return [nativeBalance];
+      }
       return [nativeBalance, ...nonNativeBalance];
     });
   }
@@ -151,6 +154,17 @@ export class AlchemyIndexer
           TickerSymbol("MATIC"),
           ChainId(80001),
         ];
+      case EChain.Astar:
+        return [
+          JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            params: [accountAddress, "latest"],
+            method: "eth_getBalance",
+          }),
+          TickerSymbol("ASTR"),
+          ChainId(592),
+        ];
       default:
         return [
           JSON.stringify({
@@ -219,6 +233,10 @@ export class AlchemyIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    if (chainId == ChainId(592) || chainId == ChainId(80001)) {
+      return okAsync([]);
+    }
+
     const chainInfo = getChainInfoByChainId(chainId);
     // return okAsync([]);
     return this.retrieveAlchemyUrl(
