@@ -1,5 +1,5 @@
-import { InsightString } from "@objects/primitives/InsightString.js";
+import { IInsightWithProof } from "@objects/interfaces/IInsightWithProof.js";
 
 export interface IQueryDeliveryInsights {
-  [insightKey: string]: InsightString | null;
+  [insightKey: string]: IInsightWithProof | null;
 }

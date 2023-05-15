@@ -56,6 +56,7 @@ export * from "@objects/primitives/OAuthAuthorizationCode.js";
 export * from "@objects/primitives/OAuthRelatedTypes.js";
 export * from "@objects/primitives/PEMEncodedRSAPrivateKey.js";
 export * from "@objects/primitives/PEMEncodedRSAPublicKey.js";
+export * from "@objects/primitives/ProofString.js";
 export * from "@objects/primitives/ProviderUrl.js";
 export * from "@objects/primitives/PublicKey.js";
 export * from "@objects/primitives/QueryTypePermissionMap.js";
