@@ -22,6 +22,8 @@ import {
   IAccountNFTsType,
   BigNumberString,
   EChainType,
+  getChainInfoByChainId,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -198,28 +200,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           }
 
           switch (chainInfo.indexer) {
-            case EIndexer.EVM:
-              // if (chainInfo.type == EChainType.Testnet) {
-              //   return etherscanBalanceRepo.getBalancesForAccount(
-              //     chainId,
-              //     accountAddress as EVMAccountAddress,
-              //   );
-              // }
-              return etherscanBalanceRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Polygon:
-              if (chainInfo.type == EChainType.Testnet) {
-                return alchemyRepo.getBalancesForAccount(
-                  chainId,
-                  accountAddress as EVMAccountAddress,
-                );
-              }
-              return alchemyRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
             case EIndexer.Simulator:
               return simulatorRepo.getBalancesForAccount(
                 chainId,
@@ -235,26 +215,20 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.EVM:
             case EIndexer.Gnosis:
             case EIndexer.Binance:
             case EIndexer.Moonbeam:
               return etherscanBalanceRepo.getBalancesForAccount(
-                chainId,
+                chainInfo.chain,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Polygon:
             case EIndexer.Arbitrum:
-              return alchemyRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
             case EIndexer.Optimism:
-              return alchemyRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
             case EIndexer.Astar:
               return alchemyRepo.getBalancesForAccount(
-                chainId,
+                chainInfo.chain,
                 accountAddress as EVMAccountAddress,
               );
             default:

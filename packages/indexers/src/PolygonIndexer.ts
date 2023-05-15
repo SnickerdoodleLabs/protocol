@@ -26,6 +26,7 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
@@ -274,7 +275,7 @@ export class PolygonIndexer
   }
 
   private _getBlockNumber(
-    chain: ChainId,
+    chain: EChain,
     timestamp: Date | undefined,
   ): ResultAsync<number, AccountIndexingError> {
     if (timestamp == undefined) {
@@ -369,16 +370,17 @@ export class PolygonIndexer
   }
 
   protected _getEtherscanApiKey(
-    chain: ChainId,
+    chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      if (!config.etherscanApiKeys.has(chain)) {
+      const chainId = getChainInfoByChain(chain).chainId;
+      if (!config.etherscanApiKeys.has(chainId)) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chain)!);
+      return okAsync(config.etherscanApiKeys.get(chainId)!);
     });
   }
 }

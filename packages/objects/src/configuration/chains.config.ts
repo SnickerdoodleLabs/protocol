@@ -325,10 +325,10 @@ export function isAccountValidForChain(
 }
 
 export function getEtherscanBaseURLForChain(
-  chain: ChainId,
+  chain: EChain,
 ): ResultAsync<string, AccountIndexingError> {
   try {
-    const chainInfo = getChainInfoByChainId(chain);
+    const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.etherscanEndpointURL == undefined) {
       return errAsync(
         new AccountIndexingError("no etherscan endpoint for chainID", chain),
