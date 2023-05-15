@@ -20,6 +20,9 @@ import {
   SDQLQuery,
   SDQL_Return,
   SubQueryKey,
+  IQueryDeliveryItems,
+  IQueryDeliveryAds,
+  IQueryDeliveryInsights,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -27,12 +30,18 @@ import {
   ISDQLQueryUtilsType,
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
+import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
+import {
+  IQueryParsingEngine,
+  IQueryRepository,
+  IQueryRepositoryType,
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
   IAdDataRepository,
@@ -49,6 +58,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public constructor(
     @inject(IQueryFactoriesType)
     protected queryFactories: IQueryFactories,
+    @inject(IQueryRepositoryType)
+    protected queryRepository: IQueryRepository,
     @inject(ISDQLQueryUtilsType)
     protected queryUtils: ISDQLQueryUtils,
     @inject(IAdRepositoryType)
@@ -75,15 +86,97 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsights,
+    IQueryDeliveryItems,
+    EvaluationError | QueryFormatError | QueryExpiredError
+  > {
+    // return errAsync(new EvaluationError("Not implemented"));
+    return this.queryFactories
+      .makeParserAsync(query.cid, query.query)
+      .andThen((sdqlParser) => {
+        return this.gatherDeliveryItems(sdqlParser, query.cid, dataPermissions);
+      });
+  }
+
+  protected gatherDeliveryItems(
+    sdqlParser: SDQLParser,
+    cid: IpfsCID,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    EvaluationError | QueryFormatError | QueryExpiredError
+  > {
+    // return errAsync(new EvaluationError("Not implemented"));
+    return sdqlParser.buildAST().andThen((ast: AST) => {
+      const astEvaluator = this.queryFactories.makeAstEvaluator(
+        cid,
+        dataPermissions,
+      );
+
+      const insightProm = this.gatherDeliveryInsights(
+        ast,
+        cid,
+        dataPermissions,
+      );
+
+      const adSigProm = this.gatherDeliveryAds(
+        sdqlParser,
+        cid,
+        dataPermissions,
+      );
+
+      const combined = ResultUtils.combine([insightProm, adSigProm]).map(
+        ([insightWithProofs, adSigs]) => {
+          return {
+            insights: insightWithProofs,
+            ads: adSigs,
+          };
+        },
+      );
+
+      // return ResultUtils.combine(
+      //   this.evalReturns(ast, dataPermissions, astEvaluator),
+      // ).andThen((insightResults) => {
+      //   const insights = insightResults.map(this.SDQLReturnToInsightString);
+
+      //   return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
+      //     [insights, rewards],
+      //   );
+      // });
+
+      // return ResultUtils.combine([
+      //   this.gatherDeliveryInsights(sdqlParser, cid, dataPermissions),
+      //   this.gatherDeliveryAds(sdqlParser, cid, dataPermissions),
+      // ]).map([insights, ads] => {
+      // const items = {
+      //   insights: insights;
+      //   ads: ads;
+      // } as IQueryDeliveryItems;
+      //   return items;
+      // })
+      return errAsync(new EvaluationError("Not implemented"));
+    });
+  }
+
+  protected gatherDeliveryInsights(
+    ast: AST,
+    cid: IpfsCID,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    IQueryDeliveryInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     return errAsync(new EvaluationError("Not implemented"));
-    // return this.queryFactories
-    //   .makeParserAsync(query.cid, query.query)
-    //   .andThen((sdqlParser) => {
-    //     return this.gatherInsights(sdqlParser, query.cid, dataPermissions);
-    //   });
+  }
+
+  protected gatherDeliveryAds(
+    sdqlParser: SDQLParser,
+    cid: IpfsCID,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    IQueryDeliveryAds,
+    EvaluationError | QueryFormatError | QueryExpiredError
+  > {
+    return errAsync(new EvaluationError("Not implemented"));
   }
 
   protected constructExpectedRewards(

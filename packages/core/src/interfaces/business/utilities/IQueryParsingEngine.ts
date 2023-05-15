@@ -3,12 +3,12 @@ import {
   EvaluationError,
   EVMContractAddress,
   ExpectedReward,
-  IInsights,
   ParserError,
   PossibleReward,
   QueryFormatError,
   SubQueryKey,
   SDQLQuery,
+  IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -21,7 +21,7 @@ export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-  ): ResultAsync<IInsights, EvaluationError | QueryFormatError>;
+  ): ResultAsync<IQueryDeliveryItems, EvaluationError | QueryFormatError>;
   getPossibleRewards(
     query: SDQLQuery,
   ): ResultAsync<PossibleReward[], ParserError>;
