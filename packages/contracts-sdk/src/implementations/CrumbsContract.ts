@@ -82,11 +82,7 @@ export class CrumbsContract implements ICrumbsContract {
     tokenUri: TokenUri,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
-    return this.writeToContract("createCrumb", [
-      crumbId,
-      tokenUri,
-      overrides,
-    ]);
+    return this.writeToContract("createCrumb", [crumbId, tokenUri], overrides);
   }
 
   public encodeCreateCrumb(
@@ -105,7 +101,7 @@ export class CrumbsContract implements ICrumbsContract {
     crumbId: TokenId,
     overrides?: ContractOverrides | undefined,
   ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
-    return this.writeToContract("createCrumb", [crumbId, overrides]);
+    return this.writeToContract("createCrumb", [crumbId], overrides);
   }
 
   public encodeBurnCrumb(crumbId: TokenId): HexString {
@@ -119,11 +115,11 @@ export class CrumbsContract implements ICrumbsContract {
     tokenURI: TokenUri,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
-    return this.writeToContract("updateTokenURI", [
-      crumbId,
-      tokenURI,
+    return this.writeToContract(
+      "updateTokenURI",
+      [crumbId, tokenURI],
       overrides,
-    ]);
+    );
   }
 
   public getContract(): ethers.Contract {
@@ -134,11 +130,12 @@ export class CrumbsContract implements ICrumbsContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return ResultAsync.fromPromise(
-      this.contract[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new CrumbsContractError(
           `Unable to call ${functionName}()`,

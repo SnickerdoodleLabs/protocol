@@ -248,11 +248,11 @@ export class ERC721RewardContract implements IERC721RewardContract {
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("grantRole", [
-      ERewardRoles[role],
-      address,
+    return this.writeToContract(
+      "grantRole",
+      [ERewardRoles[role], address],
       overrides,
-    ]);
+    );
   }
 
   public revokeRole(
@@ -260,11 +260,11 @@ export class ERC721RewardContract implements IERC721RewardContract {
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("revokeRole", [
-      ERewardRoles[role],
-      address,
+    return this.writeToContract(
+      "revokeRole",
+      [ERewardRoles[role], address],
       overrides,
-    ]);
+    );
   }
 
   public renounceRole(
@@ -272,11 +272,11 @@ export class ERC721RewardContract implements IERC721RewardContract {
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return this.writeToContract("renounceRole", [
-      ERewardRoles[role],
-      address,
+    return this.writeToContract(
+      "renounceRole",
+      [ERewardRoles[role], address],
       overrides,
-    ]);
+    );
   }
 
   public filters = {
@@ -296,11 +296,12 @@ export class ERC721RewardContract implements IERC721RewardContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
     return ResultAsync.fromPromise(
-      this.contract[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ERC721RewardContractError(
           `Unable to call ${functionName}()`,

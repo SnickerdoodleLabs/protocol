@@ -51,12 +51,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     name: ConsentName,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("createConsent", [
-      ownerAddress,
-      baseUri,
-      name,
+    return this.writeToContract(
+      "createConsent",
+      [ownerAddress, baseUri, name],
       overrides,
-    ]);
+    );
   }
 
   // Gets the count of user's deployed Consents
@@ -226,20 +225,22 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     listingDuration: number,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("setListingDuration", [
-      listingDuration,
+    return this.writeToContract(
+      "setListingDuration",
+      [listingDuration],
       overrides,
-    ]);
+    );
   }
 
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("setMaxTagsPerListing", [
-      maxTagsPerListing,
+    return this.writeToContract(
+      "setMaxTagsPerListing",
+      [maxTagsPerListing],
       overrides,
-    ]);
+    );
   }
 
   public adminRemoveListing(
@@ -247,11 +248,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     removedSlot: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return this.writeToContract("setMaxTagsPerListing", [
-      tag,
-      removedSlot,
+    return this.writeToContract(
+      "setMaxTagsPerListing",
+      [tag, removedSlot],
       overrides,
-    ]);
+    );
   }
 
   public getListingDetail(
@@ -415,11 +416,12 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
           `Unable to call ${functionName}()`,

@@ -58,21 +58,21 @@ export class SiftContract implements ISiftContract {
     domain: DomainName,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return this.writeToContract("verifyURL", [domain, overrides]);
+    return this.writeToContract("verifyURL", [domain], overrides);
   }
 
   public maliciousURL(
     domain: DomainName,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return this.writeToContract("maliciousURL", [domain, overrides]);
+    return this.writeToContract("maliciousURL", [domain], overrides);
   }
 
   public setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return this.writeToContract("setBaseURI", [baseUri, overrides]);
+    return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
   public getContract(): ethers.Contract {
@@ -83,11 +83,12 @@ export class SiftContract implements ISiftContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return ResultAsync.fromPromise(
-      this.contract[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new SiftContractError(
           `Unable to call ${functionName}()`,
