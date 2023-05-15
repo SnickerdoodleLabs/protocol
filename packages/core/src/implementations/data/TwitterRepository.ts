@@ -32,6 +32,7 @@ import {
 } from "@core/interfaces/utilities/index.js";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoin } from "url-join-ts";
+import { EHttpMethods } from "@core/interfaces/enums/index.js";
 
 @injectable()
 export class TwitterRepository implements ITwitterRepository {
@@ -48,7 +49,7 @@ export class TwitterRepository implements ITwitterRepository {
         .getOauth1RequestToken(
           URLString(urlJoin(config.oAuthBaseUrl, "/request_token")),
           config,
-          "POST",
+          EHttpMethods.POST
         )
         .mapErr((e) => {
           return new TwitterError(e.message, e);
@@ -62,10 +63,10 @@ export class TwitterRepository implements ITwitterRepository {
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError> {
     return this._getAPIConfig().andThen((config) => {
       return this.oauthRepo
-        .getOauth1AccessToken(
+        .getOauth1AccessTokenSearchParams(
           URLString(urlJoin(config.oAuthBaseUrl, "/access_token")),
           config,
-          "POST",
+          EHttpMethods.POST,
           requestToken,
           oAuthVerifier,
         )
@@ -177,7 +178,7 @@ export class TwitterRepository implements ITwitterRepository {
     return this.oauthRepo
       .makeAPICallWithOAuth1<{ data: TwitterUserObject }>(
         url,
-        "GET",
+        EHttpMethods.GET,
         config,
         oAuth1Access,
       )
@@ -206,7 +207,7 @@ export class TwitterRepository implements ITwitterRepository {
       .makeAPICallWithOAuth1<{
         data: TwitterUserObject[];
         meta: { result_count: number; next_token: string };
-      }>(url, "GET", config, oAuth1Access, pathParams)
+      }>(url,  EHttpMethods.GET, config, oAuth1Access, pathParams)
       .mapErr((error) => {
         return new TwitterError(error.message, error);
       })
@@ -245,7 +246,7 @@ export class TwitterRepository implements ITwitterRepository {
       .makeAPICallWithOAuth1<{
         data: TwitterUserObject[];
         meta: { result_count: number; next_token: string };
-      }>(url, "GET", config, oAuth1Access, pathParams)
+      }>(url,  EHttpMethods.GET, config, oAuth1Access, pathParams)
       .mapErr((error) => {
         return new TwitterError(error.message, error);
       })

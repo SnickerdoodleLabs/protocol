@@ -118,7 +118,7 @@ export const TwitterInfo: FC<ISocialMediaPlatformProps> = memo(
                 onClick={() =>
                   provider.getOAuth1aRequestToken().map((tokenAndSecret) => {
                     window.open(
-                      `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}&oauth_token_secret=${tokenAndSecret.secret}&oauth_callback_confirmed=true`,
+                      provider.getTwitterApiAuthUrl(tokenAndSecret),
                       `_self`,
                     );
                   })

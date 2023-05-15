@@ -163,34 +163,15 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(transactionArray));
           });
       case "social_discord":
-        return this.socialRepo
-          .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
-          .map((profiles) =>
-            profiles.map((profile) => {
-              return {
-                id: profile.id,
-                name: profile.name,
-                icon: profile.icon,
-                joinedAt: profile.joinedAt,
-              };
-            }),
-          )
-          .map(SDQL_Return);
+        return this.getDiscordProfiles()
       case "social_twitter":
-        return this.socialRepo
-          .getProfiles<TwitterProfile>(ESocialType.TWITTER)
-          .map((profiles) =>
-            profiles.map((profile) => {
-              return {
-                following: profile.followData?.following || [],
-              };
-            }),
-          )
-          .map(SDQL_Return);
+        return this.getTwitterFollowers()
       default:
         return okAsync(result);
     }
   }
+
+  
 
   public evalPropertyConditon(
     propertyVal: Age | CountryCode | null,
@@ -232,4 +213,33 @@ export class QueryEvaluator implements IQueryEvaluator {
     console.error(`EvalNotImplementedError ${condition.constructor.name}`);
     throw new EvalNotImplementedError(condition.constructor.name);
   }
+
+  getDiscordProfiles(): ResultAsync<SDQL_Return ,PersistenceError >{
+    return this.socialRepo
+    .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
+    .map((profiles) =>
+      profiles.map((profile) => {
+        return {
+          id: profile.id,
+          name: profile.name,
+          icon: profile.icon,
+          joinedAt: profile.joinedAt,
+        };
+      }),
+    )
+    .map(SDQL_Return);
+  }
+
+  getTwitterFollowers() : ResultAsync<SDQL_Return ,PersistenceError >{
+    return this.socialRepo
+    .getProfiles<TwitterProfile>(ESocialType.TWITTER)
+    .map((profiles) =>
+      profiles.map((profile) => {
+        return {
+          following: profile.followData?.following || [],
+        };
+      }),
+    )
+    .map(SDQL_Return);
+  } 
 }

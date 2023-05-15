@@ -11,7 +11,6 @@ export * from "@core/interfaces/data/IInvitationRepository.js";
 export * from "@core/interfaces/data/ILinkedAccountRepository.js";
 export * from "@core/interfaces/data/IMarketplaceRepository.js";
 export * from "@core/interfaces/data/IMetatransactionForwarderRepository.js";
-export * from "@core/interfaces/data/IOAuthRepository.js";
 export * from "@core/interfaces/data/IPermissionRepository.js";
 export * from "@core/interfaces/data/IPortfolioBalanceRepository.js";
 export * from "@core/interfaces/data/ISDQLQueryRepository.js";

@@ -1,4 +1,5 @@
 import { IOAuthRepository } from "@core/interfaces/data";
+import { EHttpMethods } from "@core/interfaces/enums/index.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -28,7 +29,7 @@ export class OAuthRepository implements IOAuthRepository {
   public getOauth1RequestToken(
     url: URLString,
     config: OAuth1Config,
-    method: "GET" | "POST",
+    method: EHttpMethods,
   ): ResultAsync<TokenAndSecret, OAuthError> {
     return this.makeAPICallWithOAuth1<string>(
       url,
@@ -63,10 +64,10 @@ export class OAuthRepository implements IOAuthRepository {
       });
   }
 
-  public getOauth1AccessToken(
+  public getOauth1AccessTokenSearchParams(
     url: URLString,
     config: OAuth1Config,
-    method: "GET" | "POST",
+    method: EHttpMethods,
     requestToken: OAuth1RequstToken,
     verifier: string,
   ): ResultAsync<URLSearchParams, OAuthError> {
@@ -92,7 +93,7 @@ export class OAuthRepository implements IOAuthRepository {
 
   public makeAPICallWithOAuth1<T>(
     url: URLString,
-    method: "GET" | "POST",
+    method: EHttpMethods,
     config: OAuth1Config,
     accessTokenAndSecret?: TokenAndSecret,
     pathParams?: object,
@@ -100,7 +101,7 @@ export class OAuthRepository implements IOAuthRepository {
     authOverrides?: string,
   ): ResultAsync<T, AjaxError> {
     switch (method) {
-      case "GET":
+      case EHttpMethods.GET:
         return this.ajaxUtil.get<T>(new URL(url), {
           params: pathParams,
           headers: {
@@ -115,7 +116,7 @@ export class OAuthRepository implements IOAuthRepository {
               ),
           },
         });
-      case "POST":
+      case EHttpMethods.POST:
         return this.ajaxUtil.post<T>(new URL(url), undefined, {
           params: pathParams,
           data: bodyParams,

@@ -1,3 +1,4 @@
+import { EHttpMethods } from "@core/interfaces/enums/index.js";
 import {
   AjaxError,
   OAuth1RequstToken,
@@ -12,18 +13,18 @@ export interface IOAuthRepository {
   getOauth1RequestToken(
     url: URLString,
     config: OAuth1Config,
-    method: "GET" | "POST",
+    method: EHttpMethods,
   ): ResultAsync<TokenAndSecret, OAuthError>;
-  getOauth1AccessToken(
+  getOauth1AccessTokenSearchParams(
     url: URLString,
     config: OAuth1Config,
-    method: "GET" | "POST",
+    method: EHttpMethods,
     requestToken: OAuth1RequstToken,
     verifier: string,
   ): ResultAsync<URLSearchParams, OAuthError>;
   makeAPICallWithOAuth1<T>(
     url: URLString,
-    method: "GET" | "POST",
+    method: EHttpMethods,
     config: OAuth1Config,
     accessTokenAndSecret?: TokenAndSecret,
     pathParams?: object,
