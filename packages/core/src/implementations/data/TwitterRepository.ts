@@ -20,7 +20,7 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import {
-  IOAuthRepository,
+  IOauthUtils,
   IOAuthRepositoryType,
   ISocialRepository,
   ISocialRepositoryType,
@@ -40,7 +40,7 @@ export class TwitterRepository implements ITwitterRepository {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ISocialRepositoryType)
     protected socialRepository: ISocialRepository,
-    @inject(IOAuthRepositoryType) protected oauthRepo: IOAuthRepository,
+    @inject(IOAuthRepositoryType) protected oauthRepo: IOauthUtils,
   ) {}
 
   public getOAuth1RequestToken(): ResultAsync<TokenAndSecret, TwitterError> {

@@ -214,32 +214,34 @@ export class QueryEvaluator implements IQueryEvaluator {
     throw new EvalNotImplementedError(condition.constructor.name);
   }
 
-  getDiscordProfiles(): ResultAsync<SDQL_Return ,PersistenceError >{
+  getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {
     return this.socialRepo
-    .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
-    .map((profiles) =>
-      profiles.map((profile) => {
-        return {
-          id: profile.id,
-          name: profile.name,
-          icon: profile.icon,
-          joinedAt: profile.joinedAt,
-        };
-      }),
-    )
-    .map(SDQL_Return);
+      .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
+      .map((profiles) => {
+        return SDQL_Return(
+          profiles.map((profile) => {
+            return {
+              id: profile.id,
+              name: profile.name,
+              icon: profile.icon,
+              joinedAt: profile.joinedAt,
+            };
+          }),
+        );
+      });
   }
 
-  getTwitterFollowers() : ResultAsync<SDQL_Return ,PersistenceError >{
+  getTwitterFollowers(): ResultAsync<SDQL_Return, PersistenceError> {
     return this.socialRepo
-    .getProfiles<TwitterProfile>(ESocialType.TWITTER)
-    .map((profiles) =>
-      profiles.map((profile) => {
-        return {
-          following: profile.followData?.following || [],
-        };
-      }),
-    )
-    .map(SDQL_Return);
-  } 
+      .getProfiles<TwitterProfile>(ESocialType.TWITTER)
+      .map((profiles) => {
+        return SDQL_Return(
+          profiles.map((profile) => {
+            return {
+              following: profile.followData?.following || [],
+            };
+          }),
+        );
+      });
+  }
 }

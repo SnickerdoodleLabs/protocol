@@ -9,7 +9,7 @@ import {
 import { ResultAsync } from "neverthrow";
 import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config.js";
 
-export interface IOAuthRepository {
+export interface IOauthUtils {
   getOauth1RequestToken(
     url: URLString,
     config: OAuth1Config,

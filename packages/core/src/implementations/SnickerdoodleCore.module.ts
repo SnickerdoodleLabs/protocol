@@ -105,7 +105,7 @@ import {
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
-  OAuthRepository,
+  OauthUtils,
   PermissionRepository,
   PortfolioBalanceRepository,
   SDQLQueryRepository,
@@ -205,7 +205,7 @@ import {
   IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
-  IOAuthRepository,
+  IOauthUtils,
   IOAuthRepositoryType,
   IPermissionRepository,
   IPermissionRepositoryType,
@@ -366,8 +366,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
-    bind<IOAuthRepository>(IOAuthRepositoryType)
-      .to(OAuthRepository)
+    bind<IOauthUtils>(IOAuthRepositoryType)
+      .to(OauthUtils)
       .inSingletonScope();
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)

@@ -1,4 +1,4 @@
-import { IOAuthRepository } from "@core/interfaces/data";
+import { IOauthUtils } from "@core/interfaces/data";
 import { EHttpMethods } from "@core/interfaces/enums/index.js";
 import {
   IAxiosAjaxUtils,
@@ -20,7 +20,7 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config.js";
 
 @injectable()
-export class OAuthRepository implements IOAuthRepository {
+export class OauthUtils implements IOauthUtils {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
