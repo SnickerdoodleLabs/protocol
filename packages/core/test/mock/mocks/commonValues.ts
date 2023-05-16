@@ -73,9 +73,9 @@ const testDiscordConfig = {
 };
 
 const testTwitterConfig = {
-  apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+  apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
   apiSecretKey: TokenSecret(
-    "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+    "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx",
   ),
   signingAlgorithm: ESignatureAlgorithm.HMAC,
   hashingAlgorithm: EHashAlgorithm.SHA1,
