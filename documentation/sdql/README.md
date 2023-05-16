@@ -80,6 +80,7 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `1284`: Moonbeam Mainnet
 - `10`: Optimism Mainnet
 - `42161`: Arbitrum Mainnet
+- `592`: Astar Mainnet
 
 - `*`: all supported networks
 

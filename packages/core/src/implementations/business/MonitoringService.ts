@@ -204,6 +204,9 @@ export class MonitoringService implements IMonitoringService {
             return okAsync([]);
           case EIndexer.Optimism:
             return okAsync([]);
+          case EIndexer.Astar:
+            /* Waiting for Nft reponse service */
+            return okAsync([]);
           default:
             this.logUtils.error(
               `No available indexer repository for chain ${chainId}`,

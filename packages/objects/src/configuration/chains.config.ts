@@ -295,6 +295,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api-optimistic.etherscan.io/"),
     ),
   ],
+  [
+    ChainId(EChain.Astar),
+    new ChainInformation(
+      "Astar",
+      ChainId(EChain.Astar),
+      EChain.Astar,
+      EChainTechnology.EVM,
+      true,
+      "astar",
+      10000, // average block mining time
+      EIndexer.Astar,
+      new NativeCurrencyInformation("ASTR", 18, "ASTR", "astar"),
+      EChainType.Mainnet,
+      "https://astar.subscan.io/api",
+      getExplorerUrl,
+      URLString("https://astar.subscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
@@ -325,10 +343,10 @@ export function isAccountValidForChain(
 }
 
 export function getEtherscanBaseURLForChain(
-  chain: ChainId,
+  chain: EChain,
 ): ResultAsync<string, AccountIndexingError> {
   try {
-    const chainInfo = getChainInfoByChainId(chain);
+    const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.etherscanEndpointURL == undefined) {
       return errAsync(
         new AccountIndexingError("no etherscan endpoint for chainID", chain),

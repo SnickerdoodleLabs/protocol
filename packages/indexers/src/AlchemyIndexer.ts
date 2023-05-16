@@ -24,6 +24,7 @@ import {
   IEVMNftRepository,
   AccountAddress,
   URLString,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -39,6 +40,8 @@ import {
 export class AlchemyIndexer
   implements IEVMAccountBalanceRepository, IEVMNftRepository
 {
+  private _alchemyNonNativeSupport: Map<EChain, boolean>;
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -46,16 +49,28 @@ export class AlchemyIndexer
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) {
+    this._alchemyNonNativeSupport = new Map([
+      [EChain.Astar, false],
+      [EChain.Mumbai, false],
+      [EChain.Arbitrum, true],
+      [EChain.Optimism, true],
+      [EChain.Solana, true],
+      [EChain.Polygon, true],
+    ]) as Map<EChain, boolean>;
+  }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this.getNonNativeBalance(chainId, accountAddress),
-      this.getNativeBalance(chainId, accountAddress),
+      this.getNonNativeBalance(chain, accountAddress),
+      this.getNativeBalance(chain, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+      if (nonNativeBalance.length == 0) {
+        return [nativeBalance];
+      }
       return [nativeBalance, ...nonNativeBalance];
     });
   }
@@ -114,7 +129,7 @@ export class AlchemyIndexer
   }
 
   private nativeBalanceParams(
-    chain: ChainId,
+    chain: EChain,
     accountAddress: AccountAddress,
   ): [string, TickerSymbol, ChainId] {
     switch (chain) {
@@ -151,6 +166,17 @@ export class AlchemyIndexer
           TickerSymbol("MATIC"),
           ChainId(80001),
         ];
+      case EChain.Astar:
+        return [
+          JSON.stringify({
+            id: 1,
+            jsonrpc: "2.0",
+            params: [accountAddress, "latest"],
+            method: "eth_getBalance",
+          }),
+          TickerSymbol("ASTR"),
+          ChainId(592),
+        ];
       default:
         return [
           JSON.stringify({
@@ -167,12 +193,9 @@ export class AlchemyIndexer
 
   protected retrieveAlchemyUrl(
     chain: EChain,
-    chainId: ChainId,
   ): ResultAsync<URLString, AccountIndexingError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const url = config.alchemyEndpoints.get(
-        EChain[getChainInfoByChainId(chainId).name.toString()],
-      );
+      const url = config.alchemyEndpoints.get(chain);
       if (url == undefined) {
         return errAsync(
           new AccountIndexingError("Alchemy Endpoint is missing"),
@@ -183,16 +206,12 @@ export class AlchemyIndexer
   }
 
   private getNativeBalance(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
-    // const chainInfo = getChainInfoByChainId(chainId);
-    return this.retrieveAlchemyUrl(
-      EChain[getChainInfoByChainId(chainId).name.toString()],
-      chainId,
-    ).andThen((url) => {
+    return this.retrieveAlchemyUrl(chain).andThen((url) => {
       const [requestParams, nativeTickerSymbol, nativeChain] =
-        this.nativeBalanceParams(chainId, accountAddress);
+        this.nativeBalanceParams(chain, accountAddress);
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {
@@ -208,7 +227,7 @@ export class AlchemyIndexer
             null,
             accountAddress,
             BigNumberString(weiValue),
-            getChainInfoByChainId(chainId).nativeCurrency.decimals,
+            getChainInfoByChain(chain).nativeCurrency.decimals,
           );
           return okAsync(balance);
         });
@@ -216,15 +235,13 @@ export class AlchemyIndexer
   }
 
   private getNonNativeBalance(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    const chainInfo = getChainInfoByChainId(chainId);
-    // return okAsync([]);
-    return this.retrieveAlchemyUrl(
-      EChain[getChainInfoByChainId(chainId).name.toString()],
-      chainId,
-    ).andThen((url) => {
+    if (!this._alchemyNonNativeSupport.get(chain)) {
+      return okAsync([]);
+    }
+    return this.retrieveAlchemyUrl(chain).andThen((url) => {
       // const url = config.alchemyEndpoints[chainInfo.name.toString()];
       return this.ajaxUtils
         .post<IAlchemyNonNativeReponse>(
@@ -246,7 +263,10 @@ export class AlchemyIndexer
             response.result.tokenBalances.map((entry) => {
               const weiValue = Web3.utils.hexToNumberString(entry.tokenBalance);
               return this.tokenPriceRepo
-                .getTokenInfo(chainId, entry.contractAddress)
+                .getTokenInfo(
+                  getChainInfoByChain(chain).chainId,
+                  entry.contractAddress,
+                )
                 .andThen((tokenInfo) => {
                   if (tokenInfo == null) {
                     return okAsync(undefined);
@@ -256,11 +276,11 @@ export class AlchemyIndexer
                     new TokenBalance(
                       EChainTechnology.EVM,
                       TickerSymbol(tokenInfo.symbol),
-                      chainId,
+                      getChainInfoByChain(chain).chainId,
                       entry.contractAddress,
                       accountAddress,
                       BigNumberString(weiValue),
-                      getChainInfoByChainId(chainId).nativeCurrency.decimals,
+                      getChainInfoByChain(chain).nativeCurrency.decimals,
                     ),
                   );
                 });

@@ -15,4 +15,5 @@ export enum EChain {
   Moonbeam = 1284,
   Arbitrum = 42161,
   Optimism = 10,
+  Astar = 592,
 }
