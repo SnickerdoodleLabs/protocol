@@ -12,8 +12,8 @@ import { IContextProvider } from "@core/interfaces/utilities/index.js";
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
  */
 export abstract class BaseContractWrapper<TContract extends IBaseContract> {
-  protected primaryName = ApiName("Primary Control Chain");
-  protected secondaryName = ApiName("Secondary Control Chain");
+  static primaryName = ApiName("Primary Control Chain");
+  static secondaryName = ApiName("Secondary Control Chain");
 
   public constructor(
     protected primary: TContract,
@@ -38,7 +38,7 @@ export abstract class BaseContractWrapper<TContract extends IBaseContract> {
     primary: () => ResultAsync<T, TErr>,
     secondary: () => ResultAsync<T, TErr> | undefined,
   ): ResultAsync<T, TErr> {
-    this.contextProvider.incrementApi(this.primaryName);
+    this.contextProvider.incrementApi(BaseContractWrapper.primaryName);
     return primary().orElse((e) => {
       // If we do not have a secondary provider, the secondary() method will return null when called,
       // don't bother.
@@ -48,7 +48,7 @@ export abstract class BaseContractWrapper<TContract extends IBaseContract> {
 
       // If we have a secondary provider, then we can attempt it. secondary() should produce a ResultAsync
       this.logUtils.debug("Falling back to secondary provider");
-      this.contextProvider.incrementApi(this.secondaryName);
+      this.contextProvider.incrementApi(BaseContractWrapper.secondaryName);
       return secondary() as ResultAsync<T, TErr>;
     });
   }

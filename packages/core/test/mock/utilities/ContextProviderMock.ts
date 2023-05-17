@@ -89,7 +89,15 @@ export class ContextProviderMock implements IContextProvider {
   }
 
   public incrementApi(apiName: ApiName): void {
-    throw new Error("Method not implemented.");
+    const existing = this.context.apiCalls[apiName];
+
+    let newVal = 0;
+    if (existing == null) {
+      newVal = 1;
+    } else {
+      newVal = existing + 1;
+    }
+    this.context.apiCalls[apiName] = newVal;
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {
