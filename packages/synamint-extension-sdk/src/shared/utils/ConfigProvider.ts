@@ -30,7 +30,6 @@ declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
 declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
-declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
 declare const __GOOGLE_CLOUD_BUCKET__: string;
@@ -44,6 +43,8 @@ declare const __DISCORD_POLL_INTERVAL__: string;
 declare const __TWITTER_CONSUMER_KEY__: string;
 declare const __TWITTER_CONSUMER_SECRET__: string;
 declare const __TWITTER_POLL_INTERVAL__: string;
+declare const __PRIMARY_INFURA_KEY__: string;
+declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -94,10 +95,6 @@ class ConfigProvider implements IConfigProvider {
       typeof __CERAMIC_NODE_URL__ !== "undefined" && !!__CERAMIC_NODE_URL__
         ? __CERAMIC_NODE_URL__
         : URLString(""),
-      typeof __CONTROL_CHAIN_PROVIDER_URL__ !== "undefined" &&
-      !!__CONTROL_CHAIN_PROVIDER_URL__
-        ? __CONTROL_CHAIN_PROVIDER_URL__
-        : undefined,
       typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
         ? __COVALENT_API_KEY__
         : undefined,
@@ -145,6 +142,13 @@ class ConfigProvider implements IConfigProvider {
         : false,
       this._buildDiscordConfig(),
       this._buildTwitterConfig(),
+      typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
+        ? __PRIMARY_INFURA_KEY__
+        : "a8ae124ed6aa44bb97a7166cda30f1bc",
+      typeof __DEV_CHAIN_PROVIDER_URL__ !== "undefined" &&
+      !!__DEV_CHAIN_PROVIDER_URL__
+        ? __DEV_CHAIN_PROVIDER_URL__
+        : ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
     );
   }
 
@@ -189,7 +193,7 @@ class ConfigProvider implements IConfigProvider {
   }
 
   private _buildTwitterConfig(): Partial<TwitterConfig> {
-    const oauthRedirectUrl =
+    const oAuthCallbackUrl =
       typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
         ? URLString(
             urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
@@ -199,7 +203,7 @@ class ConfigProvider implements IConfigProvider {
           );
 
     let twitterConfig = {
-      callbackUrl: URLString(oauthRedirectUrl),
+      oAuthCallbackUrl,
     } as Partial<TwitterConfig>;
 
     if (

@@ -16,7 +16,8 @@ import {
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
   TokenBalance,
-  WalletNFT
+  WalletNFT,
+  DataPermissionsUpdatedEvent,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -28,6 +29,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onAccountRemoved: Subject<LinkedAccount>;
   public onCohortJoined: Subject<EVMContractAddress>;
   public onCohortLeft: Subject<EVMContractAddress>;
+  public onDataPermissionsUpdated: Subject<DataPermissionsUpdatedEvent>;
   public onTransaction: Subject<EVMTransaction>;
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
@@ -48,6 +50,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onAccountRemoved = new Subject();
     this.onCohortJoined = new Subject();
     this.onCohortLeft = new Subject();
+    this.onDataPermissionsUpdated = new Subject();
     this.onTransaction = new Subject();
     this.onMetatransactionSignatureRequested = new Subject();
     this.onTokenBalanceUpdate = new Subject();

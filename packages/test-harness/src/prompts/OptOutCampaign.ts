@@ -24,7 +24,7 @@ export class OptOutCampaign extends Prompt {
     | AjaxError
     | ConsentContractRepositoryError
   > {
-    return this.core
+    return this.core.invitation
       .getAcceptedInvitations()
       .andThen((invitations) => {
         console.log(invitations);
@@ -55,7 +55,7 @@ export class OptOutCampaign extends Prompt {
           return okAsync(undefined);
         }
         const invitation = answers.optOutCampaign as Invitation;
-        return this.core
+        return this.core.invitation
           .leaveCohort(invitation.consentContractAddress)
           .map(() => {
             console.log(

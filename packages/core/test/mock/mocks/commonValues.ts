@@ -11,13 +11,17 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  ProviderUrl,
   SDQLQuery,
   SDQLString,
   TokenSecret,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
-import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  MetatransactionGasAmounts,
+} from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
   "ExternalAccountAddress1",
@@ -69,9 +73,9 @@ const testDiscordConfig = {
 };
 
 const testTwitterConfig = {
-  apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+  apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
   apiSecretKey: TokenSecret(
-    "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+    "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx",
   ),
   signingAlgorithm: ESignatureAlgorithm.HMAC,
   hashingAlgorithm: EHashAlgorithm.SHA1,
@@ -111,6 +115,9 @@ export const testCoreConfig = new CoreConfig(
     [EChain.SolanaTestnet, URLString("")],
     [EChain.Polygon, URLString("")],
     [EChain.Mumbai, URLString("")],
+    [EChain.Arbitrum, URLString("")],
+    [EChain.Optimism, URLString("")],
+    [EChain.Astar, URLString("")],
   ]),
   10000,
   "(localhost|chrome://)",
@@ -120,6 +127,15 @@ export const testCoreConfig = new CoreConfig(
   testDiscordConfig,
   testTwitterConfig,
   60000, // heartbeatIntervalMS
+  new MetatransactionGasAmounts(
+    10000000, // createCrumbGas
+    10000000, // removeCrumbGas,
+    10000000, // optInGas
+    10000000, // optOutGas
+    10000000, // updateAgreementFlagsGas
+  ), // metatransactionGasAmounts
+  "",
+  ProviderUrl(""),
 );
 
 // #endregion
