@@ -7,9 +7,10 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { IMinimalForwarderRequest } from "@contracts-sdk/interfaces/objects";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { IMinimalForwarderRequest } from "@contracts-sdk/interfaces/objects/index.js";
 
-export interface IMinimalForwarderContract {
+export interface IMinimalForwarderContract extends IBaseContract {
   getNonce(
     from: EVMAccountAddress,
   ): ResultAsync<BigNumberString, MinimalForwarderContractError>;

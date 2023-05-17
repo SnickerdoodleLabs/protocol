@@ -48,6 +48,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
     public primaryInfuraKey: string,
+    public backupInfuraKey: string | null,
+    public alchemyKey: string | null,
     public devChainProviderURL: ProviderUrl,
   ) {}
 }

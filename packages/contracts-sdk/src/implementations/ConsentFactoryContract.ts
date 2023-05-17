@@ -1,9 +1,3 @@
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import {
-  ConsentRoles,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   BaseURI,
   BigNumberString,
@@ -19,8 +13,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, Result, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import {
+  ConsentRoles,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -30,17 +31,17 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentFactoryAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
-      consentFactoryAddress,
+      contractAddress,
       ContractsAbis.ConsentFactoryAbi.abi,
       providerOrSigner,
     );
   }
 
   public getContractAddress(): EVMContractAddress {
-    return EVMContractAddress(this.contract?.address || "");
+    return this.contractAddress;
   }
 
   // Function to help user create consent
@@ -73,7 +74,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           );
         });
       })
-      .andThen((receipt) => {
+      .map((receipt) => {
         // Get the hash of the event
         const event = "ConsentDeployed(address,address)";
         const eventHash = ethers.utils.keccak256(
@@ -105,7 +106,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
         const deployedConsentAddress = decodedLog.consentAddress;
 
-        return okAsync(deployedConsentAddress as EVMContractAddress);
+        return deployedConsentAddress as EVMContractAddress;
       });
   }
 

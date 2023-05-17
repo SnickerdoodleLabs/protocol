@@ -20,6 +20,7 @@ import {
   UninitializedError,
   URLString,
   BlockNumber,
+  ApiName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -63,6 +64,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return contract.getDomains();
       })
       .map((domains) => {
+        this.contextProvider.incrementApi(ApiName("ethereum"));
         return domains.map((domain) => {
           return URLString(domain);
         });

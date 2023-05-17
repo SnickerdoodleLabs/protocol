@@ -134,7 +134,9 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  "",
+  "", // primaryInfuraKey
+  null, // backupInfuraKey
+  null, // alchemyKey
   ProviderUrl(""),
 );
 

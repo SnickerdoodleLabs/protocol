@@ -26,5 +26,7 @@ export interface IConfigOverrides {
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
   primaryInfuraKey: string;
+  backupInfuraKey?: string;
+  alchemyKey?: string;
   devChainProviderURL?: ProviderUrl;
 }

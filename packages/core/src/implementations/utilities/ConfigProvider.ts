@@ -180,7 +180,9 @@ export class ConfigProvider
         10000000, // optOutGas
         10000000, // updateAgreementFlagsGas
       ),
-      "a8ae124ed6aa44bb97a7166cda30f1bc",
+      "a8ae124ed6aa44bb97a7166cda30f1bc", // primaryInfuraKey,
+      null, // backupInfuraKey
+      null, // alchemyKey
       ProviderUrl("http://127.0.0.1:8545"),
     );
   }
@@ -218,8 +220,7 @@ export class ConfigProvider
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
     if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.devChainProviderURL =
-        overrides.devChainProviderURL ||
-        ProviderUrl("http://127.0.0.1:8545");
+        overrides.devChainProviderURL || ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
@@ -274,7 +275,8 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
-    this.config.primaryInfuraKey =
-      overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
+    this.config.primaryInfuraKey = overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
+    this.config.backupInfuraKey = overrides.backupInfuraKey ?? this.config.backupInfuraKey;
+    this.config.alchemyKey = overrides.alchemyKey ?? this.config.alchemyKey;
   }
 }

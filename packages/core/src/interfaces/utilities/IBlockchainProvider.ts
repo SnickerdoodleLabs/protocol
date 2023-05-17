@@ -10,7 +10,12 @@ export interface IBlockchainProvider {
   // derived DataWallet Key.
   getPrimarySigner(): ResultAsync<Wallet, BlockchainProviderError>;
 
+  // 
   getPrimaryProvider(): ResultAsync<JsonRpcProvider, BlockchainProviderError>;
+  getSecondaryProvider(): ResultAsync<
+    JsonRpcProvider | null,
+    BlockchainProviderError
+  >;
 
   getLatestBlock(
     chainId?: ChainId,

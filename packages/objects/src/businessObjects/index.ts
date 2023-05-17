@@ -30,6 +30,7 @@ export * from "@objects/businessObjects/QueryFilteredByPermissions.js";
 export * from "@objects/businessObjects/RequestForData.js";
 export * from "@objects/businessObjects/Reward.js";
 export * from "@objects/businessObjects/RSAKeyPair.js";
+export * from "@objects/businessObjects/RuntimeMetrics.js";
 export * from "@objects/businessObjects/SDQLQuery.js";
 export * from "@objects/businessObjects/SDQLQueryRequest.js";
 export * from "@objects/businessObjects/SerializedObject.js";

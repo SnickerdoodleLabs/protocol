@@ -1,13 +1,8 @@
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/index.js";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
@@ -31,6 +26,17 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { ConsentContractWrapper } from "@core/implementations/utilities/factory/ConsentContractWrapper.js";
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
+
 @injectable()
 export class ContractFactory implements IContractFactory {
   public constructor(
@@ -38,7 +44,10 @@ export class ContractFactory implements IContractFactory {
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
   public factoryConsentFactoryContract(): ResultAsync<
     IConsentFactoryContract,
@@ -61,12 +70,31 @@ export class ContractFactory implements IContractFactory {
     IConsentContract[],
     BlockchainProviderError | UninitializedError
   > {
-    return this.blockchainProvider.getPrimaryProvider().map((provider) => {
+    return ResultUtils.combine([
+      this.blockchainProvider.getPrimaryProvider(),
+      this.blockchainProvider.getSecondaryProvider(),
+    ]).map(([primaryProvider, secondaryProvider]) => {
       return consentContractAddresses.map((consentContractAddress) => {
-        return new ConsentContract(
-          provider,
+        const primary = new ConsentContract(
+          primaryProvider,
           consentContractAddress,
           this.cryptoUtils,
+        );
+
+        const secondary =
+          secondaryProvider != null
+            ? new ConsentContract(
+                secondaryProvider,
+                consentContractAddress,
+                this.cryptoUtils,
+              )
+            : null;
+
+        return new ConsentContractWrapper(
+          primary,
+          secondary,
+          this.contextProvider,
+          this.logUtils,
         );
       });
     });

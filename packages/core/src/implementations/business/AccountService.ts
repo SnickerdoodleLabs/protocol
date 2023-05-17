@@ -80,10 +80,6 @@ import {
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
-import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -106,7 +102,6 @@ export class AccountService implements IAccountService {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
@@ -650,29 +645,18 @@ export class AccountService implements IAccountService {
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
       this.metatransactionForwarderRepo.getNonce(derivedEVMAccountAddress),
-      this.contractFactory.factoryCrumbsContract(),
-      this.cryptoUtils.getTokenId(),
+      this.crumbsRepo.encodeCreateCrumb(languageCode, encryptedDataWalletKey),
       this.configProvider.getConfig(),
-    ]).andThen(([nonce, crumbsContract, crumbId, config]) => {
+    ]).andThen(([nonce, { callData, crumbId }, config]) => {
       this.logUtils.info(
-        `Creating new crumb token for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
+        `Creating new crumb token for derived account ${derivedEVMAccountAddress} with crumbId ${crumbId}`,
       );
-      // Create the crumb content
-      const crumbContent = TokenUri(
-        JSON.stringify({
-          [languageCode]: {
-            d: encryptedDataWalletKey.data,
-            iv: encryptedDataWalletKey.initializationVector,
-          },
-        } as ICrumbContent),
-      );
-      const callData = crumbsContract.encodeCreateCrumb(crumbId, crumbContent);
 
       // Create a metatransaction request to get a signature
       return this.metatransactionForwarderRepo
         .signMetatransactionRequest(
           new MetatransactionRequest(
-            crumbsContract.contractAddress, // Contract address for the metatransaction
+            config.controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
             derivedEVMAccountAddress, // EOA to run the transaction as
             BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
             BigNumber.from(config.gasAmounts.createCrumbGas), // gas
@@ -684,7 +668,7 @@ export class AccountService implements IAccountService {
         .andThen((metatransactionSignature) => {
           return this.insightPlatformRepo.executeMetatransaction(
             derivedEVMAccountAddress,
-            crumbsContract.contractAddress,
+            config.controlChainInformation.crumbsContractAddress,
             nonce,
             BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
             BigNumberString(
@@ -701,8 +685,8 @@ export class AccountService implements IAccountService {
           this.logUtils.debug(
             `Delivered metatransaction to Insight Platform, checking to make sure token was created`,
           );
-          crumbsContract
-            .tokenURI(crumbId)
+          this.crumbsRepo
+            .getURI(crumbId)
             .map(() => {
               this.logUtils.info(
                 `Created crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
@@ -732,15 +716,13 @@ export class AccountService implements IAccountService {
       this.metatransactionForwarderRepo.getNonce(
         derivedEVMAccount.accountAddress,
       ),
-      this.contractFactory.factoryCrumbsContract(),
+      this.crumbsRepo.encodeBurnCrumb(crumbId),
       this.configProvider.getConfig(),
-    ]).andThen(([nonce, crumbsContract, config]) => {
-      const callData = crumbsContract.encodeBurnCrumb(crumbId);
-
+    ]).andThen(([nonce, callData, config]) => {
       return this.metatransactionForwarderRepo
         .signMetatransactionRequest(
           new MetatransactionRequest(
-            crumbsContract.contractAddress, // Contract address for the metatransaction
+            config.controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
             derivedEVMAccount.accountAddress, // EOA to run the transaction as
             BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
             BigNumber.from(config.gasAmounts.removeCrumbGas), // gas
@@ -752,7 +734,7 @@ export class AccountService implements IAccountService {
         .andThen((metatransactionSignature) => {
           return this.insightPlatformRepo.executeMetatransaction(
             derivedEVMAccount.accountAddress,
-            crumbsContract.contractAddress,
+            config.controlChainInformation.crumbsContractAddress,
             nonce,
             BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
             BigNumberString(

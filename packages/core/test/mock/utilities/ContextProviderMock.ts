@@ -1,11 +1,14 @@
 import {
+  ApiName,
   DataPermissionsUpdatedEvent,
   DataWalletAddress,
   IpfsCID,
   LinkedAccount,
   SDQLQueryRequest,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { Subject } from "rxjs";
 
 import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
@@ -37,7 +40,10 @@ export class ContextProviderMock implements IContextProvider {
         dataWalletKey,
         false,
         new PublicEvents(),
-        false,
+        false, // restoreInProgress
+        new Subject<void>(), // heartbeat
+        UnixTimestamp(0), // startTime,
+        {}, // apiCalls
       );
     }
 
@@ -80,6 +86,10 @@ export class ContextProviderMock implements IContextProvider {
   public setContext(context: CoreContext): ResultAsync<void, never> {
     this.setContextValues.push({ ...context });
     return okAsync<null, never>(null).map(() => {});
+  }
+
+  public incrementApi(apiName: ApiName): void {
+    throw new Error("Method not implemented.");
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {

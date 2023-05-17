@@ -24,13 +24,17 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
       ContractsAbis.MinimalForwarderAbi.abi,
       providerOrSigner,
     );
+  }
+
+  public getContractAddress(): EVMContractAddress {
+    return this.contractAddress;
   }
 
   public getNonce(

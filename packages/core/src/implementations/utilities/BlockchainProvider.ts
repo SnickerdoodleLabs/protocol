@@ -24,6 +24,7 @@ export class BlockchainProvider implements IBlockchainProvider {
   protected providerInitializationResult: ResultAsync<void, never> | null;
 
   protected primaryProvider: JsonRpcProvider | null = null;
+  protected secondaryProvider: JsonRpcProvider | null = null;
   protected primarySigner: JsonRpcSigner | null = null;
 
   public constructor(
@@ -48,12 +49,31 @@ export class BlockchainProvider implements IBlockchainProvider {
             ? config.devChainProviderURL
             : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.primaryInfuraKey}`,
         );
+
+        // The secondary is optional, and depends on the config. We only have backups for non-devchains
+
+        if (config.controlChainId != EChain.DevDoodle) {
+          if (config.backupInfuraKey != null) {
+            this.secondaryProvider = new ethers.providers.JsonRpcProvider(
+              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.backupInfuraKey}`,
+            );
+          } else if (config.alchemyKey != null) {
+            // TODO: update URL for alchemy when internet comes back on. We also have to make sure
+            // the control chain is supported by alchemy
+            this.secondaryProvider = new ethers.providers.JsonRpcProvider(
+              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.alchemyKey}`,
+            );
+          }
+        }
       });
 
     return this.providerInitializationResult;
   }
 
   public getPrimarySigner(): ResultAsync<Wallet, BlockchainProviderError> {
+    this.logUtils.warning(
+      "Requesting a primary signer. This is probably unintentional; we can only sign with the data wallet key which should not have any funds and should not be signing anything directly anyway",
+    );
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.getPrimaryProvider(),
@@ -80,6 +100,15 @@ export class BlockchainProvider implements IBlockchainProvider {
       }
 
       return okAsync(this.primaryProvider);
+    });
+  }
+
+  public getSecondaryProvider(): ResultAsync<
+    JsonRpcProvider | null,
+    BlockchainProviderError
+  > {
+    return this.waitForProviderPromise().map(() => {
+      return this.secondaryProvider;
     });
   }
 
