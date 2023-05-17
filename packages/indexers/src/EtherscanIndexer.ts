@@ -50,16 +50,16 @@ export class EtherscanIndexer
   ) {}
 
   public getEVMTransactions(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
-      this._getEtherscanApiKey(chainId),
-      this._getBlockNumber(chainId, startTime),
-      this._getBlockNumber(chainId, endTime),
+      this._getEtherscanApiKey(chain),
+      this._getBlockNumber(chain, startTime),
+      this._getBlockNumber(chain, endTime),
     ]).andThen(([config, apiKey, fromBlock, toBlock]) => {
       const params = {
         module: "account",
@@ -77,7 +77,7 @@ export class EtherscanIndexer
       }
 
       return this._paginateTransactions(
-        chainId,
+        chain,
         params,
         config.etherscanTransactionsBatchSize,
       );
@@ -261,13 +261,11 @@ export class EtherscanIndexer
             });
 
             params.page += 1;
-            return this._paginateTransactions(
-              getChainInfoByChain(chain).chainId,
-              params,
-              maxRecords,
-            ).map((otherTxs) => {
-              return [...txs, ...otherTxs];
-            });
+            return this._paginateTransactions(chain, params, maxRecords).map(
+              (otherTxs) => {
+                return [...txs, ...otherTxs];
+              },
+            );
           })
           .mapErr((e) => {
             return new AccountIndexingError("error fetching transactions", e);

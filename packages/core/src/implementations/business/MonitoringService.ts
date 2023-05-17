@@ -9,6 +9,7 @@ import {
   DiscordError,
   EIndexer,
   EVMAccountAddress,
+  getChainInfoByChainId,
   IAccountIndexing,
   IAccountIndexingType,
   isAccountValidForChain,
@@ -154,7 +155,7 @@ export class MonitoringService implements IMonitoringService {
         switch (chainInfo.indexer) {
           case EIndexer.EVM:
             return evmRepo.getEVMTransactions(
-              chainId,
+              getChainInfoByChainId(chainId).chain,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
@@ -172,31 +173,31 @@ export class MonitoringService implements IMonitoringService {
             );
           case EIndexer.Ethereum:
             return etherscanRepo.getEVMTransactions(
-              chainId,
+              getChainInfoByChainId(chainId).chain,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
           case EIndexer.Polygon:
             return maticRepo.getEVMTransactions(
-              chainId,
+              getChainInfoByChainId(chainId).chain,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
           case EIndexer.Gnosis:
             return etherscanRepo.getEVMTransactions(
-              chainId,
+              getChainInfoByChainId(chainId).chain,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
           case EIndexer.Binance:
             return etherscanRepo.getEVMTransactions(
-              chainId,
+              getChainInfoByChainId(chainId).chain,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
           case EIndexer.Moonbeam:
             return etherscanRepo.getEVMTransactions(
-              chainId,
+              getChainInfoByChainId(chainId).chain,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
