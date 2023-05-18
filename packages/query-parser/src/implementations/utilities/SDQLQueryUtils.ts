@@ -47,6 +47,9 @@ export class SDQLQueryUtils {
     readonly queryWrapperFactory: ISDQLQueryWrapperFactory,
   ) {}
 
+  /**
+   * @deprecated The method should not be used
+   */
   public getEligibleCompensations(
     schemaString: SDQLString,
     ads: AdKey[],
@@ -62,6 +65,9 @@ export class SDQLQueryUtils {
     throw new Error("");
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   protected extractCompensationKeyFromAst(
     ast: AST_Expr | Command,
   ): CompensationKey {
@@ -69,6 +75,9 @@ export class SDQLQueryUtils {
     return CompensationKey(compensationAst.name as string);
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   protected extractCompensationKeyFromAstWithAlternatives(
     ast: AST_Expr | Command,
   ): CompensationKey[] {
@@ -82,6 +91,9 @@ export class SDQLQueryUtils {
     return [...comIds];
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   protected getCompensationAstFromAst(
     ast: AST_Expr | Command,
   ): AST_Compensation {
@@ -101,6 +113,9 @@ export class SDQLQueryUtils {
     }
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   protected getAdAstFromAst(ast: AST_Expr | Command): AST_Ad {
     switch (ast.constructor) {
       case Command_IF:
@@ -116,6 +131,9 @@ export class SDQLQueryUtils {
     }
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   private buildEligibleAdsMap(
     parser: SDQLParser,
     permittedAdKeys: AdKey[],
@@ -133,6 +151,9 @@ export class SDQLQueryUtils {
     return eligibleAdBlocks;
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   private buildEligibleInsightsMap(
     parser: SDQLParser,
     permittedInsightKeys: InsightKey[],
@@ -152,6 +173,9 @@ export class SDQLQueryUtils {
     return eligibleInsightBlocks;
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   private buildExpectedCompensationsMap(
     parser: SDQLParser,
     expectedCompensationKeys: CompensationKey[],
@@ -173,6 +197,9 @@ export class SDQLQueryUtils {
     return expectedCompensationBlocks;
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   private hasRequiredInsights(
     permittedInsightKeys: InsightKey[],
     requiredInsights: AST_Insight[],
@@ -182,6 +209,9 @@ export class SDQLQueryUtils {
     });
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   private hasRequiredAds(
     permittedAdKeys: AdKey[],
     requiredAds: AST_Ad[],
