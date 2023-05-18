@@ -59,6 +59,7 @@ import {
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import { PermissionsUtilsMock } from "@core-tests/mock/business/utilities/index.js";
 import {
+  controlChainInformation,
   dataWalletAddress,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
@@ -68,7 +69,6 @@ import {
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 
-const crumbsContractAddress = EVMContractAddress("crumbsContractAddress");
 const metatransactionValue = BigNumberString("0");
 const metatransactionGas = BigNumberString("10000000");
 const tokenId1 = TokenId(BigInt(13));
@@ -188,7 +188,7 @@ class AccountServiceMocks {
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
         evmDerivedEVMAccount.accountAddress,
-        crumbsContractAddress,
+        controlChainInformation.crumbsContractAddress,
         evmDerivedNonce,
         metatransactionValue,
         metatransactionGas,
@@ -201,7 +201,7 @@ class AccountServiceMocks {
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
         solanaDerivedEVMAccount.accountAddress,
-        crumbsContractAddress,
+        controlChainInformation.crumbsContractAddress,
         solanaDerivedNonce,
         metatransactionValue,
         metatransactionGas,
@@ -214,7 +214,7 @@ class AccountServiceMocks {
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
         evmDerivedEVMAccount.accountAddress,
-        crumbsContractAddress,
+        controlChainInformation.crumbsContractAddress,
         evmDerivedNonce,
         metatransactionValue,
         metatransactionGas,
@@ -227,7 +227,7 @@ class AccountServiceMocks {
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
         solanaDerivedEVMAccount.accountAddress,
-        crumbsContractAddress,
+        controlChainInformation.crumbsContractAddress,
         solanaDerivedNonce,
         metatransactionValue,
         metatransactionGas,
@@ -449,7 +449,7 @@ class AccountServiceMocks {
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
         td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
+          to: controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
           from: evmDerivedEVMAccount.accountAddress, // EOA to run the transaction as
           data: evmEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
         }),
@@ -460,7 +460,7 @@ class AccountServiceMocks {
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
         td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
+          to: controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
           from: solanaDerivedEVMAccount.accountAddress, // EOA to run the transaction as
           data: solanaEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
         }),
@@ -471,7 +471,7 @@ class AccountServiceMocks {
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
         td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
+          to: controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
           from: evmDerivedEVMAccount.accountAddress, // EOA to run the transaction as
           data: evmEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
         }),
@@ -482,7 +482,7 @@ class AccountServiceMocks {
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
         td.matchers.contains({
-          to: crumbsContractAddress, // Contract address for the metatransaction
+          to: controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
           from: solanaDerivedEVMAccount.accountAddress, // EOA to run the transaction as
           data: solanaEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
         }),
@@ -1006,7 +1006,7 @@ describe("AccountService unlock() tests", () => {
     td.when(
       mocks.insightPlatformRepo.executeMetatransaction(
         evmDerivedEVMAccount.accountAddress,
-        crumbsContractAddress,
+        controlChainInformation.crumbsContractAddress,
         evmDerivedNonce,
         metatransactionValue,
         metatransactionGas,
@@ -1319,7 +1319,7 @@ describe("AccountService addAccount() tests", () => {
     td.when(
       mocks.insightPlatformRepo.executeMetatransaction(
         evmDerivedEVMAccount.accountAddress,
-        crumbsContractAddress,
+        controlChainInformation.crumbsContractAddress,
         evmDerivedNonce,
         metatransactionValue,
         metatransactionGas,

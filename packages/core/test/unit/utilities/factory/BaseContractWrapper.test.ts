@@ -80,6 +80,6 @@ describe("BaseContractWrapper tests", () => {
     ).toBe(1);
     expect(
       mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
-    ).toBe(0);
+    ).toBe(undefined);
   });
 });
