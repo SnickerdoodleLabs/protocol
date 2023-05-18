@@ -244,8 +244,10 @@ describe("Logical Operand tests", () => {
       expect(testCaseResult.isOk()).toBeTruthy();
       const val = testCaseResult._unsafeUnwrap();
       const match = val === testCase[2];
-      if (val !== true) {
-        console.log(`${testCase} at ${idx} failed`);
+      if (match !== true) {
+        console.log(
+          `${testCase} at ${idx} failed. got ${val}, expected ${testCase[2]}`,
+        );
       }
       return match;
     });
