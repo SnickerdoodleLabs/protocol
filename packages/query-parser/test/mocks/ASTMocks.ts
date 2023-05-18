@@ -1,22 +1,19 @@
 import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { DataPermissions, IpfsCID } from "@snickerdoodlelabs/objects";
+import * as td from "testdouble";
+
 import {
-  Age,
-  CountryCode,
-  DataPermissions,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
+  QueryFactories,
+  SDQLQueryWrapperFactory,
+} from "@query-parser/implementations/index.js";
 import {
   IQueryFactories,
   IQueryObjectFactory,
   IQueryRepository,
   ISDQLQueryWrapperFactory,
-  QueryFactories,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
+} from "@query-parser/interfaces/index.js";
 
 export class ASTMocks {
   public queryObjectFactory = td.object<IQueryObjectFactory>();

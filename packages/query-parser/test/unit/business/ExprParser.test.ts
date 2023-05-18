@@ -2,7 +2,6 @@ import "reflect-metadata";
 
 import { okAsync } from "neverthrow";
 
-import { ExprParserMocks } from "@query-parser-test/mocks";
 import { Token, TokenType } from "@query-parser/implementations";
 import {
   AST_ConditionExpr,
@@ -13,6 +12,7 @@ import {
   ConditionLE,
   ConditionOr,
 } from "@query-parser/interfaces";
+import { ExprParserMocks } from "@query-parser-test/mocks";
 
 describe("Postfix to AST", () => {
   test("$q1$q2andq3or to ast", () => {
@@ -27,7 +27,9 @@ describe("Postfix to AST", () => {
           new Token(TokenType.query, "$q3", 11),
           new Token(TokenType.or, "or", 9),
         ];
-        const expr = exprParser.buildAstFromPostfix(postFix) as AST_ConditionExpr;
+        const expr = exprParser.buildAstFromPostfix(
+          postFix,
+        ) as AST_ConditionExpr;
         expect(expr.constructor).toBe(AST_ConditionExpr);
         expect(expr.source.constructor).toBe(ConditionOr);
         const or = expr.source as ConditionOr;
@@ -208,7 +210,9 @@ describe("Postfix to AST", () => {
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
     // // Action
-    const expr = (await parser.parse("True"))._unsafeUnwrap() as AST_ConditionExpr;
+    const expr = (
+      await parser.parse("True")
+    )._unsafeUnwrap() as AST_ConditionExpr;
 
     // Assert
     expect(expr.source).toBe(true);
