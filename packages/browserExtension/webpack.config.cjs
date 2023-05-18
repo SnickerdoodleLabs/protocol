@@ -50,7 +50,7 @@ var options = {
   // mode: env.NODE_ENV || "development",
   mode: "development",
   entry: {
-    popup: path.join(__dirname, "src", "popup", "index.jsx"),
+    popup: path.join(__dirname, "src", "popup", "index.tsx"),
     background: path.join(__dirname, "src", "background", "index.ts"),
     contentScript: path.join(__dirname, "src", "content", "index.ts"),
     dataWalletProxy: path.join(
@@ -114,18 +114,18 @@ var options = {
           },
         },
       },
-      {
-        test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: "source-map-loader",
-          },
-          {
-            loader: "babel-loader",
-          },
-        ],
-        exclude: /node_modules/,
-      },
+      // {
+      //   test: /\.(js|jsx)$/,
+      //   use: [
+      //     {
+      //       loader: "source-map-loader",
+      //     },
+      //     {
+      //       loader: "babel-loader",
+      //     },
+      //   ],
+      //   exclude: /node_modules/,
+      // },
     ],
   },
   resolve: {
@@ -162,9 +162,6 @@ var options = {
       __CERAMIC_NODE_URL__: JSON.stringify(process.env.__CERAMIC_NODE_URL__),
       __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
-      ),
-      __CONTROL_CHAIN_PROVIDER_URL__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_PROVIDER_URL__,
       ),
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
@@ -205,6 +202,12 @@ var options = {
       ),
       __TWITTER_POLL_INTERVAL__: JSON.stringify(
         process.env.__TWITTER_POLL_INTERVAL__,
+      ),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
+        process.env.__DEV_CHAIN_PROVIDER_URL__,
       ),
     }),
 

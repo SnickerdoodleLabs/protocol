@@ -22,7 +22,6 @@ export class ExtensionConfig {
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public ceramicNodeUrl: URLString,
-    public controlChainProviderUrl?: ProviderUrl,
     public covalentApiKey?: string,
     public moralisApiKey?: string,
     public nftScanApiKey?: string,
@@ -38,5 +37,7 @@ export class ExtensionConfig {
     public enableBackupEncryption?: boolean,
     public discordOverrides?: Partial<DiscordConfig>,
     public twitterOverrides?: Partial<TwitterConfig>,
+    public primaryInfuraKey?: string,
+    public devChainProviderURL?: ProviderUrl,
   ) {}
 }

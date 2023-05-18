@@ -9,18 +9,24 @@ var path = require("path");
 var fs = require("fs-extra");
 var webpack = require("webpack");
 
-var config = require("../webpack.config.cjs");
-
 // Get the build environments
 const buildEnv = process.argv[2];
 console.log(`Building extension for ${buildEnv} to build-${buildEnv}`);
 
+// load environment variables, needs to be loaded before config,
+require(`./envVars/${buildEnv}-env.cjs`);
+
+var config = require("../webpack.config.cjs");
+
 config.mode = "development";
 
-webpack(config, function (err) {
-  if (err) throw err;
+webpack(config, function (err, stats) {
+  if (err) {
+    console.log(err);
+    throw err;
+  }
 
-  console.log("Complete webpack build");
+  console.log("Completed webpack build");
 
   const envBuildPath = path.join(__dirname, `../build-${buildEnv}`);
 

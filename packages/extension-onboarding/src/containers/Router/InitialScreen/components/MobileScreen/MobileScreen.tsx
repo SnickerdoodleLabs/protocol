@@ -66,6 +66,9 @@ const MobileScreen = () => {
       <Box py={7} bgcolor="##F2F2F8">
         <Box display="flex" justifyContent="center" px={3}>
           <video
+            muted
+            autoPlay
+            playsInline
             style={{ width: "100%", borderRadius: 12, objectFit: "cover" }}
             controls
           >
