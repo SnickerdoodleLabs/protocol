@@ -14,9 +14,12 @@ import {
   IQueryDeliveryItems,
   IpfsCID,
   SDQL_Name,
+  IInsightWithProof,
+  InsightString,
+  ProofError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { RequiresEvaluator } from "@query-parser/implementations/business/evaluators/RequiresEvaluator.js";
@@ -270,7 +273,7 @@ export class SDQLQueryUtils {
       });
   }
 
-  public createAvailableMapForRequiresEvaluator(
+  private createAvailableMapForRequiresEvaluator(
     queryDeliveryItems: IQueryDeliveryItems,
   ): Map<SDQL_Name, unknown> {
     const availableMap = new Map<SDQL_Name, unknown>();
@@ -288,5 +291,72 @@ export class SDQLQueryUtils {
     }
 
     return availableMap;
+  }
+
+  public getValidInsights(
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): ResultAsync<Map<InsightKey, InsightString>, ProofError> {
+
+    if (queryDeliveryItems.insights != null) {
+      const keys = Object.keys(queryDeliveryItems.insights);
+      const nonNullInsights = keys.reduce<Map<InsightKey, IInsightWithProof>>(
+        (validMap, key) => {
+          const value = queryDeliveryItems.insights![key];
+          if (value != null) {
+            validMap.set(InsightKey(key), value);
+          }
+          return validMap;
+        },
+        new Map<InsightKey, IInsightWithProof>(),
+      );
+
+      const nonNullKeys = Object.keys(nonNullInsights);
+      const proofResults = nonNullKeys.map((key) =>
+        this.validateProof(nonNullInsights[key]),
+      );
+
+      return ResultUtils.combine(proofResults).andThen((proofs) => {
+        const provedInsights = proofs.reduce<Map<InsightKey, InsightString>>(
+          (validMap, proof, idx) => {
+            if (proof) {
+              const validKey = InsightKey(nonNullKeys[idx]);
+              validMap.set(validKey, nonNullInsights[validKey].insight);
+            }
+
+            return validMap;
+          },
+          new Map<InsightKey, InsightString>(),
+        );
+
+        return okAsync(provedInsights);
+      });
+    }
+
+    return okAsync(new Map<InsightKey, InsightString>());
+  }
+
+  public getValidAds(
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): ResultAsync<Map<AdKey, unknown>, ProofError> {
+    const validAds = new Map<AdKey, unknown>();
+    if (queryDeliveryItems.ads != null) {
+      const keys = Object.keys(queryDeliveryItems.ads);
+      keys.reduce<Map<AdKey, unknown>>((validMap, key) => {
+        const value = queryDeliveryItems.ads![key];
+        if (value != null) {
+          validMap.set(AdKey(key), value);
+        }
+        return validMap;
+      }, validAds);
+    }
+
+    return okAsync(validAds);
+  }
+
+  public validateProof(
+    insightWithProof: IInsightWithProof,
+  ): ResultAsync<boolean, ProofError> {
+    // return errAsync(new Error("Not implemented"));
+    return okAsync(true);
   }
 }

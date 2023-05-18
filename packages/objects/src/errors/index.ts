@@ -22,6 +22,7 @@ export * from "@objects/errors/OAuthError.js";
 export * from "@objects/errors/ParserTypeNotImplementedError.js";
 export * from "@objects/errors/PermissionError.js";
 export * from "@objects/errors/PersistenceError.js";
+export * from "@objects/errors/ProofError.js";
 export * from "@objects/errors/ProviderRpcError.js";
 export * from "@objects/errors/QueryExpiredError.js";
 export * from "@objects/errors/QueryFormatError.js";
