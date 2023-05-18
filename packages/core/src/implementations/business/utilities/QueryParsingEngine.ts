@@ -26,6 +26,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
+  AST_Evaluator,
+  IQueryFactories,
+  IQueryFactoriesType,
+  IQueryRepository,
+  IQueryRepositoryType,
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
@@ -36,23 +41,13 @@ import { ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import {
-  IQueryParsingEngine,
-  IQueryRepository,
-  IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
   IAdDataRepository,
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
-import {
-  IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory/index.js";
-
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
   public constructor(

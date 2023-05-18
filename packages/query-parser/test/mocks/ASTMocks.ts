@@ -1,22 +1,5 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  Age,
-  CountryCode,
-  DataPermissions,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
-import {
-  IQueryFactories,
-  IQueryObjectFactory,
-  ISDQLQueryWrapperFactory,
-  QueryFactories,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
-
 import { ProfileService } from "@core/implementations/business";
 import {
   BalanceQueryEvaluator,
@@ -35,6 +18,22 @@ import {
   ISocialRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  Age,
+  CountryCode,
+  DataPermissions,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
+import {
+  IQueryFactories,
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  QueryFactories,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { okAsync } from "neverthrow";
+import * as td from "testdouble";
 
 export class ASTMocks {
   public demoRepo = td.object<IDemographicDataRepository>();

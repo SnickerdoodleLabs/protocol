@@ -4,10 +4,10 @@ import {
   QueryFormatError,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
-import { SDQLParser } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
+import { AST_Evaluator } from "@query-parser/implementations/business/evaluators/AST_Evaluator.js";
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
 
 export interface IQueryFactories {
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser;

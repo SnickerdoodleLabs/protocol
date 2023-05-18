@@ -1,13 +1,13 @@
 import {
   EvaluationError,
-  SDQL_Name,
   SDQL_OperatorName,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
+import { AST_Evaluator } from "@query-parser/implementations/index.js";
 import {
-  AST_BoolExpr,
-  Condition,
-  ConditionAnd,
   ConditionE,
   ConditionG,
   ConditionGE,
@@ -15,14 +15,9 @@ import {
   ConditionL,
   ConditionLE,
   ConditionOperandTypes,
-  ConditionOr,
   Operator,
-} from "@snickerdoodlelabs/query-parser";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import { ASTMocks } from "@core-tests/mock/mocks";
+} from "@query-parser/interfaces/index.js";
+import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
 
 async function testComparisonOperands(
   astEvaluator: AST_Evaluator,
@@ -219,7 +214,7 @@ describe("Logical Operand tests", () => {
           return match;
         }),
       );
-      
+
       // Assert
       testResults.map((v) => expect(v).toBeTruthy());
     });

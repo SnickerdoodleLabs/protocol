@@ -4,8 +4,9 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { AST_SubQuery } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
+
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 
 export interface IQueryRepository {
   get(

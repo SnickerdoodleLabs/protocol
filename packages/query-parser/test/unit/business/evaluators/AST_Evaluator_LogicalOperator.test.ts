@@ -1,19 +1,11 @@
-import {
-  SDQL_Name,
-  SDQL_OperatorName,
-  SDQL_Return,
-} from "@snickerdoodlelabs/objects";
-import {
-  AST_BoolExpr,
-  Condition,
-  ConditionAnd,
-  ConditionOperandTypes,
-  ConditionOr,
-  Operator,
-} from "@snickerdoodlelabs/query-parser";
+import { SDQL_OperatorName, SDQL_Return } from "@snickerdoodlelabs/objects";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import { ASTMocks } from "@core-tests/mock/mocks";
+import { AST_Evaluator } from "@query-parser/implementations/index.js";
+import {
+  ConditionOperandTypes,
+  Operator,
+} from "@query-parser/interfaces/index.js";
+import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
 
 async function testLogicalOperands(
   astEvaluator: AST_Evaluator,

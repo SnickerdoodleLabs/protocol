@@ -6,6 +6,9 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -22,11 +25,8 @@ import {
   ConditionOr,
   Operator,
   TypeChecker,
-} from "@snickerdoodlelabs/query-parser";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
+  IQueryRepository,
+} from "@query-parser/interfaces/index.js";
 
 export class AST_Evaluator {
   readonly operatorMap = new Map<Function, Function>();

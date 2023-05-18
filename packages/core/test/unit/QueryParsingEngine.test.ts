@@ -27,12 +27,13 @@ import {
   avalanche1ExpiredSchemaStr,
   avalanche2SchemaStr,
   avalanche4SchemaStr,
+  IQueryFactories,
+  QueryFactories,
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 import { QueryParsingEngine } from "@core/implementations/business/utilities/index.js";
 import {
   BalanceQueryEvaluator,
@@ -45,7 +46,6 @@ import {
   AdContentRepository,
   AdDataRepository,
 } from "@core/implementations/data";
-import { QueryFactories } from "@core/implementations/utilities/factory";
 import { SnickerdoodleCore } from "@core/index";
 import {
   IBrowsingDataRepository,
@@ -55,7 +55,7 @@ import {
   ISocialRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(

@@ -5,22 +5,20 @@ import {
   SDQLQuery,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
-import {
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-  SDQLParser,
-} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
+import { AST_Evaluator } from "@query-parser/implementations/business/evaluators/AST_Evaluator.js";
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
 import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/query/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+} from "@query-parser/interfaces/index.js";
+import { IQueryFactories } from "@query-parser/interfaces/IQueryFactories.js";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {

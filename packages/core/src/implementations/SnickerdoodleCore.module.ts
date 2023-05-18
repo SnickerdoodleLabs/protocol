@@ -45,14 +45,19 @@ import {
   VolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
+  IQueryFactories,
+  IQueryFactoriesType,
   IQueryObjectFactory,
   IQueryObjectFactoryType,
+  IQueryRepository,
+  IQueryRepositoryType,
   ISDQLParserFactory,
   ISDQLParserFactoryType,
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
+  QueryFactories,
   QueryObjectFactory,
   SDQLParserFactory,
   SDQLQueryUtils,
@@ -115,7 +120,6 @@ import {
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
-  QueryFactories,
 } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
@@ -172,8 +176,6 @@ import {
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
-  IQueryRepository,
-  IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
@@ -222,8 +224,6 @@ import {
 import {
   IContractFactory,
   IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,

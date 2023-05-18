@@ -4,14 +4,13 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { AST_SubQuery } from "@snickerdoodlelabs/query-parser";
+import { AST_SubQuery, IQueryRepository } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import {
   IQueryEvaluator,
   IQueryEvaluatorType,
-  IQueryRepository,
 } from "@core/interfaces/business/utilities/query/index.js";
 
 @injectable()

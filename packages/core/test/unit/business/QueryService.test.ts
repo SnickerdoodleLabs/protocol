@@ -41,15 +41,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import "reflect-metadata";
 import * as td from "testdouble";
 
-import {
-  dataWalletAddress,
-  dataWalletKey,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/index.js";
-import {
-  ConfigProviderMock,
-  ContextProviderMock,
-} from "@core-tests/mock/utilities/index.js";
 import { QueryService } from "@core/implementations/business/index.js";
 import {
   IConsentTokenUtils,
@@ -64,6 +55,15 @@ import {
   IConfigProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
+import {
+  dataWalletAddress,
+  dataWalletKey,
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks/index.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities/index.js";
 
 const now = UnixTimestamp(12345);
 const then = UnixTimestamp(2345);
