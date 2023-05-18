@@ -14,6 +14,7 @@ import {
   Signature,
   TokenId,
   URLString,
+  IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -42,7 +43,7 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    insights: IInsights,
+    insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,

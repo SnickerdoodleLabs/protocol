@@ -171,6 +171,7 @@ class QueryParsingMocks {
   public factory() {
     return new QueryParsingEngine(
       this.queryFactories,
+      this.queryRepository,
       this.queryUtils,
       this.adContentRepository,
       this.adDataRepo,

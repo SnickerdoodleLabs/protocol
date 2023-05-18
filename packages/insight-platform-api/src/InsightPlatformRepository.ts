@@ -20,6 +20,7 @@ import {
   Signature,
   TokenId,
   URLString,
+  IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -152,7 +153,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    insights: IInsights,
+    insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
