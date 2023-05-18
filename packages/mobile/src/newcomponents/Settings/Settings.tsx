@@ -63,7 +63,7 @@ export default function Settings() {
                   fontSize: normalizeWidth(20),
                 }}
               >
-                Crypto Accounts
+                Linked Wallets
               </Text>
             </View>
             <View>
@@ -83,13 +83,19 @@ export default function Settings() {
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Image
+              <View
                 style={{
                   width: normalizeWidth(62),
                   height: normalizeHeight(62),
+                  borderRadius: 100,
+                  backgroundColor: "#f3f2f9",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                source={require("../../assets/images/settings-personal.png")}
-              />
+              >
+                <Icon name="person" size={normalizeWidth(28)} />
+              </View>
+
               <Text
                 style={{
                   paddingLeft: normalizeWidth(20),

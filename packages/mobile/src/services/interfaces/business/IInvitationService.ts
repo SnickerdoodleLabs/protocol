@@ -1,95 +1,149 @@
 import {
+  AjaxError,
+  BlockchainProviderError,
   Invitation,
   DataPermissions,
-  EInvitationStatus,
-  PageInvitation,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  ConsentError,
   DomainName,
+  EInvitationStatus,
   EVMContractAddress,
+  MinimalForwarderContractError,
+  PersistenceError,
+  UninitializedError,
+  PageInvitation,
+  IPFSError,
   IOpenSeaMetadata,
+  ConsentFactoryContractError,
   IpfsCID,
   HexString32,
-  EWalletDataType,
-  Signature,
-  TokenId,
-  MarketplaceListing,
-  PersistenceError,
-  ConsentContractRepositoryError,
-  ConsentContractError,
-  BlockchainProviderError,
-  UninitializedError,
-  AjaxError,
-  MinimalForwarderContractError,
-  ConsentError,
   AccountAddress,
-  ConsentFactoryContractError,
-  IPFSError,
   IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { MobileStorageError } from "../objects/errors/MobileStorageError";
-import { SnickerDoodleCoreError } from "../objects/errors/SnickerDoodleCoreError";
 
 export interface IInvitationService {
   checkInvitationStatus(
     invitation: Invitation,
-  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    EInvitationStatus,
+    | PersistenceError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  >;
 
   acceptInvitation(
     invitation: Invitation,
     dataPermissions: DataPermissions | null,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
+    | ConsentError
+  >;
 
   rejectInvitation(
     invitation: Invitation,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    void,
+    | UninitializedError
+    | PersistenceError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | BlockchainProviderError
+    | AjaxError
+    | ConsentError
+  >;
 
   leaveCohort(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | MinimalForwarderContractError
+    | ConsentContractError
+    | ConsentError
+    | PersistenceError
+  >;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
+  ): ResultAsync<void, PersistenceError>;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
+  ): ResultAsync<void, PersistenceError>;
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
-  ): ResultAsync<AccountAddress, SnickerDoodleCoreError>;
+  ): ResultAsync<AccountAddress, PersistenceError>;
 
-  getAcceptedInvitationsCID(): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  >;
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
-  ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
 
   getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
+  >;
 
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | PersistenceError
   >;
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
 
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<HexString32, SnickerDoodleCoreError>;
+  ): ResultAsync<
+    HexString32,
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentError
+    | PersistenceError
+    | ConsentFactoryContractError
+  >;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | PersistenceError
   >;
 }
 

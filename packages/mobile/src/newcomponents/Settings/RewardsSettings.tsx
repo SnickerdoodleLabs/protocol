@@ -48,8 +48,8 @@ export default function RewardsSettings() {
 
   useEffect(() => {
     mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {});
-    mobileCore.accountService.getAccountNFTs().map((data) => {
-      console.log("getAccountBalances", data);
+    mobileCore.getCore().getEarnedRewards().map((data) => {
+      console.log("getEarnedRewards", data);
     });
     setIsLoading([]);
     getOptedInInvitationMetaData();
@@ -105,10 +105,7 @@ export default function RewardsSettings() {
             marginTop: normalizeHeight(32),
           }}
         >
-          These are the rewards programs you follow. Through these subscription
-          contracts, you have agreed to share anonymized business insights with
-          only these rewards programs, in exchange for rewards.
-        </Text>
+{`You have agreed to share anonymized information\nwith these brands, only, through these rewards\nprograms.`}        </Text>
 
         {campainJoined?.map((metaData, index) => {
           return (

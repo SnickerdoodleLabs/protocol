@@ -4,6 +4,7 @@ import { StyleSheet, View, Text, Switch } from "react-native";
 import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
   return (
@@ -92,39 +93,40 @@ const Permission = () => {
     if (isUnlocked) {
       mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
         console.log("perm", permission);
-        if (permission.length === 0) {
-          console.log("permission1", permission);
-          mobileCore.dataPermissionUtils.setPermissions([
-            EWalletDataType.Age,
-            EWalletDataType.Gender,
-            EWalletDataType.Location,
-            EWalletDataType.SiteVisits,
-            EWalletDataType.AccountNFTs,
-            EWalletDataType.AccountBalances,
-            EWalletDataType.EVMTransactions,
-            EWalletDataType.Discord,
-          ]);
+        AsyncStorage.getItem("permissionSetted").then((setted) => {
+          if (permission.length === 0 && setted == null) {
+            AsyncStorage.setItem("permissionSetted", "true");
+            mobileCore.dataPermissionUtils.setPermissions([
+              EWalletDataType.Age,
+              EWalletDataType.Gender,
+              EWalletDataType.Location,
+              EWalletDataType.SiteVisits,
+              EWalletDataType.AccountNFTs,
+              EWalletDataType.AccountBalances,
+              EWalletDataType.EVMTransactions,
+              EWalletDataType.Discord,
+            ]);
 
-          setPermissions([
-            EWalletDataType.Age,
-            EWalletDataType.Gender,
-            EWalletDataType.Location,
-            EWalletDataType.SiteVisits,
-            EWalletDataType.AccountNFTs,
-            EWalletDataType.AccountBalances,
-            EWalletDataType.EVMTransactions,
-            EWalletDataType.Discord,
-          ]);
-        } else {
-          setPermissions(permission);
-        }
+            setPermissions([
+              EWalletDataType.Age,
+              EWalletDataType.Gender,
+              EWalletDataType.Location,
+              EWalletDataType.SiteVisits,
+              EWalletDataType.AccountNFTs,
+              EWalletDataType.AccountBalances,
+              EWalletDataType.EVMTransactions,
+              EWalletDataType.Discord,
+            ]);
+          } else {
+            setPermissions(permission);
+          }
+        });
       });
     }
   }, [isUnlocked]);
 
   useEffect(() => {
     mobileCore.dataPermissionUtils.setPermissions(permissions);
-    console.log("permission3", permissions);
 
     permissions.map((perm) => {
       if (age.walletDataType === perm) {
@@ -249,18 +251,18 @@ const styles = StyleSheet.create({
   row: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 16,
+    borderRadius: normalizeWidth(16),
     paddingHorizontal: normalizeWidth(20),
     paddingVertical: normalizeHeight(20),
-    marginBottom: 16,
+    marginBottom: normalizeHeight(16),
   },
   rowTitle: {
-    fontSize: 18,
+    fontSize: normalizeWidth(18),
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: normalizeHeight(15),
   },
   toggleContainer: {
-    marginBottom: 8,
+    marginBottom: normalizeHeight(14),
   },
 });
 

@@ -25,7 +25,7 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
   const data3: SliceData[] = [
     {
       key: 1,
-      value: 100,
+      value: 0,
       svg: { fill: "#AFAADB" },
       label: "Empty",
     },
@@ -143,10 +143,10 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
 const styles = StyleSheet.create({
   boxContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     marginTop: normalizeHeight(24),
   },
-  container: {
+    container: {
     width: normalizeWidth(180),
     height: normalizeHeight(115),
     backgroundColor: "#F2F2F8",

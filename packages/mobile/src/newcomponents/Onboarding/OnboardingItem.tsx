@@ -47,13 +47,16 @@ export default function OnboardingItem({
           <View
             style={{
               paddingHorizontal: normalizeWidth(18),
-              marginTop: normalizeHeight(10),
+              marginTop: normalizeHeight(40),
               height: normalizeHeight(item?.asset?.height ?? 0),
             }}
           >
             {item.asset && item.asset.type === "image" ? (
               <Image
-                style={{ flex: 1, resizeMode: "contain" }}
+                style={{
+                  flex: 1,
+                  resizeMode: "contain",
+                }}
                 source={item?.asset?.source}
               />
             ) : (

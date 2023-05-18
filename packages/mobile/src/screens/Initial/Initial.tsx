@@ -45,6 +45,14 @@ const Initial = ({ navigation }) => {
   const [gifLoaded, setGifLoaded] = useState(false);
 
   useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+  }, [navigation]);
+
+  useEffect(() => {
     tryUnlock();
   }, []);
 

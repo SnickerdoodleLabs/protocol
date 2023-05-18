@@ -43,7 +43,7 @@ const DropdownInput = ({
   };
   const iconNameObject = {
     Country: "location-outline",
-    Gender: "person-outline",
+    Gender: "transgender-outline",
     "Year of birth": "calendar-outline",
   };
 
@@ -76,9 +76,7 @@ const DropdownInput = ({
                 style={styles.dropdownOption}
               >
                 <Text style={styles.dropdownOptionText}>
-                  {typeof option === "string"
-                    ? option
-                    : `${option.label}`}
+                  {typeof option === "string" ? option : `${option.label}`}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -141,28 +139,39 @@ const MyComponent = () => {
 
   return (
     <View style={styles.container}>
-      <DropdownInput
-        label="Country"
-        selectedValue={
-          selectedCountry
-            ? `${selectedCountry.label}`
-            : null
-        }
-        options={countries}
-        setSelectedValue={handleCountryPress}
-      />
-      <DropdownInput
-        label="Gender"
-        selectedValue={selectedGender}
-        options={genders}
-        setSelectedValue={handleGenderPress}
-      />
-      <DropdownInput
-        label="Year of birth"
-        selectedValue={selectedYear}
-        options={years}
-        setSelectedValue={handleYearPress}
-      />
+      <View style={{ width: "100%", height: 60, zIndex: 999 }}>
+        <View style={{ position: "absolute", width: "100%", zIndex: 999 }}>
+          <DropdownInput
+            label="Country"
+            selectedValue={selectedCountry ? `${selectedCountry.label}` : null}
+            options={countries}
+            setSelectedValue={handleCountryPress}
+          />
+        </View>
+      </View>
+
+      <View style={{ width: "100%", height: 60, zIndex: 998 }}>
+        <View style={{ position: "absolute", width: "100%", zIndex: 998 }}>
+          <DropdownInput
+            label="Gender"
+            selectedValue={selectedGender}
+            options={genders}
+            setSelectedValue={handleGenderPress}
+          />
+        </View>
+      </View>
+      <View>
+        <View style={{ width: "100%", height: 60, zIndex: 997 }}>
+          <View style={{ position: "absolute", width: "100%", zIndex: 997 }}>
+            <DropdownInput
+              label="Year of birth"
+              selectedValue={selectedYear}
+              options={years}
+              setSelectedValue={handleYearPress}
+            />
+          </View>
+        </View>
+      </View>
     </View>
   );
 };
@@ -175,6 +184,7 @@ const styles = StyleSheet.create({
 
   inputContainer: {
     marginBottom: normalizeHeight(15),
+    zIndex: -1,
   },
   label: {
     display: "none",
@@ -207,12 +217,13 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
   },
   dropdown: {
-    maxHeight: normalizeHeight(150),
+    maxHeight: normalizeHeight(180),
     borderWidth: 0.5,
     borderColor: "#ccc",
     borderRadius: normalizeWidth(8),
     marginTop: normalizeHeight(8),
     backgroundColor: "#FAFAFA",
+    zIndex: 9999,
   },
   dropdownOption: {
     paddingHorizontal: normalizeWidth(16),

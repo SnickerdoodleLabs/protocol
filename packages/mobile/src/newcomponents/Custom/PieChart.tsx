@@ -60,8 +60,8 @@ class PieChartComponent extends React.PureComponent<Props> {
                     {
                       key: 1,
                       value: 100,
-                      svg: { fill: "#AFAADB" },
-                      label: "100%",
+                      svg: { fill: "#c3c3cc" },
+                      label: "No Data",
                     },
                   ]
                 : data

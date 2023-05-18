@@ -13,16 +13,13 @@ import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 export class AsyncStorageCursor<T extends VersionedObject>
   implements IVolatileCursor<T>
 {
-//   private ordered: (string | number)[];
-//   private currValue: number;
-//   private currIter: IterableIterator<string> | undefined;
+  //   private ordered: (string | number)[];
+  //   private currValue: number;
+  //   private currIter: IterableIterator<string> | undefined;
 
-  public constructor(
-    // protected asyncStorage: IAsyncStorageWrapper,
-    // protected index: Map<string | number, Set<string>>,
-    // protected query?: string | number,
-    // protected direction?: IDBCursorDirection | undefined,
-  ) {
+  public constructor() // protected query?: string | number, // protected index: Map<string | number, Set<string>>, // protected asyncStorage: IAsyncStorageWrapper,
+  // protected direction?: IDBCursorDirection | undefined,
+  {
     // this.ordered = Array.from(index.keys()).sort();
     // if (this.query != undefined) {
     //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -34,7 +31,6 @@ export class AsyncStorageCursor<T extends VersionedObject>
     //   } else {
     //     this.currValue = this.ordered.length - 1;
     //   }
-
     //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     //   this.currIter = this.index.get(this.ordered[this.currValue])!.keys();
     // }
@@ -69,7 +65,8 @@ export class AsyncStorageCursor<T extends VersionedObject>
   }
 
   private _getNext(): ResultAsync<T | null, PersistenceError> {
-    if (this.currIter == undefined) {
+    return okAsync(null);
+    /* if (this.currIter == undefined) {
       return okAsync(null);
     } else {
       const nextKey = this.currIter.next();
@@ -84,11 +81,12 @@ export class AsyncStorageCursor<T extends VersionedObject>
         }
         return ObjectUtils.deserialize<T>(JSONString(val));
       });
-    }
+    } */
   }
 
   private _nextValue(): ResultAsync<T | null, PersistenceError> {
-    if (this.currValue == 0 || this.currValue == this.ordered.length - 1) {
+    return okAsync(null);
+    /* if (this.currValue == 0 || this.currValue == this.ordered.length - 1) {
       return okAsync(null);
     }
 
@@ -100,7 +98,7 @@ export class AsyncStorageCursor<T extends VersionedObject>
       this.currValue -= 1;
       this.currIter = undefined;
       return this._getNext();
-    }
+    } */
   }
 
   public allValues(): ResultAsync<T[] | null, PersistenceError> {

@@ -14,6 +14,7 @@ import { useAccountLinkingContext } from "../../context/AccountLinkingContextPro
 import { useAppContext } from "../../context/AppContextProvider";
 import RadioButton from "../Custom/RadioButton";
 import { useNavigation } from "@react-navigation/native";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 export default function CryptoSettings() {
   const { mobileCore } = useAppContext();
@@ -32,6 +33,7 @@ export default function CryptoSettings() {
   }, []);
 
   const handleSelect = (value: string) => {
+    mobileCore.getCore().setDefaultReceivingAddress(value as EVMAccountAddress);
     setSelected(value);
   };
 
@@ -58,7 +60,7 @@ export default function CryptoSettings() {
             marginTop: normalizeHeight(10),
           }}
         >
-          Crypto Accounts
+          Linked Wallets
         </Text>
 
         <Text
@@ -70,9 +72,7 @@ export default function CryptoSettings() {
             marginTop: normalizeHeight(32),
           }}
         >
-          Add or remove wallets to control what web 3 data is stored in your
-          data wallet. Any insights you share on your web 3 activity are
-          anonymous and never linked back to your public addresses.
+          {`Add wallets to control the Web3 information that\nappears in your Data Wallet.\n\nAny Web3 activity you share is anonymized and\ncannot be linked back to your public addresses.`}{" "}
         </Text>
 
         <View style={{ marginTop: normalizeHeight(20) }}>
@@ -135,10 +135,26 @@ export default function CryptoSettings() {
             >
               Linked Accounts
             </Text>
+            <Text
+              style={{
+                fontSize: normalizeWidth(15),
+                lineHeight: normalizeHeight(22),
+                fontWeight: "400",
+                color: "#424242",
+                marginBottom: normalizeHeight(10),
+              }}
+            >
+              Select an account as your default receiving wallet.
+            </Text>
             {/* TODO MOBILE */}
             {linkedAccounts.map((account) => {
               return (
-                <View style={{ marginTop: normalizeHeight(10) }}>
+                <View
+                  style={{
+                    marginTop: normalizeHeight(10),
+                    flexDirection: "row",
+                  }}
+                >
                   <RadioButton
                     label={`${account?.slice(
                       0,
@@ -146,6 +162,13 @@ export default function CryptoSettings() {
                     )}...........................${account?.slice(36, 42)}`}
                     checked={account === selected}
                     onPress={() => handleSelect(account)}
+                  />
+                  <Image
+                    style={{
+                      width: normalizeWidth(28),
+                      height: normalizeHeight(28),
+                    }}
+                    source={require("../../assets/images/newAccountIcon.png")}
                   />
                 </View>
               );

@@ -768,7 +768,7 @@ const LayoutContextProvider = ({ children }) => {
                               fontSize: normalizeWidth(16),
                             }}
                           >
-                            Claim Reward
+                            Accept All
                           </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -831,7 +831,7 @@ const LayoutContextProvider = ({ children }) => {
                         textAlign: "center",
                         color: "#424242",
                         fontWeight: "700",
-                        paddingTop: normalizeHeight(40),
+                        paddingTop: normalizeHeight(10),
                       }}
                     >
                       Manage Your Data Permissions

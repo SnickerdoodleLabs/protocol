@@ -52,14 +52,14 @@ const DashboardTab = ({ data }: IDashboardChildrenProps) => {
       <Tabs
         data={[
           { key: "1", component: "1", title: "Tokens" },
-          { key: "2", component: "1", title: "NFT's" },
+          { key: "2", component: "1", title: "NFTs" },
         ]}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
       <View>
         {activeTab === "Tokens" && <Tokens data={data} />}
-        {activeTab === "NFT's" && <NFTs data={data} />}
+        {activeTab === "NFTs" && <NFTs data={data} />}
       </View>
     </View>
   );

@@ -53,8 +53,7 @@ export default function PermissionSettings() {
             marginTop: normalizeHeight(32),
           }}
         >
-          Consent to share aggregate, anonymized insights derived from your
-          data. You can set permissions individually, for each item.
+          {`Consent to share aggregated, anonymized insights\nderived from your data. You can set permissions\nindividually, for each item.`}
         </Text>
         <Permission />
       </SafeAreaView>

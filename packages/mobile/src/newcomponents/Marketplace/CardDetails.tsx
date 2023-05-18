@@ -1,6 +1,8 @@
 import {
+  FlatList,
   Image,
   Linking,
+  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -8,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
 import { useLayoutContext } from "../../context/LayoutContext";
@@ -18,11 +20,21 @@ import {
   DomainName,
   EInvitationStatus,
   EVMContractAddress,
+  EWalletDataType,
+  IOpenSeaMetadata,
   Invitation,
+  MarketplaceListing,
+  PossibleReward,
+  QueryTypePermissionMap,
+  PermissionQueryTypeMap,
   Signature,
   TokenId,
+  QueryTypes,
+  IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { useAppContext } from "../../context/AppContextProvider";
+import Icon from "react-native-vector-icons/Ionicons";
+import { ResultUtils } from "neverthrow-result-utils";
 
 interface ICardDetailsProps {
   image: any;
@@ -32,32 +44,54 @@ interface ICardDetailsProps {
   company: string;
 }
 
-const data: ICardDetailsProps = {
-  image:
-    "https://uploads-ssl.webflow.com/61c0120d981c8f9d9322c0e0/61ca497efc91881256158064_blog%20article.png",
-  title: "SDL Dinosaur Cookie Man",
-  claimed: 5466,
-  description:
-    "An icon evolves. Introducing the P.F.D – Personal Flotation Device. True to its aesthetic roots, but elevated with a meta twist. Watch the three stripes float as you inflate above the floor, away from nasty blimps and rug pulls. Don’t wait until it’s too late. Everyone needs a Mae West, and this one’s a true virtual life saver: the life vest of the metaverse.",
-  company: "SDL",
-};
-
-const permissionImage = {
-  Gender: require("../../assets/images/renting-gender.png"),
-  Age: require("../../assets/images/renting-birthday.png"),
-  "Country of Residence": require("../../assets/images/renting-location.png"),
-  "Browser history (most visited URLs)": require("../../assets/images/renting-siteVisited.png"),
-  "Decentralized applications you've interacted with": require("../../assets/images/renting-transaction.png"),
-  "Aggregated token holdings and NFT collections": require("../../assets/images/renting-nfts.png"),
-};
-
-const testData = [data, data, data];
-
 export interface IInvitationParams {
   consentAddress: EVMContractAddress | undefined;
   tokenId: BigNumberString | undefined;
   signature: Signature | undefined;
 }
+
+interface ICardDetailsProps {
+  metaData: IOpenSeaMetadata;
+  marketplaceListing: MarketplaceListing;
+}
+
+export const walletDataTypeMap: Map<EWalletDataType, NodeRequire | null> =
+  new Map([
+    [EWalletDataType.Age, require("../../assets/images/renting-age.png")],
+    [EWalletDataType.Gender, require("../../assets/images/renting-gender.png")],
+    /*   [EWalletDataType.GivenName, null],
+    [EWalletDataType.FamilyName, null], */
+    /* [EWalletDataType.Birthday, require("../../assets/images/renting-age.png")], */
+    /*   [EWalletDataType.Email, null], */
+    [
+      EWalletDataType.Location,
+      require("../../assets/images/renting-location.png"),
+    ],
+    [
+      EWalletDataType.SiteVisits,
+      require("../../assets/images/renting-siteVisits.png"),
+    ],
+    [
+      EWalletDataType.EVMTransactions,
+      require("../../assets/images/renting-transactionHistory.png"),
+    ],
+    [
+      EWalletDataType.AccountBalances,
+      require("../../assets/images/renting-token.png"),
+    ],
+    [
+      EWalletDataType.AccountNFTs,
+      require("../../assets/images/renting-nft.png"),
+    ],
+    /*   [
+      EWalletDataType.LatestBlockNumber,
+      require("../../assets/images/renting-nft.png"),
+    ], */
+    [
+      EWalletDataType.Discord,
+      require("../../assets/images/renting-discord.png"),
+    ],
+  ]);
 
 export const LineBreaker = () => {
   return <View style={styles.lineBreaker} />;
@@ -81,8 +115,112 @@ const CardDetails = ({ navigation, route }) => {
   const [invitationParams, setInvitationParams] =
     React.useState<IInvitationParams>();
 
-  const rewardItem = route.params;
+  const [possibleRewards, setPossibleRewards] = useState<
+    Map<EVMContractAddress, PossibleReward[]>
+  >(new Map());
+  const [dependencies, setDependencies] =
+    useState<Map<EVMContractAddress, EWalletDataType[]>>();
+  const [campaignPermissions, setCampaignPermissions] = useState<
+    EWalletDataType[]
+  >([]);
+
+  const { metaData, marketplaceListing }: ICardDetailsProps = route.params;
   const { mobileCore } = useAppContext();
+
+  const [subscribeButtonClicked, setSubscribeButtonClicked] = useState(false);
+  const [subscribeConfirmation, setSubscribeConfirmation] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [consentCapacity, setConsentCapacity] =
+    useState<IConsentCapacity | null>();
+
+  useEffect(() => {
+    console.log("UseEffect1");
+    mobileCore
+      .getCore()
+      .getAcceptedInvitationsCID()
+      .map((consentAddresses) => {
+        if (consentAddresses.get(marketplaceListing.consentContract)) {
+          setIsSubscribed(true);
+        }
+      });
+
+    mobileCore
+      .getCore()
+      ?.getConsentCapacity(marketplaceListing.consentContract)
+      .map((capacity) => {
+        setConsentCapacity(capacity);
+      });
+
+    if (campaignPermissions.length == 0) {
+      mobileCore.dataPermissionUtils.getPermissions().map((perms) => {
+        setCampaignPermissions(perms);
+      });
+    } else {
+      // mobileCore.dataPermissionUtils.setPermissions(myPermissions);
+    }
+  }, [campaignPermissions, marketplaceListing]);
+
+  useEffect(() => {
+    console.log("UseEffect2");
+    mobileCore
+      .getCore()
+      .marketplace.getPossibleRewards([
+        marketplaceListing.consentContract,
+      ] as EVMContractAddress[])
+      .map((possibleReward) => {
+        if (possibleReward) {
+          possibleReward
+            ?.get(marketplaceListing.consentContract)
+            ?.map((possibleReward) => {
+              const rewardDependencies = (
+                possibleReward as PossibleReward
+              )?.queryDependencies.map(
+                (queryType) => QueryTypePermissionMap.get(queryType)!,
+              );
+              console.log("rewardDependencies", rewardDependencies);
+              const newDependencies = new Map();
+              newDependencies.set(
+                marketplaceListing.consentContract,
+                possibleReward,
+              );
+              setDependencies(newDependencies);
+            });
+        }
+        console.log(
+          "possibleReward",
+          possibleReward.get(marketplaceListing.consentContract),
+        );
+        setPossibleRewards(possibleReward);
+      });
+  }, [marketplaceListing, metaData]);
+
+  const [earnedRewards, missedRewards] = useMemo(() => {
+    const rewards =
+      possibleRewards.get(marketplaceListing.consentContract) ?? []; // Get the rewards for the given consent address or an empty array if there are none
+
+    const earnedRewards = rewards.filter((reward) =>
+      reward.queryDependencies
+        .map((item) => {
+          return QueryTypePermissionMap.get(item);
+        })
+        .every((type) => campaignPermissions.includes(type)),
+    );
+    const missedRewards = rewards.reduce((result, reward) => {
+      if (
+        reward.queryDependencies
+          .map((item) => {
+            return QueryTypePermissionMap.get(item);
+          })
+          .some((type) => !campaignPermissions.includes(type))
+      ) {
+        result.push(reward);
+      }
+      return result;
+    }, []);
+    return [earnedRewards, missedRewards];
+  }, [possibleRewards, campaignPermissions, marketplaceListing]);
+  console.log("earnedRewards", earnedRewards);
+  console.log("missedRewards", missedRewards);
 
   const getTokenId = (tokenId: BigNumberString | undefined) => {
     if (tokenId) {
@@ -91,193 +229,921 @@ const CardDetails = ({ navigation, route }) => {
     return mobileCore.getCyrptoUtils().getTokenId();
   };
 
-  const checkInvitationStatus = (consentAddress, tokenId, signature) => {
+  const handleSubscribe = (tokenId, signature) => {
     console.warn("CHECKING INVITATION");
     const invitationService = mobileCore.invitationService;
     let _invitation: Invitation;
 
-    getTokenId(tokenId).andThen((tokenId) => {
+    ResultUtils.combine([
+      getTokenId(tokenId),
+      mobileCore.dataPermissionUtils.generateDataPermissionsClassWithDataTypes(
+        campaignPermissions,
+      ),
+      mobileCore.getCore().getReceivingAddress(),
+    ]).map(([tokenId, datapermissions, receiveAccount]) => {
       _invitation = {
-        consentContractAddress: consentAddress as EVMContractAddress,
+        consentContractAddress:
+          marketplaceListing.consentContract as EVMContractAddress,
         domain: DomainName(""),
         tokenId,
         businessSignature: (signature as Signature) ?? null,
       };
-      return invitationService
+
+      mobileCore
+        .getCore()
         .checkInvitationStatus(_invitation)
         .map((status) => {
+          console.warn("INVITATION STATUS", EInvitationStatus[status]);
           if (status === EInvitationStatus.New) {
-            mobileCore.invitationService
-              .getConsentContractCID(consentAddress as EVMContractAddress)
-              .map((ipfsCID) => {
-                mobileCore.invitationService
-                  .getInvitationMetadataByCID(ipfsCID)
-                  .map((metaData) => {
-                    setInvitationStatus(true, metaData, _invitation);
-                  });
+            mobileCore
+              .getCore()
+              .setReceivingAddress(
+                marketplaceListing.consentContract,
+                receiveAccount,
+              )
+              .andThen(() => {
+                return mobileCore
+                  .getCore()
+                  .acceptInvitation(_invitation, datapermissions);
               });
-          } else {
-            setInvitationParams(undefined);
+            setSubscribeButtonClicked(false);
+            setSubscribeConfirmation(false);
+            setIsSubscribed(true);
           }
         })
         .mapErr((e) => {
           console.error("INVITATION STATUS ERROR", e);
-          setInvitationParams(undefined);
         });
     });
   };
 
-  const onClaimClick = (url: string) => {
-    if (!url) {
-      return null;
-    }
-    const isURL = isValidURL(url);
-    if (isURL) {
-      return Linking.openURL(url).catch((err) =>
-        console.error("An error occurred", err),
-      );
+  const handlePermissions = (dataType: EWalletDataType) => {
+    if (campaignPermissions.includes(dataType)) {
+      const newArray = campaignPermissions.filter((item) => item !== dataType);
+      setCampaignPermissions(newArray);
     } else {
-      return checkInvitationStatus(url, null, null);
+      setCampaignPermissions([...campaignPermissions, dataType]);
     }
+  };
+
+  const renderAvailableRewards = ({ item }) => {
+    return (
+      <View>
+        <View
+          style={{
+            width: 225,
+            marginLeft: normalizeWidth(15),
+            backgroundColor: "#fff",
+            borderRadius: 5,
+            padding: 10,
+            marginBottom: 10,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.8,
+            shadowRadius: 2,
+            elevation: 5,
+          }}
+        >
+          <View
+            style={{
+              position: "absolute",
+              zIndex: 1,
+              top: normalizeHeight(5),
+              left: normalizeWidth(5),
+            }}
+          >
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require("../../assets/images/unlockfinal.png")}
+            />
+          </View>
+          <Image
+            style={{ height: 154, width: "100%", borderRadius: 15 }}
+            source={{ uri: ipfsParse(item.image) }}
+          />
+          <Text
+            style={{
+              color: "#424242",
+              fontSize: normalizeWidth(18),
+              fontWeight: "700",
+              paddingVertical: normalizeHeight(15),
+            }}
+          >
+            {item.name}
+          </Text>
+          <View
+            style={{
+              backgroundColor: "rgba(22, 22, 26, 0.04)",
+              width: "100%",
+              padding: normalizeWidth(5),
+              borderRadius: normalizeWidth(10),
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalizeWidth(15),
+                color: "#2D2944",
+                fontWeight: "700",
+                marginVertical: normalizeHeight(8),
+              }}
+            >
+              Price:
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                overflow: "hidden",
+                flexWrap: "wrap",
+                padding: normalizeWidth(5),
+              }}
+            >
+              {item.queryDependencies.map((queryType: QueryTypes, index) => {
+                return (
+                  <Image
+                    style={{
+                      width: 30,
+                      height: 30,
+                      marginBottom: 8,
+                      marginRight: normalizeWidth(8),
+                    }}
+                    source={walletDataTypeMap.get(
+                      QueryTypePermissionMap.get(queryType)!,
+                    )}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderMissingRewards = ({ item }) => {
+    return (
+      <View>
+        <View
+          style={{
+            width: 225,
+            marginLeft: normalizeWidth(15),
+            backgroundColor: "#f0f0f0",
+            borderRadius: 25,
+            padding: normalizeWidth(10),
+            marginBottom: 10,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.8,
+            shadowRadius: 2,
+            elevation: 5,
+          }}
+        >
+          <View
+            style={{
+              position: "absolute",
+              zIndex: 1,
+              top: normalizeHeight(8),
+              left: normalizeWidth(5),
+            }}
+          >
+            <Image
+              style={{ height: 50, width: 50 }}
+              source={require("../../assets/images/lockedfinal.png")}
+            />
+          </View>
+          <Image
+            style={{ height: 154, width: "100%", borderRadius: 15 }}
+            source={{ uri: ipfsParse(item.image) }}
+          />
+          <Text
+            style={{
+              color: "#424242",
+              fontSize: normalizeWidth(18),
+              fontWeight: "700",
+              paddingVertical: normalizeHeight(15),
+            }}
+          >
+            {item.name}
+          </Text>
+          <View
+            style={{
+              backgroundColor: "rgba(22, 22, 26, 0.04)",
+              width: "100%",
+              padding: normalizeWidth(5),
+              borderRadius: normalizeWidth(10),
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalizeWidth(15),
+                color: "#2D2944",
+                fontWeight: "700",
+                marginVertical: normalizeHeight(8),
+              }}
+            >
+              Price:
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                overflow: "hidden",
+                flexWrap: "wrap",
+                padding: normalizeWidth(5),
+              }}
+            >
+              {item.queryDependencies.map((queryType: QueryTypes, index) => {
+                return (
+                  <Image
+                    style={{
+                      width: 30,
+                      height: 30,
+                      marginBottom: 8,
+                      marginRight: normalizeWidth(8),
+                    }}
+                    source={walletDataTypeMap.get(
+                      QueryTypePermissionMap.get(queryType)!,
+                    )}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+  const renderMissingRewardsAccept = ({ item }) => {
+    return (
+      <View>
+        <View
+          style={{
+            width: 150,
+            marginLeft: normalizeWidth(35),
+            marginTop: normalizeHeight(15),
+            backgroundColor: "#fff",
+            borderRadius: normalizeWidth(12),
+            padding: normalizeWidth(10),
+            marginBottom: normalizeHeight(5),
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.8,
+            shadowRadius: 2,
+            elevation: 5,
+          }}
+        >
+          <View
+            style={{
+              position: "absolute",
+              zIndex: 1,
+              top: normalizeHeight(5),
+              left: normalizeWidth(5),
+            }}
+          >
+            <Image
+              style={{ height: normalizeHeight(25), width: normalizeWidth(25) }}
+              source={require("../../assets/images/lockedfinal.png")}
+            />
+          </View>
+          <Image
+            style={{
+              height: normalizeHeight(100),
+              width: "100%",
+              borderRadius: normalizeWidth(10),
+            }}
+            source={{ uri: ipfsParse(item.image) }}
+          />
+          <Text
+            style={{
+              color: "#424242",
+              fontSize: normalizeWidth(10),
+              fontWeight: "700",
+              paddingVertical: normalizeHeight(15),
+            }}
+          >
+            {item.name}
+          </Text>
+          <View
+            style={{
+              backgroundColor: "rgba(22, 22, 26, 0.04)",
+              width: "100%",
+              padding: normalizeWidth(5),
+              borderRadius: normalizeWidth(10),
+            }}
+          >
+            <Text
+              style={{
+                fontSize: normalizeWidth(12),
+                color: "#2D2944",
+                fontWeight: "700",
+                marginVertical: normalizeHeight(8),
+              }}
+            >
+              Price:
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                overflow: "hidden",
+                flexWrap: "wrap",
+                padding: normalizeWidth(1),
+              }}
+            >
+              {item.queryDependencies.map((queryType: QueryTypes, index) => {
+                return (
+                  <View>
+                    <Image
+                      style={{
+                        width: normalizeWidth(15),
+                        height: normalizeHeight(15),
+                        marginBottom: normalizeHeight(5),
+                        marginRight: normalizeWidth(8),
+                      }}
+                      source={walletDataTypeMap.get(
+                        QueryTypePermissionMap.get(queryType)!,
+                      )}
+                    />
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      </View>
+    );
   };
 
   return (
     <ScrollView style={{ backgroundColor: "white" }}>
       <SafeAreaView>
         <View style={{ alignItems: "center" }}>
-          <Image
-            style={styles.image}
-            source={{ uri: ipfsParse(rewardItem?.image) }}
-          />
-          <Text style={styles.title}>{rewardItem?.name}</Text>
-          <Text style={styles.subTitle}>
-            Created By{" "}
-            {
-              rewardItem?.attributes?.filter(
-                (attribute) => attribute?.trait_type === "createdBy",
-              )[0].value
-            }
-          </Text>
-          <LineBreaker />
-          {/*  <Text style={styles.claimed}>{data.claimed}</Text>
-          <Text style={styles.peopleClaimed}>People Claimed</Text> */}
+          <Image style={styles.image} source={{ uri: metaData.image }} />
+          <Text style={styles.title}>{metaData?.rewardName}</Text>
           <View style={styles.descriptionContainer}>
-            <Text style={styles.descriptionTitle}>Description</Text>
-            <View style={{ marginVertical: normalizeHeight(20) }}>
-              <LineBreaker />
-            </View>
-            <Text style={styles.company}>
-              {
-                rewardItem?.attributes?.filter(
-                  (attribute) => attribute?.trait_type === "createdBy",
-                )[0].value
-              }
-            </Text>
-            <Text style={styles.description}>{rewardItem?.description}</Text>
-            <View
-              style={{ flexDirection: "row", marginTop: 50, marginBottom: 20 }}
-            >
+            <Text style={styles.description}>{metaData?.description}</Text>
+          </View>
+
+          <View style={{ marginVertical: normalizeHeight(10) }}>
+            <LineBreaker />
+          </View>
+
+          {isSubscribed && (
+            <View>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Image
-                  source={require("../../assets/images/etherscan-logo.png")}
+                <Text
+                  style={{
+                    color: "#289F8A",
+                    fontSize: normalizeWidth(16),
+                    fontWeight: "700",
+                  }}
+                >
+                  Subscribed
+                </Text>
+                <Icon
+                  size={15}
+                  name="checkmark-sharp"
+                  style={{
+                    marginLeft: normalizeWidth(5),
+                    color: "#289F8A",
+                  }}
                 />
-                <Text style={{ marginLeft: 5 }}>Etherscan</Text>
-              </View>
-
-              <View style={styles.linkContainer}>
-                <Image source={require("../../assets/images/ipfs-logo.png")} />
-                <Text style={{ marginLeft: 5 }}>IPFS</Text>
               </View>
             </View>
-          </View>
+          )}
 
-          <View style={[styles.descriptionContainer, { marginTop: 24 }]}>
-            <Text style={styles.descriptionTitle}>To Claim This Reward</Text>
-            <Text style={styles.subTitle2}>You are renting your:</Text>
-            <View style={{ marginVertical: normalizeHeight(20) }}>
-              <LineBreaker />
-            </View>
-
-            {rewardItem?.attributes
-              ?.filter(
-                (attribute) => attribute?.trait_type === "requiredPermissions",
-              )[0]
-              .value.map((permission) => {
-                return (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginBottom: normalizeHeight(15),
-                    }}
-                  >
-                    <Image source={permissionImage[permission]} />
-                    <Text style={{ marginLeft: normalizeWidth(12) }}>
-                      {permission}
-                    </Text>
-                  </View>
-                );
-              })}
-          </View>
-
-          <View style={[styles.descriptionContainer, { marginTop: 24 }]}>
-            <Text style={styles.descriptionTitle}>Properties</Text>
-
-            <View style={{ marginVertical: normalizeHeight(20) }}>
-              <LineBreaker />
-            </View>
-            {rewardItem?.attributes
-              ?.filter(
-                (attribute) =>
-                  attribute?.trait_type !== "requiredPermissions" &&
-                  attribute?.trait_type !== "createdBy",
-              )
-              .map((test, index) => {
-                return (
-                  <View>
-                    <Text style={[styles.peopleClaimed, { fontWeight: "600" }]}>
-                      {test.trait_type.toUpperCase()}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.subTitle,
-                        { fontWeight: "700", marginTop: normalizeHeight(8) },
-                      ]}
-                    >
-                      {test.value}
-                    </Text>
-
-                    <View>
-                      {index + 1 !== testData.length && <LineBreaker />}
-                    </View>
-                  </View>
-                );
-              })}
-          </View>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#6E62A6",
-              width: normalizeWidth(380),
-              height: normalizeHeight(58),
-              borderRadius: normalizeWidth(100),
-              marginVertical: normalizeHeight(15),
-              justifyContent: "center",
-            }}
-            onPress={() => {
-              onClaimClick(rewardItem.external_url);
-            }}
-          >
-            <Text
+          <View>
+            <View
               style={{
-                textAlign: "center",
-                color: "white",
-                fontWeight: "700",
-                fontSize: normalizeWidth(16),
+                flexDirection: "row",
+                width: normalizeWidth(380),
+                paddingVertical: normalizeHeight(20),
+                alignItems: "center",
               }}
             >
-              Claim Reward
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginRight: normalizeWidth(35),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: normalizeWidth(24),
+                      color: "#4E4676",
+                      fontWeight: "700",
+                    }}
+                  >
+                    {consentCapacity
+                      ? consentCapacity?.maxCapacity -
+                        consentCapacity?.availableOptInCount
+                      : 0}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: normalizeWidth(14),
+                      color: "#616161",
+                      marginTop: normalizeHeight(8),
+                    }}
+                  >
+                    Subscriber
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: 1,
+                    height: 77,
+                    backgroundColor: "#EEEEEE",
+                  }}
+                />
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginHorizontal: normalizeWidth(35),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: normalizeWidth(24),
+                      color: "#4E4676",
+                      fontWeight: "700",
+                    }}
+                  >
+                    {earnedRewards.length + missedRewards.length}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: normalizeWidth(14),
+                      color: "#616161",
+                      marginTop: normalizeHeight(8),
+                    }}
+                  >
+                    Rewards
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: 1,
+                    height: 77,
+                    backgroundColor: "#EEEEEE",
+                  }}
+                />
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginHorizontal: normalizeWidth(35),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: normalizeWidth(24),
+                      color: "#4E4676",
+                      fontWeight: "700",
+                      marginTop: normalizeHeight(18),
+                      marginBottom: normalizeHeight(8),
+                    }}
+                  >
+                    {consentCapacity ? consentCapacity.availableOptInCount : 0}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: normalizeWidth(14),
+                      color: "#616161",
+
+                      textAlign: "center",
+                    }}
+                  >
+                    {`Remaining \nSubscriptions`}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={{ paddingLeft: "2.5%" }}>
+            <Text
+              style={{
+                fontSize: normalizeWidth(20),
+                fontWeight: "700",
+                color: "#424242",
+                paddingVertical: normalizeHeight(15),
+              }}
+            >
+              Rent more data, unlock more rewards!
             </Text>
-          </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: normalizeWidth(16),
+                color: "#616161",
+                fontWeight: "500",
+                lineHeight: normalizeHeight(22),
+                paddingRight: normalizeWidth(20),
+              }}
+            >
+              You are eligible to earn the following rewards based on your data
+              permissions. Unlock more rewards by changing your data
+              permissions.
+            </Text>
+          </View>
+
+          <View
+            style={[
+              styles.descriptionContainerBorder,
+              {
+                marginTop: 24,
+                width: "95%",
+              },
+            ]}
+          >
+            <Text style={styles.descriptionTitle}>Your Data Permissions</Text>
+            <View style={{ marginVertical: normalizeHeight(10) }}>
+              <LineBreaker />
+            </View>
+            <Text style={styles.subTitle2}>Data you’re willing to share</Text>
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                overflow: "hidden",
+                flexWrap: "wrap",
+              }}
+            >
+              {Array.from(walletDataTypeMap.keys()).map((dataType) => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      handlePermissions(dataType);
+                    }}
+                  >
+                    <View
+                      style={{
+                        position: "relative",
+                        marginHorizontal: normalizeWidth(4),
+                        marginVertical: normalizeHeight(5),
+                        backgroundColor: "#F1EFF6",
+                        borderWidth: 2,
+                        borderColor: "#9E96C3",
+                        padding: normalizeWidth(6),
+                        flexDirection: "row",
+                        alignItems: "center",
+                        borderRadius: 100,
+                      }}
+                    >
+                      <Image
+                        style={{ width: 25, height: 25 }}
+                        source={walletDataTypeMap.get(dataType)}
+                      />
+                      <View>
+                        <Text style={{ paddingHorizontal: normalizeWidth(2) }}>
+                          {EWalletDataType[dataType]}
+                        </Text>
+                      </View>
+                      <Icon
+                        name={
+                          campaignPermissions.includes(dataType)
+                            ? "checkmark-sharp"
+                            : "close-sharp"
+                        }
+                        color={"#6E62A6"}
+                        size={18}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {missedRewards.length > 0 && (
+            <View style={{ width: "100%" }}>
+              <View style={{}}>
+                <Text
+                  style={{
+                    color: "$414141",
+                    fontSize: normalizeWidth(20),
+                    fontWeight: "700",
+                    marginVertical: normalizeHeight(10),
+                    marginLeft: normalizeWidth(15),
+                  }}
+                >
+                  Missing Rewards
+                </Text>
+                <FlatList
+                  data={missedRewards}
+                  renderItem={renderMissingRewards}
+                  horizontal={true}
+                  keyExtractor={(item) => item.queryCID.toString()}
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+            </View>
+          )}
+
+          {earnedRewards.length > 0 && (
+            <View style={{ width: "100%" }}>
+              <View style={{}}>
+                <Text
+                  style={{
+                    color: "$414141",
+                    fontSize: normalizeWidth(20),
+                    fontWeight: "700",
+                    marginBottom: normalizeHeight(10),
+                    marginLeft: normalizeWidth(15),
+                    marginTop: normalizeHeight(10),
+                  }}
+                >
+                  Available Rewards
+                </Text>
+                <FlatList
+                  data={earnedRewards}
+                  renderItem={renderAvailableRewards}
+                  horizontal={true}
+                  keyExtractor={(item) => item.queryCID.toString()}
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+            </View>
+          )}
+
+          {!isSubscribed && (
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#6E62A6",
+                width: normalizeWidth(380),
+                height: normalizeHeight(58),
+                borderRadius: normalizeWidth(100),
+                marginVertical: normalizeHeight(25),
+                justifyContent: "center",
+              }}
+              onPress={() => {
+                setSubscribeButtonClicked(true);
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "white",
+                  fontWeight: "700",
+                  fontSize: normalizeWidth(16),
+                }}
+              >
+                Subscribe and get your rewards
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          <View>
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={subscribeButtonClicked}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "white",
+                    position: "absolute",
+                    bottom: 0,
+                    width: "100%",
+                    minHeight: normalizeHeight(330),
+                    borderRadius: 50,
+                  }}
+                >
+                  {!subscribeConfirmation && (
+                    <View>
+                      <Text
+                        style={{
+                          fontSize: normalizeWidth(24),
+                          textAlign: "center",
+                          color: "#424242",
+                          fontWeight: "700",
+                          paddingTop: normalizeHeight(40),
+                        }}
+                      >
+                        Unlock Rewards with Data
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: normalizeWidth(16),
+                          textAlign: "center",
+                          fontWeight: "400",
+                          color: "#616161",
+                          lineHeight: normalizeHeight(22),
+                          paddingHorizontal: normalizeWidth(24),
+                          paddingTop: normalizeHeight(5),
+                        }}
+                      >
+                        Accepting these rewards automatically changes your data
+                        permissions. You are now agreeing to rent:
+                        {campaignPermissions.map((perm) => {
+                          return (
+                            <Text
+                              style={{
+                                fontSize: normalizeWidth(16),
+                                textAlign: "center",
+                                fontWeight: "600",
+                                color: "#616161",
+                                lineHeight: normalizeHeight(22),
+                                paddingHorizontal: normalizeWidth(24),
+                                paddingTop: normalizeHeight(5),
+                              }}
+                            >
+                              {" "}
+                              {EWalletDataType[perm]}{" "}
+                            </Text>
+                          );
+                        })}
+                      </Text>
+
+                      <View
+                        style={{
+                          alignItems: "center",
+                          marginBottom: normalizeHeight(30),
+                        }}
+                      >
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#6E62A6",
+                            width: normalizeWidth(380),
+                            height: normalizeHeight(58),
+                            borderRadius: normalizeWidth(100),
+                            justifyContent: "center",
+                            marginTop: normalizeHeight(28),
+                          }}
+                          onPress={() => {
+                            setSubscribeConfirmation(true);
+                          }}
+                        >
+                          <Text
+                            style={{
+                              textAlign: "center",
+                              color: "white",
+                              fontWeight: "700",
+                              fontSize: normalizeWidth(16),
+                            }}
+                          >
+                            Save and Collect
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#D2CEE3",
+                            width: normalizeWidth(380),
+                            height: normalizeHeight(58),
+                            borderRadius: normalizeWidth(100),
+                            justifyContent: "center",
+                            marginTop: normalizeHeight(10),
+                          }}
+                          onPress={() => {
+                            setSubscribeButtonClicked(false);
+                          }}
+                        >
+                          <Text
+                            style={{
+                              textAlign: "center",
+                              color: "white",
+                              fontWeight: "700",
+                              fontSize: normalizeWidth(16),
+                            }}
+                          >
+                            Cancel
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+
+                  {subscribeConfirmation && (
+                    <View>
+                      <Text
+                        style={{
+                          fontSize: normalizeWidth(24),
+                          textAlign: "center",
+                          color: "#424242",
+                          fontWeight: "700",
+                          paddingTop: normalizeHeight(40),
+                        }}
+                      >
+                        Rewards Confirmation
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: normalizeWidth(16),
+                          textAlign: "center",
+                          fontWeight: "400",
+                          color: "#616161",
+                          lineHeight: normalizeHeight(22),
+                          paddingHorizontal: normalizeWidth(24),
+                          paddingTop: normalizeHeight(5),
+                        }}
+                      >
+                        It may take a few moments for your rewards to process
+                        and appear in your Data Wallet.
+                      </Text>
+                      {missedRewards.length > 0 && (
+                        <Text
+                          style={{
+                            fontSize: normalizeWidth(16),
+                            textAlign: "center",
+                            fontWeight: "400",
+                            color: "#616161",
+                            lineHeight: normalizeHeight(22),
+                            paddingHorizontal: normalizeWidth(24),
+                            paddingTop: normalizeHeight(5),
+                          }}
+                        >
+                          {`If you subscribe with the existing permissions\n you are going to miss these rewards:`}
+                        </Text>
+                      )}
+                      {missedRewards.length > 0 && (
+                        <View style={{ width: "100%" }}>
+                          <View style={{}}>
+                            <FlatList
+                              data={missedRewards}
+                              renderItem={renderMissingRewardsAccept}
+                              horizontal={true}
+                              keyExtractor={(item) => item.queryCID.toString()}
+                              showsHorizontalScrollIndicator={false}
+                            />
+                          </View>
+                        </View>
+                      )}
+
+                      <View
+                        style={{
+                          alignItems: "center",
+                          marginBottom: normalizeHeight(30),
+                        }}
+                      >
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#6E62A6",
+                            width: normalizeWidth(380),
+                            height: normalizeHeight(58),
+                            borderRadius: normalizeWidth(100),
+                            justifyContent: "center",
+                            marginTop: normalizeHeight(28),
+                          }}
+                          onPress={() => {
+                            handleSubscribe(null, null);
+                          }}
+                        >
+                          <Text
+                            style={{
+                              textAlign: "center",
+                              color: "white",
+                              fontWeight: "700",
+                              fontSize: normalizeWidth(16),
+                            }}
+                          >
+                            Accept
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: "#D2CEE3",
+                            width: normalizeWidth(380),
+                            height: normalizeHeight(58),
+                            borderRadius: normalizeWidth(100),
+                            justifyContent: "center",
+                            marginTop: normalizeHeight(10),
+                          }}
+                          onPress={() => {
+                            setSubscribeButtonClicked(false);
+                          }}
+                        >
+                          <Text
+                            style={{
+                              textAlign: "center",
+                              color: "white",
+                              fontWeight: "700",
+                              fontSize: normalizeWidth(16),
+                            }}
+                          >
+                            Cancel
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </Modal>
+          </View>
         </View>
       </SafeAreaView>
     </ScrollView>
@@ -289,14 +1155,16 @@ export default CardDetails;
 const styles = StyleSheet.create({
   image: {
     width: normalizeWidth(380),
-    height: normalizeHeight(380),
+    minHeight: normalizeHeight(310),
+    borderRadius: normalizeWidth(30),
+    aspectRatio: 1,
   },
   title: {
     fontWeight: "700",
-    fontSize: normalizeWidth(24),
+    fontSize: normalizeWidth(22),
     lineHeight: normalizeHeight(29),
     color: "#424242",
-    paddingVertical: normalizeHeight(12),
+    paddingTop: normalizeHeight(12),
   },
   subTitle: {
     fontWeight: "500",
@@ -324,16 +1192,26 @@ const styles = StyleSheet.create({
     marginTop: normalizeHeight(8),
   },
   descriptionContainer: {
+    borderWidth: 0,
+    borderColor: "#EEEEEE",
+    borderRadius: normalizeWidth(24),
+    width: "90%",
+    paddingHorizontal: normalizeWidth(15),
+    paddingTop: normalizeHeight(10),
+  },
+  descriptionContainerBorder: {
     borderWidth: 1,
     borderColor: "#EEEEEE",
     borderRadius: normalizeWidth(24),
     width: "90%",
-    padding: normalizeWidth(20),
+    paddingHorizontal: normalizeWidth(15),
+    paddingVertical: normalizeHeight(10),
   },
   descriptionTitle: {
     fontSize: normalizeWidth(24),
     fontWeight: "700",
     color: "#424242",
+    paddingTop: normalizeHeight(10),
   },
   company: {
     fontWeight: "600",
@@ -341,11 +1219,11 @@ const styles = StyleSheet.create({
     color: "#5D4F97",
   },
   description: {
-    fontWeight: "500",
-    fontSize: normalizeWidth(14),
-    lineHeight: normalizeHeight(20),
+    fontWeight: "400",
+    fontSize: normalizeWidth(16),
+    lineHeight: normalizeHeight(22),
     color: "#616161",
-    marginTop: normalizeHeight(20),
+    textAlign: "center",
   },
   subTitle2: {
     marginVertical: normalizeHeight(8),

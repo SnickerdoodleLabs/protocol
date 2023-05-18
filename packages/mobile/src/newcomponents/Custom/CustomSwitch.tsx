@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface CustomSwitchProps {
   value: boolean;
@@ -11,7 +12,9 @@ const CustomSwitch: React.FC<CustomSwitchProps> = ({
   onValueChange,
 }) => {
   const backgroundColor = value ? "#6E62A6" : "#ccc";
-  const circlePosition = value ? { right: 0.5 } : { left: 1.5 };
+  const circlePosition = value
+    ? { right: normalizeWidth(1.8),top:normalizeHeight(1.5) }
+    : { left: normalizeWidth(1.5),top:normalizeHeight(1.5) };
 
   const handlePress = () => {
     onValueChange(!value);
@@ -30,15 +33,16 @@ const CustomSwitch: React.FC<CustomSwitchProps> = ({
 
 const styles = StyleSheet.create({
   switchContainer: {
-    width: 40,
-    height: 24,
-    borderRadius: 12,
-    padding: 2,
+    width: normalizeWidth(40),
+    height: normalizeHeight(24),
+    borderRadius: 100,
+    paddingVertical: normalizeHeight(2),
+    paddingHorizontal: normalizeWidth(2),
   },
   circle: {
-    width: 20,
-    height: 23,
-    borderRadius: 10,
+    width: normalizeWidth(20),
+    height: normalizeHeight(20),
+    borderRadius: 100,
     backgroundColor: "white",
     position: "absolute",
   },

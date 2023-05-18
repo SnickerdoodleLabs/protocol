@@ -32,6 +32,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   EChain,
   EVMAccountAddress,
+  EWalletDataType,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
@@ -49,6 +50,39 @@ const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
 
 const OnboardingMain = () => {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+    setTimeout(() => {
+      navigation.getParent()?.setOptions({
+        tabBarStyle: {
+          display: "none",
+        },
+      });
+      return () =>
+        navigation.getParent()?.setOptions({
+          tabBarStyle: {
+            display: "none",
+          },
+        });
+    }, 10);
+
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
+    });
+    return () =>
+      navigation.getParent()?.setOptions({
+        tabBarStyle: undefined,
+      });
+  }, [navigation]);
+
   const initialLoadingStatus: ILoadingStatus = {
     loading: false,
     type: ELoadingStatusType.IDLE,
@@ -67,7 +101,6 @@ const OnboardingMain = () => {
   const scrollViewRef = useRef();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { isUnlocked } = useAppContext();
-  const navigation = useNavigation();
 
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 
@@ -94,30 +127,6 @@ const OnboardingMain = () => {
       keyboardDidHideListener.remove();
     };
   }, []);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      navigation.getParent()?.setOptions({
-        tabBarStyle: {
-          display: "none",
-        },
-      });
-      return () =>
-        navigation.getParent()?.setOptions({
-          tabBarStyle: undefined,
-        });
-    }, 10);
-
-    navigation.getParent()?.setOptions({
-      tabBarStyle: {
-        display: "none",
-      },
-    });
-    return () =>
-      navigation.getParent()?.setOptions({
-        tabBarStyle: undefined,
-      });
-  }, [navigation]);
 
   useEffect(() => {
     if (isUnlocked) {
@@ -159,8 +168,8 @@ const OnboardingMain = () => {
         source: require("../../assets/images/welcome_snickerdoodle.png"),
         height: 341,
       },
-      title: `Welcome to Snickerdoodle \n Data Wallet!`,
-      description: ` The matchmaker between you, your data, and the \n brands you love!`,
+      title: `Welcome to the Snickerdoodle\nData Wallet!`,
+      description: `You’re in control. Share what you want.\nClaim rewards.`,
       button: (
         <View>
           <TouchableOpacity
@@ -198,10 +207,10 @@ const OnboardingMain = () => {
           "https://drive.google.com/uc?export=download&id=1ohloSDHad0O8J2r-sqRIgS5xOtK8dedM",
         height: 341,
       },
-      title: `Earn rewards from your favorite \n brands, NFT and crypto projects.`,
-      description: `Keep your data in one place and anonymize it with \n Snickerdoodle tools.
+      title: `Earn rewards from your favorite\nbrands, NFT and crypto projects.`,
+      description: `Keep your data in one place and anonymize it with\nSnickerdoodle tools.
 
-      Earn NFTs and rewards for renting the anonymized \n data you choose.`,
+      Earn NFTs and rewards for renting the anonymized\ndata you choose.`,
       button: (
         <TouchableOpacity
           style={{
@@ -236,7 +245,7 @@ const OnboardingMain = () => {
         source: require("../../assets/images/sd_wallet.png"),
         height: 200,
       },
-      title: `Create Your Account with Your \n Crypto Wallet and Earn Rewards!`,
+      title: `Get started and create your\nSnickerdoodle account!`,
       description: (
         <View>
           <Text
@@ -248,7 +257,7 @@ const OnboardingMain = () => {
               lineHeight: normalizeWidth(23),
             }}
           >
-            {`Link your account to view your web3 activity in your \n secure personal Data Wallet and claim your reward.\n You'll share public key, authenticate account, link\n data, no transfer/gas fees.`}
+            {`Link your account to view your web3 activity in your\nsecure personal Data Wallet and claim your reward.\n\nYou'll share public key, authenticate account, link\ndata, no transfer/gas fees.`}
           </Text>
         </View>
       ),
@@ -286,10 +295,10 @@ const OnboardingMain = () => {
       asset: {
         type: "image",
         source: require("../../assets/images/more-info.png"),
-        height: 200,
+        height: normalizeHeight(200),
       },
       title: `More Information, More Rewards`,
-      description: `No one can access this personal information, not \n even Snickerdoodle. You use Snickerdoodle to \n anonymize your data and rent it out to brands of\n your choice, directly.`,
+      description: `No one can access this personal information, not\neven Snickerdoodle. You use Snickerdoodle to\nanonymize your data and rent it out to brands of\nyour choice, directly.`,
       button: (
         <TouchableOpacity
           style={{
@@ -327,7 +336,7 @@ const OnboardingMain = () => {
         height: 0,
       },
       title: `Set Your Data Permissions`,
-      description: `Choose your data  permissions to control what\n information you rent.`,
+      description: `Choose your data  permissions to control what\ninformation you rent.`,
       button: (
         <View>
           <TouchableOpacity
@@ -436,6 +445,21 @@ const OnboardingMain = () => {
     });
   };
 
+  useEffect(() => {
+    if (isUnlocked) {
+      mobileCore.dataPermissionUtils.setPermissions([
+        EWalletDataType.Age,
+        EWalletDataType.Gender,
+        EWalletDataType.Location,
+        EWalletDataType.SiteVisits,
+        EWalletDataType.AccountNFTs,
+        EWalletDataType.AccountBalances,
+        EWalletDataType.EVMTransactions,
+        EWalletDataType.Discord,
+      ]);
+    }
+  }, [isUnlocked]);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -458,7 +482,13 @@ const OnboardingMain = () => {
               scrollViewRef={scrollViewRef}
               scrollX={scrollX}
             />
-            <View style={{ position: "absolute", bottom: normalizeHeight(45) }}>
+            <View
+              style={{
+                position: "absolute",
+                zIndex:-1,
+                bottom: normalizeHeight(45),
+              }}
+            >
               {item.button}
             </View>
             <View>
@@ -499,7 +529,7 @@ const OnboardingMain = () => {
                         paddingHorizontal: normalizeHeight(10),
                       }}
                     >
-                      Unlock Your Account
+                      Connect Wallet
                     </Text>
                     <Text
                       style={{
@@ -512,9 +542,7 @@ const OnboardingMain = () => {
                         paddingTop: normalizeHeight(10),
                       }}
                     >
-                      You can connect your account with Wallet Connect or you
-                      can use your public key. For earning rewards you should
-                      use Wallet Connect
+                      {`Connect your existing digital wallet via\n WalletConnect. If you don't yet have a digital wallet,\n we can help you get one.`}
                     </Text>
                     {!usePublicKey && (
                       <View style={{ alignItems: "center" }}>
@@ -539,9 +567,6 @@ const OnboardingMain = () => {
                               justifyContent: "center",
                             }}
                           >
-                            <Image
-                              source={require("../../assets/images/walletConnect.png")}
-                            />
                             <Text
                               style={{
                                 textAlign: "center",
@@ -551,7 +576,7 @@ const OnboardingMain = () => {
                                 paddingLeft: normalizeWidth(5),
                               }}
                             >
-                              Wallet Connect
+                              Connect Wallet
                             </Text>
                           </View>
                         </TouchableOpacity>
@@ -584,7 +609,7 @@ const OnboardingMain = () => {
                                 paddingLeft: normalizeWidth(5),
                               }}
                             >
-                              Generate Wallet
+                              Get a New Digital Wallet
                             </Text>
                           </View>
                         </TouchableOpacity>
@@ -862,7 +887,7 @@ const OnboardingMain = () => {
                           </View>
                         </View>
                       </View>
-                      <View>
+                      <View style={{ marginTop: normalizeHeight(50) }}>
                         <TouchableOpacity
                           style={{
                             backgroundColor: "#6E62A6",

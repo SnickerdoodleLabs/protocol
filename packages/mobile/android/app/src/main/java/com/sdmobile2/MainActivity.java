@@ -1,5 +1,5 @@
 package com.sdmobile2;
-import com.andorid.oos.Bundle;
+import android.os.Bundle; // Fixed import statement
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;

@@ -42,15 +42,6 @@ const data: ICardDetailsProps = {
   company: "SDL",
 };
 
-const permissionImage = {
-  Gender: require("../../../assets/images/renting-gender.png"),
-  Age: require("../../../assets/images/renting-birthday.png"),
-  "Country of Residence": require("../../../assets/images/renting-location.png"),
-  "Browser history (most visited URLs)": require("../../../assets/images/renting-siteVisited.png"),
-  "Decentralized applications you've interacted with": require("../../../assets/images/renting-transaction.png"),
-  "Aggregated token holdings and NFT collections": require("../../../assets/images/renting-nfts.png"),
-};
-
 export interface IInvitationParams {
   consentAddress: EVMContractAddress | undefined;
   tokenId: BigNumberString | undefined;
@@ -157,9 +148,7 @@ const NFTDetails = ({ navigation, route }) => {
             }}
           />
           <Text style={styles.title}>{rewardItem?.data?.name}</Text>
-          <Text style={styles.subTitle}>
-           
-          </Text>
+          <Text style={styles.subTitle}></Text>
           <LineBreaker />
           {/*  <Text style={styles.claimed}>{data.claimed}</Text>
             <Text style={styles.peopleClaimed}>People Claimed</Text> */}
@@ -213,7 +202,9 @@ const NFTDetails = ({ navigation, route }) => {
                     </Text>
 
                     <View>
-                      {index + 1 !== rewardItem?.data?.parsed_metadata?.attributes?.length && <LineBreaker />}
+                      {index + 1 !==
+                        rewardItem?.data?.parsed_metadata?.attributes
+                          ?.length && <LineBreaker />}
                     </View>
                   </View>
                 );

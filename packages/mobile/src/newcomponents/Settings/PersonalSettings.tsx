@@ -50,10 +50,10 @@ export default function PersonalSettings() {
             fontWeight: "400",
             color: "#424242",
             marginTop: normalizeHeight(32),
+            marginBottom:normalizeHeight(20)
           }}
         >
-          Control your data in the wallet by adding or removing demographic
-          information. Shared insights are anonymous.
+          {`Add or change demographic information in your\nData Wallet.\n\nAny info you share is anonymized and cannot be linked back to your wallet addresses.`}
         </Text>
         <MyComponent />
       </SafeAreaView>
