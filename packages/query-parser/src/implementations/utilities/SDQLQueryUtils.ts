@@ -13,19 +13,18 @@ import {
   SDQLString,
   IQueryDeliveryItems,
   IpfsCID,
-  DataPermissions,
-  HexString32,
+  SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
+import { RequiresEvaluator } from "@query-parser/implementations/business/evaluators/RequiresEvaluator.js";
 import {
   AST_Ad,
   AST_Compensation,
-  AST_Evaluator,
   AST_Expr,
   AST_Insight,
-  ,
   Command,
   Command_IF,
   SDQLParser,
@@ -38,7 +37,6 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
-import { CachedQueryRepository } from "@query-parser/implementations/utilities/CachedQueryRepository.js";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -215,26 +213,50 @@ export class SDQLQueryUtils {
       .makeParser(IpfsCID(""), schemaString)
       .andThen((parser) => {
         return parser.buildAST().andThen((ast) => {
-          return errAsync(new Error("Not implemented"));
-          const queryRepository = this.createCachedQueryRepository(queryDeliveryItems);
-          const astEvaluator = new AST_Evaluator(
-            parser.cid,
-            queryRepository,
-            new DataPermissions(HexString32("0xFFFFFFFF"))
-          )
-          
+          // return errAsync(new Error("Not implemented"));
+          const availableMap =
+            this.createAvailableMapForRequiresEvaluator(queryDeliveryItems);
+          const requiresEvaluator = new RequiresEvaluator(availableMap);
+
+          const allKeys = Object.keys(ast.compensations);
+
+          const results = allKeys.map((key) => {
+            const compAst = ast.compensations.get(SDQL_Name(key));
+            return requiresEvaluator.eval(compAst!.requires);
+          });
+
+          return ResultUtils.combine(results).map((compVals) => {
+            return compVals.reduce<CompensationKey[]>(
+              (dispensableKeys, compVal, idx) => {
+                if (compVal == true) {
+                  dispensableKeys.push(CompensationKey(allKeys[idx]));
+                }
+                return dispensableKeys;
+              },
+              [],
+            );
+          });
         });
       });
   }
 
-  private createCachedQueryRepository(queryDeliveryItems): CachedQueryRepository {
-
-    if ("queries" in queryDeliveryItems === false) {
-      return new CachedQueryRepository(new Map());
-    } else {
-      return new CachedQueryRepository(queryDeliveryItems["queries"]);
+  public createAvailableMapForRequiresEvaluator(
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): Map<SDQL_Name, unknown> {
+    const availableMap = new Map<SDQL_Name, unknown>();
+    if (queryDeliveryItems.insights != null) {
+      const keys = Object.keys(queryDeliveryItems.insights);
+      keys.forEach((key) =>
+        availableMap.set(SDQL_Name(key), queryDeliveryItems.insights![key]),
+      );
+    }
+    if (queryDeliveryItems.ads != null) {
+      const keys = Object.keys(queryDeliveryItems.ads);
+      keys.forEach((key) =>
+        availableMap.set(SDQL_Name(key), queryDeliveryItems.ads![key]),
+      );
     }
 
-
+    return availableMap;
   }
 }
