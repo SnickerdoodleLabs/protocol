@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
+
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -10,10 +11,8 @@ import {
   ConditionIn,
   ConditionL,
   ConditionOr,
-} from "@snickerdoodlelabs/query-parser";
-
-import { ASTMocks } from "@core-tests/mock/mocks";
-
+} from "@query-parser/interfaces/index.js";
+import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
 // const ast = new AST(
 //     Version("0.1"),
 //     "Interactions with the Avalanche blockchain for 15-year and older individuals",

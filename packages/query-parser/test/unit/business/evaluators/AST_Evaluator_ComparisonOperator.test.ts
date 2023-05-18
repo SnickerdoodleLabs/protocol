@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   EvaluationError,
   SDQL_OperatorName,

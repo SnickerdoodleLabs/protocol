@@ -31,6 +31,7 @@ import {
   TokenId,
   UninitializedError,
   UnixTimestamp,
+  IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   ISDQLQueryWrapperFactory,
@@ -80,6 +81,12 @@ const insights = {
     $r3: InsightString("Hello2"),
   },
 } as IInsights;
+
+const queryDeliveryItems: IQueryDeliveryItems = {
+  insights: {},
+  ads: {},
+} as IQueryDeliveryItems; // TODO fill out with data
+
 const insightsError = {
   returns: {},
 } as IInsights;
@@ -174,7 +181,7 @@ class QueryServiceMocks {
         consentContractAddress,
         tokenId,
         queryCID2,
-        insights,
+        queryDeliveryItems,
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
             val.length == 1 &&
@@ -269,14 +276,14 @@ class QueryServiceMocks {
         sdqlQuery,
         this.consentToken.dataPermissions,
       ),
-    ).thenReturn(okAsync(insights));
+    ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery2,
         this.consentToken.dataPermissions,
       ),
-    ).thenReturn(okAsync(insights));
+    ).thenReturn(okAsync(queryDeliveryItems));
 
     // AccountRepo
     td.when(this.accountRepo.addEarnedRewards(earnedRewards)).thenReturn(

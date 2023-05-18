@@ -1,8 +1,11 @@
+import "reflect-metadata";
 import { SDQL_OperatorName, SDQL_Return } from "@snickerdoodlelabs/objects";
 
 import { AST_Evaluator } from "@query-parser/implementations/index.js";
 import {
+  ConditionAnd,
   ConditionOperandTypes,
+  ConditionOr,
   Operator,
 } from "@query-parser/interfaces/index.js";
 import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
