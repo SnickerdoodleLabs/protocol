@@ -1,21 +1,4 @@
 import {
-  AST_Ad,
-  AST_Compensation,
-  AST_Expr,
-  AST_Insight,
-  Command,
-  Command_IF,
-  SDQLParser,
-} from "@query-parser/index.js";
-import {
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
-} from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
-import {
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-} from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
-import {
   AdKey,
   CompensationKey,
   DuplicateIdInSchema,
@@ -28,9 +11,34 @@ import {
   QueryExpiredError,
   QueryFormatError,
   SDQLString,
+  IQueryDeliveryItems,
+  IpfsCID,
+  DataPermissions,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
+
+import {
+  AST_Ad,
+  AST_Compensation,
+  AST_Evaluator,
+  AST_Expr,
+  AST_Insight,
+  ,
+  Command,
+  Command_IF,
+  SDQLParser,
+} from "@query-parser/index.js";
+import {
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+} from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
+import {
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+} from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
+import { CachedQueryRepository } from "@query-parser/implementations/utilities/CachedQueryRepository.js";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -183,5 +191,50 @@ export class SDQLQueryUtils {
     return requiredAds.every((required) => {
       return permittedAdKeys.includes(AdKey(required.name));
     });
+  }
+
+  // New methods. All of the above should be deprecated
+
+  /**
+   * This is the entry point for InsightPlatform to dispense compensations
+   * @param schemaString
+   * @param queryDeliveryItems
+   */
+  public getCompensationsToDispense(
+    schemaString: SDQLString,
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): ResultAsync<
+    CompensationKey[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+    return this.parserFactory
+      .makeParser(IpfsCID(""), schemaString)
+      .andThen((parser) => {
+        return parser.buildAST().andThen((ast) => {
+          return errAsync(new Error("Not implemented"));
+          const queryRepository = this.createCachedQueryRepository(queryDeliveryItems);
+          const astEvaluator = new AST_Evaluator(
+            parser.cid,
+            queryRepository,
+            new DataPermissions(HexString32("0xFFFFFFFF"))
+          )
+          
+        });
+      });
+  }
+
+  private createCachedQueryRepository(queryDeliveryItems): CachedQueryRepository {
+
+    if ("queries" in queryDeliveryItems === false) {
+      return new CachedQueryRepository(new Map());
+    } else {
+      return new CachedQueryRepository(queryDeliveryItems["queries"]);
+    }
+
+
   }
 }
