@@ -10,17 +10,19 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { AST_Evaluator } from "@query-parser/implementations/business/evaluators/AST_Evaluator.js";
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
+import { IQueryFactories } from "@query-parser/interfaces/IQueryFactories.js";
 import {
   IQueryRepository,
   IQueryRepositoryType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-} from "@query-parser/interfaces/index.js";
-import { IQueryFactories } from "@query-parser/interfaces/IQueryFactories.js";
+} from "@query-parser/interfaces/IQueryRepository.js";
 import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
 } from "@query-parser/interfaces/utilities/IQueryObjectFactory.js";
+import {
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+} from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
