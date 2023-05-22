@@ -26,6 +26,7 @@ export type ConditionOperandTypes =
   | AST_Expr
   | SDQL_Return
   | Array<string | number>
+  | AST_Ad
   | AST_Insight
   | AST_SubQuery
   | null;
