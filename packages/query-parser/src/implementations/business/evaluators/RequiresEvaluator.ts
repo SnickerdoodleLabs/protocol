@@ -6,6 +6,7 @@ import {
   EvaluationError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
+import { utils } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { AST_Evaluator } from "@query-parser/implementations/business/evaluators/AST_Evaluator.js";
@@ -18,14 +19,15 @@ import {
   Command_IF,
   Operator,
 } from "@query-parser/interfaces/index.js";
-import { IQueryRepository } from "@query-parser/interfaces/IQueryRepository.js";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr.js";
 import { TypeChecker } from "@query-parser/interfaces/objects/TypeChecker.js";
 
 export class RequiresEvaluator extends AST_Evaluator {
   constructor(readonly availableMap: Map<SDQL_Name, unknown>) {
     const queryRepo = new CachedQueryRepository(new Map()); // a blank query repository
-    const permissions = new DataPermissions(HexString32("0xFFFFFFFF"));
+    const permString =
+      "0x111111111111111111111111111111111111111111111111111111111111111b"; // 31 ones
+    const permissions = new DataPermissions(HexString32(permString));
     super(IpfsCID(""), queryRepo, permissions);
   }
 
