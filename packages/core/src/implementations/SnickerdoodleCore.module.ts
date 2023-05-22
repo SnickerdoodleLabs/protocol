@@ -74,6 +74,7 @@ import {
   IntegrationService,
   InvitationService,
   MarketplaceService,
+  MetricsService,
   MonitoringService,
   ProfileService,
   QueryParsingEngine,
@@ -147,6 +148,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -277,6 +280,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
+      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -366,9 +372,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
-    bind<IOauthUtils>(IOAuthRepositoryType)
-      .to(OauthUtils)
-      .inSingletonScope();
+    bind<IOauthUtils>(IOAuthRepositoryType).to(OauthUtils).inSingletonScope();
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
       .inSingletonScope();

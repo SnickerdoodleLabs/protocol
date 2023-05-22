@@ -3,7 +3,7 @@ import {
   IBaseContract,
   IConsentContract,
 } from "@snickerdoodlelabs/contracts-sdk";
-import { ApiName } from "@snickerdoodlelabs/objects";
+import { EExternalApi } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync } from "neverthrow";
 
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
@@ -12,9 +12,6 @@ import { IContextProvider } from "@core/interfaces/utilities/index.js";
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
  */
 export abstract class BaseContractWrapper<TContract extends IBaseContract> {
-  static primaryName = ApiName("Primary Control Chain");
-  static secondaryName = ApiName("Secondary Control Chain");
-
   public constructor(
     protected primary: TContract,
     protected secondary: TContract | null,
@@ -38,18 +35,20 @@ export abstract class BaseContractWrapper<TContract extends IBaseContract> {
     primary: () => ResultAsync<T, TErr>,
     secondary: () => ResultAsync<T, TErr> | undefined,
   ): ResultAsync<T, TErr> {
-    this.contextProvider.incrementApi(BaseContractWrapper.primaryName);
-    return primary().orElse((e) => {
-      // If we do not have a secondary provider, the secondary() method will return null when called,
-      // don't bother.
-      if (this.secondary == null) {
-        return errAsync(e);
-      }
+    return this.contextProvider.getContext().andThen((context) => {
+      context.privateEvents.onApiAccessed.next(EExternalApi.PrimaryControl);
+      return primary().orElse((e) => {
+        // If we do not have a secondary provider, the secondary() method will return null when called,
+        // don't bother.
+        if (this.secondary == null) {
+          return errAsync(e);
+        }
 
-      // If we have a secondary provider, then we can attempt it. secondary() should produce a ResultAsync
-      this.logUtils.debug("Falling back to secondary provider");
-      this.contextProvider.incrementApi(BaseContractWrapper.secondaryName);
-      return secondary() as ResultAsync<T, TErr>;
+        // If we have a secondary provider, then we can attempt it. secondary() should produce a ResultAsync
+        this.logUtils.debug("Falling back to secondary provider");
+        context.privateEvents.onApiAccessed.next(EExternalApi.SecondaryControl);
+        return secondary() as ResultAsync<T, TErr>;
+      });
     });
   }
 

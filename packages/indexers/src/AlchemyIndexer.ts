@@ -29,7 +29,6 @@ import {
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-// import { CoinGeckoTokenInfo } from "packages/objects/src";
 import Web3 from "web3";
 
 import {

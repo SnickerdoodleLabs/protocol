@@ -1,9 +1,10 @@
-import { ApiName, UnixTimestamp } from "..";
+import { EExternalApi } from "@objects/enum/index.js";
+import { UnixTimestamp } from "@objects/primitives/index.js";
 
 export class RuntimeMetrics {
   public constructor(
     public uptime: number,
     public startTime: UnixTimestamp,
-    public apiCalls: { [apiName: ApiName]: number },
+    public apiCalls: Map<EExternalApi, number>,
   ) {}
 }

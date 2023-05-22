@@ -23,7 +23,6 @@ import {
   BaseURI,
   InvalidParametersError,
   BigNumberString,
-  ApiName,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -38,9 +37,6 @@ export class ConsentContractWrapper
   extends BaseContractWrapper<IConsentContract>
   implements IConsentContract
 {
-  protected primaryName = ApiName("Primary Control Chain");
-  protected secondaryName = ApiName("Secondary Control Chain");
-
   public constructor(
     primary: IConsentContract,
     secondary: IConsentContract | null,

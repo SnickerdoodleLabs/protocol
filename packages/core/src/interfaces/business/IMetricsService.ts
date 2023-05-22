@@ -1,13 +1,4 @@
-import {
-  AccountIndexingError,
-  AjaxError,
-  DataWalletBackupID,
-  DiscordError,
-  PersistenceError,
-  RuntimeMetrics,
-  SiteVisit,
-  TwitterError,
-} from "@snickerdoodlelabs/objects";
+import { RuntimeMetrics } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -16,6 +7,7 @@ import { ResultAsync } from "neverthrow";
  */
 export interface IMetricsService {
   getMetrics(): ResultAsync<RuntimeMetrics, never>;
+  initialize(): ResultAsync<void, never>;
 }
 
 export const IMetricsServiceType = Symbol.for("IMetricsService");

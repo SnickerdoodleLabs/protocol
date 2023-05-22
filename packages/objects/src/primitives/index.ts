@@ -3,7 +3,6 @@ export * from "@objects/primitives/AdKey.js";
 export * from "@objects/primitives/AdSurfaceId.js";
 export * from "@objects/primitives/AESKey.js";
 export * from "@objects/primitives/Age.js";
-export * from "@objects/primitives/ApiName.js";
 export * from "@objects/primitives/Argon2Hash.js";
 export * from "@objects/primitives/BackupFileName.js";
 export * from "@objects/primitives/Base64String.js";

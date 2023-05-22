@@ -139,6 +139,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
@@ -605,6 +607,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
+    const metricsService =
+      this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
     const blockchainListener = this.iocContainer.get<IBlockchainListener>(
       IBlockchainListenerType,
     );
@@ -629,7 +634,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       })
       .andThen(() => {
         // Service Layer
-        return ResultUtils.combine([queryService.initialize()]);
+        return ResultUtils.combine([
+          queryService.initialize(),
+          metricsService.initialize(),
+        ]);
       })
       .andThen(() => {
         // API Layer

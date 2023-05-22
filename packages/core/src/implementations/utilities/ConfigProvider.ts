@@ -3,6 +3,7 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  DiscordConfig,
   EChain,
   ECurrencyCode,
   EHashAlgorithm,
@@ -69,7 +70,7 @@ export class ConfigProvider
       dataAPIUrl: URLString("https://discord.com/api"),
       iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
-    };
+    } as DiscordConfig;
 
     const twitterConfig = {
       apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
@@ -82,27 +83,27 @@ export class ConfigProvider
       oAuthCallbackUrl: URLString("spa-url"),
       dataAPIUrl: URLString("https://api.twitter.com/2"),
       pollInterval: 1 * 24 * 3600 * 1000,
-    };
+    } as TwitterConfig;
 
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
-      controlChainId,
-      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
-      chainConfig,
-      controlChainInformation,
+      controlChainId, // controlChainId
+      [ChainId(EChain.DevDoodle)], // supportedChains (local hardhat only for the test harness, we can index other chains here though)
+      chainConfig, // chainInformation
+      controlChainInformation, // controlChainInformation
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      "ceramic-replacement-bucket",
-      5000, // polling interval indexing,
-      5000, // polling interval balance
-      5000, // polling interval nfts
-      60000, // backup interval
-      5, // backup chunk size target
-      "ckey_ee277e2a0e9542838cf30325665", // covalent api key
-      "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
-      "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
-      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
-      "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+      "ceramic-replacement-bucket", // defaultGoogleCloudBucket
+      5000, // accountIndexingPollingIntervalMS polling interval indexing,
+      5000, // accountBalancePollingIntervalMS polling interval balance
+      5000, // accountNFTPollingIntervalMS polling interval nfts
+      60000, // dataWalletBackupIntervalMS backup interval
+      5, // backupChunkSizeTarget backup chunk size target
+      "ckey_ee277e2a0e9542838cf30325665", // covalentApiKey covalent api key
+      "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralisApiKey moralis api key
+      "lusr87vNmTtHGMmktlFyi4Nt", // nftScanApiKey NftScan api key
+      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // poapApiKey Poap Api Key
+      "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKey
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
@@ -118,9 +119,9 @@ export class ConfigProvider
         [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
         [ChainId(10), "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3"],
         [ChainId(42161), "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV"],
-      ]), // etherscan api key
-      100, // etherscan tx batch size
-      4000, // polling interval for consent contracts on control chain
+      ]), // etherscanApiKeys etherscan api key
+      100, // etherscanTransactionsBatchSize etherscan tx batch size
+      4000, // requestForDataCheckingFrequency polling interval for consent contracts on control chain
       new Map<EChain, URLString>([
         [
           EChain.Solana,
@@ -164,14 +165,14 @@ export class ConfigProvider
             "https://astar-mainnet.g.alchemy.com/v2/Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
           ),
         ],
-      ]),
-      10000,
-      "(localhost|chrome://)",
-      false, // enable backup encryption
-      300000,
-      120000, // backup placement heartbeat
-      discordConfig,
-      twitterConfig,
+      ]), // alchemyEndpoints
+      10000, // restoreTimeoutMS
+      "(localhost|chrome://)", // domainFilter
+      false, // enableBackupEncryption
+      300000, // marketplaceCacheTime
+      120000, // backupHeartbeatIntervalMS
+      discordConfig, // discord
+      twitterConfig, // twitter
       60000, // heartbeatIntervalMS
       new MetatransactionGasAmounts(
         10000000, // createCrumbGas
@@ -183,7 +184,8 @@ export class ConfigProvider
       "a8ae124ed6aa44bb97a7166cda30f1bc", // primaryInfuraKey,
       null, // backupInfuraKey
       null, // alchemyKey
-      ProviderUrl("http://127.0.0.1:8545"),
+      ProviderUrl("http://127.0.0.1:8545"), // devChainProviderURL
+      60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
     );
   }
 
@@ -275,8 +277,10 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
-    this.config.primaryInfuraKey = overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
-    this.config.backupInfuraKey = overrides.backupInfuraKey ?? this.config.backupInfuraKey;
+    this.config.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
+    this.config.backupInfuraKey =
+      overrides.backupInfuraKey ?? this.config.backupInfuraKey;
     this.config.alchemyKey = overrides.alchemyKey ?? this.config.alchemyKey;
   }
 }

@@ -27,7 +27,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
     public covalentApiKey: string,
-    public moralisApiKey: string,
+    public moralisApiKey?: string,
     public nftScanApiKey: string,
     public poapApiKey: string,
     public oklinkApiKey: string,
@@ -51,6 +51,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public backupInfuraKey: string | null,
     public alchemyKey: string | null,
     public devChainProviderURL: ProviderUrl,
+    public maxStatsRetentionSeconds: number,
   ) {}
 }
 

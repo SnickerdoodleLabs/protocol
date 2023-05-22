@@ -1,14 +1,16 @@
 // This is basically global variables
 
 import {
-  ApiName,
   DataWalletAddress,
+  EExternalApi,
   EVMPrivateKey,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { Subject } from "rxjs";
 
-import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
+import { ApiStats } from "@core/interfaces/objects/ApiStats.js";
+import { ComponentStatus } from "@core/interfaces/objects/ComponentStatus.js";
+import { PrivateEvents } from "@core/interfaces/objects/PrivateEvents.js";
+import { PublicEvents } from "@core/interfaces/objects/PublicEvents.js";
 
 /**
  * Some people may object to some of the values in here- like private keys.
@@ -30,9 +32,10 @@ export class CoreContext {
     public dataWalletKey: EVMPrivateKey | null,
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
+    public privateEvents: PrivateEvents,
     public restoreInProgress: boolean,
-    public heartbeat: Subject<void>,
     public startTime: UnixTimestamp,
-    public apiCalls: { [apiName: ApiName]: number },
+    public apiCalls: Map<EExternalApi, ApiStats>,
+    public components: ComponentStatus,
   ) {}
 }

@@ -82,4 +82,64 @@ describe("BaseContractWrapper tests", () => {
       mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
     ).toBe(undefined);
   });
+
+  test("primary fails, secondary call made", async () => {
+    // Arrange
+    const mocks = new BaseContractWrapperMocks(true);
+    const wrapper = mocks.factory();
+
+    // Act
+    const result = await wrapper.testFallback(true, false);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    expect(
+      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
+    ).toBe(1);
+    expect(
+      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
+    ).toBe(1);
+  });
+
+  test("primary fails, no secondary exists", async () => {
+    // Arrange
+    const mocks = new BaseContractWrapperMocks(false);
+    const wrapper = mocks.factory();
+
+    // Act
+    const result = await wrapper.testFallback(true, false);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+
+    expect(
+      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
+    ).toBe(1);
+    expect(
+      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
+    ).toBe(undefined);
+  });
+
+  test("primary fails, secondary fails", async () => {
+    // Arrange
+    const mocks = new BaseContractWrapperMocks(true);
+    const wrapper = mocks.factory();
+
+    // Act
+    const result = await wrapper.testFallback(true, true);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+
+    expect(
+      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
+    ).toBe(1);
+    expect(
+      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
+    ).toBe(1);
+  });
 });
