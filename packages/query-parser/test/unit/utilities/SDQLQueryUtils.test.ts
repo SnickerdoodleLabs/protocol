@@ -42,7 +42,7 @@ class SDQLQueryUtilsMocks {
     return new SDQLQueryUtils(this.parserFactory, this.queryWrapperFactory);
   }
 
-  private getInsightWithProof(name: string, data: unknown): IInsightWithProof {
+  private getInsightWithProof(name: string, data: string): IInsightWithProof {
     return new InsightWithProof(new Insight(InsightKey(name), data), "zkp");
   }
 
@@ -81,6 +81,27 @@ describe("Dummy describe block", () => {
   test("Dummy test", async () => {
     const schemaString = SDQLString(avalanche1SchemaStr);
     expect(1).toBe(1);
+  });
+});
+
+describe("Compensation tests", () => {
+  test("createAvailableMapForRequiresEvaluator test", async () => {
+    // Acquire
+    const mocks = new SDQLQueryUtilsMocks();
+    const utils = mocks.factory();
+    const queryDeliveryItems = mocks.getQueryDeliveryItems();
+    const insightKeys = Object.keys(mocks.getQueryDeliveryInsights());
+    const adKeys = Object.keys(mocks.getQueryDeliveryAds());
+    const expectedKeys = [...insightKeys, ...adKeys];
+
+    // Act
+    const availableMap =
+      utils["createAvailableMapForRequiresEvaluator"](queryDeliveryItems);
+    
+    // Assert
+    // 1. validate keys and values
+    const gotKeys = [...availableMap.keys()];
+    expect(expectedKeys).toEqual(gotKeys);
   });
 });
 
