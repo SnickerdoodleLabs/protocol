@@ -251,7 +251,7 @@ export class SDQLQueryUtils {
             this.createAvailableMapForRequiresEvaluator(queryDeliveryItems);
           const requiresEvaluator = new RequiresEvaluator(availableMap);
 
-          const allKeys = Object.keys(ast.compensations);
+          const allKeys = [...ast.compensations.keys()];
 
           const results = allKeys.map((key) => {
             const compAst = ast.compensations.get(SDQL_Name(key));
