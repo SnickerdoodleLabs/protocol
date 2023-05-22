@@ -8,6 +8,7 @@ import {
   AccountAddress,
   AccountIndexingError,
   AjaxError,
+  chainConfig,
   ChainId,
   ComponentStatus,
   EChainType,
@@ -25,6 +26,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IIndexerConfigProvider,
@@ -99,7 +101,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
         const nftScanRepo = this.nftscan;
         const poapRepo = this.poapRepo;
 
-        const chainInfo = config.chainInformation.get(chainId);
+        const chainInfo = chainConfig.get(chainId);
         if (chainInfo == null) {
           return errAsync(
             new AccountIndexingError(

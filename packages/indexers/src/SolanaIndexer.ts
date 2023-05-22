@@ -4,6 +4,7 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -33,19 +34,19 @@ import {
   PublicKey,
   LAMPORTS_PER_SOL,
   GetProgramAccountsFilter,
+  AccountInfo,
+  ParsedAccountData,
 } from "@solana/web3.js";
 import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { IRequestConfig } from "packages/common-utils/src";
-import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
-
+import { urlJoinP } from "url-join-ts";
 export class SolanaIndexer
   implements
     ISolanaBalanceRepository,
@@ -53,7 +54,6 @@ export class SolanaIndexer
     ISolanaTransactionRepository
 {
   private _connections?: ResultAsync<SolClients, never>;
-
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -62,7 +62,6 @@ export class SolanaIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -74,27 +73,21 @@ export class SolanaIndexer
       return [nativeBalance, ...nonNativeBalance];
     });
   }
-
   private getNonNativeBalance(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this._getParsedAccounts(chainId, accountAddress),
-    ])
-      .map(([accounts]) => {
-        return accounts.map((account) => {
-          return this.tokenPriceRepo
-            .getTokenInfo(
-              chainId,
-              account?.account?.data["parsed"]["info"]["mint"],
-            )
-            .andThen((tokenInfo) => {
-              if (tokenInfo == null) {
-                return okAsync(null);
-              }
-              return okAsync(
-                new TokenBalance(
+    return this._getParsedAccounts(chainId, accountAddress)
+      .andThen((accounts) => {
+        return ResultUtils.combine(
+          accounts.map((account) => {
+            return this.tokenPriceRepo
+              .getTokenInfo(chainId, account.data["parsed"]["info"]["mint"])
+              .map((tokenInfo) => {
+                if (tokenInfo == null) {
+                  return null;
+                }
+                return new TokenBalance(
                   EChainTechnology.Solana,
                   tokenInfo.symbol,
                   chainId,
@@ -102,34 +95,19 @@ export class SolanaIndexer
                   accountAddress,
                   BigNumberString(
                     BigNumber.from(
-                      account?.account?.data["parsed"]["info"]["tokenAmount"][
-                        "amount"
-                      ],
+                      account.data["parsed"]["info"]["tokenAmount"]["amount"],
                     ).toString(),
                   ),
-                  account?.account?.data["parsed"]["info"]["tokenAmount"][
-                    "decimals"
-                  ],
-                ),
-              );
-            });
-        });
+                  account.data["parsed"]["info"]["tokenAmount"]["decimals"],
+                );
+              });
+          }),
+        );
       })
       .map((balances) => {
-        return Promise.all(balances).then((balance) => {
-          return (
-            balance
-              //@ts-ignore
-              .filter((obj) => obj.value != null)
-              .map((tokenBalance) => {
-                //@ts-ignore
-                return tokenBalance.value;
-              })
-          );
-        });
+        return balances.filter((obj) => obj != null) as TokenBalance[];
       });
   }
-
   private getNativeBalance(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -156,7 +134,6 @@ export class SolanaIndexer
         return okAsync(nativeBalance);
       });
   }
-
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -207,7 +184,6 @@ export class SolanaIndexer
           }); // remove duplicates
       });
   }
-
   public getSolanaTransactions(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -216,7 +192,6 @@ export class SolanaIndexer
   ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
     return okAsync([]); //TODO
   }
-
   private _getConnectionForChainId(
     chainId: ChainId,
   ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
@@ -233,12 +208,10 @@ export class SolanaIndexer
       }
     });
   }
-
   private _getConnections(): ResultAsync<SolClients, never> {
     if (this._connections) {
       return this._connections;
     }
-
     this._connections = this.configProvider.getConfig().andThen((config) => {
       return ResultUtils.combine([
         this._getConnectionForEndpoint(
@@ -254,10 +227,8 @@ export class SolanaIndexer
         };
       });
     });
-
     return this._connections;
   }
-
   private _getConnectionForEndpoint(
     endpoint: string,
   ): ResultAsync<[Connection, Metaplex], never> {
@@ -265,25 +236,33 @@ export class SolanaIndexer
     const metaplex = new Metaplex(connection);
     return okAsync([connection, metaplex]);
   }
-
   private _getParsedAccounts(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ) {
+  ): ResultAsync<
+    AccountInfo<Buffer | ParsedAccountData>[],
+    AccountIndexingError
+  > {
     return ResultUtils.combine([
       this._getConnectionForChainId(chainId),
       this._getFilters(accountAddress),
-    ]).map(async ([[conn], filters]) => {
-      const accounts = await conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
-        filters: filters,
+    ])
+      .andThen(([[conn], filters]) => {
+        return ResultAsync.fromPromise(
+          conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
+            filters: filters,
+          }),
+          (e) => {
+            return new AccountIndexingError("", e);
+          },
+        );
+      })
+      .map((accounts) => {
+        return accounts.map((account) => {
+          return account.account;
+        });
       });
-      const balances = accounts.map((account) => {
-        return account;
-      });
-      return balances;
-    });
   }
-
   private _getFilters(
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<GetProgramAccountsFilter[], never> {
@@ -300,11 +279,9 @@ export class SolanaIndexer
     ];
     return okAsync(filters);
   }
-
   private _lamportsToSol(lamports: number): BigNumberString {
     return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
   }
-
   public healthCheck(): ResultAsync<string, AjaxError> {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
@@ -337,12 +314,10 @@ export class SolanaIndexer
       });
   }
 }
-
 interface SolClients {
   mainnet: [Connection, Metaplex];
   testnet: [Connection, Metaplex];
 }
-
 type ISolscanBalanceResponse = {
   tokenAddress: SolanaTokenAddress;
   tokenAmount: {
@@ -357,7 +332,6 @@ type ISolscanBalanceResponse = {
   rentEpoch: number;
   lamports: number;
 }[];
-
 type IAlchemyBalanceResponse = {
   id: number;
   jsonrpc: string;

@@ -5,12 +5,21 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AccountAddress,
+  AccountIndexingError,
   AjaxError,
+  chainConfig,
+  ChainId,
+  ChainTransaction,
+  EIndexer,
+  EVMAccountAddress,
   IAccountIndexing,
   IEVMTransactionRepository,
   ISolanaTransactionRepository,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
+  SolanaAccountAddress,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -35,6 +44,8 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    // @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
@@ -77,7 +88,82 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     });
   }
 
-  public getLatest(): 
+  public getLatestTransactions(
+    accountAddress: AccountAddress,
+    timestamp: UnixTimestamp,
+    chainId: ChainId,
+  ): ResultAsync<ChainTransaction[], AccountIndexingError | AjaxError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      const evmRepo = this.etherscan;
+      const etherscanRepo = this.etherscan;
+      const solRepo = this.solana;
+      const simulatorRepo = this.simulatorRepo;
+      const maticRepo = this.matic;
+
+      // Get the chain info for the transaction
+      const chainInfo = chainConfig.get(chainId);
+      if (chainInfo == null) {
+        this.logUtils.error(`No available chain info for chain ${chainId}`);
+        return okAsync([]);
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Simulator:
+          return simulatorRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Solana:
+          return solRepo.getSolanaTransactions(
+            chainId,
+            accountAddress as SolanaAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Ethereum:
+          return etherscanRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Polygon:
+          return maticRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Gnosis:
+          return etherscanRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Binance:
+          return etherscanRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Moonbeam:
+          return etherscanRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        default:
+          this.logUtils.error(
+            `No available indexer repository for chain ${chainId}`,
+          );
+          return okAsync([]);
+      }
+    });
+  }
 
   public getPolygonTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
