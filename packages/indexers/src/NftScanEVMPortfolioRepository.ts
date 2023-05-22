@@ -22,13 +22,17 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
+import { IIndexerHealthCheck } from "./IIndexerHealthCheck";
+
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 
 @injectable()
-export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
+export class NftScanEVMPortfolioRepository
+  implements IEVMNftRepository, IIndexerHealthCheck
+{
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -113,11 +117,42 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.nftScanApiKey,
+          "X-API-Key": config.apiKeys.nftScanApiKey,
         },
       };
       return result;
     });
+  }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        if (result.message == undefined) {
+          return okAsync("bad");
+        }
+        return okAsync(result.message);
+      });
   }
 }
 
@@ -169,4 +204,9 @@ interface INftScanAssetData {
   attributes: string[];
   rarity_rank: string | null;
   rarity_score: string | null;
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }

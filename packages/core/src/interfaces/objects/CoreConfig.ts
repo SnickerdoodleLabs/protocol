@@ -26,11 +26,16 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
-    public covalentApiKey: string,
-    public moralisApiKey: string,
-    public nftScanApiKey: string,
-    public poapApiKey: string,
-    public oklinkApiKey: string,
+    public apiKeys: {
+      covalentApiKey: string;
+      moralisApiKey: string;
+      nftScanApiKey: string;
+      poapApiKey: string;
+      oklinkApiKey: string;
+      primaryInfuraKey: string;
+      secondaryInfuraKey: string;
+      ankrApiKey: string;
+    },
     public dnsServerAddress: URLString,
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
@@ -47,7 +52,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
-    public primaryInfuraKey: string,
     public devChainProviderURL: ProviderUrl,
   ) {}
 }

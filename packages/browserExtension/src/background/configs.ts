@@ -20,6 +20,10 @@ declare const __MORALIS_API_KEY__: string;
 declare const __NFTSCAN_API_KEY__: string;
 declare const __POAP_API_KEY__: string;
 declare const __OKLINK_API_KEY__: string;
+declare const __ANKR_API_KEY__: string;
+declare const __PRIMARY_INFURA_KEY__: string;
+declare const __SECONDARY_INFURA_KEY__: string;
+
 declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
@@ -35,7 +39,6 @@ declare const __DISCORD_POLL_INTERVAL__: string;
 declare const __TWITTER_CONSUMER_KEY__: string;
 declare const __TWITTER_CONSUMER_SECRET__: string;
 declare const __TWITTER_POLL_INTERVAL__: string;
-declare const __PRIMARY_INFURA_KEY__: string;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
 const ONE_MINUTE_MS = 60000;
@@ -164,26 +167,43 @@ export const configs: IExtensionConfigOverrides = {
     !!__DEFAULT_INSIGHT_PLATFORM_BASE_URL__
       ? __DEFAULT_INSIGHT_PLATFORM_BASE_URL__
       : URLString("https://insight-api.snickerdoodle.com/v0/"),
-  covalentApiKey:
-    typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
-      ? __COVALENT_API_KEY__
-      : undefined,
-  moralisApiKey:
-    typeof __MORALIS_API_KEY__ !== "undefined" && !!__MORALIS_API_KEY__
-      ? __MORALIS_API_KEY__
-      : undefined,
-  nftScanApiKey:
-    typeof __NFTSCAN_API_KEY__ !== "undefined" && !!__NFTSCAN_API_KEY__
-      ? __NFTSCAN_API_KEY__
-      : undefined,
-  poapApiKey:
-    typeof __POAP_API_KEY__ !== "undefined" && !!__POAP_API_KEY__
-      ? __POAP_API_KEY__
-      : undefined,
-  oklinkApiKey:
-    typeof __OKLINK_API_KEY__ !== "undefined" && !!__OKLINK_API_KEY__
-      ? __OKLINK_API_KEY__
-      : undefined,
+
+  /* API KEYS */
+  apiKeys: {
+    covalentApiKey:
+      typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
+        ? __COVALENT_API_KEY__
+        : undefined,
+    moralisApiKey:
+      typeof __MORALIS_API_KEY__ !== "undefined" && !!__MORALIS_API_KEY__
+        ? __MORALIS_API_KEY__
+        : undefined,
+    nftScanApiKey:
+      typeof __NFTSCAN_API_KEY__ !== "undefined" && !!__NFTSCAN_API_KEY__
+        ? __NFTSCAN_API_KEY__
+        : undefined,
+    poapApiKey:
+      typeof __POAP_API_KEY__ !== "undefined" && !!__POAP_API_KEY__
+        ? __POAP_API_KEY__
+        : undefined,
+    oklinkApiKey:
+      typeof __OKLINK_API_KEY__ !== "undefined" && !!__OKLINK_API_KEY__
+        ? __OKLINK_API_KEY__
+        : undefined,
+    ankrApiKey:
+      typeof __ANKR_API_KEY__ !== "undefined" && !!__ANKR_API_KEY__
+        ? __ANKR_API_KEY__
+        : undefined,
+    primaryInfuraKey:
+      typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
+        ? __PRIMARY_INFURA_KEY__
+        : "a8ae124ed6aa44bb97a7166cda30f1bc",
+    secondaryInfuraKey:
+      typeof __SECONDARY_INFURA_KEY__ !== "undefined" &&
+      !!__SECONDARY_INFURA_KEY__
+        ? __SECONDARY_INFURA_KEY__
+        : undefined,
+  },
   dnsServerAddress:
     typeof __DNS_SERVER_ADDRESS__ !== "undefined" && !!__DNS_SERVER_ADDRESS__
       ? __DNS_SERVER_ADDRESS__
@@ -204,10 +224,7 @@ export const configs: IExtensionConfigOverrides = {
       : false,
   discordOverrides: _buildDiscordConfig(),
   twitterOverrides: _buildTwitterConfig(),
-  primaryInfuraKey:
-    typeof __PRIMARY_INFURA_KEY__ !== "undefined" && !!__PRIMARY_INFURA_KEY__
-      ? __PRIMARY_INFURA_KEY__
-      : "a8ae124ed6aa44bb97a7166cda30f1bc",
+
   devChainProviderURL:
     typeof __DEV_CHAIN_PROVIDER_URL__ !== "undefined" &&
     !!__DEV_CHAIN_PROVIDER_URL__

@@ -38,6 +38,8 @@ import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { IRequestConfig } from "packages/common-utils/src";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
@@ -302,6 +304,38 @@ export class SolanaIndexer
   private _lamportsToSol(lamports: number): BigNumberString {
     return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
   }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        /* If status: healthy , its message is undefined */
+        if (result.status !== undefined) {
+          return okAsync("good");
+        }
+        return okAsync("bad");
+      });
+  }
 }
 
 interface SolClients {
@@ -338,3 +372,8 @@ type IAlchemyBalanceResponse = {
     };
   };
 };
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
+}

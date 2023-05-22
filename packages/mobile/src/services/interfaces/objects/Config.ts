@@ -32,6 +32,7 @@ export const coreConfig = {
   nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
   poapApiKey:
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
+  ankrApiKey: "",
   etherscanApiKeys: new Map([
     [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
     // [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
@@ -44,5 +45,6 @@ export const coreConfig = {
     [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
   ]),
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
+  secondaryInfuraKey: "",
   devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
 } as IConfigOverrides;

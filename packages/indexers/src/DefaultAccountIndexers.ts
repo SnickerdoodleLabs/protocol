@@ -5,6 +5,7 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AjaxError,
   IAccountIndexing,
   IEVMTransactionRepository,
   ISolanaTransactionRepository,
@@ -13,6 +14,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import {
@@ -25,10 +27,10 @@ import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
-  protected evm: IEVMTransactionRepository;
+  protected etherscan: EtherscanIndexer;
   protected simulatorRepo: IEVMTransactionRepository;
-  protected solRepo: ISolanaTransactionRepository;
-  protected matic: IEVMTransactionRepository;
+  protected solana: SolanaIndexer;
+  protected matic: PolygonIndexer;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -38,14 +40,14 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.evm = new EtherscanIndexer(
+    this.etherscan = new EtherscanIndexer(
       configProvider,
       ajaxUtils,
       tokenPriceRepo,
       logUtils,
     );
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
-    this.solRepo = new SolanaIndexer(
+    this.solana = new SolanaIndexer(
       configProvider,
       ajaxUtils,
       tokenPriceRepo,
@@ -57,7 +59,25 @@ export class DefaultAccountIndexers implements IAccountIndexing {
       this.tokenPriceRepo,
       this.logUtils,
     );
+
+    this.initialize();
   }
+
+  private initialize(): ResultAsync<void, AjaxError> {
+    console.log("Initialize Default Account Indexers: ");
+    return ResultUtils.combine([
+      this.etherscan.healthCheck(),
+      this.solana.healthCheck(),
+      this.matic.healthCheck(),
+    ]).andThen(([etherscanStatus, solanaStatus, polygonStatus]) => {
+      console.log("Etherscan Status: ", etherscanStatus);
+      console.log("Solana Status: ", solanaStatus);
+      console.log("Polygon Status: ", polygonStatus);
+      return okAsync(undefined);
+    });
+  }
+
+  public getLatest(): 
 
   public getPolygonTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
@@ -70,14 +90,14 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     IEVMTransactionRepository,
     never
   > {
-    return okAsync(this.evm);
+    return okAsync(this.etherscan);
   }
 
   public getEVMTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
     never
   > {
-    return okAsync(this.evm);
+    return okAsync(this.etherscan);
   }
 
   public getSimulatorEVMTransactionRepository(): ResultAsync<
@@ -91,6 +111,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     ISolanaTransactionRepository,
     never
   > {
-    return okAsync(this.solRepo);
+    return okAsync(this.solana);
   }
 }

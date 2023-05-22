@@ -312,7 +312,7 @@ export class CovalentEVMTransactionRepository
   ): ResultAsync<IRequestConfig, never> {
     return this.configProvider.getConfig().map((config) => {
       const params = {
-        key: config.covalentApiKey,
+        key: config.apiKeys.covalentApiKey,
         "quote-currency": config.quoteCurrency,
       };
 

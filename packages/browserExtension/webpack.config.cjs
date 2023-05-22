@@ -168,6 +168,14 @@ var options = {
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
+      __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __SECONDARY_INFURA_KEY__: JSON.stringify(
+        process.env.__SECONDARY_INFURA_KEY__,
+      ),
+
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),

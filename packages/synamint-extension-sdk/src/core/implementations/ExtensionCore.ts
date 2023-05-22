@@ -73,6 +73,8 @@ export class ExtensionCore {
       nftScanApiKey: config.nftScanApiKey,
       poapApiKey: config.poapApiKey,
       oklinkApiKey: config.oklinkApiKey,
+      ankrApiKey: config.ankrApiKey,
+
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,
@@ -86,6 +88,7 @@ export class ExtensionCore {
       discordOverrides: config.discordOverrides,
       twitterOverrides: config.twitterOverrides,
       primaryInfuraKey: config.primaryInfuraKey,
+      secondaryInfuraKey: config.secondaryInfuraKey,
       devChainProviderURL: config.devChainProviderURL,
     } as IConfigOverrides;
 

@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtils,
   ILogUtilsType,
   ILogUtils,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -38,9 +39,13 @@ import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/IIndexerHealthCheck.js";
 
 export class PolygonIndexer
-  implements IEVMAccountBalanceRepository, IEVMTransactionRepository
+  implements
+    IEVMAccountBalanceRepository,
+    IEVMTransactionRepository,
+    IIndexerHealthCheck
 {
   //   private _metadataCache = new Map<
   //     `${EVMContractAddress}-${ChainId}`,
@@ -381,6 +386,38 @@ export class PolygonIndexer
       return okAsync(config.etherscanApiKeys.get(chain)!);
     });
   }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        /* If status: healthy , its message is undefined */
+        if (result.status !== undefined) {
+          return okAsync("good");
+        }
+        return okAsync("bad");
+      });
+  }
 }
 
 interface IPolygonscanRequestParameters {
@@ -421,4 +458,9 @@ interface IPolygonscanBlockNumberResponse {
   status: string;
   message: string;
   result: BigNumberString;
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }

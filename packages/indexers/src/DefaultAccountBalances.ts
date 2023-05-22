@@ -5,6 +5,7 @@ import {
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AjaxError,
   IAccountBalances,
   IEVMAccountBalanceRepository,
   ISolanaBalanceRepository,
@@ -13,6 +14,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { AlchemyIndexer } from "@indexers/AlchemyIndexer.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
@@ -31,12 +33,12 @@ import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 export class DefaultAccountBalances implements IAccountBalances {
   protected evm: IEVMAccountBalanceRepository;
   protected sim: IEVMAccountBalanceRepository;
-  protected sol: ISolanaBalanceRepository;
-  protected ethereum: IEVMAccountBalanceRepository;
+  protected sol: SolanaIndexer;
+  protected ethereum: EtherscanIndexer;
   protected matic: IEVMAccountBalanceRepository;
-  protected etherscan: IEVMAccountBalanceRepository;
-  protected alchemy: IEVMAccountBalanceRepository;
-  protected oklink: IEVMAccountBalanceRepository;
+  protected etherscan: EtherscanNativeBalanceRepository;
+  protected alchemy: AlchemyIndexer;
+  protected oklink: OklinkIndexer;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -46,6 +48,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
+    console.log("Default Account Balances configuration: ", configProvider);
     this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = new EtherscanIndexer(
       configProvider,
@@ -83,6 +86,31 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.ajaxUtils,
       this.tokenPriceRepo,
       this.logUtils,
+    );
+
+    this.initialize();
+  }
+
+  private initialize(): ResultAsync<void, AjaxError> {
+    console.log("Initialize Default Account Balances: ");
+    return ResultUtils.combine([
+      this.ethereum.healthCheck(),
+      this.alchemy.healthCheck(),
+      this.sol.healthCheck(),
+      this.etherscan.healthCheck(),
+    ]).andThen(
+      ([
+        etherscanStatus,
+        alchemyStatus,
+        solRepoStatus,
+        nativeBalanceStatus,
+      ]) => {
+        console.log("Etherscan Status: ", etherscanStatus);
+        console.log("Alchemy Status: ", alchemyStatus);
+        console.log("Sol Repo Status: ", solRepoStatus);
+        console.log("Native Balance Status: ", nativeBalanceStatus);
+        return okAsync(undefined);
+      },
     );
   }
 

@@ -6,11 +6,16 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 export interface IIndexerConfig {
-  covalentApiKey: string;
-  moralisApiKey: string;
-  nftScanApiKey: string;
-  poapApiKey: string;
-  oklinkApiKey: string;
+  apiKeys: {
+    covalentApiKey: string;
+    moralisApiKey: string;
+    nftScanApiKey: string;
+    poapApiKey: string;
+    oklinkApiKey: string;
+    primaryInfuraKey: string;
+    secondaryInfuraKey: string;
+    ankrApiKey: string;
+  };
   etherscanApiKeys: Map<ChainId, string>;
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;

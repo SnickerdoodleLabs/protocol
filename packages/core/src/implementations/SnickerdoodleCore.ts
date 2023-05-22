@@ -216,10 +216,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    this.iocContainer
-      .bind(IAccountIndexingType)
-      .to(DefaultAccountIndexers)
-      .inSingletonScope();
+    // Setup the config
+    if (configOverrides != null) {
+      const configProvider =
+        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
+      configProvider.setConfigOverrides(configOverrides);
+      console.log(
+        "Snickerdoodle Core configProvider keys: " +
+          JSON.stringify(configProvider),
+      );
+    }
+
+    console.log(
+      "Snickerdoodle Core configOverrides keys: " +
+        JSON.stringify(configOverrides),
+    );
 
     this.iocContainer
       .bind(IAccountBalancesType)
@@ -231,13 +243,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .to(DefaultAccountNFTs)
       .inSingletonScope();
 
-    // Setup the config
-    if (configOverrides != null) {
-      const configProvider =
-        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-
-      configProvider.setConfigOverrides(configOverrides);
-    }
+    this.iocContainer
+      .bind(IAccountIndexingType)
+      .to(DefaultAccountIndexers)
+      .inSingletonScope();
 
     // Invitation Methods ----------------------------------------------------------------------------
     this.invitation = {

@@ -14,6 +14,7 @@ export interface IConfigOverrides {
   nftScanApiKey?: string;
   poapApiKey?: string;
   oklinkApiKey?: string;
+  ankrApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
@@ -26,5 +27,6 @@ export interface IConfigOverrides {
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
   primaryInfuraKey: string;
+  secondaryInfuraKey: string;
   devChainProviderURL?: ProviderUrl;
 }

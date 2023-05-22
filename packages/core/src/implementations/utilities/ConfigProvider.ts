@@ -98,11 +98,19 @@ export class ConfigProvider
       5000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
-      "ckey_ee277e2a0e9542838cf30325665", // covalent api key
-      "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
-      "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
-      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
-      "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+      {
+        covalentApiKey: "ckey_ee277e2a0e9542838cf30325665", // covalent api key
+        moralisApiKey:
+          "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
+        nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+        poapApiKey:
+          "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
+        oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+        ankrApiKey: "", // ankrApiKey
+        primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
+        secondaryInfuraKey: "",
+      },
+
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
@@ -160,7 +168,6 @@ export class ConfigProvider
         10000000, // optOutGas
         10000000, // updateAgreementFlagsGas
       ),
-      "a8ae124ed6aa44bb97a7166cda30f1bc",
       ProviderUrl("http://127.0.0.1:8545"),
     );
   }
@@ -198,8 +205,7 @@ export class ConfigProvider
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
     if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.devChainProviderURL =
-        overrides.devChainProviderURL ||
-        ProviderUrl("http://127.0.0.1:8545");
+        overrides.devChainProviderURL || ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
@@ -219,15 +225,23 @@ export class ConfigProvider
     this.config.accountNFTPollingIntervalMS =
       overrides.accountNFTPollingIntervalMS ??
       this.config.accountNFTPollingIntervalMS;
-    this.config.covalentApiKey =
-      overrides.covalentApiKey ?? this.config.covalentApiKey;
-    this.config.moralisApiKey =
-      overrides.moralisApiKey ?? this.config.moralisApiKey;
-    this.config.nftScanApiKey =
-      overrides.nftScanApiKey ?? this.config.nftScanApiKey;
-    this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
-    this.config.oklinkApiKey =
-      overrides.oklinkApiKey ?? this.config.oklinkApiKey;
+    this.config.apiKeys.covalentApiKey =
+      overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
+    this.config.apiKeys.moralisApiKey =
+      overrides.moralisApiKey ?? this.config.apiKeys.moralisApiKey;
+    this.config.apiKeys.nftScanApiKey =
+      overrides.nftScanApiKey ?? this.config.apiKeys.nftScanApiKey;
+    this.config.apiKeys.poapApiKey =
+      overrides.poapApiKey ?? this.config.apiKeys.poapApiKey;
+    this.config.apiKeys.oklinkApiKey =
+      overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
+    this.config.apiKeys.ankrApiKey =
+      overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
+    this.config.apiKeys.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
+    this.config.apiKeys.secondaryInfuraKey =
+      overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -254,7 +268,5 @@ export class ConfigProvider
     };
     this.config.heartbeatIntervalMS =
       overrides.heartbeatIntervalMS ?? this.config.heartbeatIntervalMS;
-    this.config.primaryInfuraKey =
-      overrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
   }
 }

@@ -22,11 +22,14 @@ export class ExtensionConfig {
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public ceramicNodeUrl: URLString,
-    public covalentApiKey?: string,
-    public moralisApiKey?: string,
-    public nftScanApiKey?: string,
-    public poapApiKey?: string,
-    public oklinkApiKey?: string,
+    public apiKeys: {
+      covalentApiKey?: string;
+      moralisApiKey?: string;
+      nftScanApiKey?: string;
+      poapApiKey?: string;
+      oklinkApiKey?: string;
+      ankrApiKey?: string;
+    },
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
@@ -38,6 +41,7 @@ export class ExtensionConfig {
     public discordOverrides?: Partial<DiscordConfig>,
     public twitterOverrides?: Partial<TwitterConfig>,
     public primaryInfuraKey?: string,
+    public secondaryInfuraKey?: string,
     public devChainProviderURL?: ProviderUrl,
   ) {}
 }

@@ -185,7 +185,7 @@ export class MoralisEVMPortfolioRepository
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.moralisApiKey,
+          "X-API-Key": config.apiKeys.moralisApiKey,
         },
       };
       return result;

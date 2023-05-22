@@ -31,14 +31,17 @@ import {
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { IRequestConfig } from "packages/common-utils/src";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/IIndexerHealthCheck.js";
 
 export class EtherscanNativeBalanceRepository
-  implements IEVMAccountBalanceRepository
+  implements IEVMAccountBalanceRepository, IIndexerHealthCheck
 {
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -112,6 +115,38 @@ export class EtherscanNativeBalanceRepository
       return okAsync(config.etherscanApiKeys.get(chain)!);
     });
   }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        /* If status: healthy , its message is undefined */
+        if (result.status !== undefined) {
+          return okAsync("good");
+        }
+        return okAsync("bad");
+      });
+  }
 }
 
 enum urlAction {
@@ -124,6 +159,11 @@ interface IGnosisscanTransactionResponse {
   status: string;
   message: string;
   result: IGnosisscanRawTx[];
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }
 
 interface IGnosisscanRawTx {

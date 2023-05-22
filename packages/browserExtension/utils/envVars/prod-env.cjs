@@ -14,13 +14,15 @@ const envVars = {
   __NFTSCAN_API_KEY__: "",
   __POAP_API_KEY__: "",
   __OKLINK_API_KEY__: "",
+  __ANKR_API_KEY__: "",
+  __PRIMARY_INFURA_KEY__: "a6271a49218848a7ad939ee62d225914",
+  __SECONDARY_INFURA_KEY__: "",
   __PORTFOLIO_POLLING_INTERVAL__: "7200000",
   __TRANSACTION_POLLING_INTERVAL__: "21600000",
   __BACKUP_POLLING_INTERVAL__: "21600000",
   __DOMAIN_FILTER__: "(localhost|chrome://)",
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "prod-qkppf-sdl-dw",
-  __PRIMARY_INFURA_KEY__: "a6271a49218848a7ad939ee62d225914",
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.dev.snickerdoodle.dev",
 };
 

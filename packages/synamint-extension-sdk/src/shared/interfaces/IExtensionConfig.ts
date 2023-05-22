@@ -28,12 +28,14 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   nftScanApiKey?: string;
   poapApiKey?: string;
   oklinkApiKey?: string;
+  ankrApiKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   primaryInfuraKey?: string;
+  secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
 }
 
@@ -50,17 +52,22 @@ export interface IExtensionConfigOverrides {
   portfolioPollingIntervalMS?: number;
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
-  covalentApiKey?: string;
-  moralisApiKey?: string;
-  nftScanApiKey?: string;
-  poapApiKey?: string;
-  oklinkApiKey?: string;
+  apiKeys: {
+    covalentApiKey?: string;
+    moralisApiKey?: string;
+    nftScanApiKey?: string;
+    poapApiKey?: string;
+    oklinkApiKey?: string;
+    ankrApiKey?: string;
+    primaryInfuraKey?: string;
+    secondaryInfuraKey?: string;
+  };
+
   dnsServerAddress?: URLString;
   requestForDataCheckingFrequency?: number;
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
-  primaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
 }

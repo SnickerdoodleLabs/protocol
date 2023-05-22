@@ -8,6 +8,7 @@ export * from "@indexers/EtherscanIndexer.js";
 export * from "@indexers/EtherscanNativeBalanceRepository.js";
 export * from "@indexers/IIndexerConfig.js";
 export * from "@indexers/IIndexerConfigProvider.js";
+export * from "@indexers/IIndexerHealthCheck.js";
 export * from "@indexers/MoralisEVMPortfolioRepository.js";
 export * from "@indexers/NftScanEVMPortfolioRepository.js";
 export * from "@indexers/OklinkIndexer.js";

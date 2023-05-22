@@ -1,11 +1,12 @@
 import { ChainId, URLString } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
+
 import { IConfigProvider } from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
   IExtensionConfig,
   IExtensionConfigDefaults,
   IExtensionConfigOverrides,
 } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
-import { injectable } from "inversify";
 
 const ONE_MINUTE_MS = 60000;
 
@@ -72,16 +73,17 @@ export class ConfigProvider implements IConfigProvider {
       this.config.backupPollingIntervalMS;
     // api keys
     this.config.covalentApiKey =
-      configOverrides.covalentApiKey ?? this.config.covalentApiKey;
+      configOverrides.apiKeys.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =
-      configOverrides.moralisApiKey ?? this.config.moralisApiKey;
+      configOverrides.apiKeys.moralisApiKey ?? this.config.moralisApiKey;
     this.config.nftScanApiKey =
-      configOverrides.nftScanApiKey ?? this.config.nftScanApiKey;
+      configOverrides.apiKeys.nftScanApiKey ?? this.config.nftScanApiKey;
     this.config.poapApiKey =
-      configOverrides.poapApiKey ?? this.config.poapApiKey;
+      configOverrides.apiKeys.poapApiKey ?? this.config.poapApiKey;
     this.config.oklinkApiKey =
-      configOverrides.oklinkApiKey ?? this.config.oklinkApiKey;
-
+      configOverrides.apiKeys.oklinkApiKey ?? this.config.oklinkApiKey;
+    this.config.ankrApiKey =
+      configOverrides.apiKeys.ankrApiKey ?? this.config.ankrApiKey;
     this.config.dnsServerAddress =
       configOverrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.requestForDataCheckingFrequency =
@@ -97,7 +99,10 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.enableBackupEncryption ??
       this.config.enableBackupEncryption;
     this.config.primaryInfuraKey =
-      configOverrides.primaryInfuraKey ?? this.config.primaryInfuraKey;
+      configOverrides.apiKeys.primaryInfuraKey ?? this.config.primaryInfuraKey;
+    this.config.secondaryInfuraKey =
+      configOverrides.apiKeys.secondaryInfuraKey ??
+      this.config.secondaryInfuraKey;
 
     // oauth
     this.config.discordOverrides =

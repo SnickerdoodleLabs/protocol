@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -29,15 +30,20 @@ import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 // import { CoinGeckoTokenInfo } from "packages/objects/src";
+import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/IIndexerHealthCheck.js";
 
 export class AlchemyIndexer
-  implements IEVMAccountBalanceRepository, IEVMNftRepository
+  implements
+    IEVMAccountBalanceRepository,
+    IEVMNftRepository,
+    IIndexerHealthCheck
 {
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -273,6 +279,38 @@ export class AlchemyIndexer
         });
     });
   }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        /* If status: healthy , its message is undefined */
+        if (result.status !== undefined) {
+          return okAsync("good");
+        }
+        return okAsync("bad");
+      });
+  }
 }
 
 interface IAlchemyNativeBalanceResponse {
@@ -357,4 +395,9 @@ export interface CoinGeckoTokenInfo {
   symbol: string;
   name: string;
   protocols: string[];
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }

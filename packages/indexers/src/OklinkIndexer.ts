@@ -104,7 +104,7 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
 
         return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
           headers: {
-            "Ok-Access-Key": config.oklinkApiKey,
+            "Ok-Access-Key": config.apiKeys.oklinkApiKey,
           },
         });
       })

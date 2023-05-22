@@ -63,6 +63,7 @@ declare interface IExtensionConfigOverrides {
   nftScanApiKey?: string;
   poapApiKey?: string;
   oklinkApiKey?: string;
+  ankrApiKey?: string;
   dnsServerAddress?: string;
   requestForDataCheckingFrequency?: number;
   defaultGoogleCloudBucket?: string;
@@ -70,6 +71,7 @@ declare interface IExtensionConfigOverrides {
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   primaryInfuraKey?: string;
+  secondaryInfuraKey?: string;
   devChainProviderURL?: string;
 }
 
