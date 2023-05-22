@@ -23,6 +23,9 @@ import {
   UnixTimestamp,
   getChainInfoByChainId,
   getEtherscanBaseURLForChain,
+  IEVMIndexer,
+  EVMNFT,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject } from "inversify";
@@ -37,12 +40,7 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class EtherscanIndexer
-  implements
-    IEVMTransactionRepository,
-    IEVMAccountBalanceRepository,
-    IIndexerHealthCheck
-{
+export class EtherscanIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -51,6 +49,22 @@ export class EtherscanIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    // throw new Error("Method not implemented.");
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getEVMTransactions(
     chainId: ChainId,

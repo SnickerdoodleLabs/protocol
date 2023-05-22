@@ -11,6 +11,7 @@ import {
   EVMTransaction,
   EVMTransactionHash,
   IEVMAccountBalanceRepository,
+  IEVMIndexer,
   IEVMNftRepository,
   IEVMTransactionRepository,
   TickerSymbol,
@@ -20,12 +21,10 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-export class SimulatorEVMTransactionRepository
-  implements
-    IEVMTransactionRepository,
-    IEVMAccountBalanceRepository,
-    IEVMNftRepository
-{
+export class SimulatorEVMTransactionRepository implements IEVMIndexer {
+  healthCheck(): ResultAsync<string, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,

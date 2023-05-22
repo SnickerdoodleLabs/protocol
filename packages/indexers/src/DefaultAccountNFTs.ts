@@ -36,7 +36,7 @@ import { MoralisEVMPortfolioRepository } from "@indexers/providers/MoralisEVMPor
 import { NftScanEVMPortfolioRepository } from "@indexers/providers/NftScanEVMPortfolioRepository.js";
 import { PoapRepository } from "@indexers/providers/PoapRepository.js";
 import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/providers/SimulatorEVMTransactionRepository.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {

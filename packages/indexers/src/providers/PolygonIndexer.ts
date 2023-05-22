@@ -27,6 +27,9 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
+  IEVMIndexer,
+  EVMNFT,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
@@ -41,17 +44,7 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class PolygonIndexer
-  implements
-    IEVMAccountBalanceRepository,
-    IEVMTransactionRepository,
-    IIndexerHealthCheck
-{
-  //   private _metadataCache = new Map<
-  //     `${EVMContractAddress}-${ChainId}`,
-  //     TokenMetadataResponse
-  //   >();
-
+export class PolygonIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -60,6 +53,21 @@ export class PolygonIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,

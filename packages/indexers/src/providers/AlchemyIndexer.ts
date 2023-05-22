@@ -25,6 +25,10 @@ import {
   IEVMNftRepository,
   AccountAddress,
   URLString,
+  IEVMTransactionRepository,
+  EVMTransaction,
+  IEVMIndexer,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -39,12 +43,7 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class AlchemyIndexer
-  implements
-    IEVMAccountBalanceRepository,
-    IEVMNftRepository,
-    IIndexerHealthCheck
-{
+export class AlchemyIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -53,6 +52,23 @@ export class AlchemyIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,

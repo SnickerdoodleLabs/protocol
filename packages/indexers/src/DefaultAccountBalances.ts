@@ -35,12 +35,12 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { AlchemyIndexer } from "@indexers/providers/AlchemyIndexer.js";
 import { EtherscanIndexer } from "@indexers/providers/EtherscanIndexer.js";
+import { EtherscanNativeBalanceRepository } from "@indexers/providers/EtherscanNativeBalanceRepository.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/providers/MoralisEVMPortfolioRepository.js";
 import { OklinkIndexer } from "@indexers/providers/OklinkIndexer.js";
 import { PolygonIndexer } from "@indexers/providers/PolygonIndexer.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/providers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { EtherscanNativeBalanceRepository } from "packages/indexers/src/providers/EtherscanNativeBalanceRepository.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {

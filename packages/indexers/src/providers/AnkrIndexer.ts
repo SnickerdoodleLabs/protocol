@@ -31,6 +31,7 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
   EComponentStatus,
+  IEVMIndexer,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -45,13 +46,7 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class AnkrIndexer
-  implements
-    IEVMAccountBalanceRepository,
-    IEVMNftRepository,
-    IEVMTransactionRepository,
-    IIndexerHealthCheck
-{
+export class AnkrIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,

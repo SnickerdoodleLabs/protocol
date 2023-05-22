@@ -31,8 +31,8 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { EtherscanIndexer } from "@indexers/providers/EtherscanIndexer.js";
 import { PolygonIndexer } from "@indexers/providers/PolygonIndexer.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/providers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

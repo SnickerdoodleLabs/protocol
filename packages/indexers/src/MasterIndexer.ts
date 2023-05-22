@@ -22,6 +22,7 @@ import {
   getChainInfoByChainId,
   IAccountBalances,
   IEVMAccountBalanceRepository,
+  IEVMIndexer,
   IMasterIndexer,
   ISolanaBalanceRepository,
   ITokenPriceRepository,
@@ -45,14 +46,14 @@ import { AlchemyIndexer } from "@indexers/providers/AlchemyIndexer.js";
 import { AnkrIndexer } from "@indexers/providers/AnkrIndexer.js";
 import { CovalentEVMTransactionRepository } from "@indexers/providers/CovalentEVMTransactionRepository.js";
 import { EtherscanIndexer } from "@indexers/providers/EtherscanIndexer.js";
+import { EtherscanNativeBalanceRepository } from "@indexers/providers/EtherscanNativeBalanceRepository.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/providers/MoralisEVMPortfolioRepository.js";
 import { NftScanEVMPortfolioRepository } from "@indexers/providers/NftScanEVMPortfolioRepository.js";
 import { OklinkIndexer } from "@indexers/providers/OklinkIndexer.js";
 import { PoapRepository } from "@indexers/providers/PoapRepository.js";
 import { PolygonIndexer } from "@indexers/providers/PolygonIndexer.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/providers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { EtherscanNativeBalanceRepository } from "packages/indexers/src/providers/EtherscanNativeBalanceRepository.js";
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
@@ -61,7 +62,7 @@ export class MasterIndexer implements IMasterIndexer {
   protected covalent: IEVMAccountBalanceRepository;
   protected ethereum: EtherscanIndexer;
   protected etherscanNativeBalance: EtherscanNativeBalanceRepository;
-//   protected evm: IEVMAccountBalanceRepository;
+  //   protected evm: IEVMAccountBalanceRepository;
   protected nftscan: NftScanEVMPortfolioRepository;
   protected oklink: OklinkIndexer;
   protected poapRepo: PoapRepository;
@@ -71,6 +72,7 @@ export class MasterIndexer implements IMasterIndexer {
 
   protected preferredIndexers = new Map<EChain, EProvider[]>();
   protected indexerHealthStatus = new Map<EProvider, EComponentStatus>();
+  protected indexerMap = new Map<EProvider, IEVMIndexer>();
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -150,7 +152,7 @@ export class MasterIndexer implements IMasterIndexer {
 
     this.indexerHealthStatus = new Map<EProvider, EComponentStatus>([
       [EProvider.Ankr, EComponentStatus.Available],
-      [EProvider.Alchemy, EComponentStatus.Available], 
+      [EProvider.Alchemy, EComponentStatus.Available],
       [EProvider.Covalent, EComponentStatus.Available],
       [EProvider.Etherscan, EComponentStatus.Available],
       [EProvider.EtherscanNative, EComponentStatus.Available],
@@ -158,6 +160,17 @@ export class MasterIndexer implements IMasterIndexer {
       [EProvider.Poap, EComponentStatus.Available], // DONE
       [EProvider.Solana, EComponentStatus.Available],
     ]);
+
+    // this.indexerMap = new Map<EProvider, IEVMIndexer>([
+    //   [EProvider.Ankr, this.ankr],
+    //   [EProvider.Alchemy, this.alchemy],
+    //   [EProvider.Covalent, this.covalent],
+    //   [EProvider.Etherscan, this.ethereum],
+    //   [EProvider.EtherscanNative, this.etherscanNativeBalance],
+    //   [EProvider.Oklink, this.oklink],
+    //   [EProvider.Poap, this.poapRepo], // DONE
+    //   //   [EProvider.Solana, this.sol],
+    // ]);
 
     this.initialize();
   }
@@ -211,6 +224,11 @@ export class MasterIndexer implements IMasterIndexer {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
+        const providers = this.preferredIndexers.get(chainInfo.chain)!;
+        const provider = providers[0];
+
+        provider;
+
         switch (chainInfo.indexer) {
           case EIndexer.EVM:
             return this.etherscanNativeBalance.getBalancesForAccount(
@@ -251,6 +269,15 @@ export class MasterIndexer implements IMasterIndexer {
               ),
             );
         }
+      })
+      .orElse((e) => {
+        this.logUtils.error(
+          "error fetching balances",
+          chainId,
+          accountAddress,
+          e,
+        );
+        return okAsync([]);
       })
       .map((tokenBalances) => {
         // Apprently the tokenBalance.balance can return as in invalid

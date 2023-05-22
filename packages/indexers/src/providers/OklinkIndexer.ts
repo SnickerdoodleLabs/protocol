@@ -20,6 +20,10 @@ import {
   IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
+  IEVMIndexer,
+  EVMNFT,
+  EVMTransaction,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -32,7 +36,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 
-export class OklinkIndexer implements IEVMAccountBalanceRepository {
+export class OklinkIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -41,6 +45,39 @@ export class OklinkIndexer implements IEVMAccountBalanceRepository {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+  getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+  getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+  healthCheck(): ResultAsync<string, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
 
   protected _getEtherscanApiKey(
     chain: ChainId,

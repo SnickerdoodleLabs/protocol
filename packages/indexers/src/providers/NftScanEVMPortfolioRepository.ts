@@ -12,13 +12,17 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  EVMTransaction,
   getChainInfoByChain,
+  IEVMIndexer,
   IEVMNftRepository,
+  TokenBalance,
   TokenUri,
   UnixTimestamp,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
@@ -30,14 +34,44 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 @injectable()
-export class NftScanEVMPortfolioRepository
-  implements IEVMNftRepository, IIndexerHealthCheck
-{
+export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenBalance[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getTokensForAccount(
     chainId: ChainId,
