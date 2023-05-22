@@ -48,7 +48,11 @@ export class RequiresEvaluator extends AST_Evaluator {
   }
 
   public eval(ast: AST_RequireExpr): ResultAsync<SDQL_Return, EvaluationError> {
-    return this.evalAny(ast.source);
+    if (TypeChecker.isOperator(ast.source)) {
+      return this.evalOperator(ast.source as Operator);
+    } else {
+      return this.evalAny(ast.source);
+    }
   }
 
   protected evalAdAvailability(

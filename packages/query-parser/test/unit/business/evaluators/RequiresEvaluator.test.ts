@@ -92,6 +92,7 @@ describe("RequiresEvaluator", () => {
       astInsight1,
       astInsight2,
     );
+
     const astRequires = new AST_RequireExpr(SDQL_Name("c1"), andCond);
     const expectedValue = true;
 
