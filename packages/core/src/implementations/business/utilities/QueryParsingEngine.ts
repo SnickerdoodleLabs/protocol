@@ -23,10 +23,13 @@ import {
   IQueryDeliveryItems,
   IQueryDeliveryAds,
   IQueryDeliveryInsights,
+  ProofString,
+  SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
   AST_Evaluator,
+  AST_SubQuery,
   IQueryFactories,
   IQueryFactoriesType,
   IQueryRepository,
@@ -37,7 +40,7 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -68,14 +71,17 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<[SubQueryKey[], ExpectedReward[]], EvaluationError> {
-    throw new Error("");
+    return okAsync([ [], []])
   }
 
   public getPossibleRewards(
     query: SDQLQuery,
   ): ResultAsync<PossibleReward[], ParserError> {
-    throw new Error("");
+    return okAsync([])
   }
+ 
+
+  
 
   public handleQuery(
     query: SDQLQuery,
@@ -84,11 +90,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IQueryDeliveryItems,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    // return errAsync(new EvaluationError("Not implemented"));
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        return this.gatherDeliveryItems(sdqlParser, query.cid, dataPermissions);
+        return  this.gatherDeliveryItems(sdqlParser, query.cid, dataPermissions);
       });
   }
 
@@ -97,11 +102,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     cid: IpfsCID,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IQueryDeliveryItems,
+  IQueryDeliveryItems,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    // return errAsync(new EvaluationError("Not implemented"));
     return sdqlParser.buildAST().andThen((ast: AST) => {
+
       const astEvaluator = this.queryFactories.makeAstEvaluator(
         cid,
         dataPermissions,
@@ -109,24 +114,25 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
       const insightProm = this.gatherDeliveryInsights(
         ast,
-        cid,
-        dataPermissions,
+        astEvaluator
       );
+       
+     
+   
+       const adSigProm = this.gatherDeliveryAds(
+         sdqlParser,
+         cid,
+         dataPermissions,
+       );
 
-      const adSigProm = this.gatherDeliveryAds(
-        sdqlParser,
-        cid,
-        dataPermissions,
-      );
-
-      const combined = ResultUtils.combine([insightProm, adSigProm]).map(
+       return ResultUtils.combine([insightProm, adSigProm]).map(
         ([insightWithProofs, adSigs]) => {
           return {
             insights: insightWithProofs,
             ads: adSigs,
           };
-        },
-      );
+         },
+     );
 
       // return ResultUtils.combine(
       //   this.evalReturns(ast, dataPermissions, astEvaluator),
@@ -148,20 +154,36 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       // } as IQueryDeliveryItems;
       //   return items;
       // })
-      return errAsync(new EvaluationError("Not implemented"));
     });
   }
 
   protected gatherDeliveryInsights(
     ast: AST,
-    cid: IpfsCID,
-    dataPermissions: DataPermissions,
+    astEvaluator : AST_Evaluator
   ): ResultAsync<
     IQueryDeliveryInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    return errAsync(new EvaluationError("Not implemented"));
+    const subQueryArray = Array.from(ast.subqueries);
+    return ResultUtils.combine(subQueryArray.map( ([_qName , subQuery]) => {
+      return astEvaluator.evalAny(subQuery)
+    })).map( (insights) => {
+      return this.createDeliverInsightObject(insights , subQueryArray)
+    })
   }
+
+  protected createDeliverInsightObject(insights : SDQL_Return[] , subQueryArray : [SDQL_Name, AST_SubQuery][]){
+    return subQueryArray.reduce<IQueryDeliveryInsights>( ( deliveryInsights , [queryName] , currentIndex ) => {
+      const insightString = this.SDQLReturnToInsight(insights[currentIndex])
+      if(insightString){
+        deliveryInsights[queryName] = { insight :  InsightString(insightString) , proof : ProofString("")  } 
+      }else{
+        deliveryInsights[queryName] = null;
+      }
+      return deliveryInsights;
+    } , {})
+  }
+
 
   protected gatherDeliveryAds(
     sdqlParser: SDQLParser,
@@ -171,7 +193,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IQueryDeliveryAds,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    return errAsync(new EvaluationError("Not implemented"));
+    const gatherDeliveryAds : IQueryDeliveryAds = {};
+    sdqlParser.ads.forEach( (value , key, map) => {
+      gatherDeliveryAds[value.key] = null;
+    })
+    return okAsync(gatherDeliveryAds);
+    //return errAsync(new EvaluationError("Not implemented"));
   }
 
   protected constructExpectedRewards(
