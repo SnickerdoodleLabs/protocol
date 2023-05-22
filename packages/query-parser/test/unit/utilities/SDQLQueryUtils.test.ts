@@ -1,5 +1,21 @@
+import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { SDQLString } from "@snickerdoodlelabs/objects";
+import {
+  AdKey,
+  AdSignature,
+  EVMContractAddress,
+  IInsightWithProof,
+  Insight,
+  InsightKey,
+  InsightWithProof,
+  IpfsCID,
+  IQueryDeliveryAds,
+  IQueryDeliveryInsights,
+  IQueryDeliveryItems,
+  JsonWebToken,
+  QueryDeliveryItems,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
 
 import {
   QueryObjectFactory,
@@ -24,6 +40,40 @@ class SDQLQueryUtilsMocks {
 
   public factory(): SDQLQueryUtils {
     return new SDQLQueryUtils(this.parserFactory, this.queryWrapperFactory);
+  }
+
+  private getInsightWithProof(name: string, data: unknown): IInsightWithProof {
+    return new InsightWithProof(new Insight(InsightKey(name), data), "zkp");
+  }
+
+  private getAdSignature(name: string): AdSignature {
+    return new AdSignature(
+      EVMContractAddress(""),
+      IpfsCID(""),
+      AdKey(name),
+      JsonWebToken(""),
+    );
+  }
+
+  public getQueryDeliveryItems(): IQueryDeliveryItems {
+    return new QueryDeliveryItems(
+      this.getQueryDeliveryInsights(),
+      this.getQueryDeliveryAds(),
+    );
+  }
+
+  public getQueryDeliveryInsights(): IQueryDeliveryInsights {
+    return {
+      i1: this.getInsightWithProof("i1", "Hello World"),
+      i2: null,
+    };
+  }
+
+  public getQueryDeliveryAds(): IQueryDeliveryAds {
+    return {
+      a1: this.getAdSignature("a1"),
+      a2: null,
+    };
   }
 }
 

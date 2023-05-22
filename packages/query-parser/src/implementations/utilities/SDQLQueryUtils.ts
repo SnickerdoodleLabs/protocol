@@ -296,7 +296,6 @@ export class SDQLQueryUtils {
   public getValidInsights(
     queryDeliveryItems: IQueryDeliveryItems,
   ): ResultAsync<Map<InsightKey, InsightString>, ProofError> {
-
     if (queryDeliveryItems.insights != null) {
       const keys = Object.keys(queryDeliveryItems.insights);
       const nonNullInsights = keys.reduce<Map<InsightKey, IInsightWithProof>>(
