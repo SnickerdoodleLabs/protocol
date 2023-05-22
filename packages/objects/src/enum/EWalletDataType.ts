@@ -12,4 +12,5 @@ export enum EWalletDataType {
   AccountNFTs = 10,
   LatestBlockNumber = 11,
   Discord = 12,
+  Twitter = 13,
 }

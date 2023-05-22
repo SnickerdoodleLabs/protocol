@@ -124,6 +124,7 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
             <Box justifyContent="center" alignItems="center">
               <Button
                 variant="outlined"
+                className={classes.linkAccountButton}
                 onClick={() => {
                   provider
                     .installationUrl()
