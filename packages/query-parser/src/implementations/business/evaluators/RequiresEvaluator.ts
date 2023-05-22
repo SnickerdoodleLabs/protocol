@@ -40,22 +40,34 @@ export class RequiresEvaluator extends AST_Evaluator {
     } else if (TypeChecker.isSubQuery(expr)) {
       return this.evalSubQuery(expr as AST_SubQuery);
     } else if (TypeChecker.isAd(expr)) {
-      if (this.availableMap.get((expr as AST_Ad).name) != null) {
-        return okAsync(SDQL_Return(true));
-      } else {
-        return okAsync(SDQL_Return(false));
-      }
+      return this.evalAdAvailability(expr as AST_Ad);
     } else if (TypeChecker.isInsight(expr)) {
-      if (this.availableMap.get((expr as AST_Insight).name) != null) {
-        return okAsync(SDQL_Return(true));
-      } else {
-        return okAsync(SDQL_Return(false));
-      }
+      return this.evalInsightAvailability(expr as AST_Insight);
     }
     return this.evalExpr(expr as AST_Expr | Command_IF | Operator);
   }
 
   public eval(ast: AST_RequireExpr): ResultAsync<SDQL_Return, EvaluationError> {
     return this.evalAny(ast.source);
+  }
+
+  protected evalAdAvailability(
+    expr: AST_Ad,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
+    if (this.availableMap.get(expr.name) != null) {
+      return okAsync(SDQL_Return(true));
+    } else {
+      return okAsync(SDQL_Return(false));
+    }
+  }
+
+  protected evalInsightAvailability(
+    expr: AST_Insight,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
+    if (this.availableMap.get(expr.name) != null) {
+      return okAsync(SDQL_Return(true));
+    } else {
+      return okAsync(SDQL_Return(false));
+    }
   }
 }
