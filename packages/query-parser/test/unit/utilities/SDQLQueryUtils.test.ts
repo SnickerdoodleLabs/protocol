@@ -77,13 +77,6 @@ class SDQLQueryUtilsMocks {
   }
 }
 
-describe("Dummy describe block", () => {
-  test("Dummy test", async () => {
-    const schemaString = SDQLString(avalanche1SchemaStr);
-    expect(1).toBe(1);
-  });
-});
-
 describe("Compensation tests", () => {
   test("createAvailableMapForRequiresEvaluator test", async () => {
     // Acquire
@@ -97,11 +90,36 @@ describe("Compensation tests", () => {
     // Act
     const availableMap =
       utils["createAvailableMapForRequiresEvaluator"](queryDeliveryItems);
-    
+
     // Assert
     // 1. validate keys and values
     const gotKeys = [...availableMap.keys()];
     expect(expectedKeys).toEqual(gotKeys);
+    availableMap.forEach((val, key) => {
+      if (key == "i1") expect(val).toBeDefined();
+      else if (key == "a1") expect(val).toBeDefined();
+      else if (key == "i2") expect(val).toBeNull();
+      else if (key == "a2") expect(val).toBeNull();
+    });
+  });
+
+  test("getCompensationsToDispense test", async () => {
+    // Acquire
+    const mocks = new SDQLQueryUtilsMocks();
+    const utils = mocks.factory();
+    const queryDeliveryItems = mocks.getQueryDeliveryItems();
+    const expectedKeys = ["c1", "c3"];
+
+    // Act
+    const result = await utils.getCompensationsToDispense(
+      avalanche1SchemaStr,
+      queryDeliveryItems, // has values for i1 and a1 only
+    );
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const dispensableKeys = result._unsafeUnwrap();
+    expect(dispensableKeys).toEqual(expectedKeys);
   });
 });
 
