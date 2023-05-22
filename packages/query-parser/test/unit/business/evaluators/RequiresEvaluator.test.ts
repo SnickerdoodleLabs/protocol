@@ -1,13 +1,19 @@
 import {
+  AdContent,
+  EAdContentType,
+  EAdDisplayType,
+  IpfsCID,
   ISDQLConditionString,
   ISDQLExpressionString,
   SDQL_Name,
   SDQL_OperatorName,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 import { RequiresEvaluator } from "@query-parser/implementations/business/evaluators/RequiresEvaluator.js";
 import "reflect-metadata";
 import {
+  AST_Ad,
   AST_ConditionExpr,
   AST_Expr,
   AST_Insight,
@@ -39,6 +45,34 @@ class RequiresEvaluatorMocks {
     );
   }
 
+  public getAdAst(name: string): AST_Ad {
+    //   constructor(
+    //     readonly key: SDQL_Name,
+    //     readonly name: SDQL_Name,
+    //     readonly content: AdContent,
+    //     readonly text: string | null,
+    //     readonly displayType: EAdDisplayType,
+    //     readonly weight: number,
+    //     readonly expiry: UnixTimestamp,
+    //     readonly keywords: string[],
+    //     readonly target: AST_ConditionExpr,
+    //     readonly targetRaw: ISDQLConditionString,
+    //   ) {}
+
+    return new AST_Ad(
+      SDQL_Name(name),
+      SDQL_Name(name),
+      new AdContent(EAdContentType.IMAGE, IpfsCID("")),
+      null,
+      EAdDisplayType.POPUP,
+      1,
+      UnixTimestamp(0),
+      [],
+      new AST_ConditionExpr(SDQL_Name("true"), true),
+      ISDQLConditionString("true"),
+    );
+  }
+
   //   public getRequiresExpression()
 }
 
@@ -52,13 +86,13 @@ async function testRequiresAst(
   const result = await evaluator.eval(astRequires);
 
   // Assert
-//   console.log("testRequiresAst", result._unsafeUnwrapErr());
+  //   console.log("testRequiresAst", result._unsafeUnwrapErr());
   expect(result.isOk()).toBeTruthy();
   const gotValue = result._unsafeUnwrap();
   expect(gotValue).toBe(expectedValue);
 }
 
-describe("RequiresEvaluator", () => {
+describe("RequiresEvaluator with pre-built insight asts", () => {
   test("requires $i1 returns true", async () => {
     // Acquire
     const mocks = new RequiresEvaluatorMocks();
@@ -91,6 +125,82 @@ describe("RequiresEvaluator", () => {
       SDQL_OperatorName("and1"),
       astInsight1,
       astInsight2,
+    );
+
+    const astRequires = new AST_RequireExpr(SDQL_Name("c1"), andCond);
+    const expectedValue = true;
+
+    await testRequiresAst(evaluator, astRequires, expectedValue);
+  });
+
+  test("requires $1 and $i3 returns false", async () => {
+    // Acquire
+    const mocks = new RequiresEvaluatorMocks();
+    const evaluator = mocks.factory();
+    const astInsight1 = mocks.getInsightAst("i1");
+    const astInsight2 = mocks.getInsightAst("i3");
+
+    const andCond = new ConditionAnd(
+      SDQL_OperatorName("and1"),
+      astInsight1,
+      astInsight2,
+    );
+
+    const astRequires = new AST_RequireExpr(SDQL_Name("c1"), andCond);
+    const expectedValue = false;
+
+    await testRequiresAst(evaluator, astRequires, expectedValue);
+  });
+
+  test("requires $i3 and $i1  returns false", async () => {
+    // Acquire
+    const mocks = new RequiresEvaluatorMocks();
+    const evaluator = mocks.factory();
+    const astInsight1 = mocks.getInsightAst("i1");
+    const astInsight2 = mocks.getInsightAst("i3");
+
+    const andCond = new ConditionAnd(
+      SDQL_OperatorName("and1"),
+      astInsight2,
+      astInsight1,
+    );
+
+    const astRequires = new AST_RequireExpr(SDQL_Name("c1"), andCond);
+    const expectedValue = false;
+
+    await testRequiresAst(evaluator, astRequires, expectedValue);
+  });
+
+  test("requires $1 or $i3 returns true", async () => {
+    // Acquire
+    const mocks = new RequiresEvaluatorMocks();
+    const evaluator = mocks.factory();
+    const astInsight1 = mocks.getInsightAst("i1");
+    const astInsight2 = mocks.getInsightAst("i3");
+
+    const andCond = new ConditionAnd(
+      SDQL_OperatorName("and1"),
+      astInsight1,
+      astInsight2,
+    );
+
+    const astRequires = new AST_RequireExpr(SDQL_Name("c1"), andCond);
+    const expectedValue = true;
+
+    await testRequiresAst(evaluator, astRequires, expectedValue);
+  });
+
+  test("requires $i3 or $i1 returns true", async () => {
+    // Acquire
+    const mocks = new RequiresEvaluatorMocks();
+    const evaluator = mocks.factory();
+    const astInsight1 = mocks.getInsightAst("i1");
+    const astInsight2 = mocks.getInsightAst("i3");
+
+    const andCond = new ConditionAnd(
+      SDQL_OperatorName("and1"),
+      astInsight2,
+      astInsight1,
     );
 
     const astRequires = new AST_RequireExpr(SDQL_Name("c1"), andCond);
