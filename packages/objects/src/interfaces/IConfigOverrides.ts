@@ -9,6 +9,14 @@ export interface IConfigOverrides {
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
+  alchemyApiKeys?: {
+    Arbitrum: string;
+    Astar: string;
+    Mumbai: string;
+    Optimism: string;
+    Polygon: string;
+    Solana: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;

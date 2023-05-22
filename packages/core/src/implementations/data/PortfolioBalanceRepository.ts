@@ -10,18 +10,12 @@ import {
   chainConfig,
   isAccountValidForChain,
   AccountAddress,
-  EIndexer,
   EVMAccountAddress,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   PortfolioUpdate,
-  SolanaAccountAddress,
-  IAccountBalances,
-  IAccountBalancesType,
-  IAccountNFTs,
-  IAccountNFTsType,
-  BigNumberString,
-  EChainType,
+  IMasterIndexerType,
+  IMasterIndexer,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -72,9 +66,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     protected accountRepo: ILinkedAccountRepository,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-    @inject(IAccountNFTsType)
-    protected accountNFTs: IAccountNFTs,
-    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
+    // @inject(IAccountNFTsType)
+    // protected accountNFTs: IAccountNFTs,
+    @inject(IMasterIndexerType)
+    protected masterIndexer: IMasterIndexer,
+    // @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     // reset portfolio cache on account addition and removal
@@ -138,7 +134,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
-        const fetch = this.accountBalances
+        const fetch = this.masterIndexer
           .getLatestBalances(chainId, accountAddress)
           .map((result) => {
             context.publicEvents.onTokenBalanceUpdate.next(
@@ -205,7 +201,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
-        const fetch = this.accountNFTs
+        const fetch = this.masterIndexer
           .getLatestNFTs(chainId, accountAddress)
           .map((result) => {
             context.publicEvents.onNftBalanceUpdate.next(

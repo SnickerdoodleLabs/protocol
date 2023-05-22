@@ -22,12 +22,12 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { IIndexerHealthCheck } from "./IIndexerHealthCheck";
+import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 @injectable()
 export class NftScanEVMPortfolioRepository

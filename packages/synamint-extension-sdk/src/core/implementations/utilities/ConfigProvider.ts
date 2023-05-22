@@ -72,6 +72,8 @@ export class ConfigProvider implements IConfigProvider {
       configOverrides.backupPollingIntervalMS ??
       this.config.backupPollingIntervalMS;
     // api keys
+    this.config.alchemyApiKeys =
+    configOverrides.apiKeys.alchemyApiKeys ?? this.config.alchemyApiKeys;
     this.config.covalentApiKey =
       configOverrides.apiKeys.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =

@@ -99,6 +99,14 @@ export const testCoreConfig = new CoreConfig(
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
   {
+    alchemyApiKeys: {
+      Arbitrum: "",
+      Astar: "",
+      Mumbai: "",
+      Optimism: "",
+      Polygon: "",
+      Solana: "",
+    },
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
     nftScanApiKey: "nftScan api key",

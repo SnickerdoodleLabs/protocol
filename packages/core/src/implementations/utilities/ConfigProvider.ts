@@ -99,6 +99,14 @@ export class ConfigProvider
       60000, // backup interval
       5, // backup chunk size target
       {
+        alchemyApiKeys: {
+          Arbitrum: "",
+          Astar: "",
+          Mumbai: "",
+          Optimism: "",
+          Polygon: "",
+          Solana: "",
+        },
         covalentApiKey: "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey:
           "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
@@ -227,6 +235,8 @@ export class ConfigProvider
       this.config.accountNFTPollingIntervalMS;
     this.config.apiKeys.covalentApiKey =
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
+    this.config.apiKeys.alchemyApiKeys =
+      overrides.alchemyApiKeys ?? this.config.apiKeys.alchemyApiKeys;
     this.config.apiKeys.moralisApiKey =
       overrides.moralisApiKey ?? this.config.apiKeys.moralisApiKey;
     this.config.apiKeys.nftScanApiKey =

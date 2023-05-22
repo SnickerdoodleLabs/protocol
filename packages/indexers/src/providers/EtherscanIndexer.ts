@@ -28,14 +28,14 @@ import { ethers } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { IRequestConfig } from "packages/common-utils/src";
 import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/IIndexerHealthCheck.js";
-import { IRequestConfig } from "packages/common-utils/src";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 export class EtherscanIndexer
   implements
@@ -131,14 +131,6 @@ export class EtherscanIndexer
         );
         return nativeBalance;
       });
-    // .mapErr((error) => {
-    //   return errAsync(
-    //     new AccountIndexingError(
-    //       "error fetching transactions from etherscan",
-    //       error.message,
-    //     ),
-    //   );
-    // })
   }
 
   private getNonNativeBalance(

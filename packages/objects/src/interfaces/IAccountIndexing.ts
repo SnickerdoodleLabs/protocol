@@ -14,23 +14,6 @@ export interface IAccountIndexing {
     timestamp: UnixTimestamp,
     chainId: ChainId,
   ): ResultAsync<ChainTransaction[], AccountIndexingError | AjaxError>;
-  getEVMTransactionRepository(): ResultAsync<IEVMTransactionRepository, never>;
-  getEthereumTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  >;
-  getSimulatorEVMTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  >;
-  getSolanaTransactionRepository(): ResultAsync<
-    ISolanaTransactionRepository,
-    never
-  >;
-  getPolygonTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  >;
 }
 
 export const IAccountIndexingType = Symbol.for("IAccountIndexing");

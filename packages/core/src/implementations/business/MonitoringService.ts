@@ -1,20 +1,14 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountAddress,
   AccountIndexingError,
   AjaxError,
-  ChainId,
-  ChainTransaction,
   DataWalletBackupID,
   DiscordError,
-  EIndexer,
-  EVMAccountAddress,
-  IAccountIndexing,
-  IAccountIndexingType,
+  IMasterIndexer,
+  IMasterIndexerType,
   isAccountValidForChain,
   PersistenceError,
   SiteVisit,
-  SolanaAccountAddress,
   TwitterError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -49,7 +43,9 @@ import {
 @injectable()
 export class MonitoringService implements IMonitoringService {
   public constructor(
-    @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
+    // @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
+    @inject(IMasterIndexerType)
+    protected masterIndexer: IMasterIndexer,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -99,7 +95,7 @@ export class MonitoringService implements IMonitoringService {
                       startTime = tx.timestamp;
                     }
 
-                    return this.accountIndexing
+                    return this.masterIndexer
                       .getLatestTransactions(
                         linkedAccount.sourceAccountAddress,
                         startTime,

@@ -23,6 +23,14 @@ export class ExtensionConfig {
     public defaultInsightPlatformBaseUrl: URLString,
     public ceramicNodeUrl: URLString,
     public apiKeys: {
+      alchemyApiKeys?: {
+        Arbitrum: string;
+        Astar: string;
+        Mumbai: string;
+        Optimism: string;
+        Polygon: string;
+        Solana: string;
+      };
       covalentApiKey?: string;
       moralisApiKey?: string;
       nftScanApiKey?: string;

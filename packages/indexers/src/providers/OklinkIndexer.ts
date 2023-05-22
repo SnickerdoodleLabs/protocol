@@ -30,7 +30,7 @@ import Web3 from "web3";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 export class OklinkIndexer implements IEVMAccountBalanceRepository {
   public constructor(

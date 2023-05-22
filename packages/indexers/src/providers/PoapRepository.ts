@@ -8,6 +8,7 @@ import {
   AjaxError,
   BigNumberString,
   ChainId,
+  EComponentStatus,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
@@ -17,14 +18,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { IIndexerHealthCheck } from "./IIndexerHealthCheck";
+import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
@@ -94,36 +96,37 @@ export class PoapRepository implements IEVMNftRepository, IIndexerHealthCheck {
     });
   }
 
-  public healthCheck(): ResultAsync<string, AjaxError> {
+  public healthCheck(): ResultAsync<EComponentStatus, AjaxError> {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const result: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<IHealthCheck>(
+    return this.configProvider.getConfig().andThen((config) => {
+      if (config.apiKeys.poapApiKey == "") {
+        return okAsync(EComponentStatus.NoKeyProvided);
+      }
+      const result: IRequestConfig = {
+        method: "get",
+        url: url,
+        headers: {
+          accept: "application/json",
+          "X-API-Key": config.apiKeys.poapApiKey,
+        },
+      };
+      return this.ajaxUtils
+        .get<IHealthCheck>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
+          new URL(result.url!),
+          result,
+        )
+        .andThen((result) => {
+          if (result.status !== undefined) {
+            return okAsync(EComponentStatus.Available);
+          }
+          return okAsync(EComponentStatus.Error);
+        })
+        .andThen((fads) => {
+          return okAsync(fads);
+        });
+    });
   }
 }
 

@@ -23,6 +23,14 @@ export interface IExtensionConfigDefaults {
 
 export interface IExtensionConfig extends IExtensionConfigDefaults {
   ceramicNodeUrl: URLString;
+  alchemyApiKeys?: {
+    Arbitrum: string;
+    Astar: string;
+    Mumbai: string;
+    Optimism: string;
+    Polygon: string;
+    Solana: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
@@ -53,6 +61,14 @@ export interface IExtensionConfigOverrides {
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
   apiKeys: {
+    alchemyApiKeys?: {
+      Arbitrum: string;
+      Astar: string;
+      Mumbai: string;
+      Optimism: string;
+      Polygon: string;
+      Solana: string;
+    };
     covalentApiKey?: string;
     moralisApiKey?: string;
     nftScanApiKey?: string;

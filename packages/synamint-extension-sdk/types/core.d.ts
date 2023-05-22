@@ -58,6 +58,14 @@ declare interface IExtensionConfigOverrides {
   portfolioPollingIntervalMS?: number;
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
+  alchemyApiKeys?: {
+    Arbitrum: string;
+    Astar: string;
+    Mumbai: string;
+    Optimism: string;
+    Polygon: string;
+    Solana: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;

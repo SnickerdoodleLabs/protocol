@@ -25,14 +25,14 @@ import { injectable, inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { EtherscanIndexer } from "@indexers/providers/EtherscanIndexer.js";
+import { PolygonIndexer } from "@indexers/providers/PolygonIndexer.js";
+import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
@@ -163,40 +163,5 @@ export class DefaultAccountIndexers implements IAccountIndexing {
           return okAsync([]);
       }
     });
-  }
-
-  public getPolygonTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  > {
-    return okAsync(this.matic);
-  }
-
-  public getEthereumTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  > {
-    return okAsync(this.etherscan);
-  }
-
-  public getEVMTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  > {
-    return okAsync(this.etherscan);
-  }
-
-  public getSimulatorEVMTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  > {
-    return okAsync(this.simulatorRepo);
-  }
-
-  public getSolanaTransactionRepository(): ResultAsync<
-    ISolanaTransactionRepository,
-    never
-  > {
-    return okAsync(this.solana);
   }
 }

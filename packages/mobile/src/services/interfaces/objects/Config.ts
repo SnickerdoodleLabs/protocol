@@ -26,6 +26,14 @@ export const coreConfig = {
   accountNFTPollingIntervalMS: 60000,
   dataWalletBackupIntervalMS: 60000,
   heartbeatIntervalMS: 60000,
+  alchemyApiKeys: {
+    Arbitrum: "",
+    Astar: "",
+    Mumbai: "",
+    Optimism: "",
+    Polygon: "",
+    Solana: "",
+  },
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:
     "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",

@@ -28,7 +28,7 @@ import { urlJoinP, urlJoin } from "url-join-ts";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 interface ICovalentEVMTransactionResponseItem {
   block_signed_at: string;

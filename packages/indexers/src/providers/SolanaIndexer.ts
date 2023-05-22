@@ -41,12 +41,12 @@ import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { urlJoinP } from "url-join-ts";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 export class SolanaIndexer
   implements
     ISolanaBalanceRepository,

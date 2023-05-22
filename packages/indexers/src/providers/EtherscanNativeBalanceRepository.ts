@@ -37,8 +37,8 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/IIndexerHealthCheck.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 export class EtherscanNativeBalanceRepository
   implements IEVMAccountBalanceRepository, IIndexerHealthCheck

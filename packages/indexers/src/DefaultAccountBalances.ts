@@ -11,35 +11,36 @@ import {
   BigNumberString,
   chainConfig,
   ChainId,
+  EChain,
   EChainType,
   EIndexer,
   EVMAccountAddress,
   IAccountBalances,
   IEVMAccountBalanceRepository,
-  ISolanaBalanceRepository,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   PersistenceError,
   SolanaAccountAddress,
   TokenBalance,
+  URLString,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { AlchemyIndexer } from "@indexers/AlchemyIndexer.js";
-import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
-import { EtherscanNativeBalanceRepository } from "@indexers/EtherscanNativeBalanceRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
-import { OklinkIndexer } from "@indexers/OklinkIndexer.js";
-import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { AlchemyIndexer } from "@indexers/providers/AlchemyIndexer.js";
+import { EtherscanIndexer } from "@indexers/providers/EtherscanIndexer.js";
+import { MoralisEVMPortfolioRepository } from "@indexers/providers/MoralisEVMPortfolioRepository.js";
+import { OklinkIndexer } from "@indexers/providers/OklinkIndexer.js";
+import { PolygonIndexer } from "@indexers/providers/PolygonIndexer.js";
+import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
-import { BigNumber } from "ethers";
+import { EtherscanNativeBalanceRepository } from "packages/indexers/src/providers/EtherscanNativeBalanceRepository.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -52,6 +53,8 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected alchemy: AlchemyIndexer;
   protected oklink: OklinkIndexer;
 
+  protected preferredIndexers: Map<EChain, URLString[]>;
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -60,7 +63,6 @@ export class DefaultAccountBalances implements IAccountBalances {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    console.log("Default Account Balances configuration: ", configProvider);
     this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = new EtherscanIndexer(
       configProvider,
@@ -100,6 +102,108 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.logUtils,
     );
 
+    this.preferredIndexers = new Map<EChain, URLString[]>([
+      [
+        EChain.Avalanche,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Binance,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.EthereumMainnet,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Fuji,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Gnosis,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Moonbeam,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Mumbai,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Polygon,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+      [
+        EChain.Solana,
+        [
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+          URLString(
+            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
+          ),
+        ],
+      ],
+    ]);
+
     this.initialize();
   }
 
@@ -121,6 +225,7 @@ export class DefaultAccountBalances implements IAccountBalances {
         console.log("Alchemy Status: ", alchemyStatus);
         console.log("Sol Repo Status: ", solRepoStatus);
         console.log("Native Balance Status: ", nativeBalanceStatus);
+
         return okAsync(undefined);
       },
     );
@@ -156,12 +261,6 @@ export class DefaultAccountBalances implements IAccountBalances {
 
         switch (chainInfo.indexer) {
           case EIndexer.EVM:
-            // if (chainInfo.type == EChainType.Testnet) {
-            //   return etherscanBalanceRepo.getBalancesForAccount(
-            //     chainId,
-            //     accountAddress as EVMAccountAddress,
-            //   );
-            // }
             return etherscanBalanceRepo.getBalancesForAccount(
               chainId,
               accountAddress as EVMAccountAddress,
@@ -230,61 +329,5 @@ export class DefaultAccountBalances implements IAccountBalances {
           return tokenBalance;
         });
       });
-  }
-
-  public getEtherscanBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.etherscan);
-  }
-
-  public getPolygonBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.matic);
-  }
-
-  public getEthereumBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.ethereum);
-  }
-
-  public getEVMBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.evm);
-  }
-
-  public getSimulatorEVMBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.sim);
-  }
-
-  public getSolanaBalanceRepository(): ResultAsync<
-    ISolanaBalanceRepository,
-    never
-  > {
-    return okAsync(this.sol);
-  }
-
-  public getAlchemyBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.alchemy);
-  }
-
-  public getOklinkBalanceRepository(): ResultAsync<
-    IEVMAccountBalanceRepository,
-    never
-  > {
-    return okAsync(this.oklink);
   }
 }

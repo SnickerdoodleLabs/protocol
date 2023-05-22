@@ -14,6 +14,7 @@ export * from "@objects/enum/EHashAlgorithm.js";
 export * from "@objects/enum/EDynamicRewardParameterType.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EInvitationStatus.js";
+export * from "@objects/enum/EProvider.js";
 export * from "@objects/enum/EQueryProcessingStatus.js";
 export * from "@objects/enum/ERewardType.js";
 export * from "@objects/enum/EScamFilterStatus.js";

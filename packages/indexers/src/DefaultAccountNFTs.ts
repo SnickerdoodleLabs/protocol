@@ -31,12 +31,12 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
-import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
-import { PoapRepository } from "@indexers/PoapRepository.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { MoralisEVMPortfolioRepository } from "@indexers/providers/MoralisEVMPortfolioRepository.js";
+import { NftScanEVMPortfolioRepository } from "@indexers/providers/NftScanEVMPortfolioRepository.js";
+import { PoapRepository } from "@indexers/providers/PoapRepository.js";
+import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {
@@ -167,33 +167,5 @@ export class DefaultAccountNFTs implements IAccountNFTs {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
       });
-  }
-
-  public getPoapRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.poapRepo);
-  }
-
-  public getNftScanRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.nftscan);
-  }
-
-  public getEtherscanNftRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.ethereum);
-  }
-
-  public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.ethereum);
-  }
-
-  public getEVMNftRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.evm);
-  }
-
-  public getSimulatorEVMNftRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.simulatorRepo);
-  }
-
-  public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
-    return okAsync(this.solRepo);
   }
 }

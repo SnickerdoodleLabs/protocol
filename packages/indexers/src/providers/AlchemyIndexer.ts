@@ -36,8 +36,8 @@ import Web3 from "web3";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/IIndexerHealthCheck.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 export class AlchemyIndexer
   implements

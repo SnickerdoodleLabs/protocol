@@ -7,6 +7,7 @@ import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
   DefaultAccountNFTs,
+  MasterIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
@@ -57,6 +58,7 @@ import {
   ICoreTwitterMethods,
   IDynamicRewardParameter,
   IInvitationMethods,
+  IMasterIndexerType,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -222,16 +224,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         this.iocContainer.get<IConfigProvider>(IConfigProviderType);
 
       configProvider.setConfigOverrides(configOverrides);
-      console.log(
-        "Snickerdoodle Core configProvider keys: " +
-          JSON.stringify(configProvider),
-      );
     }
 
-    console.log(
-      "Snickerdoodle Core configOverrides keys: " +
-        JSON.stringify(configOverrides),
-    );
+    /* Moving code around, I realized that we really dont need to separate these functions into different files */
+    this.iocContainer
+      .bind(IMasterIndexerType)
+      .to(MasterIndexer)
+      .inSingletonScope();
 
     this.iocContainer
       .bind(IAccountBalancesType)

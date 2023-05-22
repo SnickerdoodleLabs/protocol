@@ -6,6 +6,7 @@ export * from "@objects/interfaces/IConfigOverrides.js";
 export * from "@objects/interfaces/IConsentCapacity.js";
 export * from "@objects/interfaces/ICrumbContent.js";
 export * from "@objects/interfaces/IInsights.js";
+export * from "@objects/interfaces/IMasterIndexer.js";
 export * from "@objects/interfaces/IOpenSeaMetadata.js";
 export * from "@objects/interfaces/IScamFilterPreferences.js";
 export * from "@objects/interfaces/ISdlDataWallet.js";
