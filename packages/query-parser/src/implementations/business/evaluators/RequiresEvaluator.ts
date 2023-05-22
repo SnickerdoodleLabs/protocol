@@ -42,10 +42,14 @@ export class RequiresEvaluator extends AST_Evaluator {
     } else if (TypeChecker.isAd(expr)) {
       if (this.availableMap.get((expr as AST_Ad).name) != null) {
         return okAsync(SDQL_Return(true));
+      } else {
+        return okAsync(SDQL_Return(false));
       }
     } else if (TypeChecker.isInsight(expr)) {
       if (this.availableMap.get((expr as AST_Insight).name) != null) {
         return okAsync(SDQL_Return(true));
+      } else {
+        return okAsync(SDQL_Return(false));
       }
     }
     return this.evalExpr(expr as AST_Expr | Command_IF | Operator);
