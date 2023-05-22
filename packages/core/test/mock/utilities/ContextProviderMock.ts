@@ -38,6 +38,7 @@ export class ContextProviderMock implements IContextProvider {
         false,
         new PublicEvents(),
         false,
+        0,
       );
     }
 

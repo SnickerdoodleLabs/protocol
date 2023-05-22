@@ -4,6 +4,7 @@ import { DataWalletAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
 import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
+import { IIndexerContext } from "@snickerdoodlelabs/indexers";
 
 /**
  * Some people may object to some of the values in here- like private keys.
@@ -19,7 +20,7 @@ import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
  * obtain our derived key. So again, getting paranoid about the storage
  * of the key in this context is unproductive. KISS!
  */
-export class CoreContext {
+export class CoreContext implements IIndexerContext {
   public heartbeat: Subject<void>;
 
   public constructor(
@@ -28,7 +29,9 @@ export class CoreContext {
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
     public restoreInProgress: boolean,
+    public components: number,
   ) {
     this.heartbeat = new Subject();
   }
+  
 }

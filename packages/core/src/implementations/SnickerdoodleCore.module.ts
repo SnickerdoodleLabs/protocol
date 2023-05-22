@@ -15,6 +15,8 @@ import {
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -390,6 +392,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     ).toConstantValue(configProvider);
 
     bind<IContextProvider>(IContextProviderType)
+      .to(ContextProvider)
+      .inSingletonScope();
+    bind<IIndexerContextProvider>(IIndexerContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
     bind<IBlockchainProvider>(IBlockchainProviderType)

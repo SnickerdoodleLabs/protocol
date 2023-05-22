@@ -173,6 +173,7 @@ class AccountServiceMocks {
         unlockInProgress,
         new PublicEvents(),
         false,
+        0,
       ),
     );
 
