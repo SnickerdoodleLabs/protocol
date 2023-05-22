@@ -52,6 +52,7 @@ async function testRequiresAst(
   const result = await evaluator.eval(astRequires);
 
   // Assert
+//   console.log("testRequiresAst", result._unsafeUnwrapErr());
   expect(result.isOk()).toBeTruthy();
   const gotValue = result._unsafeUnwrap();
   expect(gotValue).toBe(expectedValue);

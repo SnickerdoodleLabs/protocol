@@ -69,6 +69,8 @@ export class AST_Evaluator {
       return okAsync(
         SDQL_Return((expr as AST_Expr).source ?? (false as SDQL_Return)),
       );
+    } else if (TypeChecker.isOperator(expr)) {
+      return this.evalOperator(expr as Operator);
     } else {
       const evaluator = this.expMap.get(expr.constructor);
       if (evaluator) {
