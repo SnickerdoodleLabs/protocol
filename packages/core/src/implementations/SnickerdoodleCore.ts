@@ -3,12 +3,7 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-import {
-  DefaultAccountBalances,
-  DefaultAccountIndexers,
-  DefaultAccountNFTs,
-  MasterIndexer,
-} from "@snickerdoodlelabs/indexers";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -46,9 +41,6 @@ import {
   Gender,
   GivenName,
   HexString32,
-  IAccountBalancesType,
-  IAccountIndexingType,
-  IAccountNFTsType,
   IAdMethods,
   IConfigOverrides,
   IConsentCapacity,
@@ -230,21 +222,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     this.iocContainer
       .bind(IMasterIndexerType)
       .to(MasterIndexer)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountBalancesType)
-      .to(DefaultAccountBalances)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountNFTsType)
-      .to(DefaultAccountNFTs)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountIndexingType)
-      .to(DefaultAccountIndexers)
       .inSingletonScope();
 
     // Invitation Methods ----------------------------------------------------------------------------

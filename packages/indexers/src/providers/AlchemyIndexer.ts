@@ -45,7 +45,6 @@ import {
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 export class AlchemyIndexer implements IEVMIndexer {
-
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
 
   public constructor(

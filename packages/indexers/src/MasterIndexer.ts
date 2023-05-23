@@ -20,13 +20,27 @@ import {
   EProvider,
   EVMAccountAddress,
   getChainInfoByChainId,
-  IAccountBalances,
+  IAlchemyIndexerType,
+  IAnkrIndexerType,
+  ICovalentEVMTransactionRepositoryType,
+  IDummySolanaIndexerType,
+  IEtherscanIndexerType,
+  IEtherscanNativeBalanceRepositoryType,
   IEVMAccountBalanceRepository,
   IEVMIndexer,
   IMasterIndexer,
+  IMoralisEVMPortfolioRepositoryType,
+  INftScanEVMPortfolioRepositoryType,
+  IOklinkIndexerType,
+  IPoapRepositoryType,
+  IPolygonIndexerType,
+  ISimulatorEVMTransactionRepositoryType,
   ISolanaBalanceRepository,
+  ISolanaIndexer,
+  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
+  MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
   TokenBalance,
@@ -75,6 +89,23 @@ export class MasterIndexer implements IMasterIndexer {
   protected indexerMap = new Map<EProvider, IEVMIndexer>();
 
   public constructor(
+    // @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
+    // @inject(IAnkrIndexerType) protected ankr: IEVMIndexer,
+    // @inject(ICovalentEVMTransactionRepositoryType)
+    // protected covalent: IEVMIndexer,
+    // @inject(IDummySolanaIndexerType)
+    // protected dummySolanaIndexer: ISolanaIndexer,
+    // @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
+    // @inject(IEtherscanNativeBalanceRepositoryType)
+    // protected etherscanNative: IEVMIndexer,
+    // @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
+    // @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
+    // @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
+    // @inject(IPoapRepositoryType) protected poapRepo: IEVMIndexer,
+    // @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
+    // @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
+    // @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
+
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
@@ -300,7 +331,7 @@ export class MasterIndexer implements IMasterIndexer {
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
-    PersistenceError | AccountIndexingError | AjaxError
+    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
     const chainInfo = chainConfig.get(chainId);
     if (chainInfo == null) {
@@ -369,7 +400,10 @@ export class MasterIndexer implements IMasterIndexer {
     accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
     chainId: ChainId,
-  ): ResultAsync<ChainTransaction[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    ChainTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
     // Get the chain info for the transaction
     const chainInfo = chainConfig.get(chainId);
     if (chainInfo == null) {
@@ -409,19 +443,19 @@ export class MasterIndexer implements IMasterIndexer {
           new Date(timestamp * 1000),
         );
       case EIndexer.Gnosis:
-        return this.ethereum.getEVMTransactions(
+        return this.etherscanNativeBalance.getEVMTransactions(
           chainId,
           accountAddress as EVMAccountAddress,
           new Date(timestamp * 1000),
         );
       case EIndexer.Binance:
-        return this.ethereum.getEVMTransactions(
+        return this.etherscanNativeBalance.getEVMTransactions(
           chainId,
           accountAddress as EVMAccountAddress,
           new Date(timestamp * 1000),
         );
       case EIndexer.Moonbeam:
-        return this.ethereum.getEVMTransactions(
+        return this.etherscanNativeBalance.getEVMTransactions(
           chainId,
           accountAddress as EVMAccountAddress,
           new Date(timestamp * 1000),

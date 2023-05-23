@@ -16,6 +16,7 @@ import {
   PortfolioUpdate,
   IMasterIndexerType,
   IMasterIndexer,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -124,7 +125,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     accountAddress: AccountAddress,
   ): ResultAsync<
     TokenBalance[],
-    PersistenceError | AccountIndexingError | AjaxError
+    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
     return ResultUtils.combine([
       this._getBalanceCache(),
@@ -191,7 +192,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
-    PersistenceError | AjaxError | AccountIndexingError
+    PersistenceError | AjaxError | AccountIndexingError | MethodSupportError
   > {
     return ResultUtils.combine([
       this._getNftCache(),
@@ -243,7 +244,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _getBalanceCache(): ResultAsync<
     PortfolioCache<
       TokenBalance[],
-      PersistenceError | AccountIndexingError | AjaxError
+      PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
     >,
     never
   > {
@@ -265,7 +266,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _getNftCache(): ResultAsync<
     PortfolioCache<
       WalletNFT[],
-      PersistenceError | AccountIndexingError | AjaxError
+      PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
     >,
     never
   > {
