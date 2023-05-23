@@ -47,23 +47,24 @@ export class BlockchainProvider implements IBlockchainProvider {
         this.primaryProvider = new ethers.providers.JsonRpcProvider(
           config.controlChainId === EChain.DevDoodle
             ? config.devChainProviderURL
-            : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.primaryInfuraKey}`,
+            : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.primaryInfuraKey}`,
         );
 
         // The secondary is optional, and depends on the config. We only have backups for non-devchains
 
         if (config.controlChainId != EChain.DevDoodle) {
-          if (config.backupInfuraKey != null) {
+          if (config.apiKeys.secondaryInfuraKey != null) {
             this.secondaryProvider = new ethers.providers.JsonRpcProvider(
-              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.backupInfuraKey}`,
-            );
-          } else if (config.alchemyKey != null) {
-            // TODO: update URL for alchemy when internet comes back on. We also have to make sure
-            // the control chain is supported by alchemy
-            this.secondaryProvider = new ethers.providers.JsonRpcProvider(
-              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.alchemyKey}`,
+              `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.secondaryInfuraKey}`,
             );
           }
+          // else if (config.apiKeys.alchemyApiKeys[] != null) {
+          //   // TODO: update URL for alchemy when internet comes back on. We also have to make sure
+          //   // the control chain is supported by alchemy
+          //   this.secondaryProvider = new ethers.providers.JsonRpcProvider(
+          //     `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.alchemyKey}`,
+          //   );
+          // }
         }
       });
 

@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -24,22 +25,27 @@ import {
   IEVMNftRepository,
   AccountAddress,
   URLString,
+  IEVMTransactionRepository,
+  EVMTransaction,
+  IEVMIndexer,
+  MethodSupportError,
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class AlchemyIndexer
-  implements IEVMAccountBalanceRepository, IEVMNftRepository
-{
-  private _alchemyNonNativeSupport: Map<EChain, boolean>;
+export class AlchemyIndexer implements IEVMIndexer {
+
+  protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -57,6 +63,23 @@ export class AlchemyIndexer
       [EChain.Solana, true],
       [EChain.Polygon, true],
     ]) as Map<EChain, boolean>;
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AlchemyIndexer",
+        400,
+      ),
+    );
   }
 
   public getBalancesForAccount(
@@ -292,6 +315,38 @@ export class AlchemyIndexer
         });
     });
   }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        /* If status: healthy , its message is undefined */
+        if (result.status !== undefined) {
+          return okAsync("good");
+        }
+        return okAsync("bad");
+      });
+  }
 }
 
 interface IAlchemyNativeBalanceResponse {
@@ -376,4 +431,9 @@ export interface CoinGeckoTokenInfo {
   symbol: string;
   name: string;
   protocols: string[];
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }

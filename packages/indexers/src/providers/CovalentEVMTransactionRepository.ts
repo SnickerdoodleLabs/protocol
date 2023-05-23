@@ -19,16 +19,19 @@ import {
   EVMTransactionHash,
   TokenBalance,
   EChainTechnology,
+  IEVMIndexer,
+  EVMNFT,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 interface ICovalentEVMTransactionResponseItem {
   block_signed_at: string;
@@ -128,9 +131,7 @@ interface IEVMTokenInfo {
 }
 
 @injectable()
-export class CovalentEVMTransactionRepository
-  implements IEVMTransactionRepository, IEVMAccountBalanceRepository
-{
+export class CovalentEVMTransactionRepository implements IEVMIndexer {
   private ENDPOINT_TRANSACTIONS = "transactions_v2";
   private ENDPOINT_BALANCES = "balances_v2";
 
@@ -139,6 +140,24 @@ export class CovalentEVMTransactionRepository
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+  healthCheck(): ResultAsync<string, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
 
   public getEVMTransactions(
     chainId: ChainId,
@@ -312,7 +331,7 @@ export class CovalentEVMTransactionRepository
   ): ResultAsync<IRequestConfig, never> {
     return this.configProvider.getConfig().map((config) => {
       const params = {
-        key: config.covalentApiKey,
+        key: config.apiKeys.covalentApiKey,
         "quote-currency": config.quoteCurrency,
       };
 

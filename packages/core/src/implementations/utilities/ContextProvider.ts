@@ -1,17 +1,21 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IIndexerContextProvider } from "@snickerdoodlelabs/indexers";
+import { ApiStats, EExternalApi } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { Subject } from "rxjs";
 
 import {
   PublicEvents,
   CoreContext,
-  ComponentStatus,
   PrivateEvents,
 } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 @injectable()
-export class ContextProvider implements IContextProvider {
+export class ContextProvider
+  implements IContextProvider, IIndexerContextProvider
+{
   protected context: CoreContext;
 
   public constructor(@inject(ITimeUtilsType) protected timeUtils: ITimeUtils) {
@@ -22,9 +26,10 @@ export class ContextProvider implements IContextProvider {
       new PublicEvents(), // publicEvents,
       new PrivateEvents(), // privateEvents
       false, // restoreInProgress
+      new Subject<void>(), // heartbeat
       this.timeUtils.getUnixNow(), // startTime
-      {}, // apiCalls
-      new ComponentStatus(false, false, false, false, false, false, false),
+      new Map<EExternalApi, ApiStats>(), // apiCalls
+      0, // components
     );
   }
 

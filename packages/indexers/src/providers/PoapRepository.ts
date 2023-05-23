@@ -8,31 +8,69 @@ import {
   AjaxError,
   BigNumberString,
   ChainId,
+  EComponentStatus,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  EVMTransaction,
+  IEVMIndexer,
   IEVMNftRepository,
+  TokenBalance,
   TokenUri,
   UnixTimestamp,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
+
+import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
 @injectable()
-export class PoapRepository implements IEVMNftRepository {
+export class PoapRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+  getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenBalance[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+  getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getTokensForAccount(
     chainId: ChainId,
@@ -85,12 +123,50 @@ export class PoapRepository implements IEVMNftRepository {
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.poapApiKey,
+          "X-API-Key": config.apiKeys.poapApiKey,
         },
       };
       return result;
     });
   }
+
+  public healthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider.getConfig().andThen((config) => {
+      if (config.apiKeys.poapApiKey == "") {
+        return okAsync(EComponentStatus.NoKeyProvided);
+      }
+      const result: IRequestConfig = {
+        method: "get",
+        url: url,
+        headers: {
+          accept: "application/json",
+          "X-API-Key": config.apiKeys.poapApiKey,
+        },
+      };
+      return this.ajaxUtils
+        .get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(result.url!),
+          result,
+        )
+        .andThen((result) => {
+          if (result.status !== undefined) {
+            return okAsync(EComponentStatus.Available);
+          }
+          return okAsync(EComponentStatus.Error);
+        })
+        .andThen((fads) => {
+          return okAsync(fads);
+        });
+    });
+  }
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }
 
 interface IPoapResponse {

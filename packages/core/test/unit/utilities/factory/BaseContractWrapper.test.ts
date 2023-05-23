@@ -74,13 +74,7 @@ describe("BaseContractWrapper tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
-
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
-    ).toBe(1);
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
-    ).toBe(undefined);
+    mocks.contextProvider.assertEventCounts({ onApiAccessed: 1 });
   });
 
   test("primary fails, secondary call made", async () => {
@@ -95,12 +89,7 @@ describe("BaseContractWrapper tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
 
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
-    ).toBe(1);
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
-    ).toBe(1);
+    mocks.contextProvider.assertEventCounts({ onApiAccessed: 2 });
   });
 
   test("primary fails, no secondary exists", async () => {
@@ -115,12 +104,7 @@ describe("BaseContractWrapper tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
 
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
-    ).toBe(1);
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
-    ).toBe(undefined);
+    mocks.contextProvider.assertEventCounts({ onApiAccessed: 1 });
   });
 
   test("primary fails, secondary fails", async () => {
@@ -135,11 +119,6 @@ describe("BaseContractWrapper tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeTruthy();
 
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.primaryName],
-    ).toBe(1);
-    expect(
-      mocks.contextProvider.context.apiCalls[BaseContractWrapper.secondaryName],
-    ).toBe(1);
+    mocks.contextProvider.assertEventCounts({ onApiAccessed: 2 });
   });
 });

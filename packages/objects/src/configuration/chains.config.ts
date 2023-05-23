@@ -59,24 +59,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Goerli),
-    new ChainInformation(
-      "Goerli",
-      ChainId(EChain.Goerli),
-      EChain.Goerli,
-      EChainTechnology.EVM,
-      true,
-      "goerli",
-      10000,
-      EIndexer.Ethereum,
-      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
-      EChainType.Testnet,
-      "https://goerli.etherscan.io/tx/",
-      getExplorerUrl,
-      URLString("https://api-goerli.etherscan.io/"),
-    ),
-  ],
-  [
     ChainId(EChain.Sepolia),
     new ChainInformation(
       "Sepolia",
@@ -311,6 +293,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       "https://astar.subscan.io/api",
       getExplorerUrl,
       URLString("https://astar.subscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Shibuya),
+    new ChainInformation(
+      "Shibuya",
+      ChainId(EChain.Shibuya),
+      EChain.Astar,
+      EChainTechnology.EVM,
+      true,
+      "shibuya",
+      10000, // average block mining time
+      EIndexer.Astar,
+      new NativeCurrencyInformation("SBY", 18, "SBY", "shibuya"),
+      EChainType.Testnet,
+      "https://shibuya.subscan.io/api",
+      getExplorerUrl,
+      URLString("https://shibya.subscan.io/"),
     ),
   ],
 ]);

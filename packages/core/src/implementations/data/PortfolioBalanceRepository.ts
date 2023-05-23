@@ -10,20 +10,12 @@ import {
   chainConfig,
   isAccountValidForChain,
   AccountAddress,
-  EIndexer,
   EVMAccountAddress,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   PortfolioUpdate,
-  SolanaAccountAddress,
-  IAccountBalances,
-  IAccountBalancesType,
-  IAccountNFTs,
-  IAccountNFTsType,
-  BigNumberString,
-  EChainType,
-  getChainInfoByChainId,
-  getChainInfoByChain,
+  IMasterIndexerType,
+  IMasterIndexer,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -74,9 +66,11 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     protected accountRepo: ILinkedAccountRepository,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-    @inject(IAccountNFTsType)
-    protected accountNFTs: IAccountNFTs,
-    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
+    // @inject(IAccountNFTsType)
+    // protected accountNFTs: IAccountNFTs,
+    @inject(IMasterIndexerType)
+    protected masterIndexer: IMasterIndexer,
+    // @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     // reset portfolio cache on account addition and removal
@@ -140,8 +134,9 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
-        const fetch = this.getLatestBalances(chainId, accountAddress).map(
-          (result) => {
+        const fetch = this.masterIndexer
+          .getLatestBalances(chainId, accountAddress)
+          .map((result) => {
             context.publicEvents.onTokenBalanceUpdate.next(
               new PortfolioUpdate(
                 accountAddress,
@@ -151,118 +146,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
               ),
             );
             return result;
-          },
-        );
+          });
         return cache
           .set(chainId, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);
       });
     });
-  }
-
-  private getLatestBalances(
-    chainId: ChainId,
-    accountAddress: AccountAddress,
-  ): ResultAsync<
-    TokenBalance[],
-    PersistenceError | AccountIndexingError | AjaxError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.accountBalances.getEVMBalanceRepository(),
-      this.accountBalances.getSolanaBalanceRepository(),
-      this.accountBalances.getSimulatorEVMBalanceRepository(),
-      this.accountBalances.getEthereumBalanceRepository(),
-      this.accountBalances.getPolygonBalanceRepository(),
-      this.accountBalances.getEtherscanBalanceRepository(),
-      this.accountBalances.getAlchemyBalanceRepository(),
-      this.accountBalances.getOklinkBalanceRepository(),
-    ])
-      .andThen(
-        ([
-          config,
-          evmRepo,
-          solRepo,
-          simulatorRepo,
-          etherscanRepo,
-          maticRepo,
-          etherscanBalanceRepo,
-          alchemyRepo,
-          oklinkRepo,
-        ]) => {
-          const chainInfo = config.chainInformation.get(chainId);
-          if (chainInfo == null) {
-            return errAsync(
-              new AccountIndexingError(
-                `No available chain info for chain ${chainId}`,
-              ),
-            );
-          }
-
-          switch (chainInfo.indexer) {
-            case EIndexer.Simulator:
-              return simulatorRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Solana:
-              return solRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as SolanaAccountAddress,
-              );
-            case EIndexer.Ethereum:
-              return etherscanRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.EVM:
-            case EIndexer.Gnosis:
-            case EIndexer.Binance:
-            case EIndexer.Moonbeam:
-              return etherscanBalanceRepo.getBalancesForAccount(
-                chainInfo.chain,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Polygon:
-            case EIndexer.Arbitrum:
-            case EIndexer.Optimism:
-            case EIndexer.Astar:
-              return alchemyRepo.getBalancesForAccount(
-                chainInfo.chain,
-                accountAddress as EVMAccountAddress,
-              );
-            default:
-              return errAsync(
-                new AccountIndexingError(
-                  `No available balance repository for chain ${chainId}`,
-                ),
-              );
-          }
-        },
-      )
-      .orElse((e) => {
-        this.logUtils.error(
-          "error fetching balances",
-          chainId,
-          accountAddress,
-          e,
-        );
-        return okAsync([]);
-      })
-      .map((tokenBalances) => {
-        // Apprently the tokenBalance.balance can return as in invalid
-        // BigNumber (blank or null), so we'll just correct any possible issue
-        // here.
-        return tokenBalances.map((tokenBalance) => {
-          try {
-            BigNumber.from(tokenBalance.balance);
-          } catch (e) {
-            // Can't convert to bignumber, set it to 0
-            tokenBalance.balance = BigNumberString("0");
-          }
-          return tokenBalance;
-        });
-      });
   }
 
   public getAccountNFTs(
@@ -312,8 +201,9 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
-        const fetch = this.getLatestNFTs(chainId, accountAddress).map(
-          (result) => {
+        const fetch = this.masterIndexer
+          .getLatestNFTs(chainId, accountAddress)
+          .map((result) => {
             context.publicEvents.onNftBalanceUpdate.next(
               new PortfolioUpdate(
                 accountAddress,
@@ -323,122 +213,12 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
               ),
             );
             return result;
-          },
-        );
+          });
         return cache
           .set(chainId, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);
       });
     });
-  }
-
-  private getLatestNFTs(
-    chainId: ChainId,
-    accountAddress: AccountAddress,
-  ): ResultAsync<
-    WalletNFT[],
-    PersistenceError | AccountIndexingError | AjaxError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.accountNFTs.getEVMNftRepository(),
-      this.accountNFTs.getSolanaNFTRepository(),
-      this.accountNFTs.getSimulatorEVMNftRepository(),
-      this.accountNFTs.getEthereumNftRepository(),
-      this.accountNFTs.getEtherscanNftRepository(),
-      this.accountNFTs.getNftScanRepository(),
-      this.accountNFTs.getPoapRepository(),
-    ])
-      .andThen(
-        ([
-          config,
-          evmRepo,
-          solRepo,
-          simulatorRepo,
-          etherscanRepo,
-          etherscanMRepo,
-          nftScanRepo,
-          poapRepo,
-        ]) => {
-          const chainInfo = config.chainInformation.get(chainId);
-          if (chainInfo == null) {
-            return errAsync(
-              new AccountIndexingError(
-                `No available chain info for chain ${chainId}`,
-              ),
-            );
-          }
-
-          if (chainInfo.type == EChainType.Testnet) {
-            return okAsync([]);
-          }
-
-          switch (chainInfo.indexer) {
-            case EIndexer.EVM:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Polygon:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Simulator:
-              return simulatorRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Solana:
-              return solRepo.getTokensForAccount(
-                chainId,
-                accountAddress as SolanaAccountAddress,
-              );
-            case EIndexer.Ethereum:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Gnosis:
-              return poapRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Binance:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Moonbeam:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Arbitrum:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Optimism:
-              return nftScanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Astar:
-              return okAsync([]);
-            default:
-              return errAsync(
-                new AccountIndexingError(
-                  `No available token repository for chain ${chainId}`,
-                ),
-              );
-          }
-        },
-      )
-      .orElse((e) => {
-        this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
-        return okAsync([]);
-      });
   }
 
   private _clearPortfolioCaches(

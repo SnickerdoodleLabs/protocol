@@ -1,11 +1,10 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { RuntimeMetrics } from "@snickerdoodlelabs/objects";
+import { ApiStats, RuntimeMetrics } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IMetricsService } from "@core/interfaces/business/index.js";
-import { ApiStats } from "@core/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,

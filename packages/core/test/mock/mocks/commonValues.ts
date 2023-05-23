@@ -98,13 +98,25 @@ export const testCoreConfig = new CoreConfig(
   5000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
-  "covalent api key",
-  "moralis api key",
-  "nftScan api key",
-  "poap api key",
-  "oklink api key",
+  {
+    alchemyApiKeys: {
+      Arbitrum: "",
+      Astar: "",
+      Mumbai: "",
+      Optimism: "",
+      Polygon: "",
+      Solana: "",
+    },
+    covalentApiKey: "covalent api key",
+    moralisApiKey: "moralis api key",
+    nftScanApiKey: "nftScan api key",
+    poapApiKey: "poap api key",
+    oklinkApiKey: "oklink api key",
+    primaryInfuraKey: "",
+    ankrApiKey: "ankr api key",
+    secondaryInfuraKey: "",
+  },
   URLString("http://dnsServerAddress"),
-  URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
   new Map(),
   100, // etherscan tx batch size
@@ -134,10 +146,8 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  "", // primaryInfuraKey
-  null, // backupInfuraKey
-  null, // alchemyKey
-  ProviderUrl(""),
+  ProviderUrl(""), // devChainProviderUrl
+  60, // maxStatsRetentionSeconds
 );
 
 // #endregion

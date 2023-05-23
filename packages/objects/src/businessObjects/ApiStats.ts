@@ -1,4 +1,5 @@
-import { EExternalApi, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { EExternalApi } from "@objects/enum/index.js";
+import { UnixTimestamp } from "@objects/primitives/index.js";
 
 export class ApiStats {
   public constructor(

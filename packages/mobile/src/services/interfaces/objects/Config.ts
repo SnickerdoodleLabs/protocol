@@ -26,12 +26,21 @@ export const coreConfig = {
   accountNFTPollingIntervalMS: 60000,
   dataWalletBackupIntervalMS: 60000,
   heartbeatIntervalMS: 60000,
+  alchemyApiKeys: {
+    Arbitrum: "",
+    Astar: "",
+    Mumbai: "",
+    Optimism: "",
+    Polygon: "",
+    Solana: "",
+  },
   covalentApiKey: "ckey_ee277e2a0e9542838cf30325665",
   moralisApiKey:
     "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag",
   nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
   poapApiKey:
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
+  ankrApiKey: "",
   etherscanApiKeys: new Map([
     [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
     // [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
@@ -44,5 +53,6 @@ export const coreConfig = {
     [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
   ]),
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
+  secondaryInfuraKey: "",
   devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
 } as IConfigOverrides;

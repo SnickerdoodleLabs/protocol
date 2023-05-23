@@ -1,4 +1,3 @@
-export * from "@core/interfaces/objects/ApiStats.js";
 export * from "@core/interfaces/objects/BusinessConsentContract.js";
 export * from "@core/interfaces/objects/ComponentStatus.js";
 export * from "@core/interfaces/objects/CoreConfig.js";

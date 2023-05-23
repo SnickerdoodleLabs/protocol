@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtils,
   ILogUtilsType,
   ILogUtils,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -26,6 +27,9 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
+  IEVMIndexer,
+  EVMNFT,
+  MethodSupportError,
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
@@ -38,16 +42,10 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class PolygonIndexer
-  implements IEVMAccountBalanceRepository, IEVMTransactionRepository
-{
-  //   private _metadataCache = new Map<
-  //     `${EVMContractAddress}-${ChainId}`,
-  //     TokenMetadataResponse
-  //   >();
-
+export class PolygonIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -56,6 +54,21 @@ export class PolygonIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -383,6 +396,38 @@ export class PolygonIndexer
       return okAsync(config.etherscanApiKeys.get(chainId)!);
     });
   }
+
+  public healthCheck(): ResultAsync<string, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const result: IRequestConfig = {
+          method: "get",
+          url: url,
+          headers: {
+            accept: "application/json",
+            "X-API-Key": config.apiKeys.poapApiKey,
+          },
+        };
+        return okAsync(result);
+      })
+      .andThen((requestConfig) => {
+        return this.ajaxUtils.get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        /* If status: healthy , its message is undefined */
+        if (result.status !== undefined) {
+          return okAsync("good");
+        }
+        return okAsync("bad");
+      });
+  }
 }
 
 interface IPolygonscanRequestParameters {
@@ -423,4 +468,9 @@ interface IPolygonscanBlockNumberResponse {
   status: string;
   message: string;
   result: BigNumberString;
+}
+
+interface IHealthCheck {
+  status?: string;
+  message?: string;
 }

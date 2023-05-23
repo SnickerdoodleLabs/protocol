@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { IIndexerConfig } from "@indexers/IIndexerConfig.js";
+import { IIndexerConfig } from "@indexers/interfaces/IIndexerConfig.js";
 
 export interface IIndexerConfigProvider {
   getConfig(): ResultAsync<IIndexerConfig, never>;

@@ -10,6 +10,6 @@
       "path": ".."
     }
   ],
-  "include": ["../src/**/*.ts", "../test/**/*.ts"],
+  "include": ["../src/**/*.ts", "../test/**/*.ts", "../../objects/src/businessObjects/ApiStats.ts"],
   "exclude": ["node_modules"]
 }

@@ -13,33 +13,53 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  EVMTransaction,
   getChainInfoByChainId,
   IEVMAccountBalanceRepository,
+  IEVMIndexer,
   IEVMNftRepository,
   TickerSymbol,
   TokenBalance,
   TokenUri,
   URLString,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 @injectable()
-export class MoralisEVMPortfolioRepository
-  implements IEVMNftRepository, IEVMAccountBalanceRepository
-{
+export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+  getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+  healthCheck(): ResultAsync<string, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -185,7 +205,7 @@ export class MoralisEVMPortfolioRepository
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.moralisApiKey,
+          "X-API-Key": config.apiKeys.moralisApiKey,
         },
       };
       return result;

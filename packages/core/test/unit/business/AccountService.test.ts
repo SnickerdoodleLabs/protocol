@@ -12,6 +12,7 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
+  ComponentStatus,
   DataWalletBackupID,
   EChain,
   EncryptedString,
@@ -54,6 +55,7 @@ import {
 import {
   CoreContext,
   CrumbCallData,
+  PrivateEvents,
   PublicEvents,
 } from "@core/interfaces/objects/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
@@ -169,11 +171,13 @@ class AccountServiceMocks {
         unlocked ? dataWalletAddress : null,
         unlocked ? dataWalletKey : null,
         unlockInProgress,
-        new PublicEvents(),
-        false,
+        new PublicEvents(), // publicEvents
+        new PrivateEvents(), // privateEvents
+        false, // restoreInProgress
         new Subject<void>(), // heartbeat,
         UnixTimestamp(0), // startTime,
-        {}, // apiCalls
+        new Map(), // apiCalls
+        0, // components
       ),
     );
 
