@@ -29,6 +29,7 @@ import {
   EVMTransaction,
   IEVMIndexer,
   MethodSupportError,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -44,6 +45,9 @@ import {
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 export class AlchemyIndexer implements IEVMIndexer {
+
+  protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,

@@ -26,6 +26,8 @@ import {
   IEVMIndexer,
   EVMNFT,
   MethodSupportError,
+  getChainInfoByChain,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject } from "inversify";

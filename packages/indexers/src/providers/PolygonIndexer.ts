@@ -30,6 +30,7 @@ import {
   IEVMIndexer,
   EVMNFT,
   MethodSupportError,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";

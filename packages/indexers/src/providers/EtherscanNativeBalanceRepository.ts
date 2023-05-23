@@ -29,6 +29,8 @@ import {
   chainConfig,
   IEVMIndexer,
   MethodSupportError,
+  EChain,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
