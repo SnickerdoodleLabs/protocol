@@ -7654,6 +7654,7 @@ __metadata:
     react-chartjs-2: ^4.3.1
     react-dom: ^17.0.2
     react-ga: ^3.3.1
+    react-ga4: ^2.1.0
     react-google-login: ^5.2.2
     react-hotjar: ^5.2.0
     react-intersection-observer: ^9.4.3
@@ -33766,6 +33767,13 @@ __metadata:
   peerDependencies:
     react: ">=17.0.0"
   checksum: 4258eabdbbf74aaebc38ad1fd7cfdc1984d2a844a2247b39a341c55c1beb02d5e855e6473ec5683205a52b2251d0f7dffa07cd8100f402dd2698af88b932d946
+  languageName: node
+  linkType: hard
+
+"react-ga4@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "react-ga4@npm:2.1.0"
+  checksum: f7fb41141418d4ad14756f1126a1e9958db37d4d84ae6cd798043dc03a390b6dba74d69311af0349f0b9580a43bda8930138194ccc29c4100efe446e2d6eb057
   languageName: node
   linkType: hard
 
