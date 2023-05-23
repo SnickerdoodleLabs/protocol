@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import ReactGA from "react-ga";
+import ReactGA from "react-ga4";
 import { hotjar } from "react-hotjar";
 
 const config: AnalyticsConfig = new AnalyticsConfigProvider().config;
@@ -56,7 +56,7 @@ export const AnalyticsContextProvider: FC = ({ children }) => {
     [],
   );
   const sendPageView = useCallback(() => {
-    ReactGA.pageview(window.location.href);
+    ReactGA.send(window.location.href);
   }, []);
 
   return (
