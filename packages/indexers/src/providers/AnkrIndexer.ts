@@ -32,19 +32,23 @@ import {
   UnixTimestamp,
   EComponentStatus,
   IEVMIndexer,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 // import { CoinGeckoTokenInfo } from "packages/objects/src";
 import { urlJoinP } from "url-join-ts";
-import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+import {
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 export class AnkrIndexer implements IEVMIndexer {
   public constructor(
@@ -53,6 +57,8 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -69,11 +75,19 @@ export class AnkrIndexer implements IEVMIndexer {
       },
       id: 1,
     };
-    return this.ajaxUtils
-      .post<IAnkrBalancesReponse>(new URL(url), requestParams, {
-        headers: {
-          "Content-Type": `application/json;`,
-        },
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
+        return this.ajaxUtils.post<IAnkrBalancesReponse>(
+          new URL(url),
+          requestParams,
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        );
       })
       .andThen((response) => {
         return ResultUtils.combine(
@@ -107,11 +121,19 @@ export class AnkrIndexer implements IEVMIndexer {
       },
       id: 1,
     };
-    return this.ajaxUtils
-      .post<IAnkrNftReponse>(new URL(url), requestParams, {
-        headers: {
-          "Content-Type": `application/json;`,
-        },
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
+        return this.ajaxUtils.post<IAnkrNftReponse>(
+          new URL(url),
+          requestParams,
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        );
       })
       .andThen((response) => {
         return ResultUtils.combine(
@@ -151,11 +173,19 @@ export class AnkrIndexer implements IEVMIndexer {
       },
       id: 1,
     };
-    return this.ajaxUtils
-      .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
-        headers: {
-          "Content-Type": `application/json;`,
-        },
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
+        return this.ajaxUtils.post<IAnkrTransactionReponse>(
+          new URL(url),
+          requestParams,
+          {
+            headers: {
+              "Content-Type": `application/json;`,
+            },
+          },
+        );
       })
       .andThen((response) => {
         return ResultUtils.combine(
@@ -186,7 +216,10 @@ export class AnkrIndexer implements IEVMIndexer {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
 
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       if (config.apiKeys.ankrApiKey == "") {
         return okAsync(EComponentStatus.NoKeyProvided);
       }
@@ -198,6 +231,7 @@ export class AnkrIndexer implements IEVMIndexer {
           "X-API-Key": config.apiKeys.poapApiKey,
         },
       };
+      context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
       return this.ajaxUtils
         .get<IHealthCheck>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

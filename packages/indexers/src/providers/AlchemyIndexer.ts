@@ -30,6 +30,7 @@ import {
   IEVMIndexer,
   MethodSupportError,
   getChainInfoByChain,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -42,10 +43,23 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+import {
+  IIndexerContext,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 export class AlchemyIndexer implements IEVMIndexer {
-
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
+
+  protected chainToApiMap = new Map<EChain, EExternalApi>([
+    [EChain.Arbitrum, EExternalApi.AlchemyArbitrum],
+    [EChain.Astar, EExternalApi.AlchemyAstar],
+    [EChain.Mumbai, EExternalApi.AlchemyMumbai],
+    [EChain.Optimism, EExternalApi.AlchemyOptimism],
+    [EChain.Solana, EExternalApi.AlchemySolana],
+    [EChain.Polygon, EExternalApi.AlchemyPolygon],
+  ]);
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -53,6 +67,8 @@ export class AlchemyIndexer implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this._alchemyNonNativeSupport = new Map([
@@ -231,9 +247,15 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
-    return this.retrieveAlchemyUrl(chain).andThen((url) => {
+    return ResultUtils.combine([
+      this.retrieveAlchemyUrl(chain),
+      this.contextProvider.getContext(),
+    ]).andThen(([url, context]) => {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chain, accountAddress);
+
+      this;
+      this.reportApiUsage(chain, context);
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {
@@ -263,8 +285,12 @@ export class AlchemyIndexer implements IEVMIndexer {
     if (!this._alchemyNonNativeSupport.get(chain)) {
       return okAsync([]);
     }
-    return this.retrieveAlchemyUrl(chain).andThen((url) => {
+    return ResultUtils.combine([
+      this.retrieveAlchemyUrl(chain),
+      this.contextProvider.getContext(),
+    ]).andThen(([url, context]) => {
       // const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      this.reportApiUsage(chain, context);
       return this.ajaxUtils
         .post<IAlchemyNonNativeReponse>(
           new URL(url),
@@ -319,10 +345,12 @@ export class AlchemyIndexer implements IEVMIndexer {
   public healthCheck(): ResultAsync<string, AjaxError> {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const result: IRequestConfig = {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([config, context]) => {
+        const requestConfig: IRequestConfig = {
           method: "get",
           url: url,
           headers: {
@@ -330,9 +358,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             "X-API-Key": config.apiKeys.poapApiKey,
           },
         };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
         return this.ajaxUtils.get<IHealthCheck>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(requestConfig.url!),
@@ -346,6 +372,14 @@ export class AlchemyIndexer implements IEVMIndexer {
         }
         return okAsync("bad");
       });
+  }
+
+  protected reportApiUsage(chain: EChain, context: IIndexerContext): void {
+    let api = this.chainToApiMap.get(chain);
+    if (api == null) {
+      api = EExternalApi.Unknown;
+    }
+    context.privateEvents.onApiAccessed.next(api);
   }
 }
 
