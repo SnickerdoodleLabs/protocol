@@ -27,8 +27,6 @@ export interface IMinimalForwarderContract extends IBaseContract {
     ethers.providers.TransactionResponse,
     MinimalForwarderContractError
   >;
-
-  getContract(): ethers.Contract;
 }
 
 export const IMinimalForwarderContractType = Symbol.for(

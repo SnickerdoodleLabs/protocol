@@ -37,7 +37,6 @@ export class CoreContext implements IIndexerContext {
     public restoreInProgress: boolean,
     public heartbeat: Subject<void>,
     public startTime: UnixTimestamp,
-    public apiCalls: Map<EExternalApi, ApiStats>,
     public components: number,
   ) {}
 }

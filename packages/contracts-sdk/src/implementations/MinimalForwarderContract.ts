@@ -91,8 +91,4 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
       },
     );
   }
-
-  public getContract(): ethers.Contract {
-    return this.contract;
-  }
 }

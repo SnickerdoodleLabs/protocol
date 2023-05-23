@@ -61,8 +61,6 @@ export interface ICrumbsContract extends IBaseContract {
   ): ResultAsync<void, CrumbsContractError>;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
-
-  getContract(): ethers.Contract;
 }
 
 export const ICrumbsContractType = Symbol.for("ICrumbsContract");

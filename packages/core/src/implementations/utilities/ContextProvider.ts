@@ -28,7 +28,6 @@ export class ContextProvider
       false, // restoreInProgress
       new Subject<void>(), // heartbeat
       this.timeUtils.getUnixNow(), // startTime
-      new Map<EExternalApi, ApiStats>(), // apiCalls
       0, // components
     );
   }

@@ -51,7 +51,6 @@ export class ContextProviderMock implements IContextProvider {
         false, // restoreInProgress
         new Subject<void>(), // heartbeat
         UnixTimestamp(0), // startTime,
-        new Map<EExternalApi, ApiStats>(), // apiCalls
         0, // components
       );
     }
@@ -130,7 +129,7 @@ export class ContextProviderMock implements IContextProvider {
       counts.onDataPermissionsUpdated,
     );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
-    expect(this.privateEvents.onApiAccessed).toBe(counts.onApiAccessed);
+    expect(this.onApiAccessedActivations.length).toBe(counts.onApiAccessed);
   }
 }
 

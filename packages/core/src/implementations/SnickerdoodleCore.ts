@@ -22,9 +22,7 @@ import {
   ChainId,
   ChainTransaction,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
-  ConsentFactoryContractError,
   CountryCode,
   CrumbsContractError,
   DataPermissions,
@@ -36,7 +34,6 @@ import {
   EarnedReward,
   EChain,
   EDataWalletPermission,
-  EInvitationStatus,
   EligibleAd,
   EmailAddressString,
   EScamFilterStatus,
@@ -45,7 +42,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  HexString32,
   IAccountBalancesType,
   IAccountIndexingType,
   IAccountNFTsType,
@@ -59,10 +55,10 @@ import {
   IDynamicRewardParameter,
   IInvitationMethods,
   IMasterIndexerType,
+  IMetricsMethods,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
-  IOpenSeaMetadata,
   IpfsCID,
   IPFSError,
   ISnickerdoodleCore,
@@ -77,7 +73,6 @@ import {
   OAuth1RequstToken,
   OAuthAuthorizationCode,
   OAuthVerifier,
-  PageInvitation,
   PagingRequest,
   PersistenceError,
   QueryFormatError,
@@ -176,6 +171,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public discord: ICoreDiscordMethods;
   public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
+  public metrics: IMetricsMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -455,6 +451,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
     };
+
+    // Metrics Methods ---------------------------------------------------------------
+    this.metrics = {
+      getMetrics: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getMetrics();
+      },
+    };
+
     // Social Media Methods ----------------------------------------------------------
     this.twitter = {
       getOAuth1aRequestToken: () => {

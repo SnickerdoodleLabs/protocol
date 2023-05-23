@@ -176,7 +176,6 @@ class AccountServiceMocks {
         false, // restoreInProgress
         new Subject<void>(), // heartbeat,
         UnixTimestamp(0), // startTime,
-        new Map(), // apiCalls
         0, // components
       ),
     );

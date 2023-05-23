@@ -1,6 +1,6 @@
+import { ApiStats } from "@objects/businessObjects/ApiStats.js";
 import { EExternalApi } from "@objects/enum/index.js";
 import { UnixTimestamp } from "@objects/primitives/index.js";
-import { ApiStats } from "@objects/businessObjects/ApiStats.js";
 
 export class RuntimeMetrics {
   public constructor(

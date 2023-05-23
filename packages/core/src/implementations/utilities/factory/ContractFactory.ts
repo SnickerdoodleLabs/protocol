@@ -12,13 +12,12 @@ import {
   IMinimalForwarderContract,
   MinimalForwarderContract,
   IConsentFactoryContract,
-  ConsentFactoryContract,
   SiftContract,
   ISiftContract,
+  ConsentFactoryContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
-  ChainId,
   EVMContractAddress,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -27,6 +26,10 @@ import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ConsentContractWrapper } from "@core/implementations/utilities/factory/ConsentContractWrapper.js";
+import { ConsentFactoryContractWrapper } from "@core/implementations/utilities/factory/ConsentFactoryContractWrapper.js";
+import { CrumbsContractWrapper } from "@core/implementations/utilities/factory/CrumbsContractWrapper.js";
+import { MinimalForwarderContractWrapper } from "@core/implementations/utilities/factory/MinimalForwarderContractWrapper";
+import { SiftContractWrapper } from "@core/implementations/utilities/factory/SiftContractWrapper";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -54,12 +57,28 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
-    ]).map(([provider, config]) => {
-      return new ConsentFactoryContract(
-        provider,
+      this.blockchainProvider.getPrimaryProvider(),
+      this.blockchainProvider.getSecondaryProvider(),
+    ]).map(([config, primaryProvider, secondaryProvider]) => {
+      const primary = new ConsentFactoryContract(
+        primaryProvider,
         config.controlChainInformation.consentFactoryContractAddress,
+      );
+
+      const secondary =
+        secondaryProvider != null
+          ? new ConsentFactoryContract(
+              secondaryProvider,
+              config.controlChainInformation.consentFactoryContractAddress,
+            )
+          : null;
+
+      return new ConsentFactoryContractWrapper(
+        primary,
+        secondary,
+        this.contextProvider,
+        this.logUtils,
       );
     });
   }
@@ -105,12 +124,28 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
-    ]).map(([provider, config]) => {
-      return new CrumbsContract(
-        provider,
-        config.controlChainInformation.crumbsContractAddress,
+      this.blockchainProvider.getPrimaryProvider(),
+      this.blockchainProvider.getSecondaryProvider(),
+    ]).map(([config, primaryProvider, secondaryProvider]) => {
+      const primary = new CrumbsContract(
+        primaryProvider,
+        config.controlChainInformation.consentFactoryContractAddress,
+      );
+
+      const secondary =
+        secondaryProvider != null
+          ? new CrumbsContract(
+              secondaryProvider,
+              config.controlChainInformation.consentFactoryContractAddress,
+            )
+          : null;
+
+      return new CrumbsContractWrapper(
+        primary,
+        secondary,
+        this.contextProvider,
+        this.logUtils,
       );
     });
   }
@@ -120,12 +155,28 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
-    ]).map(([provider, config]) => {
-      return new MinimalForwarderContract(
-        provider,
+      this.blockchainProvider.getPrimaryProvider(),
+      this.blockchainProvider.getSecondaryProvider(),
+    ]).map(([config, primaryProvider, secondaryProvider]) => {
+      const primary = new MinimalForwarderContract(
+        primaryProvider,
         config.controlChainInformation.metatransactionForwarderAddress,
+      );
+
+      const secondary =
+        secondaryProvider != null
+          ? new MinimalForwarderContract(
+              secondaryProvider,
+              config.controlChainInformation.metatransactionForwarderAddress,
+            )
+          : null;
+
+      return new MinimalForwarderContractWrapper(
+        primary,
+        secondary,
+        this.contextProvider,
+        this.logUtils,
       );
     });
   }
@@ -135,12 +186,28 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getPrimaryProvider(),
       this.configProvider.getConfig(),
-    ]).map(([provider, config]) => {
-      return new SiftContract(
-        provider,
+      this.blockchainProvider.getPrimaryProvider(),
+      this.blockchainProvider.getSecondaryProvider(),
+    ]).map(([config, primaryProvider, secondaryProvider]) => {
+      const primary = new SiftContract(
+        primaryProvider,
         config.controlChainInformation.siftContractAddress,
+      );
+
+      const secondary =
+        secondaryProvider != null
+          ? new SiftContract(
+              secondaryProvider,
+              config.controlChainInformation.siftContractAddress,
+            )
+          : null;
+
+      return new SiftContractWrapper(
+        primary,
+        secondary,
+        this.contextProvider,
+        this.logUtils,
       );
     });
   }

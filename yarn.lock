@@ -7661,6 +7661,7 @@ __metadata:
     ethers: ^5.6.6
     inversify: ^5.1.1
     jsonwebtoken: ^9.0.0
+    measured-core: ^2.0.0
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
@@ -13097,6 +13098,13 @@ __metadata:
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
   checksum: ccd267956c58d2315f5d3ea6757cf09863c5fc703e50fbeb13a7dc849b812ef76e3cf9ca8f35a0c48498776a7478d7b4a0418e1e2b8cb9cb9731f2922aaad7f8
+  languageName: node
+  linkType: hard
+
+"binary-search@npm:^1.3.3":
+  version: 1.3.6
+  resolution: "binary-search@npm:1.3.6"
+  checksum: 2e6b3459a9c1ba1bd674a6a855a5ef7505f70707422244430e3510e989c0df6074a49fe60784a98b93b51545c9bcace1db1defee06ff861b124c036a2f2836bf
   languageName: node
   linkType: hard
 
@@ -28262,6 +28270,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"measured-core@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "measured-core@npm:2.0.0"
+  dependencies:
+    binary-search: ^1.3.3
+    optional-js: ^2.0.0
+  checksum: 73f0f318096bccc005f0a46da45b1a7e99ad6e8d3c7a6c27019b7a67bf4f9ace7ced1aba0f573d75b78f5f92a673ca0a7038daae524b0e11efad639a3ea71eef
+  languageName: node
+  linkType: hard
+
 "media-typer@npm:0.3.0":
   version: 0.3.0
   resolution: "media-typer@npm:0.3.0"
@@ -30952,6 +30970,13 @@ __metadata:
   bin:
     opener: bin/opener-bin.js
   checksum: 33b620c0d53d5b883f2abc6687dd1c5fd394d270dbe33a6356f2d71e0a2ec85b100d5bac94694198ccf5c30d592da863b2292c5539009c715a9c80c697b4f6cc
+  languageName: node
+  linkType: hard
+
+"optional-js@npm:^2.0.0":
+  version: 2.3.0
+  resolution: "optional-js@npm:2.3.0"
+  checksum: f957ed47291c23b4fc54cd46df10606f2c8e7784210ee200446900b1bec9dcafc9e80f351e88939a4b5a03d405b0513a8dbdf7a39599d780e6d980015928be01
   languageName: node
   linkType: hard
 
