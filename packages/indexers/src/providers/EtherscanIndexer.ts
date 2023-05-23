@@ -102,24 +102,24 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this.getNonNativeBalance(chainId, accountAddress),
-      this.getNativeBalance(chainId, accountAddress),
+      this.getNonNativeBalance(chain, accountAddress),
+      this.getNativeBalance(chain, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
       return [nativeBalance, ...nonNativeBalance];
     });
   }
 
   private getNativeBalance(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this._getEtherscanApiKey(chainId),
-      getEtherscanBaseURLForChain(chainId),
+      this._getEtherscanApiKey(chain),
+      getEtherscanBaseURLForChain(chain),
     ])
       .andThen(([apiKey, baseURL]) => {
         const url = new URL(
@@ -136,24 +136,24 @@ export class EtherscanIndexer implements IEVMIndexer {
       .map((response) => {
         const nativeBalance = new TokenBalance(
           EChainTechnology.EVM,
-          TickerSymbol(getChainInfoByChainId(chainId).nativeCurrency.symbol),
-          chainId,
+          TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
+          getChainInfoByChain(chain).chainId,
           null,
           accountAddress,
           BigNumberString(response.result),
-          getChainInfoByChainId(chainId).nativeCurrency.decimals,
+          getChainInfoByChain(chain).nativeCurrency.decimals,
         );
         return nativeBalance;
       });
   }
 
   private getNonNativeBalance(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this._getEtherscanApiKey(chainId),
-      getEtherscanBaseURLForChain(chainId),
+      this._getEtherscanApiKey(chain),
+      getEtherscanBaseURLForChain(chain),
     ])
       .andThen(([apiKey, baseURL]) => {
         const url = new URL(
@@ -191,7 +191,7 @@ export class EtherscanIndexer implements IEVMIndexer {
               new TokenBalance(
                 EChainTechnology.EVM,
                 TickerSymbol(item.TokenSymbol),
-                chainId,
+                getChainInfoByChain(chain).chainId,
                 EVMContractAddress(item.TokenAddress),
                 accountAddress,
                 BigNumberString(item.TokenQuantity),
@@ -210,7 +210,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   protected _paginateTransactions(
-    chain: ChainId,
+    chain: EChain,
     params: IEtherscanRequestParameters,
     maxRecords: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError> {
@@ -251,7 +251,7 @@ export class EtherscanIndexer implements IEVMIndexer {
             const txs = response.result.map((tx) => {
               // etherscan uses "" instead of null
               return new EVMTransaction(
-                chain,
+                getChainInfoByChain(chain).chainId,
                 EVMTransactionHash(tx.hash),
                 UnixTimestamp(Number.parseInt(tx.timeStamp)),
                 tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
@@ -270,11 +270,13 @@ export class EtherscanIndexer implements IEVMIndexer {
             });
 
             params.page += 1;
-            return this._paginateTransactions(chain, params, maxRecords).map(
-              (otherTxs) => {
-                return [...txs, ...otherTxs];
-              },
-            );
+            return this._paginateTransactions(
+              getChainInfoByChain(chain).chainId,
+              params,
+              maxRecords,
+            ).map((otherTxs) => {
+              return [...txs, ...otherTxs];
+            });
           })
           .mapErr((e) => {
             return new AccountIndexingError("error fetching transactions", e);
@@ -283,7 +285,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   private _getBlockNumber(
-    chain: ChainId,
+    chain: EChain,
     timestamp: Date | undefined,
   ): ResultAsync<number, AccountIndexingError> {
     if (timestamp == undefined) {
@@ -325,16 +327,17 @@ export class EtherscanIndexer implements IEVMIndexer {
   }
 
   protected _getEtherscanApiKey(
-    chain: ChainId,
+    chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      if (!config.etherscanApiKeys.has(chain)) {
+      const chainId = getChainInfoByChain(chain).chainId;
+      if (!config.etherscanApiKeys.has(chainId)) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chain)!);
+      return okAsync(config.etherscanApiKeys.get(chainId)!);
     });
   }
 

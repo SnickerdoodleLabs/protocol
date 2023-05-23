@@ -3,7 +3,7 @@ const envVars = {
   __CONTROL_CHAIN_ID__: 31337,
   __ONBOARDING_URL__: "http://localhost:9001/",
   __ACCOUNT_COOKIE_URL__: "https://snickerdoodlelabs.io/",
-  __SUPPORTED_CHAINS__: "5,43113,31337,-1,100,56,1284",
+  __SUPPORTED_CHAINS__: "5,43113,31337,-1,100,56,1284,42161,592",
   __IPFS_FETCH_BASE_URL__: "http://localhost:8080/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "http://localhost:3001/v0/",
   __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",

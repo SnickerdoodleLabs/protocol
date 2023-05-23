@@ -85,12 +85,12 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
     return ResultUtils.combine([
-      this._getEtherscanApiKey(chainId),
-      this._getBlockExplorerUrl(chainId),
+      this._getEtherscanApiKey(chain),
+      this._getBlockExplorerUrl(chain),
     ]).andThen(([apiKey, explorerUrl]) => {
       const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
 
@@ -101,12 +101,12 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
         )
         .map((balanceResponse) => {
           const tokenBalances: TokenBalance[] = [];
-          const chainInfo = getChainInfoByChainId(chainId);
+          const chainInfo = getChainInfoByChain(chain);
           tokenBalances.push(
             new TokenBalance(
               EChainTechnology.EVM,
               TickerSymbol(chainInfo.nativeCurrency.symbol),
-              chainId,
+              chainInfo.chainId,
               null,
               accountAddress,
               balanceResponse.result,
@@ -119,9 +119,9 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   }
 
   protected _getBlockExplorerUrl(
-    chain: ChainId,
+    chain: EChain,
   ): ResultAsync<URLString, AccountIndexingError> {
-    const chainInfo = chainConfig.get(chain);
+    const chainInfo = getChainInfoByChain(chain);
     if (chainInfo == undefined) {
       this.logUtils.error("Error inside _getEtherscanApiKey");
       return errAsync(
@@ -134,17 +134,18 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   }
 
   protected _getEtherscanApiKey(
-    chain: ChainId,
+    chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      if (!config.etherscanApiKeys.has(chain)) {
+      const chainId = getChainInfoByChain(chain).chainId;
+      if (!config.etherscanApiKeys.has(chainId)) {
         this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chain)!);
+      return okAsync(config.etherscanApiKeys.get(chainId)!);
     });
   }
 
