@@ -58,6 +58,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
         "deploy",
         [name, symbol, baseURI],
         contractOverrides,
+        true,
       );
     });
   }
@@ -89,7 +90,31 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     functionName: string,
     functionParams: any[],
     overrides?: ContractOverrides,
+    isDeployingContract?: boolean,
   ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
+    // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
+    if (isDeployingContract == true) {
+      return ResultAsync.fromPromise(
+        this.contractFactory[functionName](...functionParams, {
+          ...overrides,
+        }) as Promise<ethers.Contract>,
+        (e) => {
+          return new RewardsFactoryError(
+            `Unable to call ${functionName}()`,
+            (e as IBlockchainError).reason,
+            e,
+          );
+        },
+      ).map((tx) => {
+        return this.toWrappedTransactionResponse(
+          tx.deployTransaction,
+          functionName,
+          functionParams,
+        );
+      });
+    }
+
+    // If we are not deploying a contract, the contract function call returns the txresponse
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {
         ...overrides,
