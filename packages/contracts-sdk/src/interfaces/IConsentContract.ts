@@ -115,10 +115,6 @@ export interface IConsentContract {
     newAgreementFlags: HexString32,
   ): ResultAsync<void, ConsentContractError>;
 
-  updateAgreementFlags(
-    tokenId: TokenId,
-    newAgreementFlags: HexString32,
-  ): ResultAsync<void, ConsentContractError>;
   encodeUpdateAgreementFlags(
     tokenId: TokenId,
     newAgreementFlags: HexString32,
