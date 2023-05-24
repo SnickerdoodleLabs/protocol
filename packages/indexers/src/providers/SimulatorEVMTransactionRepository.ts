@@ -16,9 +16,9 @@ import {
   TokenBalance,
   TokenUri,
   UnixTimestamp,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
-import { EChain } from "packages/objects/src";
 
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {

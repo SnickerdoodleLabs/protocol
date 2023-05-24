@@ -28,12 +28,11 @@ import {
   MethodSupportError,
   getChainInfoByChain,
   EComponentStatus,
+  IIndexer,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-// import { CoinGeckoTokenInfo } from "packages/objects/src";
-import { IIndexer } from "packages/objects/src";
 import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
 

@@ -49,8 +49,7 @@ import {
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils/dist";
-import { ComponentStatus } from "packages/objects/src";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IIndexerConfigProvider,

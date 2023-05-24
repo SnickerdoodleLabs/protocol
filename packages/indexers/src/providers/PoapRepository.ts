@@ -18,11 +18,11 @@ import {
   TokenUri,
   UnixTimestamp,
   MethodSupportError,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EChain } from "packages/objects/src";
 import { urlJoinP } from "url-join-ts";
 
 import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";

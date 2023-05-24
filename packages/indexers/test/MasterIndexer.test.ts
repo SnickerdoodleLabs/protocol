@@ -56,6 +56,7 @@ class MasterIndexerMocks {
     this.sim = td.object<IEVMIndexer>();
     this.sol = td.object<ISolanaIndexer>();
 
+    this.configProvider = td.object<IIndexerConfigProvider>();
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
     this.tokenPriceRepo = td.object<ITokenPriceRepository>();
     this.logUtils = td.object<ILogUtils>();

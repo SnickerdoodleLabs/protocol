@@ -21,11 +21,11 @@ import {
   EVMNFT,
   MethodSupportError,
   EComponentStatus,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { EChain } from "packages/objects/src";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {

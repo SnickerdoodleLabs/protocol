@@ -9,9 +9,9 @@ import {
   AccountIndexingError,
   SolanaTransaction,
   TokenBalance,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
-import { EChain } from "packages/objects/src";
 
 export class DummySolanaIndexer
   implements
