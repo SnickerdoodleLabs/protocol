@@ -15,10 +15,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: scrapping
+      - name: scrapping coin list
         run: |-
-          python infra/scrapper/coin_list_gen.py
-          mv data.json packages/indexers/coinList.json 
+          python infra/scrapper/coin_list_gen.py  
+      - name: scrapping price list
+        run: |-
+          python infra/scrapper/coin_price_gen.py
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:

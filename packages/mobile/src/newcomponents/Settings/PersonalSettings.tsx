@@ -37,7 +37,7 @@ export default function PersonalSettings() {
             fontWeight: "700",
             fontSize: normalizeWidth(24),
             color: "#424242",
-            marginTop: normalizeHeight(60),
+            marginTop: normalizeHeight(10),
           }}
         >
           Personal Info

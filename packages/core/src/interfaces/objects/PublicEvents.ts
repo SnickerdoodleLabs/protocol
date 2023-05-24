@@ -1,10 +1,11 @@
 import {
   DataWalletAddress,
   DataWalletBackupID,
-  EarnedReward,
   DomainName,
+  EarnedReward,
   EVMContractAddress,
   EVMTransaction,
+  IpfsCID,
   ISnickerdoodleCoreEvents,
   LinkedAccount,
   MetatransactionSignatureRequest,
@@ -12,10 +13,11 @@ import {
   PermissionsRequestedEvent,
   PortfolioUpdate,
   SDQLQueryRequest,
-  SnowflakeID,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
   TokenBalance,
   WalletNFT,
-  IpfsCID,
+  DataPermissionsUpdatedEvent,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -27,6 +29,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onAccountRemoved: Subject<LinkedAccount>;
   public onCohortJoined: Subject<EVMContractAddress>;
   public onCohortLeft: Subject<EVMContractAddress>;
+  public onDataPermissionsUpdated: Subject<DataPermissionsUpdatedEvent>;
   public onTransaction: Subject<EVMTransaction>;
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
@@ -36,8 +39,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
   public onPermissionsRevoked: Subject<DomainName>;
-  public onDiscordProfileLinked: Subject<SnowflakeID>;
-  public onDiscordProfileUnlinked: Subject<SnowflakeID>;
+  public onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
+  public onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -47,6 +50,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onAccountRemoved = new Subject();
     this.onCohortJoined = new Subject();
     this.onCohortLeft = new Subject();
+    this.onDataPermissionsUpdated = new Subject();
     this.onTransaction = new Subject();
     this.onMetatransactionSignatureRequested = new Subject();
     this.onTokenBalanceUpdate = new Subject();
@@ -56,7 +60,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsGranted = new Subject();
     this.onPermissionsRequested = new Subject();
     this.onPermissionsRevoked = new Subject();
-    this.onDiscordProfileLinked = new Subject();
-    this.onDiscordProfileUnlinked = new Subject();
+    this.onSocialProfileLinked = new Subject();
+    this.onSocialProfileUnlinked = new Subject();
   }
 }

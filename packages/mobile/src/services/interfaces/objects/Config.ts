@@ -4,6 +4,7 @@ import {
   ChainId,
   IConfigOverrides,
   URLString,
+  ProviderUrl,
 } from "@snickerdoodlelabs/objects";
 
 const SIX_HOURS_MS = 21600000;
@@ -42,4 +43,6 @@ export const coreConfig = {
     [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
     [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
   ]),
+  primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
+  devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
 } as IConfigOverrides;

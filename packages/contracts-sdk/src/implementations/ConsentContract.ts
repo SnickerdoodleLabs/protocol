@@ -1,11 +1,3 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import {
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles, Tag } from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
@@ -32,7 +24,16 @@ import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-// Note: Functions that write to the chain should return a WrappedTransactionResponse using the WrappedTransactionResponseBuilder.
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  Tag,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+
 @injectable()
 export class ConsentContract implements IConsentContract {
   protected contract: ethers.Contract;
@@ -175,6 +176,47 @@ export class ConsentContract implements IConsentContract {
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
+  }
+
+  public updateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.updateAgreementFlags(
+        tokenId,
+        newAgreementFlags,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call updateAgreementFlags()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for updateAgreementFlags() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public encodeUpdateAgreementFlags(
+    tokenId: TokenId,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("updateAgreementFlags", [
+        tokenId,
+        agreementFlags,
+      ]),
+    );
   }
 
   public requestForData(

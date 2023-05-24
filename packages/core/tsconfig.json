@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "module": "ES2022",
+    "module": "ESNext",
     "paths": {
       "@core/*": [
         "./packages/core/src/*"
@@ -40,7 +40,7 @@
     }
   ],
   "include": [
-    "./src/**/*.ts" ],
+    "./src/**/*.ts", "./src/**/*.json" ],
   "exclude": [
     "node_modules"
   ]
