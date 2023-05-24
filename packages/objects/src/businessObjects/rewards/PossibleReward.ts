@@ -11,7 +11,7 @@ export class PossibleReward {
   constructor(
     readonly queryCID: IpfsCID,
     readonly compensationKey: CompensationKey,
-    // readonly queryDependencies: QueryTypes[],
+    readonly estimatedQueryDependencies: QueryTypes[], // never use this in any business logic, because it is largely incorrect. Use this in SPA to hint at which queries the user should be giving permission to. This is only for form factors.
     readonly name: string,
     readonly image: IpfsCID | URLString | null,
     readonly description: string,

@@ -44,7 +44,7 @@ const RewardDetail: FC = () => {
   );
   const _permissions = permissions
     ? permissions
-    : (reward as PossibleReward).queryDependencies.map(
+    : (reward as PossibleReward).estimatedQueryDependencies.map(
         (queryType) => QueryTypePermissionMap.get(queryType)!,
       );
   return (

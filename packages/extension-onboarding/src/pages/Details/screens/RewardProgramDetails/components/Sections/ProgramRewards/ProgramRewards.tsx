@@ -137,7 +137,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
                       : "default"
                   }
                   consentContractAddress={consentContractAddress}
-                  badgeType={getBadge(reward.queryDependencies)}
+                  badgeType={getBadge(reward.estimatedQueryDependencies)}
                   reward={reward}
                 />
               </Box>

@@ -44,8 +44,8 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
   };
 
   const getBadge = useCallback(
-    (queryDependencies: QueryTypes[]) =>
-      queryDependencies
+    (estimatedQueryDependencies: QueryTypes[]) =>
+      estimatedQueryDependencies
         .map((dependency) => QueryTypePermissionMap.get(dependency)!)
         .every((dataType) => defaultPermissions.includes(dataType))
         ? EBadgeType.Available
@@ -98,7 +98,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
                 consentContractAddress={consentContractAddress}
                 badgeType={
                   type === EPossibleRewardDisplayType.ProgramRewards
-                    ? getBadge(reward.queryDependencies)
+                    ? getBadge(reward.estimatedQueryDependencies)
                     : badge
                 }
                 reward={reward}

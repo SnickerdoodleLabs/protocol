@@ -157,7 +157,7 @@ const useCampaignItemLogic = ({
             ),
         )
         .reduce((acc, item) => {
-          const requiredDataTypes = item.queryDependencies.map(
+          const requiredDataTypes = item.estimatedQueryDependencies.map(
             (queryType) => QueryTypePermissionMap.get(queryType)!,
           );
           const permissionsMatched = dataTypes

@@ -127,7 +127,7 @@ const RewardProgramDetails: FC = () => {
 
   const handleSubscribeButton = () => {
     rewardsRef.current = programRewards.reduce((acc, item) => {
-      const requiredDataTypes = item.queryDependencies.map(
+      const requiredDataTypes = item.estimatedQueryDependencies.map(
         (queryType) => QueryTypePermissionMap.get(queryType)!,
       );
       const permissionsMatched = requiredDataTypes.every((item) =>
@@ -236,7 +236,7 @@ const RewardProgramDetails: FC = () => {
 
     // get eligibleRewards
     const eligibleRewards = possibleRewards.reduce((acc, item) => {
-      const requiredDataTypes = item.queryDependencies.map(
+      const requiredDataTypes = item.estimatedQueryDependencies.map(
         (queryType) => QueryTypePermissionMap.get(queryType)!,
       );
       const permissionsMatched = requiredDataTypes.every((item) =>

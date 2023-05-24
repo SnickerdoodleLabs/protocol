@@ -95,7 +95,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
                 // temporary to read required permissions
                 (possibleRewards
                   .find((item) => isSameReward(item, reward))
-                  ?.queryDependencies.map(
+                  ?.estimatedQueryDependencies.map(
                     (dependency) => QueryTypePermissionMap.get(dependency)!,
                   ) ?? []) as EWalletDataType[],
               )}

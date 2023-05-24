@@ -58,7 +58,7 @@ export default ({
 
   const permissions: EWalletDataType[] = useMemo(
     () =>
-      reward.queryDependencies.map(
+      reward.estimatedQueryDependencies.map(
         (dependency) => QueryTypePermissionMap.get(dependency)!,
       ),
     [reward],
