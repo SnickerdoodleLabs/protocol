@@ -66,21 +66,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected adDataRepository: IAdDataRepository,
   ) {}
 
-  public getPermittedQueryIdsAndExpectedRewards(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[SubQueryKey[], ExpectedReward[]], EvaluationError> {
-    return okAsync([ [], []])
-  }
-
-  public getPossibleRewards(
-    query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError> {
-    return okAsync([])
-  }
- 
-
   
 
   public handleQuery(
@@ -90,49 +75,45 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IQueryDeliveryItems,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    return this.queryFactories
-      .makeParserAsync(query.cid, query.query)
-      .andThen((sdqlParser) => {
-        return  this.gatherDeliveryItems(sdqlParser, query.cid, dataPermissions);
-      });
+    return this.parseQuery(query).andThen((ast) => {
+      return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
+    });
+  }
+
+  public parseQuery(query: SDQLQuery): ResultAsync<AST, ParserError> {
+    return this.queryFactories.makeParserAsync(query.cid, query.query).andThen( (sdqlParser) => sdqlParser.buildAST());
   }
 
   protected gatherDeliveryItems(
-    sdqlParser: SDQLParser,
+    ast: AST,
     cid: IpfsCID,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-  IQueryDeliveryItems,
+    IQueryDeliveryItems,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    return sdqlParser.buildAST().andThen((ast: AST) => {
 
       const astEvaluator = this.queryFactories.makeAstEvaluator(
         cid,
         dataPermissions,
       );
 
-      const insightProm = this.gatherDeliveryInsights(
-        ast,
-        astEvaluator
-      );
-       
-     
-   
-       const adSigProm = this.gatherDeliveryAds(
-         sdqlParser,
-         cid,
-         dataPermissions,
-       );
+      const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
 
-       return ResultUtils.combine([insightProm, adSigProm]).map(
+      const adSigProm = this.gatherDeliveryAds(
+        ast,
+        cid,
+        dataPermissions,
+      );
+
+      return ResultUtils.combine([insightProm, adSigProm]).map(
         ([insightWithProofs, adSigs]) => {
           return {
             insights: insightWithProofs,
             ads: adSigs,
           };
-         },
-     );
+        },
+      );
 
       // return ResultUtils.combine(
       //   this.evalReturns(ast, dataPermissions, astEvaluator),
@@ -154,73 +135,61 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       // } as IQueryDeliveryItems;
       //   return items;
       // })
-    });
+
   }
 
   protected gatherDeliveryInsights(
     ast: AST,
-    astEvaluator : AST_Evaluator
+    astEvaluator: AST_Evaluator,
   ): ResultAsync<
     IQueryDeliveryInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     const subQueryArray = Array.from(ast.subqueries);
-    return ResultUtils.combine(subQueryArray.map( ([_qName , subQuery]) => {
-      return astEvaluator.evalAny(subQuery)
-    })).map( (insights) => {
-      return this.createDeliverInsightObject(insights , subQueryArray)
-    })
+    return ResultUtils.combine(
+      subQueryArray.map(([_qName, subQuery]) => {
+        return astEvaluator.evalAny(subQuery);
+      }),
+    ).map((insights) => {
+      return this.createDeliverInsightObject(insights, subQueryArray);
+    });
   }
 
-  protected createDeliverInsightObject(insights : SDQL_Return[] , subQueryArray : [SDQL_Name, AST_SubQuery][]){
-    return subQueryArray.reduce<IQueryDeliveryInsights>( ( deliveryInsights , [queryName] , currentIndex ) => {
-      const insightString = this.SDQLReturnToInsight(insights[currentIndex])
-      if(insightString){
-        deliveryInsights[queryName] = { insight :  InsightString(insightString) , proof : ProofString("")  } 
-      }else{
-        deliveryInsights[queryName] = null;
-      }
-      return deliveryInsights;
-    } , {})
+  protected createDeliverInsightObject(
+    insights: SDQL_Return[],
+    subQueryArray: [SDQL_Name, AST_SubQuery][],
+  ) {
+    return subQueryArray.reduce<IQueryDeliveryInsights>(
+      (deliveryInsights, [queryName], currentIndex) => {
+        const insightString = this.SDQLReturnToInsight(insights[currentIndex]);
+        if (insightString) {
+          deliveryInsights[queryName] = {
+            insight: InsightString(insightString),
+            proof: ProofString(""),
+          };
+        } else {
+          deliveryInsights[queryName] = null;
+        }
+        return deliveryInsights;
+      },
+      {},
+    );
   }
-
 
   protected gatherDeliveryAds(
-    sdqlParser: SDQLParser,
+    ast: AST,
     cid: IpfsCID,
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryAds,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const gatherDeliveryAds : IQueryDeliveryAds = {};
-    sdqlParser.ads.forEach( (value , key, map) => {
+    const gatherDeliveryAds: IQueryDeliveryAds = {};
+    ast.ads.forEach((value, key, map) => {
       gatherDeliveryAds[value.key] = null;
-    })
+    });
     return okAsync(gatherDeliveryAds);
     //return errAsync(new EvaluationError("Not implemented"));
-  }
-
-  protected constructExpectedRewards(
-    iSDQLCompensationsMap: Map<CompensationKey, ISDQLCompensations>,
-  ): ExpectedReward[] {
-    const expectedRewardList: ExpectedReward[] = [];
-    for (const currentKeyAsString in iSDQLCompensationsMap) {
-      const currentSDQLCompensationsKey = CompensationKey(currentKeyAsString);
-      const currentSDQLCompensationsObject: ISDQLCompensations =
-        iSDQLCompensationsMap[currentSDQLCompensationsKey];
-
-      expectedRewardList.push(
-        new ExpectedReward(
-          currentSDQLCompensationsKey,
-          currentSDQLCompensationsObject.description,
-          currentSDQLCompensationsObject.chainId,
-          JSON.stringify(currentSDQLCompensationsObject.callback),
-          ERewardType.Direct,
-        ),
-      );
-    }
-    return expectedRewardList;
   }
 
   protected constructAndSaveEligibleAds(

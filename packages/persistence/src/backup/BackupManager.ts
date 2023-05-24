@@ -98,12 +98,15 @@ export class BackupManager implements IBackupManager {
     recordKey: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
+    
     return this.volatileStorage.getKey(recordKey, value.data).andThen((key) => {
+      
       return this._checkRecordUpdateRecency(
         recordKey,
         key,
         value.lastUpdate,
       ).andThen((valid) => {
+        
         if (!valid) {
           return okAsync(undefined);
         }
@@ -377,16 +380,18 @@ export class BackupManager implements IBackupManager {
     if (key == null) {
       return okAsync(true);
     }
-
+    
     // Get the object out of storage.
     return this.volatileStorage
       .getObject<T>(tableName, key, true)
       .andThen((found) => {
+       
         // Given that we passed it what should have been a valid key from getKey(), this
         // if may be perfunctory
         if (found == null) {
           return okAsync(true);
         }
+       
         return okAsync(found.lastUpdate < timestamp);
       });
   }

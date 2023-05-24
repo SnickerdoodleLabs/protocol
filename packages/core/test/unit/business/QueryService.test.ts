@@ -509,13 +509,7 @@ describe("processRewardsPreview tests", () => {
     td.when(
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
-    td.when(
-      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-        sdqlQuery,
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync([[], []]));
+   
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1),
       mocks.contextProvider.getContext(),
@@ -538,13 +532,9 @@ describe("processRewardsPreview tests", () => {
       return mocks.consentContractRepo
         .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-            query,
-            new DataPermissions(allPermissions),
-            consentContractAddress,
-          );
+          return okAsync(null)
         })
-        .andThen((rewardsPreviews) => {
+        .andThen(() => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,

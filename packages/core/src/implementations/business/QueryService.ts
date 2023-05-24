@@ -43,6 +43,9 @@ import {
   InsightKey,
   AdKey,
   DataPermissions,
+  SDQL_Name,
+  ISDQLCompensations,
+  ERewardType,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -204,6 +207,56 @@ export class QueryService implements IQueryService {
     });
   }
 
+
+  protected getPermittedQueryIdsAndExpectedRewards(
+    query: SDQLQuery,
+    dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<[SubQueryKey[], ExpectedReward[]], EvaluationError> {
+    return this.queryParsingEngine.parseQuery(query).andThen((sdqlParser) => {
+      const iSDQLCompensationsMap: Map<SDQL_Name, ISDQLCompensations> = new Map(
+        Array.from(sdqlParser.compensations, ([key, value]) => [
+          key,
+          value as ISDQLCompensations,
+        ]),
+      );
+
+      const expectedRewards = this.constructExpectedRewards(
+        iSDQLCompensationsMap,
+      );
+      const subQueryKeys = Array.from(iSDQLCompensationsMap.keys()).map((key) =>
+        SubQueryKey(key),
+      );
+
+      return okAsync<[SubQueryKey[], ExpectedReward[]]>([
+        subQueryKeys,
+        expectedRewards,
+      ]);
+    });
+  }
+
+  protected constructExpectedRewards(
+    iSDQLCompensationsMap: Map<SDQL_Name, ISDQLCompensations>,
+  ): ExpectedReward[] {
+    const expectedRewardList: ExpectedReward[] = [];
+
+    for (const [currentKeyAsString] of iSDQLCompensationsMap) {
+      const currentSDQLCompensationsKey = SDQL_Name(currentKeyAsString);
+      const currentSDQLCompensationsObject: ISDQLCompensations =
+        iSDQLCompensationsMap.get(currentSDQLCompensationsKey)!;
+
+      expectedRewardList.push(
+        new ExpectedReward(
+          currentSDQLCompensationsKey,
+          currentSDQLCompensationsObject.description,
+          currentSDQLCompensationsObject.chainId,
+          JSON.stringify(currentSDQLCompensationsObject.callback),
+          ERewardType.Direct,
+        ),
+      );
+    }
+    return expectedRewardList;
+  }
   public createQueryStatusWithNoConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,

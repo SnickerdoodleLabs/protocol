@@ -1,9 +1,11 @@
 import {
   ChainId,
   CompensationKey,
+  IpfsCID,
   ISDQLCallback,
   ISDQLConditionString,
   SDQL_Name,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
 import { AST_RequireExpr } from "@query-parser/index.js";
@@ -17,5 +19,6 @@ export class AST_Compensation {
     readonly chainId: ChainId,
     readonly callback: ISDQLCallback,
     readonly alternatives: CompensationKey[],
+    readonly image : IpfsCID | URLString | null
   ) {}
 }

@@ -10,21 +10,17 @@ import {
   SDQLQuery,
   IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
+import { AST, SDQLParser } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
-  getPermittedQueryIdsAndExpectedRewards(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[SubQueryKey[], ExpectedReward[]], EvaluationError>;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<IQueryDeliveryItems , EvaluationError | QueryFormatError>;
-  getPossibleRewards(
+  parseQuery(
     query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError>;
+  ): ResultAsync<AST, ParserError>;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");

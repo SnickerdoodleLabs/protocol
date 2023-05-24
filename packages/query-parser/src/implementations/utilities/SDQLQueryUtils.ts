@@ -31,6 +31,7 @@ import {
   AST_Insight,
   Command,
   Command_IF,
+  ISDQLQueryUtils,
   SDQLParser,
 } from "@query-parser/index.js";
 import {
@@ -43,7 +44,7 @@ import {
 } from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
 
 @injectable()
-export class SDQLQueryUtils {
+export class SDQLQueryUtils implements ISDQLQueryUtils {
   public constructor(
     @inject(ISDQLParserFactoryType)
     protected parserFactory: ISDQLParserFactory,

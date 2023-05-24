@@ -118,7 +118,7 @@ export interface ISDQLCompensations {
   name: string;
   image: IpfsCID | URLString | null;
   description: string;
-  requires?: ISDQLConditionString;
+  requiresRaw?: ISDQLConditionString;
   chainId: ChainId;
   callback: ISDQLCallback;
   alternatives?: CompensationKey[];
