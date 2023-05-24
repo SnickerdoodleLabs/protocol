@@ -73,7 +73,6 @@ export class ExtensionCore {
       oklinkApiKey: config.oklinkApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
-      controlChainProviderURL: config.controlChainProviderUrl,
       accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,
       accountIndexingPollingIntervalMS: config.transactionPollingIntervalMS,
       accountNFTPollingIntervalMS: config.portfolioPollingIntervalMS,
@@ -83,6 +82,9 @@ export class ExtensionCore {
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
       enableBackupEncryption: config.enableBackupEncryption,
       discordOverrides: config.discordOverrides,
+      twitterOverrides: config.twitterOverrides,
+      primaryInfuraKey: config.primaryInfuraKey,
+      devChainProviderURL: config.devChainProviderURL,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

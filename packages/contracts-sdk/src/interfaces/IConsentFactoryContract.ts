@@ -1,9 +1,4 @@
 import {
-  WrappedTransactionResponse,
-  ContractOverrides,
-} from "@contracts-sdk/interfaces/objects";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import {
   BaseURI,
   BigNumberString,
   ConsentFactoryContractError,
@@ -15,6 +10,10 @@ import {
   MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface IConsentFactoryContract {
   /**
@@ -145,5 +144,6 @@ export interface IConsentFactoryContract {
    */
   getListingsByTag(
     tag: MarketplaceTag,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 }

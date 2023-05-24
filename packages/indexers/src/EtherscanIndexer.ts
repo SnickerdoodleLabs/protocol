@@ -23,6 +23,8 @@ import {
   UnixTimestamp,
   getChainInfoByChainId,
   getEtherscanBaseURLForChain,
+  EChain,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject } from "inversify";
@@ -83,97 +85,123 @@ export class EtherscanIndexer
   }
 
   public getBalancesForAccount(
-    chainId: ChainId,
+    chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
-      this._getEtherscanApiKey(chainId),
-      getEtherscanBaseURLForChain(chainId),
-    ]).andThen(([apiKey, baseURL]) => {
-      const url = new URL(
-        urlJoinP(baseURL, ["api"], {
-          module: "account",
-          action: "addresstokenbalance",
-          address: accountAddress,
-          page: 1,
-          offset: 1000,
-          apikey: apiKey,
-        }),
-      );
-
-      return this.ajaxUtils
-        .get<IEtherscanTokenBalanceResponse>(url)
-        .andThen((response) => {
-          if (response.status != "1") {
-            this.logUtils.warning(
-              "error fetching erc20 balances from etherscan",
-              response.message,
-              "usually indicates that the address has no tokens",
-            );
-            return okAsync([]);
-          }
-
-          return ResultUtils.combine(
-            response.result.map((item) => {
-              return this.tokenPriceRepo
-                .getTokenInfo(chainId, item.TokenAddress)
-                .andThen((info) => {
-                  if (info == null) {
-                    return okAsync(undefined);
-                  }
-
-                  return okAsync(
-                    new TokenBalance(
-                      EChainTechnology.EVM,
-                      TickerSymbol(item.TokenSymbol),
-                      chainId,
-                      EVMContractAddress(item.TokenAddress),
-                      accountAddress,
-                      BigNumberString(item.TokenQuantity),
-                      Number.parseInt(item.TokenDivisor),
-                    ),
-                  );
-                });
-            }),
-          ).andThen((balances) => {
-            return okAsync(
-              balances.filter((x) => x != undefined) as TokenBalance[],
-            );
-          });
-        })
-        .andThen((balances) => {
-          const url = new URL(
-            urlJoinP(baseURL, ["api"], {
-              module: "account",
-              action: "balance",
-              address: accountAddress,
-              tag: "latest",
-              apikey: apiKey,
-            }),
-          );
-
-          return this.ajaxUtils
-            .get<IEtherscanNativeBalanceResponse>(url)
-            .map((response) => {
-              const nativeBalance = new TokenBalance(
-                EChainTechnology.EVM,
-                TickerSymbol(
-                  getChainInfoByChainId(chainId).nativeCurrency.symbol,
-                ),
-                chainId,
-                null,
-                accountAddress,
-                BigNumberString(response.result),
-                getChainInfoByChainId(chainId).nativeCurrency.decimals,
-              );
-              return [nativeBalance, ...balances];
-            });
-        });
+      this.getNonNativeBalance(chain, accountAddress),
+      this.getNativeBalance(chain, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
     });
   }
 
+  private getNativeBalance(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this._getEtherscanApiKey(chain),
+      getEtherscanBaseURLForChain(chain),
+    ])
+      .andThen(([apiKey, baseURL]) => {
+        const url = new URL(
+          urlJoinP(baseURL, ["api"], {
+            module: "account",
+            action: "balance",
+            address: accountAddress,
+            tag: "latest",
+            apikey: apiKey,
+          }),
+        );
+        return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
+      })
+      .map((response) => {
+        const nativeBalance = new TokenBalance(
+          EChainTechnology.EVM,
+          TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
+          getChainInfoByChain(chain).chainId,
+          null,
+          accountAddress,
+          BigNumberString(response.result),
+          getChainInfoByChain(chain).nativeCurrency.decimals,
+        );
+        return nativeBalance;
+      });
+    // .mapErr((error) => {
+    //   return errAsync(
+    //     new AccountIndexingError(
+    //       "error fetching transactions from etherscan",
+    //       error.message,
+    //     ),
+    //   );
+    // })
+  }
+
+  private getNonNativeBalance(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this._getEtherscanApiKey(chain),
+      getEtherscanBaseURLForChain(chain),
+    ])
+      .andThen(([apiKey, baseURL]) => {
+        const url = new URL(
+          urlJoinP(baseURL, ["api"], {
+            module: "account",
+            action: "addresstokenbalance",
+            address: accountAddress,
+            page: 1,
+            offset: 1000,
+            apikey: apiKey,
+          }),
+        );
+        return this.ajaxUtils.get<IEtherscanTokenBalanceResponse>(url);
+      })
+      .andThen((response) => {
+        if (response.status != "1") {
+          this.logUtils.warning(
+            "error fetching erc20 balances from etherscan",
+            response.message,
+            "usually indicates that the address has no tokens",
+          );
+          return okAsync([]);
+        }
+
+        return ResultUtils.combine(
+          response.result.map((item) => {
+            if (
+              this.tokenPriceRepo.getTokenInfoFromList(item.TokenAddress) ==
+              undefined
+            ) {
+              return okAsync(undefined);
+            }
+
+            return okAsync(
+              new TokenBalance(
+                EChainTechnology.EVM,
+                TickerSymbol(item.TokenSymbol),
+                getChainInfoByChain(chain).chainId,
+                EVMContractAddress(item.TokenAddress),
+                accountAddress,
+                BigNumberString(item.TokenQuantity),
+                Number.parseInt(item.TokenDivisor),
+              ),
+            );
+          }),
+        );
+      })
+
+      .andThen((balances) => {
+        return okAsync(
+          balances.filter((x) => x != undefined) as TokenBalance[],
+        );
+      });
+  }
+
   protected _paginateTransactions(
-    chain: ChainId,
+    chain: EChain,
     params: IEtherscanRequestParameters,
     maxRecords: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError> {
@@ -214,7 +242,7 @@ export class EtherscanIndexer
             const txs = response.result.map((tx) => {
               // etherscan uses "" instead of null
               return new EVMTransaction(
-                chain,
+                getChainInfoByChain(chain).chainId,
                 EVMTransactionHash(tx.hash),
                 UnixTimestamp(Number.parseInt(tx.timeStamp)),
                 tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
@@ -233,11 +261,13 @@ export class EtherscanIndexer
             });
 
             params.page += 1;
-            return this._paginateTransactions(chain, params, maxRecords).map(
-              (otherTxs) => {
-                return [...txs, ...otherTxs];
-              },
-            );
+            return this._paginateTransactions(
+              getChainInfoByChain(chain).chainId,
+              params,
+              maxRecords,
+            ).map((otherTxs) => {
+              return [...txs, ...otherTxs];
+            });
           })
           .mapErr((e) => {
             return new AccountIndexingError("error fetching transactions", e);
@@ -246,7 +276,7 @@ export class EtherscanIndexer
   }
 
   private _getBlockNumber(
-    chain: ChainId,
+    chain: EChain,
     timestamp: Date | undefined,
   ): ResultAsync<number, AccountIndexingError> {
     if (timestamp == undefined) {
@@ -288,16 +318,17 @@ export class EtherscanIndexer
   }
 
   protected _getEtherscanApiKey(
-    chain: ChainId,
+    chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      if (!config.etherscanApiKeys.has(chain)) {
+      const chainId = getChainInfoByChain(chain).chainId;
+      if (!config.etherscanApiKeys.has(chainId)) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chain)!);
+      return okAsync(config.etherscanApiKeys.get(chainId)!);
     });
   }
 }

@@ -27,12 +27,12 @@ import {
   Age,
   CountryCode,
   DiscordGuildProfile,
-  DiscordProfile,
   ESocialType,
   EvalNotImplementedError,
   Gender,
   PersistenceError,
   SDQL_Return,
+  TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -49,8 +49,7 @@ import {
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -164,23 +163,15 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(transactionArray));
           });
       case "social_discord":
-        return this.socialRepo
-          .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
-          .map((profiles) =>
-            profiles.map((profile) => {
-              return {
-                id: profile.id,
-                name: profile.name,
-                icon: profile.icon,
-                joinedAt: profile.joinedAt,
-              };
-            }),
-          )
-          .map(SDQL_Return);
+        return this.getDiscordProfiles()
+      case "social_twitter":
+        return this.getTwitterFollowers()
       default:
         return okAsync(result);
     }
   }
+
+  
 
   public evalPropertyConditon(
     propertyVal: Age | CountryCode | null,
@@ -221,5 +212,36 @@ export class QueryEvaluator implements IQueryEvaluator {
 
     console.error(`EvalNotImplementedError ${condition.constructor.name}`);
     throw new EvalNotImplementedError(condition.constructor.name);
+  }
+
+  getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {
+    return this.socialRepo
+      .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
+      .map((profiles) => {
+        return SDQL_Return(
+          profiles.map((profile) => {
+            return {
+              id: profile.id,
+              name: profile.name,
+              icon: profile.icon,
+              joinedAt: profile.joinedAt,
+            };
+          }),
+        );
+      });
+  }
+
+  getTwitterFollowers(): ResultAsync<SDQL_Return, PersistenceError> {
+    return this.socialRepo
+      .getProfiles<TwitterProfile>(ESocialType.TWITTER)
+      .map((profiles) => {
+        return SDQL_Return(
+          profiles.map((profile) => {
+            return {
+              following: profile.followData?.following || [],
+            };
+          }),
+        );
+      });
   }
 }

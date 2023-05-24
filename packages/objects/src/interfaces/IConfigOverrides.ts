@@ -1,4 +1,4 @@
-import { DiscordConfig } from "@objects/businessObjects";
+import { DiscordConfig, TwitterConfig } from "@objects/businessObjects";
 import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
 
 export interface IConfigOverrides {
@@ -18,11 +18,13 @@ export interface IConfigOverrides {
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
   ceramicNodeURL?: URLString;
-  controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
+  twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
+  primaryInfuraKey: string;
+  devChainProviderURL?: ProviderUrl;
 }

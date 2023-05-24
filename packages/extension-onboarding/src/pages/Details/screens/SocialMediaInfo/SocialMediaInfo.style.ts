@@ -27,6 +27,6 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "14px",
     lineHeight: "20px",
     letterSpacing: "0.25px",
-    color: "#616161",
+    color: "red",
   },
 }));
