@@ -15,6 +15,9 @@ import {
   TokenId,
   URLString,
   IQueryDeliveryItems,
+  PossibleReward,
+  AdKey,
+  InsightKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -36,8 +39,8 @@ export interface IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    answeredQueries: SubQueryKey[],
-  ): ResultAsync<EligibleReward[], AjaxError>;
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], AjaxError>;
 
   deliverInsights(
     consentContractAddress: EVMContractAddress,

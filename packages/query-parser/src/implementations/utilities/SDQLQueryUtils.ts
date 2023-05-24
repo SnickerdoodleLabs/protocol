@@ -17,6 +17,7 @@ import {
   IInsightWithProof,
   InsightString,
   ProofError,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -357,5 +358,13 @@ export class SDQLQueryUtils {
   ): ResultAsync<boolean, ProofError> {
     // return errAsync(new Error("Not implemented"));
     return okAsync(true);
+  }
+
+  public getPossibleRewardsFromIP(
+    schemaString: SDQLString,
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], ParserError> {
+    // Maybe
+    throw new Error(""); // return all the rewards
   }
 }

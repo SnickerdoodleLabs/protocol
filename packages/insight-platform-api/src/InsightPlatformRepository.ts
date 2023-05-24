@@ -21,6 +21,9 @@ import {
   TokenId,
   URLString,
   IQueryDeliveryItems,
+  PossibleReward,
+  InsightKey,
+  AdKey,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -116,13 +119,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    answeredQueries: SubQueryKey[],
-  ): ResultAsync<EligibleReward[], AjaxError> {
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
-      queries: JSON.stringify(answeredQueries),
+      possibleInsightsAndAds: JSON.stringify(possibleInsightsAndAds),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -139,11 +142,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<EligibleReward[]>(url, {
+        return this.ajaxUtils.post<PossibleReward[]>(url, {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
           tokenId: tokenId.toString(),
-          queries: answeredQueries,
+          possibleInsightsAndAds: possibleInsightsAndAds,
           signature: signature,
         } as IReceivePreviewsParams as unknown as Record<string, unknown>);
       });

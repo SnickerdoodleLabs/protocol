@@ -38,6 +38,11 @@ import {
   ServerRewardError,
   SubQueryKey,
   UninitializedError,
+  PossibleReward,
+  ParserError,
+  InsightKey,
+  AdKey,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -156,29 +161,45 @@ export class QueryService implements IQueryService {
         requestForData,
         queryWrapper,
       ).andThen(() => {
-        return ResultUtils.combine([
-          this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-            queryWrapper.sdqlQuery,
-            consentToken.dataPermissions,
-            requestForData.consentContractAddress,
-          ),
-          this.dataWalletUtils.deriveOptInPrivateKey(
+        return this.dataWalletUtils
+          .deriveOptInPrivateKey(
             requestForData.consentContractAddress,
             context.dataWalletKey!,
-          ),
-        ]).andThen(([[permittedQueryIds, expectedRewards], optInKey]) => {
-          return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-            consentToken,
-            optInKey,
-            requestForData.consentContractAddress,
-            queryWrapper.sdqlQuery,
-            accounts,
-            context,
-            config,
-            permittedQueryIds,
-            expectedRewards,
-          );
-        });
+          )
+          .andThen((optInKey) => {
+            return this.constructAndPublishSDQLQueryRequest(
+              consentToken,
+              optInKey,
+              requestForData.consentContractAddress,
+              queryWrapper.sdqlQuery,
+              accounts,
+              context,
+              config,
+            );
+          });
+        // return ResultUtils.combine([
+        //   this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+        //     queryWrapper.sdqlQuery,
+        //     consentToken.dataPermissions,
+        //     requestForData.consentContractAddress,
+        //   ),
+        //   this.dataWalletUtils.deriveOptInPrivateKey(
+        //     requestForData.consentContractAddress,
+        //     context.dataWalletKey!,
+        //   ),
+        // ]).andThen(([[permittedQueryIds, expectedRewards], optInKey]) => {
+        //   return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+        //     consentToken,
+        //     optInKey,
+        //     requestForData.consentContractAddress,
+        //     queryWrapper.sdqlQuery,
+        //     accounts,
+        //     context,
+        //     config,
+        //     permittedQueryIds,
+        //     expectedRewards,
+        //   );
+        // });
       });
     });
   }
@@ -434,7 +455,51 @@ export class QueryService implements IQueryService {
     return okAsync(undefined);
   }
 
-  protected publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+  // /**
+  //  * @deprecated
+  //  */
+  // protected publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+  //   consentToken: ConsentToken,
+  //   optInKey: EVMPrivateKey,
+  //   consentContractAddress: EVMContractAddress,
+  //   query: SDQLQuery,
+  //   accounts: LinkedAccount[],
+  //   context: CoreContext,
+  //   config: CoreConfig,
+  //   permittedQueryIds: SubQueryKey[],
+  //   expectedRewards: ExpectedReward[],
+  // ): ResultAsync<void, EvaluationError | ServerRewardError> {
+  //   return this.getPossibleRewardsFromIP(
+  //     consentToken,
+  //     optInKey,
+  //     consentContractAddress,
+  //     query.cid,
+  //     config,
+  //     permittedQueryIds,
+  //   ).andThen((eligibleRewards) => {
+  //     if (
+  //       !this.areExpectedAndEligibleRewardsEqual(
+  //         eligibleRewards,
+  //         expectedRewards,
+  //       )
+  //     )
+  //       return errAsync(
+  //         new ServerRewardError(
+  //           "Insight Platform Rewards do not match Expected Rewards!",
+  //         ),
+  //       );
+
+  //     return this.publishSDQLQueryRequest(
+  //       consentContractAddress,
+  //       query,
+  //       eligibleRewards,
+  //       accounts,
+  //       context,
+  //     );
+  //   });
+  // }
+
+  protected constructAndPublishSDQLQueryRequest(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
@@ -442,61 +507,71 @@ export class QueryService implements IQueryService {
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
-    permittedQueryIds: SubQueryKey[],
-    expectedRewards: ExpectedReward[],
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
-    return this.getEligibleRewardsFromInsightPlatform(
-      consentToken,
-      optInKey,
-      consentContractAddress,
-      query.cid,
-      config,
-      permittedQueryIds,
-    ).andThen((eligibleRewards) => {
-      if (
-        !this.areExpectedAndEligibleRewardsEqual(
-          eligibleRewards,
-          expectedRewards,
-        )
-      )
-        return errAsync(
-          new ServerRewardError(
-            "Insight Platform Rewards do not match Expected Rewards!",
-          ),
-        );
+    // TODO get all the possible rewards and send them to next
 
-      return this.publishSDQLQueryRequest(
+    return this.getPossibleInisightAndAdKeys(
+      query,
+      consentToken.dataPermissions,
+      consentContractAddress,
+    ).map((possibleInsightsAndAds) => {
+      this.getPossibleRewardsFromIP(
+        consentToken,
+        optInKey,
         consentContractAddress,
-        query,
-        eligibleRewards,
-        accounts,
-        context,
-      );
+        query.cid,
+        config,
+        possibleInsightsAndAds,
+      ).map((possibleRewards) => {
+        this.publishSDQLQueryRequest(
+          consentContractAddress,
+          query,
+          possibleRewards,
+          accounts,
+          context,
+        );
+      });
     });
   }
 
-  protected getEligibleRewardsFromInsightPlatform(
+  protected getPossibleInisightAndAdKeys(
+    query: SDQLQuery,
+    dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
+    return okAsync([InsightKey("i1")]); // TODO: upgrade
+  }
+
+  public getPossibleRewardsFromIPBySDQLQuery(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError> {
+    // TODO return everything now, later  return from getPossibleRewardsFromIP
+    return errAsync(new ParserError(0, "Not implemented"));
+  }
+
+  protected getPossibleRewardsFromIP(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
     queryCID: IpfsCID,
     config: CoreConfig,
-    answeredQueries: SubQueryKey[],
-  ): ResultAsync<EligibleReward[], AjaxError> {
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], AjaxError> {
     return this.insightPlatformRepo.receivePreviews(
       consentContractAddress,
       consentToken.tokenId,
       queryCID,
       optInKey,
       config.defaultInsightPlatformBaseUrl,
-      answeredQueries,
+      possibleInsightsAndAds,
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   protected publishSDQLQueryRequest(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    eligibleRewards: EligibleReward[],
+    eligibleRewards: PossibleReward[],
     accounts: LinkedAccount[],
     context: CoreContext,
   ): ResultAsync<void, Error> {
@@ -533,20 +608,20 @@ export class QueryService implements IQueryService {
   }
 
   // Will need refactoring when we include lazy rewards
-  private areExpectedAndEligibleRewardsEqual(
-    eligibleRewards: EligibleReward[],
-    expectedRewards: ExpectedReward[],
-  ): boolean {
-    const expectedRewardKeysSet: Set<string> = new Set(
-      expectedRewards.map((expectedReward) => expectedReward.compensationKey),
-    );
+  // private areExpectedAndEligibleRewardsEqual(
+  //   eligibleRewards: EligibleReward[],
+  //   expectedRewards: ExpectedReward[],
+  // ): boolean {
+  //   const expectedRewardKeysSet: Set<string> = new Set(
+  //     expectedRewards.map((expectedReward) => expectedReward.compensationKey),
+  //   );
 
-    return (
-      // Only comparing the keys is enough.
-      eligibleRewards.length == expectedRewards.length &&
-      eligibleRewards.every((elem) =>
-        expectedRewardKeysSet.has(elem.compensationKey),
-      )
-    );
-  }
+  //   return (
+  //     // Only comparing the keys is enough.
+  //     eligibleRewards.length == expectedRewards.length &&
+  //     eligibleRewards.every((elem) =>
+  //       expectedRewardKeysSet.has(elem.compensationKey),
+  //     )
+  //   );
+  // }
 }
