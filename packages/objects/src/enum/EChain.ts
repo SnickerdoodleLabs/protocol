@@ -1,6 +1,5 @@
 export enum EChain {
   EthereumMainnet = 1,
-  Goerli = 5,
   Sepolia = 11155111,
   Kovan = 42,
   Polygon = 137,
@@ -16,4 +15,5 @@ export enum EChain {
   Arbitrum = 42161,
   Optimism = 10,
   Astar = 592,
+  Shibuya = 81,
 }
