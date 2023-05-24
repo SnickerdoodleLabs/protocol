@@ -1,5 +1,21 @@
+import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { SDQLString } from "@snickerdoodlelabs/objects";
+import {
+  AdKey,
+  AdSignature,
+  EVMContractAddress,
+  IInsightWithProof,
+  Insight,
+  InsightKey,
+  InsightWithProof,
+  IpfsCID,
+  IQueryDeliveryAds,
+  IQueryDeliveryInsights,
+  IQueryDeliveryItems,
+  JsonWebToken,
+  QueryDeliveryItems,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
 
 import {
   QueryObjectFactory,
@@ -25,12 +41,85 @@ class SDQLQueryUtilsMocks {
   public factory(): SDQLQueryUtils {
     return new SDQLQueryUtils(this.parserFactory, this.queryWrapperFactory);
   }
+
+  private getInsightWithProof(name: string, data: string): IInsightWithProof {
+    return new InsightWithProof(new Insight(InsightKey(name), data), "zkp");
+  }
+
+  private getAdSignature(name: string): AdSignature {
+    return new AdSignature(
+      EVMContractAddress(""),
+      IpfsCID(""),
+      AdKey(name),
+      JsonWebToken(""),
+    );
+  }
+
+  public getQueryDeliveryItems(): IQueryDeliveryItems {
+    return new QueryDeliveryItems(
+      this.getQueryDeliveryInsights(),
+      this.getQueryDeliveryAds(),
+    );
+  }
+
+  public getQueryDeliveryInsights(): IQueryDeliveryInsights {
+    return {
+      i1: this.getInsightWithProof("i1", "Hello World"),
+      i2: null,
+    };
+  }
+
+  public getQueryDeliveryAds(): IQueryDeliveryAds {
+    return {
+      a1: this.getAdSignature("a1"),
+      a2: null,
+    };
+  }
 }
 
-describe("Dummy describe block", () => {
-  test("Dummy test", async () => {
-    const schemaString = SDQLString(avalanche1SchemaStr);
-    expect(1).toBe(1);
+describe("Compensation tests", () => {
+  test("createAvailableMapForRequiresEvaluator test", async () => {
+    // Acquire
+    const mocks = new SDQLQueryUtilsMocks();
+    const utils = mocks.factory();
+    const queryDeliveryItems = mocks.getQueryDeliveryItems();
+    const insightKeys = Object.keys(mocks.getQueryDeliveryInsights());
+    const adKeys = Object.keys(mocks.getQueryDeliveryAds());
+    const expectedKeys = [...insightKeys, ...adKeys];
+
+    // Act
+    const availableMap =
+      utils["createAvailableMapForRequiresEvaluator"](queryDeliveryItems);
+
+    // Assert
+    // 1. validate keys and values
+    const gotKeys = [...availableMap.keys()];
+    expect(expectedKeys).toEqual(gotKeys);
+    availableMap.forEach((val, key) => {
+      if (key == "i1") expect(val).toBeDefined();
+      else if (key == "a1") expect(val).toBeDefined();
+      else if (key == "i2") expect(val).toBeNull();
+      else if (key == "a2") expect(val).toBeNull();
+    });
+  });
+
+  test("getCompensationsToDispense test", async () => {
+    // Acquire
+    const mocks = new SDQLQueryUtilsMocks();
+    const utils = mocks.factory();
+    const queryDeliveryItems = mocks.getQueryDeliveryItems();
+    const expectedKeys = ["c1", "c3"];
+
+    // Act
+    const result = await utils.getCompensationsToDispense(
+      avalanche1SchemaStr,
+      queryDeliveryItems, // has values for i1 and a1 only
+    );
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const dispensableKeys = result._unsafeUnwrap();
+    expect(dispensableKeys).toEqual(expectedKeys);
   });
 });
 

@@ -137,7 +137,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "The CryptoPunk Draw",
         image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
         description: "participate in the draw to win a CryptoPunk NFT",
-        requires: "$i2",
+        requires: "$i1 and $i2",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],
@@ -151,7 +151,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "CrazyApesClub NFT distro",
         image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
         description: "a free CrazyApesClub NFT",
-        requires: "$i3",
+        requires: "$i3 or $a1",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],

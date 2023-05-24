@@ -251,7 +251,7 @@ export class SDQLQueryUtils {
             this.createAvailableMapForRequiresEvaluator(queryDeliveryItems);
           const requiresEvaluator = new RequiresEvaluator(availableMap);
 
-          const allKeys = Object.keys(ast.compensations);
+          const allKeys = [...ast.compensations.keys()];
 
           const results = allKeys.map((key) => {
             const compAst = ast.compensations.get(SDQL_Name(key));
@@ -296,7 +296,6 @@ export class SDQLQueryUtils {
   public getValidInsights(
     queryDeliveryItems: IQueryDeliveryItems,
   ): ResultAsync<Map<InsightKey, InsightString>, ProofError> {
-
     if (queryDeliveryItems.insights != null) {
       const keys = Object.keys(queryDeliveryItems.insights);
       const nonNullInsights = keys.reduce<Map<InsightKey, IInsightWithProof>>(
