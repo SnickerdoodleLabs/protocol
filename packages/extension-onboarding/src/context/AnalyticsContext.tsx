@@ -56,7 +56,11 @@ export const AnalyticsContextProvider: FC = ({ children }) => {
     [],
   );
   const sendPageView = useCallback(() => {
-    ReactGA.send(window.location.href);
+    ReactGA.send({
+      hitType: "pageview",
+      page: window.location.href,
+      title: document.title,
+    });
   }, []);
 
   return (
