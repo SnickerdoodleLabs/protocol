@@ -5,23 +5,31 @@ import {
   BlockNumber,
   ChainId,
   EChainTechnology,
+  EComponentStatus,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
   EVMTransactionHash,
-  IEVMAccountBalanceRepository,
   IEVMIndexer,
-  IEVMNftRepository,
-  IEVMTransactionRepository,
   TickerSymbol,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { EChain } from "packages/objects/src";
 
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
   healthCheck(): ResultAsync<string, AjaxError> {
     throw new Error("Method not implemented.");
   }
@@ -112,5 +120,17 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       );
     }
     return okAsync(result);
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }

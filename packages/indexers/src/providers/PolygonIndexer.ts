@@ -11,8 +11,6 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  IEVMAccountBalanceRepository,
-  IEVMTransactionRepository,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   TokenBalance,
@@ -31,6 +29,7 @@ import {
   EVMNFT,
   MethodSupportError,
   getChainInfoByChain,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
@@ -54,6 +53,15 @@ export class PolygonIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
 
   getTokensForAccount(
     chainId: ChainId,
@@ -427,6 +435,18 @@ export class PolygonIndexer implements IEVMIndexer {
         }
         return okAsync("bad");
       });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

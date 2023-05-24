@@ -27,6 +27,8 @@ import {
   TickerSymbol,
   SolanaCollection,
   getChainInfoByChainId,
+  ISolanaIndexer,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -47,12 +49,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-export class SolanaIndexer
-  implements
-    ISolanaBalanceRepository,
-    ISolanaNFTRepository,
-    ISolanaTransactionRepository
-{
+export class SolanaIndexer implements ISolanaIndexer {
   private _connections?: ResultAsync<SolClients, never>;
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -62,6 +59,15 @@ export class SolanaIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -312,6 +318,11 @@ export class SolanaIndexer
         }
         return okAsync("bad");
       });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [EChain.Solana, EChain.SolanaTestnet];
+    return supportedChains;
   }
 }
 interface SolClients {

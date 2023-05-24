@@ -17,24 +17,23 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   EVMAccountAddress,
-  IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
   HexString,
   EVMNFT,
-  IEVMNftRepository,
   AccountAddress,
   URLString,
-  IEVMTransactionRepository,
   EVMTransaction,
   IEVMIndexer,
   MethodSupportError,
   getChainInfoByChain,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 // import { CoinGeckoTokenInfo } from "packages/objects/src";
+import { IIndexer } from "packages/objects/src";
 import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
 
@@ -44,7 +43,7 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class AlchemyIndexer implements IEVMIndexer {
+export class AlchemyIndexer implements IEVMIndexer, IIndexer {
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
 
   public constructor(
@@ -63,6 +62,15 @@ export class AlchemyIndexer implements IEVMIndexer {
       [EChain.Solana, true],
       [EChain.Polygon, true],
     ]) as Map<EChain, boolean>;
+  }
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
   }
 
   public getEVMTransactions(
@@ -346,6 +354,18 @@ export class AlchemyIndexer implements IEVMIndexer {
         }
         return okAsync("bad");
       });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

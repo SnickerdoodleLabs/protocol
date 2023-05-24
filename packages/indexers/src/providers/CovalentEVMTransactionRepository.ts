@@ -8,12 +8,10 @@ import {
   AjaxError,
   EVMAccountAddress,
   EVMTransaction,
-  IEVMTransactionRepository,
   ChainId,
   UnixTimestamp,
   BigNumberString,
   EVMEvent,
-  IEVMAccountBalanceRepository,
   TickerSymbol,
   EVMContractAddress,
   EVMTransactionHash,
@@ -22,10 +20,12 @@ import {
   IEVMIndexer,
   EVMNFT,
   MethodSupportError,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { EChain } from "packages/objects/src";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {
@@ -140,6 +140,15 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
 
   getTokensForAccount(
     chainId: ChainId,
@@ -360,5 +369,17 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
       };
       return result;
     });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }

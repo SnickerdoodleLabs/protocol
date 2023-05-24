@@ -10,27 +10,19 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  IEVMAccountBalanceRepository,
-  IEVMTransactionRepository,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   TokenBalance,
   EChainTechnology,
   BigNumberString,
   TickerSymbol,
-  EVMContractAddress,
-  getChainInfoByChainId,
-  EVMTransactionHash,
-  UnixTimestamp,
   URLString,
   EVMNFT,
-  IEVMNftRepository,
-  TokenUri,
-  chainConfig,
   IEVMIndexer,
   MethodSupportError,
   EChain,
   getChainInfoByChain,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -45,6 +37,7 @@ import {
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 export class EtherscanNativeBalanceRepository implements IEVMIndexer {
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -53,8 +46,14 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
 
-  getTokensForAccount(
+  public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
@@ -69,7 +68,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       ),
     );
   }
-  getEVMTransactions(
+  public getEVMTransactions(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
     startTime: Date,
@@ -181,6 +180,11 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
         }
         return okAsync("bad");
       });
+  }
+
+  public getSupportedChains(): Array<EChain> {
+    const supportedChains = [EChain.Moonbeam, EChain.Binance, EChain.Gnosis];
+    return supportedChains;
   }
 }
 

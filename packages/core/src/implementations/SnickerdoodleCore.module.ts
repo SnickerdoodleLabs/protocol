@@ -23,6 +23,7 @@ import {
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  MasterIndexer,
   MoralisEVMPortfolioRepository,
   NftScanEVMPortfolioRepository,
   OklinkIndexer,
@@ -89,6 +90,10 @@ import {
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
+import {
+  IMasterIndexer,
+  IMasterIndexerType,
+} from "packages/objects/src/interfaces";
 
 import {
   AccountIndexerPoller,
@@ -539,8 +544,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(SolanaIndexer)
       .inSingletonScope();
 
-    bind<ISolanaIndexer>(IDummySolanaIndexerType)
-      .to(DummySolanaIndexer)
+    bind<IMasterIndexer>(IMasterIndexerType)
+      .to(MasterIndexer)
       .inSingletonScope();
   },
 );

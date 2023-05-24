@@ -1,10 +1,10 @@
 // This is basically global variables
 
+import { IIndexerContext } from "@snickerdoodlelabs/indexers";
 import { DataWalletAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
 import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
-import { IIndexerContext } from "@snickerdoodlelabs/indexers";
 
 /**
  * Some people may object to some of the values in here- like private keys.
@@ -33,5 +33,4 @@ export class CoreContext implements IIndexerContext {
   ) {
     this.heartbeat = new Subject();
   }
-  
 }

@@ -14,7 +14,6 @@ import {
   EVMNFT,
   EVMTransaction,
   IEVMIndexer,
-  IEVMNftRepository,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
@@ -23,6 +22,7 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { EChain } from "packages/objects/src";
 import { urlJoinP } from "url-join-ts";
 
 import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
@@ -41,7 +41,13 @@ export class PoapRepository implements IEVMIndexer {
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
-  getBalancesForAccount(
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
+  public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
@@ -55,7 +61,7 @@ export class PoapRepository implements IEVMIndexer {
       ),
     );
   }
-  getEVMTransactions(
+  public getEVMTransactions(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
     startTime: Date,
@@ -130,7 +136,7 @@ export class PoapRepository implements IEVMIndexer {
     });
   }
 
-  public healthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
     return this.configProvider.getConfig().andThen((config) => {
@@ -161,6 +167,18 @@ export class PoapRepository implements IEVMIndexer {
           return okAsync(fads);
         });
     });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

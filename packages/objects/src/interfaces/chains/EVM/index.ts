@@ -1,4 +1,6 @@
-export * from "@objects/interfaces/chains/EVM/IEVMAccountBalanceRepository";
 export * from "@objects/interfaces/chains/EVM/IEVMIndexer";
-export * from "@objects/interfaces/chains/EVM/IEVMNftRepository";
-export * from "@objects/interfaces/chains/EVM/IEVMTransactionRepository";
+export * from "@objects/interfaces/chains/EVM";
+export * from "@objects/interfaces/chains/Solana";
+export * from "@objects/interfaces/chains/IIndexer";
+
+

@@ -15,15 +15,16 @@ import {
   EVMTransaction,
   getChainInfoByChain,
   IEVMIndexer,
-  IEVMNftRepository,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
   MethodSupportError,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { EChain } from "packages/objects/src";
 import { urlJoinP } from "url-join-ts";
 
 import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
@@ -40,6 +41,15 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
 
   getBalancesForAccount(
     chainId: ChainId,
@@ -187,6 +197,18 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
         }
         return okAsync(result.message);
       });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.Binance,
+      EChain.EthereumMainnet,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

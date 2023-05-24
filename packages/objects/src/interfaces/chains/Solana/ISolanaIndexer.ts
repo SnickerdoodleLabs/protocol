@@ -6,9 +6,10 @@ import {
   TokenBalance,
 } from "@objects/businessObjects";
 import { AccountIndexingError, AjaxError } from "@objects/errors";
+import { IIndexer } from "@objects/interfaces/chains/IIndexer";
 import { ChainId, SolanaAccountAddress } from "@objects/primitives";
 
-export interface ISolanaIndexer {
+export interface ISolanaIndexer extends IIndexer {
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,

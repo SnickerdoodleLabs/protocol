@@ -11,6 +11,7 @@ import {
   TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { EChain } from "packages/objects/src";
 
 export class DummySolanaIndexer
   implements
@@ -38,5 +39,13 @@ export class DummySolanaIndexer
     endTime?: Date | undefined,
   ): ResultAsync<SolanaTransaction[], AjaxError | AccountIndexingError> {
     return okAsync([]);
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Solana,
+      EChain.SolanaTestnet,
+    ];
+    return supportedChains;
   }
 }

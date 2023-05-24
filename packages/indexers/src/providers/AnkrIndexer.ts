@@ -17,16 +17,13 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   EVMAccountAddress,
-  IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
   HexString,
   EVMNFT,
-  IEVMNftRepository,
   AccountAddress,
   URLString,
   TokenUri,
-  IEVMTransactionRepository,
   EVMTransaction,
   EVMTransactionHash,
   UnixTimestamp,
@@ -55,6 +52,15 @@ export class AnkrIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -214,6 +220,21 @@ export class AnkrIndexer implements IEVMIndexer {
           return okAsync(fads);
         });
     });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.Avalanche,
+      EChain.Binance,
+      EChain.EthereumMainnet,
+      EChain.Gnosis,
+      EChain.Moonbeam,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

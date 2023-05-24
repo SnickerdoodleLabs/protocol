@@ -17,13 +17,13 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   EVMAccountAddress,
-  IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
   IEVMIndexer,
   EVMNFT,
   EVMTransaction,
   MethodSupportError,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -45,6 +45,15 @@ export class OklinkIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -164,6 +173,18 @@ export class OklinkIndexer implements IEVMIndexer {
         });
         return okAsync(balances);
       });
+  }
+
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

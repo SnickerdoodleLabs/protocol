@@ -6,9 +6,10 @@ import {
   AjaxError,
   MethodSupportError,
 } from "@objects/errors";
+import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
 import { ChainId, EVMAccountAddress } from "@objects/primitives";
 
-export interface IEVMIndexer {
+export interface IEVMIndexer extends IIndexer {
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -32,7 +33,6 @@ export interface IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
-  healthCheck(): ResultAsync<string, AjaxError>;
 }
 
 export const IAnkrIndexerType = Symbol.for("IAnkrIndexer");
