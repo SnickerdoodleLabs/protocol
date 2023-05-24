@@ -7528,6 +7528,7 @@ __metadata:
     inversify: ^5.1.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
+    oauth-1.0a: ^2.2.6
     pino: ^8.1.0
     tweetnacl: ^1.0.3
     uuid: ^8.3.0
@@ -30473,6 +30474,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"oauth-1.0a@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "oauth-1.0a@npm:2.2.6"
+  checksum: d791da3dd44aa0f19cea262a9f8ff5154fc9c831e219f820ec8a72bb7d4993edf1f1240bade6e5c5b4878c1f2644c0813090f71f10fb6ddff41eb9c5d16893c6
+  languageName: node
+  linkType: hard
+
 "oauth-sign@npm:~0.9.0":
   version: 0.9.0
   resolution: "oauth-sign@npm:0.9.0"
@@ -36828,6 +36836,7 @@ __metadata:
     "@babel/core": ^7.8.4
     "@babel/plugin-proposal-class-properties": ^7.16.7
     "@babel/plugin-proposal-decorators": ^7.12.13
+    "@babel/plugin-syntax-import-assertions": ^7.20.0
     "@babel/preset-env": ^7.16.11
     "@babel/preset-react": ^7.16.7
     "@babel/runtime": ^7.8.4

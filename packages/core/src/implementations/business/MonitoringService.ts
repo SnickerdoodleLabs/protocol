@@ -1,30 +1,33 @@
-import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
-  SiteVisit,
+  AccountAddress,
+  AccountIndexingError,
+  AjaxError,
+  ChainId,
+  ChainTransaction,
+  DataWalletBackupID,
+  DiscordError,
+  EIndexer,
+  EVMAccountAddress,
   IAccountIndexing,
   IAccountIndexingType,
-  EVMAccountAddress,
-  ChainId,
-  AccountIndexingError,
-  EIndexer,
-  UnixTimestamp,
-  AjaxError,
-  PersistenceError,
-  AccountAddress,
-  ChainTransaction,
-  SolanaAccountAddress,
   isAccountValidForChain,
-  DiscordError,
-  DataWalletBackupID,
+  PersistenceError,
+  SiteVisit,
+  SolanaAccountAddress,
+  TwitterError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IDiscordService,
   IDiscordServiceType,
   IMonitoringService,
+  ITwitterService,
+  ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBrowsingDataRepository,
@@ -37,9 +40,9 @@ import {
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
-  IContextProvider,
   IConfigProvider,
   IConfigProviderType,
+  IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 
@@ -60,6 +63,8 @@ export class MonitoringService implements IMonitoringService {
     protected browsingDataRepo: IBrowsingDataRepository,
     @inject(IDiscordServiceType)
     protected discordService: IDiscordService,
+    @inject(ITwitterServiceType)
+    protected twitterService: ITwitterService,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -195,6 +200,13 @@ export class MonitoringService implements IMonitoringService {
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
             );
+          case EIndexer.Arbitrum:
+            return okAsync([]);
+          case EIndexer.Optimism:
+            return okAsync([]);
+          case EIndexer.Astar:
+            /* Waiting for Nft reponse service */
+            return okAsync([]);
           default:
             this.logUtils.error(
               `No available indexer repository for chain ${chainId}`,
@@ -210,6 +222,10 @@ export class MonitoringService implements IMonitoringService {
 
   public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
     return this.discordService.poll();
+  }
+
+  public pollTwitter(): ResultAsync<void, PersistenceError | TwitterError> {
+    return this.twitterService.poll();
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
