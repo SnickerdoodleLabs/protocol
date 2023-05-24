@@ -96,6 +96,7 @@ export interface IConsentContract {
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  encodeOptOut(tokenId: TokenId): HexString;
 
   /**
    * Returns the agreementFlagsArray value for the token ID
