@@ -56,6 +56,7 @@ describe("ConsentFactory", () => {
   describe("Stake-for-Ranking", function () {
     it("Test basic Marketplace insertion and deletion", async function () {
       // SCENARIO: User 1 initializes slot 3 => User 2 inserts upstream slot 4 => User 1 removes listing (which removes their slot 3) => User 1 inserts downstream of User 2 on slot 2
+      // => User 1 moves from slot 2 to slot 10
 
       // create a couple of consent contracts
       await consentFactory
@@ -98,6 +99,7 @@ describe("ConsentFactory", () => {
       const slot2 = 2;
       const slot3 = 3;
       const slot4 = 4;
+      const slot10= 10; 
 
       const tag2 = "short-string-2";
       const tag3 = "short-string-3";
@@ -155,7 +157,7 @@ describe("ConsentFactory", () => {
       const forwardList = await consentFactory.getListingsForward(
         tag2,
         4,
-        4,
+        2,
         true,
       );
 
@@ -175,6 +177,27 @@ describe("ConsentFactory", () => {
       await expect(backwardList[0][1]).to.eq("Listing2");
       await expect(backwardList[1][0].previous).to.eq(slot4);
       await expect(backwardList[1][1].next).to.eq(slot2);
+
+      // user 1 moves their listing upstream of user 2
+      await deployedConsentInstance1
+        .connect(user1)
+        .moveExistingListingUpstream(tag2, slot10, slot4)
+        .then((txrct) => {
+          return txrct.wait();
+      });
+
+      const forwardList2 = await consentFactory.getListingsForward(
+        tag2,
+        10,
+        2,
+        true,
+      );
+
+      // check that the new ordering makes sense
+      await expect(forwardList2[0][0]).to.eq("Listing1");
+      await expect(forwardList2[0][1]).to.eq("Listing2");
+      await expect(forwardList2[1][0].next).to.eq(slot4);
+      await expect(forwardList2[1][1].previous).to.eq(slot10);
     });
 
     it("Insert upstream and test listing getters", async function () {
@@ -472,6 +495,26 @@ describe("ConsentFactory", () => {
         });
 
       expect(await consentFactory.getTagTotal(tag2)).to.eq(1);
+
+      // restaking won't work if you are still active
+      await expect(
+        deployedConsentInstance2
+        .connect(user2)
+        .restakeExpiredListing(tag2),
+      ).to.revertedWith("ConsentFactory: current listing is still active");
+
+      // fastforward and restake expired listing
+      await ethers.provider.send("evm_increaseTime", [
+        listingDuration.toNumber(),
+      ]);
+      await ethers.provider.send("evm_mine");
+
+      await deployedConsentInstance2
+        .connect(user2)
+        .restakeExpiredListing(tag2)
+        .then((txrct) => {
+          return txrct.wait();
+      });
     });
 
     it("Test admin can remove listings", async function () {
