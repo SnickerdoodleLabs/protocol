@@ -16,6 +16,7 @@ import {
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { useAppContext } from "../../context/AppContextProvider";
+import { useTheme } from "../../context/ThemeContext";
 
 interface CardItemProps {
   marketplaceListing: MarketplaceListing | null;
@@ -25,6 +26,56 @@ const CardItem: React.FC<CardItemProps> = ({ marketplaceListing }) => {
   const { mobileCore } = useAppContext();
   const navigation = useNavigation();
   const [metaData, setMetaData] = React.useState<IOpenSeaMetadata>();
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    card: {
+      width: normalizeWidth(180),
+      minHeight: normalizeHeight(260),
+      borderRadius: normalizeWidth(20),
+      borderWidth: 0.9,
+      borderColor: theme?.colors.border,
+      alignItems: "center",
+      textAlign: "center",
+      backgroundColor: theme?.colors.backgroundSecondary,
+      /*   ...Platform.select({
+        ios: {
+          shadowColor: "#f0f0f0",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.5,
+          shadowRadius: 60,
+        },
+        android: {
+          elevation: 8,
+        },
+      }), */
+    },
+    cardContent: {
+      width: "100%",
+    },
+    cardImage: {
+      width: "100%",
+      aspectRatio: 1,
+      borderTopLeftRadius: normalizeWidth(20),
+      borderTopRighRadius: normalizeWidth(20),
+      borderTopEndRadius: normalizeWidth(20),
+    },
+    cardTitle: {
+      marginTop: normalizeHeight(12),
+      fontWeight: "700",
+      fontSize: normalizeWidth(18),
+      lineHeight: normalizeHeight(22),
+      color: theme?.colors.description,
+      textAlign: "center",
+    },
+    cardDescription: {
+      marginTop: normalizeHeight(12),
+      fontWeight: "500",
+      fontSize: normalizeWidth(12),
+      lineHeight: normalizeHeight(14),
+      color: "#616161",
+    },
+  });
 
   useEffect(() => {
     mobileCore.invitationService
@@ -58,54 +109,5 @@ const CardItem: React.FC<CardItemProps> = ({ marketplaceListing }) => {
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    width: normalizeWidth(180),
-    minHeight: normalizeHeight(260),
-    borderRadius: normalizeWidth(20),
-    borderWidth:0.9,
-    borderColor:'#f0f0f0',
-    alignItems: "center",
-    textAlign: "center",
-    backgroundColor: "white",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#f0f0f0",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 60,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
-  cardContent: {
-    width: "100%",
-  },
-  cardImage: {
-    width:'100%',
-    aspectRatio:1,
-    borderTopLeftRadius: normalizeWidth(20),
-    borderTopRighRadius: normalizeWidth(20),
-    borderTopEndRadius: normalizeWidth(20),
-  },
-  cardTitle: {
-    marginTop: normalizeHeight(12),
-    fontWeight: "700",
-    fontSize: normalizeWidth(18),
-    lineHeight: normalizeHeight(22),
-    color: "#424242",
-    textAlign: "center",
-  },
-  cardDescription: {
-    marginTop: normalizeHeight(12),
-    fontWeight: "500",
-    fontSize: normalizeWidth(12),
-    lineHeight: normalizeHeight(14),
-    color: "#616161",
-  },
-});
 
 export default CardItem;

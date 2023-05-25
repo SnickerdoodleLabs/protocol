@@ -22,6 +22,7 @@ import {
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
+import { useTheme } from "../../context/ThemeContext";
 
 interface ILoadingProps {
   status: boolean;
@@ -29,6 +30,7 @@ interface ILoadingProps {
 }
 
 export default function RewardsSettings() {
+  const theme = useTheme();
   const { mobileCore } = useAppContext();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
@@ -48,9 +50,12 @@ export default function RewardsSettings() {
 
   useEffect(() => {
     mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {});
-    mobileCore.getCore().getEarnedRewards().map((data) => {
-      console.log("getEarnedRewards", data);
-    });
+    mobileCore
+      .getCore()
+      .getEarnedRewards()
+      .map((data) => {
+        console.log("getEarnedRewards", data);
+      });
     setIsLoading([]);
     getOptedInInvitationMetaData();
   }, [unsubsribed]);
@@ -81,7 +86,7 @@ export default function RewardsSettings() {
     <ScrollView
       style={{
         paddingHorizontal: normalizeWidth(20),
-        backgroundColor: "white",
+        backgroundColor: theme?.colors.background,
       }}
     >
       <SafeAreaView>
@@ -89,8 +94,8 @@ export default function RewardsSettings() {
           style={{
             fontWeight: "700",
             fontSize: normalizeWidth(24),
-            color: "#424242",
-            marginTop: normalizeHeight(10),
+            color: theme?.colors.title,
+            marginTop: normalizeHeight(15),
           }}
         >
           Rewards Subscription Settings
@@ -101,11 +106,12 @@ export default function RewardsSettings() {
             fontSize: normalizeWidth(16),
             lineHeight: normalizeHeight(22),
             fontWeight: "400",
-            color: "#424242",
+            color: theme?.colors.description,
             marginTop: normalizeHeight(32),
           }}
         >
-{`You have agreed to share anonymized information\nwith these brands, only, through these rewards\nprograms.`}        </Text>
+          {`You have agreed to share anonymized information\nwith these brands, only, through these rewards\nprograms.`}{" "}
+        </Text>
 
         {campainJoined?.map((metaData, index) => {
           return (
@@ -115,7 +121,7 @@ export default function RewardsSettings() {
                 width: "100%",
                 padding: normalizeWidth(22),
                 borderWidth: 2,
-                borderColor: "#F0F0F0",
+                borderColor: theme?.colors.border,
                 shadowColor: "#04060f",
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.05,
@@ -140,7 +146,7 @@ export default function RewardsSettings() {
                 <View style={{ width: "60%", paddingLeft: normalizeWidth(24) }}>
                   <Text
                     style={{
-                      color: "#424242",
+                      color: theme?.colors.title,
                       fontSize: normalizeWidth(20),
                       fontWeight: "700",
                       overflow: "hidden",
@@ -150,7 +156,7 @@ export default function RewardsSettings() {
                   </Text>
                   <Text
                     style={{
-                      color: "#616161",
+                      color: theme?.colors.description,
                       fontSize: normalizeWidth(14),
                       fontWeight: "400",
                       marginVertical: normalizeHeight(10),

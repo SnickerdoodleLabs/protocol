@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { normalizeWidth } from "../../themes/Metrics";
+import { useTheme } from "../../context/ThemeContext";
 
 type DropdownItem = {
   label: string;
@@ -27,22 +28,64 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (selected) {
       const selectedText = `${selected?.slice(
         0,
-        6,
-      )}...........................${selected.slice(38, 42)}`;
+        10,
+      )}...........................${selected.slice(32, 42)}`;
       setSelectedItem(selectedText);
     }
   }, [selected, items]);
 
   const handleSelect = (item: DropdownItem) => {
     setSelectedItem(
-      `${item.label?.slice(0, 6)}...........................${item.label?.slice(
-        38,
+      `${item.label?.slice(0, 10)}...........................${item.label?.slice(
+        30,
         42,
       )}`,
     );
     setIsOpen(false);
     onSelect(item);
   };
+
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      position: "relative",
+      width: "100%",
+      alignItems: "center",
+    },
+    dropdownContainer: {
+      width: "90%",
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    button: {
+      padding: 6,
+      borderWidth: 2,
+      borderColor: "#6E62A6",
+      width: "100%",
+      alignItems: "center",
+      borderRadius: 100,
+    },
+    label: {
+      fontSize: normalizeWidth(16),
+      color: theme?.colors.title,
+      fontWeight: "400",
+    },
+    dropdown: {
+      position: "absolute",
+      top: 40,
+      width: "100%",
+      borderWidth: 0.4,
+      borderColor: "black",
+      backgroundColor: theme?.colors.backgroundSecondary,
+      zIndex: 1,
+      borderRadius: 15,
+    },
+    item: {
+      padding: 10,
+      borderRadius: 15,
+    },
+  });
 
   return (
     <View style={styles.container}>
@@ -55,7 +98,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           <Icon
             name={isOpen ? "caret-up-outline" : "caret-down-outline"}
             size={normalizeWidth(20)}
-            color="#9E9E9E"
+            color={theme?.colors.iconColor}
           />
         </View>
       </TouchableOpacity>
@@ -70,9 +113,9 @@ const Dropdown: React.FC<DropdownProps> = ({
                 index + 1 != items.length && { borderBottomWidth: 0.2 },
               ]}
             >
-              <Text>
-                {item.label?.slice(0, 8)}...........................
-                {item.label?.slice(36, 42)}
+              <Text style={{color:theme?.colors.title}}>
+                {item.label?.slice(0, 12)}...........................
+                {item.label?.slice(30, 42)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -81,45 +124,5 @@ const Dropdown: React.FC<DropdownProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    position: "relative",
-    width: "80%",
-    alignItems: "center",
-  },
-  dropdownContainer: {
-    width: "90%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
-    padding: 6,
-    borderWidth: 2,
-    borderColor: "#6E62A6",
-    width: "100%",
-    alignItems: "center",
-    borderRadius: 100,
-  },
-  label: {
-    fontSize: normalizeWidth(16),
-    color: "#424242",
-    fontWeight: "400",
-  },
-  dropdown: {
-    position: "absolute",
-    top: 40,
-    width: "100%",
-    borderWidth: 0.4,
-    borderColor: "black",
-    backgroundColor: "white",
-    zIndex: 1,
-    borderRadius: 15,
-  },
-  item: {
-    padding: 10,
-    borderRadius: 15,
-  },
-});
 
 export default Dropdown;

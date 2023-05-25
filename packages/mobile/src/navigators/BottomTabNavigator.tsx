@@ -9,15 +9,17 @@ import {
   SettingStack,
 } from "./AuthNavigator";
 import { createStackNavigator } from "@react-navigation/stack";
-import { normalizeWidth } from "../themes/Metrics";
-
+import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
+import { useTheme } from "../context/ThemeContext";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const BottomTabNavigator = () => {
+  const theme = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
+        tabBarActiveTintColor: theme?.colors.bottomTabColor,
         tabBarIcon: ({ color, size, focused }) => {
           let iconName = "empty";
           if (route.name == ROUTES.MARKETPLACE) {
@@ -29,11 +31,23 @@ const BottomTabNavigator = () => {
           if (route.name === ROUTES.SETTINGS) {
             iconName = focused ? "settings" : "settings-outline";
           }
-          return <Icon name={iconName} size={22} color={COLORS.primary} />;
+          return (
+            <Icon
+              name={iconName}
+              size={22}
+              color={theme?.colors.bottomTabColor}
+            /*   style={{ marginTop: normalizeHeight(15) }} */
+            />
+          );
         },
+
         tabBarStyle: {
-         /*  borderTopLeftRadius: normalizeWidth(25),
-          borderTopRightRadius: normalizeWidth(25), */
+          borderTopLeftRadius: normalizeWidth(30),
+          borderTopRightRadius: normalizeWidth(30),
+          backgroundColor: theme?.colors.bottomTabBackground,
+          overflow: "hidden",
+          position: "absolute",
+        
         },
       })}
     >

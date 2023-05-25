@@ -15,6 +15,7 @@ import { useAppContext } from "../../context/AppContextProvider";
 import RadioButton from "../Custom/RadioButton";
 import { useNavigation } from "@react-navigation/native";
 import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function CryptoSettings() {
   const { mobileCore } = useAppContext();
@@ -22,6 +23,7 @@ export default function CryptoSettings() {
   const { linkedAccounts } = useAppContext();
   const [selected, setSelected] = React.useState<string>(linkedAccounts[0]);
   const navigation = useNavigation();
+  const theme = useTheme();
 
   useEffect(() => {
     mobileCore
@@ -37,11 +39,22 @@ export default function CryptoSettings() {
     setSelected(value);
   };
 
+  const styles = StyleSheet.create({
+    borderBox: {
+      width: "100%",
+      borderWidth: 1,
+      borderColor: theme?.colors.border,
+      borderRadius: normalizeWidth(24),
+      marginTop: normalizeHeight(24),
+      paddingVertical: normalizeHeight(20),
+      paddingHorizontal: normalizeWidth(20),
+    },
+  });
   return (
     <ScrollView
       style={{
         paddingHorizontal: normalizeWidth(20),
-        backgroundColor: "white",
+        backgroundColor: theme?.colors.background,
       }}
     >
       <SafeAreaView>
@@ -56,8 +69,8 @@ export default function CryptoSettings() {
           style={{
             fontWeight: "700",
             fontSize: normalizeWidth(24),
-            color: "#424242",
-            marginTop: normalizeHeight(10),
+            color: theme?.colors.title,
+            marginTop: normalizeHeight(15),
           }}
         >
           Linked Wallets
@@ -68,7 +81,7 @@ export default function CryptoSettings() {
             fontSize: normalizeWidth(16),
             lineHeight: normalizeHeight(22),
             fontWeight: "400",
-            color: "#424242",
+            color: theme?.colors.description,
             marginTop: normalizeHeight(32),
           }}
         >
@@ -81,7 +94,7 @@ export default function CryptoSettings() {
               style={{
                 fontWeight: "700",
                 fontSize: normalizeWidth(20),
-                color: "#424242",
+                color: theme?.colors.description,
                 marginBottom: normalizeHeight(10),
               }}
             >
@@ -129,7 +142,7 @@ export default function CryptoSettings() {
               style={{
                 fontWeight: "700",
                 fontSize: normalizeWidth(20),
-                color: "#424242",
+                color: theme?.colors.description,
                 marginBottom: normalizeHeight(20),
               }}
             >
@@ -140,7 +153,7 @@ export default function CryptoSettings() {
                 fontSize: normalizeWidth(15),
                 lineHeight: normalizeHeight(22),
                 fontWeight: "400",
-                color: "#424242",
+                color: theme?.colors.description,
                 marginBottom: normalizeHeight(10),
               }}
             >
@@ -179,15 +192,3 @@ export default function CryptoSettings() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  borderBox: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#EAECF0",
-    borderRadius: normalizeWidth(24),
-    marginTop: normalizeHeight(24),
-    paddingVertical: normalizeHeight(20),
-    paddingHorizontal: normalizeWidth(20),
-  },
-});

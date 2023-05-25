@@ -15,8 +15,10 @@ import { useAppContext } from "../../context/AppContextProvider";
 import RadioButton from "../Custom/RadioButton";
 import MyComponent from "../Onboarding/Mycomponent";
 import Permission from "../Onboarding/Permission";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function PermissionSettings() {
+  const theme = useTheme();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const { linkedAccounts } = useAppContext();
   const [selected, setSelected] = React.useState<string>(linkedAccounts[0]);
@@ -29,7 +31,7 @@ export default function PermissionSettings() {
     <ScrollView
       style={{
         paddingHorizontal: normalizeWidth(20),
-        backgroundColor: "white",
+        backgroundColor: theme?.colors.background,
       }}
     >
       <SafeAreaView>
@@ -37,7 +39,7 @@ export default function PermissionSettings() {
           style={{
             fontWeight: "700",
             fontSize: normalizeWidth(24),
-            color: "#424242",
+            color:theme?.colors.title,
             marginTop: normalizeHeight(10),
           }}
         >
@@ -49,7 +51,7 @@ export default function PermissionSettings() {
             fontSize: normalizeWidth(16),
             lineHeight: normalizeHeight(22),
             fontWeight: "400",
-            color: "#424242",
+            color: theme?.colors.description,
             marginTop: normalizeHeight(32),
           }}
         >

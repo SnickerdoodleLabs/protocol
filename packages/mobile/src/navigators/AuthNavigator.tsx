@@ -18,9 +18,9 @@ import RewardsSettings from "../newcomponents/Settings/RewardsSettings";
 import Permission from "../newcomponents/Onboarding/Permission";
 import PermissionSettings from "../newcomponents/Settings/PermissionSettings";
 import NFTDetails from "../newcomponents/Dashboard/NFTs/NFTDetails";
+import { useTheme } from "../context/ThemeContext";
 
 const Stack = createStackNavigator();
-
 export function AuthNavigator() {
   return (
     <Stack.Navigator initialRouteName={ROUTES.INITIAL}>
@@ -36,6 +36,8 @@ export function AuthNavigator() {
 }
 
 export function MarketplaceStack() {
+  const theme = useTheme();
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -46,6 +48,8 @@ export function MarketplaceStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -56,6 +60,8 @@ export function MarketplaceStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -65,6 +71,11 @@ export function MarketplaceStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -74,6 +85,8 @@ export function MarketplaceStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
     </Stack.Navigator>
@@ -81,6 +94,8 @@ export function MarketplaceStack() {
 }
 
 export function DashboardStack() {
+  const theme = useTheme();
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -110,9 +125,14 @@ export function DashboardStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
-        <Stack.Screen
+      <Stack.Screen
         name={ROUTES.ONBOARDING}
         component={OnboardingMain}
         options={{
@@ -120,6 +140,7 @@ export function DashboardStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -129,6 +150,8 @@ export function DashboardStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -138,12 +161,17 @@ export function DashboardStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
     </Stack.Navigator>
   );
 }
+
 export function SettingStack() {
+  const theme = useTheme();
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -154,6 +182,7 @@ export function SettingStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -163,6 +192,11 @@ export function SettingStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
       <Stack.Screen
@@ -172,6 +206,11 @@ export function SettingStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
 
@@ -182,6 +221,11 @@ export function SettingStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
 
@@ -192,6 +236,11 @@ export function SettingStack() {
           headerBackTitleVisible: false,
           headerTransparent: false,
           title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
         }}
       />
     </Stack.Navigator>

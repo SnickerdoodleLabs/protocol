@@ -8,11 +8,10 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
-import Video from "react-native-video";
 import VideoPlayer from "../VideoPlayer";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ScrollView } from "react-native-gesture-handler";
-import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
+import { useTheme } from "../../context/ThemeContext";
 
 interface OnboardingItemProps {
   item: {
@@ -34,6 +33,7 @@ export default function OnboardingItem({
 }: OnboardingItemProps) {
   const { width, height } = Dimensions.get("window");
   const ITEM_WIDTH = width;
+  const theme = useTheme();
   return (
     <SafeAreaView style={{ height: "90%" }}>
       <ScrollView>
@@ -74,7 +74,7 @@ export default function OnboardingItem({
                   textAlign: "center",
                   fontWeight: "700",
                   fontSize: normalizeWidth(24),
-                  color: "#4E4676",
+                  color: theme?.colors.title,
                   lineHeight: normalizeWidth(29),
                 }}
               >
@@ -86,7 +86,7 @@ export default function OnboardingItem({
                 style={{
                   textAlign: "center",
                   fontWeight: "400",
-                  color: "#616161",
+                  color: theme?.colors.description,
                   fontSize: normalizeWidth(16),
                   lineHeight: normalizeWidth(23),
                 }}

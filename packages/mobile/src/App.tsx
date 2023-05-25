@@ -30,6 +30,7 @@ import DeepLinkHandler from "./navigators/DeepLinkHandler";
 import BottomTabNavigator from "./navigators/BottomTabNavigator";
 import { AuthNavigator } from "./navigators/AuthNavigator";
 import Orientation from "react-native-orientation-locker";
+import { ThemeContextProvider } from "./context/ThemeContext";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -57,33 +58,35 @@ const App = () => {
 
   return (
     <AppContextProvider>
-      <NavigationContainer linking={linking}>
-        <LayoutContextProvider>
-          <InvitationContextProvider>
-            <DeepLinkHandler />
-            <EventContextProvider>{null}</EventContextProvider>
-            <WalletConnectProvider
-              bridge="https://bridge.walletconnect.org"
-              clientMeta={{
-                description: "Connect with WalletConnect",
-                url: "https://walletconnect.org",
-                icons: ["https://walletconnect.org/walletconnect-logo.png"],
-                name: "WalletConnect",
-              }}
-              redirectUrl={
-                Platform.OS === "web" ? "https:google.com" : "sdmobile://"
-              }
-              storageOptions={{
-                asyncStorage: AsyncStorage as any,
-              }}
-            >
-              <AccountLinkingContextProvider>
-                <BottomTabNavigator />
-              </AccountLinkingContextProvider>
-            </WalletConnectProvider>
-          </InvitationContextProvider>
-        </LayoutContextProvider>
-      </NavigationContainer>
+      <ThemeContextProvider>
+        <NavigationContainer linking={linking}>
+          <LayoutContextProvider>
+            <InvitationContextProvider>
+              <DeepLinkHandler />
+              <EventContextProvider>{null}</EventContextProvider>
+              <WalletConnectProvider
+                bridge="https://bridge.walletconnect.org"
+                clientMeta={{
+                  description: "Connect with WalletConnect",
+                  url: "https://walletconnect.org",
+                  icons: ["https://walletconnect.org/walletconnect-logo.png"],
+                  name: "WalletConnect",
+                }}
+                redirectUrl={
+                  Platform.OS === "web" ? "https:google.com" : "sdmobile://"
+                }
+                storageOptions={{
+                  asyncStorage: AsyncStorage as any,
+                }}
+              >
+                <AccountLinkingContextProvider>
+                  <BottomTabNavigator />
+                </AccountLinkingContextProvider>
+              </WalletConnectProvider>
+            </InvitationContextProvider>
+          </LayoutContextProvider>
+        </NavigationContainer>
+      </ThemeContextProvider>
     </AppContextProvider>
   );
 };

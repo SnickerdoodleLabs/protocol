@@ -7,6 +7,7 @@ import PieChart, { SliceData } from "../../Custom/PieChart";
 import Pie from "react-native-pie";
 import tinycolor from "tinycolor2";
 import PieChartComponent from "../../Custom/PieChart";
+import { useTheme } from "../../../context/ThemeContext";
 
 export function generateShades(baseColor: string, numShades: number): string[] {
   const shades: string[] = [];
@@ -100,6 +101,56 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
     setGroupedTokens(groupedTokens);
   }, [data]);
 
+  const theme = useTheme();
+  const styles = StyleSheet.create({
+    boxContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: normalizeHeight(24),
+      marginBottom: normalizeHeight(10),
+    },
+    container: {
+      width: normalizeWidth(195),
+      height: normalizeHeight(115),
+      backgroundColor: theme?.colors.backgroundSecondary,
+      borderRadius: normalizeWidth(28),
+      paddingVertical: normalizeHeight(15),
+      paddingHorizontal: normalizeWidth(15),
+    },
+    text1: {
+      fontWeight: "600",
+      fontSize: normalizeWidth(16),
+      color: theme?.colors.title,
+      opacity: 0.7,
+    },
+    text2: {
+      fontWeight: "700",
+      fontSize: normalizeWidth(24),
+      color: theme?.colors.description,
+      marginTop: normalizeHeight(12),
+    },
+    borderBox: {
+      width: "100%",
+      borderWidth: 1,
+      borderColor: theme?.colors.border,
+      borderRadius: normalizeWidth(24),
+      marginVertical: normalizeHeight(14),
+      paddingVertical: normalizeHeight(20),
+      paddingHorizontal: normalizeWidth(20),
+    },
+    text3: {
+      fontSize: normalizeWidth(20),
+      fontWeight: "700",
+      color: theme?.colors.title,
+    },
+    description: {
+      marginVertical: normalizeHeight(12),
+      color: theme?.colors.description,
+      fontSize: normalizeWidth(14),
+      fontWeight: "400",
+    },
+  });
+
   return (
     <View>
       <View style={styles.boxContainer}>
@@ -117,68 +168,27 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
         <Text style={[styles.text3, {}]}>Token Value Breakdown</Text>
 
         <View style={{ height: 250 }}>
-          <PieChartComponent data={dataPie("#AFAADB", data)} />
+          <PieChartComponent data={dataPie("#AFAADB", data)} theme={theme} />
         </View>
       </View>
 
-      <View style={styles.borderBox}>
-        <Text style={styles.text3}>Tokens</Text>
-        <Text style={styles.description}>
-          Your tokens, from linked accounts and newly earned rewards.
-        </Text>
-        {Object.keys(groupedTokens).map((tickerSymbol, index) => {
-          return (
-            <TokenItem
-              tickerSymbol={tickerSymbol}
-              groupedTokens={groupedTokens}
-              index={index}
-            />
-          );
-        })}
+      <View style={{marginBottom:normalizeHeight(50)}}>
+        <View style={styles.borderBox}>
+          <Text style={styles.text3}>Tokens</Text>
+          <Text style={styles.description}>
+            Your tokens, from linked accounts and newly earned rewards.
+          </Text>
+          {Object.keys(groupedTokens).map((tickerSymbol, index) => {
+            return (
+              <TokenItem
+                tickerSymbol={tickerSymbol}
+                groupedTokens={groupedTokens}
+                index={index}
+              />
+            );
+          })}
+        </View>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  boxContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: normalizeHeight(24),
-  },
-    container: {
-    width: normalizeWidth(180),
-    height: normalizeHeight(115),
-    backgroundColor: "#F2F2F8",
-    borderRadius: normalizeWidth(28),
-    paddingVertical: normalizeHeight(15),
-    paddingHorizontal: normalizeWidth(15),
-  },
-  text1: {
-    fontWeight: "500",
-    fontSize: normalizeWidth(16),
-    color: "#616161",
-  },
-  text2: {
-    fontWeight: "700",
-    fontSize: normalizeWidth(24),
-    color: "#616161",
-    marginTop: normalizeHeight(12),
-  },
-  borderBox: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#EAECF0",
-    borderRadius: normalizeWidth(24),
-    marginTop: normalizeHeight(24),
-    paddingVertical: normalizeHeight(20),
-    paddingHorizontal: normalizeWidth(20),
-  },
-  text3: { fontSize: normalizeWidth(20), fontWeight: "700", color: "#424242" },
-  description: {
-    marginVertical: normalizeHeight(12),
-    color: "#616161",
-    fontSize: normalizeWidth(14),
-    fontWeight: "400",
-  },
-});

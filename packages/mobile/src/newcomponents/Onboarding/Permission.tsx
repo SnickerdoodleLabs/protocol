@@ -5,8 +5,36 @@ import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "../../context/ThemeContext";
 
 const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
+  const theme = useTheme();
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+      width: normalizeWidth(380),
+      marginTop: normalizeHeight(20),
+    },
+    row: {
+      borderWidth: 1,
+      borderColor: theme?.colors.border,
+      borderRadius: normalizeWidth(16),
+      paddingHorizontal: normalizeWidth(20),
+      paddingVertical: normalizeHeight(20),
+      marginBottom: normalizeHeight(16),
+    },
+    rowTitle: {
+      fontSize: normalizeWidth(18),
+      fontWeight: "bold",
+      marginBottom: normalizeHeight(15),
+      color: theme?.colors.title,
+    },
+    toggleContainer: {
+      marginBottom: normalizeHeight(14),
+    },
+  });
+
   return (
     <View style={styles.row}>
       <Text style={styles.rowTitle}>{title}</Text>
@@ -15,7 +43,7 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <Text>{item.name}</Text>
+            <Text style={{color:theme?.colors.description}}>{item.name}</Text>
             <CustomSwitch
               value={item.state.status}
               onValueChange={() => {
@@ -45,6 +73,7 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
 
 const Permission = () => {
   const { mobileCore, isUnlocked } = useAppContext();
+  const theme = useTheme();
 
   interface IPermissionStateProps {
     walletDataType: EWalletDataType;
@@ -89,7 +118,6 @@ const Permission = () => {
   });
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   useEffect(() => {
-    console.log("test");
     if (isUnlocked) {
       mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
         console.log("perm", permission);

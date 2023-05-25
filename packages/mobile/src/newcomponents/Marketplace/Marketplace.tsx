@@ -34,6 +34,7 @@ import { ResultAsync, okAsync } from "neverthrow";
 import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
 import { walletDataTypeMap } from "./CardDetails";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Marketplace() {
   const { mobileCore } = useAppContext();
@@ -46,9 +47,10 @@ export default function Marketplace() {
   const [filteredByCategory, setFilteredByCategory] = useState(null);
 
   const animatedWidth = React.useState(new Animated.Value(0))[0];
+  const theme = useTheme();
 
   React.useEffect(() => {
-    console.log('UseEffect7')
+    console.log("UseEffect7");
 
     Orientation.lockToPortrait(); // lock to portrait mode
   }, []);
@@ -243,7 +245,9 @@ export default function Marketplace() {
   };
 
   return (
-    <SafeAreaView style={{ backgroundColor: "white", height: "100%" }}>
+    <SafeAreaView
+      style={{ backgroundColor: theme?.colors.background, height: "100%" }}
+    >
       <ScrollView>
         <SafeAreaView style={{ marginLeft: normalizeWidth(15) }}>
           <View>
@@ -251,8 +255,8 @@ export default function Marketplace() {
               <Text
                 style={{
                   fontWeight: "700",
-                  fontSize: normalizeWidth(20),
-                  color: "#212121",
+                  fontSize: normalizeWidth(24),
+                  color: theme?.colors.title,
                   marginVertical: normalizeHeight(25),
                 }}
               >
@@ -270,7 +274,7 @@ export default function Marketplace() {
                   style={{
                     fontWeight: "700",
                     fontSize: normalizeWidth(20),
-                    color: "#212121",
+                    color: theme?.colors.description,
                     marginTop: normalizeHeight(15),
                     marginBottom: normalizeHeight(25),
                   }}
@@ -289,53 +293,59 @@ export default function Marketplace() {
                   />
                 </View>
 
-                <Text
-                  style={{
-                    fontWeight: "700",
-                    fontSize: normalizeWidth(20),
-                    color: "#212121",
-                    marginTop: normalizeHeight(35),
-                    marginBottom: normalizeHeight(15),
-                  }}
-                >
-                  Featured Rewards Programs
-                </Text>
-                <View>
-                  <View
-                    style={{ justifyContent: "center", alignItems: "center" }}
-                  >
-                    <FlatList
-                      data={featured}
-                      renderItem={renderFeatured}
-                      horizontal={true}
-                      keyExtractor={(item) => item.tag.toString()}
-                      showsHorizontalScrollIndicator={false}
-                    />
+                {featured?.length > 0 && (
+                  <View>
+                    <Text
+                      style={{
+                        fontWeight: "700",
+                        fontSize: normalizeWidth(20),
+                        color: theme?.colors.description,
+                        marginTop: normalizeHeight(35),
+                        marginBottom: normalizeHeight(15),
+                      }}
+                    >
+                      Featured Rewards Programs
+                    </Text>
+                    <View>
+                      <View>
+                        <FlatList
+                          data={featured}
+                          renderItem={renderFeatured}
+                          horizontal={true}
+                          keyExtractor={(item) => item.tag.toString()}
+                          showsHorizontalScrollIndicator={false}
+                        />
+                      </View>
+                    </View>
                   </View>
-                </View>
+                )}
 
-                <Text
-                  style={{
-                    fontWeight: "700",
-                    fontSize: normalizeWidth(20),
-                    color: "#212121",
-                    marginTop: normalizeHeight(35),
-                    marginBottom: normalizeHeight(15),
-                  }}
-                >
-                  Popular Rewards Programs
-                </Text>
-                <View>
-                  <View style={{}}>
-                    <FlatList
-                      data={popular}
-                      renderItem={renderFeatured}
-                      horizontal={true}
-                      keyExtractor={(item) => item.tag.toString()}
-                      showsHorizontalScrollIndicator={false}
-                    />
+                {popular?.length > 0 && (
+                  <View>
+                    <Text
+                      style={{
+                        fontWeight: "700",
+                        fontSize: normalizeWidth(20),
+                        color: theme?.colors.description,
+                        marginTop: normalizeHeight(35),
+                        marginBottom: normalizeHeight(15),
+                      }}
+                    >
+                      Popular Rewards Programs
+                    </Text>
+                    <View>
+                      <View style={{}}>
+                        <FlatList
+                          data={popular}
+                          renderItem={renderFeatured}
+                          horizontal={true}
+                          keyExtractor={(item) => item.tag.toString()}
+                          showsHorizontalScrollIndicator={false}
+                        />
+                      </View>
+                    </View>
                   </View>
-                </View>
+                )}
               </View>
             )}
             {searchQuery.length > 0 && !filteredByCategory && (
@@ -344,7 +354,7 @@ export default function Marketplace() {
                   style={{
                     fontWeight: "700",
                     fontSize: normalizeWidth(20),
-                    color: "#212121",
+                    color: theme?.colors.description,
                     marginTop: normalizeHeight(15),
                     marginBottom: normalizeHeight(25),
                   }}
@@ -373,13 +383,14 @@ export default function Marketplace() {
                     onPress={() => {
                       setFilteredByCategory(null);
                     }}
+                    color={theme?.colors.description}
                   />
 
                   <Text
                     style={{
                       fontWeight: "700",
                       fontSize: normalizeWidth(20),
-                      color: "#212121",
+                      color: theme?.colors.description,
                       marginTop: normalizeHeight(25),
                       marginBottom: normalizeHeight(25),
                       marginLeft: normalizeWidth(5),
@@ -430,17 +441,3 @@ export default function Marketplace() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  sidebar: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#fff",
-    borderLeftWidth: 1,
-    borderLeftColor: "#ccc",
-    paddingHorizontal: 16,
-    zIndex: 999,
-  },
-});

@@ -7843,9 +7843,9 @@ __metadata:
     react-native-svg: 9.6.4
     react-native-svg-charts: ^5.4.0
     react-native-tab-view: ^3.5.1
-    react-native-tcp: latest
+    react-native-tcp: ^3.3.2
     react-native-track-player: ^3.2.0
-    react-native-udp: latest
+    react-native-udp: ^2.7.0
     react-native-vector-icons: ^9.2.0
     react-native-video: ^5.2.1
     react-scripts: ^5.0.1
@@ -19387,7 +19387,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:^3.0.0, events@npm:^3.1.0, events@npm:^3.2.0, events@npm:^3.3.0":
+"events@npm:^3.0.0, events@npm:^3.2.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
@@ -34400,9 +34400,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-tcp@npm:latest":
-  version: 4.0.0
-  resolution: "react-native-tcp@npm:4.0.0"
+"react-native-tcp@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "react-native-tcp@npm:3.3.2"
   dependencies:
     base64-js: 0.0.8
     buffer: ^5.0.0
@@ -34411,8 +34411,8 @@ __metadata:
     process: ^0.11.9
     util: ^0.10.3
   peerDependencies:
-    react-native: ">=0.60.0"
-  checksum: e323a2abecafa713e9e4a259d219029152f82582590a8e743667ce43c37921b253d96621d014cbbb6a58ef35ddcf759e106d1ae2fbed3159a5cd4fc76a57855d
+    react-native: ">=0.40.0"
+  checksum: cc63b4bf94cd30ad298322fcd0f6e5f3b7cb9d748ad00d7b53ac8b4259ba1c2ec87b4af84e5059d2008c51aade3239b653722154c55750e51b42aa91e5cf8756
   languageName: node
   linkType: hard
 
@@ -34430,13 +34430,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-udp@npm:latest":
-  version: 4.1.7
-  resolution: "react-native-udp@npm:4.1.7"
+"react-native-udp@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "react-native-udp@npm:2.7.0"
   dependencies:
-    buffer: ^5.6.0
-    events: ^3.1.0
-  checksum: e11fdbdb52c6ce701af266effd6c538247dca12c604d32ac0a83e68644b0d629a65d2b57fc402ed9147f5cb8c6c25cd7240d6a772c946c9f0d4b5d5630199e63
+    base64-js: 0.0.8
+    events: ^1.0.2
+    inherits: ^2.0.1
+    ip-regex: ^1.0.3
+    util: ^0.10.3
+  checksum: 84838ef3ccb037c81505c115a74e35be1f5ae8a0f6ccdf32e4240ad7f0892ffff96ff97e44345aeb0d6e75f88194d84350ee14e4391a8a9a763e33d4b5790d1e
   languageName: node
   linkType: hard
 

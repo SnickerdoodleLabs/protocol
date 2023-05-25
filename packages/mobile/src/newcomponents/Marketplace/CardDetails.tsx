@@ -35,6 +35,7 @@ import {
 import { useAppContext } from "../../context/AppContextProvider";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ResultUtils } from "neverthrow-result-utils";
+import { useTheme } from "../../context/ThemeContext";
 
 interface ICardDetailsProps {
   image: any;
@@ -111,6 +112,7 @@ export const isValidURL = (url: string) => {
 };
 
 const CardDetails = ({ navigation, route }) => {
+  const theme = useTheme();
   const { setInvitationStatus } = useLayoutContext();
   const [invitationParams, setInvitationParams] =
     React.useState<IInvitationParams>();
@@ -134,7 +136,6 @@ const CardDetails = ({ navigation, route }) => {
     useState<IConsentCapacity | null>();
 
   useEffect(() => {
-    console.log("UseEffect1");
     mobileCore
       .getCore()
       .getAcceptedInvitationsCID()
@@ -161,7 +162,6 @@ const CardDetails = ({ navigation, route }) => {
   }, [campaignPermissions, marketplaceListing]);
 
   useEffect(() => {
-    console.log("UseEffect2");
     mobileCore
       .getCore()
       .marketplace.getPossibleRewards([
@@ -293,11 +293,11 @@ const CardDetails = ({ navigation, route }) => {
           style={{
             width: 225,
             marginLeft: normalizeWidth(15),
-            backgroundColor: "#fff",
-            borderRadius: 5,
-            padding: 10,
+            backgroundColor: theme?.colors.backgroundSecondary,
+            borderRadius: 25,
+            padding: normalizeWidth(10),
             marginBottom: 10,
-            shadowColor: "#000",
+            shadowColor: theme?.colors.border,
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.8,
             shadowRadius: 2,
@@ -308,7 +308,7 @@ const CardDetails = ({ navigation, route }) => {
             style={{
               position: "absolute",
               zIndex: 1,
-              top: normalizeHeight(5),
+              top: normalizeHeight(8),
               left: normalizeWidth(5),
             }}
           >
@@ -323,7 +323,7 @@ const CardDetails = ({ navigation, route }) => {
           />
           <Text
             style={{
-              color: "#424242",
+              color: theme?.colors.title,
               fontSize: normalizeWidth(18),
               fontWeight: "700",
               paddingVertical: normalizeHeight(15),
@@ -333,7 +333,8 @@ const CardDetails = ({ navigation, route }) => {
           </Text>
           <View
             style={{
-              backgroundColor: "rgba(22, 22, 26, 0.04)",
+              backgroundColor: theme?.colors.background,
+              opacity: 0.85,
               width: "100%",
               padding: normalizeWidth(5),
               borderRadius: normalizeWidth(10),
@@ -342,7 +343,7 @@ const CardDetails = ({ navigation, route }) => {
             <Text
               style={{
                 fontSize: normalizeWidth(15),
-                color: "#2D2944",
+                color: theme?.colors.description,
                 fontWeight: "700",
                 marginVertical: normalizeHeight(8),
               }}
@@ -387,11 +388,11 @@ const CardDetails = ({ navigation, route }) => {
           style={{
             width: 225,
             marginLeft: normalizeWidth(15),
-            backgroundColor: "#f0f0f0",
+            backgroundColor: theme?.colors.backgroundSecondary,
             borderRadius: 25,
             padding: normalizeWidth(10),
             marginBottom: 10,
-            shadowColor: "#000",
+            shadowColor: theme?.colors.border,
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.8,
             shadowRadius: 2,
@@ -417,7 +418,7 @@ const CardDetails = ({ navigation, route }) => {
           />
           <Text
             style={{
-              color: "#424242",
+              color: theme?.colors.title,
               fontSize: normalizeWidth(18),
               fontWeight: "700",
               paddingVertical: normalizeHeight(15),
@@ -427,7 +428,8 @@ const CardDetails = ({ navigation, route }) => {
           </Text>
           <View
             style={{
-              backgroundColor: "rgba(22, 22, 26, 0.04)",
+              backgroundColor: theme?.colors.background,
+              opacity: 0.85,
               width: "100%",
               padding: normalizeWidth(5),
               borderRadius: normalizeWidth(10),
@@ -436,7 +438,7 @@ const CardDetails = ({ navigation, route }) => {
             <Text
               style={{
                 fontSize: normalizeWidth(15),
-                color: "#2D2944",
+                color: theme?.colors.description,
                 fontWeight: "700",
                 marginVertical: normalizeHeight(8),
               }}
@@ -481,11 +483,11 @@ const CardDetails = ({ navigation, route }) => {
             width: 150,
             marginLeft: normalizeWidth(35),
             marginTop: normalizeHeight(15),
-            backgroundColor: "#fff",
+            backgroundColor: theme?.colors.background,
             borderRadius: normalizeWidth(12),
             padding: normalizeWidth(10),
             marginBottom: normalizeHeight(5),
-            shadowColor: "#000",
+            shadowColor: theme?.colors.backgroundSecondary,
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.8,
             shadowRadius: 2,
@@ -515,7 +517,7 @@ const CardDetails = ({ navigation, route }) => {
           />
           <Text
             style={{
-              color: "#424242",
+              color: theme?.colors.title,
               fontSize: normalizeWidth(10),
               fontWeight: "700",
               paddingVertical: normalizeHeight(15),
@@ -525,7 +527,7 @@ const CardDetails = ({ navigation, route }) => {
           </Text>
           <View
             style={{
-              backgroundColor: "rgba(22, 22, 26, 0.04)",
+              backgroundColor: theme?.colors.backgroundSecondary,
               width: "100%",
               padding: normalizeWidth(5),
               borderRadius: normalizeWidth(10),
@@ -534,7 +536,7 @@ const CardDetails = ({ navigation, route }) => {
             <Text
               style={{
                 fontSize: normalizeWidth(12),
-                color: "#2D2944",
+                color: theme?.colors.description,
                 fontWeight: "700",
                 marginVertical: normalizeHeight(8),
               }}
@@ -574,584 +576,677 @@ const CardDetails = ({ navigation, route }) => {
     );
   };
 
+  const styles = StyleSheet.create({
+    image: {
+      width: normalizeWidth(380),
+      minHeight: normalizeHeight(310),
+      borderRadius: normalizeWidth(30),
+      aspectRatio: 1,
+      marginTop: normalizeHeight(20),
+    },
+    title: {
+      fontWeight: "700",
+      fontSize: normalizeWidth(22),
+      lineHeight: normalizeHeight(29),
+      color: theme?.colors.title,
+      paddingTop: normalizeHeight(12),
+    },
+    subTitle: {
+      fontWeight: "500",
+      fontSize: normalizeWidth(16),
+      lineHeight: normalizeHeight(22),
+      color: theme?.colors.description,
+      paddingBottom: normalizeHeight(16),
+    },
+    lineBreaker: {
+      width: "90%",
+      borderBottomWidth: 1,
+      borderBottomColor: "#EEEEEE",
+    },
+    claimed: {
+      fontWeight: "700",
+      fontSize: normalizeWidth(24),
+      lineHeight: normalizeHeight(29),
+      color: "#4E4676",
+      marginTop: normalizeHeight(16),
+    },
+    peopleClaimed: {
+      fontWeight: "500",
+      fontSize: normalizeWidth(14),
+      color: "#616161",
+      marginTop: normalizeHeight(8),
+    },
+    descriptionContainer: {
+      borderWidth: 0,
+      borderColor: "#EEEEEE",
+      borderRadius: normalizeWidth(24),
+      width: "90%",
+      paddingHorizontal: normalizeWidth(15),
+      paddingTop: normalizeHeight(10),
+    },
+    descriptionContainerBorder: {
+      borderWidth: 1,
+      borderColor: "#EEEEEE",
+      borderRadius: normalizeWidth(24),
+      width: "90%",
+      paddingHorizontal: normalizeWidth(15),
+      paddingVertical: normalizeHeight(10),
+    },
+    descriptionTitle: {
+      fontSize: normalizeWidth(24),
+      fontWeight: "700",
+      color: theme?.colors.description,
+      paddingTop: normalizeHeight(10),
+    },
+    company: {
+      fontWeight: "600",
+      fontSize: normalizeWidth(14),
+      color: "#5D4F97",
+    },
+    description: {
+      fontWeight: "400",
+      fontSize: normalizeWidth(16),
+      lineHeight: normalizeHeight(22),
+      color: theme?.colors.description,
+      textAlign: "center",
+    },
+    subTitle2: {
+      marginVertical: normalizeHeight(8),
+      fontSize: normalizeWidth(16),
+      fontWeight: "500",
+      color: theme?.colors.description,
+    },
+    linkContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginLeft: 30,
+    },
+  });
+
   return (
-    <ScrollView style={{ backgroundColor: "white" }}>
-      <SafeAreaView>
-        <View style={{ alignItems: "center" }}>
-          <Image style={styles.image} source={{ uri: metaData.image }} />
-          <Text style={styles.title}>{metaData?.rewardName}</Text>
-          <View style={styles.descriptionContainer}>
-            <Text style={styles.description}>{metaData?.description}</Text>
-          </View>
-
-          <View style={{ marginVertical: normalizeHeight(10) }}>
-            <LineBreaker />
-          </View>
-
-          {isSubscribed && (
-            <View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={{
-                    color: "#289F8A",
-                    fontSize: normalizeWidth(16),
-                    fontWeight: "700",
-                  }}
-                >
-                  Subscribed
-                </Text>
-                <Icon
-                  size={15}
-                  name="checkmark-sharp"
-                  style={{
-                    marginLeft: normalizeWidth(5),
-                    color: "#289F8A",
-                  }}
-                />
-              </View>
+    <SafeAreaView>
+      <ScrollView style={{ backgroundColor: theme?.colors.background }}>
+        <SafeAreaView>
+          <View style={{ alignItems: "center" }}>
+            <Image style={styles.image} source={{ uri: metaData.image }} />
+            <Text style={styles.title}>{metaData?.rewardName}</Text>
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.description}>{metaData?.description}</Text>
             </View>
-          )}
 
-          <View>
-            <View
-              style={{
-                flexDirection: "row",
-                width: normalizeWidth(380),
-                paddingVertical: normalizeHeight(20),
-                alignItems: "center",
-              }}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View
-                  style={{
-                    alignItems: "center",
-                    marginRight: normalizeWidth(35),
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: normalizeWidth(24),
-                      color: "#4E4676",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {consentCapacity
-                      ? consentCapacity?.maxCapacity -
-                        consentCapacity?.availableOptInCount
-                      : 0}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: normalizeWidth(14),
-                      color: "#616161",
-                      marginTop: normalizeHeight(8),
-                    }}
-                  >
-                    Subscriber
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    width: 1,
-                    height: 77,
-                    backgroundColor: "#EEEEEE",
-                  }}
-                />
-              </View>
-
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View
-                  style={{
-                    alignItems: "center",
-                    marginHorizontal: normalizeWidth(35),
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: normalizeWidth(24),
-                      color: "#4E4676",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {earnedRewards.length + missedRewards.length}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: normalizeWidth(14),
-                      color: "#616161",
-                      marginTop: normalizeHeight(8),
-                    }}
-                  >
-                    Rewards
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    width: 1,
-                    height: 77,
-                    backgroundColor: "#EEEEEE",
-                  }}
-                />
-              </View>
-
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View
-                  style={{
-                    alignItems: "center",
-                    marginHorizontal: normalizeWidth(35),
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: normalizeWidth(24),
-                      color: "#4E4676",
-                      fontWeight: "700",
-                      marginTop: normalizeHeight(18),
-                      marginBottom: normalizeHeight(8),
-                    }}
-                  >
-                    {consentCapacity ? consentCapacity.availableOptInCount : 0}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: normalizeWidth(14),
-                      color: "#616161",
-
-                      textAlign: "center",
-                    }}
-                  >
-                    {`Remaining \nSubscriptions`}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          <View style={{ paddingLeft: "2.5%" }}>
-            <Text
-              style={{
-                fontSize: normalizeWidth(20),
-                fontWeight: "700",
-                color: "#424242",
-                paddingVertical: normalizeHeight(15),
-              }}
-            >
-              Rent more data, unlock more rewards!
-            </Text>
-            <Text
-              style={{
-                fontSize: normalizeWidth(16),
-                color: "#616161",
-                fontWeight: "500",
-                lineHeight: normalizeHeight(22),
-                paddingRight: normalizeWidth(20),
-              }}
-            >
-              You are eligible to earn the following rewards based on your data
-              permissions. Unlock more rewards by changing your data
-              permissions.
-            </Text>
-          </View>
-
-          <View
-            style={[
-              styles.descriptionContainerBorder,
-              {
-                marginTop: 24,
-                width: "95%",
-              },
-            ]}
-          >
-            <Text style={styles.descriptionTitle}>Your Data Permissions</Text>
             <View style={{ marginVertical: normalizeHeight(10) }}>
               <LineBreaker />
             </View>
-            <Text style={styles.subTitle2}>Data you’re willing to share</Text>
-            <View
-              style={{
-                width: "100%",
-                flexDirection: "row",
-                overflow: "hidden",
-                flexWrap: "wrap",
-              }}
-            >
-              {Array.from(walletDataTypeMap.keys()).map((dataType) => {
-                return (
-                  <TouchableOpacity
-                    onPress={() => {
-                      handlePermissions(dataType);
+
+            {isSubscribed && (
+              <View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text
+                    style={{
+                      color: "#289F8A",
+                      fontSize: normalizeWidth(16),
+                      fontWeight: "700",
                     }}
                   >
-                    <View
-                      style={{
-                        position: "relative",
-                        marginHorizontal: normalizeWidth(4),
-                        marginVertical: normalizeHeight(5),
-                        backgroundColor: "#F1EFF6",
-                        borderWidth: 2,
-                        borderColor: "#9E96C3",
-                        padding: normalizeWidth(6),
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 100,
-                      }}
-                    >
-                      <Image
-                        style={{ width: 25, height: 25 }}
-                        source={walletDataTypeMap.get(dataType)}
-                      />
-                      <View>
-                        <Text style={{ paddingHorizontal: normalizeWidth(2) }}>
-                          {EWalletDataType[dataType]}
-                        </Text>
-                      </View>
-                      <Icon
-                        name={
-                          campaignPermissions.includes(dataType)
-                            ? "checkmark-sharp"
-                            : "close-sharp"
-                        }
-                        color={"#6E62A6"}
-                        size={18}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {missedRewards.length > 0 && (
-            <View style={{ width: "100%" }}>
-              <View style={{}}>
-                <Text
-                  style={{
-                    color: "$414141",
-                    fontSize: normalizeWidth(20),
-                    fontWeight: "700",
-                    marginVertical: normalizeHeight(10),
-                    marginLeft: normalizeWidth(15),
-                  }}
-                >
-                  Missing Rewards
-                </Text>
-                <FlatList
-                  data={missedRewards}
-                  renderItem={renderMissingRewards}
-                  horizontal={true}
-                  keyExtractor={(item) => item.queryCID.toString()}
-                  showsHorizontalScrollIndicator={false}
-                />
+                    Subscribed
+                  </Text>
+                  <Icon
+                    size={15}
+                    name="checkmark-sharp"
+                    style={{
+                      marginLeft: normalizeWidth(5),
+                      color: "#289F8A",
+                    }}
+                  />
+                </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {earnedRewards.length > 0 && (
-            <View style={{ width: "100%" }}>
-              <View style={{}}>
-                <Text
-                  style={{
-                    color: "$414141",
-                    fontSize: normalizeWidth(20),
-                    fontWeight: "700",
-                    marginBottom: normalizeHeight(10),
-                    marginLeft: normalizeWidth(15),
-                    marginTop: normalizeHeight(10),
-                  }}
-                >
-                  Available Rewards
-                </Text>
-                <FlatList
-                  data={earnedRewards}
-                  renderItem={renderAvailableRewards}
-                  horizontal={true}
-                  keyExtractor={(item) => item.queryCID.toString()}
-                  showsHorizontalScrollIndicator={false}
-                />
-              </View>
-            </View>
-          )}
-
-          {!isSubscribed && (
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#6E62A6",
-                width: normalizeWidth(380),
-                height: normalizeHeight(58),
-                borderRadius: normalizeWidth(100),
-                marginVertical: normalizeHeight(25),
-                justifyContent: "center",
-              }}
-              onPress={() => {
-                setSubscribeButtonClicked(true);
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: "center",
-                  color: "white",
-                  fontWeight: "700",
-                  fontSize: normalizeWidth(16),
-                }}
-              >
-                Subscribe and get your rewards
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          <View>
-            <Modal
-              animationType="fade"
-              transparent={true}
-              visible={subscribeButtonClicked}
-            >
+            <View>
               <View
                 style={{
-                  flex: 1,
-                  justifyContent: "center",
+                  flexDirection: "row",
+                  width: normalizeWidth(380),
+                  paddingVertical: normalizeHeight(20),
                   alignItems: "center",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
                 }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      marginRight: normalizeWidth(35),
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(24),
+                        color: "#4E4676",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {consentCapacity
+                        ? consentCapacity?.maxCapacity -
+                          consentCapacity?.availableOptInCount
+                        : 0}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(14),
+                        color: theme?.colors.description,
+                        marginTop: normalizeHeight(8),
+                      }}
+                    >
+                      Subscriber
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      width: 1,
+                      height: 77,
+                      backgroundColor: "#EEEEEE",
+                    }}
+                  />
+                </View>
+
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      marginHorizontal: normalizeWidth(35),
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(24),
+                        color: "#4E4676",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {earnedRewards.length + missedRewards.length}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(14),
+                        color: theme?.colors.description,
+                        marginTop: normalizeHeight(8),
+                      }}
+                    >
+                      Rewards
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      width: 1,
+                      height: 77,
+                      backgroundColor: "#EEEEEE",
+                    }}
+                  />
+                </View>
+
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      marginHorizontal: normalizeWidth(35),
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(24),
+                        color: "#4E4676",
+                        fontWeight: "700",
+                        marginTop: normalizeHeight(18),
+                        marginBottom: normalizeHeight(8),
+                      }}
+                    >
+                      {consentCapacity
+                        ? consentCapacity.availableOptInCount
+                        : 0}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: normalizeWidth(14),
+                        color: theme?.colors.description,
+
+                        textAlign: "center",
+                      }}
+                    >
+                      {`Remaining \nSubscriptions`}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <View style={{ paddingLeft: "2.5%" }}>
+              <Text
+                style={{
+                  fontSize: normalizeWidth(20),
+                  fontWeight: "700",
+                  color: theme?.colors.description,
+                  paddingVertical: normalizeHeight(15),
+                }}
+              >
+                Rent more data, unlock more rewards!
+              </Text>
+              <Text
+                style={{
+                  fontSize: normalizeWidth(16),
+                  color: theme?.colors.description,
+                  fontWeight: "500",
+                  lineHeight: normalizeHeight(22),
+                  paddingRight: normalizeWidth(20),
+                }}
+              >
+                You are eligible to earn the following rewards based on your
+                data permissions. Unlock more rewards by changing your data
+                permissions.
+              </Text>
+            </View>
+
+            <View
+              style={[
+                styles.descriptionContainerBorder,
+                {
+                  marginTop: 24,
+                  width: "95%",
+                },
+              ]}
+            >
+              <Text style={styles.descriptionTitle}>Your Data Permissions</Text>
+              <View style={{ marginVertical: normalizeHeight(10) }}>
+                <LineBreaker />
+              </View>
+              <Text style={styles.subTitle2}>Data you’re willing to share</Text>
+              <View
+                style={{
+                  width: "100%",
+                  flexDirection: "row",
+                  overflow: "hidden",
+                  flexWrap: "wrap",
+                }}
+              >
+                {Array.from(walletDataTypeMap.keys()).map((dataType) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        handlePermissions(dataType);
+                      }}
+                    >
+                      <View
+                        style={{
+                          position: "relative",
+                          marginHorizontal: normalizeWidth(4),
+                          marginVertical: normalizeHeight(5),
+                          backgroundColor: theme?.colors.backgroundSecondary,
+                          borderWidth: 2,
+                          borderColor: "#9E96C3",
+                          padding: normalizeWidth(6),
+                          flexDirection: "row",
+                          alignItems: "center",
+                          borderRadius: 100,
+                        }}
+                      >
+                        <Image
+                          style={{ width: 25, height: 25 }}
+                          source={walletDataTypeMap.get(dataType)}
+                        />
+                        <View>
+                          <Text
+                            style={{ paddingHorizontal: normalizeWidth(2),color:theme?.colors.title }}
+                          >
+                            {EWalletDataType[dataType]}
+                          </Text>
+                        </View>
+                        <Icon
+                          name={
+                            campaignPermissions.includes(dataType)
+                              ? "checkmark-sharp"
+                              : "close-sharp"
+                          }
+                          color={theme?.colors.title}
+                          size={18}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {missedRewards.length > 0 && (
+              <View style={{ width: "100%" }}>
+                <View style={{}}>
+                  <Text
+                    style={{
+                      color: theme?.colors.description,
+                      fontSize: normalizeWidth(20),
+                      fontWeight: "700",
+                      marginVertical: normalizeHeight(10),
+                      marginLeft: normalizeWidth(15),
+                    }}
+                  >
+                    Missing Rewards
+                  </Text>
+                  <FlatList
+                    data={missedRewards}
+                    renderItem={renderMissingRewards}
+                    horizontal={true}
+                    keyExtractor={(item) => item.queryCID.toString()}
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
+              </View>
+            )}
+
+            {earnedRewards.length > 0 && (
+              <View style={{ width: "100%" }}>
+                <View style={{}}>
+                  <Text
+                    style={{
+                      color: theme?.colors.description,
+                      fontSize: normalizeWidth(20),
+                      fontWeight: "700",
+                      marginBottom: normalizeHeight(10),
+                      marginLeft: normalizeWidth(15),
+                      marginTop: normalizeHeight(10),
+                    }}
+                  >
+                    Available Rewards
+                  </Text>
+                  <FlatList
+                    data={earnedRewards}
+                    renderItem={renderAvailableRewards}
+                    horizontal={true}
+                    keyExtractor={(item) => item.queryCID.toString()}
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
+              </View>
+            )}
+
+            {!isSubscribed && (
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#6E62A6",
+                  width: normalizeWidth(380),
+                  height: normalizeHeight(58),
+                  borderRadius: normalizeWidth(100),
+                  marginVertical: normalizeHeight(25),
+                  justifyContent: "center",
+                }}
+                onPress={() => {
+                  setSubscribeButtonClicked(true);
+                }}
+              >
+                <Text
+                  style={{
+                    textAlign: "center",
+                    color: "white",
+                    fontWeight: "700",
+                    fontSize: normalizeWidth(16),
+                  }}
+                >
+                  Subscribe and get your rewards
+                </Text>
+              </TouchableOpacity>
+            )}
+            <View style={{ marginBottom: normalizeHeight(50) }}></View>
+
+            <View>
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={subscribeButtonClicked}
               >
                 <View
                   style={{
-                    backgroundColor: "white",
-                    position: "absolute",
-                    bottom: 0,
-                    width: "100%",
-                    minHeight: normalizeHeight(330),
-                    borderRadius: 50,
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                   }}
                 >
-                  {!subscribeConfirmation && (
-                    <View>
-                      <Text
-                        style={{
-                          fontSize: normalizeWidth(24),
-                          textAlign: "center",
-                          color: "#424242",
-                          fontWeight: "700",
-                          paddingTop: normalizeHeight(40),
-                        }}
-                      >
-                        Unlock Rewards with Data
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: normalizeWidth(16),
-                          textAlign: "center",
-                          fontWeight: "400",
-                          color: "#616161",
-                          lineHeight: normalizeHeight(22),
-                          paddingHorizontal: normalizeWidth(24),
-                          paddingTop: normalizeHeight(5),
-                        }}
-                      >
-                        Accepting these rewards automatically changes your data
-                        permissions. You are now agreeing to rent:
-                        {campaignPermissions.map((perm) => {
-                          return (
-                            <Text
-                              style={{
-                                fontSize: normalizeWidth(16),
-                                textAlign: "center",
-                                fontWeight: "600",
-                                color: "#616161",
-                                lineHeight: normalizeHeight(22),
-                                paddingHorizontal: normalizeWidth(24),
-                                paddingTop: normalizeHeight(5),
-                              }}
-                            >
-                              {" "}
-                              {EWalletDataType[perm]}{" "}
-                            </Text>
-                          );
-                        })}
-                      </Text>
-
-                      <View
-                        style={{
-                          alignItems: "center",
-                          marginBottom: normalizeHeight(30),
-                        }}
-                      >
-                        <TouchableOpacity
+                  <View
+                    style={{
+                      backgroundColor: theme?.colors.backgroundSecondary,
+                      position: "absolute",
+                      bottom: 0,
+                      width: "100%",
+                      minHeight: normalizeHeight(330),
+                      borderRadius: 50,
+                    }}
+                  >
+                    {!subscribeConfirmation && (
+                      <View>
+                        <Text
                           style={{
-                            backgroundColor: "#6E62A6",
-                            width: normalizeWidth(380),
-                            height: normalizeHeight(58),
-                            borderRadius: normalizeWidth(100),
-                            justifyContent: "center",
-                            marginTop: normalizeHeight(28),
-                          }}
-                          onPress={() => {
-                            setSubscribeConfirmation(true);
+                            fontSize: normalizeWidth(24),
+                            textAlign: "center",
+                            color: theme?.colors.title,
+                            fontWeight: "700",
+                            paddingTop: normalizeHeight(40),
                           }}
                         >
-                          <Text
-                            style={{
-                              textAlign: "center",
-                              color: "white",
-                              fontWeight: "700",
-                              fontSize: normalizeWidth(16),
-                            }}
-                          >
-                            Save and Collect
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            backgroundColor: "#D2CEE3",
-                            width: normalizeWidth(380),
-                            height: normalizeHeight(58),
-                            borderRadius: normalizeWidth(100),
-                            justifyContent: "center",
-                            marginTop: normalizeHeight(10),
-                          }}
-                          onPress={() => {
-                            setSubscribeButtonClicked(false);
-                          }}
-                        >
-                          <Text
-                            style={{
-                              textAlign: "center",
-                              color: "white",
-                              fontWeight: "700",
-                              fontSize: normalizeWidth(16),
-                            }}
-                          >
-                            Cancel
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  )}
-
-                  {subscribeConfirmation && (
-                    <View>
-                      <Text
-                        style={{
-                          fontSize: normalizeWidth(24),
-                          textAlign: "center",
-                          color: "#424242",
-                          fontWeight: "700",
-                          paddingTop: normalizeHeight(40),
-                        }}
-                      >
-                        Rewards Confirmation
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: normalizeWidth(16),
-                          textAlign: "center",
-                          fontWeight: "400",
-                          color: "#616161",
-                          lineHeight: normalizeHeight(22),
-                          paddingHorizontal: normalizeWidth(24),
-                          paddingTop: normalizeHeight(5),
-                        }}
-                      >
-                        It may take a few moments for your rewards to process
-                        and appear in your Data Wallet.
-                      </Text>
-                      {missedRewards.length > 0 && (
+                          Unlock Rewards with Data
+                        </Text>
                         <Text
                           style={{
                             fontSize: normalizeWidth(16),
                             textAlign: "center",
                             fontWeight: "400",
-                            color: "#616161",
+                            color: theme?.colors.description,
                             lineHeight: normalizeHeight(22),
                             paddingHorizontal: normalizeWidth(24),
                             paddingTop: normalizeHeight(5),
                           }}
                         >
-                          {`If you subscribe with the existing permissions\n you are going to miss these rewards:`}
+                          Accepting these rewards automatically changes your
+                          data permissions. You are now agreeing to rent:
+                          {campaignPermissions.map((perm) => {
+                            return (
+                              <Text
+                                style={{
+                                  fontSize: normalizeWidth(16),
+                                  textAlign: "center",
+                                  fontWeight: "600",
+                                  color: theme?.colors.description,
+                                  lineHeight: normalizeHeight(22),
+                                  paddingHorizontal: normalizeWidth(24),
+                                  paddingTop: normalizeHeight(5),
+                                }}
+                              >
+                                {" "}
+                                {EWalletDataType[perm]}{" "}
+                              </Text>
+                            );
+                          })}
                         </Text>
-                      )}
-                      {missedRewards.length > 0 && (
-                        <View style={{ width: "100%" }}>
-                          <View style={{}}>
-                            <FlatList
-                              data={missedRewards}
-                              renderItem={renderMissingRewardsAccept}
-                              horizontal={true}
-                              keyExtractor={(item) => item.queryCID.toString()}
-                              showsHorizontalScrollIndicator={false}
-                            />
-                          </View>
-                        </View>
-                      )}
 
-                      <View
-                        style={{
-                          alignItems: "center",
-                          marginBottom: normalizeHeight(30),
-                        }}
-                      >
-                        <TouchableOpacity
+                        <View
                           style={{
-                            backgroundColor: "#6E62A6",
-                            width: normalizeWidth(380),
-                            height: normalizeHeight(58),
-                            borderRadius: normalizeWidth(100),
-                            justifyContent: "center",
-                            marginTop: normalizeHeight(28),
-                          }}
-                          onPress={() => {
-                            handleSubscribe(null, null);
+                            alignItems: "center",
+                            marginBottom: normalizeHeight(30),
                           }}
                         >
-                          <Text
+                          <TouchableOpacity
                             style={{
-                              textAlign: "center",
-                              color: "white",
-                              fontWeight: "700",
-                              fontSize: normalizeWidth(16),
+                              backgroundColor: "#6E62A6",
+                              width: normalizeWidth(380),
+                              height: normalizeHeight(58),
+                              borderRadius: normalizeWidth(100),
+                              justifyContent: "center",
+                              marginTop: normalizeHeight(28),
+                            }}
+                            onPress={() => {
+                              setSubscribeConfirmation(true);
                             }}
                           >
-                            Accept
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            backgroundColor: "#D2CEE3",
-                            width: normalizeWidth(380),
-                            height: normalizeHeight(58),
-                            borderRadius: normalizeWidth(100),
-                            justifyContent: "center",
-                            marginTop: normalizeHeight(10),
-                          }}
-                          onPress={() => {
-                            setSubscribeButtonClicked(false);
-                          }}
-                        >
-                          <Text
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "white",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                              }}
+                            >
+                              Save and Collect
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
                             style={{
-                              textAlign: "center",
-                              color: "white",
-                              fontWeight: "700",
-                              fontSize: normalizeWidth(16),
+                              backgroundColor: "#3D365B",
+                              width: normalizeWidth(380),
+                              height: normalizeHeight(58),
+                              borderRadius: normalizeWidth(100),
+                              justifyContent: "center",
+                              marginTop: normalizeHeight(10),
+                            }}
+                            onPress={() => {
+                              setSubscribeButtonClicked(false);
                             }}
                           >
-                            Cancel
-                          </Text>
-                        </TouchableOpacity>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "white",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                              }}
+                            >
+                              Cancel
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
-                    </View>
-                  )}
+                    )}
+
+                    {subscribeConfirmation && (
+                      <View>
+                        <Text
+                          style={{
+                            fontSize: normalizeWidth(24),
+                            textAlign: "center",
+                            color: theme?.colors.title,
+                            fontWeight: "700",
+                            paddingTop: normalizeHeight(40),
+                          }}
+                        >
+                          Rewards Confirmation
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: normalizeWidth(16),
+                            textAlign: "center",
+                            fontWeight: "400",
+                            color: theme?.colors.description,
+                            lineHeight: normalizeHeight(22),
+                            paddingHorizontal: normalizeWidth(24),
+                            paddingTop: normalizeHeight(5),
+                          }}
+                        >
+                          It may take a few moments for your rewards to process
+                          and appear in your Data Wallet.
+                        </Text>
+                        {missedRewards.length > 0 && (
+                          <Text
+                            style={{
+                              fontSize: normalizeWidth(16),
+                              textAlign: "center",
+                              fontWeight: "400",
+                              color: theme?.colors.description,
+                              lineHeight: normalizeHeight(22),
+                              paddingHorizontal: normalizeWidth(24),
+                              paddingTop: normalizeHeight(5),
+                            }}
+                          >
+                            {`If you subscribe with the existing permissions\n you are going to miss these rewards:`}
+                          </Text>
+                        )}
+                        {missedRewards.length > 0 && (
+                          <View style={{ width: "100%" }}>
+                            <View style={{}}>
+                              <FlatList
+                                data={missedRewards}
+                                renderItem={renderMissingRewardsAccept}
+                                horizontal={true}
+                                keyExtractor={(item) =>
+                                  item.queryCID.toString()
+                                }
+                                showsHorizontalScrollIndicator={false}
+                              />
+                            </View>
+                          </View>
+                        )}
+
+                        <View
+                          style={{
+                            alignItems: "center",
+                            marginBottom: normalizeHeight(30),
+                          }}
+                        >
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: "#6E62A6",
+                              width: normalizeWidth(380),
+                              height: normalizeHeight(58),
+                              borderRadius: normalizeWidth(100),
+                              justifyContent: "center",
+                              marginTop: normalizeHeight(28),
+                            }}
+                            onPress={() => {
+                              handleSubscribe(null, null);
+                            }}
+                          >
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "white",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                              }}
+                            >
+                              Accept
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: "#3D365B",
+                              width: normalizeWidth(380),
+                              height: normalizeHeight(58),
+                              borderRadius: normalizeWidth(100),
+                              justifyContent: "center",
+                              marginTop: normalizeHeight(10),
+                            }}
+                            onPress={() => {
+                              setSubscribeButtonClicked(false);
+                            }}
+                          >
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "white",
+                                fontWeight: "700",
+                                fontSize: normalizeWidth(16),
+                              }}
+                            >
+                              Cancel
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
+                  </View>
                 </View>
-              </View>
-            </Modal>
+              </Modal>
+            </View>
           </View>
-        </View>
-      </SafeAreaView>
-    </ScrollView>
+        </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
-
-export default CardDetails;
-
 const styles = StyleSheet.create({
   image: {
     width: normalizeWidth(380),
@@ -1237,3 +1332,4 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
 });
+export default CardDetails;

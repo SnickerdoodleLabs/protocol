@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+import { useTheme } from "../../context/ThemeContext";
 
 const MultiSelectOption = ({
   value,
@@ -18,7 +19,7 @@ const MultiSelectOption = ({
       onSelect(value);
     }
   };
-
+  const theme = useTheme();
   return (
     <TouchableOpacity onPress={handlePress} style={styles.option}>
       <View
@@ -59,7 +60,16 @@ const MultiSelectOption = ({
           style={{ width: normalizeWidth(24), height: normalizeHeight(24) }}
           source={image}
         />
-        <Text style={styles.label}>{label}</Text>
+        <Text
+          style={{
+            fontSize: normalizeWidth(18),
+            fontWeight: "600",
+            color: theme?.colors.title,
+            marginLeft: normalizeWidth(5),
+          }}
+        >
+          {label}
+        </Text>
       </View>
     </TouchableOpacity>
   );

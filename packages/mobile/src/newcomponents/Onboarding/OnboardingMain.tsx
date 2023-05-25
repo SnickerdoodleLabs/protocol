@@ -14,18 +14,15 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Alert,
-  NativeModules,
 } from "react-native";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import PieChart from "../Custom/PieChart";
 import MyComponent from "./Mycomponent";
 import OnboardingItem from "./OnboardingItem";
 import Permission from "./Permission";
 import { useAppContext } from "../../context/AppContextProvider";
 import { useNavigation } from "@react-navigation/native";
 import { ROUTES } from "../../constants";
-import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
 import { ethers } from "ethers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -38,55 +35,18 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   ELoadingStatusType,
-  ILoadingStatus,
   useLayoutContext,
 } from "../../context/LayoutContext";
 import Clipboard from "@react-native-clipboard/clipboard";
 import Crypto from "react-native-quick-crypto";
 import Wallet from "ethereumjs-wallet";
-import { keccak256 } from "ethers/lib/utils";
+import { useTheme } from "../../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
 
 const OnboardingMain = () => {
   const navigation = useNavigation();
-
-  useEffect(() => {
-    navigation.getParent()?.setOptions({
-      tabBarStyle: {
-        display: "none",
-      },
-    });
-    setTimeout(() => {
-      navigation.getParent()?.setOptions({
-        tabBarStyle: {
-          display: "none",
-        },
-      });
-      return () =>
-        navigation.getParent()?.setOptions({
-          tabBarStyle: {
-            display: "none",
-          },
-        });
-    }, 10);
-
-    navigation.getParent()?.setOptions({
-      tabBarStyle: {
-        display: "none",
-      },
-    });
-    return () =>
-      navigation.getParent()?.setOptions({
-        tabBarStyle: undefined,
-      });
-  }, [navigation]);
-
-  const initialLoadingStatus: ILoadingStatus = {
-    loading: false,
-    type: ELoadingStatusType.IDLE,
-  };
   const [publicKey, setPublicKey] = React.useState("");
   const [privateKey, setPrivateKey] = React.useState("");
   const [walletObject, setWalletObject] = React.useState<ethers.Wallet | null>(
@@ -106,27 +66,8 @@ const OnboardingMain = () => {
 
   const { mobileCore } = useAppContext();
   const { setLoadingStatus } = useLayoutContext();
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      ({ endCoordinates }) => {
-        setKeyboardHeight(endCoordinates.height);
-      },
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardHeight(0);
-      },
-    );
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+  const theme = useTheme();
+  theme?.setIsDarkMode(true);
 
   useEffect(() => {
     if (isUnlocked) {
@@ -134,23 +75,13 @@ const OnboardingMain = () => {
     }
   }, [isUnlocked]);
 
-  const isValidPublicKey = (publicKey) => {
-    try {
-      const address = ethers.utils.getAddress(publicKey);
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  };
-
-  const handlePrevButtonPress = () => {
-    // Scroll to the previous image
-    scrollViewRef.current?.scrollTo({
-      x: scrollX._value - ITEM_WIDTH,
-      animated: true,
+  useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: {
+        display: "none",
+      },
     });
-  };
+  }, [navigation]);
 
   const handleNextButtonPress = () => {
     // Scroll to the next image
@@ -252,7 +183,7 @@ const OnboardingMain = () => {
             style={{
               textAlign: "center",
               fontWeight: "400",
-              color: "#616161",
+              color: theme?.colors.description,
               fontSize: normalizeWidth(16),
               lineHeight: normalizeWidth(23),
             }}
@@ -461,7 +392,12 @@ const OnboardingMain = () => {
   }, [isUnlocked]);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={StyleSheet.create([
+        styles.container,
+        { backgroundColor: theme?.colors.background },
+      ])}
+    >
       <ScrollView
         style={{ zIndex: 999 }}
         ref={scrollViewRef}
@@ -485,7 +421,7 @@ const OnboardingMain = () => {
             <View
               style={{
                 position: "absolute",
-                zIndex:-1,
+                zIndex: -1,
                 bottom: normalizeHeight(45),
               }}
             >
@@ -508,7 +444,7 @@ const OnboardingMain = () => {
                   <KeyboardAvoidingView
                     style={[
                       {
-                        backgroundColor: "white",
+                        backgroundColor: theme?.colors.background,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -523,7 +459,7 @@ const OnboardingMain = () => {
                       style={{
                         fontSize: normalizeWidth(24),
                         textAlign: "center",
-                        color: "#424242",
+                        color: theme?.colors.title,
                         fontWeight: "700",
                         paddingTop: normalizeHeight(40),
                         paddingHorizontal: normalizeHeight(10),
@@ -535,7 +471,7 @@ const OnboardingMain = () => {
                       style={{
                         textAlign: "center",
                         fontWeight: "400",
-                        color: "#616161",
+                        color: theme?.colors.description,
                         fontSize: normalizeWidth(16),
                         lineHeight: normalizeWidth(23),
                         paddingHorizontal: normalizeWidth(20),
@@ -728,7 +664,7 @@ const OnboardingMain = () => {
                   <KeyboardAvoidingView
                     style={[
                       {
-                        backgroundColor: "white",
+                        backgroundColor: theme?.colors.background,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -753,7 +689,7 @@ const OnboardingMain = () => {
                       style={{
                         fontSize: normalizeWidth(24),
                         textAlign: "center",
-                        color: "#424242",
+                        color: theme?.colors.title,
                         fontWeight: "700",
                         paddingTop: normalizeHeight(40),
                         paddingHorizontal: normalizeHeight(10),
@@ -765,7 +701,7 @@ const OnboardingMain = () => {
                       style={{
                         textAlign: "center",
                         fontWeight: "400",
-                        color: "#616161",
+                        color: theme?.colors.description,
                         fontSize: normalizeWidth(16),
                         lineHeight: normalizeWidth(23),
                         paddingHorizontal: normalizeWidth(20),
@@ -781,17 +717,18 @@ const OnboardingMain = () => {
                       <View
                         style={{
                           borderWidth: 1,
-                          borderColor: "#EEEEEE",
+                          borderColor: theme?.colors.border,
                           width: "90%",
                           height: normalizeHeight(260),
                           borderRadius: normalizeWidth(16),
                           padding: normalizeWidth(20),
+                          marginTop: normalizeHeight(10),
                         }}
                       >
                         <Text
                           style={{
                             fontSize: normalizeWidth(20),
-                            color: "#424242",
+                            color: theme?.colors.title,
                             fontWeight: "700",
                             lineHeight: normalizeWidth(24),
                           }}
@@ -802,7 +739,7 @@ const OnboardingMain = () => {
                           style={{
                             width: "100%",
                             height: normalizeHeight(68),
-                            backgroundColor: "#FAFAFA",
+                            backgroundColor: theme?.colors.backgroundSecondary,
                             justifyContent: "center",
                             paddingHorizontal: normalizeWidth(10),
                             marginVertical: normalizeHeight(12),
@@ -825,7 +762,7 @@ const OnboardingMain = () => {
                             <Text
                               style={{
                                 paddingLeft: normalizeWidth(12),
-                                color: "#616161",
+                                color: theme?.colors.description,
                                 fontSize: normalizeWidth(16),
                                 fontWeight: "600",
                               }}
@@ -838,7 +775,7 @@ const OnboardingMain = () => {
                         <Text
                           style={{
                             fontSize: normalizeWidth(20),
-                            color: "#424242",
+                            color: theme?.colors.title,
                             fontWeight: "700",
                             lineHeight: normalizeWidth(24),
                           }}
@@ -849,7 +786,7 @@ const OnboardingMain = () => {
                           style={{
                             width: "100%",
                             height: normalizeHeight(68),
-                            backgroundColor: "#FAFAFA",
+                            backgroundColor: theme?.colors.backgroundSecondary,
                             justifyContent: "center",
                             paddingHorizontal: normalizeWidth(10),
                             marginTop: normalizeHeight(12),
@@ -863,7 +800,7 @@ const OnboardingMain = () => {
                           >
                             <Text
                               style={{
-                                color: "#616161",
+                                color: theme?.colors.description,
                                 fontSize: normalizeWidth(16),
                                 fontWeight: "600",
                               }}
@@ -958,8 +895,6 @@ const OnboardingMain = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-    backgroundColor: "white",
   },
   item: {
     width: ITEM_WIDTH,

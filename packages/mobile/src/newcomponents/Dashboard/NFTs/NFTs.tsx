@@ -7,10 +7,12 @@ import { useNavigation } from "@react-navigation/native";
 import { ipfsParse } from "./NFTDetails";
 import { useAppContext } from "../../../context/AppContextProvider";
 import { IDashboardChildrenProps } from "../Dashboard";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function NFTs({ data }: IDashboardChildrenProps) {
   const navigation = useNavigation();
   const { mobileCore } = useAppContext();
+  const theme = useTheme();
   React.useEffect(() => {}, [data]);
   const NFTs = ({ navigation }: any) => {
     useEffect(() => {
@@ -23,7 +25,7 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
           flexDirection: "row",
           alignItems: "center",
           marginTop: 20,
-          backgroundColor: "white",
+          backgroundColor: theme?.colors.background,
         }}
       >
         <View style={{}}>
@@ -38,11 +40,7 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
               data?.myNFTsNew?.map(
                 (nft) =>
                   nft.name && (
-                    <View
-                      style={{
-                        paddingBottom: normalizeHeight(10),
-                      }}
-                    >
+                    <View style={{ marginBottom: normalizeHeight(20) }}>
                       <TouchableOpacity
                         onPress={() => {
                           navigation.navigate(ROUTES.NFT_DETAILS, {
@@ -53,51 +51,42 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
                       >
                         <View
                           style={{
-                            backgroundColor: "white",
-                            paddingVertical: normalizeHeight(10),
-                            paddingHorizontal: normalizeWidth(10),
-                            borderRadius: normalizeWidth(28),
-                            width: normalizeWidth(190),
-                            elevation: 10,
-                            shadowColor: "#04060f",
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.05,
-                            shadowRadius: 60,
-                            /*    height: normalizeHeight(330), */
+                            width: normalizeWidth(180),
+                            minHeight: normalizeHeight(260),
+                            borderRadius: normalizeWidth(20),
+                            borderWidth: 0.9,
+                            borderColor: theme?.colors.border,
+                            alignItems: "center",
+                            backgroundColor: theme?.colors.backgroundSecondary,
                           }}
                         >
-                          <Image
-                            key={nft.parsed_metadata?.image}
-                            style={{
-                              width: normalizeWidth(170),
-                              height: normalizeHeight(180),
-                              borderRadius: 15,
-                            }}
-                            source={{
-                              uri: ipfsParse(nft.parsed_metadata?.image),
-                            }}
-                          />
-                          <View style={{ paddingLeft: 5 }}>
-                            <Text
-                              style={{
-                                fontWeight: "700",
-                                fontSize: normalizeWidth(18),
-                                color: "#424242",
-                                paddingTop: normalizeHeight(12),
-                                height: normalizeHeight(35),
+                          <View style={{ width: "100%" }}>
+                            <Image
+                              source={{
+                                uri: ipfsParse(nft.parsed_metadata?.image),
                               }}
-                            >
-                              {`${nft.name ?? "Noname"}`}
-                            </Text>
-                            <Text
                               style={{
-                                color: "#616161",
-                                fontWeight: "500",
-                                fontSize: normalizeWidth(12),
-                                paddingTop: normalizeHeight(10),
-                                paddingBottom: normalizeHeight(10),
+                                width: "100%",
+                                aspectRatio: 1,
+                                borderTopLeftRadius: normalizeWidth(20),
+                                borderTopRighRadius: normalizeWidth(20),
+                                borderTopEndRadius: normalizeWidth(20),
                               }}
-                            ></Text>
+                            />
+                            <View>
+                              <Text
+                                style={{
+                                  marginTop: normalizeHeight(12),
+                                  fontWeight: "700",
+                                  fontSize: normalizeWidth(18),
+                                  lineHeight: normalizeHeight(22),
+                                  color: theme?.colors.description,
+                                  textAlign: "center",
+                                }}
+                              >
+                                {`${nft.name ?? "Noname"}`}
+                              </Text>
+                            </View>
                           </View>
                         </View>
                       </TouchableOpacity>
@@ -122,7 +111,7 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
                 />
                 <Text
                   style={{
-                    color: "#616161",
+                    color: theme?.colors.description,
                     fontWeight: "400",
                     fontSize: normalizeWidth(16),
                   }}
@@ -132,6 +121,7 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
               </View>
             )}
           </View>
+          <View style={{ marginBottom: normalizeHeight(50) }} />
         </View>
       </View>
     );
