@@ -29,7 +29,6 @@ import {
   EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { IRequestConfig } from "packages/common-utils/src";
@@ -41,6 +40,9 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
+import { inject, injectable } from "inversify";
+
+@injectable()
 export class EtherscanIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)

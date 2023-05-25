@@ -1,7 +1,4 @@
 import {
-  ISolanaBalanceRepository,
-  ISolanaTransactionRepository,
-  ISolanaNFTRepository,
   AjaxError,
   ChainId,
   SolanaAccountAddress,
@@ -10,16 +7,25 @@ import {
   SolanaTransaction,
   TokenBalance,
   EChain,
+  ISolanaIndexer,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
 export class DummySolanaIndexer
   implements
-    ISolanaBalanceRepository,
-    ISolanaNFTRepository,
-    ISolanaTransactionRepository
+  ISolanaIndexer
 {
   public constructor() {}
+  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+  healthStatus(): EComponentStatus {
+    throw new Error("Method not implemented.");
+  }
+  getSupportedChains(): EChain[] {
+    throw new Error("Method not implemented.");
+  }
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,

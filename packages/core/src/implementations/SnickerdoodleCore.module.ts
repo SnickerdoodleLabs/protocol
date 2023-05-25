@@ -12,17 +12,29 @@ import {
   LogUtils,
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
+
+import { IAlchemyIndexerType,
+IAnkrIndexerType,
+ICovalentEVMTransactionRepositoryType,
+IEtherscanIndexerType,
+IEtherscanNativeBalanceRepositoryType,
+IEVMIndexer,
+IMoralisEVMPortfolioRepositoryType,
+INftScanEVMPortfolioRepositoryType,
+IOklinkIndexerType,
+IPoapRepositoryType,
+IPolygonIndexerType,
+ISimulatorEVMTransactionRepositoryType,
+ISolanaIndexer,
+ISolanaIndexerType,
+} from "@snickerdoodlelabs/objects";
+
 import {
-  AlchemyIndexer,
   AnkrIndexer,
+  AlchemyIndexer,
   CovalentEVMTransactionRepository,
-  DummySolanaIndexer,
   EtherscanIndexer,
   EtherscanNativeBalanceRepository,
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-  IIndexerContextProvider,
-  IIndexerContextProviderType,
   MasterIndexer,
   MoralisEVMPortfolioRepository,
   NftScanEVMPortfolioRepository,
@@ -33,26 +45,17 @@ import {
   SolanaIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@snickerdoodlelabs/indexers";
+import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IAlchemyIndexerType,
-  IAnkrIndexerType,
-  ICovalentEVMTransactionRepositoryType,
-  IDummySolanaIndexerType,
-  IEtherscanIndexerType,
-  IEtherscanNativeBalanceRepositoryType,
-  IEVMIndexer,
-  IMoralisEVMPortfolioRepositoryType,
-  INftScanEVMPortfolioRepositoryType,
-  IOklinkIndexerType,
-  IPoapRepositoryType,
-  IPolygonIndexerType,
-  ISimulatorEVMTransactionRepositoryType,
-  ISolanaIndexer,
-  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -90,10 +93,6 @@ import {
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
-import {
-  IMasterIndexer,
-  IMasterIndexerType,
-} from "packages/objects/src/interfaces";
 
 import {
   AccountIndexerPoller,
@@ -498,54 +497,58 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
 
-    /* EVM compatible Indexers */
-    bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
-    bind<IEVMIndexer>(IAlchemyIndexerType)
+
+    /* EVM compatible Indexers */
+bind<IEVMIndexer>(IAnkrIndexerType)
+      .to(AnkrIndexer)
+      .inSingletonScope();
+bind<IEVMIndexer>(IAlchemyIndexerType)
       .to(AlchemyIndexer)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
+bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
       .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(IEtherscanIndexerType)
+bind<IEVMIndexer>(IEtherscanIndexerType)
       .to(EtherscanIndexer)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(IEtherscanNativeBalanceRepositoryType)
+bind<IEVMIndexer>(IEtherscanNativeBalanceRepositoryType)
       .to(EtherscanNativeBalanceRepository)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
+bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
       .to(MoralisEVMPortfolioRepository)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
+bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
       .to(NftScanEVMPortfolioRepository)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
+bind<IEVMIndexer>(IOklinkIndexerType)
+      .to(OklinkIndexer)
+      .inSingletonScope();
 
-    bind<IEVMIndexer>(IPoapRepositoryType)
+bind<IEVMIndexer>(IPoapRepositoryType)
       .to(PoapRepository)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(IPolygonIndexerType)
+bind<IEVMIndexer>(IPolygonIndexerType)
       .to(PolygonIndexer)
       .inSingletonScope();
 
-    bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
+    
+      bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
       .to(SimulatorEVMTransactionRepository)
       .inSingletonScope();
 
     /* Solana Indexers */
-    bind<ISolanaIndexer>(ISolanaIndexerType)
+bind<ISolanaIndexer>(ISolanaIndexerType)
       .to(SolanaIndexer)
       .inSingletonScope();
 
-    bind<IMasterIndexer>(IMasterIndexerType)
-      .to(MasterIndexer)
-      .inSingletonScope();
   },
 );

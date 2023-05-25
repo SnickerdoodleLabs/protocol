@@ -20,6 +20,10 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
+import { inject, injectable } from "inversify";
+
+
+@injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
     throw new Error("Method not implemented.");

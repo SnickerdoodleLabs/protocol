@@ -3,6 +3,7 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+
 import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
@@ -91,6 +92,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IMasterIndexer,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,

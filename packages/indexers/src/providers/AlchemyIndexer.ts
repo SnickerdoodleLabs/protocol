@@ -40,9 +40,10 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+import { injectable } from "inversify";
 
-export class AlchemyIndexer implements IEVMIndexer, IIndexer {
+@injectable()
+export class AlchemyIndexer implements IEVMIndexer {
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
 
   public constructor(

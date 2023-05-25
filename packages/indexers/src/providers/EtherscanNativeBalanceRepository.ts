@@ -35,7 +35,9 @@ import {
   IIndexerConfigProvider,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+import { injectable } from "inversify";
 
+@injectable()
 export class EtherscanNativeBalanceRepository implements IEVMIndexer {
 
   public constructor(

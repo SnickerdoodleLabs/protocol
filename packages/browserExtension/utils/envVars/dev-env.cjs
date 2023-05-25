@@ -19,9 +19,11 @@ const envVars = {
   __NFTSCAN_API_KEY__: "",
   __POAP_API_KEY__: "",
   __OKLINK_API_KEY__: "",
+
   __ANKR_API_KEY__: "",
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
+  
   __PORTFOLIO_POLLING_INTERVAL__: "",
   __TRANSACTION_POLLING_INTERVAL__: "",
   __BACKUP_POLLING_INTERVAL__: "",

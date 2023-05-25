@@ -78,11 +78,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
 
-    @inject(IIndexerConfigProviderType)
-    protected configProvider: IIndexerConfigProvider,
-    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.preferredIndexers = new Map<EChain, IEVMIndexer[]>([

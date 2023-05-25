@@ -80,9 +80,6 @@ class MasterIndexerMocks {
       this.matic,
       this.sim,
       this.sol,
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
       this.logUtils,
     );
   }

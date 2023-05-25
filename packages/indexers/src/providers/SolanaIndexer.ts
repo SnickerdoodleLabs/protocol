@@ -40,7 +40,6 @@ import {
   ParsedAccountData,
 } from "@solana/web3.js";
 import { BigNumber } from "ethers";
-import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
@@ -49,6 +48,10 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { inject, injectable } from "inversify";
+
+
+@injectable()
 export class SolanaIndexer implements ISolanaIndexer {
   private _connections?: ResultAsync<SolClients, never>;
   public constructor(

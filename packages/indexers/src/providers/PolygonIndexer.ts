@@ -33,7 +33,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
-import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
@@ -44,6 +43,9 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
+import { inject, injectable } from "inversify";
+
+@injectable()
 export class PolygonIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)

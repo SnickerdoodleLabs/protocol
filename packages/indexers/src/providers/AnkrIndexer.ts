@@ -30,11 +30,12 @@ import {
   EComponentStatus,
   IEVMIndexer,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
+import { inject, injectable } from "inversify";
+
 
 import {
   IIndexerConfigProvider,
@@ -42,6 +43,7 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
+@injectable()
 export class AnkrIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
