@@ -5,8 +5,8 @@ interface IConsentFactory {
 
     /// @dev Listing object for storing marketplace listings
     struct Listing{
-      uint256 previous; // pointer to the previous active slot
-      uint256 next; // pointer to the next active slot
+      uint256 previous; // pointer to the higher value active slot
+      uint256 next; // pointer to the next lower value active slot
       address consentContract; // address of the target consent contract
       uint256 timeExpiring; // unix timestamp when the listing expires and can be replaced
     }

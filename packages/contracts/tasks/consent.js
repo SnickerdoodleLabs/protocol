@@ -98,10 +98,14 @@ task(
   "getMarketplaceListings",
   "Get CIDs containing marketplace listing content",
 )
+  .addParam("category", "Which category to inspect")
+  .addParam("startingslot", "Which slot to start from")
   .addParam("howmany", "how many listings to return")
   .setAction(async (taskArgs) => {
     const howmany = taskArgs.howmany;
     const provider = await hre.ethers.provider;
+    const startingSlot = taskArgs.startingSlot;
+    const tag = taskArgs.category;
 
     // attach the first signer account to the consent contract handle
     const consentContractFactorHandle = new hre.ethers.Contract(
@@ -113,7 +117,7 @@ task(
     await consentContractFactorHandle
       .listingsHead()
       .then((listingsHead) => {
-        return consentContractFactorHandle.getListings(listingsHead, howmany);
+        return consentContractFactorHandle.getListingsForward(tag, startingSlot, howmany, true);
       })
       .then((output) => {
         console.log("CIDs", output[0]);

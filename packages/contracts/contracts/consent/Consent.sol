@@ -67,6 +67,15 @@ contract Consent is
     /// @dev the maximum number of consent tokens that can be issued
     uint public maxCapacity;
 
+    /// @dev updateable name for the consent registry used in data wallet UI
+    string private registryName;
+
+    /// @dev updatable description for the consent registry used in data wallet UI
+    string private registryDesc;
+
+    /// @dev updateable image URL for this consent registry used in data wallet UI
+    string private registryImg;
+
     /* MODIFIERS */
 
     /// Checks if open opt in is current disabled
@@ -122,6 +131,40 @@ contract Consent is
     }
 
     /* CORE FUNCTIONS */
+
+    /// @notice Get all details for a consent registry in one rpc call
+    function getRegistryDetails() external view returns(RegistryDetails memory) {
+        RegistryDetails memory deets = RegistryDetails(
+            registryName,
+            registryDesc,
+            registryImg,
+            baseURI,
+            maxCapacity,
+            totalSupply,
+            openOptInDisabled,
+            queryHorizon,
+            domains,
+            tags
+        );
+        return deets; 
+    }
+
+    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
+    /// @dev  passing an empty string will leave the attribute unchanged after the transaction completes
+    /// @param _name Human readable string used as the display name for the rewards marketplace
+    /// @param _desc Human readable description used in the rewards marketplace for user context
+    /// @param _img URL pointing to thumbnail image for use in rewards marketplace UI
+    function updateConsentRegistryDetails(string calldata _name, string calldata _desc, string calldata _img) external {
+        if (bytes(_name).length > 0) {
+            registryName = _name;
+        }
+        if (bytes(_desc).length > 0) {
+            registryDesc = _desc;
+        }
+        if (bytes(_img).length > 0) {
+            registryImg = _img;
+        }
+    }
 
     /// @notice Get the number of tags staked by this contract
     function getNumberOfStakedTags() external view returns (uint256) {
@@ -215,7 +258,50 @@ contract Consent is
         consentFactoryInstance.insertDownstream(tag, _existingSlot, _newSlot);
     }
 
-    /// @notice Replaces an existing listing that has expired (works for head and tail listings)
+    /// @notice Move an existing listing from its current slot to upstream of a new existing slot 
+    /// @dev This function assumes that tag is not the only member in the global list (i.e. getTagTotal(tag) > 1)
+    /// @dev This function also assumes that the listing is not expired
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _newSlot The new slot to move the listing to
+    /// @param _existingSlot The neighboring listing to _newSlow
+    function moveExistingListingUpstream(
+        string memory tag,
+        uint256 _newSlot,
+        uint256 _existingSlot
+    ) external onlyRole(STAKER_ROLE) {
+        // check
+        require(
+            tagIndices[tag] > 0,
+            "Consent Contract: This tag has not been staked"
+        );
+
+        // effects
+        uint256 removalSlot  = tags[tagIndices[tag] - 1].slot;
+        tags[tagIndices[tag] - 1].slot = _newSlot;
+
+        // interaction
+        // remove from current slot, reverts if the listing was replaced after expiration
+        consentFactoryInstance.removeListing(tag, removalSlot);
+        // add to the new slot, reverts if _existingSlot has no current listing
+        consentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
+    }
+
+    /// @notice Restakes a listing from this registry that has expired (works for head and tail listings)
+    /// @param tag Human readable string denoting the target tag to stake
+    function restakeExpiredListing(
+        string memory tag
+    ) external onlyRole(STAKER_ROLE) {
+        // check
+        require(
+            tagIndices[tag] > 0,
+            "Consent Contract: This tag has not been staked"
+        );
+
+        // interaction
+        consentFactoryInstance.replaceExpiredListing(tag, tags[tagIndices[tag] - 1].slot);
+    }
+
+    /// @notice Replaces an existing listing from another registry that has expired (works for head and tail listings)
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _slot The expired slot to replace with a new listing
     function replaceExpiredListing(
@@ -297,7 +383,7 @@ contract Consent is
 
         _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
-        /// increase total supply count, this is 20,0000 gas
+        /// increase total supply count, this is 20,000 gas
         totalSupply++;
     }
 

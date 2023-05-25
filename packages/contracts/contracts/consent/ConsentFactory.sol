@@ -137,8 +137,8 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         require(_newSlot > 0, "ConsentFactory: _newSlot must be greater than 0");
         require(_newSlot > _existingSlot, "ConsentFactory: _newSlot must be greater than _existingSlot");
 
-        // The new listing must fit between _upstream and its current downstresam
-        // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
+        // The new listing must fit between _upstream and its current downstream
+        // if the previous variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
         Listing memory existingListing = listings[LLKey][_existingSlot];
         require(existingListing.previous > _newSlot, "ConsentFactory: _newSlot is greater than existingListing.previous");

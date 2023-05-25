@@ -11,10 +11,24 @@ interface IConsent {
         address staker; // address which staked the specific tag
     }
 
+    // helper struct to retrieve nearly all registry details in one http request
+    struct RegistryDetails{
+        string name;
+        string desc;
+        string imgURL;
+        string baseURI;
+        uint maxCapacity;
+        uint totalSupply;
+        bool openOptInDisabled;
+        uint queryHorizon;
+        string[] domains; 
+        Tag[] tags;
+    }
+
     /* EVENTS */
 
     /// @notice Emitted when a request for data is made
-    /// @dev The SDQL services listens for this event
+    /// @dev The data wallet client subscribes to this event
     /// @param requester Indexed address of data requester
     /// @param ipfsCIDIndexed The indexed IPFS CID pointing to an SDQL instruction
     /// @param ipfsCID The IPFS CID pointing to an SDQL instruction
@@ -33,6 +47,10 @@ interface IConsent {
     event LogRemoveDomain(string domain);
 
     /* External Functions */
+
+    function getRegistryDetails() external view returns(RegistryDetails memory);
+
+    function updateConsentRegistryDetails(string calldata _name, string calldata _desc, string calldata _img) external;
 
     function tagIndices(string calldata) external view returns(uint256);
 
@@ -59,6 +77,10 @@ interface IConsent {
     function newLocalTagUpstream(string memory tag, uint256 _newSlot, uint256 _existingSlot) external;
 
     function newLocalTagDownstream(string memory tag, uint256 _existingSlot, uint256 _newSlot) external;
+
+    function moveExistingListingUpstream(string memory tag, uint256 _newSlot, uint256 _existingSlot) external;
+
+    function restakeExpiredListing(string memory tag) external;
 
     function replaceExpiredListing(string memory tag, uint256 _slot) external;
 
