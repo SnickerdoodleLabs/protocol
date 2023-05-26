@@ -22,11 +22,11 @@ export class ChainComponentStatus {
 export enum EComponentStatus {
   Available = "Available",
   Error = "Error",
-  NoKeyProvided = "NoKeyProvided",
-
   Disabled = "Disabled",
   InUse = "In Use",
   TemporarilyDisabled = "Temporarily Disabled",
+
+  NoKeyProvided = "NoKeyProvided",
 }
 
 export class EProviderFunctions {
