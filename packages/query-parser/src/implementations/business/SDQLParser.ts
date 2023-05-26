@@ -17,6 +17,7 @@ import {
   QueryExpiredError,
   QueryFormatError,
   SDQL_Name,
+  URLString,
   Version,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -416,7 +417,7 @@ export class SDQLParser {
           schema.chainId,
           schema.callback,
           schema.alternatives ? schema.alternatives : [],
-          schema.image 
+          schema.image ? schema.image  : URLString("") 
         );
       });
   }

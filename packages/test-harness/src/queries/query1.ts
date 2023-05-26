@@ -92,48 +92,48 @@ export const query1 = {
     i1: {
       name: "query_response",
       target: "true",
-      returns: "q1",
+      returns: "$q1",
     },
     i2: {
       name: "query_response",
       target: "true",
-      returns: "q2",
+      returns: "$q2",
     },
     i3: {
       name: "query_response",
       target: "true",
-      returns: "q3",
+      returns: "$q3",
     },
     i4: {
       name: "query_response",
       target: "true",
-      returns: "q4",
+      returns: "$q4",
     },
     i5: {
       name: "query_response",
       target: "true",
-      returns: "q5",
+      returns: "$q5",
     },
     i6: {
       name: "query_response",
       target: "true",
-      returns: "q6",
+      returns: "$q6",
     },
     i7: {
       name: "query_response",
       target: "true",
-      returns: "q7",
+      returns: "$q7",
     },
 
     i8: {
       name: "query_response",
       target: "true",
-      returns: "q8",
+      returns: "$q8",
     },
     i9: {
       name: "query_response",
       target: "true",
-      returns: "q9",
+      returns: "$q9",
     },
   },
   compensations: {

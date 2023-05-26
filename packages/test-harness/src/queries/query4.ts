@@ -5,17 +5,18 @@ export const query4 = {
   description: "Ad query with no returns",
   business: "Hentai Paradise",
   ads: {
-    a3: {
-      name: "TestAd3",
+    a1: {
+      name: "TestAd1",
       content: {
         type: "image",
         src: "testSrc",
       },
-      text: "text",
+      text: "QWEQWEWQE",
       displayType: "banner",
-      weight: 8,
+      weight: 6,
       expiry: 1735678800,
-      keywords: ["q", "w", "e"],
+      keywords: ["a", "b", "c"],
+      target: "$q1",
     },
     a2: {
       name: "TestAd2",
@@ -28,18 +29,20 @@ export const query4 = {
       weight: 7,
       expiry: 1735678,
       keywords: ["1", "2", "3"],
+      target: "true",
     },
-    a1: {
-      name: "TestAd1",
+    a3: {
+      name: "TestAd3",
       content: {
         type: "image",
         src: "testSrc",
       },
-      text: "QWEQWEWQE",
+      text: "text",
       displayType: "banner",
-      weight: 6,
+      weight: 8,
       expiry: 1735678800,
-      keywords: ["a", "b", "c"],
+      keywords: ["q", "w", "e"],
+      target: "true",
     },
   },
   queries: {
@@ -57,34 +60,11 @@ export const query4 = {
     },
   },
   compensations: {
-    c3: {
-      name: "THIRD REWARD NAME",
-      image: null,
-      description: "THIRD REWARD DESC",
-      chainId: 31337,
-      callback: {
-        parameters: ["recipientAddress"],
-        data: {
-          trackingId: "982JJDSLAcx",
-        },
-      },
-    },
     c1: {
       name: "The CryptoPunk Draw",
-      image: null,
+      image: "tq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT9",
       description: "participate in the draw to win a CryptoPunk NFT",
-      chainId: 31337,
-      callback: {
-        parameters: ["recipientAddress"],
-        data: {
-          trackingId: "982JJDSLAcx",
-        },
-      },
-    },
-    c4: {
-      name: "FOURTH REWARD NAME",
-      image: null,
-      description: "FOURTH REWARD DESC",
+      requires: "$q2",
       chainId: 31337,
       callback: {
         parameters: ["recipientAddress"],
@@ -95,8 +75,9 @@ export const query4 = {
     },
     c2: {
       name: "SECOND REWARD NAME",
-      image: null,
+      image: "tq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT8",
       description: "SECOND REWARD DESC",
+      requires: "$a1",
       chainId: 31337,
       callback: {
         parameters: ["recipientAddress"],
@@ -105,14 +86,31 @@ export const query4 = {
         },
       },
     },
-  },
-  logic: {
-    ads: ["if$q1then$a1", "$a2"],
-    compensations: [
-      "if$q2then$c1",
-      "if$a1then$c2",
-      "if($a1and$a2)then$c3",
-      "if$a3then$c4",
-    ],
-  },
+    c3: {
+      name: "THIRD REWARD NAME",
+      image: "tq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT1",
+      description: "THIRD REWARD DESC",
+      requires: "$a1 and $a2",
+      chainId: 31337,
+      callback: {
+        parameters: ["recipientAddress"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
+    },
+    c4: {
+      name: "FOURTH REWARD NAME",
+      image: "qq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT1",
+      description: "FOURTH REWARD DESC",
+      requires : "$a3",
+      chainId: 31337,
+      callback: {
+        parameters: ["recipientAddress"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
+    },
+  }
 };
