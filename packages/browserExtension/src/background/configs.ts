@@ -223,26 +223,31 @@ export const configs: IExtensionConfigOverrides = {
           : "",
     },
     etherscanApiKeys: {
-      Ethereum: typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
-      !!__ETHERSCAN_ETHEREUM_API_KEY__
-        ? __ETHERSCAN_ETHEREUM_API_KEY__
-        : "",
-      Polygon: typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
+      Ethereum:
+        typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_ETHEREUM_API_KEY__
+          ? __ETHERSCAN_ETHEREUM_API_KEY__
+          : "",
+      Polygon:
+        typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_POLYGON_API_KEY__
           ? __ETHERSCAN_POLYGON_API_KEY__
           : "",
-      Avalanche: typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_AVALANCHE_API_KEY__
-            ? __ETHERSCAN_AVALANCHE_API_KEY__
-            : "",
-      Binance: typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
-            !!__ETHERSCAN_BINANCE_API_KEY__
-              ? __ETHERSCAN_BINANCE_API_KEY__
-              : "",
-      Moonbeam: typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
-              !!__ETHERSCAN_MOONBEAM_API_KEY__
-                ? __ETHERSCAN_MOONBEAM_API_KEY__
-                : "",
+      Avalanche:
+        typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_AVALANCHE_API_KEY__
+          ? __ETHERSCAN_AVALANCHE_API_KEY__
+          : "",
+      Binance:
+        typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_BINANCE_API_KEY__
+          ? __ETHERSCAN_BINANCE_API_KEY__
+          : "",
+      Moonbeam:
+        typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_MOONBEAM_API_KEY__
+          ? __ETHERSCAN_MOONBEAM_API_KEY__
+          : "",
     },
     covalentApiKey:
       typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__

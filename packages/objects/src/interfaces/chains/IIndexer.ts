@@ -8,7 +8,7 @@ import { EChain } from "@objects/enum";
 import { AjaxError } from "@objects/errors";
 
 export interface IIndexer {
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError>;
-  healthStatus(): EComponentStatus;
+  getHealthCheck(): ResultAsync<Map<EChain, EComponentStatus>, AjaxError>;
+  healthStatus(): Map<EChain, EComponentStatus>;
   getSupportedChains(): Map<EChain, IndexerSupportSummary>;
 }

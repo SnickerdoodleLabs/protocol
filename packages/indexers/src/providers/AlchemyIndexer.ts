@@ -45,7 +45,11 @@ import {
 @injectable()
 export class AlchemyIndexer implements IEVMIndexer {
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
-  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Arbitrum,
@@ -131,7 +135,7 @@ export class AlchemyIndexer implements IEVMIndexer {
     );
   }
 
-  public healthStatus(): EComponentStatus {
+  public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
 
@@ -139,11 +143,23 @@ export class AlchemyIndexer implements IEVMIndexer {
     return this.indexerSupport;
   }
 
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
     return this.configProvider.getConfig().andThen((config) => {
       console.log(
         "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
+      );
+
+      const keys = this.indexerSupport.keys();
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          }
+          this.health.set(key, EComponentStatus.Available);
+        },
       );
       return okAsync(this.health);
     });

@@ -14,7 +14,10 @@ import {
 import { okAsync, ResultAsync } from "neverthrow";
 
 export class DummySolanaIndexer implements ISolanaIndexer {
-  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
 
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
@@ -52,11 +55,14 @@ export class DummySolanaIndexer implements ISolanaIndexer {
     return okAsync([]);
   }
 
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
     throw new Error("Method not implemented.");
   }
 
-  public healthStatus(): EComponentStatus {
+  public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
 

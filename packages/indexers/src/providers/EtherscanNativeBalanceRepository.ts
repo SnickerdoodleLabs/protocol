@@ -39,7 +39,10 @@ import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js
 
 @injectable()
 export class EtherscanNativeBalanceRepository implements IEVMIndexer {
-  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
@@ -140,12 +143,29 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return okAsync(this.health);
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log(
+        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
+      );
+
+      const keys = this.indexerSupport.keys();
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          }
+          this.health.set(key, EComponentStatus.Available);
+        },
+      );
+      return okAsync(this.health);
+    });
   }
 
-  public healthStatus(): EComponentStatus {
+  public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
 
@@ -212,7 +232,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       });
   }
 
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
     return this.indexerSupport;
   }
 }

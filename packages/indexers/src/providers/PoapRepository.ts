@@ -37,7 +37,11 @@ const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
 @injectable()
 export class PoapRepository implements IEVMIndexer {
-  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Gnosis,
@@ -103,13 +107,17 @@ export class PoapRepository implements IEVMIndexer {
     );
   }
 
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
     return this.configProvider.getConfig().andThen((config) => {
       console.log("Poap Keys: " + config.apiKeys.poapApiKey);
       if (config.apiKeys.poapApiKey == "") {
-        return okAsync(EComponentStatus.NoKeyProvided);
+        this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
+        return okAsync(this.health);
       }
       const result: IRequestConfig = {
         method: "get",
@@ -127,16 +135,19 @@ export class PoapRepository implements IEVMIndexer {
         )
         .andThen((result) => {
           if (result.status !== undefined) {
-            return okAsync(EComponentStatus.Available);
+            this.health.set(EChain.Gnosis, EComponentStatus.Available);
+            return okAsync(this.health);
           }
-          return okAsync(EComponentStatus.Error);
+          this.health.set(EChain.Gnosis, EComponentStatus.Error);
+          return okAsync(this.health);
         });
     });
   }
 
-  public healthStatus(): EComponentStatus {
+  public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
+
   public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
     return this.indexerSupport;
   }

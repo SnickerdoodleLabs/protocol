@@ -1,7 +1,8 @@
 import "reflect-metadata";
+import { ResultAsync } from "neverthrow";
+
 import { ExtensionCore } from "@synamint-extension-sdk/core/implementations/ExtensionCore";
 import { IExtensionConfigOverrides } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
-import { ResultAsync } from "neverthrow";
 
 console.log(
   "Creating ExtensionCore. Access via this.extensionCore in debugger",

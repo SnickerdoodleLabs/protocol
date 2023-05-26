@@ -45,7 +45,10 @@ import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js
 
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
-  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Arbitrum,
@@ -187,41 +190,24 @@ export class AnkrIndexer implements IEVMIndexer {
       });
   }
 
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
     return this.configProvider.getConfig().andThen((config) => {
-      if (config.apiKeys.ankrApiKey == "") {
-        return okAsync(EComponentStatus.NoKeyProvided);
-      }
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.poapApiKey,
-        },
-      };
-      return this.ajaxUtils
-        .get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(result.url!),
-          result,
-        )
-        .andThen((result) => {
-          if (result.status !== undefined) {
-            return okAsync(EComponentStatus.Available);
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
           }
-          return okAsync(EComponentStatus.Error);
-        })
-        .andThen((fads) => {
-          return okAsync(fads);
-        });
+          this.health.set(key, EComponentStatus.Available);
+        },
+      );
+      return okAsync(this.health);
     });
   }
 
-  public healthStatus(): EComponentStatus {
+  public healthStatus(): Map<EChain, EComponentStatus> {
     return this.health;
   }
 

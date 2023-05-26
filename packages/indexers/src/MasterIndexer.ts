@@ -106,7 +106,7 @@ export class MasterIndexer implements IMasterIndexer {
   }
 
   /* Sets the health statuses of each provider */
-  private getHealthStatuses(): ResultAsync<Array<EComponentStatus>, AjaxError> {
+  private getHealthStatuses(): ResultAsync<void, AjaxError> {
     return ResultUtils.combine([
       this.alchemy.getHealthCheck(),
       this.ankr.getHealthCheck(),
@@ -120,22 +120,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.poapRepo.getHealthCheck(),
       this.sim.getHealthCheck(),
       this.sol.getHealthCheck(),
-    ]).map(() => {
-      return [
-        this.alchemy.healthStatus(),
-        this.ankr.healthStatus(),
-        this.covalent.healthStatus(),
-        this.etherscan.healthStatus(),
-        this.etherscanNative.healthStatus(),
-        this.matic.healthStatus(),
-        this.moralis.healthStatus(),
-        this.nftscan.healthStatus(),
-        this.oklink.healthStatus(),
-        this.poapRepo.healthStatus(),
-        this.sim.healthStatus(),
-        this.sol.healthStatus(),
-      ];
-    });
+    ]).map(([]) => {});
   }
 
   public getLatestBalances(
@@ -157,7 +142,8 @@ export class MasterIndexer implements IMasterIndexer {
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.balances &&
-        element.healthStatus() == EComponentStatus.Available,
+        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
+          EComponentStatus.Available,
     );
 
     if (provider == undefined) {
@@ -215,7 +201,8 @@ export class MasterIndexer implements IMasterIndexer {
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.nfts &&
-        element.healthStatus() == EComponentStatus.Available,
+        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
+          EComponentStatus.Available,
     );
 
     if (provider == undefined) {
@@ -255,7 +242,8 @@ export class MasterIndexer implements IMasterIndexer {
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.transactions &&
-        element.healthStatus() == EComponentStatus.Available,
+        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
+          EComponentStatus.Available,
     );
 
     if (provider == undefined) {

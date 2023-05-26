@@ -16,6 +16,8 @@ import {
   IEVMIndexer,
   ITokenPriceRepository,
   ISolanaIndexer,
+  ChainId,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -90,6 +92,10 @@ describe("MasterIndexer.initialize() tests", () => {
     // Arrange
     const mocks = new MasterIndexerMocks();
     const queryService = mocks.factory();
+
+    expect(
+      queryService.getLatestBalances(ChainId(1), EVMAccountAddress("x")),
+    ).toBeDefined();
 
     // expect(1).toBeTruthy();
 
