@@ -30,6 +30,7 @@ import {
   ISolanaIndexer,
   EComponentStatus,
   IndexerSupportSummary,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -153,7 +154,17 @@ export class SolanaIndexer implements ISolanaIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+          console.log(
+            "alchemy native key: " +
+              getChainInfoByChain(key).name +
+              " and balance: " +
+              JSON.stringify(value),
+          );
+          console.log(
+            "config.apiKeys.etherscanApiKeys[key]: ",
+            config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name],
+          );
+          if (config.apiKeys.alchemyApiKeys[key] == "") {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);

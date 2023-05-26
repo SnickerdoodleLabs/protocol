@@ -110,7 +110,8 @@ export class MasterIndexer implements IMasterIndexer {
     this.initialize();
   }
 
-  private initialize(): ResultAsync<void, AjaxError> {
+  // call this from elsewhere
+  public initialize(): ResultAsync<void, AjaxError> {
     return this.getHealthStatuses().andThen((healthStatuses) => {
       return okAsync(undefined);
     });
@@ -184,7 +185,7 @@ export class MasterIndexer implements IMasterIndexer {
     );
 
     if (provider == undefined) {
-      this.logUtils.log(
+      this.logUtils.warning(
         "error fetching balances: no healthy provider found for " +
           getChainInfoByChainId(chainId).name +
           " protocol",
@@ -234,6 +235,7 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
+    // can make this another generic function
     const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
       (element) =>

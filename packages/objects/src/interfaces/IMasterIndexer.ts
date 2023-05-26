@@ -14,6 +14,7 @@ import {
 import { AccountAddress, ChainId, UnixTimestamp } from "@objects/primitives";
 
 export interface IMasterIndexer {
+  initialize(): ResultAsync<void, AjaxError>;
   getLatestBalances(
     chainId: ChainId,
     accountAddress: AccountAddress,

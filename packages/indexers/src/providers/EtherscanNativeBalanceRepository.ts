@@ -148,10 +148,19 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.etherscanApiKeys[key] == undefined) {
+          console.log(
+            "etherscan native key: " +
+              getChainInfoByChain(key).name +
+              " and balance: " +
+              JSON.stringify(value),
+          );
+          console.log(
+            "config.apiKeys.etherscanApiKeys[key]: ",
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name],
+          );
+          if (config.apiKeys.etherscanApiKeys[key] == "") {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
@@ -185,15 +194,19 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
+      const key = getChainInfoByChain(chain).name;
+      console.log("get etherscan api key: " + key);
+      if (
+        config.apiKeys.etherscanApiKeys[key] == "" ||
+        config.apiKeys.etherscanApiKeys[key] == undefined
+      ) {
         this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
+      return okAsync(config.apiKeys.etherscanApiKeys[key]!);
     });
   }
 

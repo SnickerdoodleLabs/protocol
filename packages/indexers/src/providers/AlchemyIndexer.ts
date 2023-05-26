@@ -148,10 +148,21 @@ export class AlchemyIndexer implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+          console.log(
+            "alchemy native key: " +
+              getChainInfoByChain(key).name +
+              " and balance: " +
+              JSON.stringify(value),
+          );
+          console.log(
+            "config.apiKeys.alchemyApiKeys[key]: ",
+            config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name],
+          );
+          if (
+            config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name] == ""
+          ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
@@ -229,8 +240,18 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
   ): ResultAsync<URLString, AccountIndexingError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const alchemyApiKey = config.apiKeys.alchemyApiKeys[chain];
-      if (alchemyApiKey == undefined) {
+      const alchemyApiKey =
+        config.apiKeys.alchemyApiKeys[getChainInfoByChain(chain).name];
+      console.log("Chain " + chain + "; Alchemy Key: " + alchemyApiKey);
+      console.log(
+        "config.apiKeys.alchemyApiKeys: " +
+          JSON.stringify(config.apiKeys.alchemyApiKeys),
+      );
+      console.log(
+        "getChainInfoByChain(chain).name:  " + getChainInfoByChain(chain).name,
+      );
+
+      if (alchemyApiKey == undefined || alchemyApiKey == "") {
         return errAsync(
           new AccountIndexingError("Alchemy Endpoint is missing"),
         );
@@ -245,9 +266,14 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+    console.log(
+      "Alchemy get native balance for " + getChainInfoByChain(chain).name,
+    );
     return this.retrieveAlchemyUrl(chain).andThen((url) => {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chain, accountAddress);
+
+      console.log("Alchemy get native balance url: " + url);
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {
@@ -255,6 +281,9 @@ export class AlchemyIndexer implements IEVMIndexer {
           },
         })
         .andThen((response) => {
+          console.log(
+            "Alchemy get native balance response: " + response.result,
+          );
           const weiValue = Web3.utils.hexToNumberString(response.result);
           const balance = new TokenBalance(
             EChainTechnology.EVM,
@@ -327,18 +356,6 @@ export class AlchemyIndexer implements IEVMIndexer {
           });
         });
     });
-  }
-
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Arbitrum,
-      EChain.EthereumMainnet,
-      EChain.Mumbai,
-      EChain.Optimism,
-      EChain.Polygon,
-      EChain.Solana,
-    ];
-    return supportedChains;
   }
 }
 
