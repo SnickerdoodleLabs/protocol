@@ -16,6 +16,7 @@ export const query3 = {
       weight: 100,
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["muktadir", "charlie", "todd"],
+      target : "$q1"
     },
     a2: {
       name: "Second Image ad name",
@@ -28,6 +29,7 @@ export const query3 = {
       weight: 10,
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["messi", "xavi", "iniesta"],
+      target : "true"
     },
     a3: {
       name: "Third Image ad name",
@@ -40,6 +42,7 @@ export const query3 = {
       weight: 11,
       expiry: "2034-11-13T20:20:39Z",
       keywords: ["a", "b", "c"],
+      target : "true"
     },
   },
   queries: {
@@ -67,16 +70,22 @@ export const query3 = {
       },
     },
   },
-  returns: {
-    r1: {
+  insights: {
+    i1: {
       name: "callback",
-      message: "qualified",
+      target :"true",
+      returns: "qualified", 
     },
-    r2: {
+    i2: {
       name: "callback",
-      message: "not qualified",
+      target :"true",
+      returns: "not qualified",
     },
-    url: "https://418e-64-85-231-39.ngrok.io/insights",
+    i3: {
+      name: "callback",
+      target :"$q2",
+      returns: "nice",
+    },
   },
   compensations: {
     parameters: {
@@ -89,6 +98,7 @@ export const query3 = {
       name: "The CryptoPunk Draw",
       image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
+      requires : "$i3",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -101,6 +111,7 @@ export const query3 = {
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
+      requires : "$a1",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -113,6 +124,7 @@ export const query3 = {
       name: "CrazyApesClub NFT distro 2",
       image: "tq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT8",
       description: "another free CrazyApesClub NFT",
+      requires : "$a1 and $a2",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -125,6 +137,7 @@ export const query3 = {
       name: "I'm out of compensation names",
       image: "98mbKqxMsKPL8wBMnRxW32RLMicQ333PBEmWNutq4CGsT8",
       description: "some string",
+      requires : "$a3",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -134,14 +147,5 @@ export const query3 = {
       },
     },
   },
-  logic: {
-    returns: ["$r1", "$r2"],
-    ads: ["if$q1then$a1", "$a2"],
-    compensations: [
-      "if$q2then$c1", // Will be expected
-      "if$a1then$c2", // Will be expected
-      "if($a1and$a2)then$c3", // Will be expected
-      "if$a3then$c4", // WON'T be expected
-    ],
-  },
+ 
 };
