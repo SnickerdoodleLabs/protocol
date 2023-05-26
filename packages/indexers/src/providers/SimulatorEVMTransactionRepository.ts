@@ -44,46 +44,9 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     ],
   ]);
 
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return okAsync(this.health);
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
-  healthCheck(): ResultAsync<string, AjaxError> {
-    throw new Error("Method not implemented.");
-  }
-  getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    const num = Math.floor(Math.random() * 10) + 1;
-    const result: EVMNFT[] = [];
-    for (let i = 0; i < num; i++) {
-      const item = new EVMNFT(
-        EVMContractAddress("EVMContractAddress#"),
-        BigNumberString(`${Math.floor(Math.random() * 1000)}`),
-        "erc721",
-        accountAddress,
-        TokenUri("tokenURI"),
-        { raw: "metadata" },
-        BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        "Fake Token #" + i,
-        chainId,
-        BlockNumber(i),
-        //86400 => day
-        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
-      );
-      result.push(item);
-    }
-    return okAsync(result);
-  }
+ 
 
-  getBalancesForAccount(
+  public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError> {
@@ -103,6 +66,32 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         accountAddress,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         18,
+      );
+      result.push(item);
+    }
+    return okAsync(result);
+  }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    const num = Math.floor(Math.random() * 10) + 1;
+    const result: EVMNFT[] = [];
+    for (let i = 0; i < num; i++) {
+      const item = new EVMNFT(
+        EVMContractAddress("EVMContractAddress#"),
+        BigNumberString(`${Math.floor(Math.random() * 1000)}`),
+        "erc721",
+        accountAddress,
+        TokenUri("tokenURI"),
+        { raw: "metadata" },
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        "Fake Token #" + i,
+        chainId,
+        BlockNumber(i),
+        //86400 => day
+        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
       );
       result.push(item);
     }
@@ -146,15 +135,16 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     return okAsync(result);
   }
 
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Arbitrum,
-      EChain.EthereumMainnet,
-      EChain.Mumbai,
-      EChain.Optimism,
-      EChain.Polygon,
-      EChain.Solana,
-    ];
-    return supportedChains;
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 }

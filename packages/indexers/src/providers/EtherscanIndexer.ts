@@ -60,20 +60,21 @@ export class EtherscanIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return this.configProvider.getConfig().andThen((config) => {
-      return okAsync(this.health);
+  
+
+  public getBalancesForAccount(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.getNonNativeBalance(chain, accountAddress),
+      this.getNativeBalance(chain, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
     });
   }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
 
-  getTokensForAccount(
+  public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
@@ -124,16 +125,19 @@ export class EtherscanIndexer implements IEVMIndexer {
     });
   }
 
-  public getBalancesForAccount(
-    chain: EChain,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.getNonNativeBalance(chain, accountAddress),
-      this.getNativeBalance(chain, accountAddress),
-    ]).map(([nonNativeBalance, nativeBalance]) => {
-      return [nativeBalance, ...nonNativeBalance];
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      return okAsync(this.health);
     });
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+  
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getNativeBalance(
@@ -354,7 +358,9 @@ export class EtherscanIndexer implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.apiKeys.etherscanApiKeys[chainId] !== undefined) {
+      const key = !config.apiKeys.etherscanApiKeys[chainId];
+      console.log("EtherscanIndexer key: ", key);
+      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
@@ -370,6 +376,10 @@ export class EtherscanIndexer implements IEVMIndexer {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
+        console.log(
+          "etherscanApiKeys: ",
+          JSON.stringify(config.apiKeys.etherscanApiKeys),
+        );
         const result: IRequestConfig = {
           method: "get",
           url: url,

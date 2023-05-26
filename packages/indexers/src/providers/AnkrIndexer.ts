@@ -60,19 +60,6 @@ export class AnkrIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return this.configProvider.getConfig().andThen((config) => {
-      console.log("Alchemy Keys: " + config.apiKeys.ankrApiKey);
-      return okAsync(this.health);
-    });
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -200,7 +187,7 @@ export class AnkrIndexer implements IEVMIndexer {
       });
   }
 
-  public healthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
 
@@ -234,19 +221,12 @@ export class AnkrIndexer implements IEVMIndexer {
     });
   }
 
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Arbitrum,
-      EChain.Avalanche,
-      EChain.Binance,
-      EChain.EthereumMainnet,
-      EChain.Gnosis,
-      EChain.Moonbeam,
-      EChain.Optimism,
-      EChain.Polygon,
-      EChain.Solana,
-    ];
-    return supportedChains;
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 }
 

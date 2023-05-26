@@ -72,45 +72,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return okAsync(this.health);
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-
-  public getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    EVMNFT[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    // throw new Error("Method not implemented.");
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-  public getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
 
   public getBalancesForAccount(
     chain: EChain,
@@ -146,6 +107,48 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     });
   }
 
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    // throw new Error("Method not implemented.");
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for EtherscanNativeBalanceRepository",
+        400,
+      ),
+    );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for EtherscanNativeBalanceRepository",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
   protected _getBlockExplorerUrl(
     chain: EChain,
   ): ResultAsync<URLString, AccountIndexingError> {
@@ -166,7 +169,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.apiKeys.etherscanApiKeys[chainId] !== undefined) {
+      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
         this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),

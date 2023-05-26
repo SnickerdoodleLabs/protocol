@@ -14,6 +14,8 @@ import {
 import { okAsync, ResultAsync } from "neverthrow";
 
 export class DummySolanaIndexer implements ISolanaIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.Solana,
@@ -24,28 +26,23 @@ export class DummySolanaIndexer implements ISolanaIndexer {
       new IndexerSupportSummary(EChain.SolanaTestnet, false, false, false),
     ],
   ]);
+
   public constructor() {}
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
-  }
-  public healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
-  }
-  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance[], never> {
     return okAsync([]);
   }
+
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<SolanaNFT[], never> {
     return okAsync([]);
   }
+
   public getSolanaTransactions(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -53,6 +50,18 @@ export class DummySolanaIndexer implements ISolanaIndexer {
     endTime?: Date | undefined,
   ): ResultAsync<SolanaTransaction[], AjaxError | AccountIndexingError> {
     return okAsync([]);
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   public get supportedChains(): Array<EChain> {

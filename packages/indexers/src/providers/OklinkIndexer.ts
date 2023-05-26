@@ -67,92 +67,6 @@ export class OklinkIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return this.configProvider.getConfig().andThen((config) => {
-      console.log("Oklink Keys: " + config.apiKeys.oklinkApiKey);
-      return okAsync(this.health);
-    });
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
-  getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    EVMNFT[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-  getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-  healthCheck(): ResultAsync<string, AjaxError> {
-    throw new Error("Method not implemented.");
-  }
-
-  protected _getEtherscanApiKey(
-    chain: ChainId,
-  ): ResultAsync<string, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      if (!config.apiKeys.etherscanApiKeys[chain] !== undefined) {
-        return errAsync(
-          new AccountIndexingError("no etherscan api key for chain: ", chain),
-        );
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.etherscanApiKeys[chain]!);
-    });
-  }
-
-  private _getOKXConfig(
-    chain: ChainId,
-  ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      switch (chain) {
-        default:
-          return okAsync({
-            id: 0,
-            jsonrpc: "2.0",
-            method: "eth_getBalance",
-            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
-          });
-      }
-    });
-  }
-
-  private getChainShortName(chainId: ChainId): string {
-    switch (getChainInfoByChainId(chainId).chain) {
-      case EChain.Avalanche:
-        return "avaxc";
-      default:
-        return getChainInfoByChainId(chainId).name;
-    }
-  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -201,16 +115,92 @@ export class OklinkIndexer implements IEVMIndexer {
       });
   }
 
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Arbitrum,
-      EChain.EthereumMainnet,
-      EChain.Mumbai,
-      EChain.Optimism,
-      EChain.Polygon,
-      EChain.Solana,
-    ];
-    return supportedChains;
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Oklink Keys: " + config.apiKeys.oklinkApiKey);
+      return okAsync(this.health);
+    });
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
+  }
+
+  protected _getEtherscanApiKey(
+    chain: ChainId,
+  ): ResultAsync<string, AccountIndexingError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      if (!config.apiKeys.etherscanApiKeys[chain] !== undefined) {
+        return errAsync(
+          new AccountIndexingError("no etherscan api key for chain: ", chain),
+        );
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return okAsync(config.apiKeys.etherscanApiKeys[chain]!);
+    });
+  }
+
+  private _getOKXConfig(
+    chain: ChainId,
+  ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
+    return this.configProvider.getConfig().andThen((config) => {
+      switch (chain) {
+        default:
+          return okAsync({
+            id: 0,
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: ["0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83", "latest"],
+          });
+      }
+    });
+  }
+
+  private getChainShortName(chainId: ChainId): string {
+    switch (getChainInfoByChainId(chainId).chain) {
+      case EChain.Avalanche:
+        return "avaxc";
+      default:
+        return getChainInfoByChainId(chainId).name;
+    }
   }
 }
 

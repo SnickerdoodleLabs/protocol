@@ -186,7 +186,22 @@ var options = {
         process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
       ),
 
-      
+      /* ETHERSCAN KEYS PASSED IN */
+      __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ETHEREUM_API_KEY__,
+      ),
+      __ETHERSCAN_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_POLYGON_API_KEY__,
+      ),
+      __ETHERSCAN_AVALANCHE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_AVALANCHE_API_KEY__,
+      ),
+      __ETHERSCAN_BINANCE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_BINANCE_API_KEY__,
+      ),
+      __ETHERSCAN_MOONBEAM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_MOONBEAM_API_KEY__,
+      ),
 
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),

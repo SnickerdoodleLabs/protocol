@@ -147,48 +147,19 @@ export class ConfigProvider
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
       new Map<EChain, URLString>([
-        [
-          EChain.Solana,
-          URLString(
-            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-          ),
-        ],
+        [EChain.Solana, URLString("https://solana-mainnet.g.alchemy.com/v2/")],
         [
           EChain.SolanaTestnet,
-          URLString(
-            "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-          ),
+          URLString("https://solana-devnet.g.alchemy.com/v2/"),
         ],
         [
           EChain.Polygon,
-          URLString(
-            "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
-          ),
+          URLString("https://polygon-mainnet.g.alchemy.com/v2/"),
         ],
-        [
-          EChain.Mumbai,
-          URLString(
-            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
-          ),
-        ],
-        [
-          EChain.Arbitrum,
-          URLString(
-            "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
-          ),
-        ],
-        [
-          EChain.Optimism,
-          URLString(
-            "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
-          ),
-        ],
-        [
-          EChain.Astar,
-          URLString(
-            "https://astar-mainnet.g.alchemy.com/v2/Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
-          ),
-        ],
+        [EChain.Mumbai, URLString("https://polygon-mumbai.g.alchemy.com/v2/")],
+        [EChain.Arbitrum, URLString("https://arb-mainnet.g.alchemy.com/v2/")],
+        [EChain.Optimism, URLString("https://opt-mainnet.g.alchemy.com/v2/")],
+        [EChain.Astar, URLString("https://astar-mainnet.g.alchemy.com/v2/")],
       ]),
       10000,
       "(localhost|chrome://)",

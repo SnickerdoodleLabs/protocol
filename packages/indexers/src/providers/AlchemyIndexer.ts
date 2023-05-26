@@ -83,38 +83,6 @@ export class AlchemyIndexer implements IEVMIndexer {
       [EChain.Polygon, true],
     ]) as Map<EChain, boolean>;
   }
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return this.configProvider.getConfig().andThen((config) => {
-      console.log(
-        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-      );
-      return okAsync(this.health);
-    });
-  }
-  public healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
-
-  public getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getEVMTransactions not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
 
   public getBalancesForAccount(
     chain: EChain,
@@ -138,8 +106,47 @@ export class AlchemyIndexer implements IEVMIndexer {
     EVMNFT[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    const chainInfo = getChainInfoByChainId(chainId);
-    return okAsync([]);
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log(
+        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
+      );
+      return okAsync(this.health);
+    });
   }
 
   protected _getEtherscanApiKey(
@@ -226,12 +233,14 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
   ): ResultAsync<URLString, AccountIndexingError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const url = config.alchemyEndpoints.get(chain);
-      if (url == undefined) {
+      const alchemyApiKey = config.apiKeys.alchemyApiKeys[chain];
+      if (alchemyApiKey == undefined) {
         return errAsync(
           new AccountIndexingError("Alchemy Endpoint is missing"),
         );
       }
+      const url = config.alchemyEndpoints.get(chain) + alchemyApiKey;
+      console.log("Alchemy Url: " + url);
       return okAsync(url);
     });
   }
@@ -273,7 +282,6 @@ export class AlchemyIndexer implements IEVMIndexer {
       return okAsync([]);
     }
     return this.retrieveAlchemyUrl(chain).andThen((url) => {
-      // const url = config.alchemyEndpoints[chainInfo.name.toString()];
       return this.ajaxUtils
         .post<IAlchemyNonNativeReponse>(
           new URL(url),

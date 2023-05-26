@@ -146,32 +146,23 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError
   > {
     const chain = getChainInfoByChainId(chainId).chain;
-    const providers = this.preferredIndexers.get(chain);
-    if (providers == null) {
-      this.logUtils.error(
-        "error fetching balances: no provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
-      );
-      return okAsync([]);
-    }
-    if (getChainInfoByChainId(chainId).chain == EChain.Solana) {
+    if (chain == EChain.Solana) {
       return this.sol.getBalancesForAccount(
         chainId,
         SolanaAccountAddress(accountAddress),
       );
     }
 
+    const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
-      (element) => element.getSupportedChains().get(chain)?.balances,
+      (element) =>
+        element.getSupportedChains().get(chain)?.balances &&
+        element.healthStatus() == EComponentStatus.Available,
     );
 
-    console.log("chain: + " + chainId + " and providers: ", providers);
-    console.log("chain: + " + chainId + " and getLatestBalances: ", provider);
-
     if (provider == undefined) {
-      this.logUtils.error(
-        "error fetching balances: no provider found for " +
+      this.logUtils.log(
+        "error fetching balances: no healthy provider found for " +
           getChainInfoByChainId(chainId).name +
           " protocol",
       );
@@ -181,7 +172,7 @@ export class MasterIndexer implements IMasterIndexer {
     return provider
       .getBalancesForAccount(chainId, EVMAccountAddress(accountAddress))
       .orElse((e) => {
-        this.logUtils.error(
+        this.logUtils.log(
           "error fetching balances",
           chainId,
           accountAddress,
@@ -213,32 +204,23 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
     const chain = getChainInfoByChainId(chainId).chain;
-    const providers = this.preferredIndexers.get(chain);
-    if (providers == null) {
-      this.logUtils.error(
-        "error fetching nfts: no provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
-      );
-      return okAsync([]);
-    }
-    if (getChainInfoByChainId(chainId).chain == EChain.Solana) {
+    if (chain == EChain.Solana) {
       return this.sol.getTokensForAccount(
         chainId,
         SolanaAccountAddress(accountAddress),
       );
     }
 
+    const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
-      (element) => element.getSupportedChains().get(chain)?.nfts,
+      (element) =>
+        element.getSupportedChains().get(chain)?.nfts &&
+        element.healthStatus() == EComponentStatus.Available,
     );
 
-    console.log("Nft chain: + " + chainId + " and providers: ", providers);
-    console.log("chain: + " + chainId + " and getLatestNFTs: ", provider);
-
     if (provider == undefined) {
-      this.logUtils.error(
-        "error fetching nfts: no provider found for " +
+      this.logUtils.log(
+        "error fetching nfts: no healthy provider found for " +
           getChainInfoByChainId(chainId).name +
           " protocol",
       );
@@ -248,7 +230,7 @@ export class MasterIndexer implements IMasterIndexer {
     return provider
       .getTokensForAccount(chainId, EVMAccountAddress(accountAddress))
       .orElse((e) => {
-        this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
+        this.logUtils.log("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
       });
   }
@@ -262,36 +244,23 @@ export class MasterIndexer implements IMasterIndexer {
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     const chain = getChainInfoByChainId(chainId).chain;
-    const providers = this.preferredIndexers.get(chain);
-    if (providers == null) {
-      this.logUtils.error(
-        "error fetching transactions: no provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
-      );
-      return okAsync([]);
-    }
-    if (getChainInfoByChainId(chainId).chain == EChain.Solana) {
+    if (chain == EChain.Solana) {
       return this.sol.getSolanaTransactions(
         chainId,
         SolanaAccountAddress(accountAddress),
         new Date(timestamp * 1000),
       );
     }
-
+    const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
-      (element) => element.getSupportedChains().get(chain)?.transactions,
+      (element) =>
+        element.getSupportedChains().get(chain)?.transactions &&
+        element.healthStatus() == EComponentStatus.Available,
     );
-
-    console.log(
-      "Transactions chain: + " + chainId + " and providers: ",
-      providers,
-    );
-    console.log("chain: + " + chainId + " and getLatestBalances: ", provider);
 
     if (provider == undefined) {
-      this.logUtils.error(
-        "error fetching transactions: no provider found for " +
+      this.logUtils.log(
+        "error fetching transactions: no healthy provider found for " +
           getChainInfoByChainId(chainId).name +
           " protocol",
       );

@@ -62,38 +62,6 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return this.configProvider.getConfig().andThen((config) => {
-      console.log("Moralis Key: " + config.apiKeys.moralisApiKey);
-      return okAsync(this.health);
-    });
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
-  getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
-    AjaxError | AccountIndexingError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-  healthCheck(): ResultAsync<string, AjaxError> {
-    throw new Error("Method not implemented.");
-  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -162,6 +130,39 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from moralis", e),
       );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for Moralis Indexer",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Moralis Key: " + config.apiKeys.moralisApiKey);
+      return okAsync(this.health);
+    });
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+  
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getPages(

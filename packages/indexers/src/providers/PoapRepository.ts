@@ -50,33 +50,12 @@ export class PoapRepository implements IEVMIndexer {
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenBalance[],
-    AjaxError | AccountIndexingError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-  public getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
     AjaxError | AccountIndexingError | MethodSupportError
   > {
     return errAsync(
@@ -105,6 +84,61 @@ export class PoapRepository implements IEVMIndexer {
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
       );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    console.log("Poap URL: ", url);
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Poap Keys: " + config.apiKeys.poapApiKey);
+      if (config.apiKeys.poapApiKey == "") {
+        return okAsync(EComponentStatus.NoKeyProvided);
+      }
+      const result: IRequestConfig = {
+        method: "get",
+        url: url,
+        headers: {
+          accept: "application/json",
+          "X-API-Key": config.apiKeys.poapApiKey,
+        },
+      };
+      return this.ajaxUtils
+        .get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(result.url!),
+          result,
+        )
+        .andThen((result) => {
+          if (result.status !== undefined) {
+            return okAsync(EComponentStatus.Available);
+          }
+          return okAsync(EComponentStatus.Error);
+        });
+    });
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getPages(chainId: ChainId, response: IPoapResponse[]): EVMNFT[] {
@@ -142,40 +176,6 @@ export class PoapRepository implements IEVMIndexer {
         },
       };
       return result;
-    });
-  }
-
-  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider.getConfig().andThen((config) => {
-      console.log("Poap Keys: " + config.apiKeys.poapApiKey);
-      if (config.apiKeys.poapApiKey == "") {
-        return okAsync(EComponentStatus.NoKeyProvided);
-      }
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.poapApiKey,
-        },
-      };
-      return this.ajaxUtils
-        .get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(result.url!),
-          result,
-        )
-        .andThen((result) => {
-          if (result.status !== undefined) {
-            return okAsync(EComponentStatus.Available);
-          }
-          return okAsync(EComponentStatus.Error);
-        })
-        .andThen((fads) => {
-          return okAsync(fads);
-        });
     });
   }
 

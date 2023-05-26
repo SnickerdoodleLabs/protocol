@@ -63,30 +63,8 @@ export class PolygonIndexer implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return okAsync(this.health);
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
-  getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    EVMNFT[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
+
+ 
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -160,6 +138,21 @@ export class PolygonIndexer implements IEVMIndexer {
     // });
   }
 
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
   public getEVMTransactions(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -192,6 +185,19 @@ export class PolygonIndexer implements IEVMIndexer {
         return [...erc20, ...erc721, ...erc1155];
       });
     });
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
+  }
+
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private _getNFTTransactions(
@@ -405,7 +411,7 @@ export class PolygonIndexer implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.apiKeys.etherscanApiKeys[chainId] !== undefined) {
+      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );

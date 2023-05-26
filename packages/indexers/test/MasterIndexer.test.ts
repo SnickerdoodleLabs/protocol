@@ -91,6 +91,10 @@ describe("MasterIndexer.initialize() tests", () => {
     const mocks = new MasterIndexerMocks();
     const queryService = mocks.factory();
 
+    // expect(1).toBeTruthy();
+
+    // td.when(queryService.getLatestBalances(td.any)  mocks.alchemy)
+
     // // Act
     // const result = await queryService.getLatestBalances();
 

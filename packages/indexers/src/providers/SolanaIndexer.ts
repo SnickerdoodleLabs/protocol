@@ -71,16 +71,7 @@ export class SolanaIndexer implements ISolanaIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    this.health = EComponentStatus.Available;
-    return okAsync(this.health);
-  }
-  healthStatus(): EComponentStatus {
-    return this.health;
-  }
-  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
-    return this.indexerSupport;
-  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -92,6 +83,77 @@ export class SolanaIndexer implements ISolanaIndexer {
       return [nativeBalance, ...nonNativeBalance];
     });
   }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
+    return this._getConnectionForChainId(chainId)
+      .andThen(([conn, metaplex]) => {
+        return ResultAsync.fromPromise(
+          metaplex
+            .nfts()
+            .findAllByOwner({ owner: new PublicKey(accountAddress) }),
+          (e) => new AccountIndexingError("error finding sol nfts", e),
+        );
+      })
+      .orElse((e) => {
+        this.logUtils.error("error fetching solana nfts", e);
+        return okAsync([]);
+      })
+      .map((nfts) => {
+        return nfts
+          .map((nft) => {
+            return new SolanaNFT(
+              chainId,
+              accountAddress,
+              SolanaTokenAddress(nft.address.toBase58()),
+              nft.collection
+                ? new SolanaCollection(
+                    SolanaTokenAddress(nft.collection?.address.toBase58()),
+                    nft.collection?.verified,
+                  )
+                : null,
+              nft.uri,
+              nft.isMutable,
+              nft.primarySaleHappened,
+              nft.sellerFeeBasisPoints,
+              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
+              nft.tokenStandard,
+              TickerSymbol(nft.symbol),
+              nft.name,
+            );
+          })
+          .filter((val, i, arr) => {
+            return (
+              i ==
+              arr.findIndex((ind) => {
+                return ind.mint == val.mint;
+              })
+            );
+          }); // remove duplicates
+      });
+  }
+  public getSolanaTransactions(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
+    return okAsync([]); //TODO
+  }
+
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
+  }
+  public healthStatus(): EComponentStatus {
+    return this.health;
+  }
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
+  }
+
   private getNonNativeBalance(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -153,64 +215,6 @@ export class SolanaIndexer implements ISolanaIndexer {
         return okAsync(nativeBalance);
       });
   }
-  public getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
-    return this._getConnectionForChainId(chainId)
-      .andThen(([conn, metaplex]) => {
-        return ResultAsync.fromPromise(
-          metaplex
-            .nfts()
-            .findAllByOwner({ owner: new PublicKey(accountAddress) }),
-          (e) => new AccountIndexingError("error finding sol nfts", e),
-        );
-      })
-      .orElse((e) => {
-        this.logUtils.error("error fetching solana nfts", e);
-        return okAsync([]);
-      })
-      .map((nfts) => {
-        return nfts
-          .map((nft) => {
-            return new SolanaNFT(
-              chainId,
-              accountAddress,
-              SolanaTokenAddress(nft.address.toBase58()),
-              nft.collection
-                ? new SolanaCollection(
-                    SolanaTokenAddress(nft.collection?.address.toBase58()),
-                    nft.collection?.verified,
-                  )
-                : null,
-              nft.uri,
-              nft.isMutable,
-              nft.primarySaleHappened,
-              nft.sellerFeeBasisPoints,
-              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
-              nft.tokenStandard,
-              TickerSymbol(nft.symbol),
-              nft.name,
-            );
-          })
-          .filter((val, i, arr) => {
-            return (
-              i ==
-              arr.findIndex((ind) => {
-                return ind.mint == val.mint;
-              })
-            );
-          }); // remove duplicates
-      });
-  }
-  public getSolanaTransactions(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
-    return okAsync([]); //TODO
-  }
   private _getConnectionForChainId(
     chainId: ChainId,
   ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
@@ -227,6 +231,7 @@ export class SolanaIndexer implements ISolanaIndexer {
       }
     });
   }
+
   private _getConnections(): ResultAsync<SolClients, never> {
     if (this._connections) {
       return this._connections;
