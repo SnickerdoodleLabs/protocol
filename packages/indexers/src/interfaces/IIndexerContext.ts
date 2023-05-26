@@ -3,6 +3,6 @@
 import { ComponentStatus } from "@snickerdoodlelabs/objects";
 
 export interface IIndexerContext {
-  // privateEvents: PrivateEvents;
   components: ComponentStatus;
+  // setComponentStatus(comp: ComponentStatus): void;
 }

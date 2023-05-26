@@ -23,11 +23,15 @@ import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
-import { IIndexerConfigProvider } from "@indexers/interfaces";
+import {
+  IIndexerConfigProvider,
+  IIndexerContextProvider,
+} from "@indexers/interfaces";
 import { MasterIndexer } from "@indexers/MasterIndexer";
 
 // @mock
 class MasterIndexerMocks {
+  public context: IIndexerContextProvider;
   public alchemy: IEVMIndexer;
   public ankr: IEVMIndexer;
   public covalent: IEVMIndexer;
@@ -46,6 +50,7 @@ class MasterIndexerMocks {
   public logUtils: ILogUtils;
 
   public constructor() {
+    this.context = td.object<IIndexerContextProvider>();
     this.alchemy = td.object<IEVMIndexer>();
     this.ankr = td.object<IEVMIndexer>();
     this.covalent = td.object<IEVMIndexer>();
@@ -71,6 +76,7 @@ class MasterIndexerMocks {
   }
   public factory(): MasterIndexer {
     return new MasterIndexer(
+      this.context,
       this.alchemy,
       this.ankr,
       this.covalent,

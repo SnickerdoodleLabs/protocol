@@ -57,6 +57,10 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
+import {
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/IIndexerContextProvider.js";
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
@@ -73,6 +77,8 @@ export class MasterIndexer implements IMasterIndexer {
   );
 
   public constructor(
+    @inject(IIndexerContextProviderType)
+    protected indexerContext: IIndexerContextProvider,
     @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
     @inject(IAnkrIndexerType) protected ankr: IEVMIndexer,
     @inject(ICovalentEVMTransactionRepositoryType)
@@ -107,7 +113,7 @@ export class MasterIndexer implements IMasterIndexer {
       [EChain.Avalanche, [this.etherscanNative, this.nftscan]],
       [EChain.Fuji, [this.etherscanNative, this.nftscan]],
     ]);
-    this.initialize();
+    // this.initialize();
   }
 
   // call this from elsewhere
@@ -119,7 +125,9 @@ export class MasterIndexer implements IMasterIndexer {
 
   /* Sets the health statuses of each provider */
   private getHealthStatuses(): ResultAsync<void, AjaxError> {
+    this.indexerContext.getContext();
     return ResultUtils.combine([
+      this.indexerContext.getContext(),
       this.alchemy.getHealthCheck(),
       this.ankr.getHealthCheck(),
       this.covalent.getHealthCheck(),
@@ -134,6 +142,7 @@ export class MasterIndexer implements IMasterIndexer {
       this.sol.getHealthCheck(),
     ]).map(
       ([
+        context,
         alchemyHealth,
         ankrHealth,
         covalentHealth,
@@ -147,16 +156,13 @@ export class MasterIndexer implements IMasterIndexer {
         simHealth,
         solHealth,
       ]) => {
-        this.componentStatus = new ComponentStatus(
-          alchemyHealth.get(EChain.EthereumMainnet)!,
-          alchemyHealth.get(EChain.EthereumMainnet)!,
-          alchemyHealth,
-          etherscanHealth,
-          moralisHealth,
-          nftscanHealth,
-          oklinkHealth,
-          [],
-        );
+        const indexerStatuses = context.components;
+        indexerStatuses.alchemyIndexer = alchemyHealth;
+        indexerStatuses.etherscanIndexer = etherscanHealth;
+        indexerStatuses.moralisIndexer = moralisHealth;
+        indexerStatuses.nftScanIndexer = nftscanHealth;
+        indexerStatuses.oklinkIndexer = oklinkHealth;
+        context.components = indexerStatuses;
       },
     );
   }

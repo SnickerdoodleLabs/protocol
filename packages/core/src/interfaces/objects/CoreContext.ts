@@ -1,7 +1,11 @@
 // This is basically global variables
 
 import { IIndexerContext } from "@snickerdoodlelabs/indexers";
-import { ComponentStatus, DataWalletAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
+import {
+  ComponentStatus,
+  DataWalletAddress,
+  EVMPrivateKey,
+} from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
 import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
@@ -22,7 +26,7 @@ import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
  */
 export class CoreContext implements IIndexerContext {
   public heartbeat: Subject<void>;
-  // public components: ComponentStatus; // Obviously this is something else
+  // public components: ComponentStatus;
 
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
@@ -34,4 +38,8 @@ export class CoreContext implements IIndexerContext {
   ) {
     this.heartbeat = new Subject();
   }
+
+  // public setComponentStatus(comp: ComponentStatus): void {
+  //   this.components = comp;
+  // }
 }

@@ -604,6 +604,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IHeartbeatGeneratorType,
     );
 
+    // call Master Indexer and call initialize - healthier place to display errors
+    // do a .orElse() for the health check
+
+    const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+    indexers.initialize();
+
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
       .andThen(() => {
