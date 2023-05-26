@@ -29,8 +29,9 @@ import {
   getChainInfoByChain,
   EComponentStatus,
   IIndexer,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
@@ -40,11 +41,30 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { injectable } from "inversify";
 
 @injectable()
 export class AlchemyIndexer implements IEVMIndexer {
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+    ],
+    [
+      EChain.Optimism,
+      new IndexerSupportSummary(EChain.Optimism, true, false, false),
+    ],
+    [
+      EChain.Polygon,
+      new IndexerSupportSummary(EChain.Polygon, true, false, false),
+    ],
+    [EChain.Astar, new IndexerSupportSummary(EChain.Astar, true, false, false)],
+    [
+      EChain.Mumbai,
+      new IndexerSupportSummary(EChain.Mumbai, true, false, false),
+    ],
+  ]);
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -63,14 +83,20 @@ export class AlchemyIndexer implements IEVMIndexer {
       [EChain.Polygon, true],
     ]) as Map<EChain, boolean>;
   }
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log(
+        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
+      );
+      return okAsync(this.health);
+    });
   }
-  healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+  public healthStatus(): EComponentStatus {
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   public getEVMTransactions(
@@ -108,46 +134,21 @@ export class AlchemyIndexer implements IEVMIndexer {
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
     const chainInfo = getChainInfoByChainId(chainId);
     return okAsync([]);
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   const url = urlJoinP(
-    //     config.alchemyEndpoints[chainInfo.name.toString()],
-    //     ["getNFTs"],
-    //     {
-    //       owner: accountAddress,
-    //     },
-    //   );
-
-    //   return this.ajaxUtils
-    //     .get<IAlchemyNftResponse>(new URL(url))
-    //     .map((response) => {
-    //       const items: EVMNFT[] = response.ownedNfts.map((nft) => {
-    //         return new EVMNFT(
-    //           EVMContractAddress(nft.contract.address),
-    //           BigNumberString(nft.id.tokenId),
-    //           nft.contractMetadata.tokenType,
-    //           EVMAccountAddress(accountAddress),
-    //           TokenUri(nft.tokenUri.gateway),
-    //           { raw: undefined },
-    //           BigNumberString(nft.balance),
-    //           nft.title,
-    //           chainId,
-    //           BlockNumber(Number(nft.contractMetadata.deployedBlockNumber)),
-    //           undefined,
-    //         );
-    //       });
-    //       return okAsync(items);
-    //     });
-    // });
   }
 
   protected _getEtherscanApiKey(
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const apiKey = config.etherscanApiKeys.get(chain);
+      const chainName = getChainInfoByChainId(chain).name;
+      console.log("chainName: " + chainName);
+      const apiKey = config.apiKeys.etherscanApiKeys[chainName];
       if (apiKey == null) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain: ", chain),

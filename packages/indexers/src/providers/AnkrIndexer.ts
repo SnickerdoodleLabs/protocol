@@ -29,13 +29,13 @@ import {
   UnixTimestamp,
   EComponentStatus,
   IEVMIndexer,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
-import { inject, injectable } from "inversify";
-
 
 import {
   IIndexerConfigProvider,
@@ -45,6 +45,13 @@ import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js
 
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+    ],
+  ]);
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -54,13 +61,17 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Alchemy Keys: " + config.apiKeys.ankrApiKey);
+      return okAsync(this.health);
+    });
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   public getBalancesForAccount(

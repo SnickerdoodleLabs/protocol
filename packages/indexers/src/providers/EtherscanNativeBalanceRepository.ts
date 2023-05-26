@@ -23,8 +23,9 @@ import {
   EChain,
   getChainInfoByChain,
   EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { IRequestConfig } from "packages/common-utils/src";
@@ -35,10 +36,33 @@ import {
   IIndexerConfigProvider,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
-import { injectable } from "inversify";
 
 @injectable()
 export class EtherscanNativeBalanceRepository implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, false, false),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+    ],
+    [
+      EChain.Avalanche,
+      new IndexerSupportSummary(EChain.Avalanche, true, false, false),
+    ],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, false, false)],
+  ]);
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -49,10 +73,11 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
 
   public getTokensForAccount(
@@ -141,14 +166,14 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.etherscanApiKeys.has(chainId)) {
+      if (!config.apiKeys.etherscanApiKeys[chainId] !== undefined) {
         this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chainId)!);
+      return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
     });
   }
 
@@ -184,9 +209,8 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       });
   }
 
-  public getSupportedChains(): Array<EChain> {
-    const supportedChains = [EChain.Moonbeam, EChain.Binance, EChain.Gnosis];
-    return supportedChains;
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 }
 

@@ -21,6 +21,7 @@ import {
   MethodSupportError,
   EComponentStatus,
   EChain,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,19 +37,47 @@ import {
 
 @injectable()
 export class NftScanEVMPortfolioRepository implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, false, false, true),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, false, false, true),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, false, false, true),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, false, false, true),
+    ],
+    [
+      EChain.Avalanche,
+      new IndexerSupportSummary(EChain.Avalanche, false, false, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("NftScan Keys: " + config.apiKeys.nftScanApiKey);
+      return okAsync(this.health);
+    });
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   getBalancesForAccount(

@@ -65,6 +65,7 @@ declare interface IExtensionConfigOverrides {
     Optimism: string;
     Polygon: string;
     Solana: string;
+    SolanaTestnet: string;
   };
   covalentApiKey?: string;
   moralisApiKey?: string;

@@ -9,22 +9,30 @@ import {
   EChain,
   ISolanaIndexer,
   EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-export class DummySolanaIndexer
-  implements
-  ISolanaIndexer
-{
+export class DummySolanaIndexer implements ISolanaIndexer {
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Solana,
+      new IndexerSupportSummary(EChain.Solana, false, false, false),
+    ],
+    [
+      EChain.SolanaTestnet,
+      new IndexerSupportSummary(EChain.SolanaTestnet, false, false, false),
+    ],
+  ]);
   public constructor() {}
-  getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
+  public getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
     throw new Error("Method not implemented.");
   }
-  healthStatus(): EComponentStatus {
+  public healthStatus(): EComponentStatus {
     throw new Error("Method not implemented.");
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
   public getBalancesForAccount(
     chainId: ChainId,
@@ -48,10 +56,7 @@ export class DummySolanaIndexer
   }
 
   public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Solana,
-      EChain.SolanaTestnet,
-    ];
+    const supportedChains = [EChain.Solana, EChain.SolanaTestnet];
     return supportedChains;
   }
 }

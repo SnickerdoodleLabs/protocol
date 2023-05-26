@@ -24,6 +24,7 @@ import {
   EVMTransaction,
   MethodSupportError,
   EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -38,6 +39,26 @@ import {
 
 @injectable()
 export class OklinkIndexer implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, false, false),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -47,13 +68,17 @@ export class OklinkIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Oklink Keys: " + config.apiKeys.oklinkApiKey);
+      return okAsync(this.health);
+    });
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
   getTokensForAccount(
     chainId: ChainId,
@@ -93,14 +118,14 @@ export class OklinkIndexer implements IEVMIndexer {
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      if (!config.etherscanApiKeys.has(chain)) {
+      if (!config.apiKeys.etherscanApiKeys[chain] !== undefined) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain: ", chain),
         );
       }
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chain)!);
+      return okAsync(config.apiKeys.etherscanApiKeys[chain]!);
     });
   }
 

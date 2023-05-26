@@ -17,22 +17,42 @@ import {
   TokenUri,
   UnixTimestamp,
   EChain,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
-
 import { inject, injectable } from "inversify";
-
+import { okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, false, false),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+    ],
+  ]);
+
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
   healthCheck(): ResultAsync<string, AjaxError> {
     throw new Error("Method not implemented.");

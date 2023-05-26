@@ -27,8 +27,10 @@ import {
   getChainInfoByChain,
   EChain,
   EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { IRequestConfig } from "packages/common-utils/src";
@@ -40,10 +42,16 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-import { inject, injectable } from "inversify";
-
 @injectable()
 export class EtherscanIndexer implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -53,13 +61,16 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      return okAsync(this.health);
+    });
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   getTokensForAccount(
@@ -343,13 +354,13 @@ export class EtherscanIndexer implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.etherscanApiKeys.has(chainId)) {
+      if (!config.apiKeys.etherscanApiKeys[chainId] !== undefined) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chainId)!);
+      return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
     });
   }
 

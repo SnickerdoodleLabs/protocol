@@ -34,6 +34,14 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
         Optimism: string;
         Polygon: string;
         Solana: string;
+        SolanaTestnet: string;
+      };
+      etherscanApiKeys: {
+        Ethereum: string;
+        Polygon: string;
+        Avalanche: string;
+        Binance: string;
+        Moonbeam: string;
       };
       covalentApiKey: string;
       moralisApiKey: string;
@@ -47,7 +55,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dnsServerAddress: URLString,
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
-    public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
     public alchemyEndpoints: Map<EChain, URLString>,

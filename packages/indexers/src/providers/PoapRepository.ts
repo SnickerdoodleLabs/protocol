@@ -19,6 +19,7 @@ import {
   UnixTimestamp,
   MethodSupportError,
   EChain,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,16 +37,24 @@ const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
 @injectable()
 export class PoapRepository implements IEVMIndexer {
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, false, false, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
   public getBalancesForAccount(
     chainId: ChainId,
@@ -140,6 +149,7 @@ export class PoapRepository implements IEVMIndexer {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
     console.log("Poap URL: ", url);
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("Poap Keys: " + config.apiKeys.poapApiKey);
       if (config.apiKeys.poapApiKey == "") {
         return okAsync(EComponentStatus.NoKeyProvided);
       }

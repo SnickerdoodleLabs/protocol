@@ -22,6 +22,7 @@ import {
   MethodSupportError,
   EComponentStatus,
   EChain,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -134,6 +135,13 @@ interface IEVMTokenInfo {
 export class CovalentEVMTransactionRepository implements IEVMIndexer {
   private ENDPOINT_TRANSACTIONS = "transactions_v2";
   private ENDPOINT_BALANCES = "balances_v2";
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+    ],
+  ]);
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -141,13 +149,17 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return this.configProvider.getConfig().andThen((config) => {
+      console.log("Covalent Keys: " + config.apiKeys.covalentApiKey);
+      return okAsync(this.health);
+    });
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   getTokensForAccount(

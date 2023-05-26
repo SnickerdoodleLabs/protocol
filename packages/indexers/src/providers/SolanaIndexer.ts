@@ -29,6 +29,7 @@ import {
   getChainInfoByChainId,
   ISolanaIndexer,
   EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -40,6 +41,7 @@ import {
   ParsedAccountData,
 } from "@solana/web3.js";
 import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
@@ -48,12 +50,19 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { inject, injectable } from "inversify";
-
 
 @injectable()
 export class SolanaIndexer implements ISolanaIndexer {
   private _connections?: ResultAsync<SolClients, never>;
+  protected health: EComponentStatus = EComponentStatus.Disabled;
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [EChain.Solana, new IndexerSupportSummary(EChain.Solana, true, true, true)],
+    [
+      EChain.SolanaTestnet,
+      new IndexerSupportSummary(EChain.SolanaTestnet, true, true, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -63,13 +72,14 @@ export class SolanaIndexer implements ISolanaIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
   getHealthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    throw new Error("Method not implemented.");
+    this.health = EComponentStatus.Available;
+    return okAsync(this.health);
   }
   healthStatus(): EComponentStatus {
-    throw new Error("Method not implemented.");
+    return this.health;
   }
-  getSupportedChains(): EChain[] {
-    throw new Error("Method not implemented.");
+  getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
   public getBalancesForAccount(
     chainId: ChainId,

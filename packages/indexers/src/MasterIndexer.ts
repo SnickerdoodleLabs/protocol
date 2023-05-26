@@ -29,6 +29,7 @@ import {
   IEVMIndexer,
   IMasterIndexer,
   IMoralisEVMPortfolioRepositoryType,
+  IndexerSupportSummary,
   INftScanEVMPortfolioRepositoryType,
   IOklinkIndexerType,
   IPoapRepositoryType,
@@ -59,8 +60,6 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected preferredIndexers = new Map<EChain, IEVMIndexer[]>();
-  protected indexerHealthStatus = new Map<EProvider, EComponentStatus>();
-  protected indexerMap = new Map<EProvider, IEVMIndexer>();
 
   public constructor(
     @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
@@ -81,17 +80,21 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.preferredIndexers = new Map<EChain, IEVMIndexer[]>([
-      [
-        EChain.EthereumMainnet,
-        [this.etherscan, this.etherscanNative, this.ankr],
-      ],
-      [EChain.Avalanche, [this.etherscan]],
-      [EChain.Fuji, [this.etherscan]],
-      [EChain.Polygon, [this.etherscan]],
-      [EChain.Mumbai, [this.etherscan]],
-      [EChain.Moonbeam, [this.etherscanNative]],
-      [EChain.Binance, [this.etherscanNative]],
-      [EChain.Gnosis, [this.etherscanNative]],
+      [EChain.EthereumMainnet, [this.etherscan]],
+
+      /* Alchemy Preferred */
+      [EChain.Mumbai, [this.alchemy]],
+      [EChain.Astar, [this.alchemy]],
+      [EChain.Polygon, [this.alchemy]],
+      [EChain.Optimism, [this.alchemy, this.nftscan]],
+      [EChain.Arbitrum, [this.alchemy, this.nftscan]],
+
+      /* Etherscan Native Balance Preferred */
+      [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
+      [EChain.Binance, [this.etherscanNative, this.nftscan]],
+      [EChain.Gnosis, [this.etherscanNative, this.poapRepo]],
+      [EChain.Avalanche, [this.etherscanNative, this.nftscan]],
+      [EChain.Fuji, [this.etherscanNative, this.nftscan]],
     ]);
     this.initialize();
   }
@@ -142,13 +145,15 @@ export class MasterIndexer implements IMasterIndexer {
     TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError
   > {
-    const providers = this.preferredIndexers.get(
-      getChainInfoByChainId(chainId).chain,
-    );
+    const chain = getChainInfoByChainId(chainId).chain;
+    const providers = this.preferredIndexers.get(chain);
     if (providers == null) {
-      return errAsync(
-        new AccountIndexingError("chain does not have any supported providers"),
+      this.logUtils.error(
+        "error fetching balances: no provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
       );
+      return okAsync([]);
     }
     if (getChainInfoByChainId(chainId).chain == EChain.Solana) {
       return this.sol.getBalancesForAccount(
@@ -158,12 +163,19 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const provider = providers.find(
-      (element) => element.healthStatus() == EComponentStatus.Available,
+      (element) => element.getSupportedChains().get(chain)?.balances,
     );
+
+    console.log("chain: + " + chainId + " and providers: ", providers);
+    console.log("chain: + " + chainId + " and getLatestBalances: ", provider);
+
     if (provider == undefined) {
-      return errAsync(
-        new AccountIndexingError("chain does not have any supported providers"),
+      this.logUtils.error(
+        "error fetching balances: no provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
       );
+      return okAsync([]);
     }
 
     return provider
@@ -200,13 +212,15 @@ export class MasterIndexer implements IMasterIndexer {
     WalletNFT[],
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
-    const providers = this.preferredIndexers.get(
-      getChainInfoByChainId(chainId).chain,
-    );
+    const chain = getChainInfoByChainId(chainId).chain;
+    const providers = this.preferredIndexers.get(chain);
     if (providers == null) {
-      return errAsync(
-        new AccountIndexingError("chain does not have any supported providers"),
+      this.logUtils.error(
+        "error fetching nfts: no provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
       );
+      return okAsync([]);
     }
     if (getChainInfoByChainId(chainId).chain == EChain.Solana) {
       return this.sol.getTokensForAccount(
@@ -216,23 +230,25 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const provider = providers.find(
-      (element) => element.healthStatus() == EComponentStatus.Available,
+      (element) => element.getSupportedChains().get(chain)?.nfts,
     );
+
+    console.log("Nft chain: + " + chainId + " and providers: ", providers);
+    console.log("chain: + " + chainId + " and getLatestNFTs: ", provider);
+
     if (provider == undefined) {
-      return errAsync(
-        new AccountIndexingError("chain does not have any supported providers"),
+      this.logUtils.error(
+        "error fetching nfts: no provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
       );
+      return okAsync([]);
     }
 
     return provider
       .getTokensForAccount(chainId, EVMAccountAddress(accountAddress))
       .orElse((e) => {
-        this.logUtils.error(
-          "error fetching balances",
-          chainId,
-          accountAddress,
-          e,
-        );
+        this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
       });
   }
@@ -245,13 +261,15 @@ export class MasterIndexer implements IMasterIndexer {
     ChainTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
-    const providers = this.preferredIndexers.get(
-      getChainInfoByChainId(chainId).chain,
-    );
+    const chain = getChainInfoByChainId(chainId).chain;
+    const providers = this.preferredIndexers.get(chain);
     if (providers == null) {
-      return errAsync(
-        new AccountIndexingError("chain does not have any supported providers"),
+      this.logUtils.error(
+        "error fetching transactions: no provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
       );
+      return okAsync([]);
     }
     if (getChainInfoByChainId(chainId).chain == EChain.Solana) {
       return this.sol.getSolanaTransactions(
@@ -262,12 +280,22 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const provider = providers.find(
-      (element) => element.healthStatus() == EComponentStatus.Available,
+      (element) => element.getSupportedChains().get(chain)?.transactions,
     );
+
+    console.log(
+      "Transactions chain: + " + chainId + " and providers: ",
+      providers,
+    );
+    console.log("chain: + " + chainId + " and getLatestBalances: ", provider);
+
     if (provider == undefined) {
-      return errAsync(
-        new AccountIndexingError("chain does not have any supported providers"),
+      this.logUtils.error(
+        "error fetching transactions: no provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
       );
+      return okAsync([]);
     }
 
     return provider
@@ -278,7 +306,7 @@ export class MasterIndexer implements IMasterIndexer {
       )
       .orElse((e) => {
         this.logUtils.error(
-          "error fetching balances",
+          "error fetching transactions",
           chainId,
           accountAddress,
           e,

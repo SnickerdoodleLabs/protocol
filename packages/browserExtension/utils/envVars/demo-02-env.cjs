@@ -15,6 +15,7 @@ const envVars = {
   __ALCHEMY_OPTIMISM_API_KEY__: "",
   __ALCHEMY_POLYGON_API_KEY__: "",
   __ALCHEMY_SOLANA_API_KEY__: "",
+  __ALCHEMY_SOLANA_TESTNET_API_KEY__: "",
 
   __COVALENT_API_KEY__: "",
   __MORALIS_API_KEY__: "",

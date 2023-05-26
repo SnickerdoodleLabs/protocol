@@ -14,6 +14,14 @@ export interface IIndexerConfig {
       Optimism: string;
       Polygon: string;
       Solana: string;
+      SolanaTestnet: string;
+    };
+    etherscanApiKeys: {
+      Ethereum: string;
+      Polygon: string;
+      Avalanche: string;
+      Binance: string;
+      Moonbeam: string;
     };
     covalentApiKey: string;
     moralisApiKey: string;
@@ -24,7 +32,6 @@ export interface IIndexerConfig {
     secondaryInfuraKey: string;
     ankrApiKey: string;
   };
-  etherscanApiKeys: Map<ChainId, string>;
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;
   supportedChains: ChainId[];
