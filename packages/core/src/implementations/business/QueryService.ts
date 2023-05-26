@@ -46,11 +46,13 @@ import {
   SDQL_Name,
   ISDQLCompensations,
   ERewardType,
+  CompensationKey,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
+  AST,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -139,6 +141,7 @@ export class QueryService implements IQueryService {
      * should be processed and returned as is, as long as at least a single reward is eligible.
      */
     // Create a new QueryStatus for tracking the query.
+    console.log("on query posted")
     return ResultUtils.combine([
       this.getQueryByCID(requestForData.requestedCID),
       this.contextProvider.getContext(),
@@ -148,9 +151,11 @@ export class QueryService implements IQueryService {
         requestForData.consentContractAddress,
       ),
     ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
+      console.log("on query posted passed")
       // Check and make sure a consent token exists
       if (consentToken == null) {
         // Record the query as having been received, but ignore it
+        console.log("on query posted 1")
         return this.createQueryStatusWithNoConsent(
           requestForData,
           queryWrapper,
@@ -164,6 +169,7 @@ export class QueryService implements IQueryService {
         requestForData,
         queryWrapper,
       ).andThen(() => {
+        console.log("on query posted 2")
         return this.dataWalletUtils
           .deriveOptInPrivateKey(
             requestForData.consentContractAddress,
@@ -208,74 +214,7 @@ export class QueryService implements IQueryService {
   }
 
 
-  protected getPermittedQueryIdsAndExpectedRewards(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[SubQueryKey[], ExpectedReward[]], EvaluationError> {
-    return this.queryParsingEngine.parseQuery(query).andThen((sdqlParser) => {
-      const iSDQLCompensationsMap: Map<SDQL_Name, ISDQLCompensations> = new Map(
-        Array.from(sdqlParser.compensations, ([key, value]) => [
-          key,
-          value as ISDQLCompensations,
-        ]),
-      );
 
-      const expectedRewards = this.constructExpectedRewards(
-        iSDQLCompensationsMap,
-      );
-      const subQueryKeys = Array.from(iSDQLCompensationsMap.keys()).map((key) =>
-        SubQueryKey(key),
-      );
-
-      return okAsync<[SubQueryKey[], ExpectedReward[]]>([
-        subQueryKeys,
-        expectedRewards,
-      ]);
-    });
-  }
-
-  protected constructExpectedRewards(
-    iSDQLCompensationsMap: Map<SDQL_Name, ISDQLCompensations>,
-  ): ExpectedReward[] {
-    const expectedRewardList: ExpectedReward[] = [];
-
-    for (const [currentKeyAsString] of iSDQLCompensationsMap) {
-      const currentSDQLCompensationsKey = SDQL_Name(currentKeyAsString);
-      const currentSDQLCompensationsObject: ISDQLCompensations =
-        iSDQLCompensationsMap.get(currentSDQLCompensationsKey)!;
-
-      expectedRewardList.push(
-        new ExpectedReward(
-          currentSDQLCompensationsKey,
-          currentSDQLCompensationsObject.description,
-          currentSDQLCompensationsObject.chainId,
-          JSON.stringify(currentSDQLCompensationsObject.callback),
-          ERewardType.Direct,
-        ),
-      );
-    }
-    return expectedRewardList;
-  }
-  public createQueryStatusWithNoConsent(
-    requestForData: RequestForData,
-    queryWrapper: SDQLQueryWrapper,
-  ): ResultAsync<void, EvaluationError> {
-    return this.sdqlQueryRepo
-      .upsertQueryStatus([
-        new QueryStatus(
-          requestForData.consentContractAddress,
-          requestForData.requestedCID,
-          requestForData.blockNumber,
-          EQueryProcessingStatus.NoConsentToken,
-          queryWrapper.expiry,
-          null,
-        ),
-      ])
-      .andThen(() => {
-        return errAsync(new EvaluationError(`Consent token not found!`));
-      });
-  }
 
   public createQueryStatusWithConsent(
     requestForData: RequestForData,
@@ -366,6 +305,7 @@ export class QueryService implements IQueryService {
     | AjaxError
   > {
     // Step 1, get all queries that are ready to return insights
+    // this.logUtils.info("Query Service: return Queries");
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -378,6 +318,7 @@ export class QueryService implements IQueryService {
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
+            this.logUtils.info(`returning queries for cid ${queryStatus.queryCID}`);
             // The rewards parameters need to be deserialized, or at least the basics provided.
             if (queryStatus.rewardsParameters == null) {
               // We can't really do much here right now, so I'll just mark the query as waiting
@@ -562,19 +503,14 @@ export class QueryService implements IQueryService {
     config: CoreConfig,
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
     // TODO get all the possible rewards and send them to next
-
+//!!!!!!
     return this.getPossibleInisightAndAdKeys(
       query,
       consentToken.dataPermissions,
       consentContractAddress,
-    ).map((possibleInsightsAndAds) => {
-      this.getPossibleRewardsFromIP(
-        consentToken,
-        optInKey,
-        consentContractAddress,
-        query.cid,
-        config,
-        possibleInsightsAndAds,
+    ).map((_possibleInsightsAndAds) => {
+      this.getPossibleRewardsFromIPBySDQLQuery(
+        query
       ).map((possibleRewards) => {
         this.publishSDQLQueryRequest(
           consentContractAddress,
@@ -587,38 +523,8 @@ export class QueryService implements IQueryService {
     });
   }
 
-  protected getPossibleInisightAndAdKeys(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
-    return okAsync([InsightKey("i1")]); // TODO: upgrade
-  }
 
-  public getPossibleRewardsFromIPBySDQLQuery(
-    query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError> {
-    // TODO return everything now, later  return from getPossibleRewardsFromIP
-    return errAsync(new ParserError(0, "Not implemented"));
-  }
 
-  protected getPossibleRewardsFromIP(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    queryCID: IpfsCID,
-    config: CoreConfig,
-    possibleInsightsAndAds: (InsightKey | AdKey)[],
-  ): ResultAsync<PossibleReward[], AjaxError> {
-    return this.insightPlatformRepo.receivePreviews(
-      consentContractAddress,
-      consentToken.tokenId,
-      queryCID,
-      optInKey,
-      config.defaultInsightPlatformBaseUrl,
-      possibleInsightsAndAds,
-    );
-  }
 
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   protected publishSDQLQueryRequest(
@@ -677,4 +583,91 @@ export class QueryService implements IQueryService {
   //     )
   //   );
   // }
+
+
+  protected getPossibleRewardsFromIP(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    queryCID: IpfsCID,
+    config: CoreConfig,
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], AjaxError> {
+    return this.insightPlatformRepo.receivePreviews(
+      consentContractAddress,
+      consentToken.tokenId,
+      queryCID,
+      optInKey,
+      config.defaultInsightPlatformBaseUrl,
+      possibleInsightsAndAds,
+    );
+  }
+
+  
+
+  public getPossibleRewardsFromIPBySDQLQuery(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError> {
+ 
+    return this.queryParsingEngine.parseQuery(query).map((ast) => {
+      return this.constructPossibleRewards(ast, query.cid)
+    })
+    // TODO return everything now, later  return from getPossibleRewardsFromIP    
+  }
+
+  protected constructPossibleRewards(
+    ast: AST,
+    queryCID : IpfsCID
+  ): PossibleReward[] {
+    const expectedRewardList: PossibleReward[] = [];
+
+    for (const [currentKeyAsString , currentSDQLCompensation] of ast.compensations) {
+      const currentSDQLCompensationsKey = CompensationKey(currentKeyAsString);
+      ;
+
+      expectedRewardList.push(
+        new PossibleReward(
+          queryCID,
+          currentSDQLCompensationsKey,
+          [],
+          currentSDQLCompensation.name,
+          currentSDQLCompensation.image,
+          currentSDQLCompensation.description,
+          currentSDQLCompensation.chainId,
+          ERewardType.Direct
+        )
+      );
+    }
+    return expectedRewardList;
+  }
+
+  protected getPossibleInisightAndAdKeys(
+    query: SDQLQuery,
+    dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
+    return okAsync([InsightKey("i1")]); // TODO: upgrade
+  }
+
+
+  
+  public createQueryStatusWithNoConsent(
+    requestForData: RequestForData,
+    queryWrapper: SDQLQueryWrapper,
+  ): ResultAsync<void, EvaluationError> {
+    return this.sdqlQueryRepo
+      .upsertQueryStatus([
+        new QueryStatus(
+          requestForData.consentContractAddress,
+          requestForData.requestedCID,
+          requestForData.blockNumber,
+          EQueryProcessingStatus.NoConsentToken,
+          queryWrapper.expiry,
+          null,
+        ),
+      ])
+      .andThen(() => {
+        return errAsync(new EvaluationError(`Consent token not found!`));
+      });
+  }
 }

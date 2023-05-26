@@ -8,7 +8,9 @@ import {
   EVMContractAddress,
   IDynamicRewardParameter,
   IPFSError,
+  ParserError,
   PersistenceError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   RequestForData,
@@ -61,6 +63,11 @@ export interface IQueryService {
     | QueryFormatError
     | AjaxError
   >;
+
+  getPossibleRewardsFromIPBySDQLQuery(
+    query: SDQLQuery,
+  ): ResultAsync<PossibleReward[], ParserError> 
+ 
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

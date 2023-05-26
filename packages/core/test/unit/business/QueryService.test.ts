@@ -553,3 +553,22 @@ describe("processRewardsPreview tests", () => {
     });
   });
 });
+
+
+describe.only("generate possible rewards tests", () => { 
+  test("processRewardsPreview: full run through", async () => {
+    const mocks = new QueryServiceMocks();
+    const queryService = mocks.factory(); // new context
+    console.log(mocks.queryParsingEngine)
+    queryService.getPossibleRewardsFromIPBySDQLQuery(sdqlQuery).andThen( (possibleRewards) => {
+      expect(possibleRewards).toEqual({});
+     
+
+      return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.log(e);
+      fail(e.message);
+    });
+  });
+})
