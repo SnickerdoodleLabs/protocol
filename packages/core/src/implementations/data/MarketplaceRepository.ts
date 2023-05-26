@@ -1,12 +1,3 @@
-import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/index.js";
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IConsentContract,
@@ -30,6 +21,16 @@ import {
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MarketplaceRepository implements IMarketplaceRepository {
@@ -148,7 +149,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   > {
     return this.getConsentFactoryContract()
       .andThen((consentFactoryContract) => {
-        return consentFactoryContract.getListingsByTag(tag);
+        return consentFactoryContract.getListingsByTag(tag, true);
       })
       .map((listings) => {
         const cache = new MarketplaceTagCache(
