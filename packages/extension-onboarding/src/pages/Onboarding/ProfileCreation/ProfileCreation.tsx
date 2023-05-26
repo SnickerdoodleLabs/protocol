@@ -1,10 +1,8 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import artboardImage from "@extension-onboarding/assets/images/artboard.svg";
-import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import { Box, Typography, Grid } from "@material-ui/core";
 import React, { FC } from "react";
@@ -38,7 +36,7 @@ const ProfileCreation: FC = () => {
                 </Typography>
                 <ProfileForm
                   onSubmitted={() => {
-                    navigate(EPaths.ONBOARDING_PERMISSION_SELECTION);
+                    navigate(EPaths.ONBOARDING_TAG_SELECTION);
                   }}
                 />
               </Box>

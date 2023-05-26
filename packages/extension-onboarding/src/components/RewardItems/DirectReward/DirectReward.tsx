@@ -1,7 +1,5 @@
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import Permissions from "@extension-onboarding/components/Permissions";
 import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
-import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Typography } from "@material-ui/core";
@@ -10,6 +8,7 @@ import {
   EVMContractAddress,
   EWalletDataType,
 } from "@snickerdoodlelabs/objects";
+import { useRewardItemsStyles, Permissions } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { useNavigate } from "react-router";
 import { useLocation } from "react-router-dom";
@@ -78,7 +77,6 @@ export default ({
           </Typography>
         </Box>
         <Permissions
-          displayType="row"
           rowItemProps={{ width: 20, mr: 0.75 }}
           permissions={permissions}
         />

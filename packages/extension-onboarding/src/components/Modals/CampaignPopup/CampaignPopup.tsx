@@ -1,7 +1,5 @@
 import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
-import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
-import AccountsCard from "@extension-onboarding/components/AccountsCard";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
@@ -9,15 +7,7 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import {
-  Box,
-  Button,
-  Collapse,
-  Dialog,
-  IconButton,
-  Typography,
-} from "@material-ui/core";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
+import { Box, Button, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import {
   AccountAddress,
@@ -38,30 +28,13 @@ const CampaignPopup: FC = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
-  const { invitationInfo, updateOptedInContracts, setInvitationInfo } = useAppContext();
+  const { invitationInfo, updateOptedInContracts, setInvitationInfo, isProductTourCompleted } =
+    useAppContext();
   const { setVisualAlert } = useNotificationContext();
-  const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
-  const [expandAccounts, setExpandAccounts] = useState<boolean>(false);
-
-  const getRecievingAccount = (contractAddress: EVMContractAddress) => {
-    window.sdlDataWallet
-      .getReceivingAddress(contractAddress)
-      .map(setReceivingAccount);
-  };
-
-  const setReceivingAccountForConsent = (accountAddress) => {
-    setExpandAccounts(false);
-    window.sdlDataWallet
-      .setReceivingAddress(invitationInfo.consentAddress!, accountAddress)
-      .map(() => {
-        getRecievingAccount(invitationInfo.consentAddress!);
-      });
-  };
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
       getInvitationData();
-      getRecievingAccount(invitationInfo.consentAddress);
     }
   }, [JSON.stringify(invitationInfo)]);
 
@@ -189,62 +162,54 @@ const CampaignPopup: FC = () => {
 
   const onClaimClick = () => {
     setOpen(false);
-    return window.sdlDataWallet
-      .getApplyDefaultPermissionsOption()
-      .map((option) => {
-        if (option) {
-          window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
-            acceptInvitation(
-              permissions,
-              invitationInfo.consentAddress!,
-              invitationInfo.tokenId,
-              invitationInfo.signature,
-            );
-          });
-
-          return;
-        }
+    return setModal({
+      modalSelector: EModalSelectors.PERMISSION_SELECTION,
+      onPrimaryButtonClick: ({
+        eligibleRewards,
+        missingRewards,
+        dataTypes,
+      }) => {
         setModal({
-          modalSelector: EModalSelectors.PERMISSION_SELECTION,
-          onPrimaryButtonClick: () => {
-            acceptInvitation(
-              null,
-              invitationInfo.consentAddress!,
-              invitationInfo.tokenId,
-              invitationInfo.signature,
-            );
-            closeModal();
+          modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
+          onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
+            setLoadingStatus(true);
+            window.sdlDataWallet
+              .setReceivingAddress(
+                invitationInfo.consentAddress!,
+                receivingAccount,
+              )
+              .map(() => {
+                acceptInvitation(
+                  dataTypes,
+                  invitationInfo.consentAddress!,
+                  invitationInfo.tokenId,
+                  invitationInfo.signature,
+                );
+              });
           },
           customProps: {
-            onCloseClicked: () => {
-              handleClose();
-            },
-            onManageClicked: () => {
-              setModal({
-                modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-                onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
-                  acceptInvitation(
-                    dataTypes,
-                    invitationInfo.consentAddress!,
-                    invitationInfo.tokenId,
-                    invitationInfo.signature,
-                  );
-                },
-                customProps: {
-                  onCloseClicked: () => {
-                    handleClose();
-                  },
-                },
-              });
-            },
+            eligibleRewards,
+            missingRewards,
+            dataTypes,
+            campaignName: invitationMeta?.rewardName,
+            campaignImage: invitationMeta?.image,
+            consentAddress: invitationInfo.consentAddress!,
           },
         });
-      });
+      },
+      customProps: {
+        consentContractAddress: invitationInfo.consentAddress!,
+        campaignInfo: invitationMeta,
+        onCloseClicked: () => {
+          handleClose();
+        },
+      },
+    });
   };
 
   if (loading) {
   }
-  if (!invitationMeta || !open) {
+  if (!invitationMeta || !open || !isProductTourCompleted) {
     return null;
   }
 
@@ -395,67 +360,6 @@ const CampaignPopup: FC = () => {
               your profile and wallet activity to generate market trends. All
               information is anonymous and no insights are linked back to you.
             </Typography>
-          </Box>
-          <Box
-            className={classes.accountSectionContainer}
-            {...(expandAccounts && {
-              boxShadow: "0px -12px 49px -8px rgba(0,0,0,0.32)",
-            })}
-          >
-            <Box
-              onClick={() => {
-                setExpandAccounts(!expandAccounts);
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <Box
-                bgcolor="#FEF6E7"
-                py={1}
-                px={5}
-                display="flex"
-                alignItems="center"
-              >
-                <Typography className={classes.accountInfoText}>
-                  Your current receiving account
-                </Typography>
-                {receivingAccount && (
-                  <>
-                    <AccountIdentIcon
-                      accountAddress={receivingAccount}
-                      size={17}
-                    />
-                    <Typography className={classes.account}>
-                      {receivingAccount.slice(0, 5)} ................
-                      {receivingAccount.slice(-4)}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-              <Box py={1} px={5} display="flex" flexDirection="column">
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="flex-end"
-                >
-                  <Typography className={classes.changeRecievingAccountText}>
-                    Change Receiving Account
-                  </Typography>
-                  {expandAccounts ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                </Box>
-                <Typography className={classes.changeAccountDescription}>
-                  Select the account where you would like to receive your
-                  reward.
-                </Typography>
-              </Box>
-            </Box>
-            <Box>
-              <Collapse in={expandAccounts}>
-                <AccountsCard
-                  receivingAddress={receivingAccount}
-                  onSelect={setReceivingAccountForConsent}
-                />
-              </Collapse>
-            </Box>
           </Box>
         </Box>
       </Dialog>

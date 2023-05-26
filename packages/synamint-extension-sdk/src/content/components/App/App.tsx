@@ -1,4 +1,10 @@
-import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
+import {
+  AccountAddress,
+  DomainName,
+  EWalletDataType,
+  PossibleReward,
+  UUID,
+} from "@snickerdoodlelabs/objects";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -15,9 +21,11 @@ import Browser, { urlbar } from "webextension-polyfill";
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@synamint-extension-sdk/content/components/ScamFilterComponent";
-import ManagePermissions from "@synamint-extension-sdk/content/components/Screens/ManagePermissions";
-import PermissionSelection from "@synamint-extension-sdk/content/components/Screens/PermissionSelection";
+import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
+import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
 import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
+import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
+import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
 import {
   EAPP_STATE,
   IRewardItem,
@@ -38,6 +46,7 @@ import {
   AcceptInvitationByUUIDParams,
   RejectInvitationParams,
   CheckURLParams,
+  SetReceivingAddressParams,
 } from "@synamint-extension-sdk/shared";
 
 interface ISafeURLHistory {
@@ -117,6 +126,11 @@ const App = () => {
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
   const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
+  const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
+    eligibleRewards: PossibleReward[];
+    missingRewards: PossibleReward[];
+    dataTypes: EWalletDataType[];
+  }>();
   const _path = usePath();
 
   useEffect(() => {
@@ -211,21 +225,10 @@ const App = () => {
     });
   };
 
-  const changeAppState = (state: EAPP_STATE) => {
-    setAppState(state);
-  };
-
   const emptyReward = () => {
+    setSubscriptionPreviewData(undefined);
     setRewardToDisplay(undefined);
     setAppState(EAPP_STATE.INIT);
-  };
-
-  const acceptInvitation = () => {
-    coreGateway
-      .acceptInvitationByUUID(
-        new AcceptInvitationByUUIDParams([], invitationDomain?.id as UUID),
-      )
-      .map(() => emptyReward());
   };
 
   const rejectInvitation = () => {
@@ -236,55 +239,97 @@ const App = () => {
       .map(() => emptyReward());
   };
 
-  const acceptInvitationWithDataTypes = (dataTypes: EWalletDataType[]) => {
+  const acceptInvitation = (receivingAccount: AccountAddress | undefined) => {
+    setAppState(EAPP_STATE.LOADING);
     coreGateway
-      .acceptInvitationByUUID(
-        new AcceptInvitationByUUIDParams(
-          dataTypes,
-          invitationDomain?.id as UUID,
+      .setReceivingAddress(
+        new SetReceivingAddressParams(
+          invitationDomain!.consentAddress,
+          receivingAccount ?? null,
         ),
       )
-      .map(() => emptyReward());
+      .map(() => {
+        coreGateway
+          .acceptInvitationByUUID(
+            new AcceptInvitationByUUIDParams(
+              subscriptionPreviewData!.dataTypes,
+              invitationDomain?.id as UUID,
+            ),
+          )
+          .map(() => {
+            setAppState(EAPP_STATE.SUBSCRIPTION_SUCCESS);
+          });
+      })
+      .mapErr(() => {
+        emptyReward();
+      });
   };
 
   const renderComponent = useMemo(() => {
     switch (true) {
-      case !rewardToDisplay || appState === EAPP_STATE.DISMISSED:
+      case !rewardToDisplay:
         return null;
       case appState === EAPP_STATE.INIT:
         return (
           <RewardCard
-            emptyReward={emptyReward}
-            acceptInvitation={acceptInvitation}
-            changeAppState={changeAppState}
-            rejectInvitation={rejectInvitation}
+            onJoinClick={() => {
+              setAppState(EAPP_STATE.PERMISSION_SELECTION);
+            }}
+            onCancelClick={rejectInvitation}
+            onCloseClick={emptyReward}
             rewardItem={rewardToDisplay!}
-            invitationDomain={invitationDomain}
-            coreGateway={coreGateway}
           />
         );
       case appState === EAPP_STATE.PERMISSION_SELECTION:
         return (
-          <PermissionSelection
-            emptyReward={emptyReward}
-            acceptInvitation={acceptInvitation}
-            changeAppState={changeAppState}
-          />
-        );
-      case appState === EAPP_STATE.MANAGE_PERMISSIONS:
-        return (
-          <ManagePermissions
-            emptyReward={emptyReward}
+          <Permissions
+            domainDetails={invitationDomain!}
+            onCancelClick={emptyReward}
             coreGateway={coreGateway}
-            onSaveClick={(dataTypes) => {
-              acceptInvitationWithDataTypes(dataTypes);
+            onNextClick={(
+              eligibleRewards: PossibleReward[],
+              missingRewards: PossibleReward[],
+              dataTypes: EWalletDataType[],
+            ) => {
+              setSubscriptionPreviewData({
+                eligibleRewards,
+                missingRewards,
+                dataTypes,
+              });
+              setAppState(EAPP_STATE.SUBSCRIPTION_CONFIRMATION);
             }}
           />
         );
+      case subscriptionPreviewData &&
+        appState === EAPP_STATE.SUBSCRIPTION_CONFIRMATION:
+        return (
+          <SubscriptionConfirmation
+            {...subscriptionPreviewData!}
+            coreGateway={coreGateway}
+            domainDetails={invitationDomain!}
+            onCancelClick={emptyReward}
+            onConfirmClick={(receivingAccount) => {
+              acceptInvitation(receivingAccount);
+            }}
+          />
+        );
+      case appState === EAPP_STATE.SUBSCRIPTION_SUCCESS:
+        return (
+          <SubscriptionSuccess
+            domainDetails={invitationDomain!}
+            onCancelClick={emptyReward}
+          />
+        );
+      case appState === EAPP_STATE.LOADING:
+        return <Loading />;
       default:
         return null;
     }
-  }, [rewardToDisplay, appState]);
+  }, [
+    JSON.stringify(rewardToDisplay),
+    appState,
+    JSON.stringify(subscriptionPreviewData),
+  ]);
 
   return (
     <>
