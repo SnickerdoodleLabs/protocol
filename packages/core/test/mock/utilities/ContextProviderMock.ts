@@ -1,6 +1,9 @@
 import {
+  ComponentStatus,
   DataPermissionsUpdatedEvent,
   DataWalletAddress,
+  EChain,
+  EComponentStatus,
   IpfsCID,
   LinkedAccount,
   SDQLQueryRequest,
@@ -38,7 +41,16 @@ export class ContextProviderMock implements IContextProvider {
         false,
         new PublicEvents(),
         false,
-        0,
+        new ComponentStatus(
+          EComponentStatus.TemporarilyDisabled,
+          EComponentStatus.TemporarilyDisabled,
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          [],
+        ),
       );
     }
 

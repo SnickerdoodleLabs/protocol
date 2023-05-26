@@ -3,11 +3,11 @@ export class ComponentStatus {
   public constructor(
     public primaryProvider: EComponentStatus,
     public secondaryProvider: EComponentStatus,
-    public alchemyIndexer: EComponentStatus,
-    public etherscanIndexer: EComponentStatus,
-    public moralisIndexer: EComponentStatus,
-    public nftScanIndexer: EComponentStatus,
-    public oklinkIndexer: EComponentStatus,
+    public alchemyIndexer: Map<EChain, EComponentStatus>,
+    public etherscanIndexer: Map<EChain, EComponentStatus>,
+    public moralisIndexer: Map<EChain, EComponentStatus>,
+    public nftScanIndexer: Map<EChain, EComponentStatus>,
+    public oklinkIndexer: Map<EChain, EComponentStatus>,
     public chainStatus: ChainComponentStatus[],
   ) {}
 }

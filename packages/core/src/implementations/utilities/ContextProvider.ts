@@ -4,6 +4,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { PublicEvents, CoreContext } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
+import { ComponentStatus, EChain, EComponentStatus } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class ContextProvider
@@ -18,7 +19,16 @@ export class ContextProvider
       false, // unlockInProgress
       new PublicEvents(), // publicEvents,
       false,
-      0,
+      new ComponentStatus(
+        EComponentStatus.TemporarilyDisabled,
+        EComponentStatus.TemporarilyDisabled,
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        [],
+      ),
     );
   }
 

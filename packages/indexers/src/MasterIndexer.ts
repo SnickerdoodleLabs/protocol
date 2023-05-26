@@ -13,6 +13,7 @@ import {
   chainConfig,
   ChainId,
   ChainTransaction,
+  ComponentStatus,
   EChain,
   EChainType,
   EComponentStatus,
@@ -60,6 +61,16 @@ import {
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
   protected preferredIndexers = new Map<EChain, IEVMIndexer[]>();
+  protected componentStatus: ComponentStatus = new ComponentStatus(
+    EComponentStatus.TemporarilyDisabled,
+    EComponentStatus.TemporarilyDisabled,
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    [],
+  );
 
   public constructor(
     @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
@@ -120,7 +131,33 @@ export class MasterIndexer implements IMasterIndexer {
       this.poapRepo.getHealthCheck(),
       this.sim.getHealthCheck(),
       this.sol.getHealthCheck(),
-    ]).map(([]) => {});
+    ]).map(
+      ([
+        alchemyHealth,
+        ankrHealth,
+        covalentHealth,
+        etherscanHealth,
+        etherscanNativeHealth,
+        maticHealth,
+        moralisHealth,
+        nftscanHealth,
+        oklinkHealth,
+        poapHealth,
+        simHealth,
+        solHealth,
+      ]) => {
+        this.componentStatus = new ComponentStatus(
+          alchemyHealth.get(EChain.EthereumMainnet)!,
+          alchemyHealth.get(EChain.EthereumMainnet)!,
+          alchemyHealth,
+          etherscanHealth,
+          moralisHealth,
+          nftscanHealth,
+          oklinkHealth,
+          [],
+        );
+      },
+    );
   }
 
   public getLatestBalances(
