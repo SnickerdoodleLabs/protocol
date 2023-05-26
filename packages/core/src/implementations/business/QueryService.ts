@@ -141,7 +141,6 @@ export class QueryService implements IQueryService {
      * should be processed and returned as is, as long as at least a single reward is eligible.
      */
     // Create a new QueryStatus for tracking the query.
-    console.log("on query posted")
     return ResultUtils.combine([
       this.getQueryByCID(requestForData.requestedCID),
       this.contextProvider.getContext(),
@@ -151,11 +150,9 @@ export class QueryService implements IQueryService {
         requestForData.consentContractAddress,
       ),
     ]).andThen(([queryWrapper, context, config, accounts, consentToken]) => {
-      console.log("on query posted passed")
       // Check and make sure a consent token exists
       if (consentToken == null) {
         // Record the query as having been received, but ignore it
-        console.log("on query posted 1")
         return this.createQueryStatusWithNoConsent(
           requestForData,
           queryWrapper,
@@ -169,7 +166,6 @@ export class QueryService implements IQueryService {
         requestForData,
         queryWrapper,
       ).andThen(() => {
-        console.log("on query posted 2")
         return this.dataWalletUtils
           .deriveOptInPrivateKey(
             requestForData.consentContractAddress,
@@ -305,7 +301,6 @@ export class QueryService implements IQueryService {
     | AjaxError
   > {
     // Step 1, get all queries that are ready to return insights
-    // this.logUtils.info("Query Service: return Queries");
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -318,7 +313,6 @@ export class QueryService implements IQueryService {
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
-            this.logUtils.info(`returning queries for cid ${queryStatus.queryCID}`);
             // The rewards parameters need to be deserialized, or at least the basics provided.
             if (queryStatus.rewardsParameters == null) {
               // We can't really do much here right now, so I'll just mark the query as waiting
@@ -503,7 +497,6 @@ export class QueryService implements IQueryService {
     config: CoreConfig,
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
     // TODO get all the possible rewards and send them to next
-//!!!!!!
     return this.getPossibleInisightAndAdKeys(
       query,
       consentToken.dataPermissions,

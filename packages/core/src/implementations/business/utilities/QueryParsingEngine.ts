@@ -251,7 +251,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     sdqlR: SDQL_Return | null,
   ): InsightString | null {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
-
+ 
     if (actualTypeData == null) {
       return null;
     } else if (typeof actualTypeData == "string") {
