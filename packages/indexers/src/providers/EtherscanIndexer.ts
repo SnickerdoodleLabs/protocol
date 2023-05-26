@@ -133,17 +133,14 @@ export class EtherscanIndexer implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log(
-        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-      );
-
       const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+          if (config.apiKeys.etherscanApiKeys[key] == undefined) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
           }
-          this.health.set(key, EComponentStatus.Available);
         },
       );
       return okAsync(this.health);
@@ -377,7 +374,6 @@ export class EtherscanIndexer implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
       const key = !config.apiKeys.etherscanApiKeys[chainId];
-      console.log("EtherscanIndexer key: ", key);
       if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
@@ -386,42 +382,6 @@ export class EtherscanIndexer implements IEVMIndexer {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
     });
-  }
-
-  public healthCheck(): ResultAsync<string, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        console.log(
-          "etherscanApiKeys: ",
-          JSON.stringify(config.apiKeys.etherscanApiKeys),
-        );
-        const result: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
   }
 
   public get supportedChains(): Array<EChain> {

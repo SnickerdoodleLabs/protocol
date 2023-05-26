@@ -151,17 +151,13 @@ export class SolanaIndexer implements ISolanaIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log(
-        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-      );
-
-      const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
           if (config.apiKeys.alchemyApiKeys[key] == undefined) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
           }
-          this.health.set(key, EComponentStatus.Available);
         },
       );
       return okAsync(this.health);
@@ -327,42 +323,6 @@ export class SolanaIndexer implements ISolanaIndexer {
   }
   private _lamportsToSol(lamports: number): BigNumberString {
     return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
-  }
-  public healthCheck(): ResultAsync<string, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const result: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
-  }
-
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [EChain.Solana, EChain.SolanaTestnet];
-    return supportedChains;
   }
 }
 interface SolClients {

@@ -41,7 +41,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     EChain,
     EComponentStatus
   >();
-  
+
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
@@ -158,17 +158,13 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log(
-        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-      );
-
-      const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+          if (config.apiKeys.moralisApiKey == "") {
             this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
           }
-          this.health.set(key, EComponentStatus.Available);
         },
       );
       return okAsync(this.health);

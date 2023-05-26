@@ -148,37 +148,17 @@ export class AlchemyIndexer implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log(
-        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-      );
-
       const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
           if (config.apiKeys.alchemyApiKeys[key] == undefined) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
           }
-          this.health.set(key, EComponentStatus.Available);
         },
       );
       return okAsync(this.health);
-    });
-  }
-
-  protected _getEtherscanApiKey(
-    chain: ChainId,
-  ): ResultAsync<string, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      const chainName = getChainInfoByChainId(chain).name;
-      console.log("chainName: " + chainName);
-      const apiKey = config.apiKeys.etherscanApiKeys[chainName];
-      if (apiKey == null) {
-        return errAsync(
-          new AccountIndexingError("no etherscan api key for chain: ", chain),
-        );
-      }
-
-      return okAsync(apiKey);
     });
   }
 
@@ -347,38 +327,6 @@ export class AlchemyIndexer implements IEVMIndexer {
           });
         });
     });
-  }
-
-  public healthCheck(): ResultAsync<string, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const result: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
   }
 
   public get supportedChains(): Array<EChain> {

@@ -197,10 +197,11 @@ export class AnkrIndexer implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+          if (config.apiKeys.ankrApiKey == "") {
             this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
           }
-          this.health.set(key, EComponentStatus.Available);
         },
       );
       return okAsync(this.health);
