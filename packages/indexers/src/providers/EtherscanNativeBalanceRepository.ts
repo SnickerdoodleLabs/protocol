@@ -150,16 +150,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          console.log(
-            "etherscan native key: " +
-              getChainInfoByChain(key).name +
-              " and balance: " +
-              JSON.stringify(value),
-          );
-          console.log(
-            "config.apiKeys.etherscanApiKeys[key]: ",
-            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name],
-          );
           if (config.apiKeys.etherscanApiKeys[key] == "") {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
@@ -195,7 +185,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const key = getChainInfoByChain(chain).name;
-      console.log("get etherscan api key: " + key);
       if (
         config.apiKeys.etherscanApiKeys[key] == "" ||
         config.apiKeys.etherscanApiKeys[key] == undefined

@@ -154,16 +154,6 @@ export class SolanaIndexer implements ISolanaIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          console.log(
-            "alchemy native key: " +
-              getChainInfoByChain(key).name +
-              " and balance: " +
-              JSON.stringify(value),
-          );
-          console.log(
-            "config.apiKeys.etherscanApiKeys[key]: ",
-            config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name],
-          );
           if (config.apiKeys.alchemyApiKeys[key] == "") {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {

@@ -112,9 +112,7 @@ export class PoapRepository implements IEVMIndexer {
     AjaxError
   > {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
     return this.configProvider.getConfig().andThen((config) => {
-      console.log("Poap Keys: " + config.apiKeys.poapApiKey);
       if (config.apiKeys.poapApiKey == "") {
         this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
         return okAsync(this.health);

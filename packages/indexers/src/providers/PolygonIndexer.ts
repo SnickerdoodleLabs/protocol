@@ -193,10 +193,6 @@ export class PolygonIndexer implements IEVMIndexer {
     AjaxError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log(
-        "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
-      );
-
       const keys = this.indexerSupport.keys();
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
