@@ -26,6 +26,7 @@ import {
   Operator,
   TypeChecker,
   IQueryRepository,
+  AST_Insight,
 } from "@query-parser/interfaces/index.js";
 
 export class AST_Evaluator {
@@ -227,6 +228,17 @@ export class AST_Evaluator {
         }
         return val;
       });
+    });
+  }
+
+  public evalInsight(
+    ast: AST_Insight,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
+    return this.evalAny(ast.target).andThen((targetFulfilled) => {
+      if (targetFulfilled) {
+        return this.evalAny(ast.returns);
+      }
+      return okAsync(SDQL_Return(null));
     });
   }
 }
