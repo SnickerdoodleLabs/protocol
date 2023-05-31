@@ -1,7 +1,9 @@
 import {
-  ApiStats,
+  ComponentStatus,
   DataPermissionsUpdatedEvent,
   DataWalletAddress,
+  EChain,
+  EComponentStatus,
   EExternalApi,
   IpfsCID,
   LinkedAccount,
@@ -51,7 +53,16 @@ export class ContextProviderMock implements IContextProvider {
         false, // restoreInProgress
         new Subject<void>(), // heartbeat
         UnixTimestamp(0), // startTime,
-        0, // components
+        new ComponentStatus(
+          EComponentStatus.TemporarilyDisabled,
+          EComponentStatus.TemporarilyDisabled,
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          [],
+        ), // components
       );
     }
 

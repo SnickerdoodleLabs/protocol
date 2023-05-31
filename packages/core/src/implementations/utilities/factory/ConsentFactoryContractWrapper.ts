@@ -251,10 +251,11 @@ export class ConsentFactoryContractWrapper
   }
   public getListingsByTag(
     tag: MarketplaceTag,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return this.fallback(
-      () => this.primary.getListingsByTag(tag),
-      () => this.secondary?.getListingsByTag(tag),
+      () => this.primary.getListingsByTag(tag, removeExpired),
+      () => this.secondary?.getListingsByTag(tag, removeExpired),
     );
   }
 }

@@ -10,8 +10,6 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  IEVMAccountBalanceRepository,
-  IEVMTransactionRepository,
   TokenBalance,
   TickerSymbol,
   BigNumberString,
@@ -28,9 +26,11 @@ import {
   MethodSupportError,
   getChainInfoByChain,
   EChain,
+  EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { IRequestConfig } from "packages/common-utils/src";
@@ -42,7 +42,20 @@ import {
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
 import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
+@injectable()
 export class EtherscanIndexer implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -52,7 +65,19 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  getTokensForAccount(
+  public getBalancesForAccount(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.getNonNativeBalance(chain, accountAddress),
+      this.getNativeBalance(chain, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
+    });
+  }
+
+  public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
@@ -103,16 +128,30 @@ export class EtherscanIndexer implements IEVMIndexer {
     });
   }
 
-  public getBalancesForAccount(
-    chain: EChain,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.getNonNativeBalance(chain, accountAddress),
-      this.getNativeBalance(chain, accountAddress),
-    ]).map(([nonNativeBalance, nativeBalance]) => {
-      return [nativeBalance, ...nonNativeBalance];
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.etherscanApiKeys[key] == "") {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
     });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getNativeBalance(
@@ -332,47 +371,16 @@ export class EtherscanIndexer implements IEVMIndexer {
     chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.etherscanApiKeys.has(chainId)) {
+      const key = getChainInfoByChain(chain).name;
+      if (config.apiKeys.etherscanApiKeys[key] == "") {
+        this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chainId)!);
+      return okAsync(config.apiKeys.etherscanApiKeys[key]!);
     });
-  }
-
-  public healthCheck(): ResultAsync<string, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const result: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
   }
 }
 

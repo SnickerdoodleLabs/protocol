@@ -6,9 +6,10 @@ import {
   AjaxError,
   MethodSupportError,
 } from "@objects/errors";
+import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
 import { ChainId, EVMAccountAddress } from "@objects/primitives";
 
-export interface IEVMIndexer {
+export interface IEVMIndexer extends IIndexer {
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -32,5 +33,40 @@ export interface IEVMIndexer {
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
-  healthCheck(): ResultAsync<string, AjaxError>;
 }
+
+export const IAnkrIndexerType = Symbol.for("IAnkrIndexer");
+
+export const IAlchemyIndexerType = Symbol.for("IAlchemyIndexer");
+
+export const ICovalentEVMTransactionRepositoryType = Symbol.for(
+  "ICovalentEVMTransactionRepository",
+);
+
+export const IDummySolanaIndexerType = Symbol.for("IDummySolanaIndexer");
+
+export const IEtherscanIndexerType = Symbol.for("IEtherscanIndexer");
+
+export const IEtherscanNativeBalanceRepositoryType = Symbol.for(
+  "IEtherscanNativeBalanceRepository",
+);
+
+export const IMoralisEVMPortfolioRepositoryType = Symbol.for(
+  "IMoralisEVMPortfolioRepository",
+);
+
+export const INftScanEVMPortfolioRepositoryType = Symbol.for(
+  "INftScanEVMPortfolioRepository",
+);
+
+export const IOklinkIndexerType = Symbol.for("IOklinkIndexer");
+
+export const IPoapRepositoryType = Symbol.for("IPoapRepository");
+
+export const IPolygonIndexerType = Symbol.for("IPolygonIndexer");
+
+export const ISimulatorEVMTransactionRepositoryType = Symbol.for(
+  "ISimulatorEVMTransactionRepository",
+);
+
+export const ISolanaIndexerType = Symbol.for("ISolanaIndexer");

@@ -358,14 +358,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
         startingSlot,
         numberOfSlots,
-        filterActive,
+        removeExpired,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -402,14 +402,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
         startingSlot,
         numberOfSlots,
-        filterActive,
+        removeExpired,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -462,6 +462,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public getListingsByTag(
     tag: MarketplaceTag,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
     // We get the total number of slots by calling getTagTotal()
     // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
@@ -480,7 +481,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         tag,
         highestRankListingSlot,
         tagTotal,
-        true,
+        removeExpired,
       );
     });
   }

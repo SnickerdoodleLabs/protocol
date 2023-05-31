@@ -29,6 +29,7 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
     Optimism: string;
     Polygon: string;
     Solana: string;
+    SolanaTestnet: string;
   };
   covalentApiKey?: string;
   moralisApiKey?: string;
@@ -66,6 +67,14 @@ export interface IExtensionConfigOverrides {
       Optimism: string;
       Polygon: string;
       Solana: string;
+      SolanaTestnet: string;
+    };
+    etherscanApiKeys?: {
+      Ethereum: string;
+      Polygon: string;
+      Avalanche: string;
+      Binance: string;
+      Moonbeam: string;
     };
     covalentApiKey?: string;
     moralisApiKey?: string;

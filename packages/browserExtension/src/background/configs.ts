@@ -15,7 +15,12 @@ declare const __CONTROL_CHAIN_ID__: string;
 declare const __SUPPORTED_CHAINS__: string;
 declare const __IPFS_FETCH_BASE_URL__: URLString;
 declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
-__ALCHEMY_ARBITRUM_API_KEY__;
+
+declare const __ETHERSCAN_ETHEREUM_API_KEY__: string;
+declare const __ETHERSCAN_POLYGON_API_KEY__: string;
+declare const __ETHERSCAN_AVALANCHE_API_KEY__: string;
+declare const __ETHERSCAN_BINANCE_API_KEY__: string;
+declare const __ETHERSCAN_MOONBEAM_API_KEY__: string;
 
 declare const __ALCHEMY_ARBITRUM_API_KEY__: string;
 declare const __ALCHEMY_ASTAR_API_KEY__: string;
@@ -23,6 +28,7 @@ declare const __ALCHEMY_MUMBAI_API_KEY__: string;
 declare const __ALCHEMY_OPTIMISM_API_KEY__: string;
 declare const __ALCHEMY_POLYGON_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_API_KEY__: string;
+declare const __ALCHEMY_SOLANA_TESTNET_API_KEY__: string;
 
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
@@ -205,6 +211,38 @@ export const configs: IExtensionConfigOverrides = {
         typeof __ALCHEMY_SOLANA_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_SOLANA_API_KEY__
           ? __ALCHEMY_SOLANA_API_KEY__
+          : "",
+      SolanaTestnet:
+        typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
+        !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
+          ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
+          : "",
+    },
+    etherscanApiKeys: {
+      Ethereum:
+        typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_ETHEREUM_API_KEY__
+          ? __ETHERSCAN_ETHEREUM_API_KEY__
+          : "",
+      Polygon:
+        typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_POLYGON_API_KEY__
+          ? __ETHERSCAN_POLYGON_API_KEY__
+          : "",
+      Avalanche:
+        typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_AVALANCHE_API_KEY__
+          ? __ETHERSCAN_AVALANCHE_API_KEY__
+          : "",
+      Binance:
+        typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_BINANCE_API_KEY__
+          ? __ETHERSCAN_BINANCE_API_KEY__
+          : "",
+      Moonbeam:
+        typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_MOONBEAM_API_KEY__
+          ? __ETHERSCAN_MOONBEAM_API_KEY__
           : "",
     },
     covalentApiKey:

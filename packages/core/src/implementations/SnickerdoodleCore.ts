@@ -3,12 +3,8 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-import {
-  DefaultAccountBalances,
-  DefaultAccountIndexers,
-  DefaultAccountNFTs,
-  MasterIndexer,
-} from "@snickerdoodlelabs/indexers";
+
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -42,9 +38,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IAccountBalancesType,
-  IAccountIndexingType,
-  IAccountNFTsType,
   IAdMethods,
   IConfigOverrides,
   IConsentCapacity,
@@ -94,6 +87,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IMasterIndexer,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -228,21 +222,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     this.iocContainer
       .bind(IMasterIndexerType)
       .to(MasterIndexer)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountBalancesType)
-      .to(DefaultAccountBalances)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountNFTsType)
-      .to(DefaultAccountNFTs)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountIndexingType)
-      .to(DefaultAccountIndexers)
       .inSingletonScope();
 
     // Invitation Methods ----------------------------------------------------------------------------
@@ -636,6 +615,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
       IHeartbeatGeneratorType,
     );
+
+    // call Master Indexer and call initialize - healthier place to display errors
+    // do a .orElse() for the health check
+
+    const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+    indexers.initialize();
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])

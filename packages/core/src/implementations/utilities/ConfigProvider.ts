@@ -107,14 +107,36 @@ export class ConfigProvider
           Optimism: "",
           Polygon: "",
           Solana: "",
+          SolanaTestnet: "",
         },
-        covalentApiKey: "ckey_ee277e2a0e9542838cf30325665", // covalent api key
-        moralisApiKey:
-          "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
-        nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
-        poapApiKey:
-          "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
-        oklinkApiKey: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+        etherscanApiKeys: {
+          Ethereum: "",
+          Polygon: "",
+          Avalanche: "",
+          Binance: "",
+          Moonbeam: "",
+
+          // new Map([
+          //   [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+          //   [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+          //   [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+          //   [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+          //   [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+          //   [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+          //   [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
+          //   [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
+          //   [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
+          //   [ChainId(10), "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3"],
+          //   [ChainId(42161), "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV"],
+          // ]), // etherscan api key
+        },
+        covalentApiKey: "", // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
+        moralisApiKey: "",
+        // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
+        nftScanApiKey: "", // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+        poapApiKey: "",
+        // "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
+        oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: "", // ankrApiKey
         primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
         secondaryInfuraKey: "",
@@ -122,72 +144,30 @@ export class ConfigProvider
 
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       ECurrencyCode.USD, // quoteCurrency
-      new Map([
-        [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
-        [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
-        [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-        [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-        [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
-        [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
-        [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
-        [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
-        [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
-        [ChainId(10), "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3"],
-        [ChainId(42161), "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV"],
-      ]), // etherscanApiKeys etherscan api key
-      100, // etherscanTransactionsBatchSize etherscan tx batch size
-      4000, // requestForDataCheckingFrequency polling interval for consent contracts on control chain
+      100, // etherscan tx batch size
+      4000, // polling interval for consent contracts on control chain
       new Map<EChain, URLString>([
-        [
-          EChain.Solana,
-          URLString(
-            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-          ),
-        ],
+        [EChain.Solana, URLString("https://solana-mainnet.g.alchemy.com/v2/")],
         [
           EChain.SolanaTestnet,
-          URLString(
-            "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-          ),
+          URLString("https://solana-devnet.g.alchemy.com/v2/"),
         ],
         [
           EChain.Polygon,
-          URLString(
-            "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
-          ),
+          URLString("https://polygon-mainnet.g.alchemy.com/v2/"),
         ],
-        [
-          EChain.Mumbai,
-          URLString(
-            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
-          ),
-        ],
-        [
-          EChain.Arbitrum,
-          URLString(
-            "https://arb-mainnet.g.alchemy.com/v2/_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
-          ),
-        ],
-        [
-          EChain.Optimism,
-          URLString(
-            "https://opt-mainnet.g.alchemy.com/v2/f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
-          ),
-        ],
-        [
-          EChain.Astar,
-          URLString(
-            "https://astar-mainnet.g.alchemy.com/v2/Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
-          ),
-        ],
-      ]), // alchemyEndpoints
-      10000, // restoreTimeoutMS
-      "(localhost|chrome://)", // domainFilter
-      false, // enableBackupEncryption
-      300000, // marketplaceCacheTime
-      120000, // backupHeartbeatIntervalMS
-      discordConfig, // discord
-      twitterConfig, // twitter
+        [EChain.Mumbai, URLString("https://polygon-mumbai.g.alchemy.com/v2/")],
+        [EChain.Arbitrum, URLString("https://arb-mainnet.g.alchemy.com/v2/")],
+        [EChain.Optimism, URLString("https://opt-mainnet.g.alchemy.com/v2/")],
+        [EChain.Astar, URLString("https://astar-mainnet.g.alchemy.com/v2/")],
+      ]),
+      10000,
+      "(localhost|chrome://)",
+      false, // enable backup encryption
+      300000,
+      120000, // backup placement heartbeat
+      discordConfig,
+      twitterConfig,
       60000, // heartbeatIntervalMS
       new MetatransactionGasAmounts(
         10000000, // createCrumbGas

@@ -1,6 +1,10 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IIndexerContextProvider } from "@snickerdoodlelabs/indexers";
-import { ApiStats, EExternalApi } from "@snickerdoodlelabs/objects";
+import {
+  ComponentStatus,
+  EChain,
+  EComponentStatus,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
@@ -28,7 +32,16 @@ export class ContextProvider
       false, // restoreInProgress
       new Subject<void>(), // heartbeat
       this.timeUtils.getUnixNow(), // startTime
-      0, // components
+      new ComponentStatus(
+        EComponentStatus.TemporarilyDisabled,
+        EComponentStatus.TemporarilyDisabled,
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        new Map<EChain, EComponentStatus>(),
+        [],
+      ),
     );
   }
 

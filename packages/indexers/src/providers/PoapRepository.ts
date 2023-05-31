@@ -14,11 +14,12 @@ import {
   EVMNFT,
   EVMTransaction,
   IEVMIndexer,
-  IEVMNftRepository,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
   MethodSupportError,
+  EChain,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,32 +37,29 @@ const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
 @injectable()
 export class PoapRepository implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, false, false, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
-  getBalancesForAccount(
+
+  public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenBalance[],
-    AjaxError | AccountIndexingError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-  getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
     AjaxError | AccountIndexingError | MethodSupportError
   > {
     return errAsync(
@@ -90,6 +88,66 @@ export class PoapRepository implements IEVMIndexer {
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
       );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
+    return this.configProvider.getConfig().andThen((config) => {
+      if (config.apiKeys.poapApiKey == "") {
+        this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
+        return okAsync(this.health);
+      }
+      const result: IRequestConfig = {
+        method: "get",
+        url: url,
+        headers: {
+          accept: "application/json",
+          "X-API-Key": config.apiKeys.poapApiKey,
+        },
+      };
+      return this.ajaxUtils
+        .get<IHealthCheck>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(result.url!),
+          result,
+        )
+        .andThen((result) => {
+          if (result.status !== undefined) {
+            this.health.set(EChain.Gnosis, EComponentStatus.Available);
+            return okAsync(this.health);
+          }
+          this.health.set(EChain.Gnosis, EComponentStatus.Error);
+          return okAsync(this.health);
+        });
+    });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getPages(chainId: ChainId, response: IPoapResponse[]): EVMNFT[] {
@@ -130,37 +188,16 @@ export class PoapRepository implements IEVMIndexer {
     });
   }
 
-  public healthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider.getConfig().andThen((config) => {
-      if (config.apiKeys.poapApiKey == "") {
-        return okAsync(EComponentStatus.NoKeyProvided);
-      }
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.poapApiKey,
-        },
-      };
-      return this.ajaxUtils
-        .get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(result.url!),
-          result,
-        )
-        .andThen((result) => {
-          if (result.status !== undefined) {
-            return okAsync(EComponentStatus.Available);
-          }
-          return okAsync(EComponentStatus.Error);
-        })
-        .andThen((fads) => {
-          return okAsync(fads);
-        });
-    });
+  public get supportedChains(): Array<EChain> {
+    const supportedChains = [
+      EChain.Arbitrum,
+      EChain.EthereumMainnet,
+      EChain.Mumbai,
+      EChain.Optimism,
+      EChain.Polygon,
+      EChain.Solana,
+    ];
+    return supportedChains;
   }
 }
 

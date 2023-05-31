@@ -5,53 +5,49 @@ import {
   BlockNumber,
   ChainId,
   EChainTechnology,
+  EComponentStatus,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
   EVMTransactionHash,
-  IEVMAccountBalanceRepository,
   IEVMIndexer,
-  IEVMNftRepository,
-  IEVMTransactionRepository,
   TickerSymbol,
   TokenBalance,
   TokenUri,
   UnixTimestamp,
+  EChain,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+@injectable()
 export class SimulatorEVMTransactionRepository implements IEVMIndexer {
-  healthCheck(): ResultAsync<string, AjaxError> {
-    throw new Error("Method not implemented.");
-  }
-  getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    const num = Math.floor(Math.random() * 10) + 1;
-    const result: EVMNFT[] = [];
-    for (let i = 0; i < num; i++) {
-      const item = new EVMNFT(
-        EVMContractAddress("EVMContractAddress#"),
-        BigNumberString(`${Math.floor(Math.random() * 1000)}`),
-        "erc721",
-        accountAddress,
-        TokenUri("tokenURI"),
-        { raw: "metadata" },
-        BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        "Fake Token #" + i,
-        chainId,
-        BlockNumber(i),
-        //86400 => day
-        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
-      );
-      result.push(item);
-    }
-    return okAsync(result);
-  }
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, false, false),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+    ],
+  ]);
 
-  getBalancesForAccount(
+  public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError> {
@@ -71,6 +67,32 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
         accountAddress,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         18,
+      );
+      result.push(item);
+    }
+    return okAsync(result);
+  }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    const num = Math.floor(Math.random() * 10) + 1;
+    const result: EVMNFT[] = [];
+    for (let i = 0; i < num; i++) {
+      const item = new EVMNFT(
+        EVMContractAddress("EVMContractAddress#"),
+        BigNumberString(`${Math.floor(Math.random() * 1000)}`),
+        "erc721",
+        accountAddress,
+        TokenUri("tokenURI"),
+        { raw: "metadata" },
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        "Fake Token #" + i,
+        chainId,
+        BlockNumber(i),
+        //86400 => day
+        UnixTimestamp(Date.now() - i * (Date.now() % 86400)),
       );
       result.push(item);
     }
@@ -112,5 +134,37 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
       );
     }
     return okAsync(result);
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    this.health.set(EChain.EthereumMainnet, EComponentStatus.Available);
+    return okAsync(this.health);
+    // return this.configProvider.getConfig().andThen((config) => {
+    //   console.log(
+    //     "Alchemy Keys: " + JSON.stringify(config.apiKeys.alchemyApiKeys),
+    //   );
+
+    //   const keys = this.indexerSupport.keys();
+    //   this.indexerSupport.forEach(
+    //     (value: IndexerSupportSummary, key: EChain) => {
+    //       if (config.apiKeys.alchemyApiKeys[key] == undefined) {
+    //         this.health.set(key, EComponentStatus.NoKeyProvided);
+    //       }
+    //       this.health.set(key, EComponentStatus.Available);
+    //     },
+    //   );
+    //   return okAsync(this.health);
+    // });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 }

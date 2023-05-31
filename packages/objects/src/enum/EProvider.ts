@@ -7,4 +7,8 @@ export enum EProvider {
   Alchemy = "Alchemy",
   Oklink = "Oklink",
   Solana = "Solana",
+  NftScan = "NftScan",
+  Moralis = "Moralis",
+  Matic = "Matic",
+  Sim = "Sim",
 }

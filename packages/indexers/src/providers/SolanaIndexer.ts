@@ -27,6 +27,10 @@ import {
   TickerSymbol,
   SolanaCollection,
   getChainInfoByChainId,
+  ISolanaIndexer,
+  EComponentStatus,
+  IndexerSupportSummary,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -38,7 +42,7 @@ import {
   ParsedAccountData,
 } from "@solana/web3.js";
 import { BigNumber } from "ethers";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
@@ -47,13 +51,22 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-export class SolanaIndexer
-  implements
-    ISolanaBalanceRepository,
-    ISolanaNFTRepository,
-    ISolanaTransactionRepository
-{
+
+@injectable()
+export class SolanaIndexer implements ISolanaIndexer {
   private _connections?: ResultAsync<SolClients, never>;
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [EChain.Solana, new IndexerSupportSummary(EChain.Solana, true, true, true)],
+    [
+      EChain.SolanaTestnet,
+      new IndexerSupportSummary(EChain.SolanaTestnet, true, true, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -62,6 +75,7 @@ export class SolanaIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -73,6 +87,92 @@ export class SolanaIndexer
       return [nativeBalance, ...nonNativeBalance];
     });
   }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
+    return this._getConnectionForChainId(chainId)
+      .andThen(([conn, metaplex]) => {
+        return ResultAsync.fromPromise(
+          metaplex
+            .nfts()
+            .findAllByOwner({ owner: new PublicKey(accountAddress) }),
+          (e) => new AccountIndexingError("error finding sol nfts", e),
+        );
+      })
+      .orElse((e) => {
+        this.logUtils.error("error fetching solana nfts", e);
+        return okAsync([]);
+      })
+      .map((nfts) => {
+        return nfts
+          .map((nft) => {
+            return new SolanaNFT(
+              chainId,
+              accountAddress,
+              SolanaTokenAddress(nft.address.toBase58()),
+              nft.collection
+                ? new SolanaCollection(
+                    SolanaTokenAddress(nft.collection?.address.toBase58()),
+                    nft.collection?.verified,
+                  )
+                : null,
+              nft.uri,
+              nft.isMutable,
+              nft.primarySaleHappened,
+              nft.sellerFeeBasisPoints,
+              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
+              nft.tokenStandard,
+              TickerSymbol(nft.symbol),
+              nft.name,
+            );
+          })
+          .filter((val, i, arr) => {
+            return (
+              i ==
+              arr.findIndex((ind) => {
+                return ind.mint == val.mint;
+              })
+            );
+          }); // remove duplicates
+      });
+  }
+  public getSolanaTransactions(
+    chainId: ChainId,
+    accountAddress: SolanaAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
+    return okAsync([]); //TODO
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.alchemyApiKeys[key] == "") {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
+    });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
+  }
+
   private getNonNativeBalance(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
@@ -134,64 +234,6 @@ export class SolanaIndexer
         return okAsync(nativeBalance);
       });
   }
-  public getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
-    return this._getConnectionForChainId(chainId)
-      .andThen(([conn, metaplex]) => {
-        return ResultAsync.fromPromise(
-          metaplex
-            .nfts()
-            .findAllByOwner({ owner: new PublicKey(accountAddress) }),
-          (e) => new AccountIndexingError("error finding sol nfts", e),
-        );
-      })
-      .orElse((e) => {
-        this.logUtils.error("error fetching solana nfts", e);
-        return okAsync([]);
-      })
-      .map((nfts) => {
-        return nfts
-          .map((nft) => {
-            return new SolanaNFT(
-              chainId,
-              accountAddress,
-              SolanaTokenAddress(nft.address.toBase58()),
-              nft.collection
-                ? new SolanaCollection(
-                    SolanaTokenAddress(nft.collection?.address.toBase58()),
-                    nft.collection?.verified,
-                  )
-                : null,
-              nft.uri,
-              nft.isMutable,
-              nft.primarySaleHappened,
-              nft.sellerFeeBasisPoints,
-              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
-              nft.tokenStandard,
-              TickerSymbol(nft.symbol),
-              nft.name,
-            );
-          })
-          .filter((val, i, arr) => {
-            return (
-              i ==
-              arr.findIndex((ind) => {
-                return ind.mint == val.mint;
-              })
-            );
-          }); // remove duplicates
-      });
-  }
-  public getSolanaTransactions(
-    chainId: ChainId,
-    accountAddress: SolanaAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
-    return okAsync([]); //TODO
-  }
   private _getConnectionForChainId(
     chainId: ChainId,
   ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
@@ -208,6 +250,7 @@ export class SolanaIndexer
       }
     });
   }
+
   private _getConnections(): ResultAsync<SolClients, never> {
     if (this._connections) {
       return this._connections;
@@ -281,37 +324,6 @@ export class SolanaIndexer
   }
   private _lamportsToSol(lamports: number): BigNumberString {
     return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
-  }
-  public healthCheck(): ResultAsync<string, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const result: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        return okAsync(result);
-      })
-      .andThen((requestConfig) => {
-        return this.ajaxUtils.get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
   }
 }
 interface SolClients {

@@ -11,9 +11,11 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface IConsentFactoryContract extends IBaseContract {
   /**
@@ -139,5 +141,6 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getListingsByTag(
     tag: MarketplaceTag,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
 }

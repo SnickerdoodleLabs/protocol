@@ -13,6 +13,7 @@ import {
   chainConfig,
   ChainId,
   ChainTransaction,
+  ComponentStatus,
   EChain,
   EChainType,
   EComponentStatus,
@@ -20,13 +21,27 @@ import {
   EProvider,
   EVMAccountAddress,
   getChainInfoByChainId,
-  IAccountBalances,
-  IEVMAccountBalanceRepository,
+  IAlchemyIndexerType,
+  IAnkrIndexerType,
+  ICovalentEVMTransactionRepositoryType,
+  IDummySolanaIndexerType,
+  IEtherscanIndexerType,
+  IEtherscanNativeBalanceRepositoryType,
   IEVMIndexer,
   IMasterIndexer,
+  IMoralisEVMPortfolioRepositoryType,
+  IndexerSupportSummary,
+  INftScanEVMPortfolioRepositoryType,
+  IOklinkIndexerType,
+  IPoapRepositoryType,
+  IPolygonIndexerType,
+  ISimulatorEVMTransactionRepositoryType,
   ISolanaBalanceRepository,
+  ISolanaIndexer,
+  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
+  MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
   TokenBalance,
@@ -42,167 +57,114 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { AlchemyIndexer } from "@indexers/providers/AlchemyIndexer.js";
-import { AnkrIndexer } from "@indexers/providers/AnkrIndexer.js";
-import { CovalentEVMTransactionRepository } from "@indexers/providers/CovalentEVMTransactionRepository.js";
-import { EtherscanIndexer } from "@indexers/providers/EtherscanIndexer.js";
-import { EtherscanNativeBalanceRepository } from "@indexers/providers/EtherscanNativeBalanceRepository.js";
-import { MoralisEVMPortfolioRepository } from "@indexers/providers/MoralisEVMPortfolioRepository.js";
-import { NftScanEVMPortfolioRepository } from "@indexers/providers/NftScanEVMPortfolioRepository.js";
-import { OklinkIndexer } from "@indexers/providers/OklinkIndexer.js";
-import { PoapRepository } from "@indexers/providers/PoapRepository.js";
-import { PolygonIndexer } from "@indexers/providers/PolygonIndexer.js";
-import { SimulatorEVMTransactionRepository } from "@indexers/providers/SimulatorEVMTransactionRepository.js";
-import { SolanaIndexer } from "@indexers/providers/SolanaIndexer.js";
+import {
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/IIndexerContextProvider.js";
 
 @injectable()
 export class MasterIndexer implements IMasterIndexer {
-  protected ankr: IEVMAccountBalanceRepository;
-  protected alchemy: AlchemyIndexer;
-  protected covalent: IEVMAccountBalanceRepository;
-  protected ethereum: EtherscanIndexer;
-  protected etherscanNativeBalance: EtherscanNativeBalanceRepository;
-  //   protected evm: IEVMAccountBalanceRepository;
-  protected nftscan: NftScanEVMPortfolioRepository;
-  protected oklink: OklinkIndexer;
-  protected poapRepo: PoapRepository;
-  protected matic: PolygonIndexer;
-  protected sim: SimulatorEVMTransactionRepository;
-  protected sol: SolanaIndexer;
-
-  protected preferredIndexers = new Map<EChain, EProvider[]>();
-  protected indexerHealthStatus = new Map<EProvider, EComponentStatus>();
-  protected indexerMap = new Map<EProvider, IEVMIndexer>();
+  protected preferredIndexers = new Map<EChain, IEVMIndexer[]>();
+  protected componentStatus: ComponentStatus = new ComponentStatus(
+    EComponentStatus.TemporarilyDisabled,
+    EComponentStatus.TemporarilyDisabled,
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    new Map<EChain, EComponentStatus>(),
+    [],
+  );
 
   public constructor(
-    @inject(IIndexerConfigProviderType)
-    protected configProvider: IIndexerConfigProvider,
-    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(IIndexerContextProviderType)
+    protected indexerContext: IIndexerContextProvider,
+    @inject(IAlchemyIndexerType) protected alchemy: IEVMIndexer,
+    @inject(IAnkrIndexerType) protected ankr: IEVMIndexer,
+    @inject(ICovalentEVMTransactionRepositoryType)
+    protected covalent: IEVMIndexer,
+    @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
+    @inject(IEtherscanNativeBalanceRepositoryType)
+    protected etherscanNative: IEVMIndexer,
+    @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
+    @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
+    @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
+    @inject(IPoapRepositoryType) protected poapRepo: IEVMIndexer,
+    @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
+    @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
+    @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
+
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.ankr = new AnkrIndexer(
-      configProvider,
-      ajaxUtils,
-      tokenPriceRepo,
-      logUtils,
-    );
-    this.covalent = new CovalentEVMTransactionRepository(
-      configProvider,
-      ajaxUtils,
-    );
-    // this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
-    this.ethereum = new EtherscanIndexer(
-      configProvider,
-      ajaxUtils,
-      tokenPriceRepo,
-      logUtils,
-    );
-    this.sim = new SimulatorEVMTransactionRepository();
-    this.sol = new SolanaIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
-    this.matic = new PolygonIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
-    this.etherscanNativeBalance = new EtherscanNativeBalanceRepository(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
-    this.alchemy = new AlchemyIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
-    this.oklink = new OklinkIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
-    this.nftscan = new NftScanEVMPortfolioRepository(configProvider, ajaxUtils);
-    this.poapRepo = new PoapRepository(configProvider, ajaxUtils);
+    this.preferredIndexers = new Map<EChain, IEVMIndexer[]>([
+      [EChain.EthereumMainnet, [this.etherscan]],
 
-    this.preferredIndexers = new Map<EChain, EProvider[]>([
-      [EChain.EthereumMainnet, [EProvider.Etherscan]],
+      /* Alchemy Preferred */
+      [EChain.Mumbai, [this.alchemy]],
+      [EChain.Astar, [this.alchemy]],
+      [EChain.Polygon, [this.alchemy]],
+      [EChain.Optimism, [this.alchemy, this.nftscan]],
+      [EChain.Arbitrum, [this.alchemy, this.nftscan]],
 
-      [EChain.Avalanche, [EProvider.Etherscan]],
-      [EChain.Fuji, [EProvider.Etherscan]],
-
-      [EChain.Polygon, [EProvider.Etherscan]],
-      [EChain.Mumbai, [EProvider.Etherscan]],
-
-      [EChain.Solana, [EProvider.Solana]],
-      [EChain.SolanaTestnet, [EProvider.Solana]],
-
-      [EChain.Moonbeam, [EProvider.Etherscan, EProvider.Ankr]],
-      [EChain.Binance, [EProvider.EtherscanNative, EProvider.Ankr]],
-      [EChain.Gnosis, [EProvider.Etherscan]],
+      /* Etherscan Native Balance Preferred */
+      [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
+      [EChain.Binance, [this.etherscanNative, this.nftscan]],
+      [EChain.Gnosis, [this.etherscanNative, this.poapRepo]],
+      [EChain.Avalanche, [this.etherscanNative, this.nftscan]],
+      [EChain.Fuji, [this.etherscanNative, this.nftscan]],
     ]);
-
-    this.indexerHealthStatus = new Map<EProvider, EComponentStatus>([
-      [EProvider.Ankr, EComponentStatus.Available],
-      [EProvider.Alchemy, EComponentStatus.Available],
-      [EProvider.Covalent, EComponentStatus.Available],
-      [EProvider.Etherscan, EComponentStatus.Available],
-      [EProvider.EtherscanNative, EComponentStatus.Available],
-      [EProvider.Oklink, EComponentStatus.Available],
-      [EProvider.Poap, EComponentStatus.Available], // DONE
-      [EProvider.Solana, EComponentStatus.Available],
-    ]);
-
-    // this.indexerMap = new Map<EProvider, IEVMIndexer>([
-    //   [EProvider.Ankr, this.ankr],
-    //   [EProvider.Alchemy, this.alchemy],
-    //   [EProvider.Covalent, this.covalent],
-    //   [EProvider.Etherscan, this.ethereum],
-    //   [EProvider.EtherscanNative, this.etherscanNativeBalance],
-    //   [EProvider.Oklink, this.oklink],
-    //   [EProvider.Poap, this.poapRepo], // DONE
-    //   //   [EProvider.Solana, this.sol],
-    // ]);
-
-    this.initialize();
+    // this.initialize();
   }
 
-  private initialize(): ResultAsync<void, AjaxError> {
-    // console.log("Initialize Master Indexer: ");
-    // return ResultUtils.combine([this.configProvider.getConfig()])
-    //   .andThen(([config]) => {
-    //     const chains = config.supportedChains;
-    //     console.log("Supported Chains: ", chains);
-    //     const chainValues = chains.map((chain) => {
-    //       const providers = this.preferredIndexers.get(
-    //         getChainInfoByChainId(chain).chain,
-    //       )!;
-    //       const status = providers.forEach((provider) => {
-    //         if (
-    //           this.indexerHealthStatus.get(provider) ==
-    //           EComponentStatus.Available
-    //         ) {
-    //           this.preferredIndexers.set(getChainInfoByChainId(chain).chain, [
-    //             provider,
-    //           ]);
-    //           break;
-    //         }
-    //       });
-    //     });
-    //     return chainValues;
-    //   })
-    //   .andThen(() => {
-    //     return okAsync(undefined);
-    //   });
-    return okAsync(undefined);
+  // call this from elsewhere
+  public initialize(): ResultAsync<void, AjaxError> {
+    return this.getHealthStatuses().andThen((healthStatuses) => {
+      return okAsync(undefined);
+    });
+  }
+
+  /* Sets the health statuses of each provider */
+  private getHealthStatuses(): ResultAsync<void, AjaxError> {
+    this.indexerContext.getContext();
+    return ResultUtils.combine([
+      this.indexerContext.getContext(),
+      this.alchemy.getHealthCheck(),
+      this.ankr.getHealthCheck(),
+      this.covalent.getHealthCheck(),
+      this.etherscan.getHealthCheck(),
+      this.etherscanNative.getHealthCheck(),
+      this.matic.getHealthCheck(),
+      this.moralis.getHealthCheck(),
+      this.nftscan.getHealthCheck(),
+      this.oklink.getHealthCheck(),
+      this.poapRepo.getHealthCheck(),
+      this.sim.getHealthCheck(),
+      this.sol.getHealthCheck(),
+    ]).map(
+      ([
+        context,
+        alchemyHealth,
+        ankrHealth,
+        covalentHealth,
+        etherscanHealth,
+        etherscanNativeHealth,
+        maticHealth,
+        moralisHealth,
+        nftscanHealth,
+        oklinkHealth,
+        poapHealth,
+        simHealth,
+        solHealth,
+      ]) => {
+        const indexerStatuses = context.components;
+        indexerStatuses.alchemyIndexer = alchemyHealth;
+        indexerStatuses.etherscanIndexer = etherscanHealth;
+        indexerStatuses.moralisIndexer = moralisHealth;
+        indexerStatuses.nftScanIndexer = nftscanHealth;
+        indexerStatuses.oklinkIndexer = oklinkHealth;
+        context.components = indexerStatuses;
+      },
+    );
   }
 
   public getLatestBalances(
@@ -212,66 +174,35 @@ export class MasterIndexer implements IMasterIndexer {
     TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError
   > {
-    const chainInfo = chainConfig.get(chainId);
-    if (chainInfo == null) {
-      return errAsync(
-        new AccountIndexingError(
-          `No available chain info for chain ${chainId}`,
-        ),
+    const chain = getChainInfoByChainId(chainId).chain;
+    if (chain == EChain.Solana) {
+      return this.sol.getBalancesForAccount(
+        chainId,
+        SolanaAccountAddress(accountAddress),
       );
     }
 
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const providers = this.preferredIndexers.get(chainInfo.chain)!;
-        const provider = providers[0];
+    const providers = this.preferredIndexers.get(chain)!;
+    const provider = providers.find(
+      (element) =>
+        element.getSupportedChains().get(chain)?.balances &&
+        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
+          EComponentStatus.Available,
+    );
 
-        provider;
+    if (provider == undefined) {
+      this.logUtils.warning(
+        "error fetching balances: no healthy provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
+      );
+      return okAsync([]);
+    }
 
-        switch (chainInfo.indexer) {
-          case EIndexer.EVM:
-            return this.etherscanNativeBalance.getBalancesForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Polygon:
-            return this.alchemy.getBalancesForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Simulator:
-            return this.sim.getBalancesForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Solana:
-            return this.sol.getBalancesForAccount(
-              chainId,
-              accountAddress as SolanaAccountAddress,
-            );
-          case EIndexer.Ethereum:
-            return this.ethereum.getBalancesForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Gnosis:
-          case EIndexer.Binance:
-          case EIndexer.Moonbeam:
-            return this.etherscanNativeBalance.getBalancesForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          default:
-            return errAsync(
-              new AccountIndexingError(
-                `No available balance repository for chain ${chainId}`,
-              ),
-            );
-        }
-      })
+    return provider
+      .getBalancesForAccount(chainId, EVMAccountAddress(accountAddress))
       .orElse((e) => {
-        this.logUtils.error(
+        this.logUtils.log(
           "error fetching balances",
           chainId,
           accountAddress,
@@ -300,142 +231,89 @@ export class MasterIndexer implements IMasterIndexer {
     accountAddress: AccountAddress,
   ): ResultAsync<
     WalletNFT[],
-    PersistenceError | AccountIndexingError | AjaxError
+    PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
-    const chainInfo = chainConfig.get(chainId);
-    if (chainInfo == null) {
-      return errAsync(
-        new AccountIndexingError(
-          `No available chain info for chain ${chainId}`,
-        ),
+    const chain = getChainInfoByChainId(chainId).chain;
+    if (chain == EChain.Solana) {
+      return this.sol.getTokensForAccount(
+        chainId,
+        SolanaAccountAddress(accountAddress),
       );
     }
 
-    if (chainInfo.type == EChainType.Testnet) {
+    // can make this another generic function
+    const providers = this.preferredIndexers.get(chain)!;
+    const provider = providers.find(
+      (element) =>
+        element.getSupportedChains().get(chain)?.nfts &&
+        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
+          EComponentStatus.Available,
+    );
+
+    if (provider == undefined) {
+      this.logUtils.log(
+        "error fetching nfts: no healthy provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
+      );
       return okAsync([]);
     }
 
-    switch (chainInfo.indexer) {
-      case EIndexer.EVM:
-        return this.nftscan.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      case EIndexer.Polygon:
-        return this.nftscan.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      case EIndexer.Simulator:
-        return this.sim.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      case EIndexer.Solana:
-        return this.sol.getTokensForAccount(
-          chainId,
-          accountAddress as SolanaAccountAddress,
-        );
-      case EIndexer.Ethereum:
-        return this.nftscan.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      case EIndexer.Gnosis:
-        return this.poapRepo.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      case EIndexer.Binance:
-        return this.nftscan.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      case EIndexer.Moonbeam:
-        return this.nftscan.getTokensForAccount(
-          chainId,
-          accountAddress as EVMAccountAddress,
-        );
-      default:
-        return errAsync(
-          new AccountIndexingError(
-            `No available token repository for chain ${chainId}`,
-          ),
-        );
-    }
+    return provider
+      .getTokensForAccount(chainId, EVMAccountAddress(accountAddress))
+      .orElse((e) => {
+        this.logUtils.log("error fetching nfts", chainId, accountAddress, e);
+        return okAsync([]);
+      });
   }
 
   public getLatestTransactions(
     accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
     chainId: ChainId,
-  ): ResultAsync<ChainTransaction[], AccountIndexingError | AjaxError> {
-    // Get the chain info for the transaction
-    const chainInfo = chainConfig.get(chainId);
-    if (chainInfo == null) {
-      this.logUtils.error(`No available chain info for chain ${chainId}`);
+  ): ResultAsync<
+    ChainTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    const chain = getChainInfoByChainId(chainId).chain;
+    if (chain == EChain.Solana) {
+      return this.sol.getSolanaTransactions(
+        chainId,
+        SolanaAccountAddress(accountAddress),
+        new Date(timestamp * 1000),
+      );
+    }
+    const providers = this.preferredIndexers.get(chain)!;
+    const provider = providers.find(
+      (element) =>
+        element.getSupportedChains().get(chain)?.transactions &&
+        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
+          EComponentStatus.Available,
+    );
+
+    if (provider == undefined) {
+      this.logUtils.log(
+        "error fetching transactions: no healthy provider found for " +
+          getChainInfoByChainId(chainId).name +
+          " protocol",
+      );
       return okAsync([]);
     }
 
-    switch (chainInfo.indexer) {
-      case EIndexer.EVM:
-        return this.ethereum.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Simulator:
-        return this.sim.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Solana:
-        return this.sol.getSolanaTransactions(
-          chainId,
-          accountAddress as SolanaAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Ethereum:
-        return this.ethereum.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Polygon:
-        return this.matic.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Gnosis:
-        return this.ethereum.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Binance:
-        return this.ethereum.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      case EIndexer.Moonbeam:
-        return this.ethereum.getEVMTransactions(
-          chainId,
-          accountAddress as EVMAccountAddress,
-          new Date(timestamp * 1000),
-        );
-      default:
+    return provider
+      .getEVMTransactions(
+        chainId,
+        EVMAccountAddress(accountAddress),
+        new Date(timestamp * 1000),
+      )
+      .orElse((e) => {
         this.logUtils.error(
-          `No available indexer repository for chain ${chainId}`,
+          "error fetching transactions",
+          chainId,
+          accountAddress,
+          e,
         );
         return okAsync([]);
-    }
+      });
   }
 }
-
-// interface AlchemyAcceptableChains: {
-//     Ethereum: ProviderRpcError;
-
-// }

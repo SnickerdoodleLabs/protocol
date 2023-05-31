@@ -2,9 +2,8 @@
 
 import { IIndexerContext } from "@snickerdoodlelabs/indexers";
 import {
-  ApiStats,
+  ComponentStatus,
   DataWalletAddress,
-  EExternalApi,
   EVMPrivateKey,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -37,6 +36,6 @@ export class CoreContext implements IIndexerContext {
     public restoreInProgress: boolean,
     public heartbeat: Subject<void>,
     public startTime: UnixTimestamp,
-    public components: number,
+    public components: ComponentStatus,
   ) {}
 }

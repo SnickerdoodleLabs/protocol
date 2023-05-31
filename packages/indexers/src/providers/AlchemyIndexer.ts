@@ -3,12 +3,10 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
-  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
-  getChainInfoByChainId,
   AccountIndexingError,
   AjaxError,
   ChainId,
@@ -17,40 +15,62 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   EVMAccountAddress,
-  IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
   HexString,
   EVMNFT,
-  IEVMNftRepository,
   AccountAddress,
   URLString,
-  IEVMTransactionRepository,
   EVMTransaction,
   IEVMIndexer,
   MethodSupportError,
   getChainInfoByChain,
   EExternalApi,
+  EComponentStatus,
+  IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+import { IIndexerContext } from "@indexers/interfaces/IIndexerContext.js";
 import {
-  IIndexerContext,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 
+@injectable()
 export class AlchemyIndexer implements IEVMIndexer {
   protected _alchemyNonNativeSupport = new Map<EChain, boolean>();
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+    ],
+    [
+      EChain.Optimism,
+      new IndexerSupportSummary(EChain.Optimism, true, false, false),
+    ],
+    [
+      EChain.Polygon,
+      new IndexerSupportSummary(EChain.Polygon, true, false, false),
+    ],
+    [EChain.Astar, new IndexerSupportSummary(EChain.Astar, true, false, false)],
+    [
+      EChain.Mumbai,
+      new IndexerSupportSummary(EChain.Mumbai, true, false, false),
+    ],
+  ]);
 
   protected chainToApiMap = new Map<EChain, EExternalApi>([
     [EChain.Arbitrum, EExternalApi.AlchemyArbitrum],
@@ -81,23 +101,6 @@ export class AlchemyIndexer implements IEVMIndexer {
     ]) as Map<EChain, boolean>;
   }
 
-  public getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<
-    EVMTransaction[],
-    AccountIndexingError | AjaxError | MethodSupportError
-  > {
-    return errAsync(
-      new MethodSupportError(
-        "getEVMTransactions not supported for AlchemyIndexer",
-        400,
-      ),
-    );
-  }
-
   public getBalancesForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
@@ -116,53 +119,60 @@ export class AlchemyIndexer implements IEVMIndexer {
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    const chainInfo = getChainInfoByChainId(chainId);
-    return okAsync([]);
-    // return this.configProvider.getConfig().andThen((config) => {
-    //   const url = urlJoinP(
-    //     config.alchemyEndpoints[chainInfo.name.toString()],
-    //     ["getNFTs"],
-    //     {
-    //       owner: accountAddress,
-    //     },
-    //   );
-
-    //   return this.ajaxUtils
-    //     .get<IAlchemyNftResponse>(new URL(url))
-    //     .map((response) => {
-    //       const items: EVMNFT[] = response.ownedNfts.map((nft) => {
-    //         return new EVMNFT(
-    //           EVMContractAddress(nft.contract.address),
-    //           BigNumberString(nft.id.tokenId),
-    //           nft.contractMetadata.tokenType,
-    //           EVMAccountAddress(accountAddress),
-    //           TokenUri(nft.tokenUri.gateway),
-    //           { raw: undefined },
-    //           BigNumberString(nft.balance),
-    //           nft.title,
-    //           chainId,
-    //           BlockNumber(Number(nft.contractMetadata.deployedBlockNumber)),
-    //           undefined,
-    //         );
-    //       });
-    //       return okAsync(items);
-    //     });
-    // });
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
   }
 
-  protected _getEtherscanApiKey(
-    chain: ChainId,
-  ): ResultAsync<string, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      const apiKey = config.etherscanApiKeys.get(chain);
-      if (apiKey == null) {
-        return errAsync(
-          new AccountIndexingError("no etherscan api key for chain: ", chain),
-        );
-      }
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
-      return okAsync(apiKey);
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (
+            config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name] == ""
+          ) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
     });
   }
 
@@ -233,12 +243,14 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
   ): ResultAsync<URLString, AccountIndexingError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const url = config.alchemyEndpoints.get(chain);
-      if (url == undefined) {
+      const alchemyApiKey =
+        config.apiKeys.alchemyApiKeys[getChainInfoByChain(chain).name];
+      if (alchemyApiKey == undefined || alchemyApiKey == "") {
         return errAsync(
           new AccountIndexingError("Alchemy Endpoint is missing"),
         );
       }
+      const url = config.alchemyEndpoints.get(chain) + alchemyApiKey;
       return okAsync(url);
     });
   }
@@ -254,7 +266,6 @@ export class AlchemyIndexer implements IEVMIndexer {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chain, accountAddress);
 
-      this;
       this.reportApiUsage(chain, context);
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
@@ -341,39 +352,6 @@ export class AlchemyIndexer implements IEVMIndexer {
         });
     });
   }
-
-  public healthCheck(): ResultAsync<string, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([config, context]) => {
-        const requestConfig: IRequestConfig = {
-          method: "get",
-          url: url,
-          headers: {
-            accept: "application/json",
-            "X-API-Key": config.apiKeys.poapApiKey,
-          },
-        };
-        context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
-        return this.ajaxUtils.get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        );
-      })
-      .andThen((result) => {
-        /* If status: healthy , its message is undefined */
-        if (result.status !== undefined) {
-          return okAsync("good");
-        }
-        return okAsync("bad");
-      });
-  }
-
   protected reportApiUsage(chain: EChain, context: IIndexerContext): void {
     let api = this.chainToApiMap.get(chain);
     if (api == null) {

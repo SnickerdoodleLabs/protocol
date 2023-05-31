@@ -15,6 +15,7 @@ import {
   ComponentStatus,
   DataWalletBackupID,
   EChain,
+  EComponentStatus,
   EncryptedString,
   EVMAccountAddress,
   EVMContractAddress,
@@ -176,7 +177,16 @@ class AccountServiceMocks {
         false, // restoreInProgress
         new Subject<void>(), // heartbeat,
         UnixTimestamp(0), // startTime,
-        0, // components
+        new ComponentStatus(
+          EComponentStatus.TemporarilyDisabled,
+          EComponentStatus.TemporarilyDisabled,
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          [],
+        ), // components
       ),
     );
 

@@ -9,12 +9,15 @@ process.env.__CONTROL_CHAIN_ID__ = "31337";
 process.env.__SUPPORTED_CHAINS__ = "42,43113";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
+
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
 process.env.__NFTSCAN_API_KEY__ = "";
 process.env.__POAP_API_KEY__ = "";
 process.env.__OKLINK_API_KEY__ = "";
 process.env.__ANKR_API_KEY__ = "";
+
+
 process.env.__PRIMARY_INFURA_KEY__ = "";
 process.env.__SECONDARY_INFURA_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";

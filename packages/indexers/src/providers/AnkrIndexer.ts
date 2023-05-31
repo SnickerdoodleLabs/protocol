@@ -3,12 +3,10 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
-  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
-  getChainInfoByChainId,
   AccountIndexingError,
   AjaxError,
   ChainId,
@@ -17,40 +15,44 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   EVMAccountAddress,
-  IEVMAccountBalanceRepository,
   EVMContractAddress,
   EChain,
-  HexString,
   EVMNFT,
-  IEVMNftRepository,
-  AccountAddress,
   URLString,
   TokenUri,
-  IEVMTransactionRepository,
   EVMTransaction,
   EVMTransactionHash,
   UnixTimestamp,
   EComponentStatus,
   IEVMIndexer,
+  IndexerSupportSummary,
   EExternalApi,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-// import { CoinGeckoTokenInfo } from "packages/objects/src";
-import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 
+@injectable()
 export class AnkrIndexer implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+    ],
+  ]);
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -212,42 +214,30 @@ export class AnkrIndexer implements IEVMIndexer {
       });
   }
 
-  public healthCheck(): ResultAsync<EComponentStatus, AjaxError> {
-    const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    console.log("Poap URL: ", url);
-
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-    ]).andThen(([config, context]) => {
-      if (config.apiKeys.ankrApiKey == "") {
-        return okAsync(EComponentStatus.NoKeyProvided);
-      }
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.apiKeys.poapApiKey,
-        },
-      };
-      context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
-      return this.ajaxUtils
-        .get<IHealthCheck>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(result.url!),
-          result,
-        )
-        .andThen((result) => {
-          if (result.status !== undefined) {
-            return okAsync(EComponentStatus.Available);
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.ankrApiKey == "") {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
           }
-          return okAsync(EComponentStatus.Error);
-        })
-        .andThen((fads) => {
-          return okAsync(fads);
-        });
+        },
+      );
+      return okAsync(this.health);
     });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 }
 

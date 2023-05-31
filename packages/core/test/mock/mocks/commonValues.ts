@@ -106,6 +106,14 @@ export const testCoreConfig = new CoreConfig(
       Optimism: "",
       Polygon: "",
       Solana: "",
+      SolanaTestnet: "",
+    },
+    etherscanApiKeys: {
+      Ethereum: URLString(""),
+      Polygon: URLString(""),
+      Avalanche: URLString(""),
+      Binance: URLString(""),
+      Moonbeam: URLString(""),
     },
     covalentApiKey: "covalent api key",
     moralisApiKey: "moralis api key",
@@ -118,7 +126,7 @@ export const testCoreConfig = new CoreConfig(
   },
   URLString("http://dnsServerAddress"),
   ECurrencyCode.USD,
-  new Map(),
+  // new Map(),
   100, // etherscan tx batch size
   5000,
   new Map<EChain, URLString>([
