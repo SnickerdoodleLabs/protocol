@@ -28,8 +28,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
+  AST_ConditionExpr,
   AST_Evaluator,
+  AST_Expr,
+  AST_Insight,
+  AST_PropertyQuery,
   AST_SubQuery,
+  BinaryCondition,
+  Condition,
+  ConditionG,
   IQueryFactories,
   IQueryFactoriesType,
   IQueryRepository,
@@ -66,8 +73,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected adDataRepository: IAdDataRepository,
   ) {}
 
-  
-
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
@@ -81,7 +86,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   }
 
   public parseQuery(query: SDQLQuery): ResultAsync<AST, ParserError> {
-    return this.queryFactories.makeParserAsync(query.cid, query.query).andThen( (sdqlParser) => sdqlParser.buildAST());
+    return this.queryFactories
+      .makeParserAsync(query.cid, query.query)
+      .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
   protected gatherDeliveryItems(
@@ -92,50 +99,44 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IQueryDeliveryItems,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
+    const astEvaluator = this.queryFactories.makeAstEvaluator(
+      cid,
+      dataPermissions,
+    );
 
-      const astEvaluator = this.queryFactories.makeAstEvaluator(
-        cid,
-        dataPermissions,
-      );
+    const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
 
-      const insightProm = this.gatherDeliveryInsights(ast, astEvaluator);
+    const adSigProm = this.gatherDeliveryAds(ast, cid, dataPermissions);
 
-      const adSigProm = this.gatherDeliveryAds(
-        ast,
-        cid,
-        dataPermissions,
-      );
+    return ResultUtils.combine([insightProm, adSigProm]).map(
+      ([insightWithProofs, adSigs]) => {
+        return {
+          insights: insightWithProofs,
+          ads: adSigs,
+        };
+      },
+    );
 
-      return ResultUtils.combine([insightProm, adSigProm]).map(
-        ([insightWithProofs, adSigs]) => {
-          return {
-            insights: insightWithProofs,
-            ads: adSigs,
-          };
-        },
-      );
+    // return ResultUtils.combine(
+    //   this.evalReturns(ast, dataPermissions, astEvaluator),
+    // ).andThen((insightResults) => {
+    //   const insights = insightResults.map(this.SDQLReturnToInsightString);
 
-      // return ResultUtils.combine(
-      //   this.evalReturns(ast, dataPermissions, astEvaluator),
-      // ).andThen((insightResults) => {
-      //   const insights = insightResults.map(this.SDQLReturnToInsightString);
+    //   return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
+    //     [insights, rewards],
+    //   );
+    // });
 
-      //   return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
-      //     [insights, rewards],
-      //   );
-      // });
-
-      // return ResultUtils.combine([
-      //   this.gatherDeliveryInsights(sdqlParser, cid, dataPermissions),
-      //   this.gatherDeliveryAds(sdqlParser, cid, dataPermissions),
-      // ]).map([insights, ads] => {
-      // const items = {
-      //   insights: insights;
-      //   ads: ads;
-      // } as IQueryDeliveryItems;
-      //   return items;
-      // })
-
+    // return ResultUtils.combine([
+    //   this.gatherDeliveryInsights(sdqlParser, cid, dataPermissions),
+    //   this.gatherDeliveryAds(sdqlParser, cid, dataPermissions),
+    // ]).map([insights, ads] => {
+    // const items = {
+    //   insights: insights;
+    //   ads: ads;
+    // } as IQueryDeliveryItems;
+    //   return items;
+    // })
   }
 
   protected gatherDeliveryInsights(
@@ -145,30 +146,43 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IQueryDeliveryInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const subQueryArray = Array.from(ast.subqueries);
+    const astInsightArray = Array.from(ast.insights);
     return ResultUtils.combine(
-      subQueryArray.map(([_qName, subQuery]) => {
-        return astEvaluator.evalAny(subQuery);
+      astInsightArray.map(([_qName, { target, returns }]) => {
+        return astEvaluator.evalAny(
+          this.getSourceToEvalFromAstInsight(target, returns),
+        );
       }),
     ).map((insights) => {
-      return this.createDeliverInsightObject(insights, subQueryArray);
+      return this.createDeliverInsightObject(insights, astInsightArray);
     });
   }
 
   protected createDeliverInsightObject(
-    insights: SDQL_Return[],
-    subQueryArray: [SDQL_Name, AST_SubQuery][],
+    evaluatedInsightSources: SDQL_Return[],
+    astInsightArray: [SDQL_Name, AST_Insight][],
   ) {
-    return subQueryArray.reduce<IQueryDeliveryInsights>(
-      (deliveryInsights, [queryName], currentIndex) => {
-        const insightString = this.SDQLReturnToInsight(insights[currentIndex]);
-        if (insightString) {
-          deliveryInsights[queryName] = {
-            insight: InsightString(insightString),
-            proof: ProofString(""),
+    return astInsightArray.reduce<IQueryDeliveryInsights>(
+      (
+        deliveryInsights,
+        [insightName, { returns: astInsightReturns }],
+        currentIndex,
+      ) => {
+        let evaluatedInsightSource = evaluatedInsightSources[currentIndex];
+        if (evaluatedInsightSource !== null) {
+          if (typeof astInsightReturns.source === "string") {
+            evaluatedInsightSource = this.checkIfMessageExpected(
+              evaluatedInsightSource,
+              astInsightReturns,
+            );
+          }
+
+          deliveryInsights[insightName] = {
+            insight: this.SDQLReturnToInsight(evaluatedInsightSource),
+            proof: this.calculateInsightProof(evaluatedInsightSource),
           };
         } else {
-          deliveryInsights[queryName] = null;
+          deliveryInsights[insightName] = null;
         }
         return deliveryInsights;
       },
@@ -247,11 +261,41 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
+  protected getSourceToEvalFromAstInsight(
+    target: AST_ConditionExpr,
+    returns: AST_Expr,
+  ) {
+    if (typeof target.source === "boolean") {
+      return returns.source;
+    } else {
+      return target.source;
+    }
+  }
+
+  protected calculateInsightProof(
+    insightSource: SDQL_Return,
+  ): ProofString | null {
+    if (insightSource === null) {
+      return null;
+    }
+    return ProofString("");
+  }
+
+  protected checkIfMessageExpected(
+    insightSource: SDQL_Return,
+    returns: AST_Expr,
+  ): SDQL_Return {
+    if (typeof insightSource === "boolean") {
+      return insightSource ? SDQL_Return(returns.source) : SDQL_Return(null);
+    }
+    return insightSource;
+  }
+
   protected SDQLReturnToInsight(
     sdqlR: SDQL_Return | null,
   ): InsightString | null {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
- 
+
     if (actualTypeData == null) {
       return null;
     } else if (typeof actualTypeData == "string") {

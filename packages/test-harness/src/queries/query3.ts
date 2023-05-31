@@ -74,17 +74,17 @@ export const query3 = {
     i1: {
       name: "callback",
       target :"true",
-      returns: "$q1",// qualified
+      returns: "'qualified'",
     },
     i2: {
       name: "callback",
       target :"true",
-      returns: "$q2", // not qualified
+      returns: "'not qualified'", 
     },
     i3: {
       name: "callback",
       target :"$q2",
-      returns: "$q1 and $q2", // nice
+      returns: "'nice'", 
     },
   },
   compensations: {

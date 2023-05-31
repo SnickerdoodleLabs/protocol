@@ -398,20 +398,24 @@ describe("Testing avalanche 4", () => {
     const engine = mocks.factory();
 
     const expectedInsights = {
-      q1: { insight: "false", proof: "" },
-      q2: { insight: "true", proof: "" },
-      q3: { insight: "1", proof: "" },
-      q4: { insight: "female", proof: "" },
-      q5: { insight: "{}", proof: "" },
-      q6: { insight: "[]", proof: "" },
-      q7: { insight: "[]", proof: "" },
-      q8: { insight: "[]", proof: "" },
-    };
+      insights: {
+        i1: { insight: null, proof: null },
+        i2: { insight: 'tasty', proof: '' },
+        i3: { insight: '1', proof: '' },
+        i4: { insight: 'female', proof: '' },
+        i5: { insight: '{}', proof: '' },
+        i6: { insight: '[]', proof: '' },
+        i7: { insight: '[]', proof: '' },
+        i8: { insight: '[]', proof: '' }
+      },
+      ads: {}
+    }
 
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights).toEqual(expectedInsights);
+        expect(deliveredInsights).toMatchObject(expectedInsights);
+
         expect(
           Object.values(deliveredInsights.insights!).length > 0,
         ).toBeTruthy();
@@ -425,11 +429,10 @@ describe("Testing avalanche 4", () => {
   });
 });
 
-describe.only("Testing parsing", () => {
-  test("avalanche 1 partial test", async () => {
+describe("Testing parsing", () => {
+  test("avalanche 1 partial parsing test", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
-
     await engine
       .parseQuery(sdqlQuery)
       .andThen((astQuery) => {

@@ -29,8 +29,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import coinList from "@core/implementations/data/coinList.json"  assert { type: "json" };
-import coinPrices from "@core/implementations/data/coinPrices.json" assert { type: "json" };
+import coinList from "@core/implementations/data/coinList.json"   assert { type: "json" };
+import coinPrices from "@core/implementations/data/coinPrices.json"  assert { type: "json" };
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,

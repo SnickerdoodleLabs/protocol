@@ -69,40 +69,47 @@ export const avalanche4SchemaStr = JSON.stringify({
       return: "array",
     },
   },
-  returns: {
-    r1: {
-      name: "callback",
-      message: "qualified",
+  insights: {
+    i1: {
+      name: "user age range",
+      target: "$q1 and $q2",
+      returns: "'qualified'",
     },
-    r2: {
-      name: "callback",
-      message: "not qualified",
+    i2: {
+      name: "user age range",
+      target: "$q2 ", // not q1 ad q2 ?
+      returns: "'tasty'",
     },
-    r3: {
-      name: "query_response",
-      query: "q3",
+    i3: {
+      name: "user age range",
+      target: "true",
+      returns: "$q3",
     },
-    r4: {
-      name: "query_response",
-      query: "q4",
+    i4: {
+      name: "user age range",
+      target: "true",
+      returns: "$q4",
     },
-    r5: {
-      name: "query_response",
-      query: "q5",
+    i5: {
+      name: "user age range",
+      target: "true",
+      returns: "$q5",
     },
-    r6: {
-      name: "query_response",
-      query: "q6",
+    i6: {
+      name: "user age range",
+      target: "true",
+      returns: "$q6",
     },
-    r7: {
-      name: "query_response",
-      query: "q7",
+    i7: {
+      name: "user age range",
+      target: "true",
+      returns: "$q7",
     },
-    r8: {
-      name: "query_response",
-      query: "q8",
-    },
-    url: "https://418e-64-85-231-39.ngrok.io/insights",
+    i8: {
+      name: "user age range",
+      target: "true",
+      returns: "$q8",
+    }
   },
   compensations: {
     parameters: {
@@ -124,6 +131,7 @@ export const avalanche4SchemaStr = JSON.stringify({
       name: "Sugar to your coffee",
       image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       description: "10% discount code for Starbucks",
+      requires: "$i1",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress"],
@@ -136,6 +144,7 @@ export const avalanche4SchemaStr = JSON.stringify({
       name: "The CryptoPunk Draw",
       image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
+      requires: "$i2",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -149,6 +158,7 @@ export const avalanche4SchemaStr = JSON.stringify({
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
+      requires : "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -158,17 +168,5 @@ export const avalanche4SchemaStr = JSON.stringify({
       },
       alternatives: ["c2"],
     },
-  },
-  logic: {
-    returns: [
-      "if($q1and$q2)then$r1else$r2",
-      "$r3",
-      "$r4",
-      "$r5",
-      "$r6",
-      "$r7",
-      "$r8",
-    ],
-    compensations: ["if$q1then$c1", "if$q2then$c2", "$c3"],
-  },
+  }
 });
