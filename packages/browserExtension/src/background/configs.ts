@@ -83,7 +83,7 @@ const _buildDiscordConfig = (): Partial<DiscordConfig> => {
 };
 
 const _buildTwitterConfig = (): Partial<TwitterConfig> => {
-  const oauthRedirectUrl =
+  const oAuthCallbackUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(
           urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
@@ -93,7 +93,7 @@ const _buildTwitterConfig = (): Partial<TwitterConfig> => {
         );
 
   const twitterConfig = {
-    callbackUrl: URLString(oauthRedirectUrl),
+    oAuthCallbackUrl,
   } as Partial<TwitterConfig>;
 
   if (
