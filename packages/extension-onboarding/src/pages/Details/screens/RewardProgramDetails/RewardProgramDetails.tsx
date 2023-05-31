@@ -459,7 +459,7 @@ const RewardProgramDetails: FC = () => {
                 setBirthday={(birthday) =>
                   window.sdlDataWallet.setBirthday(birthday).map(() => {
                     setAlert({
-                      message: generateSuccessMessage(EWalletDataType.Birthday),
+                      message: generateSuccessMessage(EWalletDataType.Age),
                       severity: EAlertSeverity.SUCCESS,
                     });
                   })
