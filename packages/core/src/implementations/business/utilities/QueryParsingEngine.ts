@@ -147,32 +147,25 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     const astInsightArray = Array.from(ast.insights);
-    return ResultUtils.combine(
-      astInsightArray.map(([_qName, astInsight]) => {
-        return astEvaluator.evalInsight(
-          astInsight
-        );
-      }),
-    ).map((insights) => {
-      return this.createDeliveryInsightObject(insights, astInsightArray);
+    const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {
+      return astEvaluator.evalInsight(astInsight).map((insight) => {
+        return [_qName, insight] as [SDQL_Name, SDQL_Return];
+      });
+    });
+    return ResultUtils.combine(insightMapResult).map((insightMap) => {
+      return this.createDeliveryInsightObject(insightMap);
     });
   }
 
   protected createDeliveryInsightObject(
-    evaluatedInsightReturns: SDQL_Return[],
-    astInsightArray: [SDQL_Name, AST_Insight][],
+    insightMap: [SDQL_Name, SDQL_Return][],
   ) {
-    return astInsightArray.reduce<IQueryDeliveryInsights>(
-      (
-        deliveryInsights,
-        [insightName],
-        currentIndex,
-      ) => {
-        let evaluatedInsightSource = evaluatedInsightReturns[currentIndex];
-        if (evaluatedInsightSource !== null) {
+    return insightMap.reduce<IQueryDeliveryInsights>(
+      (deliveryInsights, [insightName, insight], currentIndex) => {
+        if (insight !== null) {
           deliveryInsights[insightName] = {
-            insight: this.SDQLReturnToInsight(evaluatedInsightSource),
-            proof: this.calculateInsightProof(evaluatedInsightSource),
+            insight: this.SDQLReturnToInsight(insight),
+            proof: this.calculateInsightProof(insight),
           };
         } else {
           deliveryInsights[insightName] = null;
@@ -253,8 +246,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];
     });
   }
-
-  
 
   protected calculateInsightProof(
     insightSource: SDQL_Return,

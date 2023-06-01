@@ -209,9 +209,6 @@ export class QueryService implements IQueryService {
     });
   }
 
-
-
-
   public createQueryStatusWithConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
@@ -502,9 +499,7 @@ export class QueryService implements IQueryService {
       consentToken.dataPermissions,
       consentContractAddress,
     ).map((_possibleInsightsAndAds) => {
-      this.getPossibleRewardsFromIPBySDQLQuery(
-        query
-      ).map((possibleRewards) => {
+      this.getPossibleRewardsFromIPBySDQLQuery(query).map((possibleRewards) => {
         this.publishSDQLQueryRequest(
           consentContractAddress,
           query,
@@ -515,9 +510,6 @@ export class QueryService implements IQueryService {
       });
     });
   }
-
-
-
 
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   protected publishSDQLQueryRequest(
@@ -577,7 +569,6 @@ export class QueryService implements IQueryService {
   //   );
   // }
 
-
   protected getPossibleRewardsFromIP(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
@@ -596,28 +587,26 @@ export class QueryService implements IQueryService {
     );
   }
 
-  
-
   public getPossibleRewardsFromIPBySDQLQuery(
     query: SDQLQuery,
   ): ResultAsync<PossibleReward[], ParserError> {
- 
     return this.queryParsingEngine.parseQuery(query).map((ast) => {
-      return this.constructPossibleRewards(ast, query.cid)
-    })
-    // TODO return everything now, later  return from getPossibleRewardsFromIP    
+      return this.constructPossibleRewards(ast, query.cid);
+    });
+    // TODO return everything now, later  return from getPossibleRewardsFromIP
   }
 
   protected constructPossibleRewards(
     ast: AST,
-    queryCID : IpfsCID
+    queryCID: IpfsCID,
   ): PossibleReward[] {
     const expectedRewardList: PossibleReward[] = [];
 
-    for (const [currentKeyAsString , currentSDQLCompensation] of ast.compensations) {
+    for (const [
+      currentKeyAsString,
+      currentSDQLCompensation,
+    ] of ast.compensations) {
       const currentSDQLCompensationsKey = CompensationKey(currentKeyAsString);
-      ;
-
       expectedRewardList.push(
         new PossibleReward(
           queryCID,
@@ -627,8 +616,8 @@ export class QueryService implements IQueryService {
           currentSDQLCompensation.image,
           currentSDQLCompensation.description,
           currentSDQLCompensation.chainId,
-          ERewardType.Direct
-        )
+          ERewardType.Direct,
+        ),
       );
     }
     return expectedRewardList;
@@ -642,8 +631,6 @@ export class QueryService implements IQueryService {
     return okAsync([InsightKey("i1")]); // TODO: upgrade
   }
 
-
-  
   public createQueryStatusWithNoConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
