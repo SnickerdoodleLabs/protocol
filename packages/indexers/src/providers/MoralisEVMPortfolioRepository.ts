@@ -67,6 +67,10 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public name(): string {
+    return "moralis";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,

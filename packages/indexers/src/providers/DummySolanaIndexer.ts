@@ -32,6 +32,10 @@ export class DummySolanaIndexer implements ISolanaIndexer {
 
   public constructor() {}
 
+  public name(): string {
+    return "dummy solana";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,

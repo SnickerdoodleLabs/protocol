@@ -22,6 +22,11 @@ declare const __ETHERSCAN_AVALANCHE_API_KEY__: string;
 declare const __ETHERSCAN_BINANCE_API_KEY__: string;
 declare const __ETHERSCAN_MOONBEAM_API_KEY__: string;
 
+declare const __ETHERSCAN_OPTIMISM_API_KEY__: string;
+declare const __ETHERSCAN_ARBITRUM_API_KEY__: string;
+declare const __ETHERSCAN_GNOSIS_API_KEY__: string;
+declare const __ETHERSCAN_FUJI_API_KEY__: string;
+
 declare const __ALCHEMY_ARBITRUM_API_KEY__: string;
 declare const __ALCHEMY_ASTAR_API_KEY__: string;
 declare const __ALCHEMY_MUMBAI_API_KEY__: string;
@@ -247,6 +252,26 @@ export const configs: IExtensionConfigOverrides = {
         typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_MOONBEAM_API_KEY__
           ? __ETHERSCAN_MOONBEAM_API_KEY__
+          : "",
+      Optimism:
+        typeof __ETHERSCAN_OPTIMISM_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_OPTIMISM_API_KEY__
+          ? __ETHERSCAN_OPTIMISM_API_KEY__
+          : "",
+      Arbitrum:
+        typeof __ETHERSCAN_ARBITRUM_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_ARBITRUM_API_KEY__
+          ? __ETHERSCAN_ARBITRUM_API_KEY__
+          : "",
+      Gnosis:
+        typeof __ETHERSCAN_GNOSIS_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_GNOSIS_API_KEY__
+          ? __ETHERSCAN_GNOSIS_API_KEY__
+          : "",
+      Fuji:
+        typeof __ETHERSCAN_FUJI_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_FUJI_API_KEY__
+          ? __ETHERSCAN_FUJI_API_KEY__
           : "",
     },
     covalentApiKey:

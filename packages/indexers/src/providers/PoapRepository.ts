@@ -55,6 +55,10 @@ export class PoapRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public name(): string {
+    return "poap";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -83,6 +87,7 @@ export class PoapRepository implements IEVMIndexer {
         );
       })
       .map((result) => {
+        console.log("Poap Repository Result: " + result);
         return this.getPages(chainId, result);
       })
       .mapErr(

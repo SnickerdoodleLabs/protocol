@@ -17,6 +17,24 @@ process.env.__POAP_API_KEY__ = "";
 process.env.__OKLINK_API_KEY__ = "";
 process.env.__ANKR_API_KEY__ = "";
 
+process.env.__ALCHEMY_ARBITRUM_API_KEY__ = "";
+process.env.__ALCHEMY_ASTAR_API_KEY__ = "";
+process.env.__ALCHEMY_MUMBAI_API_KEY__ = "";
+process.env.__ALCHEMY_OPTIMISM_API_KEY__ = "";
+process.env.__ALCHEMY_POLYGON_API_KEY__ = "";
+process.env.__ALCHEMY_SOLANA_API_KEY__ = "";
+process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__ = "";
+process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__ = "";
+
+process.env.__ETHERSCAN_ETHEREUM_API_KEY__ = "";
+process.env.__ETHERSCAN_POLYGON_API_KEY__ = "";
+process.env.__ETHERSCAN_AVALANCHE_API_KEY__ = "";
+process.env.__ETHERSCAN_BINANCE_API_KEY__ = "";
+process.env.__ETHERSCAN_MOONBEAM_API_KEY__ = "";
+process.env.__ETHERSCAN_OPTIMISM_API_KEY__ = "";
+process.env.__ETHERSCAN_ARBITRUM_API_KEY__ = "";
+process.env.__ETHERSCAN_GNOSIS_API_KEY__ = "";
+process.env.__ETHERSCAN_FUJI_API_KEY__ = "";
 
 process.env.__PRIMARY_INFURA_KEY__ = "";
 process.env.__SECONDARY_INFURA_KEY__ = "";

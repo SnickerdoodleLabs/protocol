@@ -55,6 +55,10 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public name(): string {
+    return "covalent";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,

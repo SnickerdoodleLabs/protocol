@@ -69,6 +69,7 @@ export class ExtensionCore {
       ipfsFetchBaseUrl: config.ipfsFetchBaseUrl,
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       alchemyApiKeys: config.alchemyApiKeys,
+      etherscanApiKeys: config.etherscanApiKeys,
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       nftScanApiKey: config.nftScanApiKey,

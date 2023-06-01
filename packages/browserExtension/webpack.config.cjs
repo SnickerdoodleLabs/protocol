@@ -202,6 +202,18 @@ var options = {
       __ETHERSCAN_MOONBEAM_API_KEY__: JSON.stringify(
         process.env.__ETHERSCAN_MOONBEAM_API_KEY__,
       ),
+      __ETHERSCAN_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_OPTIMISM_API_KEY__,
+      ),
+      __ETHERSCAN_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ARBITRUM_API_KEY__,
+      ),
+      __ETHERSCAN_GNOSIS_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_GNOSIS_API_KEY__,
+      ),
+      __ETHERSCAN_FUJI_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_FUJI_API_KEY__,
+      ),
 
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),

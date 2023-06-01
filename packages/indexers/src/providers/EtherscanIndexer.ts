@@ -65,6 +65,10 @@ export class EtherscanIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public name(): string {
+    return "etherscan";
+  }
+
   public getBalancesForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
@@ -132,12 +136,26 @@ export class EtherscanIndexer implements IEVMIndexer {
     Map<EChain, EComponentStatus>,
     AjaxError
   > {
+    // console.log("Etherscan Indexer Health: ", this.health);
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.etherscanApiKeys[key] == "") {
+          // console.log(
+          //   "Etherscan Indexer Health config.apiKeys.etherscanApiKeys: ",
+          //   config.apiKeys.etherscanApiKeys,
+          // );
+          // console.log("config.apiKeys.etherscanApiKeys key: ", key);
+
+          if (
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
+              "" ||
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
+              undefined
+          ) {
+            // console.log("key: " + key + " is set to NoKeyProvided");
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
+            // console.log("key: " + key + " is set to Available");
             this.health.set(key, EComponentStatus.Available);
           }
         },
@@ -175,6 +193,7 @@ export class EtherscanIndexer implements IEVMIndexer {
         return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
       })
       .map((response) => {
+        console.log("Ankr Native Balance: " + response);
         const nativeBalance = new TokenBalance(
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
@@ -372,7 +391,15 @@ export class EtherscanIndexer implements IEVMIndexer {
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const key = getChainInfoByChain(chain).name;
-      if (config.apiKeys.etherscanApiKeys[key] == "") {
+      // console.log("Etherscan Key: " + key);
+      // console.log(
+      //   "config.apiKeys.etherscanApiKeys[key] Key: " +
+      //     config.apiKeys.etherscanApiKeys[key],
+      // );
+      if (
+        config.apiKeys.etherscanApiKeys[key] == "" ||
+        config.apiKeys.etherscanApiKeys[key] == undefined
+      ) {
         this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),

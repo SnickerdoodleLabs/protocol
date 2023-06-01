@@ -88,6 +88,10 @@ export class AlchemyIndexer implements IEVMIndexer {
     ]) as Map<EChain, boolean>;
   }
 
+  public name(): string {
+    return "alchemy";
+  }
+
   public getBalancesForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
@@ -250,6 +254,7 @@ export class AlchemyIndexer implements IEVMIndexer {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chain, accountAddress);
 
+      console.log("failing balance: ")
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {

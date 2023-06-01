@@ -114,6 +114,10 @@ export class ConfigProvider
           Avalanche: "",
           Binance: "",
           Moonbeam: "",
+          Optimism: "",
+          Arbitrum: "",
+          Gnosis: "",
+          Fuji: "",
 
           // new Map([
           //   [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
@@ -237,6 +241,8 @@ export class ConfigProvider
       overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
     this.config.apiKeys.alchemyApiKeys =
       overrides.alchemyApiKeys ?? this.config.apiKeys.alchemyApiKeys;
+    this.config.apiKeys.etherscanApiKeys =
+      overrides.etherscanApiKeys ?? this.config.apiKeys.etherscanApiKeys;
     this.config.apiKeys.moralisApiKey =
       overrides.moralisApiKey ?? this.config.apiKeys.moralisApiKey;
     this.config.apiKeys.nftScanApiKey =
