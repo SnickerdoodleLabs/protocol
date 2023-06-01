@@ -23,16 +23,19 @@ import {
   EComponentStatus,
   EChain,
   IndexerSupportSummary,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class CovalentEVMTransactionRepository implements IEVMIndexer {
@@ -53,6 +56,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
   ) {}
 
   public getBalancesForAccount(
@@ -267,7 +272,10 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     primer?: string,
     pageNumber?: number,
   ): ResultAsync<IRequestConfig, never> {
-    return this.configProvider.getConfig().map((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).map(([config, context]) => {
       const params = {
         key: config.apiKeys.covalentApiKey,
         "quote-currency": config.quoteCurrency,
@@ -296,6 +304,8 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
         url: url,
         headers: { Accept: "application/json" },
       };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.Covalent);
       return result;
     });
   }

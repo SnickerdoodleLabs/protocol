@@ -16,22 +16,20 @@ import {
   IEVMIndexer,
   TokenBalance,
   TokenUri,
-  UnixTimestamp,
   MethodSupportError,
   EChain,
   IndexerSupportSummary,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
-
-import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
@@ -52,6 +50,8 @@ export class PoapRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
