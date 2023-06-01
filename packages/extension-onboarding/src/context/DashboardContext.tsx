@@ -82,6 +82,8 @@ export const DashboardContextProvider: FC = ({ children }) => {
               (item.type === EChainTechnology.EVM &&
                 !!NftMetadataParseUtils.getParsedNFT(
                   JSON.stringify((item as EVMNFT).metadata) || "",
+                  // @ts-ignore
+                  item.tokenUri,
                 ).event);
 
             if (isPopap) {

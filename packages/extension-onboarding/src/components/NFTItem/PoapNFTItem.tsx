@@ -19,7 +19,11 @@ export const PoapNFTItem: FC<IPoapNFTItemProps> = ({
   const navigate = useNavigate();
   const [metadata, setMetadata] = useState<POAPMetadata>();
   const parsedNFTMetaData = useMemo(
-    () => NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata)),
+    () =>
+      NftMetadataParseUtils.getParsedNFT(
+        JSON.stringify(item.metadata),
+        item.tokenUri,
+      ),
     [item],
   );
   useEffect(() => {
