@@ -629,6 +629,13 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
     return okAsync([InsightKey("i1")]); // TODO: upgrade
+    /***
+     * This method should assume that the user has given all the permissions. So, possible insights, ads, and 
+     * rewards tries to let people know that maximal set of rewards they can get if they give us all their data.
+     * Assume full permissions
+     * Run the target for each insight and ad
+     * Then get the results.
+     */
   }
 
   public createQueryStatusWithNoConsent(
