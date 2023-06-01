@@ -2,8 +2,10 @@ import {
   ERecordKey,
   PersistenceError,
   VersionedObject,
+  VersionedObjectMigrator,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+import { ObjectClass } from "realm";
 
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex";
 
@@ -13,9 +15,12 @@ export interface IVolatileStorageSchemaProvider {
     never
   >;
 
-  getCurrentVersionForTable(
+  getMigratorForTable<T extends VersionedObject>(
     tableName: ERecordKey,
-  ): ResultAsync<number, PersistenceError>;
+  ): ResultAsync<VersionedObjectMigrator<T>, PersistenceError>;
+  getRealmClassForTable(
+    tableName: ERecordKey,
+  ): ResultAsync<ObjectClass<any>, PersistenceError>;
 }
 
 export const IVolatileStorageSchemaProviderType = Symbol.for(

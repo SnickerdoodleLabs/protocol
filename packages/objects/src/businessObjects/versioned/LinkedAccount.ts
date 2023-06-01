@@ -10,7 +10,7 @@ export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount
     return LinkedAccount.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): LinkedAccount {
+  public factory(data: Record<string, unknown>): LinkedAccount {
     return new LinkedAccount(
       data["sourceChain"] as EChain,
       data["sourceAccountAddress"] as AccountAddress,
@@ -63,3 +63,19 @@ export class LinkedAccount extends VersionedObject {
 //     return 1;
 //   }
 // }
+
+export class RealmLinkedAccount extends Realm.Object<LinkedAccount> {
+  sourceChain!: number;
+  sourceAccountAddress!: string;
+  derivedAccountAddress!: string;
+
+  static schema = {
+    name: "LinkedAccount",
+    properties: {
+      sourceAccountAddress: "string",
+      sourceChain: "int",
+      derivedAccountAddress: "string",
+    },
+    primaryKey: "sourceAccountAddress",
+  };
+}

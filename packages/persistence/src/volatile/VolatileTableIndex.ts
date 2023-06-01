@@ -4,21 +4,22 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@snickerdoodlelabs/objects";
+import { ObjectClass } from "realm";
 
 import { IStorageIndex } from "@persistence/IStorageIndex.js";
 
 export class VolatileTableIndex<T extends VersionedObject>
   implements IStorageIndex
 {
-  public static DEFAULT_KEY = "id";
+  public static DEFAULT_KEY = "pKey";
   public constructor(
     public name: ERecordKey,
-    public keyPath: string | string[],
-    public autoIncrement: boolean = false,
+    public realmClass: ObjectClass<any>,
     public migrator: VersionedObjectMigrator<T>,
     public priority: EBackupPriority,
     public backupInterval: number,
     public maxChunkSize: number,
     public indexBy?: [string | string[], boolean][],
+    public autoIncrement: boolean = false,
   ) {}
 }

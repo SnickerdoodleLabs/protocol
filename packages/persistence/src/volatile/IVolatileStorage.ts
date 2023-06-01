@@ -3,57 +3,43 @@ import {
   VersionedObject,
   VolatileStorageMetadata,
   VolatileStorageKey,
+  ERecordKey,
+  VolatileStorageMetadataWrapper,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
+import { VolatileStorageQuery } from "@persistence/volatile/VolatileStorageQuery.js";
 
 export interface IVolatileStorage {
   persist(): ResultAsync<boolean, PersistenceError>;
-  clearObjectStore(name: string): ResultAsync<void, PersistenceError>;
+  clearObjectStore(ERecordKey: string): ResultAsync<void, PersistenceError>;
 
   putObject<T extends VersionedObject>(
-    name: string,
-    obj: VolatileStorageMetadata<T>,
+    name: ERecordKey,
+    obj: T,
   ): ResultAsync<void, PersistenceError>;
   removeObject<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
+  ): ResultAsync<undefined, PersistenceError>;
 
   getObject<T extends VersionedObject>(
-    name: string,
+    name: ERecordKey,
     key: VolatileStorageKey,
-    _includeDeleted?: boolean,
-  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
+  ): ResultAsync<T | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
-    name: string,
-    index?: VolatileStorageKey,
-    query?: IDBValidKey | IDBKeyRange,
-    direction?: IDBCursorDirection | undefined,
-    mode?: IDBTransactionMode,
+    name: ERecordKey,
+    query?: VolatileStorageQuery,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
-    name: string,
-    index?: VolatileStorageKey,
-    query?: IDBValidKey | IDBKeyRange,
-  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
-  getAllByIndex<T extends VersionedObject>(
-    name: string,
-    index: VolatileStorageKey,
-    query: IDBValidKey | IDBKeyRange,
-  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
-  getAllKeys<T>(
-    name: string,
-    index?: VolatileStorageKey,
-    query?: IDBValidKey | IDBKeyRange,
-    count?: number | undefined,
+    name: ERecordKey,
+    query?: VolatileStorageQuery,
   ): ResultAsync<T[], PersistenceError>;
-
-  getKey(
-    tableName: string,
-    obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError>;
+  getAllKeys<T>(
+    name: ERecordKey,
+    query?: VolatileStorageQuery,
+  ): ResultAsync<T[], PersistenceError>;
 }
 
 export const IVolatileStorageType = Symbol.for("IVolatileStorage");

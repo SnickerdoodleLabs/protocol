@@ -9,7 +9,7 @@ export class VolatileDataUpdate {
     public operation: EDataUpdateOpCode,
     public key: VolatileStorageKey | null,
     public timestamp: UnixTimestamp,
-    public value: VersionedObject,
+    public value: VersionedObject | null,
     public version: number,
   ) {}
 }

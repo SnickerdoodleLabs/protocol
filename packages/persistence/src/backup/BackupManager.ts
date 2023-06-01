@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ICryptoUtils, ITimeUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ITimeUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletAddress,
   VersionedObjectMigrator,
@@ -27,7 +31,7 @@ import {
   JSONString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
@@ -96,47 +100,62 @@ export class BackupManager implements IBackupManager {
 
   public addRecord<T extends VersionedObject>(
     recordKey: ERecordKey,
-    value: VolatileStorageMetadata<T>,
+    value: T,
   ): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.getKey(recordKey, value.data).andThen((key) => {
-      return this._checkRecordUpdateRecency(
-        recordKey,
-        key,
-        value.lastUpdate,
-      ).andThen((valid) => {
-        if (!valid) {
+    const timestamp = this.timeUtils.getUnixNow();
+    return this._checkRecordUpdateRecency(
+      recordKey,
+      value.pKey,
+      timestamp,
+    ).andThen((valid) => {
+      if (!valid) {
+        return okAsync(undefined);
+      }
+
+      return this.volatileStorage.putObject(recordKey, value).andThen(() => {
+        const tableRenderer = this.tableRenderers.get(recordKey);
+        if (tableRenderer == null) {
           return okAsync(undefined);
         }
 
-        return this.volatileStorage.putObject(recordKey, value).andThen(() => {
-          const tableRenderer = this.tableRenderers.get(recordKey);
-          if (tableRenderer == null) {
-            return okAsync(undefined);
-          }
+        return this.schemaProvider
+          .getMigratorForTable(recordKey)
+          .andThen((migrator) => {
+            const version = migrator.getCurrentVersion();
 
-          return this.schemaProvider
-            .getCurrentVersionForTable(recordKey)
-            .andThen((version) => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.tableRenderers
-                .get(recordKey)!
-                .update(
-                  new VolatileDataUpdate(
-                    EDataUpdateOpCode.UPDATE,
-                    key,
-                    value.lastUpdate,
-                    value.data,
-                    version,
-                  ),
-                )
-                .map((backup) => {
-                  if (backup != null) {
-                    this.renderedChunks.set(backup.header.hash, backup);
-                  }
-                  return undefined;
-                });
-            });
-        });
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return this.tableRenderers
+              .get(recordKey)!
+              .update(
+                new VolatileDataUpdate(
+                  EDataUpdateOpCode.UPDATE,
+                  value.pKey,
+                  timestamp,
+                  value,
+                  version,
+                ),
+              )
+              .map((backup) => {
+                if (backup != null) {
+                  this.renderedChunks.set(backup.header.hash, backup);
+                }
+                return undefined;
+              });
+          })
+          .andThen(() => {
+            if (value.pKey == null) {
+              return okAsync(undefined);
+            }
+
+            return this._setMetadata(
+              new VolatileStorageMetadata(
+                recordKey,
+                value.pKey,
+                timestamp,
+                EBoolean.FALSE,
+              ),
+            );
+          });
       });
     });
   }
@@ -151,42 +170,42 @@ export class BackupManager implements IBackupManager {
         if (!valid) {
           return okAsync(undefined);
         }
-        return this.volatileStorage
-          .getObject(tableName, key, true)
-          .andThen((found) => {
-            if (!found) {
-              return okAsync(undefined);
-            }
 
-            found.deleted = EBoolean.TRUE;
-            found.lastUpdate = timestamp;
-            return this.volatileStorage
-              .putObject(tableName, found)
-              .andThen(() => {
-                return this.schemaProvider
-                  .getCurrentVersionForTable(tableName)
-                  .andThen((version) => {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    return this.tableRenderers
-                      .get(tableName)!
-                      .update(
-                        new VolatileDataUpdate(
-                          EDataUpdateOpCode.REMOVE,
-                          key,
-                          timestamp,
-                          found.data,
-                          version,
-                        ),
-                      )
-                      .map((backup) => {
-                        if (backup != null) {
-                          this.renderedChunks.set(backup?.header.hash, backup);
-                        }
-                        return undefined;
-                      });
-                  });
-              });
-          });
+        return ResultUtils.combine([
+          this._setMetadata(
+            new VolatileStorageMetadata(
+              tableName,
+              key,
+              timestamp,
+              EBoolean.TRUE,
+            ),
+          ),
+          this.volatileStorage.removeObject(tableName, key),
+        ]).andThen(() => {
+          return this.schemaProvider
+            .getMigratorForTable(tableName)
+            .andThen((migrator) => {
+              const version = migrator.getCurrentVersion();
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.tableRenderers
+                .get(tableName)!
+                .update(
+                  new VolatileDataUpdate(
+                    EDataUpdateOpCode.REMOVE,
+                    key,
+                    timestamp,
+                    null,
+                    version,
+                  ),
+                )
+                .map((backup) => {
+                  if (backup != null) {
+                    this.renderedChunks.set(backup?.header.hash, backup);
+                  }
+                  return undefined;
+                });
+            });
+        });
       },
     );
   }
@@ -281,20 +300,62 @@ export class BackupManager implements IBackupManager {
             return okAsync(undefined);
           }
 
-          const metadata = new VolatileStorageMetadata<VersionedObject>(
-            update.value,
-            update.timestamp,
-            update.operation == EDataUpdateOpCode.REMOVE
-              ? EBoolean.TRUE
-              : EBoolean.FALSE,
-          );
-          return this.volatileStorage.putObject(
-            header.dataType as ERecordKey,
-            metadata,
-          );
+          switch (update.operation) {
+            case EDataUpdateOpCode.UPDATE:
+              return this._restoreRecordUpdate(header, update);
+            case EDataUpdateOpCode.REMOVE:
+              return this._restoreRecordDelete(header, update);
+            default:
+              return errAsync(
+                new PersistenceError(
+                  "invalid data update op code",
+                  update.operation,
+                ),
+              );
+          }
         });
       }),
     ).map(() => {});
+  }
+
+  private _restoreRecordUpdate(
+    header: DataWalletBackupHeader,
+    update: VolatileDataUpdate,
+  ): ResultAsync<void, PersistenceError> {
+    return this.volatileStorage
+      .removeObject(header.dataType as ERecordKey, update.key!)
+      .andThen(() => {
+        return this._setMetadata(
+          new VolatileStorageMetadata(
+            header.dataType as ERecordKey,
+            update.key!,
+            update.timestamp,
+            EBoolean.TRUE,
+          ),
+        );
+      });
+  }
+
+  private _restoreRecordDelete(
+    header: DataWalletBackupHeader,
+    update: VolatileDataUpdate,
+  ): ResultAsync<void, PersistenceError> {
+    return this.volatileStorage
+      .putObject(header.dataType as ERecordKey, update.value!)
+      .andThen(() => {
+        if (update.key == null) {
+          return okAsync(undefined);
+        }
+
+        return this._setMetadata(
+          new VolatileStorageMetadata(
+            header.dataType as ERecordKey,
+            update.key,
+            update.timestamp,
+            EBoolean.FALSE,
+          ),
+        );
+      });
   }
 
   private _restoreField(
@@ -357,7 +418,7 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
-        return new Set(restored.map((x) => x.data.id));
+        return new Set(restored.map((x) => x.id));
       });
   }
 
@@ -378,17 +439,12 @@ export class BackupManager implements IBackupManager {
       return okAsync(true);
     }
 
-    // Get the object out of storage.
-    return this.volatileStorage
-      .getObject<T>(tableName, key, true)
-      .andThen((found) => {
-        // Given that we passed it what should have been a valid key from getKey(), this
-        // if may be perfunctory
-        if (found == null) {
-          return okAsync(true);
-        }
-        return okAsync(found.lastUpdate < timestamp);
-      });
+    return this._getMetadata(tableName, key).andThen((metadata) => {
+      if (metadata == null) {
+        return okAsync(true);
+      }
+      return okAsync(metadata.lastUpdate < timestamp);
+    });
   }
 
   private _unpackBlob(
@@ -416,10 +472,7 @@ export class BackupManager implements IBackupManager {
   ): ResultAsync<void, PersistenceError> {
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
-      new VolatileStorageMetadata(
-        new RestoredBackup(DataWalletBackupID(backup.header.hash)),
-        this.timeUtils.getUnixNow(),
-      ),
+      new RestoredBackup(DataWalletBackupID(backup.header.hash)),
     );
   }
 
@@ -431,5 +484,24 @@ export class BackupManager implements IBackupManager {
       .map((result) => {
         return result != null;
       });
+  }
+
+  private _setMetadata(
+    metadata: VolatileStorageMetadata,
+  ): ResultAsync<void, PersistenceError> {
+    return this.volatileStorage.putObject<VolatileStorageMetadata>(
+      ERecordKey.METADATA,
+      metadata,
+    );
+  }
+
+  private _getMetadata(
+    recordKey: ERecordKey,
+    primaryKey: VolatileStorageKey,
+  ): ResultAsync<VolatileStorageMetadata | null, PersistenceError> {
+    return this.volatileStorage.getObject<VolatileStorageMetadata>(
+      ERecordKey.METADATA,
+      VolatileStorageMetadata.getKey(recordKey, primaryKey),
+    );
   }
 }

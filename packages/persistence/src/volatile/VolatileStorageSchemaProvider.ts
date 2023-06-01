@@ -18,9 +18,14 @@ import {
   SocialProfileMigrator,
   SocialGroupProfileMigrator,
   RejectedInvitationMigrator,
+  RealmLinkedAccount,
+  RealmVolatileStorageMetadata,
+  VolatileStorageMetadataMigrator,
+  VersionedObjectMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ObjectClass } from "realm";
 
 import {
   IPersistenceConfigProvider,
@@ -38,9 +43,9 @@ export class VolatileStorageSchemaProvider
     protected configProvider: IPersistenceConfigProvider,
   ) {}
 
-  public getCurrentVersionForTable(
+  public getRealmClassForTable(
     tableName: ERecordKey,
-  ): ResultAsync<number, PersistenceError> {
+  ): ResultAsync<ObjectClass<any>, PersistenceError> {
     return this.getVolatileStorageSchema().andThen((schema) => {
       if (!schema.has(tableName)) {
         return errAsync(
@@ -48,7 +53,23 @@ export class VolatileStorageSchemaProvider
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(schema.get(tableName)!.migrator.getCurrentVersion());
+      return okAsync(schema.get(tableName)!.realmClass);
+    });
+  }
+
+  public getMigratorForTable<T extends VersionedObject>(
+    tableName: ERecordKey,
+  ): ResultAsync<VersionedObjectMigrator<T>, PersistenceError> {
+    return this.getVolatileStorageSchema().andThen((schema) => {
+      if (!schema.has(tableName)) {
+        return errAsync(
+          new PersistenceError("no schema present for table", tableName),
+        );
+      }
+      return okAsync(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        schema.get(tableName)!.migrator as VersionedObjectMigrator<T>,
+      );
     });
   }
 
@@ -62,6 +83,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.ACCOUNT,
           new VolatileTableIndex(
             ERecordKey.ACCOUNT,
+            RealmLinkedAccount,
             "sourceAccountAddress",
             false,
             new LinkedAccountMigrator(),
@@ -264,6 +286,19 @@ export class VolatileStorageSchemaProvider
               ["type", false],
               ["ownerId", false],
             ],
+          ),
+        ],
+        [
+          ERecordKey.METADATA,
+          new VolatileTableIndex(
+            ERecordKey.METADATA,
+            RealmVolatileStorageMetadata,
+            new VolatileStorageMetadataMigrator(),
+            EBackupPriority.DISABLED,
+            config.dataWalletBackupIntervalMS,
+            config.backupChunkSizeTarget,
+            undefined,
+            false,
           ),
         ],
       ]);
