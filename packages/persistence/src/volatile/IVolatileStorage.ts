@@ -1,19 +1,17 @@
 import {
   PersistenceError,
   VersionedObject,
-  VolatileStorageMetadata,
   VolatileStorageKey,
   ERecordKey,
-  VolatileStorageMetadataWrapper,
+  VolatileStorageQuery,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
-import { VolatileStorageQuery } from "@persistence/volatile/VolatileStorageQuery.js";
 
 export interface IVolatileStorage {
   persist(): ResultAsync<boolean, PersistenceError>;
-  clearObjectStore(ERecordKey: string): ResultAsync<void, PersistenceError>;
+  clearObjectStore(recordKey: ERecordKey): ResultAsync<void, PersistenceError>;
 
   putObject<T extends VersionedObject>(
     name: ERecordKey,
@@ -22,7 +20,7 @@ export interface IVolatileStorage {
   removeObject<T extends VersionedObject>(
     name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<undefined, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   getObject<T extends VersionedObject>(
     name: ERecordKey,

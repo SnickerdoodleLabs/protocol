@@ -10,11 +10,6 @@ import {
   VolatileStorageKey,
 } from "@objects/primitives/index.js";
 
-export const VolatileStorageDataKey = "data";
-export const VolatileStorageMetadataIndexes: [string, boolean][] = [
-  ["deleted", false],
-];
-
 export interface VolatileStorageMetadataWrapper<T extends VersionedObject> {
   data: T | null;
   metadata: VolatileStorageMetadata;

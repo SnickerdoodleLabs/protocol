@@ -2,7 +2,8 @@ import {
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
-  VolatileStorageMetadata,
+  VolatileStorageQuery,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { inject, injectable } from "inversify";
@@ -50,88 +51,51 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB;
   }
 
-  public getKey(
-    tableName: string,
-    obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
-    return this._getIDB().andThen((db) => db.getKey(tableName, obj));
-  }
-
-  public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
-    return this._getIDB().andThen((db) => db.initialize());
-  }
-
-  public persist(): ResultAsync<boolean, PersistenceError> {
-    return this._getIDB().andThen((db) => db.persist());
-  }
-
-  public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
-    return this._getIDB().andThen((db) => db.clearObjectStore(name));
+  public clearObjectStore(
+    recordKey: ERecordKey,
+  ): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => db.clearObjectStore(recordKey));
   }
 
   public putObject<T extends VersionedObject>(
-    name: string,
-    obj: VolatileStorageMetadata<T>,
+    recordKey: ERecordKey,
+    obj: T,
   ): ResultAsync<void, PersistenceError> {
-    return this._getIDB().andThen((db) => db.putObject(name, obj));
+    return this._getIDB().andThen((db) => db.putObject(recordKey, obj));
   }
 
   public removeObject<T extends VersionedObject>(
-    name: string,
-    key: string,
-  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
-    return this._getIDB().andThen((db) => db.removeObject<T>(name, key));
+    recordKey: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => db.removeObject(recordKey, key));
   }
 
   public getObject<T extends VersionedObject>(
-    name: string,
-    key: string,
-    _includeDeleted?: boolean,
-  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
-    return this._getIDB().andThen((db) =>
-      db.getObject<T>(name, key, _includeDeleted),
-    );
+    recordKey: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this._getIDB().andThen((db) => db.getObject(recordKey, key));
   }
 
   public getCursor<T extends VersionedObject>(
-    name: string,
-    indexName?: string,
-    query?: string | number,
-    direction?: IDBCursorDirection | undefined,
-    mode?: IDBTransactionMode,
+    recordKey: ERecordKey,
+    query?: VolatileStorageQuery,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    return this._getIDB().andThen((db) =>
-      db.getCursor<T>(name, indexName, query, direction, mode),
-    );
+    return this._getIDB().andThen((db) => db.getCursor(recordKey, query));
   }
 
   public getAll<T extends VersionedObject>(
-    name: string,
-    indexName?: string,
-    query?: IDBValidKey | IDBKeyRange,
-  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this._getIDB().andThen((db) => db.getAll<T>(name, indexName, query));
-  }
-
-  public getAllByIndex<T extends VersionedObject>(
-    name: string,
-    index: VolatileStorageKey,
-    query: IDBValidKey | IDBKeyRange,
-  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this._getIDB().andThen((db) =>
-      db.getAllByIndex<T>(name, index, query),
-    );
-    // return this.indexedDB.getAllByIndex<T>(name, index, query);
+    recordKey: ERecordKey,
+    query?: VolatileStorageQuery,
+  ): ResultAsync<T[], PersistenceError> {
+    return this._getIDB().andThen((db) => db.getAll(recordKey, query));
   }
 
   public getAllKeys<T>(
-    name: string,
-    indexName?: string,
-    query?: string | number,
-    count?: number | undefined,
+    recordKey: ERecordKey,
+    query?: VolatileStorageQuery,
   ): ResultAsync<T[], PersistenceError> {
-    return this._getIDB().andThen((db) =>
-      db.getAllKeys<T>(name, indexName, query, count),
-    );
+    return this._getIDB().andThen((db) => db.getAllKeys(recordKey, query));
   }
 }

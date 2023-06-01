@@ -41,6 +41,7 @@ export * from "@objects/businessObjects/TokenMarketData.js";
 export * from "@objects/businessObjects/TransactionFilter.js";
 export * from "@objects/businessObjects/TransactionPaymentCounter.js";
 export * from "@objects/businessObjects/VolatileStorageMetadata.js";
+export * from "@objects/businessObjects/VolatileStorageQuery.js";
 export * from "@objects/businessObjects/WalletNFT.js";
 export * from "@objects/enum/EHashAlgorithm.js";
 export * from "@objects/enum/ESignatureAlgorithm.js";
