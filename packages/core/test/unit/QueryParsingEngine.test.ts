@@ -135,7 +135,7 @@ class QueryParsingMocks {
       okAsync(Gender("female")),
     );
     td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(10)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
     td.when(
       this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
@@ -265,14 +265,13 @@ describe("Handle Query", () => {
       .andThen((insights) => {
         expect(insights).toEqual({
           insights: {
-            q1: { insight: "false", proof: "" },
-            q2: { insight: "true", proof: "" },
-            q3: { insight: "1", proof: "" },
-            q4: { insight: "female", proof: "" },
-            q5: { insight: "{}", proof: "" },
-            q6: { insight: "[]", proof: "" },
+            i1: null,
+            i2: { insight: 'tasty', proof: '' },
+            i3: { insight: '1', proof: '' },
+            i4: { insight: 'female', proof: '' },
+            i5: { insight: '{}', proof: '' }
           },
-          ads: {},
+          ads: {}
         });
         return okAsync(insights);
       })
@@ -307,7 +306,7 @@ describe("Tests with data permissions", () => {
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["q1"]).toBe(null);
+        expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -324,7 +323,7 @@ describe("Tests with data permissions", () => {
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["q1"]).toBe(null);
+        expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -333,16 +332,16 @@ describe("Tests with data permissions", () => {
       });
   });
 
-  test("avalanche 2 first insight is not null when network and age permissions are given", async () => {
+  test("avalanche 2 second insight is not null when age permission is given", async () => {
     const givenPermissions = DataPermissions.createWithPermissions([
       EWalletDataType.Age,
-      EWalletDataType.EVMTransactions,
     ]);
 
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
-        expect(deliveredInsights.insights!["q1"] !== null).toBeTruthy();
+        console.log("walach : ",deliveredInsights)
+        expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -355,12 +354,11 @@ describe("Tests with data permissions", () => {
     const givenPermissions = new DataPermissions(noPermissions);
 
     const expectedResult = {
-      q1: null,
-      q2: null,
-      q3: null,
-      q4: null,
-      q5: null,
-      q6: null,
+      i1: null,
+      i2: null,
+      i3: null,
+      i4: null,
+      i5: null,
     };
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
@@ -392,7 +390,7 @@ describe("Tests with data permissions", () => {
   });
 });
 
-describe.only("Testing avalanche 4", () => {
+describe("Testing avalanche 4", () => {
   test("avalanche 4 insights", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
@@ -414,7 +412,6 @@ describe.only("Testing avalanche 4", () => {
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
-        console.log("rakarth : ",deliveredInsights)
         expect(deliveredInsights).toMatchObject(expectedInsights);
 
         expect(
