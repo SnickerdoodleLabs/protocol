@@ -148,9 +148,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   > {
     const astInsightArray = Array.from(ast.insights);
     return ResultUtils.combine(
-      astInsightArray.map(([_qName, { target, returns }]) => {
-        return astEvaluator.evalAny(
-          this.getSourceToEvalFromAstInsight(target, returns),
+      astInsightArray.map(([_qName, astInsight]) => {
+        return astEvaluator.evalInsight(
+          astInsight
         );
       }),
     ).map((insights) => {
@@ -159,24 +159,17 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   }
 
   protected createDeliverInsightObject(
-    evaluatedInsightSources: SDQL_Return[],
+    evaluatedInsightReturns: SDQL_Return[],
     astInsightArray: [SDQL_Name, AST_Insight][],
   ) {
     return astInsightArray.reduce<IQueryDeliveryInsights>(
       (
         deliveryInsights,
-        [insightName, { returns: astInsightReturns }],
+        [insightName],
         currentIndex,
       ) => {
-        let evaluatedInsightSource = evaluatedInsightSources[currentIndex];
+        let evaluatedInsightSource = evaluatedInsightReturns[currentIndex];
         if (evaluatedInsightSource !== null) {
-          if (typeof astInsightReturns.source === "string") {
-            evaluatedInsightSource = this.checkIfMessageExpected(
-              evaluatedInsightSource,
-              astInsightReturns,
-            );
-          }
-
           deliveryInsights[insightName] = {
             insight: this.SDQLReturnToInsight(evaluatedInsightSource),
             proof: this.calculateInsightProof(evaluatedInsightSource),
@@ -261,16 +254,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     });
   }
 
-  protected getSourceToEvalFromAstInsight(
-    target: AST_ConditionExpr,
-    returns: AST_Expr,
-  ) {
-    if (typeof target.source === "boolean") {
-      return returns.source;
-    } else {
-      return target.source;
-    }
-  }
+  
 
   protected calculateInsightProof(
     insightSource: SDQL_Return,
@@ -279,16 +263,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return null;
     }
     return ProofString("");
-  }
-
-  protected checkIfMessageExpected(
-    insightSource: SDQL_Return,
-    returns: AST_Expr,
-  ): SDQL_Return {
-    if (typeof insightSource === "boolean") {
-      return insightSource ? SDQL_Return(returns.source) : SDQL_Return(null);
-    }
-    return insightSource;
   }
 
   protected SDQLReturnToInsight(

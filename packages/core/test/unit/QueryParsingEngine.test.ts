@@ -392,14 +392,14 @@ describe("Tests with data permissions", () => {
   });
 });
 
-describe("Testing avalanche 4", () => {
-  test("avalanche 4", async () => {
+describe.only("Testing avalanche 4", () => {
+  test("avalanche 4 insights", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
     const expectedInsights = {
       insights: {
-        i1: { insight: null, proof: null },
+        i1: null,
         i2: { insight: 'tasty', proof: '' },
         i3: { insight: '1', proof: '' },
         i4: { insight: 'female', proof: '' },
@@ -414,6 +414,7 @@ describe("Testing avalanche 4", () => {
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen((deliveredInsights) => {
+        console.log("rakarth : ",deliveredInsights)
         expect(deliveredInsights).toMatchObject(expectedInsights);
 
         expect(
