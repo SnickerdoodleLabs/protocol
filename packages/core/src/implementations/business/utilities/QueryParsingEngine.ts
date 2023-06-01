@@ -154,11 +154,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         );
       }),
     ).map((insights) => {
-      return this.createDeliverInsightObject(insights, astInsightArray);
+      return this.createDeliveryInsightObject(insights, astInsightArray);
     });
   }
 
-  protected createDeliverInsightObject(
+  protected createDeliveryInsightObject(
     evaluatedInsightReturns: SDQL_Return[],
     astInsightArray: [SDQL_Name, AST_Insight][],
   ) {
@@ -191,11 +191,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     IQueryDeliveryAds,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const gatherDeliveryAds: IQueryDeliveryAds = {};
+    const adSigProm: IQueryDeliveryAds = {};
     ast.ads.forEach((value, key, map) => {
-      gatherDeliveryAds[value.key] = null;
+      adSigProm[value.key] = null;
     });
-    return okAsync(gatherDeliveryAds);
+    return okAsync(adSigProm);
     //return errAsync(new EvaluationError("Not implemented"));
   }
 

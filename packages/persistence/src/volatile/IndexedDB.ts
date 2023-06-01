@@ -270,31 +270,26 @@ export class IndexedDB {
     key: VolatileStorageKey,
     _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
-   
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
-        
         const promise = new Promise((resolve, reject) => {
-          
           const store = tx.objectStore(name);
-          
+
           const request = store.get(key);
-          
+
           request.onsuccess = (event) => {
             tx.commit();
             resolve(request.result);
           };
           request.onerror = (event) => {
-            
             tx.abort();
             reject(new PersistenceError("error reading from object store"));
           };
         });
 
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => {  return new PersistenceError("error getting object", e)},
-        ).map((result) => {
+        return ResultAsync.fromPromise(promise, (e) => {
+          return new PersistenceError("error getting object", e);
+        }).map((result) => {
           const obj = result as VolatileStorageMetadata<T>;
           if (
             obj != null &&
@@ -404,7 +399,7 @@ export class IndexedDB {
           return result.filter((x) => {
             return x.deleted == EBoolean.FALSE;
           });
-        }); 
+        });
       });
     });
   }
@@ -454,10 +449,9 @@ export class IndexedDB {
     tableName: string,
     obj: VersionedObject,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
-    
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
-    
+
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
     }
@@ -472,14 +466,12 @@ export class IndexedDB {
         keyPath.forEach((item) => {
           ret.push(this._getRecursiveKey(obj, item));
         });
-       
+
         return okAsync(ret);
       } else {
-        
         return okAsync(this._getRecursiveKey(obj, keyPath));
       }
     } catch (e) {
-   
       return errAsync(
         new PersistenceError("error extracting key from object", e),
       );
