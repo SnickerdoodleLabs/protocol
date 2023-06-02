@@ -9,7 +9,7 @@ const envVars = {
     "https://insight-api.dev.snickerdoodle.dev/v0/",
   __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",
 
-  /* No Keys Provided */
+  /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
   __ALCHEMY_ASTAR_API_KEY__: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
   __ALCHEMY_MUMBAI_API_KEY__: "UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
@@ -19,6 +19,7 @@ const envVars = {
   __ALCHEMY_SOLANA_TESTNET_API_KEY__: "Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
   __ALCHEMY_SOLANA_TESTNET_API_KEY__: "",
 
+  /* Etherscan Keys */
   __ETHERSCAN_ETHEREUM_API_KEY__: "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7",
   __ETHERSCAN_POLYGON_API_KEY__: "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G",
   __ETHERSCAN_AVALANCHE_API_KEY__: "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1",
@@ -37,7 +38,8 @@ const envVars = {
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
   __OKLINK_API_KEY__: "700c2f71-a4e2-4a85-b87f-58c8a341d1bf",
 
-  __ANKR_API_KEY__: "",
+  __ANKR_API_KEY__:
+    "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
 
