@@ -31,6 +31,17 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
     Solana: string;
     SolanaTestnet: string;
   };
+  etherscanApiKeys?: {
+    Ethereum: string;
+    Polygon: string;
+    Avalanche: string;
+    Binance: string;
+    Moonbeam: string;
+    Optimism: string;
+    Arbitrum: string;
+    Gnosis: string;
+    Fuji: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
@@ -75,6 +86,10 @@ export interface IExtensionConfigOverrides {
       Avalanche: string;
       Binance: string;
       Moonbeam: string;
+      Optimism: string;
+      Arbitrum: string;
+      Gnosis: string;
+      Fuji: string;
     };
     covalentApiKey?: string;
     moralisApiKey?: string;

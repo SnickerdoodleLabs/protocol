@@ -60,6 +60,10 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     protected contextProvider: IIndexerContextProvider,
   ) {}
 
+  public name(): string {
+    return "covalent";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,

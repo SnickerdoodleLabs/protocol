@@ -76,6 +76,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public name(): string {
+    return "solana";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,

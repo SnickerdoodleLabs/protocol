@@ -27,6 +27,7 @@ import {
   IEVMIndexer,
   IndexerSupportSummary,
   EExternalApi,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -49,10 +50,35 @@ export class AnkrIndexer implements IEVMIndexer {
   >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
-      EChain.Arbitrum,
-      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+    ],
+    [
+      EChain.Polygon,
+      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
+    ],
+    [
+      EChain.Optimism,
+      new IndexerSupportSummary(EChain.Optimism, true, true, true),
+    ],
+    [
+      EChain.Avalanche,
+      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
     ],
   ]);
+
+  protected supportedNfts = new Map<string, EChain>([
+    ["polygon", EChain.Polygon],
+    ["bsc", EChain.Binance],
+    ["eth", EChain.EthereumMainnet],
+    ["avalanche", EChain.Avalanche],
+    ["arbitrum", EChain.Arbitrum],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -64,100 +90,125 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
+  public name(): string {
+    return "ankr";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    const url = "https://rpc.ankr.com/multichain/?ankr_getAccountBalance=";
-    const requestParams = {
-      jsonrpc: "2.0",
-      method: "ankr_getAccountBalance",
-      params: {
-        walletAddress: "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
-      },
-      id: 1,
-    };
-    return this.contextProvider
-      .getContext()
-      .andThen((context) => {
-        context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
-        return this.ajaxUtils.post<IAnkrBalancesReponse>(
-          new URL(url),
-          requestParams,
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
+    return this.configProvider.getConfig().andThen((config) => {
+      const url =
+        "https://rpc.ankr.com/multichain/" +
+        config.apiKeys.ankrApiKey +
+        "/?ankr_getAccountBalance";
+      console.log("Ankr url: " + url);
+      const requestParams = {
+        jsonrpc: "2.0",
+        method: "ankr_getAccountBalance",
+        params: {
+          walletAddress: accountAddress,
+        },
+        id: 1,
+      };
+
+      return this.ajaxUtils
+        .post<IAnkrBalancesReponse>(new URL(url), requestParams, {
+          headers: {
+            "Content-Type": `application/json;`,
           },
-        );
-      })
-      .andThen((response) => {
-        return ResultUtils.combine(
-          response.result.assets.map((item) => {
-            return okAsync(
-              new TokenBalance(
-                EChainTechnology.EVM,
-                item.tokenSymbol,
-                chainId,
-                null,
-                accountAddress,
-                BigNumberString(item.balanceUsd),
-                item.tokenDecimals,
-              ),
-            );
-          }),
-        );
-      });
+        })
+        .andThen((response) => {
+          console.log(
+            "Ankr balance 1 response is: " + JSON.stringify(response),
+          );
+
+          return ResultUtils.combine(
+            response.result.assets.map((item) => {
+              return okAsync(
+                new TokenBalance(
+                  EChainTechnology.EVM,
+                  item.tokenSymbol,
+                  chainId,
+                  null,
+                  accountAddress,
+                  BigNumberString(item.balanceUsd),
+                  item.tokenDecimals,
+                ),
+              );
+            }),
+          );
+        })
+        .map((unfilteredBalances) => {
+          return unfilteredBalances
+            .filter((balance) => {
+              return balance.chainId == chainId;
+            })
+            .map((filteredBalances) => {
+              return filteredBalances;
+            });
+        });
+    });
   }
 
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    const url = "https://rpc.ankr.com/multichain/?ankr_getNFTsByOwner=";
-    const requestParams = {
-      jsonrpc: "2.0",
-      method: "ankr_getAccountBalance",
-      params: {
-        walletAddress: "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
-      },
-      id: 1,
-    };
-    return this.contextProvider
-      .getContext()
-      .andThen((context) => {
-        context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
-        return this.ajaxUtils.post<IAnkrNftReponse>(
-          new URL(url),
-          requestParams,
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
+    return this.configProvider.getConfig().andThen((config) => {
+      const url =
+        "https://rpc.ankr.com/multichain/" +
+        config.apiKeys.ankrApiKey +
+        "/?ankr_getNFTsByOwner";
+      const requestParams = {
+        jsonrpc: "2.0",
+        method: "ankr_getNFTsByOwner",
+        params: {
+          walletAddress: accountAddress,
+        },
+        id: 1,
+      };
+
+      return this.ajaxUtils
+        .post<IAnkrNftReponse>(new URL(url), requestParams, {
+          headers: {
+            "Content-Type": `application/json;`,
           },
-        );
-      })
-      .andThen((response) => {
-        return ResultUtils.combine(
-          response.result.assets.map((item) => {
-            return okAsync(
-              new EVMNFT(
-                item.contractAddress,
-                BigNumberString("1"),
-                item.contractType,
-                accountAddress,
-                TokenUri(item.tokenUrl),
-                item.traits,
-                BigNumberString("1"),
-                item.name,
-                chainId,
-                undefined,
-                undefined,
-              ),
-            );
-          }),
-        );
-      });
+        })
+        .andThen((response) => {
+          return ResultUtils.combine(
+            response.result.assets.map((item) => {
+              return okAsync(
+                new EVMNFT(
+                  item.contractAddress,
+                  BigNumberString(item.tokenId),
+                  item.contractType,
+                  accountAddress,
+                  TokenUri(item.imageUrl),
+                  { raw: JSON.stringify(item) },
+                  BigNumberString(item.blockNumber),
+                  item.name,
+                  getChainInfoByChain(
+                    this.supportedNfts.get(item.blockchain)!,
+                  ).chainId, // chainId
+                  undefined,
+                  UnixTimestamp(Number(item.timestamp)),
+                ),
+              );
+            }),
+          );
+        })
+        .map((unfilteredNfts) => {
+          return unfilteredNfts
+            .filter((nft) => {
+              return nft.chain == chainId;
+            })
+            .map((filteredNfts) => {
+              return filteredNfts;
+            });
+        });
+    });
   }
 
   public getEVMTransactions(
@@ -166,52 +217,61 @@ export class AnkrIndexer implements IEVMIndexer {
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    const url = "https://rpc.ankr.com/multichain/?ankr_getNFTsByOwner=";
-    const requestParams = {
-      jsonrpc: "2.0",
-      method: "ankr_getAccountBalance",
-      params: {
-        walletAddress: "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
-      },
-      id: 1,
-    };
-    return this.contextProvider
-      .getContext()
-      .andThen((context) => {
-        context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
-        return this.ajaxUtils.post<IAnkrTransactionReponse>(
-          new URL(url),
-          requestParams,
-          {
-            headers: {
-              "Content-Type": `application/json;`,
-            },
-          },
-        );
-      })
-      .andThen((response) => {
-        return ResultUtils.combine(
-          response.result.transactions.map((item) => {
-            return okAsync(
-              new EVMTransaction(
-                chainId,
-                EVMTransactionHash(item.hash),
-                UnixTimestamp(0), // item.timestamp
-                null,
-                EVMAccountAddress(item.to),
-                EVMAccountAddress(item.from),
-                BigNumberString(item.value),
-                BigNumberString(item.gasPrice),
-                item.contractAddress,
-                item.input,
-                null,
-                null,
-                null,
-              ),
-            );
-          }),
-        );
-      });
+    return okAsync([]);
+    // return this.configProvider.getConfig().andThen((config) => {
+    //   const url =
+    //     "https://rpc.ankr.com/multichain/" +
+    //     config.apiKeys.ankrApiKey +
+    //     "/?ankr_getTransactionsByAddress";
+    //   const requestParams = {
+    //     jsonrpc: "2.0",
+    //     method: "ankr_getTransactionsByAddress",
+    //     params: {
+    //       walletAddress: accountAddress,
+    //     },
+    //     id: 1,
+    //   };
+
+    //   console.log("Ankr component set to NoKeyProvided");
+    //   console.log("Ankr transactions url is: " + url);
+    //   return this.ajaxUtils
+    //     .post<IAnkrTransactionReponse>(new URL(url), requestParams, {
+    //       headers: {
+    //         "Content-Type": `application/json;`,
+    //       },
+    //     })
+    //     .andThen((response) => {
+    //       console.log(
+    //         "Ankr transactions response is: " + JSON.stringify(response),
+    //       );
+
+    //       return ResultUtils.combine(
+    //         response.result.transactions.map((item) => {
+    //           return okAsync(
+    //             new EVMTransaction(
+    //               chainId,
+    //               EVMTransactionHash(item.hash),
+    //               UnixTimestamp(0), // item.timestamp
+    //               null,
+    //               EVMAccountAddress(item.to),
+    //               EVMAccountAddress(item.from),
+    //               BigNumberString(item.value),
+    //               BigNumberString(item.gasPrice),
+    //               item.contractAddress,
+    //               item.input,
+    //               null,
+    //               null,
+    //               null,
+    //             ),
+    //           );
+    //         }),
+    //       );
+    //     })
+    //     .andThen((vals) => {
+    //       console.log("Ankr transactions response is: " + JSON.stringify(vals));
+    //       return okAsync(vals);
+    //     });
+    // });
   }
 
   public getHealthCheck(): ResultAsync<
@@ -221,9 +281,15 @@ export class AnkrIndexer implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.ankrApiKey == "") {
+          console.log("Ankr key: " + config.apiKeys.ankrApiKey);
+          if (
+            config.apiKeys.ankrApiKey == "" ||
+            config.apiKeys.ankrApiKey == undefined
+          ) {
+            console.log("Ankr component set to NoKeyProvided");
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
+            console.log("Ankr component set to Available");
             this.health.set(key, EComponentStatus.Available);
           }
         },
@@ -279,8 +345,8 @@ interface IAnkrNftAsset {
   blockchain: string;
   name: string;
   tokenId: string;
-  tokenUrl: URLString;
-  imageUrl: URLString;
+  tokenUrl: string;
+  imageUrl: string;
   collectionName: string;
   symbol: string;
   contractType: string;
@@ -304,8 +370,8 @@ interface IAnkrNftAsset {
   v: string;
   r: string;
   s: string;
-  nonce: URLString;
-  blockNumber: URLString;
+  nonce: string;
+  blockNumber: string;
   from: string;
   to: string;
   gas: string;

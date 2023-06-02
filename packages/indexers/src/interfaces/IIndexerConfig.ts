@@ -22,6 +22,10 @@ export interface IIndexerConfig {
       Avalanche: string;
       Binance: string;
       Moonbeam: string;
+      Optimism: string;
+      Arbitrum: string;
+      Gnosis: string;
+      Fuji: string;
     };
     covalentApiKey: string;
     moralisApiKey: string;

@@ -215,6 +215,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             );
             return result;
           });
+          // .orElse(() => {
+          //   console.log("Issue displaying nfts from " + chainId);
+
+          // });
         return cache
           .set(chainId, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);

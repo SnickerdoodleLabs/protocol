@@ -47,6 +47,10 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
     ],
   ]);
 
+  public name(): string {
+    return "simulator";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,

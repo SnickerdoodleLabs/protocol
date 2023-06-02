@@ -28,14 +28,11 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { IRequestConfig } from "packages/common-utils/src";
-import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
 @injectable()
 export class EtherscanNativeBalanceRepository implements IEVMIndexer {
@@ -67,6 +64,15 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, false, false)],
   ]);
 
+  // protected baseUrlMap = new Map<EChain, URLString>([
+  //   [EChain.EthereumMainnet, URLString("")],
+  //   [EChain.Moonbeam, URLString("")],
+  //   [EChain.Binance, URLString("")],
+  //   [EChain.Gnosis, URLString("")],
+  //   [EChain.Avalanche, URLString("")],
+  //   [EChain.Fuji, URLString("")],
+  // ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -75,6 +81,10 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public name(): string {
+    return "etherscan native";
+  }
 
   public getBalancesForAccount(
     chain: EChain,
@@ -85,6 +95,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       this._getBlockExplorerUrl(chain),
     ]).andThen(([apiKey, explorerUrl]) => {
       const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+      // console.log("Poap Repository balanceResponse: " + url);
 
       return this.ajaxUtils
         .get<IGnosisscanBalanceResponse>(
@@ -92,6 +103,8 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
           new URL(url!),
         )
         .map((balanceResponse) => {
+          // console.log("Poap Repository balanceResponse: " + balanceResponse);
+
           const tokenBalances: TokenBalance[] = [];
           const chainInfo = getChainInfoByChain(chain);
           tokenBalances.push(
@@ -150,7 +163,18 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.etherscanApiKeys[key] == "") {
+          // console.log(
+          //   "Etherscan Indexer Health config.apiKeys.etherscanApiKeys: ",
+          //   config.apiKeys.etherscanApiKeys,
+          // );
+          // console.log("config.apiKeys.etherscanApiKeys key: ", key);
+
+          if (
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
+              "" ||
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
+              undefined
+          ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
@@ -202,44 +226,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
     return this.indexerSupport;
   }
-}
-
-enum urlAction {
-  balance = "balance",
-  tokentx = "tokentx",
-  tokennfttx = "tokennfttx",
-}
-
-interface IGnosisscanTransactionResponse {
-  status: string;
-  message: string;
-  result: IGnosisscanRawTx[];
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
-}
-
-interface IGnosisscanRawTx {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: number;
-  from: string;
-  to: string;
-  value: string;
-  gas: BigNumberString;
-  gasPrice: BigNumberString;
-  contractAddress: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  confirmations: string;
-  tokenID?: string;
-  transactionIndex: string;
-  tokenName: string;
-  tokenSymbol: string;
 }
 
 interface IGnosisscanBalanceResponse {

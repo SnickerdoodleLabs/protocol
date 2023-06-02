@@ -70,6 +70,9 @@ export class ConfigProvider implements IConfigProvider {
     // api keys
     this.config.alchemyApiKeys =
       configOverrides.apiKeys.alchemyApiKeys ?? this.config.alchemyApiKeys;
+    this.config.etherscanApiKeys =
+      configOverrides.apiKeys.etherscanApiKeys ?? this.config.etherscanApiKeys;
+
     this.config.covalentApiKey =
       configOverrides.apiKeys.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =

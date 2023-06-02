@@ -70,6 +70,10 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public name(): string {
+    return "nftscan";
+  }
+
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -79,7 +83,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getBalancesForAccount not supported for NftScan",
         400,
       ),
     );
@@ -98,6 +102,14 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
             requestConfig,
           )
           .andThen((response) => {
+            if (response.code !== 200) {
+              return errAsync(
+                new AccountIndexingError(
+                  "NftScan server error 2 was located!",
+                  500,
+                ),
+              );
+            }
             return this.getPages(chainId, response);
           });
       })
@@ -105,6 +117,12 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
         (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
       );
   }
+
+  // private editComponentStatus(): Map<EChain, IndexerSupportSummary> {
+
+  //   return this.indexerSupport;
+
+  // }
 
   public getEVMTransactions(
     chainId: ChainId,
@@ -130,7 +148,10 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.nftScanApiKey == undefined) {
+          if (
+            config.apiKeys.nftScanApiKey == undefined ||
+            config.apiKeys.nftScanApiKey == ""
+          ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
@@ -153,6 +174,11 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     chainId: ChainId,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    if (response.code >= 500) {
+      return errAsync(
+        new AccountIndexingError("NftScan server error was located!", 500),
+      );
+    }
     const items = response.data.map((token) => {
       const assets = token.assets.map((asset) => {
         return new EVMNFT(
@@ -211,18 +237,6 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
       };
       return result;
     });
-  }
-
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Arbitrum,
-      EChain.Binance,
-      EChain.EthereumMainnet,
-      EChain.Optimism,
-      EChain.Polygon,
-      EChain.Solana,
-    ];
-    return supportedChains;
   }
 }
 

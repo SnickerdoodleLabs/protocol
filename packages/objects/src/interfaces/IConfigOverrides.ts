@@ -18,6 +18,17 @@ export interface IConfigOverrides {
     Solana: string;
     SolanaTestnet: string;
   };
+  etherscanApiKeys?: {
+    Ethereum: string;
+    Polygon: string;
+    Avalanche: string;
+    Binance: string;
+    Moonbeam: string;
+    Optimism: string;
+    Arbitrum: string;
+    Gnosis: string;
+    Fuji: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
