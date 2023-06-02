@@ -254,7 +254,6 @@ export class AlchemyIndexer implements IEVMIndexer {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chain, accountAddress);
 
-      console.log("failing balance: ")
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {

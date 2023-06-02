@@ -110,7 +110,6 @@ export class AnkrIndexer implements IEVMIndexer {
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
         "/?ankr_getAccountBalance";
-      console.log("Ankr url: " + url);
       const requestParams = {
         jsonrpc: "2.0",
         method: "ankr_getAccountBalance",
@@ -127,10 +126,6 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .andThen((response) => {
-          console.log(
-            "Ankr balance 1 response is: " + JSON.stringify(response),
-          );
-
           return ResultUtils.combine(
             response.result.assets.map((item) => {
               return okAsync(
@@ -207,14 +202,11 @@ export class AnkrIndexer implements IEVMIndexer {
           );
         })
         .map((unfilteredNfts) => {
-          console.log("ChainId : " + chainId);
-          console.log("unfilteredNfts: " + JSON.stringify(unfilteredNfts));
           return unfilteredNfts
             .filter((nft) => {
               return nft.chain == chainId;
             })
             .map((filteredNfts) => {
-              console.log("filteredNfts: " + JSON.stringify(filteredNfts));
               return filteredNfts;
             });
         });
@@ -291,15 +283,12 @@ export class AnkrIndexer implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          console.log("Ankr key: " + config.apiKeys.ankrApiKey);
           if (
             config.apiKeys.ankrApiKey == "" ||
             config.apiKeys.ankrApiKey == undefined
           ) {
-            console.log("Ankr component set to NoKeyProvided");
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
-            console.log("Ankr component set to Available");
             this.health.set(key, EComponentStatus.Available);
           }
         },

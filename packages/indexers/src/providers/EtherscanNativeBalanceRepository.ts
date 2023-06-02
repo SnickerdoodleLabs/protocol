@@ -95,7 +95,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       this._getBlockExplorerUrl(chain),
     ]).andThen(([apiKey, explorerUrl]) => {
       const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-      // console.log("Poap Repository balanceResponse: " + url);
 
       return this.ajaxUtils
         .get<IGnosisscanBalanceResponse>(
@@ -103,8 +102,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
           new URL(url!),
         )
         .map((balanceResponse) => {
-          // console.log("Poap Repository balanceResponse: " + balanceResponse);
-
           const tokenBalances: TokenBalance[] = [];
           const chainInfo = getChainInfoByChain(chain);
           tokenBalances.push(
@@ -163,12 +160,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          // console.log(
-          //   "Etherscan Indexer Health config.apiKeys.etherscanApiKeys: ",
-          //   config.apiKeys.etherscanApiKeys,
-          // );
-          // console.log("config.apiKeys.etherscanApiKeys key: ", key);
-
           if (
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
               "" ||
