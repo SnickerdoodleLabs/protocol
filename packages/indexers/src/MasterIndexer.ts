@@ -18,7 +18,7 @@ import {
   EChainType,
   EComponentStatus,
   EIndexer,
-  EProvider,
+  EDataProvider,
   EVMAccountAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
@@ -116,8 +116,8 @@ export class MasterIndexer implements IMasterIndexer {
 
   // call this from elsewhere
   public initialize(): ResultAsync<void, AjaxError> {
-    return this.getHealthStatuses().andThen((healthStatuses) => {
-      return okAsync(undefined);
+    return this.getHealthStatuses().map((healthStatuses) => {
+      return undefined;
     });
   }
 
@@ -287,6 +287,20 @@ export class MasterIndexer implements IMasterIndexer {
           e,
         );
         return okAsync([]);
+      })
+      .map((nfts) => {
+        // Apprently the nft.amount can return as in invalid
+        // BigNumber (blank or null), so we'll just correct any possible issue
+        // here.
+        return nfts.map((nft) => {
+          try {
+            BigNumber.from(nft.amount);
+          } catch (e) {
+            // Can't convert to bignumber, set it to 0
+            nft.amount = BigNumberString("0");
+          }
+          return nft;
+        });
       });
   }
 

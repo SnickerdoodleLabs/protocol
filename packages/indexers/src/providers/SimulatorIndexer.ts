@@ -18,6 +18,7 @@ import {
   UnixTimestamp,
   EChain,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -48,7 +49,7 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   ]);
 
   public name(): string {
-    return "simulator";
+    return EDataProvider.Sim;
   }
 
   public getBalancesForAccount(

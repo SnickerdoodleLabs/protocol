@@ -23,6 +23,7 @@ import {
   EComponentStatus,
   EChain,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -44,8 +45,16 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   >();
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
-      EChain.Arbitrum,
-      new IndexerSupportSummary(EChain.Arbitrum, true, false, false),
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+    ],
+    [
+      EChain.Polygon,
+      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Arbitrum, true, true, false),
     ],
   ]);
 
@@ -56,7 +65,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "covalent";
+    return EDataProvider.Covalent;
   }
 
   public getBalancesForAccount(

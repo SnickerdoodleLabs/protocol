@@ -4,6 +4,7 @@ import {
   ILogUtils,
   ILogUtilsType,
   IRequestConfig,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
@@ -31,6 +32,8 @@ import {
   IEVMIndexer,
   IndexerSupportSummary,
   getChainInfoByChain,
+  MethodSupportError,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -75,9 +78,6 @@ export class AnkrIndexer implements IEVMIndexer {
       EChain.Arbitrum,
       new IndexerSupportSummary(EChain.Arbitrum, false, true, true),
     ],
-    // [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
-    // [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
-    // [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
   ]);
 
   protected supportedNfts = new Map<string, EChain>([
@@ -98,7 +98,7 @@ export class AnkrIndexer implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "ankr";
+    return EDataProvider.Ankr;
   }
 
   public getBalancesForAccount(
@@ -135,7 +135,7 @@ export class AnkrIndexer implements IEVMIndexer {
                   chainId,
                   null,
                   accountAddress,
-                  BigNumberString(item.balanceUsd),
+                  BigNumberString("1"),
                   item.tokenDecimals,
                 ),
               );
@@ -178,28 +178,25 @@ export class AnkrIndexer implements IEVMIndexer {
             "Content-Type": `application/json;`,
           },
         })
-        .andThen((response) => {
-          return ResultUtils.combine(
-            response.result.assets.map((item) => {
-              return okAsync(
-                new EVMNFT(
-                  item.contractAddress,
-                  BigNumberString(item.tokenId),
-                  item.contractType,
-                  accountAddress,
-                  TokenUri(item.imageUrl),
-                  { raw: JSON.stringify(item) },
-                  BigNumberString(item.blockNumber),
-                  item.name,
-                  getChainInfoByChain(
-                    this.supportedNfts.get(item.blockchain)!,
-                  ).chainId, // chainId
-                  undefined,
-                  UnixTimestamp(Number(item.timestamp)),
-                ),
-              );
-            }),
-          );
+        .map((response) => {
+          // return ResultUtils.combine(
+          return response.result.assets.map((item) => {
+            return new EVMNFT(
+              item.contractAddress,
+              BigNumberString(item.tokenId),
+              item.contractType,
+              accountAddress,
+              TokenUri(item.imageUrl),
+              { raw: ObjectUtils.serialize(item) },
+              BigNumberString("1"),
+              item.name,
+              getChainInfoByChain(
+                this.supportedNfts.get(item.blockchain)!,
+              ).chainId, // chainId
+              undefined,
+              UnixTimestamp(Number(item.timestamp)),
+            );
+          });
         })
         .map((unfilteredNfts) => {
           return unfilteredNfts
@@ -218,8 +215,16 @@ export class AnkrIndexer implements IEVMIndexer {
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for AnkrIndexer",
+        400,
+      ),
+    );
     // return this.configProvider.getConfig().andThen((config) => {
     //   const url =
     //     "https://rpc.ankr.com/multichain/" +
@@ -386,9 +391,4 @@ interface IAnkrNftAsset {
   status: string;
   blockchain: string;
   timestamp: string;
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

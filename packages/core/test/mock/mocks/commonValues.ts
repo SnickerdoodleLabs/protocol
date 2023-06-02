@@ -131,7 +131,6 @@ export const testCoreConfig = new CoreConfig(
   URLString("http://dnsServerAddress"),
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
-  // new Map(),
   100, // etherscan tx batch size
   5000,
   new Map<EChain, URLString>([

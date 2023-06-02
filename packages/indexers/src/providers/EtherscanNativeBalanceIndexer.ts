@@ -24,6 +24,7 @@ import {
   getChainInfoByChain,
   EComponentStatus,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -64,15 +65,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, false, false)],
   ]);
 
-  // protected baseUrlMap = new Map<EChain, URLString>([
-  //   [EChain.EthereumMainnet, URLString("")],
-  //   [EChain.Moonbeam, URLString("")],
-  //   [EChain.Binance, URLString("")],
-  //   [EChain.Gnosis, URLString("")],
-  //   [EChain.Avalanche, URLString("")],
-  //   [EChain.Fuji, URLString("")],
-  // ]);
-
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -83,7 +75,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "etherscan native";
+    return EDataProvider.Etherscan;
   }
 
   public getBalancesForAccount(
@@ -97,7 +89,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
 
       return this.ajaxUtils
-        .get<IGnosisscanBalanceResponse>(
+        .get<IEtherscanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(url!),
         )
@@ -219,7 +211,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   }
 }
 
-interface IGnosisscanBalanceResponse {
+interface IEtherscanBalanceResponse {
   status: string;
   message: string;
   result: BigNumberString;

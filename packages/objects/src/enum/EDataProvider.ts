@@ -1,4 +1,4 @@
-export enum EProvider {
+export enum EDataProvider {
   Etherscan = "Etherscan",
   Ankr = "Ankr",
   Poap = "Poap",
@@ -11,4 +11,6 @@ export enum EProvider {
   Moralis = "Moralis",
   Matic = "Matic",
   Sim = "Sim",
+  Polygon = "Polygon",
+  DummySolana = "DummySolana",
 }

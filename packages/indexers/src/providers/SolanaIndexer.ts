@@ -31,6 +31,7 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   getChainInfoByChain,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -77,7 +78,7 @@ export class SolanaIndexer implements ISolanaIndexer {
   ) {}
 
   public name(): string {
-    return "solana";
+    return EDataProvider.Solana;
   }
 
   public getBalancesForAccount(
@@ -377,8 +378,3 @@ type IAlchemyBalanceResponse = {
     };
   };
 };
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
-}

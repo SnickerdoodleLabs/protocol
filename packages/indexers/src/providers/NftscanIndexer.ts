@@ -22,6 +22,7 @@ import {
   EComponentStatus,
   EChain,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -71,7 +72,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "nftscan";
+    return EDataProvider.NftScan;
   }
 
   public getBalancesForAccount(
@@ -288,9 +289,4 @@ interface INftScanAssetData {
   attributes: string[];
   rarity_rank: string | null;
   rarity_score: string | null;
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

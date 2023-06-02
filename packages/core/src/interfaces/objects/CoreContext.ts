@@ -38,8 +38,4 @@ export class CoreContext implements IIndexerContext {
   ) {
     this.heartbeat = new Subject();
   }
-
-  // public setComponentStatus(comp: ComponentStatus): void {
-  //   this.components = comp;
-  // }
 }

@@ -20,6 +20,7 @@ import {
   MethodSupportError,
   EChain,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -56,7 +57,7 @@ export class PoapRepository implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "poap";
+    return EDataProvider.Poap;
   }
 
   public getBalancesForAccount(
@@ -190,18 +191,6 @@ export class PoapRepository implements IEVMIndexer {
       };
       return result;
     });
-  }
-
-  public get supportedChains(): Array<EChain> {
-    const supportedChains = [
-      EChain.Arbitrum,
-      EChain.EthereumMainnet,
-      EChain.Mumbai,
-      EChain.Optimism,
-      EChain.Polygon,
-      EChain.Solana,
-    ];
-    return supportedChains;
   }
 }
 

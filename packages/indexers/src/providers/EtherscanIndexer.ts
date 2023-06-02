@@ -28,6 +28,7 @@ import {
   EChain,
   EComponentStatus,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -66,7 +67,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "etherscan";
+    return EDataProvider.Etherscan;
   }
 
   public getBalancesForAccount(
@@ -455,9 +456,4 @@ interface IEtherscanBlockNumberResponse {
   status: string;
   message: string;
   result: BigNumberString;
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

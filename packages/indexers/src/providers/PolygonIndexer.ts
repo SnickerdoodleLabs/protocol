@@ -31,8 +31,8 @@ import {
   getChainInfoByChain,
   EComponentStatus,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
-// import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -68,7 +68,7 @@ export class PolygonIndexer implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "polygon";
+    return EDataProvider.Polygon;
   }
 
   public getBalancesForAccount(
@@ -152,7 +152,7 @@ export class PolygonIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for PolygonIndexer",
         400,
       ),
     );
@@ -479,9 +479,4 @@ interface IPolygonscanBlockNumberResponse {
   status: string;
   message: string;
   result: BigNumberString;
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

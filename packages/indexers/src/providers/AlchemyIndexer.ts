@@ -30,6 +30,7 @@ import {
   EComponentStatus,
   IIndexer,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -89,7 +90,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   }
 
   public name(): string {
-    return "alchemy";
+    return EDataProvider.Alchemy;
   }
 
   public getBalancesForAccount(
@@ -418,9 +419,4 @@ export interface CoinGeckoTokenInfo {
   symbol: string;
   name: string;
   protocols: string[];
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

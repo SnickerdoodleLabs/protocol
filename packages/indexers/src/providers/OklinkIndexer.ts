@@ -25,6 +25,7 @@ import {
   MethodSupportError,
   EComponentStatus,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -72,7 +73,7 @@ export class OklinkIndexer implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "oklink";
+    return EDataProvider.Oklink;
   }
 
   public getBalancesForAccount(
@@ -178,21 +179,6 @@ export class OklinkIndexer implements IEVMIndexer {
 
   public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
     return this.indexerSupport;
-  }
-
-  protected _getEtherscanApiKey(
-    chain: ChainId,
-  ): ResultAsync<string, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      if (!config.apiKeys.etherscanApiKeys[chain] !== undefined) {
-        return errAsync(
-          new AccountIndexingError("no etherscan api key for chain: ", chain),
-        );
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.apiKeys.etherscanApiKeys[chain]!);
-    });
   }
 
   private _getOKXConfig(

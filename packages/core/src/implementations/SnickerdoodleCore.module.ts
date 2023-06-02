@@ -29,6 +29,7 @@ import {
   IIndexerConfigProviderType,
   IIndexerContextProvider,
   IIndexerContextProviderType,
+  MasterIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -42,6 +43,8 @@ import {
   IEtherscanIndexerType,
   IEtherscanNativeBalanceRepositoryType,
   IEVMIndexer,
+  IMasterIndexer,
+  IMasterIndexerType,
   IMoralisEVMPortfolioRepositoryType,
   INftScanEVMPortfolioRepositoryType,
   IOklinkIndexerType,
@@ -409,6 +412,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
       .to(FieldSchemaProvider)
+      .inSingletonScope();
+    bind<IMasterIndexer>(IMasterIndexerType)
+      .to(MasterIndexer)
       .inSingletonScope();
 
     // Utilities

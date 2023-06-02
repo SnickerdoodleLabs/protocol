@@ -1,4 +1,4 @@
-import { EChain, EIndexer, EProvider } from "@objects/enum";
+import { EChain, EIndexer, EDataProvider } from "@objects/enum";
 export class ComponentStatus {
   public constructor(
     public primaryProvider: EComponentStatus,
@@ -14,9 +14,9 @@ export class ComponentStatus {
 export class ChainComponentStatus {
   public constructor(
     public chain: EChain,
-    public transactionIndexer: EProvider | null,
-    public nftIndexer: EProvider | null,
-    public balanceIndexer: EProvider | null,
+    public transactionIndexer: EDataProvider | null,
+    public nftIndexer: EDataProvider | null,
+    public balanceIndexer: EDataProvider | null,
   ) {}
 }
 export enum EComponentStatus {
