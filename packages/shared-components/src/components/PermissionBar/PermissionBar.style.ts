@@ -52,6 +52,12 @@ export const useStyles = makeStyles((theme) => ({
       fontWeight: 500,
       lineHeight: "16px",
     },
+    "& fieldset": {
+      border: "unset",
+    },
+    "&:hover fieldset": {
+      border: "unset",
+    },
     "& .MuiInputBase-inputAdornedEnd:focus": {
       backgroundColor: "transparent !important",
     },
@@ -68,7 +74,7 @@ export const useStyles = makeStyles((theme) => ({
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
       border: "1px solid #D9D9D9",
     },
-    "& input::placeholder": {
+    "&input::placeholder": {
       fontFamily: "'Roboto'",
       fontStyle: "normal",
       fontWeight: 500,
@@ -84,6 +90,9 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "14px",
     lineHeight: "16px",
     color: "#929292",
+  },
+  menuItem: {
+    fontSize: 14,
   },
   formLabel: {
     fontSize: 16,

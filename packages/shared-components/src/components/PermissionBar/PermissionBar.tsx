@@ -308,13 +308,15 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                       name="gender"
                       value={values.gender}
                     >
-                      <MenuItem selected value="female">
-                        Female
+                      <MenuItem className={classes.menuItem}>Female</MenuItem>
+
+                      <MenuItem className={classes.menuItem} value="male">
+                        Male
                       </MenuItem>
 
-                      <MenuItem value="male">Male</MenuItem>
-
-                      <MenuItem value="nonbinary">Non-Binary</MenuItem>
+                      <MenuItem className={classes.menuItem} value="nonbinary">
+                        Non-Binary
+                      </MenuItem>
                     </Field>
                     <ErrorMessage
                       children={(errorMessage: string) => (
@@ -390,11 +392,19 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                       name="country_code"
                       value={values.country_code}
                     >
-                      <MenuItem selected value="US">
+                      <MenuItem
+                        className={classes.menuItem}
+                        selected
+                        value="US"
+                      >
                         United States
                       </MenuItem>
                       {COUNTRIES.map((country) => (
-                        <MenuItem key={country.code} value={country.code}>
+                        <MenuItem
+                          className={classes.menuItem}
+                          key={country.code}
+                          value={country.code}
+                        >
                           {country.name}
                         </MenuItem>
                       ))}

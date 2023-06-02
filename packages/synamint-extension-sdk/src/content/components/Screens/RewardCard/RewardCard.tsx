@@ -1,22 +1,8 @@
-import {
-  Box,
-  Typography,
-  Dialog,
-  IconButton,
-  Button,
-
-} from "@material-ui/core";
-
+import { Box, Typography, Dialog, IconButton, Button } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-
-import React from "react";
-
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
-import {
-
-  IRewardItem,
-} from "@synamint-extension-sdk/content/constants";
-
+import { IRewardItem } from "@synamint-extension-sdk/content/constants";
+import React from "react";
 
 interface IRewardCardProps {
   onJoinClick: () => void;
@@ -59,7 +45,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
                 aria-label="close"
                 onClick={onCloseClick}
               >
-                <CloseIcon />
+                <CloseIcon style={{ fontSize: 24 }} />
               </IconButton>
             </Box>
           </Box>
@@ -81,22 +67,18 @@ const RewardCard: React.FC<IRewardCardProps> = ({
               mt={0.75}
               mb={2}
             >
-              <Typography variant="body1" align="center">
+              <Typography align="center" className={classes.rewardName}>
                 {rewardItem.rewardName}
               </Typography>
             </Box>
           </Box>
         </Box>
-        <Box mb={14} display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="column" px={8} pt={4} mb={2}>
-            <Typography className={classes.title} variant="h4" align="center">
+            <Typography className={classes.title} align="center">
               {rewardItem.title}
             </Typography>
-            <Typography
-              className={classes.description}
-              variant="body1"
-              align="center"
-            >
+            <Typography className={classes.description} align="center">
               {rewardItem.description}
             </Typography>
           </Box>
