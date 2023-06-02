@@ -6,11 +6,11 @@ const CustomButtonPrimary = withStyles({
   root: {
     color: "#fff",
     fontStyle: "normal",
-    fontFamily: "Inter",
-    fontWeight: 500,
+    fontFamily: "Roboto",
+    fontWeight: 400,
     height: 43,
-    fontSize: "16px",
-    lineHeight: "24px",
+    fontSize: "14px",
+    lineHeight: "16px",
     textTransform: "none",
     backgroundColor: "#8079B4",
     "&:hover": {
@@ -21,15 +21,15 @@ const CustomButtonPrimary = withStyles({
 
 const CustomButtonSecondary = withStyles({
   root: {
-    color: "#454165",
+    color: "#5A5292",
     textTransform: "none",
     boxShadow: "none",
     fontStyle: "normal",
-    fontFamily: "Inter",
-    fontWeight: 500,
+    fontFamily: "Roboto",
+    fontWeight: 400,
     height: 43,
-    fontSize: "16px",
-    lineHeight: "24px",
+    fontSize: "14px",
+    lineHeight: "16px",
     border: "1px solid",
     borderColor: "#B9B6D3",
     backgroundColor: "#fff",
