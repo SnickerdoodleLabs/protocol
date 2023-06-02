@@ -118,20 +118,6 @@ export class ConfigProvider
           Arbitrum: "",
           Gnosis: "",
           Fuji: "",
-
-          // new Map([
-          //   [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
-          //   [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
-          //   [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-          //   [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-          //   [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
-          //   [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
-          //   [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
-          //   [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
-          //   [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
-          //   [ChainId(10), "XX9XPVXCBA9VCIQ3YBIZHET5U3BR1DG8B3"],
-          //   [ChainId(42161), "CTJ33WVF49E4UG6EYN6P4KSFC749JPYAFV"],
-          // ]), // etherscan api key
         },
         covalentApiKey: "", // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey: "",

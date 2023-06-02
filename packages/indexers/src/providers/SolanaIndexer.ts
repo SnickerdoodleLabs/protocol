@@ -100,52 +100,52 @@ export class SolanaIndexer implements ISolanaIndexer {
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
-    // return this._getConnectionForChainId(chainId)
-    //   .andThen(([conn, metaplex]) => {
-    //     return ResultAsync.fromPromise(
-    //       metaplex
-    //         .nfts()
-    //         .findAllByOwner({ owner: new PublicKey(accountAddress) }),
-    //       (e) => new AccountIndexingError("error finding sol nfts", e),
-    //     );
-    //   })
-    //   .orElse((e) => {
-    //     this.logUtils.error("error fetching solana nfts", e);
-    //     return okAsync([]);
-    //   })
-    //   .map((nfts) => {
-    //     return nfts
-    //       .map((nft) => {
-    //         return new SolanaNFT(
-    //           chainId,
-    //           accountAddress,
-    //           SolanaTokenAddress(nft.address.toBase58()),
-    //           nft.collection
-    //             ? new SolanaCollection(
-    //                 SolanaTokenAddress(nft.collection?.address.toBase58()),
-    //                 nft.collection?.verified,
-    //               )
-    //             : null,
-    //           nft.uri,
-    //           nft.isMutable,
-    //           nft.primarySaleHappened,
-    //           nft.sellerFeeBasisPoints,
-    //           SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
-    //           nft.tokenStandard,
-    //           TickerSymbol(nft.symbol),
-    //           nft.name,
-    //         );
-    //       })
-    //       .filter((val, i, arr) => {
-    //         return (
-    //           i ==
-    //           arr.findIndex((ind) => {
-    //             return ind.mint == val.mint;
-    //           })
-    //         );
-    //       }); // remove duplicates
-    //   });
+    // return okAsync([]);
+    return this._getConnectionForChainId(chainId)
+      .andThen(([conn, metaplex]) => {
+        return ResultAsync.fromPromise(
+          metaplex
+            .nfts()
+            .findAllByOwner({ owner: new PublicKey(accountAddress) }),
+          (e) => new AccountIndexingError("error finding sol nfts", e),
+        );
+      })
+      .orElse((e) => {
+        this.logUtils.error("error fetching solana nfts", e);
+        return okAsync([]);
+      })
+      .map((nfts) => {
+        return nfts
+          .map((nft) => {
+            return new SolanaNFT(
+              chainId,
+              accountAddress,
+              SolanaTokenAddress(nft.address.toBase58()),
+              nft.collection
+                ? new SolanaCollection(
+                    SolanaTokenAddress(nft.collection?.address.toBase58()),
+                    nft.collection?.verified,
+                  )
+                : null,
+              nft.uri,
+              nft.isMutable,
+              nft.primarySaleHappened,
+              nft.sellerFeeBasisPoints,
+              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
+              nft.tokenStandard,
+              TickerSymbol(nft.symbol),
+              nft.name,
+            );
+          })
+          .filter((val, i, arr) => {
+            return (
+              i ==
+              arr.findIndex((ind) => {
+                return ind.mint == val.mint;
+              })
+            );
+          }); // remove duplicates
+      });
   }
   public getSolanaTransactions(
     chainId: ChainId,
@@ -163,7 +163,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys["Solana"] == "" || config.apiKeys.alchemyApiKeys["Solana"] == undefined) {
+          if (
+            config.apiKeys.alchemyApiKeys["Solana"] == "" ||
+            config.apiKeys.alchemyApiKeys["Solana"] == undefined
+          ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
@@ -274,11 +277,20 @@ export class SolanaIndexer implements ISolanaIndexer {
       return this._connections;
     }
     this._connections = this.configProvider.getConfig().andThen((config) => {
-      return ResultUtils.combine([
-        this._getConnectionForEndpoint(config.apiKeys.alchemyApiKeys["Solana"]),
-        this._getConnectionForEndpoint(
+      const mainnet = URLString(
+        "https://solana-mainnet.g.alchemy.com/v2/" +
           config.apiKeys.alchemyApiKeys["Solana"],
-        ),
+      );
+      const testnet = URLString(
+        "https://solana-devnet.g.alchemy.com/v2/" +
+          config.apiKeys.alchemyApiKeys["SolanaTestnet"],
+      );
+      console.log("Solana Mainnet: " + mainnet);
+      console.log("Solana testnet: " + testnet);
+
+      return ResultUtils.combine([
+        this._getConnectionForEndpoint(mainnet),
+        this._getConnectionForEndpoint(testnet),
       ]).map(([mainnet, testnet]) => {
         return {
           mainnet,
@@ -292,7 +304,7 @@ export class SolanaIndexer implements ISolanaIndexer {
     endpoint: string,
   ): ResultAsync<[Connection, Metaplex], never> {
     // if (endpoint == "" || endpoint == undefined) {
-    //   return 
+    //   return
     // }
     const connection = new Connection(endpoint);
     const metaplex = new Metaplex(connection);
