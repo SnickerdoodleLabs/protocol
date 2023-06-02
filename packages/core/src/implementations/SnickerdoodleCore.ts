@@ -3,11 +3,8 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-import {
-  DefaultAccountBalances,
-  DefaultAccountIndexers,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
+
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -45,9 +42,6 @@ import {
   Gender,
   GivenName,
   HexString32,
-  IAccountBalancesType,
-  IAccountIndexingType,
-  IAccountNFTsType,
   IAdMethods,
   IConfigOverrides,
   IConsentCapacity,
@@ -57,6 +51,7 @@ import {
   ICoreTwitterMethods,
   IDynamicRewardParameter,
   IInvitationMethods,
+  IMasterIndexerType,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -97,6 +92,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IMasterIndexer,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -215,21 +211,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
-
-    this.iocContainer
-      .bind(IAccountIndexingType)
-      .to(DefaultAccountIndexers)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountBalancesType)
-      .to(DefaultAccountBalances)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountNFTsType)
-      .to(DefaultAccountNFTs)
-      .inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -617,8 +598,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IHeartbeatGeneratorType,
     );
 
+    const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
     // BlockchainProvider needs to be ready to go in order to do the unlock
-    return ResultUtils.combine([blockchainProvider.initialize()])
+    return ResultUtils.combine([
+      blockchainProvider.initialize(),
+      indexers.initialize(),
+    ])
       .andThen(() => {
         return accountService.unlock(
           accountAddress,

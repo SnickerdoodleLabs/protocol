@@ -10,8 +10,6 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  IEVMAccountBalanceRepository,
-  IEVMTransactionRepository,
   TokenBalance,
   TickerSymbol,
   BigNumberString,
@@ -23,23 +21,42 @@ import {
   UnixTimestamp,
   getChainInfoByChainId,
   getEtherscanBaseURLForChain,
-  EChain,
+  IEVMIndexer,
+  EVMNFT,
+  MethodSupportError,
   getChainInfoByChain,
+  EChain,
+  EComponentStatus,
+  IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { IRequestConfig } from "packages/common-utils/src";
 import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class EtherscanIndexer
-  implements IEVMTransactionRepository, IEVMAccountBalanceRepository
-{
+@injectable()
+export class EtherscanIndexer implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -48,6 +65,38 @@ export class EtherscanIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public name(): string {
+    return EDataProvider.Etherscan;
+  }
+
+  public getBalancesForAccount(
+    chain: EChain,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.getNonNativeBalance(chain, accountAddress),
+      this.getNativeBalance(chain, accountAddress),
+    ]).map(([nonNativeBalance, nativeBalance]) => {
+      return [nativeBalance, ...nonNativeBalance];
+    });
+  }
+
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    // throw new Error("Method not implemented.");
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
 
   public getEVMTransactions(
     chainId: ChainId,
@@ -84,16 +133,35 @@ export class EtherscanIndexer
     });
   }
 
-  public getBalancesForAccount(
-    chain: EChain,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.getNonNativeBalance(chain, accountAddress),
-      this.getNativeBalance(chain, accountAddress),
-    ]).map(([nonNativeBalance, nativeBalance]) => {
-      return [nativeBalance, ...nonNativeBalance];
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
+              "" ||
+            config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
+              undefined
+          ) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
     });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getNativeBalance(
@@ -128,14 +196,6 @@ export class EtherscanIndexer
         );
         return nativeBalance;
       });
-    // .mapErr((error) => {
-    //   return errAsync(
-    //     new AccountIndexingError(
-    //       "error fetching transactions from etherscan",
-    //       error.message,
-    //     ),
-    //   );
-    // })
   }
 
   private getNonNativeBalance(
@@ -321,14 +381,18 @@ export class EtherscanIndexer
     chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.etherscanApiKeys.has(chainId)) {
+      const key = getChainInfoByChain(chain).name;
+      if (
+        config.apiKeys.etherscanApiKeys[key] == "" ||
+        config.apiKeys.etherscanApiKeys[key] == undefined
+      ) {
+        this.logUtils.error("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chainId)!);
+      return okAsync(config.apiKeys.etherscanApiKeys[key]!);
     });
   }
 }

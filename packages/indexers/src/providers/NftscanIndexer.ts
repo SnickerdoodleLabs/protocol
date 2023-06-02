@@ -12,28 +12,83 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  EVMTransaction,
   getChainInfoByChain,
-  IEVMNftRepository,
+  IEVMIndexer,
+  TokenBalance,
   TokenUri,
   UnixTimestamp,
+  MethodSupportError,
+  EComponentStatus,
+  EChain,
+  IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
+
+import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 @injectable()
-export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
+export class NftScanEVMPortfolioRepository implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, false, false, true),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, false, false, true),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, false, false, true),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, false, false, true),
+    ],
+    [
+      EChain.Avalanche,
+      new IndexerSupportSummary(EChain.Avalanche, false, false, true),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  public name(): string {
+    return EDataProvider.NftScan;
+  }
+
+  public getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenBalance[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getBalancesForAccount not supported for NftScan",
+        400,
+      ),
+    );
+  }
 
   public getTokensForAccount(
     chainId: ChainId,
@@ -48,6 +103,14 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
             requestConfig,
           )
           .andThen((response) => {
+            if (response.code !== 200) {
+              return errAsync(
+                new AccountIndexingError(
+                  "NftScan server error 2 was located!",
+                  500,
+                ),
+              );
+            }
             return this.getPages(chainId, response);
           });
       })
@@ -56,10 +119,67 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
       );
   }
 
+  // private editComponentStatus(): Map<EChain, IndexerSupportSummary> {
+
+  //   return this.indexerSupport;
+
+  // }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for AlchemyIndexer",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (
+            config.apiKeys.nftScanApiKey == undefined ||
+            config.apiKeys.nftScanApiKey == ""
+          ) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
+    });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
+  }
+
   private getPages(
     chainId: ChainId,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    if (response.code >= 500) {
+      return errAsync(
+        new AccountIndexingError("NftScan server error was located!", 500),
+      );
+    }
     const items = response.data.map((token) => {
       const assets = token.assets.map((asset) => {
         return new EVMNFT(
@@ -113,7 +233,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.nftScanApiKey,
+          "X-API-Key": config.apiKeys.nftScanApiKey,
         },
       };
       return result;

@@ -115,7 +115,9 @@ import {
   TwitterUnlinkProfileParams,
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
+  GetConfigParams,
 } from "@synamint-extension-sdk/shared";
+import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
   public discord: ISdlDiscordMethods;
@@ -442,5 +444,8 @@ export class ExternalCoreGateway {
     params: GetPossibleRewardsParams,
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError> {
     return this._handler.call(params);
+  }
+  public getConfig(): ResultAsync<IExtensionConfig, JsonRpcError> {
+    return this._handler.call(new GetConfigParams());
   }
 }
