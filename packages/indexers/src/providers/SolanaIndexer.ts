@@ -189,14 +189,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    // return okAsync([]);
-    console.log("Inside Solana getNonNativeBalance");
     return this._getParsedAccounts(chainId, accountAddress)
       .andThen((accounts) => {
-        console.log("Inside Solana _getParsedAccounts");
         return ResultUtils.combine(
           accounts.map((account) => {
-            console.log("Inside Solana account");
             return this.tokenPriceRepo
               .getTokenInfo(chainId, account.data["parsed"]["info"]["mint"])
               .map((tokenInfo) => {
@@ -221,7 +217,6 @@ export class SolanaIndexer implements ISolanaIndexer {
         );
       })
       .map((balances) => {
-        console.log("Solana balances: " + balances);
         return balances.filter((obj) => obj != null) as TokenBalance[];
       });
   }
@@ -230,18 +225,15 @@ export class SolanaIndexer implements ISolanaIndexer {
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     const publicKey = new PublicKey(accountAddress);
-    console.log("Inside Solana getNativeBalance");
     return ResultUtils.combine([
       this._getConnectionForChainId(chainId),
       this._getFilters(accountAddress),
     ])
       .map(async ([[conn], filters]) => {
-        console.log("Inside Solana getNativeBalance conn");
         const balance = await conn.getBalance(publicKey);
         return balance;
       })
       .andThen((balance: number) => {
-        console.log("Solana native balance: " + balance);
         const nativeBalance = new TokenBalance(
           EChainTechnology.Solana,
           TickerSymbol("SOL"),
@@ -251,7 +243,6 @@ export class SolanaIndexer implements ISolanaIndexer {
           BigNumberString(BigNumber.from(balance).toString()),
           getChainInfoByChainId(chainId).nativeCurrency.decimals,
         );
-        console.log("Solana native balance 2: " + nativeBalance);
         return okAsync(nativeBalance);
       });
   }
@@ -285,9 +276,6 @@ export class SolanaIndexer implements ISolanaIndexer {
         "https://solana-devnet.g.alchemy.com/v2/" +
           config.apiKeys.alchemyApiKeys["SolanaTestnet"],
       );
-      console.log("Solana Mainnet: " + mainnet);
-      console.log("Solana testnet: " + testnet);
-
       return ResultUtils.combine([
         this._getConnectionForEndpoint(mainnet),
         this._getConnectionForEndpoint(testnet),

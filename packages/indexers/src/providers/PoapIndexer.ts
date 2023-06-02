@@ -87,7 +87,6 @@ export class PoapRepository implements IEVMIndexer {
         );
       })
       .map((result) => {
-        console.log("Poap Repository Result: " + result);
         return this.getPages(chainId, result);
       })
       .mapErr(
