@@ -154,7 +154,6 @@ export class MasterIndexer implements IMasterIndexer {
         simHealth,
         solHealth,
       ]) => {
-        // console.log("context.components: ", JSON.stringify(context.components));
         const indexerStatuses = context.components;
         indexerStatuses.alchemyIndexer = alchemyHealth;
         indexerStatuses.etherscanIndexer = etherscanHealth;
@@ -162,10 +161,6 @@ export class MasterIndexer implements IMasterIndexer {
         indexerStatuses.nftScanIndexer = nftscanHealth;
         indexerStatuses.oklinkIndexer = oklinkHealth;
         context.components = indexerStatuses;
-        // console.log("indexerStatuses 1: ", JSON.stringify(context.components));
-        // console.log("indexerStatuses 2: ", context.components);
-        // console.log("indexerStatuses 3: ", JSON.stringify(indexerStatuses));
-        // console.log("indexerStatuses 4: ", indexerStatuses);
       },
     );
   }
@@ -178,9 +173,7 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError
   > {
     const chain = getChainInfoByChainId(chainId).chain;
-    console.log("Chain: " + chain + " and EChain.Solana: " + EChain.Solana);
     if (chain == EChain.Solana) {
-      console.log("Chain is Solana!: ");
       return this.sol
         .getBalancesForAccount(chainId, SolanaAccountAddress(accountAddress))
         .orElse((e) => {
@@ -206,18 +199,6 @@ export class MasterIndexer implements IMasterIndexer {
     }
 
     const providers = this.preferredIndexers.get(chain)!;
-    // console.log(
-    //   "getLatestBalances 1: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has providers: " +
-    //     providers,
-    // );
-    // console.log(
-    //   "getLatestBalances 2: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has providers: " +
-    //     JSON.stringify(providers),
-    // );
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.balances &&
@@ -231,18 +212,8 @@ export class MasterIndexer implements IMasterIndexer {
           getChainInfoByChainId(chainId).name +
           " protocol",
       );
-      // console.log(
-      //   "Chain " + getChainInfoByChainId(chainId).name + " has NO provider: ",
-      // );
       return okAsync([]);
     }
-
-    // console.log(
-    //   "getLatestBalances: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has provider: " +
-    //     provider.name(),
-    // );
 
     return provider
       .getBalancesForAccount(chainId, EVMAccountAddress(accountAddress))
@@ -256,13 +227,6 @@ export class MasterIndexer implements IMasterIndexer {
         return okAsync([]);
       })
       .map((tokenBalances) => {
-        // console.log(
-        //   "getLatestBalances: Chain " +
-        //     getChainInfoByChainId(chainId).name +
-        //     " has tokenBalances: " +
-        //     tokenBalances,
-        // );
-
         // Apprently the tokenBalance.balance can return as in invalid
         // BigNumber (blank or null), so we'll just correct any possible issue
         // here.
@@ -293,7 +257,6 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
-    // can make this another generic function
     const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
       (element) =>
@@ -311,22 +274,9 @@ export class MasterIndexer implements IMasterIndexer {
       return okAsync([]);
     }
 
-    console.log(
-      "getLatestNFTs: Chain " +
-        getChainInfoByChainId(chainId).name +
-        " has provider: " +
-        provider.name(),
-    );
-
     return provider
       .getTokensForAccount(chainId, EVMAccountAddress(accountAddress))
       .map((tokens) => {
-        console.log(
-          "getTokensForAccount: Chain " +
-            getChainInfoByChainId(chainId).name +
-            " returns tokens: " +
-            JSON.stringify(tokens),
-        );
         return tokens;
       })
       .orElse((e) => {
@@ -338,16 +288,6 @@ export class MasterIndexer implements IMasterIndexer {
         );
         return okAsync([]);
       });
-
-    // .orElse((e) => {
-    //   console.log(
-    //     "getTokensForAccount: Chain " +
-    //       getChainInfoByChainId(chainId).name +
-    //       " returns error: ",
-    //   );
-    //   // this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
-    //   return okAsync([]);
-    // });
   }
 
   public getLatestTransactions(
@@ -382,13 +322,6 @@ export class MasterIndexer implements IMasterIndexer {
       );
       return okAsync([]);
     }
-
-    // console.log(
-    //   "getLatestTransactions: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has provider: " +
-    //     provider.name(),
-    // );
 
     return provider
       .getEVMTransactions(

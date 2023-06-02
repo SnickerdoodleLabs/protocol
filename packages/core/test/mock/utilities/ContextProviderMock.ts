@@ -83,11 +83,6 @@ export class ContextProviderMock implements IContextProvider {
     this.context.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
-
-    // this.context.setComponentStatus.apply((val) => {
-    //   void;
-    //   // this.heartbeatActivations.push(val);
-    // });
   }
 
   public getContext(): ResultAsync<CoreContext, never> {

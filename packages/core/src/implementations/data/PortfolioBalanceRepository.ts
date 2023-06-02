@@ -67,11 +67,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     protected accountRepo: ILinkedAccountRepository,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-    // @inject(IAccountNFTsType)
-    // protected accountNFTs: IAccountNFTs,
     @inject(IMasterIndexerType)
     protected masterIndexer: IMasterIndexer,
-    // @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     // reset portfolio cache on account addition and removal
@@ -215,10 +212,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             );
             return result;
           });
-          // .orElse(() => {
-          //   console.log("Issue displaying nfts from " + chainId);
-
-          // });
         return cache
           .set(chainId, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);

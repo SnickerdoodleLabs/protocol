@@ -24,7 +24,6 @@ process.env.__ALCHEMY_OPTIMISM_API_KEY__ = "";
 process.env.__ALCHEMY_POLYGON_API_KEY__ = "";
 process.env.__ALCHEMY_SOLANA_API_KEY__ = "";
 process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__ = "";
-process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__ = "";
 
 process.env.__ETHERSCAN_ETHEREUM_API_KEY__ = "";
 process.env.__ETHERSCAN_POLYGON_API_KEY__ = "";

@@ -43,7 +43,6 @@ import {
 @injectable()
 export class MonitoringService implements IMonitoringService {
   public constructor(
-    // @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
     @inject(IMasterIndexerType)
     protected masterIndexer: IMasterIndexer,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,

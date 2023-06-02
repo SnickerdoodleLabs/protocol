@@ -220,7 +220,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
-    /* Moving code around, I realized that we really dont need to separate these functions into different files */
     this.iocContainer
       .bind(IMasterIndexerType)
       .to(MasterIndexer)
@@ -603,9 +602,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
       IHeartbeatGeneratorType,
     );
-
-    // call Master Indexer and call initialize - healthier place to display errors
-    // do a .orElse() for the health check
 
     const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
     indexers.initialize();
