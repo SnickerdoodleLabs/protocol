@@ -108,7 +108,7 @@ export class AnkrIndexer implements IEVMIndexer {
         jsonrpc: "2.0",
         method: "ankr_getAccountBalance",
         params: {
-          walletAddress: "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
+          walletAddress: accountAddress,
         },
         id: 1,
       };
@@ -165,7 +165,7 @@ export class AnkrIndexer implements IEVMIndexer {
         jsonrpc: "2.0",
         method: "ankr_getNFTsByOwner",
         params: {
-          walletAddress: "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
+          walletAddress: accountAddress,
         },
         id: 1,
       };
@@ -227,7 +227,7 @@ export class AnkrIndexer implements IEVMIndexer {
     //     jsonrpc: "2.0",
     //     method: "ankr_getTransactionsByAddress",
     //     params: {
-    //       walletAddress: "0x633b0E4cc5b72e7196e12b6B8aF1d79c7D406C83",
+    //       walletAddress: accountAddress,
     //     },
     //     id: 1,
     //   };
