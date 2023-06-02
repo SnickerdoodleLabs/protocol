@@ -53,23 +53,23 @@ export class AnkrIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, false, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, false, true, true),
+      new IndexerSupportSummary(EChain.Polygon, true, true, true),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, false, true, true),
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
     ],
     [
       EChain.Optimism,
-      new IndexerSupportSummary(EChain.Optimism, false, true, true),
+      new IndexerSupportSummary(EChain.Optimism, true, true, true),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, false, true, true),
+      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
     ],
   ]);
 
@@ -77,6 +77,8 @@ export class AnkrIndexer implements IEVMIndexer {
     ["polygon", EChain.Polygon],
     ["bsc", EChain.Binance],
     ["eth", EChain.EthereumMainnet],
+    ["avalanche", EChain.Avalanche],
+    ["arbitrum", EChain.Arbitrum],
   ]);
 
   public constructor(
@@ -138,9 +140,14 @@ export class AnkrIndexer implements IEVMIndexer {
             }),
           );
         })
-        .andThen((vals) => {
-          console.log("Ankr balances 2 response is: " + JSON.stringify(vals));
-          return okAsync(vals);
+        .map((unfilteredBalances) => {
+          return unfilteredBalances
+            .filter((balance) => {
+              return balance.chainId == chainId;
+            })
+            .map((filteredBalances) => {
+              return filteredBalances;
+            });
         });
     });
   }
@@ -163,7 +170,6 @@ export class AnkrIndexer implements IEVMIndexer {
         id: 1,
       };
 
-      console.log("Ankr tokens url is: " + url);
       return this.ajaxUtils
         .post<IAnkrNftReponse>(new URL(url), requestParams, {
           headers: {
@@ -171,23 +177,8 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .andThen((response) => {
-          console.log("Ankr tokens response is: " + JSON.stringify(response));
           return ResultUtils.combine(
             response.result.assets.map((item) => {
-              console.log(
-                "getChainInfoByChain(this.supportedNfts.get(item.blockchain)).chainId: " +
-                  getChainInfoByChain(this.supportedNfts.get(item.blockchain)!)
-                    .chainId,
-              );
-              console.log("chainId: " + chainId);
-
-              // if (
-              //   getChainInfoByChain(this.supportedNfts.get(item.blockchain)!)
-              //     .chainId !== chainId
-              // ) {
-              //   return okAsync(null);
-              // }
-
               return okAsync(
                 new EVMNFT(
                   item.contractAddress,
@@ -195,7 +186,7 @@ export class AnkrIndexer implements IEVMIndexer {
                   item.contractType,
                   accountAddress,
                   TokenUri(item.imageUrl),
-                  item.traits,
+                  { raw: JSON.stringify(item) },
                   BigNumberString(item.blockNumber),
                   item.name,
                   getChainInfoByChain(
@@ -205,45 +196,17 @@ export class AnkrIndexer implements IEVMIndexer {
                   UnixTimestamp(Number(item.timestamp)),
                 ),
               );
-
-              //   const items = response.data.map((token) => {
-              //     const assets = token.assets.map((asset) => {
-              //       return new EVMNFT(
-              //         EVMContractAddress(asset.contract_address),
-              //         BigNumberString(asset.token_id),
-              //         asset.erc_type,
-              //         EVMAccountAddress(asset.owner),
-              //         TokenUri(asset.token_uri),
-              //         { raw: asset.metadata_json },
-              //         BigNumberString(asset.amount),
-              //         asset.name,
-              //         chainId,
-              //         undefined,
-              //         UnixTimestamp(Number(asset.own_timestamp)),
-              //       );
-              //     });
-              //     return assets;
-              // );
             }),
           );
-          // .map((balances) => {
-          //   console.log("Ankr Token Balances 1: " + JSON.stringify(balances));
-          //   return Promise.all(balances).then((balance) => {
-          //     return (
-          //       balance
-          //         //@ts-ignore
-          //         .filter((obj) => obj.value != null)
-          //         .map((tokenBalance) => {
-          //           //@ts-ignore
-          //           return tokenBalance.value;
-          //         })
-          //     );
-          //   });
-          // });
         })
-        .andThen((vals) => {
-          console.log("Ankr Token Balances 2: " + JSON.stringify(vals));
-          return okAsync(vals);
+        .map((unfilteredNfts) => {
+          return unfilteredNfts
+            .filter((nft) => {
+              return nft.chain == chainId;
+            })
+            .map((filteredNfts) => {
+              return filteredNfts;
+            });
         });
     });
   }
