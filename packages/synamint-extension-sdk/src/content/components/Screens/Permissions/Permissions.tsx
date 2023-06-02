@@ -129,6 +129,7 @@ const Permissions: FC<IPermissionsProps> = ({
     <Dialog
       className={classes.container}
       open={true}
+      disableEnforceFocus
       disablePortal
       maxWidth="lg"
       fullWidth

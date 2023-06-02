@@ -8,7 +8,10 @@ import { create } from "jss";
 
 class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
-    const shadowRoot = this.attachShadow({ mode: "open" });
+    const shadowRoot = this.attachShadow({
+      mode: "open",
+      delegatesFocus: true,
+    });
     const mountPoint = document.createElement("div");
     shadowRoot.appendChild(mountPoint);
     mountPoint.id = "content-container";
