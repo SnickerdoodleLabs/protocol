@@ -53,24 +53,31 @@ export class AnkrIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, false, true, true),
     ],
     [
       EChain.Polygon,
-      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+      new IndexerSupportSummary(EChain.Polygon, false, true, true),
     ],
     [
       EChain.Binance,
-      new IndexerSupportSummary(EChain.Binance, true, true, true),
+      new IndexerSupportSummary(EChain.Binance, false, true, true),
     ],
     [
       EChain.Optimism,
-      new IndexerSupportSummary(EChain.Optimism, true, true, true),
+      new IndexerSupportSummary(EChain.Optimism, false, true, true),
     ],
     [
       EChain.Avalanche,
-      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
+      new IndexerSupportSummary(EChain.Avalanche, false, true, true),
     ],
+    [
+      EChain.Arbitrum,
+      new IndexerSupportSummary(EChain.Arbitrum, false, true, true),
+    ],
+    // [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
+    // [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
+    // [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
   ]);
 
   protected supportedNfts = new Map<string, EChain>([
@@ -200,11 +207,14 @@ export class AnkrIndexer implements IEVMIndexer {
           );
         })
         .map((unfilteredNfts) => {
+          console.log("ChainId : " + chainId);
+          console.log("unfilteredNfts: " + JSON.stringify(unfilteredNfts));
           return unfilteredNfts
             .filter((nft) => {
               return nft.chain == chainId;
             })
             .map((filteredNfts) => {
+              console.log("filteredNfts: " + JSON.stringify(filteredNfts));
               return filteredNfts;
             });
         });

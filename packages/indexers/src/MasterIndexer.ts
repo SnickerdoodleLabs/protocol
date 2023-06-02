@@ -68,18 +68,17 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.EthereumMainnet, [this.ankr, this.etherscan]],
     [EChain.Polygon, [this.ankr, this.alchemy]],
     [EChain.Optimism, [this.ankr, this.alchemy, this.nftscan]],
-
+    [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
+    [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
+    [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
 
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
-    [EChain.Arbitrum, [this.alchemy, this.nftscan]],
 
     /* Etherscan Native Balance Preferred */
     [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
-    [EChain.Binance, [this.etherscanNative, this.nftscan]],
     [EChain.Gnosis, [this.etherscanNative, this.poapRepo]],
-    [EChain.Avalanche, [this.etherscanNative, this.nftscan]],
     [EChain.Fuji, [this.etherscanNative, this.nftscan]],
   ]);
 
@@ -179,11 +178,31 @@ export class MasterIndexer implements IMasterIndexer {
     PersistenceError | AccountIndexingError | AjaxError
   > {
     const chain = getChainInfoByChainId(chainId).chain;
+    console.log("Chain: " + chain + " and EChain.Solana: " + EChain.Solana);
     if (chain == EChain.Solana) {
-      return this.sol.getBalancesForAccount(
-        chainId,
-        SolanaAccountAddress(accountAddress),
-      );
+      console.log("Chain is Solana!: ");
+      return this.sol
+        .getBalancesForAccount(chainId, SolanaAccountAddress(accountAddress))
+        .orElse((e) => {
+          this.logUtils.log(
+            "Error fetching balances from solana indexer",
+            chainId,
+            accountAddress,
+            e,
+          );
+          return okAsync([]);
+        })
+        .map((tokenBalances) => {
+          return tokenBalances.map((tokenBalance) => {
+            try {
+              BigNumber.from(tokenBalance.balance);
+            } catch (e) {
+              // Can't convert to bignumber, set it to 0
+              tokenBalance.balance = BigNumberString("0");
+            }
+            return tokenBalance;
+          });
+        });
     }
 
     const providers = this.preferredIndexers.get(chain)!;
