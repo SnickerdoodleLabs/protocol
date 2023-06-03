@@ -3,6 +3,7 @@ import {
   IAxiosAjaxUtils,
   ILogUtilsType,
   ILogUtils,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -10,8 +11,6 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  IEVMAccountBalanceRepository,
-  IEVMTransactionRepository,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   TokenBalance,
@@ -26,11 +25,16 @@ import {
   getEtherscanBaseURLForChain,
   PolygonTransaction,
   EPolygonTransactionType,
+  IEVMIndexer,
+  EVMNFT,
+  MethodSupportError,
   getChainInfoByChain,
+  EComponentStatus,
+  IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
-// import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
@@ -38,15 +42,21 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
+import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
 
-export class PolygonIndexer
-  implements IEVMAccountBalanceRepository, IEVMTransactionRepository
-{
-  //   private _metadataCache = new Map<
-  //     `${EVMContractAddress}-${ChainId}`,
-  //     TokenMetadataResponse
-  //   >();
+@injectable()
+export class PolygonIndexer implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.Polygon,
+      new IndexerSupportSummary(EChain.Polygon, true, true, true),
+    ],
+  ]);
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -56,6 +66,10 @@ export class PolygonIndexer
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public name(): string {
+    return EDataProvider.Polygon;
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -129,6 +143,21 @@ export class PolygonIndexer
     // });
   }
 
+  public getTokensForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    EVMNFT[],
+    AccountIndexingError | AjaxError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getTokensForAccount not supported for PolygonIndexer",
+        400,
+      ),
+    );
+  }
+
   public getEVMTransactions(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
@@ -161,6 +190,33 @@ export class PolygonIndexer
         return [...erc20, ...erc721, ...erc1155];
       });
     });
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      const keys = this.indexerSupport.keys();
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.etherscanApiKeys[key] == undefined) {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
+    });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private _getNFTTransactions(
@@ -374,13 +430,13 @@ export class PolygonIndexer
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       const chainId = getChainInfoByChain(chain).chainId;
-      if (!config.etherscanApiKeys.has(chainId)) {
+      if (!config.apiKeys.etherscanApiKeys[chainId] == undefined) {
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(config.etherscanApiKeys.get(chainId)!);
+      return okAsync(config.apiKeys.etherscanApiKeys[chainId]!);
     });
   }
 }
