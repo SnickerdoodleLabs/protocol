@@ -56,7 +56,7 @@ export class AnkrIndexer implements IEVMIndexer {
   protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
     [
       EChain.EthereumMainnet,
-      new IndexerSupportSummary(EChain.EthereumMainnet, false, true, true),
+      new IndexerSupportSummary(EChain.EthereumMainnet, false, false, true),
     ],
     [
       EChain.Polygon,
