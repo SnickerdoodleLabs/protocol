@@ -4,6 +4,7 @@ import {
   ProviderUrl,
   TwitterConfig,
   URLString,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 
 import {
@@ -23,26 +24,8 @@ export class ExtensionConfig {
     public defaultInsightPlatformBaseUrl: URLString,
     public ceramicNodeUrl: URLString,
     public apiKeys: {
-      alchemyApiKeys?: {
-        Arbitrum: string;
-        Astar: string;
-        Mumbai: string;
-        Optimism: string;
-        Polygon: string;
-        Solana: string;
-        SolanaTestnet: string;
-      };
-      etherscanApiKeys?: {
-        Ethereum: string;
-        Polygon: string;
-        Avalanche: string;
-        Binance: string;
-        Moonbeam: string;
-        Optimism: string;
-        Arbitrum: string;
-        Gnosis: string;
-        Fuji: string;
-      };
+      alchemyApiKeys?: Map<EChain, string | null>;
+      etherscanApiKeys?: Map<EChain, string | null>;
       covalentApiKey?: string;
       moralisApiKey?: string;
       nftScanApiKey?: string;

@@ -189,91 +189,207 @@ export const configs: IExtensionConfigOverrides = {
       : URLString("https://insight-api.snickerdoodle.com/v0/"),
 
   /* API KEYS */
+  /* Alchemy Api Keys */
+  // alchemyArbitrum:
+  //   typeof __ALCHEMY_ARBITRUM_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_ARBITRUM_API_KEY__
+  //     ? __ALCHEMY_ARBITRUM_API_KEY__
+  //     : "",
+  // alchemyAstar:
+  //   typeof __ALCHEMY_ASTAR_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_ASTAR_API_KEY__
+  //     ? __ALCHEMY_ASTAR_API_KEY__
+  //     : "",
+  // alchemyMumbai:
+  //   typeof __ALCHEMY_MUMBAI_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_MUMBAI_API_KEY__
+  //     ? __ALCHEMY_MUMBAI_API_KEY__
+  //     : "",
+  // alchemyOptimism:
+  //   typeof __ALCHEMY_OPTIMISM_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_OPTIMISM_API_KEY__
+  //     ? __ALCHEMY_OPTIMISM_API_KEY__
+  //     : "",
+  // alchemyPolygon:
+  //   typeof __ALCHEMY_POLYGON_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_POLYGON_API_KEY__
+  //     ? __ALCHEMY_POLYGON_API_KEY__
+  //     : "",
+  // alchemySolana:
+  //   typeof __ALCHEMY_SOLANA_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_SOLANA_API_KEY__
+  //     ? __ALCHEMY_SOLANA_API_KEY__
+  //     : "",
+  // alchemySolanaTestnet:
+  //   typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
+  //   !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
+  //     ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
+  //     : "",
+
+  // /* Etherscan Api Keys */
+  // etherscanEthereum:
+  //   typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_ETHEREUM_API_KEY__
+  //     ? __ETHERSCAN_ETHEREUM_API_KEY__
+  //     : "",
+  // etherscanPolygon:
+  //   typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_POLYGON_API_KEY__
+  //     ? __ETHERSCAN_POLYGON_API_KEY__
+  //     : "",
+  // etherscanAvalanche:
+  //   typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_AVALANCHE_API_KEY__
+  //     ? __ETHERSCAN_AVALANCHE_API_KEY__
+  //     : "",
+  // etherscanBinance:
+  //   typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_BINANCE_API_KEY__
+  //     ? __ETHERSCAN_BINANCE_API_KEY__
+  //     : "",
+  // etherscanMoonbeam:
+  //   typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_MOONBEAM_API_KEY__
+  //     ? __ETHERSCAN_MOONBEAM_API_KEY__
+  //     : "",
+  // etherscanOptimism:
+  //   typeof __ETHERSCAN_OPTIMISM_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_OPTIMISM_API_KEY__
+  //     ? __ETHERSCAN_OPTIMISM_API_KEY__
+  //     : "",
+  // etherscanArbitrum:
+  //   typeof __ETHERSCAN_ARBITRUM_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_ARBITRUM_API_KEY__
+  //     ? __ETHERSCAN_ARBITRUM_API_KEY__
+  //     : "",
+  // etherscanGnosis:
+  //   typeof __ETHERSCAN_GNOSIS_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_GNOSIS_API_KEY__
+  //     ? __ETHERSCAN_GNOSIS_API_KEY__
+  //     : "",
+  // etherscanFuji:
+  //   typeof __ETHERSCAN_FUJI_API_KEY__ !== "undefined" &&
+  //   !!__ETHERSCAN_FUJI_API_KEY__
+  //     ? __ETHERSCAN_FUJI_API_KEY__
+  //     : "",
+
   apiKeys: {
-    alchemyApiKeys: {
-      Arbitrum:
+    alchemyApiKeys: new Map([
+      [
+        42161,
         typeof __ALCHEMY_ARBITRUM_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_ARBITRUM_API_KEY__
           ? __ALCHEMY_ARBITRUM_API_KEY__
           : "",
-      Astar:
+      ],
+      [
+        592,
         typeof __ALCHEMY_ASTAR_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_ASTAR_API_KEY__
           ? __ALCHEMY_ASTAR_API_KEY__
           : "",
-      Mumbai:
+      ],
+      [
+        80001,
         typeof __ALCHEMY_MUMBAI_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_MUMBAI_API_KEY__
           ? __ALCHEMY_MUMBAI_API_KEY__
           : "",
-      Optimism:
+      ],
+      [
+        10,
         typeof __ALCHEMY_OPTIMISM_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_OPTIMISM_API_KEY__
           ? __ALCHEMY_OPTIMISM_API_KEY__
           : "",
-      Polygon:
+      ],
+      [
+        137,
         typeof __ALCHEMY_POLYGON_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_POLYGON_API_KEY__
           ? __ALCHEMY_POLYGON_API_KEY__
           : "",
-      Solana:
+      ],
+      [
+        -1,
         typeof __ALCHEMY_SOLANA_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_SOLANA_API_KEY__
           ? __ALCHEMY_SOLANA_API_KEY__
           : "",
-      SolanaTestnet:
+      ],
+      [
+        -2,
         typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
           ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
           : "",
-    },
-    etherscanApiKeys: {
-      Ethereum:
+      ],
+    ]),
+    etherscanApiKeys: new Map([
+      [
+        1,
         typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_ETHEREUM_API_KEY__
           ? __ETHERSCAN_ETHEREUM_API_KEY__
           : "",
-      Polygon:
+      ],
+      [
+        137,
         typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_POLYGON_API_KEY__
           ? __ETHERSCAN_POLYGON_API_KEY__
           : "",
-      Avalanche:
-        typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
-        !!__ETHERSCAN_AVALANCHE_API_KEY__
-          ? __ETHERSCAN_AVALANCHE_API_KEY__
-          : "",
-      Binance:
+      ],
+      [
+        56,
         typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_BINANCE_API_KEY__
           ? __ETHERSCAN_BINANCE_API_KEY__
           : "",
-      Moonbeam:
+      ],
+      [
+        1284,
         typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_MOONBEAM_API_KEY__
           ? __ETHERSCAN_MOONBEAM_API_KEY__
           : "",
-      Optimism:
+      ],
+      [
+        10,
         typeof __ETHERSCAN_OPTIMISM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_OPTIMISM_API_KEY__
           ? __ETHERSCAN_OPTIMISM_API_KEY__
           : "",
-      Arbitrum:
+      ],
+      [
+        42161,
         typeof __ETHERSCAN_ARBITRUM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_ARBITRUM_API_KEY__
           ? __ETHERSCAN_ARBITRUM_API_KEY__
           : "",
-      Gnosis:
+      ],
+      [
+        100,
         typeof __ETHERSCAN_GNOSIS_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_GNOSIS_API_KEY__
           ? __ETHERSCAN_GNOSIS_API_KEY__
           : "",
-      Fuji:
+      ],
+      [
+        43113,
         typeof __ETHERSCAN_FUJI_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_FUJI_API_KEY__
           ? __ETHERSCAN_FUJI_API_KEY__
           : "",
-    },
+      ],
+      [
+        43114,
+        typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
+        !!__ETHERSCAN_AVALANCHE_API_KEY__
+          ? __ETHERSCAN_AVALANCHE_API_KEY__
+          : "",
+      ],
+    ]),
     covalentApiKey:
       typeof __COVALENT_API_KEY__ !== "undefined" && !!__COVALENT_API_KEY__
         ? __COVALENT_API_KEY__

@@ -99,26 +99,25 @@ export class ConfigProvider
       60000, // backup interval
       5, // backup chunk size target
       {
-        alchemyApiKeys: {
-          Arbitrum: "",
-          Astar: "",
-          Mumbai: "",
-          Optimism: "",
-          Polygon: "",
-          Solana: "",
-          SolanaTestnet: "",
-        },
-        etherscanApiKeys: {
-          Ethereum: "",
-          Polygon: "",
-          Avalanche: "",
-          Binance: "",
-          Moonbeam: "",
-          Optimism: "",
-          Arbitrum: "",
-          Gnosis: "",
-          Fuji: "",
-        },
+        alchemyApiKeys: new Map<EChain, string | null>([
+          [EChain.Arbitrum, ""],
+          [EChain.Astar, ""],
+          [EChain.Mumbai, ""],
+          [EChain.Optimism, ""],
+          [EChain.Polygon, ""],
+          [EChain.Solana, ""],
+          [EChain.SolanaTestnet, ""],
+        ]),
+        etherscanApiKeys: new Map<EChain, string | null>([
+          [EChain.EthereumMainnet, ""],
+          [EChain.Polygon, ""],
+          [EChain.Avalanche, ""],
+          [EChain.Moonbeam, ""],
+          [EChain.Optimism, ""],
+          [EChain.Arbitrum, ""],
+          [EChain.Gnosis, ""],
+          [EChain.Fuji, ""],
+        ]),
         covalentApiKey: "", // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
         moralisApiKey: "",
         // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key

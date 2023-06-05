@@ -1,5 +1,6 @@
 export * from "@objects/errors/AccountIndexingError.js";
 export * from "@objects/errors/AjaxError.js";
+export * from "@objects/errors/ApiKeyError.js";
 export * from "@objects/errors/BlockchainProviderError.js";
 export * from "@objects/errors/ConsentContractError.js";
 export * from "@objects/errors/ConsentContractRepositoryError.js";

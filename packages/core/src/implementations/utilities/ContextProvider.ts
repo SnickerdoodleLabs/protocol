@@ -19,6 +19,12 @@ export class ContextProvider
       false, // unlockInProgress
       new PublicEvents(), // publicEvents,
       false,
+      /* 
+
+
+        The Component Status tracks the status of multiple indexer services offered within the Snickerdoodle Core. 
+        These indexer services rely on api keys passed in from the config file asking for config keys.  
+      */
       new ComponentStatus(
         EComponentStatus.TemporarilyDisabled,
         EComponentStatus.TemporarilyDisabled,

@@ -1,5 +1,6 @@
 export * from "@objects/businessObjects/AdContent.js";
 export * from "@objects/businessObjects/AESEncryptedString.js";
+export * from "@objects/businessObjects/ChainComponentStatus.js";
 export * from "@objects/businessObjects/ChainInformation.js";
 export * from "@objects/businessObjects/ClickFilter.js";
 export * from "@objects/businessObjects/ComponentStatus.js";
@@ -15,6 +16,7 @@ export * from "@objects/businessObjects/EVMFunctionSignature.js";
 export * from "@objects/businessObjects/EVMNFT.js";
 export * from "@objects/businessObjects/EVMTimestampRange.js";
 export * from "@objects/businessObjects/ExternallyOwnedAccount.js";
+export * from "@objects/businessObjects/IndexerSupportSummary.js";
 export * from "@objects/businessObjects/Insight.js";
 export * from "@objects/businessObjects/Invitation.js";
 export * from "@objects/businessObjects/InvitationDomain.js";

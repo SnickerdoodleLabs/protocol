@@ -88,6 +88,14 @@ export class AnkrIndexer implements IEVMIndexer {
     ["arbitrum", EChain.Arbitrum],
   ]);
 
+  protected chainSupport = new Map<EChain, string>([
+    [EChain.EthereumMainnet, "eth"],
+    [EChain.Polygon, "polygon"],
+    [EChain.Binance, "bsc"],
+    [EChain.Avalanche, "avalanche"],
+    [EChain.Arbitrum, "arbitrum"],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -114,6 +122,9 @@ export class AnkrIndexer implements IEVMIndexer {
         jsonrpc: "2.0",
         method: "ankr_getAccountBalance",
         params: {
+          blockchain: [
+            this.chainSupport.get(getChainInfoByChainId(chainId).chain),
+          ],
           walletAddress: accountAddress,
         },
         id: 1,
@@ -167,6 +178,7 @@ export class AnkrIndexer implements IEVMIndexer {
         jsonrpc: "2.0",
         method: "ankr_getNFTsByOwner",
         params: {
+          blockchain: [],
           walletAddress: accountAddress,
         },
         id: 1,

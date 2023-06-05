@@ -4,6 +4,7 @@ import {
   DiscordConfig,
   TwitterConfig,
   ProviderUrl,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 
 export interface IExtensionConfigDefaults {
@@ -23,26 +24,8 @@ export interface IExtensionConfigDefaults {
 
 export interface IExtensionConfig extends IExtensionConfigDefaults {
   ceramicNodeUrl: URLString;
-  alchemyApiKeys?: {
-    Arbitrum: string;
-    Astar: string;
-    Mumbai: string;
-    Optimism: string;
-    Polygon: string;
-    Solana: string;
-    SolanaTestnet: string;
-  };
-  etherscanApiKeys?: {
-    Ethereum: string;
-    Polygon: string;
-    Avalanche: string;
-    Binance: string;
-    Moonbeam: string;
-    Optimism: string;
-    Arbitrum: string;
-    Gnosis: string;
-    Fuji: string;
-  };
+  alchemyApiKeys?: Map<EChain, string | null>;
+  etherscanApiKeys?: Map<EChain, string | null>;
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
@@ -73,26 +56,8 @@ export interface IExtensionConfigOverrides {
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
   apiKeys: {
-    alchemyApiKeys?: {
-      Arbitrum: string;
-      Astar: string;
-      Mumbai: string;
-      Optimism: string;
-      Polygon: string;
-      Solana: string;
-      SolanaTestnet: string;
-    };
-    etherscanApiKeys?: {
-      Ethereum: string;
-      Polygon: string;
-      Avalanche: string;
-      Binance: string;
-      Moonbeam: string;
-      Optimism: string;
-      Arbitrum: string;
-      Gnosis: string;
-      Fuji: string;
-    };
+    alchemyApiKeys?: Map<EChain, string | null>;
+    etherscanApiKeys?: Map<EChain, string | null>;
     covalentApiKey?: string;
     moralisApiKey?: string;
     nftScanApiKey?: string;

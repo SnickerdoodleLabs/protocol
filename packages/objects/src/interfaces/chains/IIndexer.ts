@@ -1,10 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
-import {
-  EComponentStatus,
-  IndexerSupportSummary,
-} from "@objects/businessObjects";
-import { EChain } from "@objects/enum";
+import { IndexerSupportSummary } from "@objects/businessObjects/IndexerSupportSummary";
+import { EChain, EComponentStatus } from "@objects/enum";
 import { AjaxError } from "@objects/errors";
 
 export interface IIndexer {

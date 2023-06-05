@@ -132,7 +132,7 @@ export class OklinkIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getTokensForAccount not supported for OklinkIndexer",
         400,
       ),
     );
@@ -149,7 +149,7 @@ export class OklinkIndexer implements IEVMIndexer {
   > {
     return errAsync(
       new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
+        "getEVMTransactions not supported for OklinkIndexer",
         400,
       ),
     );
@@ -183,7 +183,7 @@ export class OklinkIndexer implements IEVMIndexer {
 
   private _getOKXConfig(
     chain: ChainId,
-  ): ResultAsync<alchemyAjaxSettings, AccountIndexingError> {
+  ): ResultAsync<oklinkAjaxSettings, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       switch (chain) {
         default:
@@ -233,7 +233,7 @@ interface tokenData {
   tokenContractAddress: EVMContractAddress;
 }
 
-interface alchemyAjaxSettings {
+interface oklinkAjaxSettings {
   id: number;
   jsonrpc: string;
   method: string;

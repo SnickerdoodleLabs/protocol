@@ -1,4 +1,5 @@
 import { DiscordConfig, TwitterConfig } from "@objects/businessObjects";
+import { EChain } from "@objects/enum";
 import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
 
 export interface IConfigOverrides {
@@ -9,26 +10,8 @@ export interface IConfigOverrides {
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
-  alchemyApiKeys?: {
-    Arbitrum: string;
-    Astar: string;
-    Mumbai: string;
-    Optimism: string;
-    Polygon: string;
-    Solana: string;
-    SolanaTestnet: string;
-  };
-  etherscanApiKeys?: {
-    Ethereum: string;
-    Polygon: string;
-    Avalanche: string;
-    Binance: string;
-    Moonbeam: string;
-    Optimism: string;
-    Arbitrum: string;
-    Gnosis: string;
-    Fuji: string;
-  };
+  alchemyApiKeys?: Map<EChain, string | null>;
+  etherscanApiKeys?: Map<EChain, string | null>;
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
