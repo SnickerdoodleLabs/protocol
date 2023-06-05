@@ -15,6 +15,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -26,6 +28,8 @@ export class ConsentTokenUtils {
     protected consentRepo: IConsentContractRepository,
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
   ) {}
 
   // This is nearly identical to ConsentContractRepo.getConsentToken, but does the lookup
@@ -40,7 +44,7 @@ export class ConsentTokenUtils {
     | ConsentError
     | PersistenceError
   > {
-    return this.accountRepo.getAcceptedInvitations().andThen((optIns) => {
+    return this.invitationRepo.getAcceptedInvitations().andThen((optIns) => {
       const currentOptIn = optIns.find((optIn) => {
         return optIn.consentContractAddress == consentContractAddress;
       });

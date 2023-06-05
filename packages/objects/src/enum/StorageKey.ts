@@ -8,7 +8,6 @@ export enum ERecordKey {
   NFTS_LAST_UPDATE = "SD_NFTs_lastUpdate",
   URLs = "SD_URLs",
   CLICKS = "SD_CLICKS",
-  LATEST_BLOCK = "SD_LatestBlock",
   EARNED_REWARDS = "SD_EarnedRewards",
   COIN_INFO = "SD_CoinInfo",
   RESTORED_BACKUPS = "SD_RestoredBackups",
@@ -19,6 +18,7 @@ export enum ERecordKey {
   SOCIAL_GROUP = "SD_SocialGroup",
   QUERY_STATUS = "SD_QueryStatus",
   DOMAIN_CREDENTIALS = "SD_DomainCredentials",
+  REJECTED_INVITATIONS = "SD_RejectedInvitations",
 }
 
 export enum EFieldKey {

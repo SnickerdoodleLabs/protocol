@@ -7,8 +7,6 @@ import {
   AccountInitializedNotification,
   ENotificationTypes,
   IInternalState,
-  IConfigProvider,
-  configProvider,
 } from "@snickerdoodlelabs/synamint-extension-sdk/shared";
 import React, { FC, useContext, useState, useEffect } from "react";
 
@@ -23,7 +21,6 @@ const { coreGateway, notificationEmitter } = new BackgroundConnector(
 ).getConnectors();
 
 interface IAppContext {
-  config: IConfigProvider;
   appState: IInternalState | null | undefined;
   closeCurrentTab: () => void;
   coreGateway: InternalCoreGateway;
@@ -74,7 +71,6 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
-        config: configProvider,
         closeCurrentTab:
           portName !== EPortNames.SD_POPUP
             ? ExtensionUtils.closeCurrenTab

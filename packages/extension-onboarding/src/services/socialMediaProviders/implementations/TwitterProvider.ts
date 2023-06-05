@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { TokenAndSecret, TwitterProfile } from "@snickerdoodlelabs/objects";
+import { TokenAndSecret, TwitterProfile, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -43,5 +43,9 @@ export class TwitterProvider implements ITwitterProvider {
     return window.sdlDataWallet.twitter.getUserProfiles().mapErr(() => {
       return new Error(`Could not get linked Twitter accounts.`);
     });
+  }
+
+  getTwitterApiAuthUrl(tokenAndSecret : TokenAndSecret) : URLString {
+    return URLString(`https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}&oauth_token_secret=${tokenAndSecret.secret}&oauth_callback_confirmed=true`)
   }
 }

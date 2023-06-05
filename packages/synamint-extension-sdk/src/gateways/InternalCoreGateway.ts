@@ -14,6 +14,7 @@ import {
   GetAccountBalancesParams,
   GetAccountNFTsParams,
   GetAccountsParams,
+  GetConfigParams,
   GetEmailParams,
   GetFamilyNameParams,
   GetGivenNameParams,
@@ -21,6 +22,7 @@ import {
   IInternalState,
   IsDataWalletAddressInitializedParams,
 } from "@synamint-extension-sdk/shared";
+import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class InternalCoreGateway {
   protected _handler: CoreHandler;
@@ -55,5 +57,8 @@ export class InternalCoreGateway {
   }
   public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {
     return this._handler.call(new GetEmailParams());
+  }
+  public getConfig(): ResultAsync<IExtensionConfig, JsonRpcError> {
+    return this._handler.call(new GetConfigParams());
   }
 }

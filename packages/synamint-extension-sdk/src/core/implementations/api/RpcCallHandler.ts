@@ -43,6 +43,8 @@ import {
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
   IDataPermissionsUtils,
@@ -125,7 +127,9 @@ import {
   TwitterLinkProfileParams,
   TwitterUnlinkProfileParams,
   TwitterGetLinkedProfilesParams,
+  GetConfigParams,
 } from "@synamint-extension-sdk/shared";
+
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -656,6 +660,12 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.twitterService.getUserProfiles();
       },
     ),
+    new CoreActionHandler<GetConfigParams>(
+      GetConfigParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.configProvider.getConfig());
+      },
+    ),
   ];
 
   constructor(
@@ -679,6 +689,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected discordService: IDiscordService,
     @inject(ITwitterServiceType)
     protected twitterService: ITwitterService,
+    @inject(IConfigProviderType)
+    protected configProvider: IConfigProvider,
   ) {}
 
   public async handleRpcCall(

@@ -80,6 +80,9 @@ export class DataPermissions {
   public get Discord(): boolean {
     return this.getFlag(EWalletDataType.Discord);
   }
+  public get Twitter(): boolean {
+    return this.getFlag(EWalletDataType.Twitter);
+  }
 
   public getFlag(flagNumber: number): boolean {
     // Convert the flags hex string to a Uint8Array

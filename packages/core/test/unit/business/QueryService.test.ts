@@ -26,7 +26,7 @@ import {
   EVMPrivateKey,
   IDynamicRewardParameter,
   IInsights,
-  EDynamicRewardParameterType,
+  ESolidityAbiParameterType,
   QueryStatus,
   EQueryProcessingStatus,
   BlockNumber,
@@ -96,11 +96,11 @@ const dataPermissions = DataPermissions.createWithAllPermissions();
 
 const rewardParameter = {
   recipientAddress: {
-    type: EDynamicRewardParameterType.Address,
+    type: ESolidityAbiParameterType.address,
     value: "Phoebe",
   },
   compensationId: {
-    type: EDynamicRewardParameterType.CompensationId,
+    type: ESolidityAbiParameterType.string,
     value: "c1",
   },
 } as IDynamicRewardParameter;

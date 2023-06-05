@@ -9,16 +9,36 @@ export interface IConfigOverrides {
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
+  alchemyApiKeys?: {
+    Arbitrum: string;
+    Astar: string;
+    Mumbai: string;
+    Optimism: string;
+    Polygon: string;
+    Solana: string;
+    SolanaTestnet: string;
+  };
+  etherscanApiKeys?: {
+    Ethereum: string;
+    Polygon: string;
+    Avalanche: string;
+    Binance: string;
+    Moonbeam: string;
+    Optimism: string;
+    Arbitrum: string;
+    Gnosis: string;
+    Fuji: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
   poapApiKey?: string;
   oklinkApiKey?: string;
+  ankrApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
   ceramicNodeURL?: URLString;
-  controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
@@ -26,4 +46,7 @@ export interface IConfigOverrides {
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
+  primaryInfuraKey: string;
+  secondaryInfuraKey: string;
+  devChainProviderURL?: ProviderUrl;
 }

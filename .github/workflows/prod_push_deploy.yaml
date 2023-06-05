@@ -60,6 +60,7 @@ jobs:
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           --build-arg IPFS_FETCH_BASE_URL="https://ipfs-gateway.snickerdoodle.com/ipfs/" \
           --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
+          --build-arg GA_TRACKING_ID="UA-219658390-3" \
           -f ./packages/extension-onboarding/Dockerfile \
           .
     # Push the Docker image to Google Artifact Registry

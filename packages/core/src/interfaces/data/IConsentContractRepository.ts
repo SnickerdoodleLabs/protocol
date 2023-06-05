@@ -145,6 +145,11 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+  encodeUpdateAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
 }
 
 export const IConsentContractRepositoryType = Symbol.for(

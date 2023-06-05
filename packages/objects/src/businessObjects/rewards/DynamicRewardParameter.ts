@@ -1,7 +1,7 @@
-import { EDynamicRewardParameterType } from "@objects/enum/index.js";
+import { ESolidityAbiParameterType } from "@objects/enum/index.js";
 
 export interface ITypeAndValue {
-  type: EDynamicRewardParameterType;
+  type: ESolidityAbiParameterType;
   value: string;
 }
 

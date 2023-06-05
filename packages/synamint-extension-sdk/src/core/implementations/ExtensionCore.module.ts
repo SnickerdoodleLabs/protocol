@@ -46,6 +46,7 @@ import {
   DataPermissionsUtils,
   ErrorUtils,
   ScamFilterSettingsUtils,
+  ConfigProvider,
 } from "@synamint-extension-sdk/core/implementations/utilities/index.js";
 import {
   IBrowserTabListener,
@@ -104,6 +105,8 @@ import {
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
   IDataPermissionsUtils,
@@ -113,11 +116,6 @@ import {
   IScamFilterSettingsUtils,
   IScamFilterSettingsUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/index.js";
-import { configProvider } from "@synamint-extension-sdk/shared/utils/index.js";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -197,7 +195,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
-    bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
+    bind<IConfigProvider>(IConfigProviderType)
+      .to(ConfigProvider)
+      .inSingletonScope();
     bind<IAccountCookieUtils>(IAccountCookieUtilsType)
       .to(AccountCookieUtils)
       .inSingletonScope();

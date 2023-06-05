@@ -139,6 +139,10 @@ const Sidebar = () => {
                   onClick={() => {
                     if (route.path) {
                       navigate(route.path);
+                    } else {
+                      if (route.subroutes) {
+                        navigate(route.subroutes[0].path);
+                      }
                     }
                     setLastClickedIndex(index);
                   }}

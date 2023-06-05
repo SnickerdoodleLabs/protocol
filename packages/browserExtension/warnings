@@ -1,3 +1,0 @@
-npm WARN deprecated @metamask/inpage-provider@8.1.0: Package renamed to @metamask/providers
-npm WARN deprecated webextension-polyfill-ts@0.22.0: This project has moved to @types/webextension-polyfill
-npm WARN deprecated webextension-polyfill-ts@0.25.0: This project has moved to @types/webextension-polyfill

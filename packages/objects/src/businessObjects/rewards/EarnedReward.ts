@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject";
 import { ERewardType } from "@objects/enum/ERewardType";
 import { IpfsCID } from "@objects/primitives";
 

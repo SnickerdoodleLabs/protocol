@@ -39,7 +39,7 @@ export const ZENDEKS_URL =
 export const SURVEY_URL = "https://ndhg1975huo.typeform.com/to/lEcLm7e2";
 
 export const PRODUCT_VIDEO_URL =
-  "https://drive.google.com/uc?export=download&id=1ohloSDHad0O8J2r-sqRIgS5xOtK8dedM";
+  "https://storage.googleapis.com/dw-assets/spa/videos/sd.mp4";
 
 export const FAQ_URL =
   "https://data-wallet.zendesk.com/hc/en-us/sections/10560934964109-FAQ";

@@ -1,5 +1,6 @@
-import { extensionCore } from "@snickerdoodlelabs/synamint-extension-sdk/core";
+import { configs } from "@browser-extension/background/configs";
+import { initializeSDKCore } from "@snickerdoodlelabs/synamint-extension-sdk/core";
 
-extensionCore.initialize().map(() => {
+initializeSDKCore(configs).map(() => {
   console.log("core initialized");
 });

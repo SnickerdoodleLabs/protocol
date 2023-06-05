@@ -6,17 +6,16 @@ import {
   AccountAddress,
   DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
+import {
+  IAccountCookieUtils,
+  IConfigProvider,
+  IConfigProviderType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import { UnlockParams } from "@synamint-extension-sdk/shared/interfaces/actions";
+import { ExtensionCookieError } from "@synamint-extension-sdk/shared/objects/errors";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
-
-import { IAccountCookieUtils } from "@synamint-extension-sdk/core/interfaces/utilities";
-import { UnlockParams } from "@synamint-extension-sdk/shared/interfaces/actions";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
-import { ExtensionCookieError } from "@synamint-extension-sdk/shared/objects/errors";
 
 // Browser  Maximum size per cookie
 // Chrome		4096 bytes

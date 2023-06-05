@@ -147,7 +147,7 @@ const RewardsInfo: FC = () => {
                   style={{ cursor: "pointer" }}
                 >
                   <Typography className={classes.btnText}>
-                    Rewards Marketlace
+                    Rewards Marketplace
                   </Typography>
                 </Box>
               </Box>

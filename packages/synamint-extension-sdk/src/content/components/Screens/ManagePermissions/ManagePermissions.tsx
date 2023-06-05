@@ -21,6 +21,7 @@ const PERMISSION_NAMES = {
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
   [EWalletDataType.Discord]: "Discord",
+  [EWalletDataType.Twitter]: "Twitter",
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
@@ -45,7 +46,7 @@ const PERMISSIONS = [
   },
   {
     title: "Social Data",
-    dataTypes: [EWalletDataType.Discord],
+    dataTypes: [EWalletDataType.Discord , EWalletDataType.Twitter],
   },
 ];
 

@@ -1,9 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
-import Switch from "@extension-onboarding/components/Switch";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
 import {
   AccountAddress,
@@ -13,6 +7,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
+
+import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
+import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
+import Switch from "@extension-onboarding/components/Switch";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 export enum EDisplayMode {
   MAINNET,

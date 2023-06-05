@@ -22,5 +22,5 @@ for d in data:
             response[d['platforms'][p]]=temp
 
 print("writing to file...")
-with open('data.json', 'w') as f:
+with open('packages/core/src/implementations/data/coinList.json', 'w') as f:
     json.dump(response, f)

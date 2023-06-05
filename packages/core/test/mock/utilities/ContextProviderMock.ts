@@ -1,5 +1,9 @@
 import {
+  ComponentStatus,
+  DataPermissionsUpdatedEvent,
   DataWalletAddress,
+  EChain,
+  EComponentStatus,
   IpfsCID,
   LinkedAccount,
   SDQLQueryRequest,
@@ -8,7 +12,10 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
-import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
+import {
+  dataWalletAddress,
+  dataWalletKey,
+} from "@core-tests/mock/mocks/commonValues.js";
 
 export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
@@ -20,6 +27,8 @@ export class ContextProviderMock implements IContextProvider {
   public onQueryParametersRequiredActivations: IpfsCID[] = [];
   public onAccountAddedActivations: LinkedAccount[] = [];
   public onAccountRemovedActivations: LinkedAccount[] = [];
+  public onDataPermissionsUpdatedActivations: DataPermissionsUpdatedEvent[] =
+    [];
   public heartbeatActivations: void[] = [];
 
   constructor(context: CoreContext | null = null) {
@@ -32,6 +41,16 @@ export class ContextProviderMock implements IContextProvider {
         false,
         new PublicEvents(),
         false,
+        new ComponentStatus(
+          EComponentStatus.TemporarilyDisabled,
+          EComponentStatus.TemporarilyDisabled,
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          [],
+        ),
       );
     }
 
@@ -57,6 +76,10 @@ export class ContextProviderMock implements IContextProvider {
       this.onAccountRemovedActivations.push(val);
     });
 
+    this.publicEvents.onDataPermissionsUpdated.subscribe((val) => {
+      this.onDataPermissionsUpdatedActivations.push(val);
+    });
+
     this.context.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
@@ -79,6 +102,7 @@ export class ContextProviderMock implements IContextProvider {
       onQueryParametersRequired: 0,
       onAccountAdded: 0,
       onAccountRemoved: 0,
+      onDataPermissionsUpdated: 0,
       heartbeat: 0,
     };
 
@@ -94,6 +118,9 @@ export class ContextProviderMock implements IContextProvider {
     expect(this.onAccountRemovedActivations.length).toBe(
       counts.onAccountRemoved,
     );
+    expect(this.onDataPermissionsUpdatedActivations.length).toBe(
+      counts.onDataPermissionsUpdated,
+    );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
   }
 }
@@ -104,5 +131,6 @@ export interface IExpectedEventCounts {
   onQueryParametersRequired?: number;
   onAccountAdded?: number;
   onAccountRemoved?: number;
+  onDataPermissionsUpdated?: number;
   heartbeat?: number;
 }

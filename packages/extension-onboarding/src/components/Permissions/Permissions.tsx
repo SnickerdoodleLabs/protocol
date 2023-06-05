@@ -2,6 +2,7 @@ import browserHistoryIcon from "@extension-onboarding/assets/icons/browser-histo
 import countryIcon from "@extension-onboarding/assets/icons/country.png";
 import dappsIcon from "@extension-onboarding/assets/icons/dapps.png";
 import discordIcon from "@extension-onboarding/assets/icons/discord.png";
+import twitterIcon from "@extension-onboarding/assets/icons/twitter.svg";
 import dobIcon from "@extension-onboarding/assets/icons/dob.png";
 import nftsIcon from "@extension-onboarding/assets/icons/nft.png";
 import tickIcon from "@extension-onboarding/assets/icons/tick-primary.png";
@@ -62,6 +63,11 @@ const PERMISSIONS: Partial<
     icon: discordIcon,
     dataType: EWalletDataType.Discord,
   },
+  [EWalletDataType.Twitter]: {
+    name: PERMISSION_NAMES[EWalletDataType.Twitter],
+    icon: twitterIcon,
+    dataType: EWalletDataType.Twitter,
+  }
 };
 
 interface IPermissionsProps {
