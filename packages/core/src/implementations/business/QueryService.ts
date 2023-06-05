@@ -22,9 +22,7 @@ import {
   EQueryProcessingStatus,
   EVMContractAddress,
   EVMPrivateKey,
-  EligibleReward,
   EvaluationError,
-  ExpectedReward,
   IDynamicRewardParameter,
   IPFSError,
   IpfsCID,
@@ -495,9 +493,7 @@ export class QueryService implements IQueryService {
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
     // TODO get all the possible rewards and send them to next
     return this.getPossibleInisightAndAdKeys(
-      query,
-      consentToken.dataPermissions,
-      consentContractAddress,
+      query
     ).map((_possibleInsightsAndAds) => {
       this.getPossibleRewardsFromIPBySDQLQuery(query).map((possibleRewards) => {
         this.publishSDQLQueryRequest(
@@ -624,18 +620,28 @@ export class QueryService implements IQueryService {
   }
 
   protected getPossibleInisightAndAdKeys(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery
   ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
-    return okAsync([InsightKey("i1")]); // TODO: upgrade
-    /***
-     * This method should assume that the user has given all the permissions. So, possible insights, ads, and 
-     * rewards tries to let people know that maximal set of rewards they can get if they give us all their data.
-     * Assume full permissions
-     * Run the target for each insight and ad
-     * Then get the results.
-     */
+    const possibleInisightAndAdKeys :(InsightKey | AdKey)[]= [];
+    return this.queryParsingEngine.handleQuery(query ,  DataPermissions.createWithAllPermissions()).map( ({ ads  , insights}) => {
+      if(ads){
+        Object.entries(ads).forEach( (  [adKey , adValue]) => {
+          if(adValue !== null){
+            possibleInisightAndAdKeys.push(AdKey(adKey))
+          }
+        },[])
+
+        if(insights){
+          Object.entries(insights).forEach( (   [insightKey , insightValue]) => {            
+            if(insightValue !== null){
+              possibleInisightAndAdKeys.push(InsightKey(insightKey))
+            }
+          })
+        }
+      }
+    
+      return possibleInisightAndAdKeys;
+    })
   }
 
   public createQueryStatusWithNoConsent(

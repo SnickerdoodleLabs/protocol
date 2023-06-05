@@ -93,13 +93,13 @@ export const avalanche1SchemaStr = SDQLString(
     insights: {
       i1: {
         name: "user age range",
-        target: "$q1>30",
+        target: "$q2>10",
         returns: "'qualified'",
       },
       i2: {
         name: "q2",
         target: "$q2",
-        returns: "'not qualified'",
+        returns: "'yum'",//TODO add not qualified
       },
       i3: {
         name: "query_response",

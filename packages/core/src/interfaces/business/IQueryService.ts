@@ -1,4 +1,5 @@
 import {
+  AdKey,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -7,6 +8,7 @@ import {
   EvaluationError,
   EVMContractAddress,
   IDynamicRewardParameter,
+  InsightKey,
   IPFSError,
   ParserError,
   PersistenceError,
@@ -66,8 +68,7 @@ export interface IQueryService {
 
   getPossibleRewardsFromIPBySDQLQuery(
     query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError> 
- 
+  ): ResultAsync<PossibleReward[], ParserError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

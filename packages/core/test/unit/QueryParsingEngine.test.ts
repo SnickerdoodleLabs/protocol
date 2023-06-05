@@ -266,12 +266,12 @@ describe("Handle Query", () => {
         expect(insights).toEqual({
           insights: {
             i1: null,
-            i2: { insight: 'tasty', proof: '' },
-            i3: { insight: '1', proof: '' },
-            i4: { insight: 'female', proof: '' },
-            i5: { insight: '{}', proof: '' }
+            i2: { insight: "tasty", proof: "" },
+            i3: { insight: "1", proof: "" },
+            i4: { insight: "female", proof: "" },
+            i5: { insight: "{}", proof: "" },
           },
-          ads: {}
+          ads: {},
         });
         return okAsync(insights);
       })
@@ -340,7 +340,7 @@ describe("Tests with data permissions", () => {
     await engine
       .handleQuery(sdqlQuery2, givenPermissions)
       .andThen((deliveredInsights) => {
-        console.log("walach : ",deliveredInsights)
+        console.log("walach : ", deliveredInsights);
         expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
       })
@@ -398,16 +398,16 @@ describe("Testing avalanche 4", () => {
     const expectedInsights = {
       insights: {
         i1: null,
-        i2: { insight: 'tasty', proof: '' },
-        i3: { insight: '1', proof: '' },
-        i4: { insight: 'female', proof: '' },
-        i5: { insight: '{}', proof: '' },
-        i6: { insight: '[]', proof: '' },
-        i7: { insight: '[]', proof: '' },
-        i8: { insight: '[]', proof: '' }
+        i2: { insight: "tasty", proof: "" },
+        i3: { insight: "1", proof: "" },
+        i4: { insight: "female", proof: "" },
+        i5: { insight: "{}", proof: "" },
+        i6: { insight: "[]", proof: "" },
+        i7: { insight: "[]", proof: "" },
+        i8: { insight: "[]", proof: "" },
       },
-      ads: {}
-    }
+      ads: {},
+    };
 
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))

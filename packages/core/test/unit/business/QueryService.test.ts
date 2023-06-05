@@ -504,8 +504,8 @@ describe("QueryService.returnQueries() tests", () => {
   });
 });
 
-describe("processRewardsPreview tests", () => {
-  test("processRewardsPreview: full run through", async () => {
+describe("getPossibleInisightAndAdKeys tests", () => {
+  test("get possbile insights and ad keys", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
@@ -559,7 +559,7 @@ describe("processRewardsPreview tests", () => {
   });
 });
 
-describe("generate possible rewards tests", () => {
+describe.only("generate possible rewards tests", () => {
   test("generate possbile rewards", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context

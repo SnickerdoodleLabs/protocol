@@ -108,6 +108,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               }
               return okAsync(result);
             case "integer":
+            case "number":
               result = SDQL_Return(age);
               return okAsync(result);
             default:

@@ -25,6 +25,7 @@ import {
   IQueryDeliveryInsights,
   ProofString,
   SDQL_Name,
+  InsightKey,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
