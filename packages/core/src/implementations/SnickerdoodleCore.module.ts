@@ -138,6 +138,7 @@ import {
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  MetricsRepository,
   OauthUtils,
   PermissionRepository,
   PortfolioBalanceRepository,
@@ -255,6 +256,8 @@ import {
   ITransactionHistoryRepositoryType,
   ITwitterRepository,
   ITwitterRepositoryType,
+  IMetricsRepository,
+  IMetricsRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -365,6 +368,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+    bind<IMetricsRepository>(IMetricsRepositoryType)
+      .to(MetricsRepository)
       .inSingletonScope();
 
     // Data Persistence and Indexing
