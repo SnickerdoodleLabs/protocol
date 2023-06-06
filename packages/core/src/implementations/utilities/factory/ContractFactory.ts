@@ -130,14 +130,14 @@ export class ContractFactory implements IContractFactory {
     ]).map(([config, primaryProvider, secondaryProvider]) => {
       const primary = new CrumbsContract(
         primaryProvider,
-        config.controlChainInformation.consentFactoryContractAddress,
+        config.controlChainInformation.crumbsContractAddress,
       );
 
       const secondary =
         secondaryProvider != null
           ? new CrumbsContract(
               secondaryProvider,
-              config.controlChainInformation.consentFactoryContractAddress,
+              config.controlChainInformation.crumbsContractAddress,
             )
           : null;
 
