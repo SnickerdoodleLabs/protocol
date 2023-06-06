@@ -218,12 +218,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
-    /* Moving code around, I realized that we really dont need to separate these functions into different files */
-    this.iocContainer
-      .bind(IMasterIndexerType)
-      .to(MasterIndexer)
-      .inSingletonScope();
-
     // Invitation Methods ----------------------------------------------------------------------------
     this.invitation = {
       checkInvitationStatus: (
@@ -616,14 +610,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IHeartbeatGeneratorType,
     );
 
-    // call Master Indexer and call initialize - healthier place to display errors
-    // do a .orElse() for the health check
-
     const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
-    indexers.initialize();
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
-    return ResultUtils.combine([blockchainProvider.initialize()])
+    return ResultUtils.combine([
+      blockchainProvider.initialize(),
+      indexers.initialize(),
+    ])
       .andThen(() => {
         return accountService.unlock(
           accountAddress,

@@ -28,6 +28,7 @@ import {
   EExternalApi,
   EComponentStatus,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -38,8 +39,8 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerContext } from "@indexers/interfaces/IIndexerContext.js";
 import {
+  IIndexerContext,
   IIndexerContextProvider,
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
@@ -102,7 +103,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   }
 
   public name(): string {
-    return "alchemy";
+    return EDataProvider.Alchemy;
   }
 
   public getBalancesForAccount(
@@ -271,7 +272,6 @@ export class AlchemyIndexer implements IEVMIndexer {
         this.nativeBalanceParams(chain, accountAddress);
 
       this.reportApiUsage(chain, context);
-      console.log("failing balance: ");
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {
@@ -448,9 +448,4 @@ export interface CoinGeckoTokenInfo {
   symbol: string;
   name: string;
   protocols: string[];
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

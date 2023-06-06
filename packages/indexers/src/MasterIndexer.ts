@@ -18,7 +18,7 @@ import {
   EChainType,
   EComponentStatus,
   EIndexer,
-  EProvider,
+  EDataProvider,
   EVMAccountAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
@@ -68,18 +68,17 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.EthereumMainnet, [this.ankr, this.etherscan]],
     [EChain.Polygon, [this.ankr, this.alchemy]],
     [EChain.Optimism, [this.ankr, this.alchemy, this.nftscan]],
-
+    [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
+    [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
+    [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
 
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
-    [EChain.Arbitrum, [this.alchemy, this.nftscan]],
 
     /* Etherscan Native Balance Preferred */
     [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
-    [EChain.Binance, [this.etherscanNative, this.nftscan]],
     [EChain.Gnosis, [this.etherscanNative, this.poapRepo]],
-    [EChain.Avalanche, [this.etherscanNative, this.nftscan]],
     [EChain.Fuji, [this.etherscanNative, this.nftscan]],
   ]);
 
@@ -117,8 +116,8 @@ export class MasterIndexer implements IMasterIndexer {
 
   // call this from elsewhere
   public initialize(): ResultAsync<void, AjaxError> {
-    return this.getHealthStatuses().andThen((healthStatuses) => {
-      return okAsync(undefined);
+    return this.getHealthStatuses().map((healthStatuses) => {
+      return undefined;
     });
   }
 
@@ -155,7 +154,6 @@ export class MasterIndexer implements IMasterIndexer {
         simHealth,
         solHealth,
       ]) => {
-        // console.log("context.components: ", JSON.stringify(context.components));
         const indexerStatuses = context.components;
         indexerStatuses.alchemyIndexer = alchemyHealth;
         indexerStatuses.etherscanIndexer = etherscanHealth;
@@ -163,10 +161,6 @@ export class MasterIndexer implements IMasterIndexer {
         indexerStatuses.nftScanIndexer = nftscanHealth;
         indexerStatuses.oklinkIndexer = oklinkHealth;
         context.components = indexerStatuses;
-        // console.log("indexerStatuses 1: ", JSON.stringify(context.components));
-        // console.log("indexerStatuses 2: ", context.components);
-        // console.log("indexerStatuses 3: ", JSON.stringify(indexerStatuses));
-        // console.log("indexerStatuses 4: ", indexerStatuses);
       },
     );
   }
@@ -180,25 +174,31 @@ export class MasterIndexer implements IMasterIndexer {
   > {
     const chain = getChainInfoByChainId(chainId).chain;
     if (chain == EChain.Solana) {
-      return this.sol.getBalancesForAccount(
-        chainId,
-        SolanaAccountAddress(accountAddress),
-      );
+      return this.sol
+        .getBalancesForAccount(chainId, SolanaAccountAddress(accountAddress))
+        .orElse((e) => {
+          this.logUtils.log(
+            "Error fetching balances from solana indexer",
+            chainId,
+            accountAddress,
+            e,
+          );
+          return okAsync([]);
+        })
+        .map((tokenBalances) => {
+          return tokenBalances.map((tokenBalance) => {
+            try {
+              BigNumber.from(tokenBalance.balance);
+            } catch (e) {
+              // Can't convert to bignumber, set it to 0
+              tokenBalance.balance = BigNumberString("0");
+            }
+            return tokenBalance;
+          });
+        });
     }
 
     const providers = this.preferredIndexers.get(chain)!;
-    // console.log(
-    //   "getLatestBalances 1: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has providers: " +
-    //     providers,
-    // );
-    // console.log(
-    //   "getLatestBalances 2: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has providers: " +
-    //     JSON.stringify(providers),
-    // );
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.balances &&
@@ -212,18 +212,8 @@ export class MasterIndexer implements IMasterIndexer {
           getChainInfoByChainId(chainId).name +
           " protocol",
       );
-      // console.log(
-      //   "Chain " + getChainInfoByChainId(chainId).name + " has NO provider: ",
-      // );
       return okAsync([]);
     }
-
-    // console.log(
-    //   "getLatestBalances: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has provider: " +
-    //     provider.name(),
-    // );
 
     return provider
       .getBalancesForAccount(chainId, EVMAccountAddress(accountAddress))
@@ -237,13 +227,6 @@ export class MasterIndexer implements IMasterIndexer {
         return okAsync([]);
       })
       .map((tokenBalances) => {
-        // console.log(
-        //   "getLatestBalances: Chain " +
-        //     getChainInfoByChainId(chainId).name +
-        //     " has tokenBalances: " +
-        //     tokenBalances,
-        // );
-
         // Apprently the tokenBalance.balance can return as in invalid
         // BigNumber (blank or null), so we'll just correct any possible issue
         // here.
@@ -274,7 +257,6 @@ export class MasterIndexer implements IMasterIndexer {
       );
     }
 
-    // can make this another generic function
     const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
       (element) =>
@@ -292,22 +274,9 @@ export class MasterIndexer implements IMasterIndexer {
       return okAsync([]);
     }
 
-    console.log(
-      "getLatestNFTs: Chain " +
-        getChainInfoByChainId(chainId).name +
-        " has provider: " +
-        provider.name(),
-    );
-
     return provider
       .getTokensForAccount(chainId, EVMAccountAddress(accountAddress))
       .map((tokens) => {
-        console.log(
-          "getTokensForAccount: Chain " +
-            getChainInfoByChainId(chainId).name +
-            " returns tokens: " +
-            JSON.stringify(tokens),
-        );
         return tokens;
       })
       .orElse((e) => {
@@ -318,17 +287,21 @@ export class MasterIndexer implements IMasterIndexer {
           e,
         );
         return okAsync([]);
+      })
+      .map((nfts) => {
+        // Apprently the nft.amount can return as in invalid
+        // BigNumber (blank or null), so we'll just correct any possible issue
+        // here.
+        return nfts.map((nft) => {
+          try {
+            BigNumber.from(nft.amount);
+          } catch (e) {
+            // Can't convert to bignumber, set it to 0
+            nft.amount = BigNumberString("0");
+          }
+          return nft;
+        });
       });
-
-    // .orElse((e) => {
-    //   console.log(
-    //     "getTokensForAccount: Chain " +
-    //       getChainInfoByChainId(chainId).name +
-    //       " returns error: ",
-    //   );
-    //   // this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
-    //   return okAsync([]);
-    // });
   }
 
   public getLatestTransactions(
@@ -363,13 +336,6 @@ export class MasterIndexer implements IMasterIndexer {
       );
       return okAsync([]);
     }
-
-    // console.log(
-    //   "getLatestTransactions: Chain " +
-    //     getChainInfoByChainId(chainId).name +
-    //     " has provider: " +
-    //     provider.name(),
-    // );
 
     return provider
       .getEVMTransactions(

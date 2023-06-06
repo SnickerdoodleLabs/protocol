@@ -27,6 +27,9 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 14,
     fontWeight: 500,
     color: "#929292",
+    "& .MuiSvgIcon-root": {
+      color: "#8079B4",
+    },
   },
   errorMessage: {
     margin: 0,

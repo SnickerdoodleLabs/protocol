@@ -31,6 +31,7 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   getChainInfoByChain,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -77,17 +78,21 @@ export class SolanaIndexer implements ISolanaIndexer {
   ) {}
 
   public name(): string {
-    return "solana";
+    return EDataProvider.Solana;
   }
 
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    // return okAsync([]);
     return ResultUtils.combine([
       this.getNonNativeBalance(chainId, accountAddress),
       this.getNativeBalance(chainId, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+      if (nonNativeBalance.length == 0) {
+        return [nativeBalance];
+      }
       return [nativeBalance, ...nonNativeBalance];
     });
   }
@@ -96,6 +101,7 @@ export class SolanaIndexer implements ISolanaIndexer {
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
+    // return okAsync([]);
     return this._getConnectionForChainId(chainId)
       .andThen(([conn, metaplex]) => {
         return ResultAsync.fromPromise(
@@ -158,7 +164,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          if (config.apiKeys.alchemyApiKeys[key] == "") {
+          if (
+            config.apiKeys.alchemyApiKeys["Solana"] == "" ||
+            config.apiKeys.alchemyApiKeys["Solana"] == undefined
+          ) {
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
             this.health.set(key, EComponentStatus.Available);
@@ -260,13 +269,17 @@ export class SolanaIndexer implements ISolanaIndexer {
       return this._connections;
     }
     this._connections = this.configProvider.getConfig().andThen((config) => {
+      const mainnet = URLString(
+        "https://solana-mainnet.g.alchemy.com/v2/" +
+          config.apiKeys.alchemyApiKeys["Solana"],
+      );
+      const testnet = URLString(
+        "https://solana-devnet.g.alchemy.com/v2/" +
+          config.apiKeys.alchemyApiKeys["SolanaTestnet"],
+      );
       return ResultUtils.combine([
-        this._getConnectionForEndpoint(
-          config.alchemyEndpoints.get(EChain.Solana)!,
-        ),
-        this._getConnectionForEndpoint(
-          config.alchemyEndpoints.get(EChain.SolanaTestnet)!,
-        ),
+        this._getConnectionForEndpoint(mainnet),
+        this._getConnectionForEndpoint(testnet),
       ]).map(([mainnet, testnet]) => {
         return {
           mainnet,
@@ -279,6 +292,9 @@ export class SolanaIndexer implements ISolanaIndexer {
   private _getConnectionForEndpoint(
     endpoint: string,
   ): ResultAsync<[Connection, Metaplex], never> {
+    // if (endpoint == "" || endpoint == undefined) {
+    //   return
+    // }
     const connection = new Connection(endpoint);
     const metaplex = new Metaplex(connection);
     return okAsync([connection, metaplex]);
@@ -362,8 +378,3 @@ type IAlchemyBalanceResponse = {
     };
   };
 };
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
-}

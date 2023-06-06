@@ -116,7 +116,7 @@ const _buildTwitterConfig = (): Partial<TwitterConfig> => {
         );
 
   const twitterConfig = {
-    callbackUrl: URLString(oauthRedirectUrl),
+    oAuthCallbackUrl: URLString(oauthRedirectUrl),
   } as Partial<TwitterConfig>;
 
   if (

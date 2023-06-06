@@ -28,6 +28,7 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   EExternalApi,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -67,7 +68,7 @@ export class EtherscanIndexer implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "etherscan";
+    return EDataProvider.Etherscan;
   }
 
   public getBalancesForAccount(
@@ -137,26 +138,17 @@ export class EtherscanIndexer implements IEVMIndexer {
     Map<EChain, EComponentStatus>,
     AjaxError
   > {
-    // console.log("Etherscan Indexer Health: ", this.health);
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          // console.log(
-          //   "Etherscan Indexer Health config.apiKeys.etherscanApiKeys: ",
-          //   config.apiKeys.etherscanApiKeys,
-          // );
-          // console.log("config.apiKeys.etherscanApiKeys key: ", key);
-
           if (
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
               "" ||
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
               undefined
           ) {
-            // console.log("key: " + key + " is set to NoKeyProvided");
             this.health.set(key, EComponentStatus.NoKeyProvided);
           } else {
-            // console.log("key: " + key + " is set to Available");
             this.health.set(key, EComponentStatus.Available);
           }
         },
@@ -194,7 +186,6 @@ export class EtherscanIndexer implements IEVMIndexer {
         return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
       })
       .map((response) => {
-        console.log("Ankr Native Balance: " + response);
         const nativeBalance = new TokenBalance(
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
@@ -492,9 +483,4 @@ interface IEtherscanBlockNumberResponse {
   status: string;
   message: string;
   result: BigNumberString;
-}
-
-interface IHealthCheck {
-  status?: string;
-  message?: string;
 }

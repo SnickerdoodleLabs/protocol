@@ -24,6 +24,7 @@ import {
   getChainInfoByChain,
   EComponentStatus,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -64,15 +65,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, false, false)],
   ]);
 
-  // protected baseUrlMap = new Map<EChain, URLString>([
-  //   [EChain.EthereumMainnet, URLString("")],
-  //   [EChain.Moonbeam, URLString("")],
-  //   [EChain.Binance, URLString("")],
-  //   [EChain.Gnosis, URLString("")],
-  //   [EChain.Avalanche, URLString("")],
-  //   [EChain.Fuji, URLString("")],
-  // ]);
-
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -83,7 +75,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "etherscan native";
+    return EDataProvider.Etherscan;
   }
 
   public getBalancesForAccount(
@@ -95,16 +87,13 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
       this._getBlockExplorerUrl(chain),
     ]).andThen(([apiKey, explorerUrl]) => {
       const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-      // console.log("Poap Repository balanceResponse: " + url);
 
       return this.ajaxUtils
-        .get<IGnosisscanBalanceResponse>(
+        .get<IEtherscanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(url!),
         )
         .map((balanceResponse) => {
-          // console.log("Poap Repository balanceResponse: " + balanceResponse);
-
           const tokenBalances: TokenBalance[] = [];
           const chainInfo = getChainInfoByChain(chain);
           tokenBalances.push(
@@ -163,12 +152,6 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
-          // console.log(
-          //   "Etherscan Indexer Health config.apiKeys.etherscanApiKeys: ",
-          //   config.apiKeys.etherscanApiKeys,
-          // );
-          // console.log("config.apiKeys.etherscanApiKeys key: ", key);
-
           if (
             config.apiKeys.etherscanApiKeys[getChainInfoByChain(key).name] ==
               "" ||
@@ -228,7 +211,7 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   }
 }
 
-interface IGnosisscanBalanceResponse {
+interface IEtherscanBalanceResponse {
   status: string;
   message: string;
   result: BigNumberString;

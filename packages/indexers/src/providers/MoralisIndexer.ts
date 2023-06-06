@@ -24,6 +24,7 @@ import {
   EComponentStatus,
   EChain,
   IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -68,7 +69,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   ) {}
 
   public name(): string {
-    return "moralis";
+    return EDataProvider.Moralis;
   }
 
   public getBalancesForAccount(
