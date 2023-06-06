@@ -1,6 +1,5 @@
 export * from "@objects/businessObjects/AdContent.js";
 export * from "@objects/businessObjects/AESEncryptedString.js";
-export * from "@objects/businessObjects/ApiStats.js";
 export * from "@objects/businessObjects/ChainInformation.js";
 export * from "@objects/businessObjects/ClickFilter.js";
 export * from "@objects/businessObjects/ComponentStatus.js";
@@ -37,6 +36,7 @@ export * from "@objects/businessObjects/SDQLQuery.js";
 export * from "@objects/businessObjects/SDQLQueryRequest.js";
 export * from "@objects/businessObjects/SerializedObject.js";
 export * from "@objects/businessObjects/SolanaNFT.js";
+export * from "@objects/businessObjects/StatSummary.js";
 export * from "@objects/businessObjects/TokenAddress.js";
 export * from "@objects/businessObjects/TokenAndSecret.js";
 export * from "@objects/businessObjects/TokenBalance.js";

@@ -18,7 +18,6 @@ import {
   EComponentStatus,
   EncryptedString,
   EVMAccountAddress,
-  EVMContractAddress,
   EVMPrivateKey,
   ExternallyOwnedAccount,
   HexString,

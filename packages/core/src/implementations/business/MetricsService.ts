@@ -1,5 +1,5 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { RuntimeMetrics } from "@snickerdoodlelabs/objects";
+import { EExternalApi, RuntimeMetrics } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -8,13 +8,13 @@ import { IMetricsService } from "@core/interfaces/business/index.js";
 import {
   IMetricsRepository,
   IMetricsRepositoryType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MetricsService implements IMetricsService {
@@ -32,23 +32,42 @@ export class MetricsService implements IMetricsService {
     ]).map(([context, config]) => {
       context.privateEvents.onApiAccessed.subscribe((apiName) => {
         this.metricsRepo.recordApiCall(apiName);
-
-        // Now, we can look for some patterns. For instance, if the API is spiking,
-        // we can notify the system and potentially disable things
       });
+
+      context.publicEvents.onBackupRestored.subscribe(() => {
+        this.metricsRepo.recordRestoredBackup();
+      });
+
+      context.publicEvents.onQueryPosted.subscribe(() => {
+        this.metricsRepo.recordQueryPosted();
+      });
+
+      // Now, we can look for some patterns. For instance, if the API is spiking,
+      // we can notify the system and potentially disable things
     });
   }
 
   public getMetrics(): ResultAsync<RuntimeMetrics, never> {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.metricsRepo.getApiStats(),
-    ]).map(([context, apiStats]) => {
+      this.metricsRepo.getApiStatSummaries(),
+      this.metricsRepo.getQueriesPostedSummary(),
+      this.metricsRepo.getRestoredBackupSummary(),
+    ]).map(([context, apiStats, queriesPosted, backupsRestored]) => {
+      console.log("CHARLIE getMetrics", apiStats, queriesPosted, backupsRestored);
       const now = this.timeUtils.getUnixNow();
       const uptime = now - context.startTime;
-      const statsMap = new Map(apiStats.map((stats) => [stats.api, stats]));
+      const statsMap = new Map(
+        apiStats.map((stats) => [stats.stat as EExternalApi, stats]),
+      );
 
-      return new RuntimeMetrics(uptime, context.startTime, statsMap);
+      return new RuntimeMetrics(
+        uptime,
+        context.startTime,
+        statsMap,
+        queriesPosted,
+        backupsRestored,
+      );
     });
   }
 }

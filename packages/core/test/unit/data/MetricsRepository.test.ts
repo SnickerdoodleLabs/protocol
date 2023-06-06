@@ -26,13 +26,13 @@ describe("MetricsRepository tests", () => {
     expect(result.isOk()).toBeTruthy();
   });
 
-  test("getApiStats no recorded stats", async () => {
+  test("getApiStatSummaries no recorded stats", async () => {
     // Arrange
     const mocks = new MetricsRepositoryMocks();
     const repo = mocks.factory();
 
     // Act
-    const result = await repo.getApiStats();
+    const result = await repo.getApiStatSummaries();
 
     // Assert
     expect(result).toBeDefined();
@@ -42,7 +42,7 @@ describe("MetricsRepository tests", () => {
     expect(stats.length).toBe(0);
   });
 
-  test("getApiStats one stat recorded", async () => {
+  test("getApiStatSummaries one stat recorded", async () => {
     // Arrange
     const mocks = new MetricsRepositoryMocks();
     const repo = mocks.factory();
@@ -51,7 +51,7 @@ describe("MetricsRepository tests", () => {
     const result = await repo
       .recordApiCall(EExternalApi.PrimaryControl)
       .andThen(() => {
-        return repo.getApiStats();
+        return repo.getApiStatSummaries();
       });
 
     // Assert
@@ -61,7 +61,7 @@ describe("MetricsRepository tests", () => {
     const stats = result._unsafeUnwrap();
     expect(stats.length).toBe(1);
     const stat = stats[0];
-    expect(stat.api).toBe(EExternalApi.PrimaryControl);
+    expect(stat.stat).toBe(EExternalApi.PrimaryControl);
     expect(stat.count).toBe(1);
     expect(stat.currentRate).toBeGreaterThan(0);
     expect(stat.mean).toBeGreaterThan(0);

@@ -3,7 +3,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-import { testCoreConfig } from "@core-tests/mock/mocks/commonValues";
+import { testCoreConfig } from "@core-tests/mock/mocks/commonValues.js";
 
 export class ConfigProviderMock implements IConfigProvider {
   public config: CoreConfig;

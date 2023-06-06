@@ -16,7 +16,7 @@ import {
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-import { SocialDataMock } from "@core-tests/mock/mocks";
+import { SocialDataMock } from "@core-tests/mock/mocks/index.js";
 import { ConfigProviderMock } from "@core-tests/mock/utilities/index.js";
 
 class SocialRepositoryMock {

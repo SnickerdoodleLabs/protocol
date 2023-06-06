@@ -1,8 +1,6 @@
-import { EExternalApi } from "@objects/enum/index.js";
-
-export class ApiStats {
+export class StatSummary {
   public constructor(
-    public api: EExternalApi,
+    public stat: string,
     /**
      * The average rate since the meter was started.
      */

@@ -23,9 +23,8 @@ import {
   IPersistenceConfigProviderType,
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -215,10 +214,10 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             );
             return result;
           });
-          // .orElse(() => {
-          //   console.log("Issue displaying nfts from " + chainId);
+        // .orElse(() => {
+        //   console.log("Issue displaying nfts from " + chainId);
 
-          // });
+        // });
         return cache
           .set(chainId, accountAddress, new Date().getTime(), fetch)
           .andThen(() => fetch);

@@ -116,6 +116,7 @@ import {
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
+  QueryFactories,
   QueryRepository,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
@@ -143,10 +144,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
 } from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
+import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
@@ -202,6 +200,8 @@ import {
   IPermissionUtilsType,
   IQueryEvaluator,
   IQueryEvaluatorType,
+  IQueryFactories,
+  IQueryFactoriesType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
@@ -256,8 +256,6 @@ import {
 import {
   IContractFactory,
   IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,

@@ -4,11 +4,11 @@ import { DiscordProfile, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { DiscordService } from "@core/implementations/business/DiscordService";
-import { IDiscordService } from "@core/interfaces/business";
+import { DiscordService } from "@core/implementations/business/index.js";
+import { IDiscordService } from "@core/interfaces/business/index.js";
 import { IDiscordRepository } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-import { discordProfiles } from "@core-tests/mock/mocks/SocialDataMock";
+import { discordProfiles } from "@core-tests/mock/mocks/SocialDataMock.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,

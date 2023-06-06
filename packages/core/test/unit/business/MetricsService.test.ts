@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  ApiStats,
+  StatSummary,
   EExternalApi,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -18,7 +18,7 @@ import {
 } from "@core-tests/mock/utilities/index.js";
 
 const now = UnixTimestamp(1);
-const primaryStats = new ApiStats(
+const primaryStats = new StatSummary(
   EExternalApi.PrimaryControl,
   1,
   1,
@@ -27,6 +27,8 @@ const primaryStats = new ApiStats(
   1,
   1,
 );
+const backupStats = new StatSummary("Backups Restored", 1, 1, 1, 1, 1, 1);
+const queryStats = new StatSummary("Queries Posted", 1, 1, 1, 1, 1, 1);
 
 class MetricsServiceMocks {
   public metricsRepo: IMetricsRepository;
@@ -46,7 +48,17 @@ class MetricsServiceMocks {
       this.metricsRepo.recordApiCall(EExternalApi.PrimaryControl),
     ).thenReturn(okAsync(undefined));
 
-    td.when(this.metricsRepo.getApiStats()).thenReturn(okAsync([primaryStats]));
+    td.when(this.metricsRepo.getApiStatSummaries()).thenReturn(
+      okAsync([primaryStats]),
+    );
+
+    td.when(this.metricsRepo.getQueriesPostedSummary()).thenReturn(
+      okAsync(queryStats),
+    );
+
+    td.when(this.metricsRepo.getQueriesPostedSummary()).thenReturn(
+      okAsync(backupStats),
+    );
   }
 
   public factory(): IMetricsService {
@@ -97,13 +109,17 @@ describe("MetricsService tests", () => {
       EExternalApi.PrimaryControl,
     );
     expect(primaryControlMetrics).toBeDefined();
-    expect(primaryControlMetrics?.api).toBe(EExternalApi.PrimaryControl);
+    expect(primaryControlMetrics?.stat).toBe(EExternalApi.PrimaryControl);
     expect(primaryControlMetrics?.count).toBe(1);
     expect(primaryControlMetrics?.mean).toBe(1);
     expect(primaryControlMetrics?.currentRate).toBe(1);
     expect(primaryControlMetrics?.oneMinuteRate).toBe(1);
     expect(primaryControlMetrics?.fiveMinuteRate).toBe(1);
     expect(primaryControlMetrics?.fifteenMinuteRate).toBe(1);
+
+    expect(metrics.queriesPosted).toBe(queryStats);
+    expect(metrics.backupsRestored).toBe(backupStats);
+
     mocks.contextProvider.assertEventCounts({});
   });
 
@@ -132,7 +148,7 @@ describe("MetricsService tests", () => {
       EExternalApi.PrimaryControl,
     );
     expect(primaryControlMetrics).toBeDefined();
-    expect(primaryControlMetrics?.api).toBe(EExternalApi.PrimaryControl);
+    expect(primaryControlMetrics?.stat).toBe(EExternalApi.PrimaryControl);
     expect(primaryControlMetrics?.count).toBe(1);
     expect(primaryControlMetrics?.mean).toBe(1);
     expect(primaryControlMetrics?.currentRate).toBe(1);

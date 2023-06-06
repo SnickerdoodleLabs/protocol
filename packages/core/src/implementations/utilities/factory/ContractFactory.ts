@@ -28,8 +28,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { ConsentContractWrapper } from "@core/implementations/utilities/factory/ConsentContractWrapper.js";
 import { ConsentFactoryContractWrapper } from "@core/implementations/utilities/factory/ConsentFactoryContractWrapper.js";
 import { CrumbsContractWrapper } from "@core/implementations/utilities/factory/CrumbsContractWrapper.js";
-import { MinimalForwarderContractWrapper } from "@core/implementations/utilities/factory/MinimalForwarderContractWrapper";
-import { SiftContractWrapper } from "@core/implementations/utilities/factory/SiftContractWrapper";
+import { MinimalForwarderContractWrapper } from "@core/implementations/utilities/factory/MinimalForwarderContractWrapper.js";
+import { SiftContractWrapper } from "@core/implementations/utilities/factory/SiftContractWrapper.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
