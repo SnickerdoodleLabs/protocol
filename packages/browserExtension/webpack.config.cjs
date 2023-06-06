@@ -254,6 +254,15 @@ var options = {
         },
       ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "src/db",
+          to: path.join(__dirname, "build", "db"),
+          force: true,
+        },
+      ],
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup", "index.html"),
       filename: "popup.html",

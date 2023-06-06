@@ -7946,6 +7946,7 @@ __metadata:
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     sass: ^1.55.0
+    sqlite-worker: ^0.8.0
     tldts: ^5.7.89
     uuid: ^8.3.2
     webextension-polyfill: ^0.9.0
@@ -31815,6 +31816,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"plain-tag@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "plain-tag@npm:0.1.3"
+  checksum: 805b99fb191e3bd7e324b05b16b8eeb0c614862ffad90e5b5ccb5b9109cc7a490d4cd702613f2c238bf327b2f7b88cca9c6a321ddb53e449f81ec5e89abcbf2b
+  languageName: node
+  linkType: hard
+
 "plimit-lit@npm:^1.2.6":
   version: 1.5.0
   resolution: "plimit-lit@npm:1.5.0"
@@ -37515,6 +37523,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sqlite-tables-handler@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "sqlite-tables-handler@npm:0.2.0"
+  checksum: fccd7f2e43a1dc2aafbf4270fd8256278a53e741459633e217fa2bcdb0c2d3a652ba45cd3e23d12707e8d07437b5c5604a0a742ddeba806efce8997f01118ffa
+  languageName: node
+  linkType: hard
+
+"sqlite-tag@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "sqlite-tag@npm:1.3.2"
+  dependencies:
+    plain-tag: ^0.1.3
+    static-params: ^0.3.0
+  checksum: ef8f7c53afe933917a7f2c2e0a99a4886ceada8a946bf5a7715a7b1f3233f667fa8e10fc45e138d54189ac5c5b6ef8d64e4e36ce739babca732f340334b9f88d
+  languageName: node
+  linkType: hard
+
+"sqlite-worker@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "sqlite-worker@npm:0.8.0"
+  dependencies:
+    plain-tag: ^0.1.3
+    sqlite-tables-handler: ^0.2.0
+    sqlite-tag: ^1.3.2
+    static-params: ^0.3.0
+  checksum: 7d2800fd2a907e867af9576b632b5874c68da9d1ba87ffad2bfb92e9008e1477c4a2b83793b4d2f5929b6181506ec1f764d411cb2775ebe09363423fbdeae66c
+  languageName: node
+  linkType: hard
+
 "sshpk@npm:^1.7.0":
   version: 1.17.0
   resolution: "sshpk@npm:1.17.0"
@@ -37593,6 +37630,13 @@ __metadata:
     define-property: ^0.2.5
     object-copy: ^0.1.0
   checksum: 8657485b831f79e388a437260baf22784540417a9b29e11572c87735df24c22b84eda42107403a64b30861b2faf13df9f7fc5525d51f9d1d2303aba5cbf4e12c
+  languageName: node
+  linkType: hard
+
+"static-params@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "static-params@npm:0.3.0"
+  checksum: 46385e5e68b8f2085bc5e49aedd5f0cc64ec1734910594b9becda24714cbf6e10260569e705ee5c5b7484d223cc1df9d073c85e76bccfffb097a5c874a9a3548
   languageName: node
   linkType: hard
 
