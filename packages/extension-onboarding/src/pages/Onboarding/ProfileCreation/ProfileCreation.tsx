@@ -39,6 +39,7 @@ const ProfileCreation: FC = () => {
                   onSubmitted={() => {
                     setIsLoading(false);
                     navigate(EPaths.ONBOARDING_TAG_SELECTION);
+                    
                   }}
                 />
               </Box>
