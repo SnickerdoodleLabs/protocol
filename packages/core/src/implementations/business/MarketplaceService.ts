@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { IMarketplaceService } from "@core/interfaces/business/index.js";
-import {
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities/index.js";
+import { IMarketplaceService, IQueryService, IQueryServiceType } from "@core/interfaces/business/index.js";
+
 import {
   IMarketplaceRepositoryType,
   IMarketplaceRepository,
@@ -41,8 +38,8 @@ export class MarketplaceService implements IMarketplaceService {
     protected marketplaceRepo: IMarketplaceRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
-    @inject(IQueryParsingEngineType)
-    protected queryParsingEngine: IQueryParsingEngine,
+    @inject(IQueryServiceType)
+    protected queryService: IQueryService,
     @inject(ISDQLQueryRepositoryType)
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -188,7 +185,7 @@ export class MarketplaceService implements IMarketplaceService {
         if (sdqlQuery == null) {
           return okAsync([]);
         }
-        return this.queryParsingEngine.getPossibleRewards(sdqlQuery);
+        return this.queryService.getPossibleRewardsFromIPBySDQLQuery(sdqlQuery)
       });
   }
 }

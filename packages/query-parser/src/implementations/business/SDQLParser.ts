@@ -17,6 +17,7 @@ import {
   QueryExpiredError,
   QueryFormatError,
   SDQL_Name,
+  URLString,
   Version,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -224,6 +225,7 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
+
     return this.parseQueries().andThen(() => {
       return ResultUtils.combine([
         this.parseAds(),
@@ -401,7 +403,8 @@ export class SDQLParser {
     AST_Compensation,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-    return this.exprParser!.parse(schema.requires!)
+
+    return this.exprParser!.parse(schema.requiresRaw!)
       .mapErr((error) => {
         return this.transformError(error);
       })
@@ -410,10 +413,11 @@ export class SDQLParser {
           name,
           schema.description,
           ast as AST_RequireExpr,
-          schema.requires!,
+          schema.requiresRaw!,
           schema.chainId,
           schema.callback,
           schema.alternatives ? schema.alternatives : [],
+          schema.image ? schema.image  : URLString("") 
         );
       });
   }

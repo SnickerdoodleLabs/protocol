@@ -17,6 +17,10 @@ import {
   SDQL_Return,
   SubQueryKey,
   TransactionPaymentCounter,
+  DataPermissions,
+  QueryExpiredError,
+  EWalletDataType,
+  SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 import {
   IQueryObjectFactory,
@@ -26,11 +30,14 @@ import {
   SDQLQueryWrapperFactory,
   avalanche1ExpiredSchemaStr,
   avalanche2SchemaStr,
+  avalanche1SchemaStr,
   avalanche4SchemaStr,
   IQueryFactories,
   QueryFactories,
+  AST,
+  AST_SubQuery,
 } from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
@@ -56,13 +63,16 @@ import {
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
 import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
+import { IProfileService } from "@core/interfaces/business";
+import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
   queryCID,
   SDQLString(avalanche1ExpiredSchemaStr),
 );
-const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
+const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
+const sdqlQuery2 = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
 
 const country = CountryCode("1");
@@ -74,10 +84,10 @@ const noPermissions = HexString32(
 );
 
 class QueryParsingMocks {
-  public persistenceRepo = td.object<IDataWalletPersistence>();
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
+  public profileService = td.object<IProfileService>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
@@ -99,16 +109,9 @@ class QueryParsingMocks {
 
   public adContentRepository: AdContentRepository;
 
-  public snickerDoodleCore: SnickerdoodleCore;
-
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.snickerDoodleCore = new SnickerdoodleCore(
-      undefined,
-      undefined,
-      td.object(),
-    );
 
     const expectedCompensationsMap = new Map<
       CompensationKey,
@@ -128,11 +131,28 @@ class QueryParsingMocks {
         chainId: ChainId(1),
       } as ISDQLCompensations);
 
+    td.when(this.demoDataRepo.getGender()).thenReturn(
+      okAsync(Gender("female")),
+    );
+    td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
+    td.when(
+      this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
+    ).thenReturn(okAsync(new Map()));
+    td.when(
+      this.transactionRepo.getTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
+    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
+      okAsync(new Array<TransactionPaymentCounter>()),
+    );
+    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
+
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
       this.nftQueryEvaluator,
-      this.snickerDoodleCore,
+      this.profileService,
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
@@ -149,23 +169,6 @@ class QueryParsingMocks {
       new AjaxUtilsMock(),
       new ConfigProviderMock(),
     );
-
-    td.when(this.demoDataRepo.getGender()).thenReturn(
-      okAsync(Gender("female")),
-    );
-    // td.when(this.snickerDoodleCore.getAge()).thenReturn(okAsync(Age(10)));
-    td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(10)));
-    td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
-    td.when(
-      this.browsingDataRepo.getSiteVisitsMap(td.matchers.anything()),
-    ).thenReturn(okAsync(new Map()));
-    td.when(
-      this.transactionRepo.getTransactions(td.matchers.anything()),
-    ).thenReturn(okAsync([]));
-    td.when(this.transactionRepo.getTransactionValueByChain()).thenReturn(
-      okAsync(new Array<TransactionPaymentCounter>()),
-    );
-    td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
   }
 
   public factory() {
@@ -252,64 +255,58 @@ describe("Dummy describe block", () => {
   });
 });
 
-/*
-describe("single Tests", () => {
+describe("Handle Query", () => {
+  test("Should handle query with no ads", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    await engine
+      .handleQuery(sdqlQuery2, new DataPermissions(allPermissions))
+      .andThen((insights) => {
+        expect(insights).toEqual({
+          insights: {
+            i1: null,
+            i2: { insight: "tasty", proof: "" },
+            i3: { insight: "1", proof: "" },
+            i4: { insight: "female", proof: "" },
+            i5: { insight: "{}", proof: "" },
+          },
+          ads: {},
+        });
+        return okAsync(insights);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        expect(1).toBe(2);
+      });
+  });
+
   test("Expired query must return QueryExpiredError", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
     await engine
       .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
-      .andThen(([insights, rewards]) => {
+      .andThen((_insights) => {
         fail("Expired query was executed!");
-        return errAsync(new Error(`Expired query was executed!`));
       })
       .mapErr((err) => {
         expect(err.constructor).toBe(QueryExpiredError);
       });
   });
 });
-*/
 
-// describe("Testing order of results", () => {
-//   const mocks = new QueryParsingMocks();
-//   const engine = mocks.factory();
-
-//   test("No null insight with all permissions given", async () => {
-//     await engine
-//       .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
-//       .andThen((insights) => {
-//         expect(insights.returns).toEqual({
-//           "if($q1and$q2)then$r1else$r2": "not qualified",
-//           $r3: country,
-//           $r4: "female",
-//           $r5: "{}",
-//         });
-//         return okAsync(insights);
-//       })
-//       .mapErr((e) => {
-//         console.log(e);
-//         expect(1).toBe(2);
-//       });
-//   });
-// });
-
-/*
 describe("Tests with data permissions", () => {
   const mocks = new QueryParsingMocks();
   const engine = mocks.factory();
 
   test("avalanche 2 first insight is null when age permission is not given", async () => {
-    const flags = EWalletDataType.EVMTransactions;
     const givenPermissions = new DataPermissions(noPermissions);
 
     await engine
-      .handleQuery(sdqlQuery, givenPermissions)
-      .andThen(([insights, rewards]) => {
-        // console.log(insights);
-        console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
-        expect(insights[0]).toBe("");
+      .handleQuery(sdqlQuery2, givenPermissions)
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -324,12 +321,9 @@ describe("Tests with data permissions", () => {
     ]);
 
     await engine
-      .handleQuery(sdqlQuery, givenPermissions)
-      .andThen(([insights, rewards]) => {
-        // console.log(insights);
-        console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
-        expect(insights[0]).toBe("");
+      .handleQuery(sdqlQuery2, givenPermissions)
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights.insights!["i1"]).toBe(null);
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -338,19 +332,16 @@ describe("Tests with data permissions", () => {
       });
   });
 
-  test("avalanche 2 first insight is not null when network and age permissions are given", async () => {
+  test("avalanche 2 second insight is not null when age permission is given", async () => {
     const givenPermissions = DataPermissions.createWithPermissions([
       EWalletDataType.Age,
-      EWalletDataType.EVMTransactions,
     ]);
 
     await engine
-      .handleQuery(sdqlQuery, givenPermissions)
-      .andThen(([insights, rewards]) => {
-        // console.log(insights);
-        console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
-        expect(insights[0] !== "").toBeTruthy();
+      .handleQuery(sdqlQuery2, givenPermissions)
+      .andThen((deliveredInsights) => {
+        console.log("walach : ", deliveredInsights);
+        expect(deliveredInsights.insights!["i2"] !== null).toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -362,13 +353,17 @@ describe("Tests with data permissions", () => {
   test("all null when no permissions are given", async () => {
     const givenPermissions = new DataPermissions(noPermissions);
 
+    const expectedResult = {
+      i1: null,
+      i2: null,
+      i3: null,
+      i4: null,
+      i5: null,
+    };
     await engine
-      .handleQuery(sdqlQuery, givenPermissions)
-      .andThen(([insights, rewards]) => {
-        // console.log(insights);
-        console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
-        expect(insights).toEqual(["", "", "", ""]);
+      .handleQuery(sdqlQuery2, givenPermissions)
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights.insights).toEqual(expectedResult);
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -377,18 +372,15 @@ describe("Tests with data permissions", () => {
       });
   });
 
-  test("avalanche 2 4th insight not null when siteVisits given", async () => {
+  test("avalanche 2 5th insight not null when siteVisits given", async () => {
     const givenPermissions = DataPermissions.createWithPermissions([
       EWalletDataType.SiteVisits,
     ]);
 
     await engine
-      .handleQuery(sdqlQuery, givenPermissions)
-      .andThen(([insights, rewards]) => {
-        // console.log(insighyarts);
-        console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
-        expect(insights[3] !== "").toBeTruthy();
+      .handleQuery(sdqlQuery2, givenPermissions)
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights.insights!["q5"] !== null).toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -399,32 +391,32 @@ describe("Tests with data permissions", () => {
 });
 
 describe("Testing avalanche 4", () => {
-  test("avalanche 4", async () => {
+  test("avalanche 4 insights", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
-    const expectedInsights = [
-      "not qualified",
-      "1",
-      "female",
-      "{}",
-      "[]",
-      "[]",
-      "[]",
-    ]; // 7 return expressions
-
-    // console.log(sdqlQuery4);
+    const expectedInsights = {
+      insights: {
+        i1: null,
+        i2: { insight: "tasty", proof: "" },
+        i3: { insight: "1", proof: "" },
+        i4: { insight: "female", proof: "" },
+        i5: { insight: "{}", proof: "" },
+        i6: { insight: "[]", proof: "" },
+        i7: { insight: "[]", proof: "" },
+        i8: { insight: "[]", proof: "" },
+      },
+      ads: {},
+    };
 
     await engine
       .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
-      .andThen(([insights, rewards]) => {
-        // console.log("Why not printed")
+      .andThen((deliveredInsights) => {
+        expect(deliveredInsights).toMatchObject(expectedInsights);
 
-        // console.log('insights', insights);
-        expect(insights).toEqual(expectedInsights);
-        expect(insights.length > 0).toBeTruthy();
-        console.log("Insights: ", insights);
-        console.log("Rewards: ", rewards);
+        expect(
+          Object.values(deliveredInsights.insights!).length > 0,
+        ).toBeTruthy();
 
         return okAsync(undefined);
       })
@@ -434,4 +426,23 @@ describe("Testing avalanche 4", () => {
       });
   });
 });
-*/
+
+describe("Testing parsing", () => {
+  test("avalanche 1 partial parsing test", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+    await engine
+      .parseQuery(sdqlQuery)
+      .andThen((astQuery) => {
+        expect(Object.keys(astQuery)).toEqual(
+          Object.keys(avalanche1AstInstance),
+        );
+
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});

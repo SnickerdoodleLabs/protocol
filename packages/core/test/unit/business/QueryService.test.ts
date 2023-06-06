@@ -57,6 +57,7 @@ import {
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
 import {
+  avalanche1AstInstance,
   dataWalletAddress,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
@@ -285,6 +286,10 @@ class QueryServiceMocks {
       ),
     ).thenReturn(okAsync(queryDeliveryItems));
 
+    td.when(this.queryParsingEngine.parseQuery(sdqlQuery)).thenReturn(
+      okAsync(avalanche1AstInstance),
+    );
+
     // AccountRepo
     td.when(this.accountRepo.addEarnedRewards(earnedRewards)).thenReturn(
       okAsync(undefined),
@@ -499,8 +504,8 @@ describe("QueryService.returnQueries() tests", () => {
   });
 });
 
-describe("processRewardsPreview tests", () => {
-  test("processRewardsPreview: full run through", async () => {
+describe("getPossibleInisightAndAdKeys tests", () => {
+  test("get possbile insights and ad keys", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
@@ -509,13 +514,7 @@ describe("processRewardsPreview tests", () => {
     td.when(
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
-    td.when(
-      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-        sdqlQuery,
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync([[], []]));
+
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1),
       mocks.contextProvider.getContext(),
@@ -538,13 +537,9 @@ describe("processRewardsPreview tests", () => {
       return mocks.consentContractRepo
         .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-            query,
-            new DataPermissions(allPermissions),
-            consentContractAddress,
-          );
+          return okAsync(null);
         })
-        .andThen((rewardsPreviews) => {
+        .andThen(() => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,
@@ -561,5 +556,56 @@ describe("processRewardsPreview tests", () => {
           return err;
         });
     });
+  });
+});
+
+describe.only("generate possible rewards tests", () => {
+  test("generate possbile rewards", async () => {
+    const mocks = new QueryServiceMocks();
+    const queryService = mocks.factory(); // new context
+
+    const expectedResult = [
+      {
+        chainId: 1,
+        compensationKey: "c1",
+        description: "10% discount code for Starbucks",
+        estimatedQueryDependencies: [],
+        image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
+        name: "c1",
+        queryCID: "Beep",
+        type: "Direct",
+      },
+      {
+        chainId: 1,
+        compensationKey: "c2",
+        description: "participate in the draw to win a CryptoPunk NFT",
+        estimatedQueryDependencies: [],
+        image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
+        name: "c2",
+        queryCID: "Beep",
+        type: "Direct",
+      },
+      {
+        chainId: 1,
+        compensationKey: "c3",
+        description: "a free CrazyApesClub NFT",
+        estimatedQueryDependencies: [],
+        image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
+        name: "c3",
+        queryCID: "Beep",
+        type: "Direct",
+      },
+    ];
+    queryService
+      .getPossibleRewardsFromIPBySDQLQuery(sdqlQuery)
+      .andThen((possibleRewards) => {
+        expect(possibleRewards).toEqual(expectedResult);
+
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
   });
 });

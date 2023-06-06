@@ -3,7 +3,7 @@ import {
   ParserError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-
+// To do add qualified ? 
 export enum TokenType {
   if = "if",
   else = "else",

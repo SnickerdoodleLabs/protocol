@@ -13,6 +13,7 @@ import {
   SDQL_Name,
   SDQLQuery,
   UnixTimestamp,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -102,6 +103,7 @@ export class ExprParserMocks {
         data: {},
       },
       [],
+      URLString("")
     );
   }
 

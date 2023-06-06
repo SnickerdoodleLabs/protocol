@@ -112,7 +112,7 @@ export class MemoryVolatileStorage implements IVolatileStorage {
 
     return ResultAsync.fromPromise(
       promise,
-      (e) => new PersistenceError("error getting object"),
+      (e) => {  return new PersistenceError("error getting object")},
     )
       .andThen((result) => {
         if (result) {

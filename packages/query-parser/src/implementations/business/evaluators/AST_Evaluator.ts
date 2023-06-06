@@ -236,7 +236,7 @@ export class AST_Evaluator {
   ): ResultAsync<SDQL_Return, EvaluationError> {
     return this.evalAny(ast.target).andThen((targetFulfilled) => {
       if (targetFulfilled) {
-        return this.evalAny(ast.returns);
+        return this.evalAny(ast.returns.source);
       }
       return okAsync(SDQL_Return(null));
     });

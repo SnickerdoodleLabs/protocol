@@ -88,6 +88,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     key: string,
     _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
+    
     return this._getIDB().andThen((db) =>
       db.getObject<T>(name, key, _includeDeleted),
     );

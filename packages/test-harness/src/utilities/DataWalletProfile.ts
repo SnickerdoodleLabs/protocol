@@ -61,8 +61,8 @@ export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
   private _unlocked = false;
   private defaultPathInfo = {
-    name: "empty",
-    path: "data/profiles/dataWallet/empty",
+    name: "default",
+    path: "data/profiles/dataWallet/default",
   };
   private _profilePathInfo = this.defaultPathInfo;
 

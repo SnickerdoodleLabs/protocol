@@ -14,18 +14,18 @@ export const avalanche1SchemaStr = SDQLString(
       "Interactions with the Avalanche blockchain for 15-year and older individuals",
     business: "Shrapnel",
     ads: {
-      a3: {
-        name: "a3",
+      a1: {
+        name: "a1",
         content: {
           type: "image",
           src: "testSrc",
         },
-        text: "text",
+        text: "QWEQWEWQE",
         displayType: "banner",
-        weight: 8,
+        weight: 6,
         expiry: 1735678800,
-        keywords: ["q", "w", "e"],
-        target: "$q1>30",
+        keywords: ["a", "b", "c"],
+        target: "$q1",
       },
       a2: {
         name: "a2",
@@ -40,18 +40,21 @@ export const avalanche1SchemaStr = SDQLString(
         keywords: ["1", "2", "3"],
         target: "$q2",
       },
-      a1: {
-        name: "a1",
+      a3: {
+        name: "a3",
         content: {
           type: "image",
           src: "testSrc",
         },
-        text: "QWEQWEWQE",
+        text: "text",
         displayType: "banner",
-        weight: 6,
+        weight: 8,
         expiry: 1735678800,
-        keywords: ["a", "b", "c"],
+        keywords: ["q", "w", "e"],
+        target: "$q1>30",
       },
+      
+      
     },
     queries: {
       q1: {
@@ -90,13 +93,13 @@ export const avalanche1SchemaStr = SDQLString(
     insights: {
       i1: {
         name: "user age range",
-        target: "$q1>30",
+        target: "$q2>10",
         returns: "'qualified'",
       },
       i2: {
         name: "q2",
         target: "$q2",
-        returns: "'not qualified'",
+        returns: "'yum'",//TODO add not qualified
       },
       i3: {
         name: "query_response",
