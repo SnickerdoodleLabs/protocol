@@ -151,11 +151,73 @@ var options = {
       __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
       ),
+      /* ALCHEMY API KEYS to PASS IN */
+      __ALCHEMY_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_ARBITRUM_API_KEY__,
+      ),
+      __ALCHEMY_ASTAR_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_ASTAR_API_KEY__,
+      ),
+      __ALCHEMY_MUMBAI_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_MUMBAI_API_KEY__,
+      ),
+      __ALCHEMY_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_OPTIMISM_API_KEY__,
+      ),
+      __ALCHEMY_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_POLYGON_API_KEY__,
+      ),
+      __ALCHEMY_SOLANA_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_SOLANA_API_KEY__,
+      ),
+      __ALCHEMY_SOLANA_TESTNET_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
+      ),
+
+      /* ETHERSCAN KEYS PASSED IN */
+      __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ETHEREUM_API_KEY__,
+      ),
+      __ETHERSCAN_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_POLYGON_API_KEY__,
+      ),
+      __ETHERSCAN_AVALANCHE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_AVALANCHE_API_KEY__,
+      ),
+      __ETHERSCAN_BINANCE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_BINANCE_API_KEY__,
+      ),
+      __ETHERSCAN_MOONBEAM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_MOONBEAM_API_KEY__,
+      ),
+      __ETHERSCAN_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_OPTIMISM_API_KEY__,
+      ),
+      __ETHERSCAN_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ARBITRUM_API_KEY__,
+      ),
+      __ETHERSCAN_GNOSIS_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_GNOSIS_API_KEY__,
+      ),
+      __ETHERSCAN_FUJI_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_FUJI_API_KEY__,
+      ),
+
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
       __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
       __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
+      __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __SECONDARY_INFURA_KEY__: JSON.stringify(
+        process.env.__SECONDARY_INFURA_KEY__,
+      ),
+
+      /* END */
+
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),

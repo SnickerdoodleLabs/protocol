@@ -6,13 +6,11 @@ import React, { FC } from "react";
 
 interface ISubscriptionSuccessProps {
   domainDetails: IInvitationDomainWithUUID;
-
   onCancelClick: () => void;
 }
 
 const SubscriptionSuccessModal: FC<ISubscriptionSuccessProps> = ({
   domainDetails,
-
   onCancelClick,
 }) => {
   const classes = useStyles();

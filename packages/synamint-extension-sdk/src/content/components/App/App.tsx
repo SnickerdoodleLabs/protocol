@@ -41,12 +41,12 @@ import {
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
-  configProvider,
   GetInvitationWithDomainParams,
   AcceptInvitationByUUIDParams,
   RejectInvitationParams,
   CheckURLParams,
   SetReceivingAddressParams,
+  IExtensionConfig,
 } from "@synamint-extension-sdk/shared";
 
 interface ISafeURLHistory {
@@ -54,6 +54,7 @@ interface ISafeURLHistory {
 }
 
 let coreGateway: ExternalCoreGateway;
+let extensionConfig: IExtensionConfig;
 
 const connect = () => {
   const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
@@ -70,43 +71,52 @@ const connect = () => {
   const rpcEngine = new JsonRpcEngine();
   rpcEngine.push(streamMiddleware.middleware);
 
-  if (
-    new URL(configProvider.getConfig().onboardingUrl).origin ===
-    window.location.origin
-  ) {
-    const postMessageStream = new LocalMessageStream({
-      name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-      target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-    });
-    const pageMux = new ObjectMultiplex();
-    pump(pageMux, postMessageStream, pageMux);
-    const pageStreamChannel = pageMux.createStream(
-      ONBOARDING_PROVIDER_SUBSTREAM,
-    );
-    const extensionStreamChannel = extensionMux.createStream(
-      ONBOARDING_PROVIDER_SUBSTREAM,
-    );
-    pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
-    extensionMux.on("finish", () => {
-      document.dispatchEvent(
-        new CustomEvent("extension-stream-channel-closed"),
-      );
-      pageMux.destroy();
-    });
-  }
-
   if (!coreGateway) {
     coreGateway = new ExternalCoreGateway(rpcEngine);
-    if (
-      new URL(configProvider.getConfig().onboardingUrl).origin ===
-      window.location.origin
-    ) {
-      DataWalletProxyInjectionUtils.inject();
-    }
+    (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
+      (config) => {
+        if (!extensionConfig) {
+          extensionConfig = config;
+        }
+        if (new URL(config.onboardingUrl).origin === window.location.origin) {
+          DataWalletProxyInjectionUtils.inject();
+        }
+      },
+    );
   } else {
     coreGateway.updateRpcEngine(rpcEngine);
   }
 
+  (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
+    (config) => {
+      if (!extensionConfig) {
+        extensionConfig = config;
+      }
+      if (new URL(config.onboardingUrl).origin === window.location.origin) {
+        {
+          const postMessageStream = new LocalMessageStream({
+            name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+            target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+          });
+          const pageMux = new ObjectMultiplex();
+          pump(pageMux, postMessageStream, pageMux);
+          const pageStreamChannel = pageMux.createStream(
+            ONBOARDING_PROVIDER_SUBSTREAM,
+          );
+          const extensionStreamChannel = extensionMux.createStream(
+            ONBOARDING_PROVIDER_SUBSTREAM,
+          );
+          pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
+          extensionMux.on("finish", () => {
+            document.dispatchEvent(
+              new CustomEvent("extension-stream-channel-closed"),
+            );
+            pageMux.destroy();
+          });
+        }
+      }
+    },
+  );
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
@@ -283,6 +293,7 @@ const App = () => {
       case appState === EAPP_STATE.PERMISSION_SELECTION:
         return (
           <Permissions
+            config={extensionConfig}
             domainDetails={invitationDomain!}
             onCancelClick={emptyReward}
             coreGateway={coreGateway}
@@ -305,6 +316,7 @@ const App = () => {
         return (
           <SubscriptionConfirmation
             {...subscriptionPreviewData!}
+            config={extensionConfig}
             coreGateway={coreGateway}
             domainDetails={invitationDomain!}
             onCancelClick={emptyReward}

@@ -4,13 +4,14 @@ import { Button } from "@snickerdoodlelabs/shared-components";
 import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
-import { Box, Typography, Grid } from "@material-ui/core";
-import React, { FC } from "react";
+import { Box, Typography, Grid, CircularProgress } from "@material-ui/core";
+import React, { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileCreation: FC = () => {
   const navigate = useNavigate();
   const classes = useStyles();
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <>
       <img src={snickerDoodleLogo} />
@@ -36,6 +37,7 @@ const ProfileCreation: FC = () => {
                 </Typography>
                 <ProfileForm
                   onSubmitted={() => {
+                    setIsLoading(false);
                     navigate(EPaths.ONBOARDING_TAG_SELECTION);
                   }}
                 />
@@ -46,8 +48,22 @@ const ProfileCreation: FC = () => {
             <Box mb={3}>
               <img src={artboardImage} style={{ width: "100%" }} />
             </Box>
-            <Button fullWidth type="submit" form="profile-create-form">
+            <Button
+              disabled={isLoading}
+              fullWidth
+              onClickCapture={(e) => {
+                document?.forms["profile-create-form"]?.requestSubmit?.();
+                setIsLoading(true);
+              }}
+            >
               Next
+              {isLoading && (
+                <span>
+                  <Box ml={2}>
+                    <CircularProgress size={16} />
+                  </Box>
+                </span>
+              )}
             </Button>
           </Grid>
         </Grid>

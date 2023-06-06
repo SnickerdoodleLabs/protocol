@@ -53,6 +53,7 @@ import {
   IInvitationDomainWithUUID,
   IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
+import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
@@ -729,5 +730,15 @@ export class TwitterGetLinkedProfilesParams extends CoreActionParams<
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.TWITTER_GET_LINKED_PROFILES;
+  }
+}
+
+export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
+  public constructor() {
+    super(GetConfigParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CONFIG;
   }
 }

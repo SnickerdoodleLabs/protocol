@@ -13,33 +13,64 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  EVMTransaction,
   getChainInfoByChainId,
-  IEVMAccountBalanceRepository,
-  IEVMNftRepository,
+  IEVMIndexer,
   TickerSymbol,
   TokenBalance,
   TokenUri,
   URLString,
+  MethodSupportError,
+  EComponentStatus,
+  EChain,
+  IndexerSupportSummary,
+  EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider.js";
+} from "@indexers/interfaces/IIndexerConfigProvider.js";
 
 @injectable()
-export class MoralisEVMPortfolioRepository
-  implements IEVMNftRepository, IEVMAccountBalanceRepository
-{
+export class MoralisEVMPortfolioRepository implements IEVMIndexer {
+  protected health: Map<EChain, EComponentStatus> = new Map<
+    EChain,
+    EComponentStatus
+  >();
+
+  protected indexerSupport = new Map<EChain, IndexerSupportSummary>([
+    [
+      EChain.EthereumMainnet,
+      new IndexerSupportSummary(EChain.EthereumMainnet, true, false, false),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, true, false, false),
+    ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, false, false),
+    ],
+    [
+      EChain.Gnosis,
+      new IndexerSupportSummary(EChain.Gnosis, true, false, false),
+    ],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  public name(): string {
+    return EDataProvider.Moralis;
+  }
 
   public getBalancesForAccount(
     chainId: ChainId,
@@ -108,6 +139,49 @@ export class MoralisEVMPortfolioRepository
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from moralis", e),
       );
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<
+    EVMTransaction[],
+    AjaxError | AccountIndexingError | MethodSupportError
+  > {
+    return errAsync(
+      new MethodSupportError(
+        "getEVMTransactions not supported for Moralis Indexer",
+        400,
+      ),
+    );
+  }
+
+  public getHealthCheck(): ResultAsync<
+    Map<EChain, EComponentStatus>,
+    AjaxError
+  > {
+    return this.configProvider.getConfig().andThen((config) => {
+      this.indexerSupport.forEach(
+        (value: IndexerSupportSummary, key: EChain) => {
+          if (config.apiKeys.moralisApiKey == "") {
+            this.health.set(key, EComponentStatus.NoKeyProvided);
+          } else {
+            this.health.set(key, EComponentStatus.Available);
+          }
+        },
+      );
+      return okAsync(this.health);
+    });
+  }
+
+  public healthStatus(): Map<EChain, EComponentStatus> {
+    return this.health;
+  }
+
+  public getSupportedChains(): Map<EChain, IndexerSupportSummary> {
+    return this.indexerSupport;
   }
 
   private getPages(
@@ -185,7 +259,7 @@ export class MoralisEVMPortfolioRepository
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.moralisApiKey,
+          "X-API-Key": config.apiKeys.moralisApiKey,
         },
       };
       return result;

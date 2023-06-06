@@ -13,14 +13,13 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
-import { configProvider } from "@synamint-extension-sdk/shared";
 import {
   GetPossibleRewardsParams,
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
-import { IInvitationDomainWithUUID } from "@synamint-extension-sdk/shared/interfaces/IInvitationDomainWithUUID";
+import { IInvitationDomainWithUUID, IExtensionConfig } from "@synamint-extension-sdk/shared";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useState } from "react";
@@ -28,6 +27,7 @@ import React, { FC, useCallback, useEffect, useState } from "react";
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
   domainDetails: IInvitationDomainWithUUID;
+  config: IExtensionConfig
   onCancelClick: () => void;
   onNextClick: (
     eligibleRewards: PossibleReward[],
@@ -41,6 +41,7 @@ const Permissions: FC<IPermissionsProps> = ({
   domainDetails,
   onCancelClick,
   onNextClick,
+  config,
 }) => {
   const classes = useStyles();
   const [profileValues, setProfileValues] = useState<{
@@ -154,7 +155,7 @@ const Permissions: FC<IPermissionsProps> = ({
           earnedRewards={rewards.earnedRewards}
           onCancelClick={onCancelClick}
           onAcceptClick={onNextClick}
-          ipfsBaseUrl={configProvider.getConfig().ipfsFetchBaseUrl}
+          ipfsBaseUrl={config.ipfsFetchBaseUrl}
         />
       ) : (
         <Box display="flex" py={12} alignItems="center" justifyContent="center">
