@@ -59,21 +59,21 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.Goerli),
+    ChainId(EChain.Sepolia),
     new ChainInformation(
-      "Goerli",
-      ChainId(EChain.Goerli),
-      EChain.Goerli,
+      "Sepolia",
+      ChainId(EChain.Sepolia),
+      EChain.Sepolia,
       EChainTechnology.EVM,
       true,
-      "goerli",
+      "sepolia",
       10000,
       EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Testnet,
-      "https://goerli.etherscan.io/tx/",
+      "https://sepolia.etherscan.io/tx/",
       getExplorerUrl,
-      URLString("https://api-goerli.etherscan.io/"),
+      URLString("https://api-sepolia.etherscan.io/"),
     ),
   ],
   // [
@@ -277,6 +277,42 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api-optimistic.etherscan.io/"),
     ),
   ],
+  [
+    ChainId(EChain.Astar),
+    new ChainInformation(
+      "Astar",
+      ChainId(EChain.Astar),
+      EChain.Astar,
+      EChainTechnology.EVM,
+      true,
+      "astar",
+      10000, // average block mining time
+      EIndexer.Astar,
+      new NativeCurrencyInformation("ASTR", 18, "ASTR", "astar"),
+      EChainType.Mainnet,
+      "https://astar.subscan.io/api",
+      getExplorerUrl,
+      URLString("https://astar.subscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Shibuya),
+    new ChainInformation(
+      "Shibuya",
+      ChainId(EChain.Shibuya),
+      EChain.Astar,
+      EChainTechnology.EVM,
+      true,
+      "shibuya",
+      10000, // average block mining time
+      EIndexer.Astar,
+      new NativeCurrencyInformation("SBY", 18, "SBY", "shibuya"),
+      EChainType.Testnet,
+      "https://shibuya.subscan.io/api",
+      getExplorerUrl,
+      URLString("https://shibya.subscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
@@ -307,10 +343,10 @@ export function isAccountValidForChain(
 }
 
 export function getEtherscanBaseURLForChain(
-  chain: ChainId,
+  chain: EChain,
 ): ResultAsync<string, AccountIndexingError> {
   try {
-    const chainInfo = getChainInfoByChainId(chain);
+    const chainInfo = getChainInfoByChain(chain);
     if (chainInfo.etherscanEndpointURL == undefined) {
       return errAsync(
         new AccountIndexingError("no etherscan endpoint for chainID", chain),

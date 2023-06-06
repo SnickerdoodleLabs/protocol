@@ -13,8 +13,10 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
+  ComponentStatus,
   DataWalletBackupID,
   EChain,
+  EComponentStatus,
   EncryptedString,
   EVMAccountAddress,
   EVMContractAddress,
@@ -173,6 +175,16 @@ class AccountServiceMocks {
         unlockInProgress,
         new PublicEvents(),
         false,
+        new ComponentStatus(
+          EComponentStatus.TemporarilyDisabled,
+          EComponentStatus.TemporarilyDisabled,
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          new Map<EChain, EComponentStatus>(),
+          [],
+        ),
       ),
     );
 

@@ -9,11 +9,32 @@ export interface IConfigOverrides {
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
+  alchemyApiKeys?: {
+    Arbitrum: string;
+    Astar: string;
+    Mumbai: string;
+    Optimism: string;
+    Polygon: string;
+    Solana: string;
+    SolanaTestnet: string;
+  };
+  etherscanApiKeys?: {
+    Ethereum: string;
+    Polygon: string;
+    Avalanche: string;
+    Binance: string;
+    Moonbeam: string;
+    Optimism: string;
+    Arbitrum: string;
+    Gnosis: string;
+    Fuji: string;
+  };
   covalentApiKey?: string;
   moralisApiKey?: string;
   nftScanApiKey?: string;
   poapApiKey?: string;
   oklinkApiKey?: string;
+  ankrApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
@@ -26,5 +47,6 @@ export interface IConfigOverrides {
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
   primaryInfuraKey: string;
+  secondaryInfuraKey: string;
   devChainProviderURL?: ProviderUrl;
 }

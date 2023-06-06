@@ -68,7 +68,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
           enableReinitialize
           validationSchema={schema}
         >
-          {({ handleSubmit, values, setFieldValue }) => {
+          {({ handleSubmit, values, setFieldValue, isSubmitting }) => {
             return (
               <Form noValidate onSubmit={handleSubmit} id="profile-create-form">
                 {/*          <Box display="flex">
@@ -159,6 +159,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                     </Typography>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
+                        disabled={isSubmitting}
                         className={classes.input}
                         required
                         clearable

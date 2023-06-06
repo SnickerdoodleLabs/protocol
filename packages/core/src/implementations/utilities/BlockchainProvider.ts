@@ -46,7 +46,7 @@ export class BlockchainProvider implements IBlockchainProvider {
         this.primaryProvider = new ethers.providers.JsonRpcProvider(
           config.controlChainId === EChain.DevDoodle
             ? config.devChainProviderURL
-            : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.primaryInfuraKey}`,
+            : `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.primaryInfuraKey}`,
         );
       });
 

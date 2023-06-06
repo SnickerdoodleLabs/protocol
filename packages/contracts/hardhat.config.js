@@ -160,6 +160,12 @@ module.exports = {
       chainId: 10,
       url: urlOverride || "http://127.0.0.1:8549",
     },
+    astar: {
+      // optimism mainnet - OP
+      accounts: accounts,
+      chainId: 592,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
   },
   gasReporter: {
     enabled: true,

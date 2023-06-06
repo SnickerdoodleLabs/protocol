@@ -78,6 +78,8 @@ export class AST_PropertyQuery extends AST_SubQuery {
         return ok(EWalletDataType.EVMTransactions);
       case "social_discord":
         return ok(EWalletDataType.Discord);
+      case "social_twitter":
+        return ok(EWalletDataType.Twitter);
       default:
         const missingWalletType = new MissingWalletDataTypeError(this.property);
         console.error(missingWalletType);

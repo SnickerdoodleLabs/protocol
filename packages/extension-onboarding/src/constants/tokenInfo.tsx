@@ -1,8 +1,8 @@
-import arbitrumCircle from "@extension-onboarding/assets/images/arbitrum-circle.png";
-
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
 import solanaCircle from "@extension-onboarding/assets/icons/solana-circle.svg";
 import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
+import arbitrumCircle from "@extension-onboarding/assets/images/arbitrum-circle.png";
+import astarCircle from "@extension-onboarding/assets/images/astar-logo.png";
 import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import binanceCircle from "@extension-onboarding/assets/images/bnb-circle.png";
 import moonbeamCircle from "@extension-onboarding/assets/images/moonbeam-circle.png";
@@ -23,8 +23,9 @@ export const tokenInfoObj: ITokenInfo = {
   xDAI: { displayName: "xDAI", iconSrc: gnosisCircle },
   BNB: { displayName: "Binance", iconSrc: binanceCircle },
   GLMR: { displayName: "Moonbeam", iconSrc: moonbeamCircle },
-  ARB: { displayName: "Moonbeam", iconSrc: arbitrumCircle },
-  OP: { displayName: "Moonbeam", iconSrc: optimismCircle },
+  ARB: { displayName: "Arbitrum", iconSrc: arbitrumCircle },
+  OP: { displayName: "Optimism", iconSrc: optimismCircle },
+  ASTR: { displayName: "Astar", iconSrc: astarCircle },
 };
 
 export const stableCoins = [
@@ -41,4 +42,5 @@ export const stableCoins = [
   "GLMR",
   "ARB",
   "OP",
+  "ASTR",
 ];

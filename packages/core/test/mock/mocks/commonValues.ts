@@ -100,9 +100,9 @@ const testDiscordConfig = {
 };
 
 const testTwitterConfig = {
-  apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+  apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
   apiSecretKey: TokenSecret(
-    "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+    "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx",
   ),
   signingAlgorithm: ESignatureAlgorithm.HMAC,
   hashingAlgorithm: EHashAlgorithm.SHA1,
@@ -125,15 +125,39 @@ export const testCoreConfig = new CoreConfig(
   5000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
-  "covalent api key",
-  "moralis api key",
-  "nftScan api key",
-  "poap api key",
-  "oklink api key",
+  {
+    alchemyApiKeys: {
+      Arbitrum: "",
+      Astar: "",
+      Mumbai: "",
+      Optimism: "",
+      Polygon: "",
+      Solana: "",
+      SolanaTestnet: "",
+    },
+    etherscanApiKeys: {
+      Ethereum: "",
+      Polygon: "",
+      Avalanche: "",
+      Binance: "",
+      Moonbeam: "",
+      Optimism: "",
+      Arbitrum: "",
+      Gnosis: "",
+      Fuji: "",
+    },
+    covalentApiKey: "covalent api key",
+    moralisApiKey: "moralis api key",
+    nftScanApiKey: "nftScan api key",
+    poapApiKey: "poap api key",
+    oklinkApiKey: "oklink api key",
+    primaryInfuraKey: "",
+    ankrApiKey: "ankr api key",
+    secondaryInfuraKey: "",
+  },
   URLString("http://dnsServerAddress"),
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
-  new Map(),
   100, // etherscan tx batch size
   5000,
   new Map<EChain, URLString>([
@@ -144,6 +168,7 @@ export const testCoreConfig = new CoreConfig(
     [EChain.Mumbai, URLString("")],
     [EChain.Arbitrum, URLString("")],
     [EChain.Optimism, URLString("")],
+    [EChain.Astar, URLString("")],
   ]),
   10000,
   "(localhost|chrome://)",
@@ -160,7 +185,6 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  "",
   ProviderUrl(""),
 );
 

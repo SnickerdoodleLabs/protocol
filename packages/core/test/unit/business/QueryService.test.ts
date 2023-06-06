@@ -9,7 +9,6 @@ import {
   BlockNumber,
   ConsentToken,
   DataPermissions,
-  EDynamicRewardParameterType,
   EQueryProcessingStatus,
   ERewardType,
   EVMAccountAddress,
@@ -23,6 +22,7 @@ import {
   IPFSError,
   InsightString,
   IpfsCID,
+  ESolidityAbiParameterType,
   PersistenceError,
   QueryStatus,
   SDQLQuery,
@@ -101,11 +101,11 @@ const dataPermissions = DataPermissions.createWithAllPermissions();
 
 const rewardParameter = {
   recipientAddress: {
-    type: EDynamicRewardParameterType.Address,
+    type: ESolidityAbiParameterType.address,
     value: "Phoebe",
   },
   CompensationKey: {
-    type: EDynamicRewardParameterType.CompensationKey,
+    type: ESolidityAbiParameterType.string,
     value: "c1",
   },
 } as IDynamicRewardParameter;

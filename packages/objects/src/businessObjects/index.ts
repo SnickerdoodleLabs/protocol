@@ -2,6 +2,7 @@ export * from "@objects/businessObjects/AdContent.js";
 export * from "@objects/businessObjects/AESEncryptedString.js";
 export * from "@objects/businessObjects/ChainInformation.js";
 export * from "@objects/businessObjects/ClickFilter.js";
+export * from "@objects/businessObjects/ComponentStatus.js";
 export * from "@objects/businessObjects/ConsentToken.js";
 export * from "@objects/businessObjects/CursorPagedResponse.js";
 export * from "@objects/businessObjects/CursorPagingRequest.js";
