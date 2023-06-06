@@ -101,6 +101,7 @@ export class AlchemyIndexer implements IEVMIndexer {
       this.getNonNativeBalance(chain, accountAddress),
       this.getNativeBalance(chain, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+
       if (nonNativeBalance.length == 0) {
         return [nativeBalance];
       }
@@ -155,6 +156,8 @@ export class AlchemyIndexer implements IEVMIndexer {
     return this.configProvider.getConfig().andThen((config) => {
       this.indexerSupport.forEach(
         (value: IndexerSupportSummary, key: EChain) => {
+          console.log("Config Api Keys: " + JSON.stringify(config.apiKeys));
+
           if (
             config.apiKeys.alchemyApiKeys[getChainInfoByChain(key).name] == ""
           ) {

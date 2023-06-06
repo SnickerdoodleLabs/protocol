@@ -198,6 +198,8 @@ export class MasterIndexer implements IMasterIndexer {
         });
     }
 
+    console.log("ChainID: " + chainId);
+
     const providers = this.preferredIndexers.get(chain)!;
     const provider = providers.find(
       (element) =>
@@ -205,7 +207,6 @@ export class MasterIndexer implements IMasterIndexer {
         element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
           EComponentStatus.Available,
     );
-
     if (provider == undefined) {
       this.logUtils.warning(
         "error fetching balances: no healthy provider found for " +
@@ -214,6 +215,8 @@ export class MasterIndexer implements IMasterIndexer {
       );
       return okAsync([]);
     }
+
+    console.log("Provider: " + provider.name());
 
     return provider
       .getBalancesForAccount(chainId, EVMAccountAddress(accountAddress))

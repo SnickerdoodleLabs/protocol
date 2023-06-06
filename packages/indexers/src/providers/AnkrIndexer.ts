@@ -114,6 +114,8 @@ export class AnkrIndexer implements IEVMIndexer {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("Config Api Keys: " + JSON.stringify(config.apiKeys));
+
       const url =
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +

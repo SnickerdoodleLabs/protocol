@@ -99,7 +99,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 if (!isAccountValidForChain(chainId, linkedAccount)) {
                   return okAsync([]);
                 }
-
+                
                 return this.getCachedBalances(
                   chainId,
                   linkedAccount.sourceAccountAddress as EVMAccountAddress,

@@ -1,6 +1,7 @@
 import {
   ChainId,
   DiscordConfig,
+  EChain,
   ProviderUrl,
   TwitterConfig,
   URLString,
@@ -274,116 +275,116 @@ export const configs: IExtensionConfigOverrides = {
   //     : "",
 
   apiKeys: {
-    alchemyApiKeys: new Map([
+    alchemyApiKeys: new Map<EChain, string | null>([
       [
-        42161,
+        EChain.Arbitrum,
         typeof __ALCHEMY_ARBITRUM_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_ARBITRUM_API_KEY__
           ? __ALCHEMY_ARBITRUM_API_KEY__
           : "",
       ],
       [
-        592,
+        EChain.Astar,
         typeof __ALCHEMY_ASTAR_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_ASTAR_API_KEY__
           ? __ALCHEMY_ASTAR_API_KEY__
           : "",
       ],
       [
-        80001,
+        EChain.Mumbai,
         typeof __ALCHEMY_MUMBAI_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_MUMBAI_API_KEY__
           ? __ALCHEMY_MUMBAI_API_KEY__
           : "",
       ],
       [
-        10,
+        EChain.Optimism,
         typeof __ALCHEMY_OPTIMISM_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_OPTIMISM_API_KEY__
           ? __ALCHEMY_OPTIMISM_API_KEY__
           : "",
       ],
       [
-        137,
+        EChain.Polygon,
         typeof __ALCHEMY_POLYGON_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_POLYGON_API_KEY__
           ? __ALCHEMY_POLYGON_API_KEY__
           : "",
       ],
       [
-        -1,
+        EChain.Solana,
         typeof __ALCHEMY_SOLANA_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_SOLANA_API_KEY__
           ? __ALCHEMY_SOLANA_API_KEY__
           : "",
       ],
       [
-        -2,
+        EChain.SolanaTestnet,
         typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
         !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
           ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
           : "",
       ],
     ]),
-    etherscanApiKeys: new Map([
+    etherscanApiKeys: new Map<EChain, string | null>([
       [
-        1,
+        EChain.EthereumMainnet,
         typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_ETHEREUM_API_KEY__
           ? __ETHERSCAN_ETHEREUM_API_KEY__
           : "",
       ],
       [
-        137,
+        EChain.Polygon,
         typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_POLYGON_API_KEY__
           ? __ETHERSCAN_POLYGON_API_KEY__
           : "",
       ],
       [
-        56,
+        EChain.Binance,
         typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_BINANCE_API_KEY__
           ? __ETHERSCAN_BINANCE_API_KEY__
           : "",
       ],
       [
-        1284,
+        EChain.Moonbeam,
         typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_MOONBEAM_API_KEY__
           ? __ETHERSCAN_MOONBEAM_API_KEY__
           : "",
       ],
       [
-        10,
+        EChain.Optimism,
         typeof __ETHERSCAN_OPTIMISM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_OPTIMISM_API_KEY__
           ? __ETHERSCAN_OPTIMISM_API_KEY__
           : "",
       ],
       [
-        42161,
+        EChain.Arbitrum,
         typeof __ETHERSCAN_ARBITRUM_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_ARBITRUM_API_KEY__
           ? __ETHERSCAN_ARBITRUM_API_KEY__
           : "",
       ],
       [
-        100,
+        EChain.Gnosis,
         typeof __ETHERSCAN_GNOSIS_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_GNOSIS_API_KEY__
           ? __ETHERSCAN_GNOSIS_API_KEY__
           : "",
       ],
       [
-        43113,
+        EChain.Fuji,
         typeof __ETHERSCAN_FUJI_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_FUJI_API_KEY__
           ? __ETHERSCAN_FUJI_API_KEY__
           : "",
       ],
       [
-        43114,
+        EChain.Avalanche,
         typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
         !!__ETHERSCAN_AVALANCHE_API_KEY__
           ? __ETHERSCAN_AVALANCHE_API_KEY__
