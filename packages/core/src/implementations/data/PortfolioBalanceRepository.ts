@@ -17,6 +17,14 @@ import {
   IMasterIndexerType,
   IMasterIndexer,
   MethodSupportError,
+  EChain,
+  ERecordKey,
+  EarnedReward,
+  ERewardType,
+  DirectReward,
+  EChainTechnology,
+  EVMNFT,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -199,6 +207,54 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
+
+        if (chainId == EChain.Astar) {
+          return this.accountRepo
+            .getEarnedRewards()
+            .map((rewards) => {
+              console.log("Earned Rewards 1: " + JSON.stringify(rewards));
+              return rewards.filter((reward) => {
+                return reward.type == ERewardType.Direct;
+              });
+            })
+            .map((newrewards) => {
+              console.log("Earned Rewards 2: " + JSON.stringify(newrewards));
+
+              return newrewards.map((newreward) => {
+                return newreward as DirectReward;
+              });
+            })
+            .map((directRewards) => {
+              console.log("Earned Rewards 3: " + JSON.stringify(directRewards));
+              return directRewards.filter((reward) => {
+                return reward.chainId == ChainId(592);
+              });
+            })
+            .map((rewards) => {
+              console.log("Earned Rewards 4: " + JSON.stringify(rewards));
+
+              return rewards.map((reward) => {
+                return new EVMNFT(
+                  reward.contractAddress,
+                  BigNumberString("123"),
+                  reward.type,
+                  reward.recipientAddress,
+                  undefined,
+                  reward,
+                  BigNumberString("1"),
+                  reward.name,
+                  ChainId(592),
+                  undefined,
+                  undefined,
+                );
+              });
+            })
+            .map((nfts) => {
+              console.log("Earned Rewards 5: " + JSON.stringify(nfts));
+              return nfts;
+            });
+        }
+
         const fetch = this.masterIndexer
           .getLatestNFTs(chainId, accountAddress)
           .map((result) => {
