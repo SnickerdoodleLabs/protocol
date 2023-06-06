@@ -54,7 +54,6 @@ export class MetricsService implements IMetricsService {
       this.metricsRepo.getQueriesPostedSummary(),
       this.metricsRepo.getRestoredBackupSummary(),
     ]).map(([context, apiStats, queriesPosted, backupsRestored]) => {
-      console.log("CHARLIE getMetrics", apiStats, queriesPosted, backupsRestored);
       const now = this.timeUtils.getUnixNow();
       const uptime = now - context.startTime;
       const statsMap = new Map(
