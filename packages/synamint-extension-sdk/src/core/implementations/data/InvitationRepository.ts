@@ -40,7 +40,7 @@ export class InvitationRepository implements IInvitationRepository {
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
-    filterActive: boolean = true,
+    filterActive = true,
   ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.core.marketplace
       .getMarketplaceListingsByTag(pagingReq, tag, filterActive)
@@ -71,7 +71,7 @@ export class InvitationRepository implements IInvitationRepository {
   public getAgreementFlags(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<HexString32, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.invitation
       .getAgreementFlags(consentContractAddress)
       .mapErr((error) => {
         this.errorUtils.emit(error);
@@ -83,7 +83,7 @@ export class InvitationRepository implements IInvitationRepository {
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   > {
-    return this.core.getAvailableInvitationsCID().mapErr((error) => {
+    return this.core.invitation.getAvailableInvitationsCID().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -93,7 +93,7 @@ export class InvitationRepository implements IInvitationRepository {
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   > {
-    return this.core.getAcceptedInvitationsCID().mapErr((error) => {
+    return this.core.invitation.getAcceptedInvitationsCID().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -126,28 +126,34 @@ export class InvitationRepository implements IInvitationRepository {
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
-    return this.core.getInvitationMetadataByCID(ipfsCID).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.invitation
+      .getInvitationMetadataByCID(ipfsCID)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError> {
-    return this.core.getInvitationsByDomain(domain).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.invitation
+      .getInvitationsByDomain(domain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
-    return this.core.checkInvitationStatus(invitation).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.invitation
+      .checkInvitationStatus(invitation)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public setDefaultReceivingAddress(
@@ -186,7 +192,7 @@ export class InvitationRepository implements IInvitationRepository {
     invitation: Invitation,
     dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.invitation
       .acceptInvitation(invitation, dataPermissions)
       .mapErr((error) => {
         this.errorUtils.emit(error);
@@ -196,7 +202,7 @@ export class InvitationRepository implements IInvitationRepository {
   public rejectInvitation(
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.rejectInvitation(invitation).mapErr((error) => {
+    return this.core.invitation.rejectInvitation(invitation).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -204,9 +210,11 @@ export class InvitationRepository implements IInvitationRepository {
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.leaveCohort(consentContractAddress).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.invitation
+      .leaveCohort(consentContractAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 }

@@ -6,18 +6,13 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import coinList from "@snickerdoodlelabs/indexers/coinList.json";
-import coinPrices from "@snickerdoodlelabs/indexers/coinPrices.json";
 import {
   AccountIndexingError,
   AjaxError,
   chainConfig,
   ChainId,
-  EBackupPriority,
-  EChain,
   ECurrencyCode,
   ERecordKey,
-  EVMContractAddress,
   getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
@@ -34,6 +29,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
+import coinList from "@core/implementations/data/coinList.json" assert { type: "json" };
+import coinPrices from "@core/implementations/data/coinPrices.json" assert { type: "json" };
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
