@@ -61,14 +61,19 @@ export default function RewardsSettings() {
   }, [unsubsribed]);
 
   const getOptedInInvitationMetaData = () => {
-    return mobileCore.invitationService
-      .getAcceptedInvitationsCID()
+    console.log("getOptedInInvitationMetaData1");
+    return mobileCore
+      .getCore()
+      .invitation.getAcceptedInvitationsCID()
       .map((metaData) => {
+        console.log("getOptedInInvitationMetaData2", metaData);
         setAcceptedInvitations(metaData);
         setCids(Array.from(metaData.values()));
         return Array.from(metaData.values()).map((cid) => {
-          return mobileCore.invitationService
-            .getInvitationMetadataByCID(cid)
+          console.log("getInvitationMetadataByCID", cid);
+          return mobileCore
+            .getCore()
+            .invitation.getInvitationMetadataByCID(cid)
             .map((meta) => {
               return meta;
             });
@@ -184,8 +189,9 @@ export default function RewardsSettings() {
 
                         if (foundKey) {
                           setIsLoading([...isLoading, { status: true, index }]);
-                          mobileCore.invitationService
-                            .leaveCohort(foundKey)
+                          mobileCore
+                            .getCore()
+                            .invitation.leaveCohort(foundKey)
                             .andThen((res) => {
                               setUnsubscribed(!unsubsribed);
                             });

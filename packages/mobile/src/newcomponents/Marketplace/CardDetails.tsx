@@ -138,7 +138,7 @@ const CardDetails = ({ navigation, route }) => {
   useEffect(() => {
     mobileCore
       .getCore()
-      .getAcceptedInvitationsCID()
+      .invitation.getAcceptedInvitationsCID()
       .map((consentAddresses) => {
         if (consentAddresses.get(marketplaceListing.consentContract)) {
           setIsSubscribed(true);
@@ -231,8 +231,8 @@ const CardDetails = ({ navigation, route }) => {
 
   const handleSubscribe = (tokenId, signature) => {
     console.warn("CHECKING INVITATION");
-    const invitationService = mobileCore.invitationService;
-    let _invitation: Invitation;
+    /*     const invitationService = mobileCore.invitationService;
+     */ let _invitation: Invitation;
 
     ResultUtils.combine([
       getTokenId(tokenId),
@@ -251,7 +251,7 @@ const CardDetails = ({ navigation, route }) => {
 
       mobileCore
         .getCore()
-        .checkInvitationStatus(_invitation)
+        .invitation.checkInvitationStatus(_invitation)
         .map((status) => {
           console.warn("INVITATION STATUS", EInvitationStatus[status]);
           if (status === EInvitationStatus.New) {
@@ -264,7 +264,7 @@ const CardDetails = ({ navigation, route }) => {
               .andThen(() => {
                 return mobileCore
                   .getCore()
-                  .acceptInvitation(_invitation, datapermissions);
+                  .invitation.acceptInvitation(_invitation, datapermissions);
               });
             setSubscribeButtonClicked(false);
             setSubscribeConfirmation(false);
@@ -894,7 +894,10 @@ const CardDetails = ({ navigation, route }) => {
                         />
                         <View>
                           <Text
-                            style={{ paddingHorizontal: normalizeWidth(2),color:theme?.colors.title }}
+                            style={{
+                              paddingHorizontal: normalizeWidth(2),
+                              color: theme?.colors.title,
+                            }}
                           >
                             {EWalletDataType[dataType]}
                           </Text>

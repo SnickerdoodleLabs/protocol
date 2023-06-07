@@ -61,7 +61,8 @@ const EventContextProvider = ({ children }) => {
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
 
-    mobileCore.invitationService
+    mobileCore
+      .getCore()
       .getReceivingAddress(request.consentContractAddress)
       .map((accountAddress) => {
         request.rewardsPreview.forEach((eligibleReward) => {

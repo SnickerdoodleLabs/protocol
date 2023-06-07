@@ -7732,6 +7732,7 @@ __metadata:
   dependencies:
     "@babel/core": ^7.12.9
     "@babel/plugin-proposal-decorators": ^7.20.13
+    "@babel/plugin-syntax-import-assertions": ^7.20.0
     "@babel/runtime": ^7.20.1
     "@ceramicnetwork/http-client": ^2.10.0
     "@ceramicnetwork/streamid": ^2.7.0
@@ -7823,6 +7824,7 @@ __metadata:
     react-native-crypto: ^2.2.0
     react-native-date-picker: ^4.2.9
     react-native-dropdown-picker: ^5.4.4
+    react-native-fast-image: ^8.6.3
     react-native-gesture-handler: ^2.8.0
     react-native-get-random-values: ^1.8.0
     react-native-level-fs: ^3.0.1
@@ -7845,7 +7847,7 @@ __metadata:
     react-native-tab-view: ^3.5.1
     react-native-tcp: ^4.0.0
     react-native-track-player: ^3.2.0
-    react-native-udp: ^2.7.0
+    react-native-udp: ^4.1.7
     react-native-vector-icons: ^9.2.0
     react-native-video: ^5.2.1
     react-scripts: ^5.0.1
@@ -19387,7 +19389,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:^3.0.0, events@npm:^3.2.0, events@npm:^3.3.0":
+"events@npm:^3.0.0, events@npm:^3.1.0, events@npm:^3.2.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
@@ -34100,6 +34102,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-fast-image@npm:^8.6.3":
+  version: 8.6.3
+  resolution: "react-native-fast-image@npm:8.6.3"
+  peerDependencies:
+    react: ^17 || ^18
+    react-native: ">=0.60.0"
+  checksum: 29289cb6b2eae0983c8922b22e2d9de3be07322bb7991c5def19f95eadefaedb0e308ff0b38cc1d0444e8bd4fe94a7621a99a2d3d9298100bcb60b3144677234
+  languageName: node
+  linkType: hard
+
 "react-native-fetch-api@npm:^3.0.0":
   version: 3.0.0
   resolution: "react-native-fetch-api@npm:3.0.0"
@@ -34430,16 +34442,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-udp@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "react-native-udp@npm:2.7.0"
+"react-native-udp@npm:^4.1.7":
+  version: 4.1.7
+  resolution: "react-native-udp@npm:4.1.7"
   dependencies:
-    base64-js: 0.0.8
-    events: ^1.0.2
-    inherits: ^2.0.1
-    ip-regex: ^1.0.3
-    util: ^0.10.3
-  checksum: 84838ef3ccb037c81505c115a74e35be1f5ae8a0f6ccdf32e4240ad7f0892ffff96ff97e44345aeb0d6e75f88194d84350ee14e4391a8a9a763e33d4b5790d1e
+    buffer: ^5.6.0
+    events: ^3.1.0
+  checksum: e11fdbdb52c6ce701af266effd6c538247dca12c604d32ac0a83e68644b0d629a65d2b57fc402ed9147f5cb8c6c25cd7240d6a772c946c9f0d4b5d5630199e63
   languageName: node
   linkType: hard
 

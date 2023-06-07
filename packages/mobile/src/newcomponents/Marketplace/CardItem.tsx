@@ -78,8 +78,9 @@ const CardItem: React.FC<CardItemProps> = ({ marketplaceListing }) => {
   });
 
   useEffect(() => {
-    mobileCore.invitationService
-      .getInvitationMetadataByCID(marketplaceListing?.cid as IpfsCID)
+    mobileCore
+      .getCore()
+      .invitation.getInvitationMetadataByCID(marketplaceListing?.cid as IpfsCID)
       .map((data) => {
         setMetaData(data);
       });

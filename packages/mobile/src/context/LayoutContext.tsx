@@ -384,19 +384,23 @@ const LayoutContextProvider = ({ children }) => {
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
           ])
           .map((dataPermissions) => {
-            mobileCore.invitationService.acceptInvitation(
-              invitationStatus.invitationParams!,
-              dataPermissions,
-            );
+            mobileCore
+              .getCore()
+              .invitation.acceptInvitation(
+                invitationStatus.invitationParams!,
+                dataPermissions,
+              );
           });
       } else {
         mobileCore.dataPermissionUtils
           .generateDataPermissionsClassWithDataTypes(perms)
           .map((dataPermissions) => {
-            mobileCore.invitationService.acceptInvitation(
-              invitationStatus.invitationParams!,
-              dataPermissions,
-            );
+            mobileCore
+              .getCore()
+              .invitation.acceptInvitation(
+                invitationStatus.invitationParams!,
+                dataPermissions,
+              );
           });
       }
 
