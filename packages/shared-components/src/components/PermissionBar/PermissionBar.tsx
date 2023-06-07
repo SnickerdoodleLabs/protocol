@@ -308,7 +308,9 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                       name="gender"
                       value={values.gender}
                     >
-                      <MenuItem className={classes.menuItem}>Female</MenuItem>
+                      <MenuItem className={classes.menuItem} value="female">
+                        Female
+                      </MenuItem>
 
                       <MenuItem className={classes.menuItem} value="male">
                         Male
