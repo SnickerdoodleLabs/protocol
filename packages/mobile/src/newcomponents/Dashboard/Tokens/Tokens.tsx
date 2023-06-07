@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
 import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { IDashboardChildrenProps } from "../Dashboard";
@@ -172,7 +172,7 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
         </View>
       </View>
 
-      <View style={{marginBottom:normalizeHeight(50)}}>
+      <View style={{ marginBottom: normalizeHeight(50) }}>
         <View style={styles.borderBox}>
           <Text style={styles.text3}>Tokens</Text>
           <Text style={styles.description}>
@@ -189,6 +189,9 @@ export default function Tokens({ data }: IDashboardChildrenProps) {
           })}
         </View>
       </View>
+      {Platform.OS === "android" && (
+        <View style={{ marginTop: normalizeHeight(20) }}></View>
+      )}
     </View>
   );
 }

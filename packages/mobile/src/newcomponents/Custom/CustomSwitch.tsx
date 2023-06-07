@@ -13,8 +13,8 @@ const CustomSwitch: React.FC<CustomSwitchProps> = ({
 }) => {
   const backgroundColor = value ? "#6E62A6" : "#ccc";
   const circlePosition = value
-    ? { right: normalizeWidth(1.8),top:normalizeHeight(1.5) }
-    : { left: normalizeWidth(1.5),top:normalizeHeight(1.5) };
+    ? { right: normalizeWidth(2),top:normalizeHeight(4) }
+    : { left: normalizeWidth(2),top:normalizeHeight(4) };
 
   const handlePress = () => {
     onValueChange(!value);

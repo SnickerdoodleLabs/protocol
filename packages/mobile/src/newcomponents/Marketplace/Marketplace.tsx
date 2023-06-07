@@ -417,6 +417,7 @@ export default function Marketplace() {
                         fontSize: normalizeWidth(15),
                         textAlign: "center",
                         paddingHorizontal: "15%",
+                        color: theme?.colors.description,
                       }}
                     >
                       There are no available rewards programs in this category.
@@ -424,15 +425,17 @@ export default function Marketplace() {
                   </View>
                 )}
 
-                <View style={{}}>
-                  <FlatList
-                    data={filteredByCategory}
-                    renderItem={renderFiltered}
-                    horizontal={true}
-                    keyExtractor={(item) => item.tag.toString()}
-                    showsHorizontalScrollIndicator={false}
-                  />
-                </View>
+                {filteredByCategory[0]?.image && (
+                  <View style={{}}>
+                    <FlatList
+                      data={filteredByCategory}
+                      renderItem={renderFiltered}
+                      horizontal={true}
+                      keyExtractor={(item) => item.tag.toString()}
+                      showsHorizontalScrollIndicator={false}
+                    />
+                  </View>
+                )}
               </View>
             )}
           </View>

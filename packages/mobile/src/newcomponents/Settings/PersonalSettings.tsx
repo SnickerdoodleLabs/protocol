@@ -29,7 +29,7 @@ export default function PersonalSettings() {
     <ScrollView
       style={{
         paddingHorizontal: normalizeWidth(20),
-        backgroundColor: theme?.colors.background
+        backgroundColor: theme?.colors.background,
       }}
     >
       <SafeAreaView>
@@ -56,7 +56,9 @@ export default function PersonalSettings() {
         >
           {`Add or change demographic information in your\nData Wallet.\n\nAny info you share is anonymized and cannot be linked back to your wallet addresses.`}
         </Text>
-        <MyComponent />
+        <View style={{ height: normalizeHeight(400) }}>
+          <MyComponent />
+        </View>
       </SafeAreaView>
     </ScrollView>
   );

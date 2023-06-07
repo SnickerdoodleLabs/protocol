@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
@@ -45,23 +46,32 @@ export default function OnboardingItem({
           }}
         >
           <View
-            style={{
-              paddingHorizontal: normalizeWidth(18),
-              marginTop: normalizeHeight(40),
-              height: normalizeHeight(item?.asset?.height ?? 0),
-            }}
+            style={
+              Platform.OS === "ios"
+                ? {
+                    paddingHorizontal: normalizeWidth(18),
+                    marginTop: normalizeHeight(40),
+                    height: normalizeHeight(item?.asset?.height ?? 0),
+                  }
+                : {
+                    paddingHorizontal: normalizeWidth(18),
+                    marginTop: normalizeHeight(60),
+                    height: normalizeHeight(item?.asset?.height ?? 0),
+                  }
+            }
           >
-            {item.asset && item.asset.type === "image" ? (
-              <Image
-                style={{
-                  flex: 1,
-                  resizeMode: "contain",
-                }}
-                source={item?.asset?.source}
-              />
-            ) : (
-              <VideoPlayer source={item.asset?.source} />
-            )}
+            {item.asset?.height>0 &&
+              (item.asset.type === "image" ? (
+                <Image
+                  style={{
+                    flex: 1,
+                    resizeMode: "contain",
+                  }}
+                  source={item?.asset?.source}
+                />
+              ) : (
+                <VideoPlayer source={item.asset?.source} />
+              ))}
           </View>
           <View>
             <View
@@ -88,7 +98,6 @@ export default function OnboardingItem({
                   fontWeight: "400",
                   color: theme?.colors.description,
                   fontSize: normalizeWidth(16),
-                  lineHeight: normalizeWidth(23),
                 }}
               >
                 {item.description}

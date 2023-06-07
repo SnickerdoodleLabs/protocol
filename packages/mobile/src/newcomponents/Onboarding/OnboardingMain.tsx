@@ -255,7 +255,11 @@ const OnboardingMain = () => {
           </Text>
         </TouchableOpacity>
       ),
-      component: <MyComponent />,
+      component: (
+        <View style={{ height: normalizeHeight(350) }}>
+          <MyComponent />
+        </View>
+      ),
       backButton: false,
     },
 
@@ -438,13 +442,13 @@ const OnboardingMain = () => {
                     flex: 1,
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    backgroundColor: "transparent",
                   }}
                 >
                   <KeyboardAvoidingView
                     style={[
                       {
-                        backgroundColor: theme?.colors.background,
+                        backgroundColor: theme?.colors.backgroundSecondary,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -481,7 +485,12 @@ const OnboardingMain = () => {
                       {`Connect your existing digital wallet via\n WalletConnect. If you don't yet have a digital wallet,\n we can help you get one.`}
                     </Text>
                     {!usePublicKey && (
-                      <View style={{ alignItems: "center" }}>
+                      <View
+                        style={{
+                          alignItems: "center",
+                          backgroundColor: theme?.colors.backgroundSecondary,
+                        }}
+                      >
                         <TouchableOpacity
                           style={{
                             backgroundColor: "#6E62A6",

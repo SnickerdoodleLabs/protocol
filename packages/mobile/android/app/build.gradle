@@ -78,11 +78,14 @@
     * ]
     */
 
+
+
     project.ext.react = [
         enableHermes: true,  // clean and rebuild if changing
     ]
 
     apply from: "../../node_modules/react-native/react.gradle"
+    apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
     /**
     * Set this to true to create two separate APKs instead of one:
@@ -253,6 +256,7 @@
 
         //noinspection GradleDynamicVersion
         implementation "com.facebook.react:react-native:+"  // From node_modules
+        implementation project(':react-native-vector-icons')
         
     // implementation 'com.transistorsoft:tsbackgroundfetch:+'
 

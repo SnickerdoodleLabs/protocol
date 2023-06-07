@@ -29,6 +29,7 @@ import BottomSheetComponenet from "../newcomponents/Custom/BottomSheetComponenet
 import { useNavigation } from "@react-navigation/native";
 import { ROUTES } from "../constants";
 import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
+import FastImage from "react-native-fast-image";
 
 var styles = StyleSheet.create({
   overlay: {
@@ -405,7 +406,7 @@ const LayoutContextProvider = ({ children }) => {
     });
   };
   const rejectInvitationHandle = () => {
-  /*   mobileCore.invitationService.rejectInvitation(
+    /*   mobileCore.invitationService.rejectInvitation(
       invitationStatus.invitationParams!,
     ); */
     setInvitationStatus(
@@ -429,6 +430,7 @@ const LayoutContextProvider = ({ children }) => {
                 backgroundColor: "transparent",
                 position: "absolute",
                 zIndex: 99999,
+                elevation: 99999,
                 width: Dimensions.get("window").width,
                 height: Dimensions.get("window").height,
                 display: "flex",
@@ -436,11 +438,13 @@ const LayoutContextProvider = ({ children }) => {
                 justifyContent: "center",
               }}
             >
-              <Image
-                style={{ width: 250, height: 250 }}
+              <FastImage
+                style={{
+                  width: normalizeWidth(250),
+                  height: normalizeHeight(250),
+                }}
                 source={require("../assets/images/S-loading6.gif")}
               />
-              {/*  <LottieView source={UnlockLottie} autoPlay loop /> */}
             </View>
           );
       }

@@ -101,11 +101,17 @@ export default function Settings() {
               navigation.navigate(ROUTES.CRYPTO_SETTINGS);
             }}
           >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                height: 80,
+              }}
+            >
               <Image
                 style={{
-                  width: normalizeWidth(62),
-                  height: normalizeHeight(62),
+                  width: 62,
+                  height: 62,
                 }}
                 source={require("../../assets/images/settings-crypto.png")}
               />
@@ -113,7 +119,7 @@ export default function Settings() {
                 style={{
                   paddingLeft: normalizeWidth(20),
                   fontWeight: "700",
-                  fontSize: normalizeWidth(20),
+                  fontSize: 19,
                   color: theme?.colors.description,
                 }}
               >
@@ -143,8 +149,8 @@ export default function Settings() {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <View
                 style={{
-                  width: normalizeWidth(62),
-                  height: normalizeHeight(62),
+                  width: 62,
+                  height: 62,
                   borderRadius: 100,
                   backgroundColor: "#f3f2f9",
                   alignItems: "center",
@@ -158,7 +164,7 @@ export default function Settings() {
                 style={{
                   paddingLeft: normalizeWidth(20),
                   fontWeight: "700",
-                  fontSize: normalizeWidth(20),
+                  fontSize: 19,
                   color: theme?.colors.description,
                 }}
               >
@@ -188,8 +194,8 @@ export default function Settings() {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
                 style={{
-                  width: normalizeWidth(62),
-                  height: normalizeHeight(62),
+                  width: 62,
+                  height: 62,
                 }}
                 source={require("../../assets/images/settings-subscription.png")}
               />
@@ -197,7 +203,7 @@ export default function Settings() {
                 style={{
                   paddingLeft: normalizeWidth(20),
                   fontWeight: "700",
-                  fontSize: normalizeWidth(20),
+                  fontSize: 19,
                   color: theme?.colors.description,
                 }}
               >
@@ -227,8 +233,8 @@ export default function Settings() {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
                 style={{
-                  width: normalizeWidth(62),
-                  height: normalizeHeight(62),
+                  width: 62,
+                  height: 62,
                 }}
                 source={require("../../assets/images/settings-permissions.png")}
               />
@@ -236,7 +242,7 @@ export default function Settings() {
                 style={{
                   paddingLeft: normalizeWidth(20),
                   fontWeight: "700",
-                  fontSize: normalizeWidth(20),
+                  fontSize: 19,
                   color: theme?.colors.description,
                 }}
               >

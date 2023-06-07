@@ -4,6 +4,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -190,7 +191,7 @@ const Dashboard = () => {
         position: "absolute",
       },
     });
-  }, [navigation,theme]);
+  }, [navigation, theme]);
 
   useEffect(() => {
     const testnet = ["43113", "8001", "97"];
@@ -331,6 +332,9 @@ const Dashboard = () => {
             marginHorizontal: normalizeWidth(5),
           }}
         >
+          {Platform.OS === "android" && (
+            <View style={{ marginTop: normalizeHeight(20) }}></View>
+          )}
           <View style={styles.containerBox}>
             <Text style={styles.title}>My Data Dashboard</Text>
             <TouchableOpacity
