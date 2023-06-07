@@ -28,6 +28,7 @@ import {
   getChainInfoByChain,
   MethodSupportError,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -100,7 +101,10 @@ export class AnkrIndexer implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       const url =
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
@@ -114,6 +118,7 @@ export class AnkrIndexer implements IEVMIndexer {
         id: 1,
       };
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrBalancesReponse>(new URL(url), requestParams, {
           headers: {
@@ -153,7 +158,10 @@ export class AnkrIndexer implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       const url =
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
@@ -167,6 +175,7 @@ export class AnkrIndexer implements IEVMIndexer {
         id: 1,
       };
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrNftReponse>(new URL(url), requestParams, {
           headers: {

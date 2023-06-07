@@ -4,15 +4,11 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
-  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
   AjaxError,
   ChainId,
-  ISolanaBalanceRepository,
-  ISolanaNFTRepository,
-  ISolanaTransactionRepository,
   SolanaAccountAddress,
   TokenBalance,
   SolanaNFT,
@@ -30,8 +26,8 @@ import {
   ISolanaIndexer,
   EComponentStatus,
   IndexerSupportSummary,
-  getChainInfoByChain,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
@@ -46,12 +42,13 @@ import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class SolanaIndexer implements ISolanaIndexer {
@@ -71,6 +68,8 @@ export class SolanaIndexer implements ISolanaIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
@@ -102,8 +101,12 @@ export class SolanaIndexer implements ISolanaIndexer {
     accountAddress: SolanaAccountAddress,
   ): ResultAsync<SolanaNFT[], AccountIndexingError | AjaxError> {
     // return okAsync([]);
-    return this._getConnectionForChainId(chainId)
-      .andThen(([conn, metaplex]) => {
+    return ResultUtils.combine([
+      this._getConnectionForChainId(chainId),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([[conn, metaplex], context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(
           metaplex
             .nfts()
@@ -229,12 +232,18 @@ export class SolanaIndexer implements ISolanaIndexer {
     return ResultUtils.combine([
       this._getConnectionForChainId(chainId),
       this._getFilters(accountAddress),
+      this.contextProvider.getContext(),
     ])
-      .map(async ([[conn], filters]) => {
-        const balance = await conn.getBalance(publicKey);
-        return balance;
+      .andThen(([[conn], filters, context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
+        return ResultAsync.fromPromise(conn.getBalance(publicKey), (e) => {
+          return new AccountIndexingError(
+            "Error getting Solana native balance",
+            e,
+          );
+        });
       })
-      .andThen((balance: number) => {
+      .map((balance) => {
         const nativeBalance = new TokenBalance(
           EChainTechnology.Solana,
           TickerSymbol("SOL"),
@@ -244,9 +253,10 @@ export class SolanaIndexer implements ISolanaIndexer {
           BigNumberString(BigNumber.from(balance).toString()),
           getChainInfoByChainId(chainId).nativeCurrency.decimals,
         );
-        return okAsync(nativeBalance);
+        return nativeBalance;
       });
   }
+
   private _getConnectionForChainId(
     chainId: ChainId,
   ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
@@ -309,8 +319,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     return ResultUtils.combine([
       this._getConnectionForChainId(chainId),
       this._getFilters(accountAddress),
+      this.contextProvider.getContext(),
     ])
-      .andThen(([[conn], filters]) => {
+      .andThen(([[conn], filters, context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(
           conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
             filters: filters,
