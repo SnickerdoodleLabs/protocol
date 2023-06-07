@@ -1,5 +1,5 @@
 import optInBg from "@extension-onboarding/assets/images/opt-in-bg.svg";
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";

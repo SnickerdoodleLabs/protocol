@@ -1,5 +1,5 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import TagSelection from "@extension-onboarding/components/TagSelection";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/CategorySelection/CategorySelection.style";
 import { Box, Typography } from "@material-ui/core";
