@@ -10,10 +10,11 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
-import { PossibleReward as PossibleRewardComponent } from "@extension-onboarding/components/RewardItems";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IWaitingRewardsProps {
@@ -27,6 +28,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
   consentContractAddress,
 }) => {
   const sectionClasses = useSectionStyles();
+  const { apiGateway } = useAppContext();
   const [defaultPermissions, setDefaultPermissions] = useState<
     EWalletDataType[]
   >([]);
@@ -95,6 +97,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
           return (
             <Grid xs={2} item key={reward.queryCID}>
               <PossibleRewardComponent
+                ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
                 consentContractAddress={consentContractAddress}
                 badgeType={
                   type === EPossibleRewardDisplayType.ProgramRewards
