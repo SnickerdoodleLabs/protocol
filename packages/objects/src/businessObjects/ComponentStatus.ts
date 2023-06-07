@@ -1,4 +1,4 @@
-import { EChain, EIndexer, EDataProvider } from "@objects/enum";
+import { EChain, EDataProvider } from "@objects/enum";
 export class ComponentStatus {
   public constructor(
     public primaryProvider: EComponentStatus,

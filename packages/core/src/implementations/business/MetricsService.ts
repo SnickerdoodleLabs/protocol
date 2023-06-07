@@ -66,6 +66,7 @@ export class MetricsService implements IMetricsService {
         statsMap,
         queriesPosted,
         backupsRestored,
+        context.components,
       );
     });
   }
