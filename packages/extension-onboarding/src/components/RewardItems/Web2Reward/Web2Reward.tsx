@@ -1,4 +1,3 @@
-import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useStyles } from "@extension-onboarding/components/RewardItems/Web2Reward/Web2Reward.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
@@ -8,6 +7,7 @@ import {
   EWalletDataType,
   Web2Reward,
 } from "@snickerdoodlelabs/objects";
+import { useRewardItemsStyles } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { useNavigate } from "react-router";
 import { useLocation } from "react-router-dom";
