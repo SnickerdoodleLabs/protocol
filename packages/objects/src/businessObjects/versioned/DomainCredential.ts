@@ -3,15 +3,17 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { ERecordKey } from "@objects/enum";
 import {
   DomainName,
   PEMEncodedRSAPrivateKey,
   PEMEncodedRSAPublicKey,
   UUID,
+  VolatileStorageKey,
 } from "@objects/primitives";
 
 export class DomainCredential extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public pKey: VolatileStorageKey;
 
   public constructor(
     public domain: DomainName,
@@ -19,8 +21,10 @@ export class DomainCredential extends VersionedObject {
     public key: RSAKeyPair,
   ) {
     super();
+    this.pKey = domain;
   }
 
+  public static CURRENT_VERSION = 1;
   public getVersion(): number {
     return DomainCredential.CURRENT_VERSION;
   }
@@ -33,7 +37,7 @@ export class DomainCredentialMigrator extends VersionedObjectMigrator<DomainCred
 
   // Need the any because I have a nested object
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected factory(data: Record<string, any>): DomainCredential {
+  public factory(data: Record<string, any>): DomainCredential {
     return new DomainCredential(
       data["domain"] as DomainName,
       data["id"] as UUID,
@@ -50,4 +54,25 @@ export class DomainCredentialMigrator extends VersionedObjectMigrator<DomainCred
   > {
     return new Map();
   }
+}
+
+export class RealmDomainCredential extends Realm.Object<RealmDomainCredential> {
+  pKey!: string;
+  id!: string;
+  key!: RealmRsaKeyPair;
+
+  static schema = {
+    name: ERecordKey.DOMAIN_CREDENTIALS,
+    properties: {
+      pKey: "string",
+      id: "string",
+      key: "{}",
+    },
+    primaryKey: "pKey",
+  };
+}
+
+export interface RealmRsaKeyPair extends Realm.Dictionary {
+  privateKey: string;
+  publicKey: string;
 }

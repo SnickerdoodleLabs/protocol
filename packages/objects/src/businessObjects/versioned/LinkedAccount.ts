@@ -2,8 +2,12 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject";
-import { EChain } from "@objects/enum";
-import { AccountAddress, EVMAccountAddress } from "@objects/primitives";
+import { EChain, ERecordKey } from "@objects/enum";
+import {
+  AccountAddress,
+  EVMAccountAddress,
+  VolatileStorageKey,
+} from "@objects/primitives";
 
 export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount> {
   public getCurrentVersion(): number {
@@ -22,60 +26,41 @@ export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount
     number,
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   > {
-    return new Map([
-      // [
-      //   1,
-      //   (data, version) => {
-      //     data["foo"] = 0;
-      //     return data;
-      //   },
-      // ],
-    ]);
+    return new Map();
   }
 }
 
 export class LinkedAccount extends VersionedObject {
-  public static CURRENT_VERSION = 1;
-
+  public pKey: VolatileStorageKey;
   public constructor(
     public sourceChain: EChain,
     public sourceAccountAddress: AccountAddress,
     public derivedAccountAddress: EVMAccountAddress,
   ) {
     super();
+    this.pKey = sourceAccountAddress;
   }
 
+  public static CURRENT_VERSION = 1;
   public getVersion(): number {
     return LinkedAccount.CURRENT_VERSION;
   }
 }
 
-// export class LinkedAccountV1 extends VersionedObject {
-//   public constructor(
-//     public sourceChain: EChain,
-//     public sourceAccountAddress: AccountAddress,
-//     public derivedAccountAddress: EVMAccountAddress,
-//   ) {
-//     super();
-//   }
-
-//   public getVersion(): number {
-//     return 1;
-//   }
-// }
-
 export class RealmLinkedAccount extends Realm.Object<LinkedAccount> {
+  pKey!: string;
   sourceChain!: number;
   sourceAccountAddress!: string;
   derivedAccountAddress!: string;
 
   static schema = {
-    name: "LinkedAccount",
+    name: ERecordKey.ACCOUNT,
     properties: {
+      pKey: "string",
       sourceAccountAddress: "string",
       sourceChain: "int",
       derivedAccountAddress: "string",
     },
-    primaryKey: "sourceAccountAddress",
+    primaryKey: "pKey",
   };
 }

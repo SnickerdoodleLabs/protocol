@@ -3,11 +3,11 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject";
-import { EChain } from "@objects/enum";
-import { TickerSymbol } from "@objects/primitives";
+import { EChain, ERecordKey } from "@objects/enum";
+import { TickerSymbol, VolatileStorageKey } from "@objects/primitives";
 
 export class TokenInfo extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public pKey: string;
 
   public constructor(
     public id: string,
@@ -18,10 +18,16 @@ export class TokenInfo extends VersionedObject {
     public decimals?: number,
   ) {
     super();
+    this.pKey = TokenInfo.getKey(this.chain, this.address);
   }
 
+  public static CURRENT_VERSION = 1;
   public getVersion(): number {
     return TokenInfo.CURRENT_VERSION;
+  }
+
+  public static getKey(chain: EChain, address: TokenAddress | null): string {
+    return `${chain}_${address}`;
   }
 }
 
@@ -30,7 +36,7 @@ export class TokenInfoMigrator extends VersionedObjectMigrator<TokenInfo> {
     return TokenInfo.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): TokenInfo {
+  public factory(data: Record<string, unknown>): TokenInfo {
     return new TokenInfo(
       data["id"] as string,
       data["symbol"] as TickerSymbol,
@@ -47,4 +53,26 @@ export class TokenInfoMigrator extends VersionedObjectMigrator<TokenInfo> {
   > {
     return new Map();
   }
+}
+
+export class RealmTokenInfo extends Realm.Object<RealmTokenInfo> {
+  pKey!: string;
+  symbol!: string;
+  name!: string;
+  chain!: number;
+  address!: string;
+  decimals!: number;
+
+  static schema = {
+    name: ERecordKey.COIN_INFO,
+    properties: {
+      pKey: "string",
+      symbol: "string",
+      name: "string",
+      chain: "int",
+      address: "string",
+      decimals: "int",
+    },
+    primaryKey: "pKey",
+  };
 }

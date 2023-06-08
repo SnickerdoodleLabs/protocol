@@ -1,3 +1,4 @@
+import { VolatileStorageQuery } from "@persistence/volatile/VolatileStorageQuery.js";
 import { createRealmContext, RealmContext } from "@realm/react";
 import {
   PersistenceError,
@@ -19,7 +20,7 @@ import {
   IVolatileStorageSchemaProviderType,
 } from "@persistence/volatile/IVolatileStorageSchemaProvider.js";
 import { RealmCursor } from "@persistence/volatile/RealmCursor.js";
-import { VolatileStorageQuery } from "@persistence/volatile/VolatileStorageQuery.js";
+import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 @injectable()
 export class RealmVolatileStorage implements IVolatileStorage {
@@ -65,6 +66,10 @@ export class RealmVolatileStorage implements IVolatileStorage {
       const { RealmProvider, useRealm, useObject, useQuery } = context;
       const realm = useRealm();
       try {
+        if (obj.pKey == null) {
+          obj.pKey = new Realm.BSON.UUID();
+        }
+
         realm.write(() => {
           realm.create(recordKey, obj as Unmanaged<unknown, never>, "modified");
         });
@@ -168,13 +173,17 @@ export class RealmVolatileStorage implements IVolatileStorage {
       return this._init;
     }
 
-    return this.schemaProvider.getVolatileStorageSchema().andThen((schema) => {
-      const objects = Array.from(schema.values()).map((x) => x.realmClass);
-      const config: Realm.Configuration = {
-        schema: objects,
-      };
-      this._init = okAsync(createRealmContext(config));
-      return this._init;
-    });
+    return this.schemaProvider
+      .getVolatileStorageSchema()
+      .andThen(
+        (schema: Map<ERecordKey, VolatileTableIndex<VersionedObject>>) => {
+          const objects = Array.from(schema.values()).map((x) => x.realmClass);
+          const config: Realm.Configuration = {
+            schema: objects,
+          };
+          this._init = okAsync(createRealmContext(config));
+          return this._init;
+        },
+      );
   }
 }

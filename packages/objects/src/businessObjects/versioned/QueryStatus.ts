@@ -2,13 +2,14 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
-import { EQueryProcessingStatus } from "@objects/enum/index.js";
+import { EQueryProcessingStatus, ERecordKey } from "@objects/enum/index.js";
 import {
   BlockNumber,
   EVMContractAddress,
   IpfsCID,
   JSONString,
   UnixTimestamp,
+  VolatileStorageKey,
 } from "@objects/primitives/index.js";
 
 /**
@@ -24,7 +25,7 @@ import {
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
 export class QueryStatus extends VersionedObject {
-  public static CURRENT_VERSION = 2;
+  public pKey: VolatileStorageKey;
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
@@ -34,8 +35,10 @@ export class QueryStatus extends VersionedObject {
     public rewardsParameters: JSONString | null,
   ) {
     super();
+    this.pKey = queryCID;
   }
 
+  public static CURRENT_VERSION = 2;
   public getVersion(): number {
     return QueryStatus.CURRENT_VERSION;
   }
@@ -46,7 +49,7 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     return QueryStatus.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): QueryStatus {
+  public factory(data: Record<string, unknown>): QueryStatus {
     return new QueryStatus(
       data["consentContractAddress"] as EVMContractAddress,
       data["queryCID"] as IpfsCID,
@@ -73,4 +76,28 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
       ],
     ]);
   }
+}
+
+export class RealmQueryStatus extends Realm.Object<QueryStatus> {
+  pKey!: string;
+  consentContractAddress!: string;
+  queryCID!: string;
+  receivedBlock!: number;
+  status!: number;
+  expirationDate!: number;
+  rewardsParameters!: string | null;
+
+  static schema = {
+    name: ERecordKey.QUERY_STATUS,
+    properties: {
+      pKey: "string",
+      consentContractAddress: "string",
+      queryCID: "string",
+      receivedBlock: "int",
+      status: "int",
+      expirationDate: "int",
+      rewardsParameters: "string?",
+    },
+    primaryKey: "pKey",
+  };
 }

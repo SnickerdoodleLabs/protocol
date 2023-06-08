@@ -2,11 +2,12 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject";
+import { ERecordKey } from "@objects/enum";
 import { ERewardType } from "@objects/enum/ERewardType";
-import { IpfsCID } from "@objects/primitives";
+import { IpfsCID, VolatileStorageKey } from "@objects/primitives";
 
 export class EarnedReward extends VersionedObject {
-  public static CURRENT_VERSION = 1;
+  public pKey: VolatileStorageKey;
 
   constructor(
     readonly queryCID: IpfsCID,
@@ -16,10 +17,16 @@ export class EarnedReward extends VersionedObject {
     readonly type: ERewardType,
   ) {
     super();
+    this.pKey = EarnedReward.getKey(queryCID, name);
   }
 
+  public static CURRENT_VERSION = 1;
   public getVersion(): number {
     return EarnedReward.CURRENT_VERSION;
+  }
+
+  public static getKey(queryCID: IpfsCID, name: string): VolatileStorageKey {
+    return `${queryCID}_${name}`;
   }
 }
 
@@ -28,7 +35,7 @@ export class EarnedRewardMigrator extends VersionedObjectMigrator<EarnedReward> 
     return EarnedReward.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): EarnedReward {
+  public factory(data: Record<string, unknown>): EarnedReward {
     return new EarnedReward(
       data["queryCID"] as IpfsCID,
       data["name"] as string,
@@ -44,4 +51,26 @@ export class EarnedRewardMigrator extends VersionedObjectMigrator<EarnedReward> 
   > {
     return new Map();
   }
+}
+
+export class RealmEarnedReward extends Realm.Object<RealmEarnedReward> {
+  pKey!: string;
+  queryCID!: string;
+  name!: string;
+  image!: string | null;
+  description!: string;
+  type!: string;
+
+  static schema = {
+    name: ERecordKey.EARNED_REWARDS,
+    properties: {
+      pKey: "string",
+      queryCID: "string",
+      name: "string",
+      image: "string?",
+      description: "string",
+      type: "string",
+    },
+    primaryKey: "pKey",
+  };
 }

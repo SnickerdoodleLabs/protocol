@@ -63,7 +63,7 @@ export class VolatileStorageMetadataMigrator extends VersionedObjectMigrator<Vol
   }
 }
 
-export class RealmVolatileStorageMetadata extends Realm.Object<VolatileStorageMetadata> {
+export class RealmVolatileStorageMetadata extends Realm.Object<RealmVolatileStorageMetadata> {
   pKey!: string;
   recordKey!: string;
   primaryKey!: Realm.Mixed;

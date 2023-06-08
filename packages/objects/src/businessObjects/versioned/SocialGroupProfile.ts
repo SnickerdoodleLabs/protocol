@@ -49,7 +49,7 @@ export class SocialGroupProfileMigrator extends VersionedObjectMigrator<SocialGr
     super();
   }
 
-  protected factory(data: Record<string, unknown>): SocialGroupProfile {
+  public factory(data: Record<string, unknown>): SocialGroupProfile {
     switch (data["type"]) {
       case ESocialType.DISCORD:
         return this.discordMigrator.factory(data);
