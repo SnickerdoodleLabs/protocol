@@ -15,7 +15,13 @@ const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
 
 export const coreConfig = {
   controlChainId: ChainId(43113),
-  supportedChains: [ChainId(43113), ChainId(1)],
+  supportedChains: [
+    ChainId(43113),
+    ChainId(1),
+    ChainId(43114),
+    ChainId(137),
+    ChainId(56),
+  ],
   ipfsFetchBaseUrl: URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
   defaultInsightPlatformBaseUrl: URLString(
     "https://insight-api.snickerdoodle.com/v0/",
