@@ -353,6 +353,8 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
   >;
 
   /**

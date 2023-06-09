@@ -48,6 +48,8 @@ export interface IInvitationService {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | ConsentContractError
+    | ConsentContractRepositoryError
   >;
 
   rejectInvitation(
