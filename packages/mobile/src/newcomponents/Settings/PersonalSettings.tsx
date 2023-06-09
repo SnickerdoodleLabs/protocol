@@ -56,9 +56,7 @@ export default function PersonalSettings() {
         >
           {`Add or change demographic information in your\nData Wallet.\n\nAny info you share is anonymized and cannot be linked back to your wallet addresses.`}
         </Text>
-        <View style={{ height: normalizeHeight(400) }}>
-          <MyComponent />
-        </View>
+        <MyComponent />
       </SafeAreaView>
     </ScrollView>
   );

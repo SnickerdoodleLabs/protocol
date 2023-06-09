@@ -12,7 +12,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
 import React, { useEffect } from "react";
-import { Platform, StyleSheet, useColorScheme, LogBox } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  useColorScheme,
+  LogBox,
+  Linking,
+} from "react-native";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -48,6 +54,7 @@ const App = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
   const linking = {
     prefixes: ["sdmobile://"],
   };

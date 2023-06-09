@@ -30,7 +30,7 @@ const SearchBar = ({ onSearch, onClickCategoryFilter }) => {
     },
     input: {
       fontSize: 16,
-      paddingVertical: normalizeHeight(18),
+      paddingVertical: normalizeHeight(16),
       paddingHorizontal: normalizeWidth(16),
       color:theme?.colors.description
     },

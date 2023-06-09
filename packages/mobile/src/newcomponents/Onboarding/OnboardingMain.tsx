@@ -255,11 +255,7 @@ const OnboardingMain = () => {
           </Text>
         </TouchableOpacity>
       ),
-      component: (
-        <View style={{ height: normalizeHeight(350) }}>
-          <MyComponent />
-        </View>
-      ),
+      component: <MyComponent />,
       backButton: false,
     },
 

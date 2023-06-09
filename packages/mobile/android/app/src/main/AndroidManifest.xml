@@ -10,8 +10,14 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="sdmobile"/>
+        <data android:scheme="sdmobile" />
       </intent-filter>
     </activity>
   </application>
+          <queries>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="wc"/>
+    </intent>
+</queries>
 </manifest>

@@ -702,7 +702,7 @@ const CardDetails = ({ navigation, route }) => {
               </View>
             )}
 
-            <View>
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
               <View
                 style={{
                   flexDirection: "row",
@@ -711,11 +711,17 @@ const CardDetails = ({ navigation, route }) => {
                   alignItems: "center",
                 }}
               >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
                   <View
                     style={{
                       alignItems: "center",
                       marginRight: normalizeWidth(35),
+                      marginLeft: normalizeWidth(30),
                     }}
                   >
                     <Text
@@ -788,7 +794,7 @@ const CardDetails = ({ navigation, route }) => {
                   <View
                     style={{
                       alignItems: "center",
-                      marginHorizontal: normalizeWidth(35),
+                      marginLeft: normalizeWidth(35),
                     }}
                   >
                     <Text
@@ -819,7 +825,7 @@ const CardDetails = ({ navigation, route }) => {
               </View>
             </View>
 
-            <View style={{ paddingLeft: "2.5%" }}>
+            <View style={{ paddingHorizontal: normalizeWidth(15) }}>
               <Text
                 style={{
                   fontSize: normalizeWidth(20),
@@ -894,7 +900,10 @@ const CardDetails = ({ navigation, route }) => {
                         />
                         <View>
                           <Text
-                            style={{ paddingHorizontal: normalizeWidth(2),color:theme?.colors.title }}
+                            style={{
+                              paddingHorizontal: normalizeWidth(2),
+                              color: theme?.colors.title,
+                            }}
                           >
                             {EWalletDataType[dataType]}
                           </Text>
@@ -950,7 +959,7 @@ const CardDetails = ({ navigation, route }) => {
                       fontWeight: "700",
                       marginBottom: normalizeHeight(10),
                       marginLeft: normalizeWidth(15),
-                      marginTop: normalizeHeight(10),
+                      marginTop: normalizeHeight(20),
                     }}
                   >
                     Available Rewards
@@ -992,7 +1001,7 @@ const CardDetails = ({ navigation, route }) => {
                 </Text>
               </TouchableOpacity>
             )}
-            <View style={{ marginBottom: normalizeHeight(50) }}></View>
+            <View style={{ marginBottom: normalizeHeight(70) }}></View>
 
             <View>
               <Modal
@@ -1015,7 +1024,8 @@ const CardDetails = ({ navigation, route }) => {
                       bottom: 0,
                       width: "100%",
                       minHeight: normalizeHeight(330),
-                      borderRadius: 50,
+                      borderTopLeftRadius: 50,
+                      borderTopRightRadius: 50,
                     }}
                   >
                     {!subscribeConfirmation && (

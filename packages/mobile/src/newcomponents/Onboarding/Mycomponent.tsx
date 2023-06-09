@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useAppContext } from "../../context/AppContextProvider";
@@ -263,39 +264,70 @@ const MyComponent = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{ width: "100%", height: 60, zIndex: 999 }}>
-        <View style={{ position: "absolute", width: "100%", zIndex: 999 }}>
+      {Platform.OS === "android" ? (
+        <View>
           <DropdownInput
             label="Country"
             selectedValue={selectedCountry ? `${selectedCountry.label}` : null}
             options={countries}
             setSelectedValue={handleCountryPress}
           />
-        </View>
-      </View>
 
-      <View style={{ width: "100%", height: 60, zIndex: 998 }}>
-        <View style={{ position: "absolute", width: "100%", zIndex: 998 }}>
           <DropdownInput
             label="Gender"
             selectedValue={selectedGender}
             options={genders}
             setSelectedValue={handleGenderPress}
           />
+
+          <DropdownInput
+            label="Year of birth"
+            selectedValue={selectedYear}
+            options={years}
+            setSelectedValue={handleYearPress}
+          />
         </View>
-      </View>
-      <View>
-        <View style={{ width: "100%", height: 60, zIndex: 997 }}>
-          <View style={{ position: "absolute", width: "100%", zIndex: 997 }}>
-            <DropdownInput
-              label="Year of birth"
-              selectedValue={selectedYear}
-              options={years}
-              setSelectedValue={handleYearPress}
-            />
+      ) : (
+        <View>
+          <View style={{ width: "100%", height: 60, zIndex: 999 }}>
+            <View style={{ position: "absolute", width: "100%", zIndex: 999 }}>
+              <DropdownInput
+                label="Country"
+                selectedValue={
+                  selectedCountry ? `${selectedCountry.label}` : null
+                }
+                options={countries}
+                setSelectedValue={handleCountryPress}
+              />
+            </View>
+          </View>
+
+          <View style={{ width: "100%", height: 60, zIndex: 998 }}>
+            <View style={{ position: "absolute", width: "100%", zIndex: 998 }}>
+              <DropdownInput
+                label="Gender"
+                selectedValue={selectedGender}
+                options={genders}
+                setSelectedValue={handleGenderPress}
+              />
+            </View>
+          </View>
+          <View>
+            <View style={{ width: "100%", height: 60, zIndex: 997 }}>
+              <View
+                style={{ position: "absolute", width: "100%", zIndex: 997 }}
+              >
+                <DropdownInput
+                  label="Year of birth"
+                  selectedValue={selectedYear}
+                  options={years}
+                  setSelectedValue={handleYearPress}
+                />
+              </View>
+            </View>
           </View>
         </View>
-      </View>
+      )}
     </View>
   );
 };

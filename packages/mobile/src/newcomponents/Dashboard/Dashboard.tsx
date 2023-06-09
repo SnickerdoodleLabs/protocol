@@ -194,27 +194,32 @@ const Dashboard = () => {
   }, [navigation, theme]);
 
   useEffect(() => {
+    console.log('NNNN')
     const testnet = ["43113", "8001", "97"];
-    mobileCore.accountService.getAccountNFTs().map((nfts) => {
-      const filteredNFTs = nfts.filter(
-        (item) =>
-          item.owner === selectedAccount.toLocaleLowerCase() &&
-          (isMainnet
-            ? selectedChains.includes(item.chain.toString())
-            : testnet.includes(item.chain.toString())),
-      );
-      console.log("filteredNFTs", filteredNFTs);
+    mobileCore
+      .getCore()
+      .getAccountNFTs()
+      .map((nfts) => {
+        console.log("first nfts", nfts);
+        const filteredNFTs = nfts.filter(
+          (item) =>
+            item.owner === selectedAccount.toLocaleLowerCase() &&
+            (isMainnet
+              ? selectedChains.includes(item.chain.toString())
+              : testnet.includes(item.chain.toString())),
+        );
+        console.log("filteredNFTs", filteredNFTs);
 
-      const parsedArr = filteredNFTs.map((obj) => {
-        const parsedMetadata = JSON.parse(obj?.metadata.raw ?? null);
-        return {
-          ...obj,
-          parsed_metadata: parsedMetadata,
-        };
+        const parsedArr = filteredNFTs.map((obj) => {
+          const parsedMetadata = JSON.parse(obj?.metadata.raw ?? null);
+          return {
+            ...obj,
+            parsed_metadata: parsedMetadata,
+          };
+        });
+
+        setMyNFTsNew(parsedArr);
       });
-
-      setMyNFTsNew(parsedArr);
-    });
 
     /*    mobileCore.accountService.getAccountBalances().map((balances) => {
       console.log("balances", balances);

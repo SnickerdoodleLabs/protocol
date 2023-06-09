@@ -129,7 +129,7 @@ export default function Settings() {
             <View>
               <Icon
                 name="chevron-forward-outline"
-                size={normalizeWidth(25)}
+                size={25}
                 color={theme?.colors.description}
               />
             </View>
@@ -174,7 +174,7 @@ export default function Settings() {
             <View>
               <Icon
                 name="chevron-forward-outline"
-                size={normalizeWidth(25)}
+                size={25}
                 color={theme?.colors.description}
               />
             </View>
@@ -213,7 +213,7 @@ export default function Settings() {
             <View>
               <Icon
                 name="chevron-forward-outline"
-                size={normalizeWidth(25)}
+                size={25}
                 color={theme?.colors.description}
               />
             </View>
@@ -252,7 +252,7 @@ export default function Settings() {
             <View>
               <Icon
                 name="chevron-forward-outline"
-                size={normalizeWidth(25)}
+                size={25}
                 color={theme?.colors.description}
               />
             </View>
