@@ -1,17 +1,16 @@
 import DateFnsUtils from "@date-io/date-fns";
+import calendarIcon from "@extension-onboarding/assets/icons/calendar.svg";
 import { countries } from "@extension-onboarding/constants/countries";
 import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
 import {
   useStyles,
-  usePopoverStyles,
 } from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm/UpdateForm.style";
-import calendarIcon from "@extension-onboarding/assets/icons/calendar.svg";
-
 import { Box, Typography, MenuItem, Grid, Button } from "@material-ui/core";
 import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import { useDatePickerPopoverStyles } from "@snickerdoodlelabs/shared-components";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Select } from "formik-material-ui";
 import React, { FC, useEffect } from "react";
@@ -37,7 +36,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
     gapiClientID,
   } = useProfileIFormLogic();
   const classes = useStyles();
-  const popoverClasses = usePopoverStyles();
+  const popoverClasses = useDatePickerPopoverStyles();
 
   useEffect(() => {
     if (isSubmitted) onSubmitted?.();

@@ -13,6 +13,7 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import { useDatePickerPopoverStyles } from "@snickerdoodlelabs/shared-components";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Select, RadioGroup } from "formik-material-ui";
 import React, { FC, useEffect } from "react";
@@ -40,7 +41,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
   useEffect(() => {
     if (isSubmitted) onSubmitted?.();
   }, [isSubmitted]);
-
+  const popoverClasses = useDatePickerPopoverStyles();
   return (
     <Box>
       <Box mb={5} mt={4}>
@@ -68,7 +69,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
           enableReinitialize
           validationSchema={schema}
         >
-          {({ handleSubmit, values, setFieldValue }) => {
+          {({ handleSubmit, values, setFieldValue, isSubmitting }) => {
             return (
               <Form noValidate onSubmit={handleSubmit} id="profile-create-form">
                 {/*          <Box display="flex">
@@ -159,7 +160,11 @@ const ProfileForm: FC<ProfileFormProps> = ({
                     </Typography>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
+                        disabled={isSubmitting}
                         className={classes.input}
+                        PopoverProps={{
+                          classes: popoverClasses,
+                        }}
                         required
                         clearable
                         autoOk

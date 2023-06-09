@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import process from "node:process";
 
-import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+import { PromptFactory } from "@test-harness/utilities/index.js";
 
 process
   .on("unhandledRejection", (reason, p) => {

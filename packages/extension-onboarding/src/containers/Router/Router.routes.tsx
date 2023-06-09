@@ -39,16 +39,16 @@ export const OnboardingRoutes = (
         path={EPaths.ONBOARDING_BUILD_PROFILE}
         element={<ProfileCreation />}
       />
-      <Route
+      {/* <Route
         path={EPaths.ONBOARDING_PERMISSION_SELECTION}
         element={<PermissionSelection />}
-      />
+      /> */}
       <Route
         path={EPaths.ONBOARDING_TAG_SELECTION}
         element={<CategorySelection />}
       />
     </Route>
-    <Route path={EPaths.ONBOARDING_OPT_IN} element={<OptIn />} />
+    {/* <Route path={EPaths.ONBOARDING_OPT_IN} element={<OptIn />} /> */}
   </Route>
 );
 
@@ -85,10 +85,10 @@ export const AuthFlowRoutes = (
         path={EPaths.REWARDS_SUBSCRIPTIONS}
         element={<CampaignSettings />}
       />
-      <Route
+      {/* <Route
         path={EPaths.DATA_PERMISSIONS_SETTING}
         element={<DataPermissionsSettings />}
-      />
+      /> */}
       <Route
         path={EPaths.SCAM_FILTER_SETTINGS}
         element={<ScamFilterSettings />}

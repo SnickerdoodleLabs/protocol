@@ -17,7 +17,10 @@ import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  MetatransactionGasAmounts,
+} from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
 /**
@@ -69,14 +72,14 @@ export class ConfigProvider
     };
 
     const twitterConfig = {
-      apiKey: "boxruvqZNqFDLsWgc2BkbhHzn",
+      apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
       apiSecretKey: TokenSecret(
-        "WT2Cfs6rhhdEVFamfYpgGusBcIP8ZXAv4cnN2ghtVuUpLu0AYw",
+        "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx",
       ),
       signingAlgorithm: ESignatureAlgorithm.HMAC,
       hashingAlgorithm: EHashAlgorithm.SHA1,
       oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
-      oAuthCallbackUrl: URLString("oob"),
+      oAuthCallbackUrl: URLString("spa-url"),
       dataAPIUrl: URLString("https://api.twitter.com/2"),
       pollInterval: 1 * 24 * 3600 * 1000,
     };
@@ -95,52 +98,58 @@ export class ConfigProvider
       5000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
-      "ckey_ee277e2a0e9542838cf30325665", // covalent api key
-      "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
-      "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
-      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
-      "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+      {
+        alchemyApiKeys: {
+          Arbitrum: "",
+          Astar: "",
+          Mumbai: "",
+          Optimism: "",
+          Polygon: "",
+          Solana: "",
+          SolanaTestnet: "",
+        },
+        etherscanApiKeys: {
+          Ethereum: "",
+          Polygon: "",
+          Avalanche: "",
+          Binance: "",
+          Moonbeam: "",
+          Optimism: "",
+          Arbitrum: "",
+          Gnosis: "",
+          Fuji: "",
+        },
+        covalentApiKey: "", // "ckey_ee277e2a0e9542838cf30325665", // covalent api key
+        moralisApiKey: "",
+        // "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
+        nftScanApiKey: "", // "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+        poapApiKey: "",
+        // "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
+        oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
+        ankrApiKey: "", // ankrApiKey
+        primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
+        secondaryInfuraKey: "",
+      },
+
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
-      new Map([
-        [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
-        [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
-        [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-        [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-        [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
-        [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
-        [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
-        [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
-        [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
-      ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
       new Map<EChain, URLString>([
-        [
-          EChain.Solana,
-          URLString(
-            "https://solana-mainnet.g.alchemy.com/v2/pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",
-          ),
-        ],
+        [EChain.Solana, URLString("https://solana-mainnet.g.alchemy.com/v2/")],
         [
           EChain.SolanaTestnet,
-          URLString(
-            "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
-          ),
+          URLString("https://solana-devnet.g.alchemy.com/v2/"),
         ],
         [
           EChain.Polygon,
-          URLString(
-            "https://polygon-mainnet.g.alchemy.com/v2/el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
-          ),
+          URLString("https://polygon-mainnet.g.alchemy.com/v2/"),
         ],
-        [
-          EChain.Mumbai,
-          URLString(
-            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
-          ),
-        ],
+        [EChain.Mumbai, URLString("https://polygon-mumbai.g.alchemy.com/v2/")],
+        [EChain.Arbitrum, URLString("https://arb-mainnet.g.alchemy.com/v2/")],
+        [EChain.Optimism, URLString("https://opt-mainnet.g.alchemy.com/v2/")],
+        [EChain.Astar, URLString("https://astar-mainnet.g.alchemy.com/v2/")],
       ]),
       10000,
       "(localhost|chrome://)",
@@ -150,6 +159,14 @@ export class ConfigProvider
       discordConfig,
       twitterConfig,
       60000, // heartbeatIntervalMS
+      new MetatransactionGasAmounts(
+        10000000, // createCrumbGas
+        10000000, // removeCrumbGas,
+        10000000, // optInGas
+        10000000, // optOutGas
+        10000000, // updateAgreementFlagsGas
+      ),
+      ProviderUrl("http://127.0.0.1:8545"),
     );
   }
 
@@ -185,10 +202,8 @@ export class ConfigProvider
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
     if (this.config.controlChainId == EChain.DevDoodle) {
-      this.config.controlChainInformation.providerUrls = [
-        overrides.controlChainProviderURL ||
-          ProviderUrl("http://127.0.0.1:8545"),
-      ];
+      this.config.devChainProviderURL =
+        overrides.devChainProviderURL || ProviderUrl("http://127.0.0.1:8545");
     }
 
     // The rest of the config is easier
@@ -208,14 +223,27 @@ export class ConfigProvider
     this.config.accountNFTPollingIntervalMS =
       overrides.accountNFTPollingIntervalMS ??
       this.config.accountNFTPollingIntervalMS;
-    this.config.covalentApiKey =
-      overrides.covalentApiKey ?? this.config.covalentApiKey;
-    this.config.moralisApiKey =
-      overrides.moralisApiKey ?? this.config.moralisApiKey;
-    this.config.nftScanApiKey =
-      overrides.nftScanApiKey ?? this.config.nftScanApiKey;
-    this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
-    this.config.oklinkApiKey = overrides.oklinkApiKey ?? this.config.oklinkApiKey;
+    this.config.apiKeys.covalentApiKey =
+      overrides.covalentApiKey ?? this.config.apiKeys.covalentApiKey;
+    this.config.apiKeys.alchemyApiKeys =
+      overrides.alchemyApiKeys ?? this.config.apiKeys.alchemyApiKeys;
+    this.config.apiKeys.etherscanApiKeys =
+      overrides.etherscanApiKeys ?? this.config.apiKeys.etherscanApiKeys;
+    this.config.apiKeys.moralisApiKey =
+      overrides.moralisApiKey ?? this.config.apiKeys.moralisApiKey;
+    this.config.apiKeys.nftScanApiKey =
+      overrides.nftScanApiKey ?? this.config.apiKeys.nftScanApiKey;
+    this.config.apiKeys.poapApiKey =
+      overrides.poapApiKey ?? this.config.apiKeys.poapApiKey;
+    this.config.apiKeys.oklinkApiKey =
+      overrides.oklinkApiKey ?? this.config.apiKeys.oklinkApiKey;
+    this.config.apiKeys.ankrApiKey =
+      overrides.ankrApiKey ?? this.config.apiKeys.ankrApiKey;
+    this.config.apiKeys.primaryInfuraKey =
+      overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
+    this.config.apiKeys.secondaryInfuraKey =
+      overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
