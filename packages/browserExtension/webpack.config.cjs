@@ -72,9 +72,7 @@ var options = {
   module: {
     rules: [
       {
-        // look for .css or .scss files
-        test: /\.(css|scss)$/,
-        // in the `src` directory
+        test: /\.(s[ac]ss|css)$/i,
         use: [
           {
             loader: "style-loader",
@@ -85,6 +83,9 @@ var options = {
           {
             loader: "sass-loader",
             options: {
+              sassOptions: {
+                includePaths: [path.resolve(__dirname, "node_modules")],
+              },
               sourceMap: true,
             },
           },
@@ -93,7 +94,6 @@ var options = {
       {
         test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
         type: "asset/resource",
-        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
@@ -114,18 +114,6 @@ var options = {
           },
         },
       },
-      // {
-      //   test: /\.(js|jsx)$/,
-      //   use: [
-      //     {
-      //       loader: "source-map-loader",
-      //     },
-      //     {
-      //       loader: "babel-loader",
-      //     },
-      //   ],
-      //   exclude: /node_modules/,
-      // },
     ],
   },
   resolve: {
@@ -312,6 +300,15 @@ var options = {
         {
           from: "src/assets",
           to: path.join(__dirname, "build", "assets"),
+          force: true,
+        },
+      ],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "src/offscreen",
+          to: path.join(__dirname, "build", "offscreen"),
           force: true,
         },
       ],

@@ -21,6 +21,9 @@
     },
     {
       "path": "../persistence"
+    },
+    {
+      "path": "../shared-components"
     }
   ],
   "include": [
