@@ -10,19 +10,19 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
   const totalQuote = group.totalQuote;
   let percentageDifference;
   if (
-    ((group?.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
-      group.tokens[0].quote_rate_24h) *
+    ((group?.tokens[0]?.quote_rate - group.tokens[0]?.quote_rate_24h) /
+      group?.tokens[0]?.quote_rate_24h) *
     100
   ) {
     percentageDifference =
-      ((group?.tokens[0].quote_rate - group.tokens[0].quote_rate_24h) /
-        group.tokens[0].quote_rate_24h) *
+      ((group?.tokens[0]?.quote_rate - group.tokens[0]?.quote_rate_24h) /
+        group?.tokens[0]?.quote_rate_24h) *
       100;
   } else {
     percentageDifference = 0;
   }
   const unknownImage = (token) => {
-    switch (token.contract_ticker_symbol) {
+    switch (token?.contract_ticker_symbol) {
       case "AVAX":
         return require("../../../assets/images/chain-avax.png");
       case "ETH":
@@ -35,7 +35,7 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
         return require("../../../assets/images/chain-bsc.png");
 
       default:
-        return { uri: token.logo_url };
+        return { uri: token?.logo_url };
     }
   };
   function calculateProfit(investmentAfterIncrease, percentageIncrease) {
@@ -71,8 +71,8 @@ export default function TokenItem({ tickerSymbol, groupedTokens, index }) {
               marginLeft: normalizeWidth(10),
             }}
           >
-            {group.tokens[0].contract_name}(
-            {group.tokens[0].contract_ticker_symbol})
+            {group.tokens[0]?.contract_name}(
+            {group.tokens[0]?.contract_ticker_symbol})
           </Text>
         </View>
 

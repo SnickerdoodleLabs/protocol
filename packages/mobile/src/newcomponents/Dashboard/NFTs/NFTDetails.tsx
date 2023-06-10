@@ -152,6 +152,10 @@ const NFTDetails = ({ navigation, route }) => {
     },
   });
 
+  useEffect(() => {
+    console.log("reward Item", rewardItem);
+  }, [rewardItem]);
+
   return (
     <SafeAreaView>
       <ScrollView style={{ backgroundColor: theme?.colors.background }}>
@@ -160,7 +164,7 @@ const NFTDetails = ({ navigation, route }) => {
             <Image
               style={styles.image}
               source={{
-                uri: ipfsParse(rewardItem?.data?.parsed_metadata?.image),
+                uri: rewardItem.image,
               }}
             />
             <Text style={styles.title}>{rewardItem?.data?.name}</Text>
@@ -201,14 +205,14 @@ const NFTDetails = ({ navigation, route }) => {
                 </View>
               </View>
             </View>
-            {rewardItem.data?.parsed_metadata?.attributes?.length > 0 && (
+            {rewardItem.data?.parsed_metadata?.traits?.length > 0 && (
               <View style={[styles.descriptionContainer, { marginTop: 24 }]}>
                 <Text style={styles.descriptionTitle}>Properties</Text>
 
                 <View style={{ marginVertical: normalizeHeight(20) }}>
                   <LineBreaker />
                 </View>
-                {rewardItem?.data?.parsed_metadata?.attributes?.map?.(
+                {rewardItem?.data?.parsed_metadata?.traits?.map?.(
                   (data, index) => {
                     return (
                       <View>
@@ -231,7 +235,7 @@ const NFTDetails = ({ navigation, route }) => {
 
                         <View>
                           {index + 1 !==
-                            rewardItem?.data?.parsed_metadata?.attributes
+                            rewardItem?.data?.parsed_metadata?.traits
                               ?.length && <LineBreaker />}
                         </View>
                       </View>
@@ -241,7 +245,7 @@ const NFTDetails = ({ navigation, route }) => {
               </View>
             )}
           </View>
-          <View  style={{marginBottom:normalizeHeight(60)}}/>
+          <View style={{ marginBottom: normalizeHeight(60) }} />
         </SafeAreaView>
       </ScrollView>
     </SafeAreaView>

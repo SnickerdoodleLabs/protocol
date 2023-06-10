@@ -65,6 +65,8 @@ const Dashboard = () => {
     "137",
     "43114",
     "56",
+    "42161",
+    "592",
   ]);
 
   const options = [
@@ -87,6 +89,26 @@ const Dashboard = () => {
       image: require("../../assets/images/chain-bsc.png"),
       label: "Binance Smart Chain",
       value: "56",
+    },
+    {
+      image: require("../../assets/images/chain-astar.jpg"),
+      label: "Astar",
+      value: "592",
+    },
+ /*    {
+      image: require("../../assets/images/chain-gnosis.png"),
+      label: "Gnosis",
+      value: "100",
+    }, */
+    /*    {
+      image: require("../../assets/images/chain-moonbeam.jpg"),
+      label: "Moonbeam",
+      value: "1284",
+    }, */
+    {
+      image: require("../../assets/images/chain-arbitrum.png"),
+      label: "Arbitrum",
+      value: "42161",
     },
   ];
 
@@ -112,7 +134,6 @@ const Dashboard = () => {
   };
 
   React.useEffect(() => {
-    getAllNFTs(isMainnet);
     getTokens(isMainnet);
   }, [selectedAccount, isMainnet, selectedChains]);
 
@@ -125,36 +146,6 @@ const Dashboard = () => {
     setSelectedAccount(linkedAccounts[0]);
   }, [linkedAccounts]);
 
-  const getAllNFTs = async (isMainnet: boolean) => {
-    const temp: string[] = [];
-    const api = new MoralisAPI();
-    const chains = isMainnet
-      ? selectedChains
-      : ["0x13881", "0x89", "0x61", "0xa869"];
-
-    const _nftResponse = chains.map((chain) => {
-      return api.getAllNFTs(selectedAccount, chain);
-    });
-    Promise.all(_nftResponse).then((nfts) => {
-      const allNFTs = [];
-      nfts.map((nft) => {
-        allNFTs.push(nft.result);
-      });
-      allNFTs.flat().map((obj) => {
-        const image = obj?.normalized_metadata?.image;
-        if (image) {
-          temp.push(
-            image.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/"),
-          );
-        }
-      });
-      const all = {
-        mainObjects: allNFTs.flat(),
-        images: temp,
-      };
-      setMyNFTs(all);
-    });
-  };
   const getTokens = async (isMainnet: boolean) => {
     const api = new MoralisAPI();
     const chains = isMainnet
@@ -194,29 +185,27 @@ const Dashboard = () => {
   }, [navigation, theme]);
 
   useEffect(() => {
-    console.log('NNNN')
-    const testnet = ["43113", "8001", "97"];
     mobileCore
       .getCore()
       .getAccountNFTs()
       .map((nfts) => {
-        console.log("first nfts", nfts);
-        const filteredNFTs = nfts.filter(
+        console.log("first nfts2", nfts);
+        console.log("selectedAccount", selectedAccount.toLowerCase());
+        console.log("selectedChains", selectedChains);
+        const filtered = nfts.filter(
           (item) =>
-            item.owner === selectedAccount.toLocaleLowerCase() &&
-            (isMainnet
-              ? selectedChains.includes(item.chain.toString())
-              : testnet.includes(item.chain.toString())),
+            item.owner.toLowerCase() === selectedAccount.toLowerCase() &&
+            selectedChains.includes(item.chain.toString()),
         );
-        console.log("filteredNFTs", filteredNFTs);
-
-        const parsedArr = filteredNFTs.map((obj) => {
+        console.log("filtered", filtered);
+        const parsedArr = filtered.map((obj) => {
           const parsedMetadata = JSON.parse(obj?.metadata.raw ?? null);
           return {
             ...obj,
             parsed_metadata: parsedMetadata,
           };
         });
+        console.log("parsedArr", parsedArr);
 
         setMyNFTsNew(parsedArr);
       });

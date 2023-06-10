@@ -116,7 +116,7 @@ export default function Marketplace() {
     return marketplaceListings?.map?.((rewardProgram: MarketplaceListing) => {
       return mobileCore
         .getCore()
-        .getInvitationMetadataByCID(rewardProgram?.cid)
+        .invitation.getInvitationMetadataByCID(rewardProgram?.cid)
         .map((metaData) => {
           return {
             ...metaData,

@@ -3,6 +3,7 @@ PODS:
   - BVLinearGradient (2.6.2):
     - React-Core
   - CatCrypto (0.3.2)
+  - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.70.6)
   - FBReactNativeSpec (0.70.6):
@@ -282,8 +283,9 @@ PODS:
   - react-native-track-player (3.2.0):
     - React-Core
     - SwiftAudioEx (= 0.15.3)
-  - react-native-udp (2.7.0):
-    - React
+  - react-native-udp (4.1.7):
+    - CocoaAsyncSocket
+    - React-Core
   - react-native-video (5.2.1):
     - React-Core
     - react-native-video/Video (= 5.2.1)
@@ -419,7 +421,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SwiftAudioEx (0.15.3)
-  - TcpSockets (3.3.2):
+  - TcpSockets (4.0.0):
     - React
   - Yoga (1.14.0)
 
@@ -492,6 +494,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - CatCrypto
+    - CocoaAsyncSocket
     - fmt
     - libevent
     - libwebp
@@ -631,6 +634,7 @@ SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   BVLinearGradient: 34a999fda29036898a09c6a6b728b0b4189e1a44
   CatCrypto: a477899b6be4954e75be4897e732da098cc0a5a8
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 48289402952f4f7a4e235de70a9a590aa0b79ef4
   FBReactNativeSpec: dd1186fd05255e3457baa2f4ca65e94c2cd1e3ac
@@ -666,7 +670,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
   react-native-track-player: 0c26d981b5097910486cbbeb6d8f5352d41be069
-  react-native-udp: ff9d13e523f2b58e6bc5d4d32321ac60671b5dc9
+  react-native-udp: df79c3cb72c4e71240cd3ce4687bfb8a137140d5
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   React-perflogger: 8c79399b0500a30ee8152d0f9f11beae7fc36595
   React-RCTActionSheet: 7316773acabb374642b926c19aef1c115df5c466
@@ -697,7 +701,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SwiftAudioEx: 83eabba2940924fc1c0d5cb0896049921365229c
-  TcpSockets: 14306fb79f9750ea7d2ddd02d8bed182abb01797
+  TcpSockets: 4ef55305239923b343ed0a378b1fac188b1373b0
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
 
 PODFILE CHECKSUM: ac585b45f0c4da0ec9adaa0b003040c11e30bc90

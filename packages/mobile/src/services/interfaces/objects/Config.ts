@@ -21,6 +21,10 @@ export const coreConfig = {
     ChainId(43114),
     ChainId(137),
     ChainId(56),
+    ChainId(100),
+    ChainId(1284),
+    ChainId(42161),
+    ChainId(592),
   ],
   ipfsFetchBaseUrl: URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
   defaultInsightPlatformBaseUrl: URLString(
@@ -58,7 +62,8 @@ export const coreConfig = {
   nftScanApiKey: "lusr87vNmTtHGMmktlFyi4Nt",
   poapApiKey:
     "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm",
-  ankrApiKey: "",
+  ankrApiKey:
+    "74bbdfc0dea96f85aadde511a4fe8905342c864202f890ece7d0b8d1c60df637",
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
   secondaryInfuraKey: "",
   devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),

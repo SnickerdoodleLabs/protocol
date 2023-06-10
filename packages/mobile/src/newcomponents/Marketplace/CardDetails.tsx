@@ -138,7 +138,7 @@ const CardDetails = ({ navigation, route }) => {
   useEffect(() => {
     mobileCore
       .getCore()
-      .getAcceptedInvitationsCID()
+      .invitation.getAcceptedInvitationsCID()
       .map((consentAddresses) => {
         if (consentAddresses.get(marketplaceListing.consentContract)) {
           setIsSubscribed(true);
@@ -231,7 +231,7 @@ const CardDetails = ({ navigation, route }) => {
 
   const handleSubscribe = (tokenId, signature) => {
     console.warn("CHECKING INVITATION");
-    const invitationService = mobileCore.invitationService;
+    const invitationService = mobileCore.getCore().invitation;
     let _invitation: Invitation;
 
     ResultUtils.combine([
@@ -251,7 +251,7 @@ const CardDetails = ({ navigation, route }) => {
 
       mobileCore
         .getCore()
-        .checkInvitationStatus(_invitation)
+        .invitation.checkInvitationStatus(_invitation)
         .map((status) => {
           console.warn("INVITATION STATUS", EInvitationStatus[status]);
           if (status === EInvitationStatus.New) {
@@ -264,7 +264,7 @@ const CardDetails = ({ navigation, route }) => {
               .andThen(() => {
                 return mobileCore
                   .getCore()
-                  .acceptInvitation(_invitation, datapermissions);
+                  .invitation.acceptInvitation(_invitation, datapermissions);
               });
             setSubscribeButtonClicked(false);
             setSubscribeConfirmation(false);
@@ -721,7 +721,6 @@ const CardDetails = ({ navigation, route }) => {
                     style={{
                       alignItems: "center",
                       marginRight: normalizeWidth(35),
-                      marginLeft: normalizeWidth(30),
                     }}
                   >
                     <Text
@@ -825,7 +824,7 @@ const CardDetails = ({ navigation, route }) => {
               </View>
             </View>
 
-            <View style={{ paddingHorizontal: normalizeWidth(15) }}>
+            <View style={{ paddingHorizontal: normalizeWidth(10) }}>
               <Text
                 style={{
                   fontSize: normalizeWidth(20),

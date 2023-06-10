@@ -13,7 +13,6 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
   const navigation = useNavigation();
   const { mobileCore } = useAppContext();
   const theme = useTheme();
-  React.useEffect(() => {}, [data]);
   const NFTs = ({ navigation }: any) => {
     useEffect(() => {
       console.log("AAAAAA", data);
@@ -45,7 +44,7 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
                         onPress={() => {
                           navigation.navigate(ROUTES.NFT_DETAILS, {
                             data: nft,
-                            image: nft?.parsed_metadata?.image,
+                            image: nft?.parsed_metadata.imageUrl,
                           });
                         }}
                       >
@@ -63,7 +62,7 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
                           <View style={{ width: "100%" }}>
                             <Image
                               source={{
-                                uri: ipfsParse(nft.parsed_metadata?.image),
+                                uri: nft.parsed_metadata?.imageUrl,
                               }}
                               style={{
                                 width: "100%",
