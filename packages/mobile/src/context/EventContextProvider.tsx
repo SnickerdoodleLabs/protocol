@@ -1,8 +1,9 @@
 import {
   DataWalletAddress,
-  EDynamicRewardParameterType,
+  ESolidityAbiParameterType,
   IDynamicRewardParameter,
   LinkedAccount,
+  SDQLQuery,
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
@@ -45,6 +46,7 @@ const EventContextProvider = ({ children }) => {
     );
     console.debug(request.query.query);
 
+    console.log("1");
     // @TODO - remove once ipfs issue is resolved
     const getStringQuery = () => {
       const queryObjOrStr = request.query.query;
@@ -56,6 +58,7 @@ const EventContextProvider = ({ children }) => {
       }
       return queryString;
     };
+    console.log("2");
 
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
@@ -69,16 +72,17 @@ const EventContextProvider = ({ children }) => {
           if (request.dataWalletAddress !== null) {
             parameters.push({
               recipientAddress: {
-                type: EDynamicRewardParameterType.Address,
+                type: ESolidityAbiParameterType.address,
                 value: accountAddress,
               },
               compensationId: {
-                type: EDynamicRewardParameterType.CompensationId,
+                type: ESolidityAbiParameterType.string,
                 value: eligibleReward.compensationKey,
               },
             } as IDynamicRewardParameter);
           }
         });
+        console.log("3");
 
         mobileCore
           .getCore()
