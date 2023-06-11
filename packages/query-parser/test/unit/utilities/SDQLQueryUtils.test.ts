@@ -3,6 +3,9 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AdKey,
   AdSignature,
+  ChainId,
+  CompensationKey,
+  ERewardType,
   EVMContractAddress,
   IInsightWithProof,
   Insight,
@@ -13,6 +16,7 @@ import {
   IQueryDeliveryInsights,
   IQueryDeliveryItems,
   JsonWebToken,
+  PossibleReward,
   QueryDeliveryItems,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
@@ -25,7 +29,40 @@ import {
 import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLParserFactory";
 import { ISDQLParserFactory } from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
+import { okAsync } from "neverthrow";
 
+const avalanche1Rewards = [
+  new PossibleReward(
+    IpfsCID(""),
+    CompensationKey("c1"),
+    ["location"],
+    "c1",
+    IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+    "10% discount code for Starbucks",
+    ChainId(1),
+    ERewardType.Direct,
+  ),
+  new PossibleReward(
+    IpfsCID(""),
+    CompensationKey("c2"),
+    ["location", "age"],
+    "c2",
+    IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
+    "participate in the draw to win a CryptoPunk NFT",
+    ChainId(1),
+    ERewardType.Direct,
+  ),
+  new PossibleReward(
+    IpfsCID(""),
+    CompensationKey("c3"),
+    [],
+    "c3",
+    IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
+    "a free CrazyApesClub NFT",
+    ChainId(1),
+    ERewardType.Direct,
+  ),
+];
 class SDQLQueryUtilsMocks {
   protected parserFactory: ISDQLParserFactory;
   readonly queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
@@ -123,64 +160,71 @@ describe("Compensation tests", () => {
   });
 });
 
-// describe("SDQLQueryUtils query to compensation tests", () => {
-//   test("avalanche 1: ['q1'] -> ['c1']", async () => {
-//     // input-output
-//     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q1"].map(SubQueryKey);
-//     const expected = ["c1"];
+describe("SDQLQueryUtils query to compensation tests", () => {
+  test("avalanche 1: all insights answered", async () => {
+    const schemaString = SDQLString(avalanche1SchemaStr);
+    const insights = [InsightKey("$i1"), InsightKey("$i2"), InsightKey("$i3")];
+    new PossibleReward(
+      IpfsCID(""),
+      CompensationKey("c1"),
+      ["location"],
+      "c1",
+      IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+      "10% discount code for Starbucks",
+      ChainId(1),
+      ERewardType.Direct,
+    );
 
-//     const mocks = new SDQLQueryUtilsMocks();
-//     const resultWrapped = await mocks
-//       .factory()
-//       .getEligibleCompensations(schemaString, queryIds);
+    const mocks = new SDQLQueryUtilsMocks();
+    await mocks
+      .factory()
+      .getPossibleRewardsFromIP(schemaString, IpfsCID(""), insights)
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual(avalanche1Rewards);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
 
-//     expect(resultWrapped.isOk()).toBeTruthy();
-//     expect(resultWrapped._unsafeUnwrap()).toEqual(expected);
-//   });
+  test("avalanche 1: insight 1 and insight 2 answered", async () => {
+    const schemaString = SDQLString(avalanche1SchemaStr);
+    const insights = [InsightKey("$i1"), InsightKey("$i2")];
 
-//   test("avalanche 1: ['q2'] -> ['c2']", async () => {
-//     // input-output
-//     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q2"].map(SubQueryKey);
-//     const expected = ["c2"];
+    const mocks = new SDQLQueryUtilsMocks();
+    await mocks
+      .factory()
+      .getPossibleRewardsFromIP(schemaString, IpfsCID(""), insights)
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual(avalanche1Rewards.slice(0, 2));
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
 
-//     const mocks = new SDQLQueryUtilsMocks();
-//     const result = await mocks
-//       .factory()
-//       .getEligibleCompensations(schemaString, queryIds);
+  test("avalanche 1: ad 1 answered", async () => {
+    const schemaString = SDQLString(avalanche1SchemaStr);
+    const insights = [AdKey("$a1")];
 
-//     expect(result.isOk()).toBeTruthy();
-//     expect(result._unsafeUnwrap()).toEqual(expected);
-//   });
-//   test("avalanche 1: ['q3'] -> ['c3']", async () => {
-//     // input-output
-//     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q3"].map(SubQueryKey);
-//     const expected = ["c3"];
-
-//     const mocks = new SDQLQueryUtilsMocks();
-//     const result = await mocks
-//       .factory()
-//       .getEligibleCompensations(schemaString, queryIds);
-
-//     expect(result.isOk()).toBeTruthy();
-
-//     expect(result._unsafeUnwrap()).toEqual(expected);
-//   });
-//   test("avalanche 1: ['q1', 'q2'] -> ['c1', 'c2']", async () => {
-//     // input-output
-//     const schemaString = SDQLString(avalanche1SchemaStr);
-//     const queryIds = ["q1", "q2"].map(SubQueryKey);
-//     const expected = ["c1", "c2"];
-
-//     const mocks = new SDQLQueryUtilsMocks();
-//     const result = await mocks
-//       .factory()
-//       .getEligibleCompensations(schemaString, queryIds);
-
-//     expect(result.isOk()).toBeTruthy();
-
-//     expect(result._unsafeUnwrap()).toEqual(expected);
-//   });
-// });
+    const reward3 = avalanche1Rewards[2];
+    Object.assign(reward3, { estimatedQueryDependencies: ["network"] });
+    // ad 1 depends on the network query
+    const mocks = new SDQLQueryUtilsMocks();
+    await mocks
+      .factory()
+      .getPossibleRewardsFromIP(schemaString, IpfsCID(""), insights)
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual([reward3]);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});

@@ -3,8 +3,10 @@ import {
   CompensationKey,
   DuplicateIdInSchema,
   InsightKey,
+  IpfsCID,
   MissingTokenConstructorError,
   ParserError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   SDQLString,
@@ -24,6 +26,12 @@ export interface ISDQLQueryUtils {
     | MissingTokenConstructorError
     | QueryExpiredError
   >;
+
+  getPossibleRewardsFromIP(
+    schemaString: SDQLString,
+    queryCID: IpfsCID,
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], ParserError>
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");

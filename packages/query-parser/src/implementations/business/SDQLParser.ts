@@ -403,8 +403,7 @@ export class SDQLParser {
     AST_Compensation,
     DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
-
-    return this.exprParser!.parse(schema.requiresRaw!)
+    return this.exprParser!.parse(schema.requires!)
       .mapErr((error) => {
         return this.transformError(error);
       })
@@ -413,7 +412,7 @@ export class SDQLParser {
           name,
           schema.description,
           ast as AST_RequireExpr,
-          schema.requiresRaw!,
+          schema.requires!,
           schema.chainId,
           schema.callback,
           schema.alternatives ? schema.alternatives : [],

@@ -89,8 +89,8 @@ export class SDQLQueryWrapper {
       if (cKey == "parameters") {
         return;
       }
-      if (!comp.requiresRaw || comp.requiresRaw.trim().length == 0) {
-        comp.requiresRaw = ISDQLConditionString("true");
+      if (!comp.requires || comp.requires.trim().length == 0) {
+        comp.requires = ISDQLConditionString("true");
       }
       this.internalObj.compensations[cKey] = comp;
     });

@@ -18,6 +18,8 @@ import {
   InsightString,
   ProofError,
   PossibleReward,
+  ERewardType,
+  QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -42,6 +44,11 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
+import {
+  AST_PropertyQuery,
+  AST_SubQuery,
+  AST_Web3Query,
+} from "@query-parser/interfaces";
 
 @injectable()
 export class SDQLQueryUtils implements ISDQLQueryUtils {
@@ -363,9 +370,209 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
 
   public getPossibleRewardsFromIP(
     schemaString: SDQLString,
-    possibleInsightsAndAds: (InsightKey | AdKey)[],
+    queryCID: IpfsCID,
+    answeredInsightsAndAdKeys: (InsightKey | AdKey)[],
   ): ResultAsync<PossibleReward[], ParserError> {
-    // Maybe
-    throw new Error(""); // return all the rewards
+    return this.parserFactory
+      .makeParser(queryCID, schemaString)
+      .andThen((parser) => {
+        return parser.buildAST().map((ast) => {
+          const compensationsMap = ast.compensations;
+
+          const possibleRewards: PossibleReward[] = [];
+
+          compensationsMap.forEach((compensation, compensationKey) => {
+            const { requirementsAreSatisfied, requiredInsightsAndAds } =
+              this.evaluateAstRawCompensationRequires(
+                compensation.requiresRaw,
+                answeredInsightsAndAdKeys,
+              );
+            if (requirementsAreSatisfied) {
+              const queryDependecies: QueryTypes[] = this.getQueryDependicies(
+                requiredInsightsAndAds,
+                ast.subqueries,
+                ast.insights,
+                ast.ads,
+              );
+              const possibleReward = new PossibleReward(
+                parser.cid,
+                CompensationKey(compensationKey),
+                queryDependecies,
+                compensation.name,
+                compensation.image,
+                compensation.description,
+                compensation.chainId,
+                ERewardType.Direct,
+              );
+              possibleRewards.push(possibleReward);
+            }
+          });
+
+          return possibleRewards;
+        });
+      });
+  }
+
+  removeDollarSign(values: string[]) {
+    return values.map((value) => value.replace("$", ""));
+  }
+  getQueryDependicies(
+    insightAndAdKeys: string[],
+    astQueries: Map<SDQL_Name, AST_SubQuery>,
+    astInsights: Map<SDQL_Name, AST_Insight>,
+    astAds: Map<SDQL_Name, AST_Ad>,
+  ): QueryTypes[] {
+    const queryTypes: QueryTypes[] = [];
+
+    const dollerizedKeys = this.getQueryKeys(
+      this.removeDollarSign(insightAndAdKeys),
+      astInsights,
+      astAds,
+    );
+    const queryKeys = new Set(this.removeDollarSign(dollerizedKeys));
+
+    queryKeys.forEach((queryKey) => {
+      const type = this.getQueryType(astQueries.get(SDQL_Name(queryKey))!);
+      if (type) {
+        queryTypes.push(type);
+      }
+    });
+    return queryTypes;
+  }
+
+  getQueryType(query: AST_SubQuery): QueryTypes | null {
+    console.log("qu", query);
+    if (query instanceof AST_Web3Query) {
+      return query.type;
+    } else if (query instanceof AST_PropertyQuery) {
+      return query.property;
+    }
+    return null;
+  }
+
+  getQueryKeysFromTargetRaw(targetRaw: string) {
+    const queryKeys = targetRaw.match(/\$q\d+/g);
+    if (queryKeys) {
+      return queryKeys;
+    }
+    return [];
+  }
+  getQueryKeys(
+    insightAndAdKeys: string[],
+    astInsights: Map<SDQL_Name, AST_Insight>,
+    astAds: Map<SDQL_Name, AST_Ad>,
+  ): string[] {
+    let queryKeys: string[] = [];
+    insightAndAdKeys.forEach((key) => {
+      if (key.startsWith("i")) {
+        queryKeys = [
+          ...queryKeys,
+          ...this.getQueryKeysFromTargetRaw(
+            astInsights.get(SDQL_Name(key))!.targetRaw,
+          ),
+        ];
+      } else {
+        queryKeys = [
+          ...queryKeys,
+          ...this.getQueryKeysFromTargetRaw(
+            astAds.get(SDQL_Name(key))!.targetRaw,
+          ),
+        ];
+      }
+    });
+    return queryKeys;
+  }
+
+  evaluateAstRawCompensationRequires(
+    compensationRequiresRaw: string,
+    totalInsightsAndAdsAnswered: string[],
+  ): { requirementsAreSatisfied: boolean; requiredInsightsAndAds: string[] } {
+    const totalInsightAndAdsAnsweredSet: Set<string> = new Set(
+      totalInsightsAndAdsAnswered,
+    );
+    const requiredInsightsAndAds: string[] = [];
+
+    const requirementsAreSatisfied = this.evaluateSubAstRawCompensationRequires(
+      compensationRequiresRaw,
+      totalInsightAndAdsAnsweredSet,
+      requiredInsightsAndAds,
+    );
+    return { requirementsAreSatisfied, requiredInsightsAndAds };
+  }
+
+  splitCompensationRequirementsToProcessableExpressions(
+    subRequirementExpression: string,
+  ): RegExpMatchArray {
+    const subExprRegex = /(\$[ia]\d+)|\(|\)|and|or/g;
+    const parts = subRequirementExpression.match(subExprRegex);
+    if (parts) {
+      return parts;
+    }
+    throw new QueryFormatError("Invalid requires string: Unknown expression.");
+  }
+
+  evaluateSubAstRawCompensationRequires(
+    subRequirementExpression: string,
+    totalInsightAndAdsAnsweredSet: Set<string>,
+    requiredInsightsAndAds: string[],
+  ): boolean {
+    const expressions =
+      this.splitCompensationRequirementsToProcessableExpressions(
+        subRequirementExpression,
+      );
+    const stack: boolean[] = [];
+    let currentOperator: "and" | "or" | undefined;
+
+    for (const expression of expressions) {
+      if (expression === "(") {
+        stack.push(true); 
+      } else if (expression === ")") {
+        if (stack.length > 0) {
+          stack.pop();
+          if (stack.length === 0) {
+            const subExprResult = this.evaluateSubAstRawCompensationRequires(
+              currentOperator!,
+              totalInsightAndAdsAnsweredSet,
+              requiredInsightsAndAds,
+            );
+            stack.push(subExprResult);
+            currentOperator = undefined;
+          }
+        } else {
+          throw new QueryFormatError(
+            "Invalid requires string: Unbalanced parentheses.",
+          );
+        }
+      } else if (expression === "and" || expression === "or") {
+        currentOperator = expression;
+      } else {
+        if (totalInsightAndAdsAnsweredSet.has(expression)) {
+          requiredInsightsAndAds.push(expression);
+        }
+        stack.push(totalInsightAndAdsAnsweredSet.has(expression));
+        if (stack.length > 1 && currentOperator) {
+          const operand2 = stack.pop();
+          const operand1 = stack.pop();
+          if (operand1 === undefined || operand2 === undefined) {
+            throw new QueryFormatError(
+              "Invalid requires string: Unknown expression.",
+            );
+          }
+          if (currentOperator === "and") {
+            stack.push(operand1 && operand2);
+          } else if (currentOperator === "or") {
+            stack.push(operand1 || operand2);
+          }
+          currentOperator = undefined;
+        }
+      }
+    }
+    if (stack.length !== 1) {
+      throw new QueryFormatError(
+        "Invalid requires string: Malformed expression.",
+      );
+    }
+
+    return stack[0];
   }
 }
