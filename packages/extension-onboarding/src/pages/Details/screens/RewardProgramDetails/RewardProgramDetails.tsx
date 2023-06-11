@@ -1,18 +1,15 @@
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import Permissions from "@extension-onboarding/components/Permissions";
-import { UI_SUPPORTED_PERMISSIONS } from "@extension-onboarding/constants/permissions";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
+import {
+  PermissionManagerContextProvider,
+  usePermissionContext,
+} from "@extension-onboarding/context/PermissionContext";
 import {
   CollectedRewards,
-  ConsentOwnersOtherPrograms,
-  PossibleRewards,
-  ProgramHistory,
-  OtherProgramsForSameTag,
   ProgramRewards,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
@@ -36,8 +33,13 @@ import {
   IOpenSeaMetadata,
   PossibleReward,
   QueryTypePermissionMap,
-  QueryTypes,
 } from "@snickerdoodlelabs/objects";
+import {
+  PermissionBar,
+  Permissions,
+  PERMISSIONS_WITH_ICONS,
+  UI_SUPPORTED_PERMISSIONS,
+} from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -107,6 +109,13 @@ const RewardProgramDetails: FC = () => {
     threshold: 0.5,
   });
 
+  const { generateAllPermissions, isSafe, updateProfileValues } =
+    usePermissionContext();
+  const generateSuccessMessage = (dataType: EWalletDataType) => {
+    return `Your "${
+      PERMISSIONS_WITH_ICONS[dataType]!.name
+    }" data has successfully saved`;
+  };
   const [capacityInfo, setCapacityInfo] = useState<IConsentCapacity>();
   const [consentPermissions, setConsentPermissions] = useState<
     EWalletDataType[]
@@ -116,7 +125,7 @@ const RewardProgramDetails: FC = () => {
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
   const [permissionsState, setPermissionsState] = useState<EWalletDataType[]>(
-    UI_SUPPORTED_PERMISSIONS,
+    [],
   );
 
   useEffect(() => {
@@ -126,18 +135,34 @@ const RewardProgramDetails: FC = () => {
   }, [JSON.stringify(consentPermissions)]);
 
   const handleSubscribeButton = () => {
-    rewardsRef.current = programRewards.reduce((acc, item) => {
-      const requiredDataTypes = item.estimatedQueryDependencies.map(
-        (queryType) => QueryTypePermissionMap.get(queryType)!,
-      );
-      const permissionsMatched = requiredDataTypes.every((item) =>
-        permissionsState.includes(item),
-      );
-      if (permissionsMatched) {
-        acc = [...acc, item];
-      }
-      return acc;
-    }, [] as PossibleReward[]);
+    const { eligibleRewards, unEligibleRewards } = programRewards.reduce(
+      (acc, item) => {
+        const requiredDataTypes = item.estimatedQueryDependencies.map(
+          (queryType) => QueryTypePermissionMap.get(queryType)!,
+        );
+        const permissionsMatched = requiredDataTypes.every((item) =>
+          permissionsState.includes(item),
+        );
+        if (permissionsMatched) {
+          acc.eligibleRewards = [...acc.eligibleRewards, item];
+        } else {
+          acc.unEligibleRewards = [...acc.unEligibleRewards, item];
+        }
+        return acc;
+      },
+      { eligibleRewards: [], unEligibleRewards: [] } as {
+        eligibleRewards: PossibleReward[];
+        unEligibleRewards: PossibleReward[];
+      },
+    );
+
+    const uniqueCIDsofEligibleRewards = Array.from(
+      new Set(eligibleRewards.map((rewardItem) => rewardItem.queryCID)),
+    );
+
+    const missingRewards = unEligibleRewards.filter((item) =>
+      uniqueCIDsofEligibleRewards.includes(item.queryCID),
+    );
     setModal({
       modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
       onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
@@ -171,7 +196,8 @@ const RewardProgramDetails: FC = () => {
       customProps: {
         onCloseClicked: () => {},
         campaignImage: info?.image,
-        eligibleRewards: rewardsRef.current,
+        eligibleRewards,
+        missingRewards,
         dataTypes: permissionsState,
         consentContractAddress,
         campaignName: info?.rewardName,
@@ -198,6 +224,8 @@ const RewardProgramDetails: FC = () => {
   useEffect(() => {
     if (isSubscribed) {
       getConsentPermissions();
+    } else {
+      setDefaultPermissions();
     }
   }, [isSubscribed]);
 
@@ -207,6 +235,12 @@ const RewardProgramDetails: FC = () => {
       .map((dataTypes) => {
         setConsentPermissions(dataTypes);
       });
+  };
+
+  const setDefaultPermissions = () => {
+    generateAllPermissions().map((dataTypes) => {
+      setPermissionsState(dataTypes);
+    });
   };
 
   const { collectedRewards, programRewards, waitingRewards } = useMemo(() => {
@@ -221,14 +255,23 @@ const RewardProgramDetails: FC = () => {
       return acc;
     }, [] as EarnedReward[]);
 
+    const uniqueCIDsofEarnedRewards = Array.from(
+      new Set(collectedRewards.map((reward) => reward.queryCID)),
+    );
+
     if (!isSubscribed) {
       return {
-        programRewards: possibleRewards.filter(
-          (possibleReward) =>
-            !collectedRewards.find((item) =>
-              isSameReward(possibleReward, item),
-            ),
-        ),
+        programRewards: possibleRewards
+          .filter(
+            (possibleReward) =>
+              !collectedRewards.find((item) =>
+                isSameReward(possibleReward, item),
+              ),
+          )
+          .filter(
+            (possibleReward) =>
+              !uniqueCIDsofEarnedRewards.includes(possibleReward.queryCID),
+          ),
         waitingRewards: [] as PossibleReward[],
         collectedRewards,
       };
@@ -255,12 +298,20 @@ const RewardProgramDetails: FC = () => {
           isSameReward(earnedReward, item),
         ),
     );
-
-    const programRewards = possibleRewards.filter(
-      (item) =>
-        !collectedRewards.find((reward) => isSameReward(reward, item)) &&
-        !waitingRewards.find((reward) => isSameReward(reward, item)),
+    const uniqueCIDsofWaitingRewards = Array.from(
+      new Set(waitingRewards.map((reward) => reward.queryCID)),
     );
+    const programRewards = possibleRewards
+      .filter(
+        (item) =>
+          !collectedRewards.find((reward) => isSameReward(reward, item)) &&
+          !waitingRewards.find((reward) => isSameReward(reward, item)),
+      )
+      .filter(
+        (possibleReward) =>
+          !uniqueCIDsofEarnedRewards.includes(possibleReward.queryCID) &&
+          !uniqueCIDsofWaitingRewards.includes(possibleReward.queryCID),
+      );
 
     return {
       collectedRewards,
@@ -366,10 +417,7 @@ const RewardProgramDetails: FC = () => {
                   <Typography className={classes.infoTitle}>
                     Renting Your
                   </Typography>
-                  <Permissions
-                    permissions={consentPermissions}
-                    displayType="row"
-                  />
+                  <Permissions permissions={consentPermissions} />
                 </Box>
               )}
               <Box display="flex" alignItems="center" marginLeft="auto">
@@ -406,49 +454,40 @@ const RewardProgramDetails: FC = () => {
       <Box px={2.5}>
         <Grid spacing={2} container>
           <Grid item xs={2}>
-            <Box
-              mt={2.5}
-              bgcolor="#FFFFFF"
-              borderRadius={12}
-              pt={2.5}
-              pb={1}
-              top={48}
-              position="sticky"
-            >
-              <Box px={1.5} mb={2.5}>
-                <Typography className={classes.permissionsTitle}>
-                  Data Permissions
-                </Typography>
-              </Box>
-              <Divider />
-              <Box mt={1.5} px={1.5}>
-                <Box mb={1.25}>
-                  <Typography className={classes.permissionsDescription}>
-                    Data you are willing to rent
-                  </Typography>
-                </Box>
-                <Permissions
-                  onClick={handlePermissionSelect}
-                  permissions={permissionsState}
-                  displayType="column"
-                />
-                <Box px={1.5}>
-                  {UI_SUPPORTED_PERMISSIONS.some(
-                    (item) => !permissionsState.includes(item),
-                  ) ? (
-                    <Typography
-                      className={classes.selectAll}
-                      onClick={() =>
-                        setPermissionsState(UI_SUPPORTED_PERMISSIONS)
-                      }
-                    >
-                      Select All
-                    </Typography>
-                  ) : (
-                    <Box height={16} />
-                  )}
-                </Box>
-              </Box>
+            <Box mt={2.5}>
+              <PermissionBar
+                setBirthday={(birthday) =>
+                  window.sdlDataWallet.setBirthday(birthday).map(() => {
+                    setAlert({
+                      message: generateSuccessMessage(EWalletDataType.Age),
+                      severity: EAlertSeverity.SUCCESS,
+                    });
+                  })
+                }
+                setLocation={(location) =>
+                  window.sdlDataWallet.setLocation(location).map(() => {
+                    setAlert({
+                      message: generateSuccessMessage(EWalletDataType.Location),
+                      severity: EAlertSeverity.SUCCESS,
+                    });
+                  })
+                }
+                setGender={(gender) =>
+                  window.sdlDataWallet.setGender(gender).map(() => {
+                    setAlert({
+                      message: generateSuccessMessage(EWalletDataType.Gender),
+                      severity: EAlertSeverity.SUCCESS,
+                    });
+                  })
+                }
+                isSafe={isSafe}
+                updateProfileValues={updateProfileValues}
+                onClick={handlePermissionSelect}
+                permissions={permissionsState}
+                handleSelectAllClick={() => {
+                  setPermissionsState(UI_SUPPORTED_PERMISSIONS);
+                }}
+              />
             </Box>
           </Grid>
           <Grid item xs={10}>
@@ -477,4 +516,8 @@ const RewardProgramDetails: FC = () => {
   );
 };
 
-export default RewardProgramDetails;
+export default () => (
+  <PermissionManagerContextProvider>
+    <RewardProgramDetails />
+  </PermissionManagerContextProvider>
+);

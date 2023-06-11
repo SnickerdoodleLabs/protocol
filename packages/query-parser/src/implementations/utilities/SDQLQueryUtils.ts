@@ -31,6 +31,9 @@ import {
   AST_Compensation,
   AST_Expr,
   AST_Insight,
+  AST_PropertyQuery,
+  AST_SubQuery,
+  AST_Web3Query,
   Command,
   Command_IF,
   ISDQLQueryUtils,
@@ -44,11 +47,7 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
-import {
-  AST_PropertyQuery,
-  AST_SubQuery,
-  AST_Web3Query,
-} from "@query-parser/interfaces";
+
 
 @injectable()
 export class SDQLQueryUtils implements ISDQLQueryUtils {
