@@ -28,17 +28,19 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { RequiresEvaluator } from "@query-parser/implementations/business/evaluators/RequiresEvaluator.js";
 import {
   AST_Ad,
+  AST_SubQuery,
   AST_Compensation,
   AST_Expr,
   AST_Insight,
   AST_PropertyQuery,
-  AST_SubQuery,
   AST_Web3Query,
   Command,
   Command_IF,
   ISDQLQueryUtils,
-  SDQLParser,
-} from "@query-parser/index.js";
+} from "@query-parser/interfaces/index.js";
+import {
+  SDQLParser
+} from "@query-parser/implementations/index.js"
 import {
   ISDQLParserFactory,
   ISDQLParserFactoryType,
@@ -440,7 +442,6 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
   }
 
   getQueryType(query: AST_SubQuery): QueryTypes | null {
-    console.log("qu", query);
     if (query instanceof AST_Web3Query) {
       return query.type;
     } else if (query instanceof AST_PropertyQuery) {
@@ -482,22 +483,6 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
     return queryKeys;
   }
 
-  evaluateAstRawCompensationRequires(
-    compensationRequiresRaw: string,
-    totalInsightsAndAdsAnswered: string[],
-  ): { requirementsAreSatisfied: boolean; requiredInsightsAndAds: string[] } {
-    const totalInsightAndAdsAnsweredSet: Set<string> = new Set(
-      totalInsightsAndAdsAnswered,
-    );
-    const requiredInsightsAndAds: string[] = [];
-
-    const requirementsAreSatisfied = this.evaluateSubAstRawCompensationRequires(
-      compensationRequiresRaw,
-      totalInsightAndAdsAnsweredSet,
-      requiredInsightsAndAds,
-    );
-    return { requirementsAreSatisfied, requiredInsightsAndAds };
-  }
 
   splitCompensationRequirementsToProcessableExpressions(
     subRequirementExpression: string,
@@ -510,68 +495,93 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
     throw new QueryFormatError("Invalid requires string: Unknown expression.");
   }
 
-  evaluateSubAstRawCompensationRequires(
-    subRequirementExpression: string,
-    totalInsightAndAdsAnsweredSet: Set<string>,
-    requiredInsightsAndAds: string[],
-  ): boolean {
+  
+  evaluateAstRawCompensationRequires(compensationRequiresRaw: string, totalInsightsAndAdsAnswered: string[]): { requirementsAreSatisfied: boolean, requiredInsightsAndAds: string[] } {
+    const totalInsightAndAdsAnsweredSet: Set<string> = new Set(
+      totalInsightsAndAdsAnswered,
+    );
+    const requiredInsightsAndAds: string[] = [];
+
+    const requirementsAreSatisfied = this.evaluateAstRawRequires(
+      compensationRequiresRaw,
+      totalInsightAndAdsAnsweredSet,
+      requiredInsightsAndAds,
+    );
+    return { requirementsAreSatisfied, requiredInsightsAndAds };
+  }
+
+  evaluateAstRawRequires(compensationRequiresRaw: string ,totalInsightAndAdsAnsweredSet: Set<string> ,  requiredInsightsAndAds: string[]): boolean {
     const expressions =
       this.splitCompensationRequirementsToProcessableExpressions(
-        subRequirementExpression,
+        compensationRequiresRaw,
       );
-    const stack: boolean[] = [];
-    let currentOperator: "and" | "or" | undefined;
+
+    const operandStack: boolean[] = [];
+    const operatorStack: string[] = [];
 
     for (const expression of expressions) {
-      if (expression === "(") {
-        stack.push(true); 
-      } else if (expression === ")") {
-        if (stack.length > 0) {
-          stack.pop();
-          if (stack.length === 0) {
-            const subExprResult = this.evaluateSubAstRawCompensationRequires(
-              currentOperator!,
-              totalInsightAndAdsAnsweredSet,
-              requiredInsightsAndAds,
-            );
-            stack.push(subExprResult);
-            currentOperator = undefined;
+      switch (expression) {
+        case '(':
+          operatorStack.push('(');
+          break;
+        case ')':
+          while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== '(') {
+            this.evaluateOperands(operandStack,operatorStack)
           }
-        } else {
-          throw new QueryFormatError(
-            "Invalid requires string: Unbalanced parentheses.",
-          );
-        }
-      } else if (expression === "and" || expression === "or") {
-        currentOperator = expression;
-      } else {
-        if (totalInsightAndAdsAnsweredSet.has(expression)) {
-          requiredInsightsAndAds.push(expression);
-        }
-        stack.push(totalInsightAndAdsAnsweredSet.has(expression));
-        if (stack.length > 1 && currentOperator) {
-          const operand2 = stack.pop();
-          const operand1 = stack.pop();
-          if (operand1 === undefined || operand2 === undefined) {
-            throw new QueryFormatError(
-              "Invalid requires string: Unknown expression.",
-            );
+          operatorStack.pop();
+          break;
+        case 'and':
+        case 'or':
+          while (
+            operatorStack.length > 0 &&
+            operatorStack[operatorStack.length - 1] !== '(' &&
+            this.hasPrecedence(operatorStack[operatorStack.length - 1], expression)
+          ) {
+            this.evaluateOperands(operandStack,operatorStack)
           }
-          if (currentOperator === "and") {
-            stack.push(operand1 && operand2);
-          } else if (currentOperator === "or") {
-            stack.push(operand1 || operand2);
+          operatorStack.push(expression);
+          break;
+        default:
+          const keyExists = totalInsightAndAdsAnsweredSet.has(expression);
+          if(keyExists){
+            requiredInsightsAndAds.push(expression);
           }
-          currentOperator = undefined;
-        }
+          operandStack.push(keyExists);
+          break;
       }
     }
-    if (stack.length !== 1) {
-      throw new QueryFormatError(
-        "Invalid requires string: Malformed expression.",
-      );
+
+    while (operatorStack.length > 0) {
+      this.evaluateOperands(operandStack, operatorStack)
     }
 
-    return stack[0];
+    if (operandStack.length !== 1) {
+      throw new QueryFormatError('Invalid requires raw string: Malformed expression.');
+    }
+
+    return operandStack[0];
+  }
+
+  evaluateOperands(operandStack: boolean[],operatorStack: string[]){
+    const operator = operatorStack.pop()!;
+    const operand2 = operandStack.pop()!;
+    const operand1 = operandStack.pop()!;
+    const result = this.evaluateOperation(operand1, operator, operand2);
+    operandStack.push(result);
+  }
+
+  evaluateOperation(operand1: boolean, operator: string, operand2: boolean): boolean {
+    switch (operator) {
+      case 'and':
+        return operand1 && operand2;
+      case 'or':
+        return operand1 || operand2;
+      default:
+        throw new QueryFormatError('Invalid operator at requires raw string: ' + operator);
+    }
+  }
+
+  hasPrecedence(operator1: string, operator2: string): boolean {
+    return operator1 === 'and' && operator2 === 'or';
   }
 }

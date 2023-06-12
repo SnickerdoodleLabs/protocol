@@ -4,7 +4,7 @@ import {
   Web3QueryTypes,
   web3QueryTypes,
 } from "@snickerdoodlelabs/objects";
-import { AST_SubQuery } from "@query-parser/index.js";
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 
 export abstract class AST_Web3Query extends AST_SubQuery {
   constructor(

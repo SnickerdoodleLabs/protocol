@@ -37,11 +37,11 @@ import {
   AST_SubQuery,
   AST_Web3Query,
   Condition,
-  ExprParser,
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-} from "@query-parser/index.js";
+} from "@query-parser/interfaces/index.js";
+import { ExprParser } from "@query-parser/implementations/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();

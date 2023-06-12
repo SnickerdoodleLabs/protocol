@@ -71,6 +71,8 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
     [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
     [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
+    //Placeholder for now
+    [EChain.DevDoodle , [this.etherscan , this.alchemy] ],
 
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],

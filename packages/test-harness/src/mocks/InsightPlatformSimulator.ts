@@ -187,8 +187,7 @@ export class InsightPlatformSimulator {
 
     this.app.post("/insights/responses", (req, res) => {
       console.log("Recieved Insight Response");
-      console.log("Req is this: ", req.body);
-
+      
       console.log("Insights : ",req.body["insights"]["insights"])
       console.log("Ads : ",req.body["insights"]["ads"])
 
@@ -216,6 +215,8 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
+          console.log("walach  : ",consentContractId)
+          //0x23dB4a08f2272df049a4932a4Cc3A6Dc1002B33E 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
           const contract =
             this.blockchain.getConsentContract(consentContractId);
 

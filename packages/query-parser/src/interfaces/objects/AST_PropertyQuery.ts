@@ -9,8 +9,7 @@ import {
   Web2QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { Result, err, ok } from "neverthrow";
-
-import { AST_SubQuery } from "@query-parser/index.js";
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 import {
   BinaryCondition,
   ConditionE,

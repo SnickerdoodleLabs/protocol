@@ -27,10 +27,8 @@ import {
   ConditionOr,
   IfOperandTypes,
   ParserContextDataTypes,
-  Token,
-  TokenType,
-  Tokenizer,
-} from "@query-parser/index.js";
+} from "@query-parser/interfaces/index.js";
+import { Token, Tokenizer, TokenType } from "@query-parser/implementations/index.js";
 
 export class ExprParser {
   protected precedence: Map<TokenType, Array<TokenType>> = new Map();

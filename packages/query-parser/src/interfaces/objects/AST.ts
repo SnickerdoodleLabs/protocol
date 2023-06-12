@@ -8,8 +8,8 @@ import {
   AST_Ad,
   AST_Compensation,
   AST_Insight,
-  AST_SubQuery,
 } from "@query-parser/interfaces/index.js";
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 
 export class AST {
   constructor(
