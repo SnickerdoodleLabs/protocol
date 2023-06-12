@@ -492,19 +492,26 @@ export class QueryService implements IQueryService {
     config: CoreConfig,
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
     // TODO get all the possible rewards and send them to next
-    return this.getPossibleInisightAndAdKeys(
-      query
-    ).map((possibleInsightsAndAds) => {
-      this.getPossibleRewardsFromIP(consentToken , optInKey , consentContractAddress,query.cid ,config,possibleInsightsAndAds).map((possibleRewards) => {
-        this.publishSDQLQueryRequest(
+    return this.getPossibleInisightAndAdKeys(query).map(
+      (possibleInsightsAndAds) => {
+        this.getPossibleRewardsFromIP(
+          consentToken,
+          optInKey,
           consentContractAddress,
-          query,
-          possibleRewards,
-          accounts,
-          context,
-        );
-      });
-    });
+          query.cid,
+          config,
+          possibleInsightsAndAds,
+        ).map((possibleRewards) => {
+          this.publishSDQLQueryRequest(
+            consentContractAddress,
+            query,
+            possibleRewards,
+            accounts,
+            context,
+          );
+        });
+      },
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
@@ -583,7 +590,6 @@ export class QueryService implements IQueryService {
     );
   }
 
-  
   public getPossibleRewardsFromIPBySDQLQuery(
     query: SDQLQuery,
   ): ResultAsync<PossibleReward[], ParserError> {
@@ -621,28 +627,30 @@ export class QueryService implements IQueryService {
   }
 
   protected getPossibleInisightAndAdKeys(
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
-    const possibleInisightAndAdKeys :(InsightKey | AdKey)[]= [];
-    return this.queryParsingEngine.handleQuery(query ,  DataPermissions.createWithAllPermissions()).map( ({ ads  , insights}) => {
-      if(ads){
-        Object.entries(ads).forEach( (  [adKey , adValue]) => {
-          if(adValue !== null){
-            possibleInisightAndAdKeys.push(AdKey(adKey))
-          }
-        },[])
-
-        if(insights){
-          Object.entries(insights).forEach( (   [insightKey , insightValue]) => {            
-            if(insightValue !== null){
-              possibleInisightAndAdKeys.push(InsightKey(insightKey))
+    const possibleInisightAndAdKeys: (InsightKey | AdKey)[] = [];
+    return this.queryParsingEngine
+      .handleQuery(query, DataPermissions.createWithAllPermissions())
+      .map(({ ads, insights }) => {
+        if (ads) {
+          Object.entries(ads).forEach(([adKey, adValue]) => {
+            if (adValue !== null) {
+              possibleInisightAndAdKeys.push(AdKey(adKey));
             }
-          })
+          }, []);
+
+          if (insights) {
+            Object.entries(insights).forEach(([insightKey, insightValue]) => {
+              if (insightValue !== null) {
+                possibleInisightAndAdKeys.push(InsightKey(insightKey));
+              }
+            });
+          }
         }
-      }
-    
-      return possibleInisightAndAdKeys;
-    })
+
+        return possibleInisightAndAdKeys;
+      });
   }
 
   public createQueryStatusWithNoConsent(

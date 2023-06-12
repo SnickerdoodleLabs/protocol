@@ -23,6 +23,7 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { ExprParser } from "@query-parser/implementations/index.js";
 import {
   AST,
   AST_Ad,
@@ -36,12 +37,14 @@ import {
   AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
+  BinaryCondition,
   Condition,
   IQueryObjectFactory,
+  Operator,
   ParserContextDataTypes,
   SDQLQueryWrapper,
+  TypeChecker,
 } from "@query-parser/interfaces/index.js";
-import { ExprParser } from "@query-parser/implementations/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
@@ -225,7 +228,6 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
-
     return this.parseQueries().andThen(() => {
       return ResultUtils.combine([
         this.parseAds(),
@@ -416,7 +418,7 @@ export class SDQLParser {
           schema.chainId,
           schema.callback,
           schema.alternatives ? schema.alternatives : [],
-          schema.image ? schema.image  : URLString("") 
+          schema.image ? schema.image : URLString(""),
         );
       });
   }
@@ -481,5 +483,35 @@ export class SDQLParser {
       stringified = err.message;
     }
     return new QueryFormatError(stringified);
+  }
+
+  public getQueryDependencies(
+    expr: unknown,
+  ): ResultAsync<AST_SubQuery[], MissingASTError> {
+    if (expr == null) {
+      return errAsync(new MissingASTError("Null expr"));
+    }
+    if (TypeChecker.isValue(expr)) {
+      return okAsync([]);
+    }
+    if (TypeChecker.isSubQuery(expr)) {
+      return okAsync([expr as AST_SubQuery]);
+    }
+    if (TypeChecker.isBinaryCondition(expr)) {
+      const leftDeps = this.getQueryDependencies(
+        (expr as BinaryCondition).lval,
+      );
+      const rightDeps = this.getQueryDependencies(
+        (expr as BinaryCondition).rval,
+      );
+      return [...leftDeps, ...rightDeps];
+    }
+
+    const source = expr.source!;
+
+    if (TypeChecker.isConditionExpr(source) || TypeChecker.isOperator(source)) {
+      return this.getQueryDependencies(source as AST_Expr);
+    }
+    return errAsync(new MissingASTError("Invalid expr"));
   }
 }

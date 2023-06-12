@@ -1,4 +1,4 @@
-import { AST_SubQuery } from "@query-parser/interfaces/index.js";
+import { AST_SubQuery, BinaryCondition } from "@query-parser/interfaces/index.js";
 import { AST_Ad } from "@query-parser/interfaces/objects/AST_Ad.js";
 import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr.js";
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight.js";
@@ -43,6 +43,10 @@ export class TypeChecker {
 
   static isOperator(expr: any): boolean {
     return expr instanceof Operator;
+  }
+
+  static isBinaryCondition(expr: any): boolean {
+    return expr instanceof BinaryCondition;
   }
 
   static isConditionExpr(expr: any): boolean {

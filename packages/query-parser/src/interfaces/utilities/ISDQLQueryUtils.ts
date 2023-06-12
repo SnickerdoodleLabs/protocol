@@ -27,11 +27,11 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
   >;
 
-  getPossibleRewardsFromIP(
-    schemaString: SDQLString,
-    queryCID: IpfsCID,
-    possibleInsightsAndAds: (InsightKey | AdKey)[],
-  ): ResultAsync<PossibleReward[], ParserError>
+  // getPossibleRewardsFromIP(
+  //   schemaString: SDQLString,
+  //   queryCID: IpfsCID,
+  //   possibleInsightsAndAds: (InsightKey | AdKey)[],
+  // ): ResultAsync<PossibleReward[], ParserError>
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");
