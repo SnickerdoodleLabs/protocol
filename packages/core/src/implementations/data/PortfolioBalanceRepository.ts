@@ -30,6 +30,7 @@ import {
   EVMNFT,
   BigNumberString,
   TokenUri,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -52,6 +53,7 @@ import {
   IContextProviderType,
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
+import { urlJoin } from "url-join-ts";
 
 @injectable()
 export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
@@ -215,47 +217,35 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         }
 
         if (chainId == EChain.Astar) {
-          return this.accountRepo
-            .getEarnedRewards()
+          return ResultUtils.combine([
+            this.accountRepo.getEarnedRewards(),
+            this.configProvider.getConfig(),
+          ])
+            .map(([rewards, config]) => {
+              return (
+                rewards.filter((reward) => {
+                  reward.type == ERewardType.Direct;
+                }) as DirectReward[]
+              )
+                .filter((reward) => reward.chainId == ChainId(592))
+                .map((reward) => {
+                  return {
+                    ...reward,
+                    image: URLString(
+                      urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                    ),
+                  };
+                });
+            })
             .map((rewards) => {
-              console.log("Earned Rewards 1: " + JSON.stringify(rewards));
-              return rewards.filter((reward) => {
-                return reward.type == ERewardType.Direct;
-              });
-            })
-            .map((newrewards) => {
-              console.log("Earned Rewards 2: " + JSON.stringify(newrewards));
-
-              return newrewards.map((newreward) => {
-                return newreward as DirectReward;
-              });
-            })
-            .map((directRewards) => {
-              console.log("Earned Rewards 3: " + JSON.stringify(directRewards));
-              return directRewards.filter((reward) => {
-                return reward.chainId == ChainId(592);
-              });
-            })
-            .map((rewards) => {
-              console.log("Earned Rewards 4: " + JSON.stringify(rewards));
-              console.log("Config: " + JSON.stringify(config));
               return rewards.map((reward) => {
-                let imageUri;
-                if (reward.image == null) {
-                  imageUri = undefined;
-                } else {
-                  imageUri = reward.image;
-                }
                 return new EVMNFT(
                   reward.contractAddress,
                   BigNumberString("123"),
                   reward.type,
                   reward.recipientAddress,
-                  TokenUri(
-                    //  reward.image
-                    config.ipfsFetchBaseUrl + imageUri,
-                  ),
-                  { raw: ObjectUtils.serialize(reward["chainTransaction"]) }, // metadata
+                  undefined,
+                  { raw: ObjectUtils.serialize(reward) }, // metadata
                   BigNumberString("1"),
                   reward.name,
                   ChainId(592),
