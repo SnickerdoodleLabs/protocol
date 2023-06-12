@@ -1,6 +1,7 @@
-import AccountsCard from "@extension-onboarding/components/AccountsCard";
+import { AccountsCard } from "@snickerdoodlelabs/shared-components";
 import Typography from "@extension-onboarding/components/Typography";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -11,6 +12,7 @@ declare const window: IWindowWithSdlDataWallet;
 const OnChainInfo: FC = () => {
   const classes = useStyles();
   const { setModal } = useLayoutContext();
+  const { linkedAccounts } = useAppContext();
   const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
 
   useEffect(() => {
@@ -63,6 +65,7 @@ const OnChainInfo: FC = () => {
                 </Typography>
               </Box>
             }
+            accounts={linkedAccounts.map((account) => account.accountAddress)}
             receivingAddress={receivingAccount}
             onSelect={setDefaultReceivingAccount}
           />

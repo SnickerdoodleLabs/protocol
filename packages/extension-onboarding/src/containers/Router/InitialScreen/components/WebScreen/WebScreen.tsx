@@ -2,7 +2,7 @@ import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleL
 import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
 import sdlLogo from "@extension-onboarding/assets/images/sdl-logo.png";
 import videoBg from "@extension-onboarding/assets/images/video-bg.svg";
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import {
   DOWNLOAD_URL,
   PRODUCT_VIDEO_URL,

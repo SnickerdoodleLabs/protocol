@@ -17,7 +17,7 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
-import { PossibleReward as PossibleRewardComponent } from "@extension-onboarding/components/RewardItems";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -26,6 +26,7 @@ import DisplayModeToggle, {
 } from "@extension-onboarding/components/DisplayModeToggle/DisplayModeToggle";
 import Typography from "@extension-onboarding/components/Typography";
 import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IProgramRewardsProps {
@@ -44,6 +45,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
   const [displayMode, setDisplayMode] = useState<EDISPLAY_MODE>(
     EDISPLAY_MODE.COZY,
   );
+  const { apiGateway } = useAppContext();
 
   const getBadge = useCallback(
     (queryDependencies: QueryTypes[]) =>
@@ -129,6 +131,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
                 key={`${JSON.stringify(reward)}-${displayMode}-${index}`}
               >
                 <PossibleRewardComponent
+                  ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
                   displayType={
                     displayMode === EDISPLAY_MODE.LIST
                       ? "list"

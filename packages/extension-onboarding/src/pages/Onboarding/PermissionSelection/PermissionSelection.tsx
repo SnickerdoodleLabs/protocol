@@ -1,7 +1,6 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import PermissionSelectionComponent from "@extension-onboarding/components/PermissionSelection";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/PermissionSelection/PermissionSelection.style";
 import { Box, Typography } from "@material-ui/core";
@@ -32,11 +31,6 @@ const PermissionSelection: FC = () => {
         >
           <Button
             onClick={() => {
-              if (invitationInfo.consentAddress) {
-                navigate(EPaths.ONBOARDING_OPT_IN);
-              } else {
-                navigate(EPaths.ONBOARDING_TAG_SELECTION);
-              }
             }}
             fullWidth
           >

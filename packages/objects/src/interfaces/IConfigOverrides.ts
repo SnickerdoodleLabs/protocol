@@ -38,7 +38,6 @@ export interface IConfigOverrides {
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
-  ceramicNodeURL?: URLString;
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
@@ -47,6 +46,6 @@ export interface IConfigOverrides {
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
   primaryInfuraKey: string;
-  secondaryInfuraKey: string;
+  secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
 }

@@ -16,23 +16,23 @@ import {
   IEVMIndexer,
   TokenBalance,
   TokenUri,
-  UnixTimestamp,
   MethodSupportError,
   EChain,
   IndexerSupportSummary,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 const poapContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
@@ -53,6 +53,8 @@ export class PoapRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
@@ -79,8 +81,12 @@ export class PoapRepository implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return this.generateQueryConfig(accountAddress)
-      .andThen((requestConfig) => {
+    return ResultUtils.combine([
+      this.generateQueryConfig(accountAddress),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([requestConfig, context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
         return this.ajaxUtils.get<IPoapResponse[]>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(requestConfig.url!),
@@ -117,7 +123,10 @@ export class PoapRepository implements IEVMIndexer {
     AjaxError
   > {
     const url = urlJoinP("https://api.poap.tech", ["health-check"]);
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       if (config.apiKeys.poapApiKey == "") {
         this.health.set(EChain.Gnosis, EComponentStatus.NoKeyProvided);
         return okAsync(this.health);
@@ -130,6 +139,8 @@ export class PoapRepository implements IEVMIndexer {
           "X-API-Key": config.apiKeys.poapApiKey,
         },
       };
+
+      context.privateEvents.onApiAccessed.next(EExternalApi.POAP);
       return this.ajaxUtils
         .get<IHealthCheck>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

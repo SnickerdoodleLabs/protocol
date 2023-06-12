@@ -9,7 +9,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, errAsync, ResultAsync } from "neverthrow";
 
 import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -23,13 +23,17 @@ export class CrumbsContract implements ICrumbsContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
       ContractsAbis.CrumbsAbi.abi,
       providerOrSigner,
     );
+  }
+
+  public getContractAddress(): EVMContractAddress {
+    return this.contractAddress;
   }
 
   public addressToCrumbId(
@@ -69,9 +73,9 @@ export class CrumbsContract implements ICrumbsContract {
     ).orElse((error) => {
       // The contract reverts with this message if tokenId does not exist
       if (error.reason === "ERC721: operator query for nonexistent token") {
-        return ok(null);
+        return okAsync(null);
       }
-      return err(error);
+      return errAsync(error);
     });
   }
 
@@ -182,9 +186,5 @@ export class CrumbsContract implements ICrumbsContract {
         });
       })
       .map(() => {});
-  }
-
-  public getContract(): ethers.Contract {
-    return this.contract;
   }
 }

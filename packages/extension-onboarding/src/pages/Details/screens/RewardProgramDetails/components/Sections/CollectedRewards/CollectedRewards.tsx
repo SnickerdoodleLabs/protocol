@@ -2,8 +2,8 @@ import {
   DirectReward as DirectRewardComponent,
   LazyReward as LazyRewardComponent,
   Web2Reward as Web2RewardComponent,
-  PossibleReward as PossibleRewardComponent,
 } from "@extension-onboarding/components/RewardItems";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
 import Section, {
   useSectionStyles,
@@ -21,6 +21,7 @@ import {
   QueryTypePermissionMap,
   Web2Reward,
 } from "@snickerdoodlelabs/objects";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useState } from "react";
 
 interface ICollectedRewardsProps {
@@ -37,6 +38,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
   waitingRewards,
 }) => {
   const sectionClasses = useSectionStyles();
+  const { apiGateway } = useAppContext();
   const getRewardComponent = (
     reward: EarnedReward,
     permissions: EWalletDataType[],
@@ -109,6 +111,7 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
               key={`${JSON.stringify(reward)}--${index}`}
             >
               <PossibleRewardComponent
+                ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
                 reward={reward}
                 consentContractAddress={consentContractAddress}
                 badgeType={EBadgeType.Waiting}

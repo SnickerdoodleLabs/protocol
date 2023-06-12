@@ -23,9 +23,8 @@ import {
   IPersistenceConfigProviderType,
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {

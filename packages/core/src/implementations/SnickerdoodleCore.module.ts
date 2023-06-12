@@ -105,6 +105,7 @@ import {
   IntegrationService,
   InvitationService,
   MarketplaceService,
+  MetricsService,
   MonitoringService,
   ProfileService,
   QueryParsingEngine,
@@ -118,6 +119,7 @@ import {
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
+  QueryFactories,
   QueryRepository,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
@@ -136,6 +138,7 @@ import {
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  MetricsRepository,
   OauthUtils,
   PermissionRepository,
   PortfolioBalanceRepository,
@@ -145,10 +148,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
 } from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
+import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
@@ -178,6 +178,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -202,6 +204,8 @@ import {
   IPermissionUtilsType,
   IQueryEvaluator,
   IQueryEvaluatorType,
+  IQueryFactories,
+  IQueryFactoriesType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
@@ -252,12 +256,12 @@ import {
   ITransactionHistoryRepositoryType,
   ITwitterRepository,
   ITwitterRepositoryType,
+  IMetricsRepository,
+  IMetricsRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -308,6 +312,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
+      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -361,6 +368,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+    bind<IMetricsRepository>(IMetricsRepositoryType)
+      .to(MetricsRepository)
       .inSingletonScope();
 
     // Data Persistence and Indexing

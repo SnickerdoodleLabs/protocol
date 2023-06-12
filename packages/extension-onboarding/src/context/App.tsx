@@ -73,6 +73,8 @@ export interface IAppContext {
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
+  isProductTourCompleted: boolean;
+  completeProductTour: () => void;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -104,6 +106,9 @@ export const AppContextProvider: FC = ({ children }) => {
   const [optedInContracts, setUptedInContracts] = useState<
     EVMContractAddress[]
   >([]);
+  const [isProductTourCompleted, setIsProductTourCompleted] = useState<boolean>(
+    localStorage.getItem("SDL_UserCompletedIntro") === "COMPLETED",
+  );
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -291,6 +296,10 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
+  const completeProductTour = () => {
+    setIsProductTourCompleted(true);
+  };
+  
   return (
     <AppContext.Provider
       value={{
@@ -308,6 +317,8 @@ export const AppContextProvider: FC = ({ children }) => {
         addAccount,
         invitationInfo,
         setInvitationInfo: updateInvitationInfo,
+        isProductTourCompleted,
+        completeProductTour,
       }}
     >
       {children}

@@ -1,0 +1,26 @@
+{
+	"extends": "../../tsconfig.build.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"jsx": "react",
+		"paths": {
+			"@shared-components/*": [
+				"./packages/shared-components/src/*"
+			]
+		}
+	},
+	"references": [
+		{
+			"path": "../objects"
+		}
+	],
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
+		"index.d.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}

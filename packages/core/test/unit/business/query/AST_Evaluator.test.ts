@@ -14,7 +14,7 @@ import {
   ConditionOr,
 } from "@snickerdoodlelabs/query-parser";
 
-import { ASTMocks } from "@core-tests/mock/mocks";
+import { ASTMocks } from "@core-tests/mock/mocks/ASTMocks.js";
 
 // const ast = new AST(
 //     Version("0.1"),

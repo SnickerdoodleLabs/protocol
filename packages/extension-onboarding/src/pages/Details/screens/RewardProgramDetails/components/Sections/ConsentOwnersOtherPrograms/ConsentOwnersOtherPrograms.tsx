@@ -1,5 +1,5 @@
 import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
-import Carousel from "@extension-onboarding/components/Carousel";
+import { Carousel } from "@snickerdoodlelabs/shared-components";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";

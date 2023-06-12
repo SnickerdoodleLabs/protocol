@@ -1,29 +1,4 @@
 import {
-  IProfileService,
-  IProfileServiceType,
-} from "@core/interfaces/business/IProfileService.js";
-import {
-  IBlockchainTransactionQueryEvaluator,
-  IBlockchainTransactionQueryEvaluatorType,
-  INftQueryEvaluator,
-  INftQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
-  IQueryEvaluator,
-} from "@core/interfaces/business/utilities/query/index.js";
-import {
-  IBrowsingDataRepository,
-  IBrowsingDataRepositoryType,
-  IDemographicDataRepository,
-  IDemographicDataRepositoryType,
-  ISocialRepository,
-  ISocialRepositoryType,
-  ITransactionHistoryRepository,
-  ITransactionHistoryRepositoryType,
-} from "@core/interfaces/data/index.js";
-import {
   Age,
   CountryCode,
   DiscordGuildProfile,
@@ -51,6 +26,28 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
+import {
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+  IQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+} from "@core/interfaces/data/index.js";
+
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
   constructor(
@@ -60,8 +57,6 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected blockchainTransactionQueryEvaluator: IBlockchainTransactionQueryEvaluator,
     @inject(INftQueryEvaluatorType)
     protected nftQueryEvaluator: INftQueryEvaluator,
-    @inject(IProfileServiceType)
-    protected profileService: IProfileService,
     @inject(IDemographicDataRepositoryType)
     protected demographicDataRepo: IDemographicDataRepository,
     @inject(IBrowsingDataRepositoryType)
@@ -101,7 +96,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
-        return this.profileService.getAge().andThen((age) => {
+        return this.demographicDataRepo.getAge().andThen((age) => {
           switch (q.returnType) {
             case "boolean":
               for (const condition of q.conditions) {
@@ -163,15 +158,13 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(transactionArray));
           });
       case "social_discord":
-        return this.getDiscordProfiles()
+        return this.getDiscordProfiles();
       case "social_twitter":
-        return this.getTwitterFollowers()
+        return this.getTwitterFollowers();
       default:
         return okAsync(result);
     }
   }
-
-  
 
   public evalPropertyConditon(
     propertyVal: Age | CountryCode | null,

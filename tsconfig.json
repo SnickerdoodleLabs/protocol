@@ -60,6 +60,9 @@
       "path": "packages/query-parser/test"
     },
     {
+      "path": "packages/shared-components"
+    },
+    {
       "path": "packages/signatureVerification"
     },
     {

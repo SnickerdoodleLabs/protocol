@@ -4,11 +4,9 @@ import {
   ILogUtils,
   ITimeUtils,
   ObjectUtils,
-  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  AjaxError,
   EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
@@ -38,7 +36,6 @@ import {
 import {
   avalanche1SchemaStr,
   ISDQLQueryWrapperFactory,
-  SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

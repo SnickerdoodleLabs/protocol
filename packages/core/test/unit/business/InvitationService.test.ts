@@ -178,6 +178,9 @@ class InvitationServiceMocks {
         consentContractAddress1,
       ]),
     ).thenReturn(okAsync(undefined));
+    td.when(this.invitationRepo.getRejectedInvitations()).thenReturn(
+      okAsync([]),
+    );
 
     // CryptoUtils ----------------------------------------------------------
     // Will return different nonces each time, just in case
@@ -188,8 +191,6 @@ class InvitationServiceMocks {
     td.when(
       this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(optInPrivateKey),
     ).thenReturn(optInAccountAddress as never);
-
-    // AccountRepo ------------------------------------------------
 
     // DataWalletUtils --------------------------------------------
     td.when(

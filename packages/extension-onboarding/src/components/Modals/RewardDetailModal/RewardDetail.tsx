@@ -1,5 +1,5 @@
 import { useStyles } from "@extension-onboarding/components/Modals/RewardDetailModal/RewardDetail.style";
-import Permissions from "@extension-onboarding/components/Permissions";
+import { Permissions } from "@snickerdoodlelabs/shared-components";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -80,7 +80,6 @@ const RewardDetail: FC = () => {
                   <Typography className={classes.price}>Price:</Typography>
                   <Permissions
                     permissions={_permissions}
-                    displayType="row"
                     rowItemProps={{ width: 64, mr: 1.5 }}
                   />
                 </Box>

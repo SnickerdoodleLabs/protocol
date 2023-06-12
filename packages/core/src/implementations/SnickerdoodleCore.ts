@@ -3,8 +3,6 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-
-import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 import {
   AccountAddress,
   AccountIndexingError,
@@ -18,9 +16,7 @@ import {
   ChainId,
   ChainTransaction,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
-  ConsentFactoryContractError,
   CountryCode,
   CrumbsContractError,
   DataPermissions,
@@ -32,7 +28,6 @@ import {
   EarnedReward,
   EChain,
   EDataWalletPermission,
-  EInvitationStatus,
   EligibleAd,
   EmailAddressString,
   EScamFilterStatus,
@@ -41,7 +36,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  HexString32,
   IAdMethods,
   IConfigOverrides,
   IConsentCapacity,
@@ -52,10 +46,10 @@ import {
   IDynamicRewardParameter,
   IInvitationMethods,
   IMasterIndexerType,
+  IMetricsMethods,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
-  IOpenSeaMetadata,
   IpfsCID,
   IPFSError,
   ISnickerdoodleCore,
@@ -70,7 +64,6 @@ import {
   OAuth1RequstToken,
   OAuthAuthorizationCode,
   OAuthVerifier,
-  PageInvitation,
   PagingRequest,
   PersistenceError,
   QueryFormatError,
@@ -135,6 +128,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
@@ -168,6 +163,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public discord: ICoreDiscordMethods;
   public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
+  public metrics: IMetricsMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -426,6 +422,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
     };
+
+    // Metrics Methods ---------------------------------------------------------------
+    this.metrics = {
+      getMetrics: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getMetrics();
+      },
+    };
+
     // Social Media Methods ----------------------------------------------------------
     this.twitter = {
       getOAuth1aRequestToken: () => {
@@ -586,6 +593,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
+    const metricsService =
+      this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
     const blockchainListener = this.iocContainer.get<IBlockchainListener>(
       IBlockchainListenerType,
     );
@@ -615,7 +625,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       })
       .andThen(() => {
         // Service Layer
-        return ResultUtils.combine([queryService.initialize()]);
+        return ResultUtils.combine([
+          queryService.initialize(),
+          metricsService.initialize(),
+        ]);
       })
       .andThen(() => {
         // API Layer

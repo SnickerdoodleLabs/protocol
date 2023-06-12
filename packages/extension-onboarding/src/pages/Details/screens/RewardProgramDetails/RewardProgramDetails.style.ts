@@ -1,32 +1,6 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
-  permissionsTitle: {
-    fontFamily: "'Roboto'",
-    fontStyle: "normal",
-    fontWeight: 500,
-    fontSize: "16px",
-    lineHeight: "24px",
-    color: "#262626",
-  },
-  permissionsDescription: {
-    fontFamily: "'Roboto'",
-    fontStyle: "normal",
-    fontWeight: 400,
-    fontSize: "12px",
-    lineHeight: "20px",
-    letterSpacing: "0.25px",
-    color: "#616161",
-  },
-  selectAll: {
-    fontFamily: "'Roboto'",
-    fontStyle: "normal",
-    fontWeight: 400,
-    fontSize: "16px",
-    lineHeight: "16px",
-    color: "#8079B4",
-    cursor: "pointer",
-  },
   image: {
     aspectRatio: "1",
     objectFit: "cover",

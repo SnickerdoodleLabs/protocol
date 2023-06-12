@@ -69,8 +69,6 @@ export const LayoutProvider: FC = ({ children }) => {
         return <ViewDetailsModal />;
       case modalState.modalSelector === EModalSelectors.MANAGE_PERMISSIONS:
         return <DataPermissionsModal />;
-      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
-        return <PermissionSelectionModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
       case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
@@ -92,6 +90,8 @@ export const LayoutProvider: FC = ({ children }) => {
             secondaryButtonText={modalState?.customProps?.secondaryButtonText}
           />
         );
+      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
+        return <PermissionSelectionModal />;
       default:
         return null;
     }

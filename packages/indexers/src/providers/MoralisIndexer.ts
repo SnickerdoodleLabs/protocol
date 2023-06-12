@@ -25,6 +25,7 @@ import {
   EChain,
   IndexerSupportSummary,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -34,7 +35,9 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class MoralisEVMPortfolioRepository implements IEVMIndexer {
@@ -65,6 +68,8 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
@@ -79,7 +84,10 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     return ResultUtils.combine([
       this.generateQueryConfig(chainId, accountAddress, "erc20"),
       this.generateQueryConfig(chainId, accountAddress, "balance"),
-    ]).andThen(([tokenRequest, balanceRequest]) => {
+      this.contextProvider.getContext(),
+    ]).andThen(([tokenRequest, balanceRequest, context]) => {
+      context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
+      context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       return ResultUtils.combine([
         this.ajaxUtils.get<IMoralisBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -124,17 +132,20 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return this.generateQueryConfig(chainId, accountAddress, "nft")
-      .andThen((requestConfig) => {
-        return this.ajaxUtils
-          .get<IMoralisNFTResponse>(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(requestConfig.url!),
-            requestConfig,
-          )
-          .andThen((result) => {
-            return this.getPages(chainId, accountAddress, result);
-          });
+    return ResultUtils.combine([
+      this.generateQueryConfig(chainId, accountAddress, "nft"),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([requestConfig, context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
+        return this.ajaxUtils.get<IMoralisNFTResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .andThen((result) => {
+        return this.getPages(chainId, accountAddress, result);
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from moralis", e),
@@ -209,12 +220,11 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
       return okAsync(items);
     }
 
-    return this.generateQueryConfig(
-      chainId,
-      accountAddress,
-      "nft",
-      response.cursor,
-    ).andThen((requestConfig) => {
+    return ResultUtils.combine([
+      this.generateQueryConfig(chainId, accountAddress, "nft", response.cursor),
+      this.contextProvider.getContext(),
+    ]).andThen(([requestConfig, context]) => {
+      context.privateEvents.onApiAccessed.next(EExternalApi.Moralis);
       return (
         this.ajaxUtils
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

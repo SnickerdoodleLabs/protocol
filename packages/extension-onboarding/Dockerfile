@@ -17,6 +17,7 @@ COPY packages/insight-platform-api/package.json ./packages/insight-platform-api/
 COPY packages/objects/package.json ./packages/objects/
 COPY packages/persistence/package.json ./packages/persistence/
 COPY packages/query-parser/package.json ./packages/query-parser/
+COPY packages/shared-components/package.json ./packages/shared-components/
 COPY packages/signatureVerification/package.json ./packages/signatureVerification/
 COPY packages/test-harness/package.json ./packages/test-harness/
 COPY packages/utils/package.json ./packages/utils/

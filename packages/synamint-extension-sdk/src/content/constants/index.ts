@@ -3,8 +3,9 @@ import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 export enum EAPP_STATE {
   INIT,
   PERMISSION_SELECTION,
-  MANAGE_PERMISSIONS,
-  DISMISSED,
+  SUBSCRIPTION_CONFIRMATION,
+  SUBSCRIPTION_SUCCESS,
+  LOADING
 }
 
 export interface IRewardItem {

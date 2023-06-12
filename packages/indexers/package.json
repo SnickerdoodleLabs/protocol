@@ -47,6 +47,7 @@
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5",
     "url-join-ts": "^1.0.5"
   }
 }

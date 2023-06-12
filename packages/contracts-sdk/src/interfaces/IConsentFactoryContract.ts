@@ -5,22 +5,19 @@ import {
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
-export interface IConsentFactoryContract {
-  /**
-   * Return contract address
-   */
-  getContractAddress(): EVMContractAddress;
-
+export interface IConsentFactoryContract extends IBaseContract {
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance

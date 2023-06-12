@@ -1,39 +1,28 @@
 import "reflect-metadata";
-import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  OAuth1RequstToken,
-  DiscordProfile,
-  Integer,
-  PersistenceError,
-  DiscordID,
-  UnixTimestamp,
-  Username,
-} from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
+import { DiscordProfile, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { DiscordService } from "@core/implementations/business/DiscordService";
-import { IDiscordService } from "@core/interfaces/business";
+import { DiscordService } from "@core/implementations/business/index.js";
+import { IDiscordService } from "@core/interfaces/business/index.js";
 import { IDiscordRepository } from "@core/interfaces/data/index.js";
-import {
-  IConfigProvider,
-  IContextProvider,
-} from "@core/interfaces/utilities/index.js";
-import { discordProfiles } from "@core-tests/mock/mocks/SocialDataMock";
+import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import { discordProfiles } from "@core-tests/mock/mocks/SocialDataMock.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { CoreContext } from "@core/interfaces/objects";
 
 class DiscordServiceMocks {
   public configProvider: IConfigProvider;
-  public contextProvider: IContextProvider;
+  public contextProvider: ContextProviderMock;
   public discordRepo: IDiscordRepository;
   public timeUtils: ITimeUtils;
+
   public constructor() {
     this.configProvider = new ConfigProviderMock();
-    this.contextProvider = td.object<IContextProvider>();
+    this.contextProvider = new ContextProviderMock();
     this.discordRepo = td.object<IDiscordRepository>();
     this.timeUtils = td.object<ITimeUtils>();
 

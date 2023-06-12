@@ -1,3 +1,4 @@
+export * from "@contracts-sdk/interfaces/IBaseContract";
 export * from "@contracts-sdk/interfaces/IConsentContract";
 export * from "@contracts-sdk/interfaces/IConsentFactoryContract";
 export * from "@contracts-sdk/interfaces/ICrumbsContract";

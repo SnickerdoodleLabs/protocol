@@ -25,6 +25,7 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -34,6 +35,10 @@ import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
+import {
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class EtherscanNativeBalanceRepository implements IEVMIndexer {
@@ -68,6 +73,8 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
@@ -190,8 +197,12 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
   protected _getEtherscanApiKey(
     chain: EChain,
   ): ResultAsync<string, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      const key = getChainInfoByChain(chain).name;
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
+      const chainInfo = getChainInfoByChain(chain);
+      const key = chainInfo.name;
       if (
         config.apiKeys.etherscanApiKeys[key] == "" ||
         config.apiKeys.etherscanApiKeys[key] == undefined
@@ -201,6 +212,28 @@ export class EtherscanNativeBalanceRepository implements IEVMIndexer {
           new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
+
+      // Have to switch based on the chain in order to map to external API
+      let api = EExternalApi.Unknown;
+      switch (chainInfo.chain) {
+        case EChain.EthereumMainnet:
+          api = EExternalApi.EtherscanEthereum;
+          break;
+        case EChain.Binance:
+          api = EExternalApi.EtherscanBinance;
+          break;
+        case EChain.Polygon:
+          api = EExternalApi.EtherscanPolygon;
+          break;
+        case EChain.Avalanche:
+          api = EExternalApi.EtherscanAvalanche;
+          break;
+        case EChain.Moonbeam:
+          api = EExternalApi.EtherscanMoonbeam;
+          break;
+      }
+      context.privateEvents.onApiAccessed.next(api);
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return okAsync(config.apiKeys.etherscanApiKeys[key]!);
     });

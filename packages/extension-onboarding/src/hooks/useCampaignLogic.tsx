@@ -79,7 +79,7 @@ const useCampaignItemLogic = ({
     window.sdlDataWallet
       ?.getPossibleRewards?.([consentContractAddress])
       .map((possibleRewards) =>
-        setPossibleRewards(possibleRewards[consentContractAddress]),
+        setPossibleRewards(possibleRewards[consentContractAddress] ?? []),
       );
   };
 
