@@ -1,4 +1,8 @@
-import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtilsType,
+  ILogUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   ChainId,
   LinkedAccount,
@@ -25,6 +29,7 @@ import {
   EChainTechnology,
   EVMNFT,
   BigNumberString,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -234,13 +239,18 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
               console.log("Earned Rewards 4: " + JSON.stringify(rewards));
 
               return rewards.map((reward) => {
+                let imageUri;
+                if (reward.image == null) {
+                  imageUri = undefined;
+                } else {
+                  imageUri = reward.image;
+                }
                 return new EVMNFT(
                   reward.contractAddress,
                   BigNumberString("123"),
                   reward.type,
                   reward.recipientAddress,
-                  undefined,
-                  reward,
+                 { raw: ObjectUtils.serialize(reward["chainTransaction"]) }, // metadata
                   BigNumberString("1"),
                   reward.name,
                   ChainId(592),
