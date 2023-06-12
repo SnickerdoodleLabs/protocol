@@ -32,6 +32,11 @@ export interface ISDQLQueryUtils {
   //   queryCID: IpfsCID,
   //   possibleInsightsAndAds: (InsightKey | AdKey)[],
   // ): ResultAsync<PossibleReward[], ParserError>
+  filterCompensationsForPreviews(
+    scheamString: SDQLString,
+    activeCompensationKeys: CompensationKey[],
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<PossibleReward[], never>;
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");
