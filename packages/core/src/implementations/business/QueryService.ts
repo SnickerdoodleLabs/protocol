@@ -494,8 +494,8 @@ export class QueryService implements IQueryService {
     // TODO get all the possible rewards and send them to next
     return this.getPossibleInisightAndAdKeys(
       query
-    ).map((_possibleInsightsAndAds) => {
-      this.getPossibleRewardsFromIPBySDQLQuery(query).map((possibleRewards) => {
+    ).map((possibleInsightsAndAds) => {
+      this.getPossibleRewardsFromIP(consentToken , optInKey , consentContractAddress,query.cid ,config,possibleInsightsAndAds).map((possibleRewards) => {
         this.publishSDQLQueryRequest(
           consentContractAddress,
           query,
@@ -583,6 +583,7 @@ export class QueryService implements IQueryService {
     );
   }
 
+  
   public getPossibleRewardsFromIPBySDQLQuery(
     query: SDQLQuery,
   ): ResultAsync<PossibleReward[], ParserError> {
