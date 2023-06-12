@@ -4,13 +4,20 @@ import {
   DataWalletAddress,
   EChain,
   EComponentStatus,
+  EExternalApi,
   IpfsCID,
   LinkedAccount,
   SDQLQueryRequest,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { Subject } from "rxjs";
 
-import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+import {
+  CoreContext,
+  PrivateEvents,
+  PublicEvents,
+} from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import {
   dataWalletAddress,
@@ -21,6 +28,7 @@ export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
 
   public publicEvents: PublicEvents;
+  public privateEvents: PrivateEvents;
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
@@ -30,17 +38,21 @@ export class ContextProviderMock implements IContextProvider {
   public onDataPermissionsUpdatedActivations: DataPermissionsUpdatedEvent[] =
     [];
   public heartbeatActivations: void[] = [];
+  public onApiAccessedActivations: EExternalApi[] = [];
 
   constructor(context: CoreContext | null = null) {
     if (context != null) {
       this.context = context;
     } else {
       this.context = new CoreContext(
-        dataWalletAddress,
-        dataWalletKey,
-        false,
-        new PublicEvents(),
-        false,
+        dataWalletAddress, // dataWalletAddress
+        dataWalletKey, // dataWalletKey
+        false, // unlockInProgress
+        new PublicEvents(), //publicEvents
+        new PrivateEvents(), // privateEvents
+        false, // restoreInProgress
+        new Subject<void>(), // heartbeat
+        UnixTimestamp(0), // startTime,
         new ComponentStatus(
           EComponentStatus.TemporarilyDisabled,
           EComponentStatus.TemporarilyDisabled,
@@ -50,11 +62,12 @@ export class ContextProviderMock implements IContextProvider {
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           [],
-        ),
+        ), // components
       );
     }
 
     this.publicEvents = this.context.publicEvents;
+    this.privateEvents = this.context.privateEvents;
 
     this.publicEvents.onInitialized.subscribe((val) => {
       this.onInitializedActivations.push(val);
@@ -83,6 +96,10 @@ export class ContextProviderMock implements IContextProvider {
     this.context.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
+
+    this.privateEvents.onApiAccessed.subscribe((val) => {
+      this.onApiAccessedActivations.push(val);
+    });
   }
 
   public getContext(): ResultAsync<CoreContext, never> {
@@ -104,6 +121,7 @@ export class ContextProviderMock implements IContextProvider {
       onAccountRemoved: 0,
       onDataPermissionsUpdated: 0,
       heartbeat: 0,
+      onApiAccessed: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -122,6 +140,7 @@ export class ContextProviderMock implements IContextProvider {
       counts.onDataPermissionsUpdated,
     );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
+    expect(this.onApiAccessedActivations.length).toBe(counts.onApiAccessed);
   }
 }
 
@@ -133,4 +152,5 @@ export interface IExpectedEventCounts {
   onAccountRemoved?: number;
   onDataPermissionsUpdated?: number;
   heartbeat?: number;
+  onApiAccessed?: number;
 }

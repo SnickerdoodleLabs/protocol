@@ -22,7 +22,6 @@ export interface IExtensionConfigDefaults {
 }
 
 export interface IExtensionConfig extends IExtensionConfigDefaults {
-  ceramicNodeUrl: URLString;
   alchemyApiKeys?: {
     Arbitrum: string;
     Astar: string;
@@ -68,7 +67,6 @@ export interface IExtensionConfigOverrides {
   ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   domainFilter?: string;
-  ceramicNodeUrl?: URLString;
   portfolioPollingIntervalMS?: number;
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;

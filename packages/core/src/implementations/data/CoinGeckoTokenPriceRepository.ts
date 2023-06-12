@@ -12,6 +12,7 @@ import {
   chainConfig,
   ChainId,
   ECurrencyCode,
+  EExternalApi,
   ERecordKey,
   getChainInfoByChainId,
   ITokenPriceRepository,
@@ -38,6 +39,8 @@ import {
 import {
   IConfigProvider,
   IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
@@ -59,6 +62,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this._nativeIds = new Map();
@@ -195,8 +199,12 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         sparkline: "false",
       }),
     );
-    return this.ajaxUtils
-      .get<CoinMarketDataResponse[]>(new URL(url))
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
+        return this.ajaxUtils.get<CoinMarketDataResponse[]>(new URL(url));
+      })
       .map((coinGeckoApiData) => {
         return coinGeckoApiData;
       })
@@ -225,8 +233,9 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     return ResultUtils.combine([
       this._getAssetPlatforms(),
       this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
     ])
-      .andThen(([platforms, config]) => {
+      .andThen(([platforms, config, context]) => {
         if (!(chainId in platforms.backward)) {
           return errAsync(new AccountIndexingError("invalid chain id"));
         }
@@ -238,6 +247,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
             [platform.toString(), "history"],
             { date: dateString, localization: false },
           );
+          context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
           return this.ajaxUtils
             .get<ITokenHistoryResponse>(new URL(url))
             .map((resp) => this.getPrice(resp, config.quoteCurrency));
@@ -254,6 +264,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
               [tokenInfo.id, "history"],
               { date: dateString, localization: false },
             );
+            context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
             return this.ajaxUtils
               .get<ITokenHistoryResponse>(new URL(url))
               .map((resp) => this.getPrice(resp, config.quoteCurrency));
@@ -292,8 +303,12 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       return this._initialized;
     }
 
-    this._initialized = this._getAssetPlatforms()
-      .andThen((platforms) => {
+    this._initialized = ResultUtils.combine([
+      this._getAssetPlatforms(),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([platforms, context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
         return this.ajaxUtils
           .get<
             {
@@ -354,7 +369,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       return this._assetPlatforms;
     }
 
-    this._assetPlatforms = this.configProvider.getConfig().andThen((config) => {
+    this._assetPlatforms = ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
+      context.privateEvents.onApiAccessed.next(EExternalApi.CoinGecko);
       return this.ajaxUtils
         .get<
           {

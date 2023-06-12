@@ -3,13 +3,11 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
-  IRequestConfig,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
-  getChainInfoByChainId,
   AccountIndexingError,
   AjaxError,
   ChainId,
@@ -20,13 +18,9 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EChain,
-  HexString,
   EVMNFT,
-  AccountAddress,
-  URLString,
   TokenUri,
   EVMTransaction,
-  EVMTransactionHash,
   UnixTimestamp,
   EComponentStatus,
   IEVMIndexer,
@@ -34,18 +28,18 @@ import {
   getChainInfoByChain,
   MethodSupportError,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
-import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
@@ -94,6 +88,8 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -105,7 +101,10 @@ export class AnkrIndexer implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       const url =
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
@@ -119,6 +118,7 @@ export class AnkrIndexer implements IEVMIndexer {
         id: 1,
       };
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrBalancesReponse>(new URL(url), requestParams, {
           headers: {
@@ -158,7 +158,10 @@ export class AnkrIndexer implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).andThen(([config, context]) => {
       const url =
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
@@ -172,6 +175,7 @@ export class AnkrIndexer implements IEVMIndexer {
         id: 1,
       };
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
         .post<IAnkrNftReponse>(new URL(url), requestParams, {
           headers: {
