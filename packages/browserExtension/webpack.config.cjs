@@ -304,6 +304,15 @@ var options = {
         },
       ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "src/offscreen",
+          to: path.join(__dirname, "build", "offscreen"),
+          force: true,
+        },
+      ],
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "popup", "index.html"),
       filename: "popup.html",
