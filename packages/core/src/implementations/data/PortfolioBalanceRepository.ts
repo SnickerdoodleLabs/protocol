@@ -250,7 +250,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   BigNumberString("123"),
                   reward.type,
                   reward.recipientAddress,
-                 { raw: ObjectUtils.serialize(reward["chainTransaction"]) }, // metadata
+                  TokenUri("ipfs://" + imageUri),
+                  { raw: ObjectUtils.serialize(reward["chainTransaction"]) }, // metadata
                   BigNumberString("1"),
                   reward.name,
                   ChainId(592),
