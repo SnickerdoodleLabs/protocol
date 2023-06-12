@@ -207,7 +207,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     return ResultUtils.combine([
       this._getNftCache(),
       this.contextProvider.getContext(),
-    ]).andThen(([cache, context]) => {
+      this.configProvider.getConfig(),
+    ]).andThen(([cache, context, config]) => {
       return cache.get(chainId, accountAddress).andThen((cacheResult) => {
         if (cacheResult != null) {
           return okAsync(cacheResult);
@@ -237,7 +238,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             })
             .map((rewards) => {
               console.log("Earned Rewards 4: " + JSON.stringify(rewards));
-
+              console.log("Config: " + JSON.stringify(config));
               return rewards.map((reward) => {
                 let imageUri;
                 if (reward.image == null) {
@@ -250,7 +251,9 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   BigNumberString("123"),
                   reward.type,
                   reward.recipientAddress,
-                  TokenUri("ipfs://" + imageUri),
+                  TokenUri(
+                    "https://ipfs-gateway.snickerdoodle.dev/ipfs/" + imageUri,
+                  ),
                   { raw: ObjectUtils.serialize(reward["chainTransaction"]) }, // metadata
                   BigNumberString("1"),
                   reward.name,
