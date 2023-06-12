@@ -252,7 +252,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   reward.type,
                   reward.recipientAddress,
                   TokenUri(
-                    "https://ipfs-gateway.snickerdoodle.dev/ipfs/" + imageUri,
+                    //  reward.image
+                    config.ipfsFetchBaseUrl + imageUri,
                   ),
                   { raw: ObjectUtils.serialize(reward["chainTransaction"]) }, // metadata
                   BigNumberString("1"),
