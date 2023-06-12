@@ -1,10 +1,9 @@
-import { okAsync, ResultAsync } from "neverthrow";
-
 import {
   EContentType,
   INFT,
   INFTEventField,
 } from "@extension-onboarding/objects";
+import { TokenUri } from "@snickerdoodlelabs/objects";
 
 const emptytNft: INFT = {
   name: null,
@@ -19,8 +18,11 @@ const emptytNft: INFT = {
 };
 
 export class NftMetadataParseUtils {
-  public static getParsedNFT = (metadataString: string): INFT => {
-    if (!metadataString) {
+  public static getParsedNFT = (
+    metadataString: string,
+    tokenUri?: TokenUri,
+  ): INFT => {
+    if (!metadataString && tokenUri) {
       return emptytNft;
     }
     let metadataObj = null;
@@ -31,12 +33,16 @@ export class NftMetadataParseUtils {
       metadataObj = null;
     }
     if (!metadataObj) {
-      return emptytNft;
+      const copyEmpty = { ...emptytNft };
+      if (tokenUri) {
+        copyEmpty.imageUrl = NftMetadataParseUtils.normalizeUrl(tokenUri);
+      }
+      return copyEmpty;
     }
     return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
-      imageUrl: this.getImageUrl(metadataString),
+      imageUrl: this.getImageUrl(metadataString, tokenUri),
       animationUrl: this.getAnimationUrl(metadataObj),
       externalUrl: this.getExternalUrl(metadataObj),
       contentType: this.getContentType(metadataObj),
@@ -46,7 +52,7 @@ export class NftMetadataParseUtils {
     } as INFT;
   };
 
-  private static getImageUrl(metadataString: string) {
+  private static getImageUrl(metadataString: string, tokenUri?: TokenUri) {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
@@ -67,6 +73,8 @@ export class NftMetadataParseUtils {
     }
     return nftImages?.[0]
       ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
+      : tokenUri
+      ? NftMetadataParseUtils.normalizeUrl(tokenUri)
       : null;
   }
 

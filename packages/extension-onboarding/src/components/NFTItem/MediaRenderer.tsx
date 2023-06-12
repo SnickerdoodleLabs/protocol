@@ -3,12 +3,17 @@ import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { useNavigate } from "react-router";
 import { INFT } from "@extension-onboarding/objects";
+import { TokenUri } from "@snickerdoodlelabs/objects";
 
 interface IMediaRendererProps {
   metadataString: string | null;
+  tokenUri?: TokenUri;
 }
 
-const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
+const MediaRenderer: FC<IMediaRendererProps> = ({
+  metadataString,
+  tokenUri,
+}) => {
   const [nftData, setNftData] = useState<null | INFT>();
   useEffect(() => {
     getNftData();
@@ -20,7 +25,7 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     if (!metadataString) {
       setNftData(null);
     }
-    setNftData(NftMetadataParseUtils.getParsedNFT(metadataString!));
+    setNftData(NftMetadataParseUtils.getParsedNFT(metadataString!, tokenUri));
   };
 
   if (!metadataString) {

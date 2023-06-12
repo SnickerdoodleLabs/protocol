@@ -28,7 +28,11 @@ export default () => {
   }, []);
 
   const setNFTData = () => {
-    setParsedNFT(NftMetadataParseUtils.getParsedNFT(metadataString || ""));
+    setParsedNFT(
+      NftMetadataParseUtils.getParsedNFT(metadataString || ""),
+      // @ts-ignore
+      item.tokenUri,
+    );
   };
 
   return (
