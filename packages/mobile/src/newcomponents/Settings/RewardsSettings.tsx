@@ -44,18 +44,7 @@ export default function RewardsSettings() {
     [],
   );
 
-  const handleSelect = (value: string) => {
-    setSelected(value);
-  };
-
   useEffect(() => {
-    mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {});
-    mobileCore
-      .getCore()
-      .getEarnedRewards()
-      .map((data) => {
-        console.log("getEarnedRewards", data);
-      });
     setIsLoading([]);
     getOptedInInvitationMetaData();
   }, [unsubsribed]);

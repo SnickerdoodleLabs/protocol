@@ -152,10 +152,6 @@ const NFTDetails = ({ navigation, route }) => {
     },
   });
 
-  useEffect(() => {
-    console.log("reward Item", rewardItem);
-  }, [rewardItem]);
-
   return (
     <SafeAreaView>
       <ScrollView style={{ backgroundColor: theme?.colors.background }}>

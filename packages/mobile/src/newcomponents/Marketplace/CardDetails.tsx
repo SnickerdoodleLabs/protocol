@@ -177,7 +177,6 @@ const CardDetails = ({ navigation, route }) => {
               )?.queryDependencies.map(
                 (queryType) => QueryTypePermissionMap.get(queryType)!,
               );
-              console.log("rewardDependencies", rewardDependencies);
               const newDependencies = new Map();
               newDependencies.set(
                 marketplaceListing.consentContract,
@@ -186,10 +185,6 @@ const CardDetails = ({ navigation, route }) => {
               setDependencies(newDependencies);
             });
         }
-        console.log(
-          "possibleReward",
-          possibleReward.get(marketplaceListing.consentContract),
-        );
         setPossibleRewards(possibleReward);
       });
   }, [marketplaceListing, metaData]);
@@ -219,8 +214,6 @@ const CardDetails = ({ navigation, route }) => {
     }, []);
     return [earnedRewards, missedRewards];
   }, [possibleRewards, campaignPermissions, marketplaceListing]);
-  console.log("earnedRewards", earnedRewards);
-  console.log("missedRewards", missedRewards);
 
   const getTokenId = (tokenId: BigNumberString | undefined) => {
     if (tokenId) {

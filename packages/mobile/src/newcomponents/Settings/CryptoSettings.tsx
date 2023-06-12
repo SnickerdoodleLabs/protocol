@@ -32,13 +32,6 @@ export default function CryptoSettings() {
       .map((receiveAccount) => {
         setSelected(receiveAccount);
       });
-
-    mobileCore
-      .getCore()
-      .getAccountNFTs()
-      .map((nft) => {
-        console.log("NFT", nft);
-      });
   }, []);
 
   const handleSelect = (value: string) => {

@@ -95,7 +95,7 @@ const Dashboard = () => {
       label: "Astar",
       value: "592",
     },
- /*    {
+    /*    {
       image: require("../../assets/images/chain-gnosis.png"),
       label: "Gnosis",
       value: "100",
@@ -113,7 +113,6 @@ const Dashboard = () => {
   ];
 
   const handleSelectChain = (chains: string[]) => {
-    console.log("chains", chains);
     setSelectedChains(chains);
   };
 
@@ -160,7 +159,6 @@ const Dashboard = () => {
           token.map((tkn) => {
             total += tkn.quote;
           });
-          console.log("total", total);
           setTotalVal(total);
         });
       });
@@ -189,15 +187,11 @@ const Dashboard = () => {
       .getCore()
       .getAccountNFTs()
       .map((nfts) => {
-        console.log("first nfts2", nfts);
-        console.log("selectedAccount", selectedAccount.toLowerCase());
-        console.log("selectedChains", selectedChains);
         const filtered = nfts.filter(
           (item) =>
             item.owner.toLowerCase() === selectedAccount.toLowerCase() &&
             selectedChains.includes(item.chain.toString()),
         );
-        console.log("filtered", filtered);
         const parsedArr = filtered.map((obj) => {
           const parsedMetadata = JSON.parse(obj?.metadata.raw ?? null);
           return {
@@ -205,7 +199,6 @@ const Dashboard = () => {
             parsed_metadata: parsedMetadata,
           };
         });
-        console.log("parsedArr", parsedArr);
 
         setMyNFTsNew(parsedArr);
       });

@@ -52,15 +52,11 @@ export default function SocialSettings() {
 
   const handleLogin = async () => {
     try {
-      console.log("a");
       const authResult = await authorize({
         ...config,
         connectionTimeoutSeconds: 5,
       });
-      console.log("authResult", authResult);
-    } catch (error) {
-      console.log("EEEEEEE", error);
-    }
+    } catch (error) {}
   };
 
   const styles = StyleSheet.create({

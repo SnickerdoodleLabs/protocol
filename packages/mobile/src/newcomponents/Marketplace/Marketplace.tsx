@@ -50,13 +50,11 @@ export default function Marketplace() {
   const theme = useTheme();
 
   React.useEffect(() => {
-    console.log("UseEffect7");
 
     Orientation.lockToPortrait(); // lock to portrait mode
   }, []);
 
   useEffect(() => {
-    console.log("UseEffect3");
 
     ResultUtils.combine(
       Object.values(ETag).map((tag) =>
@@ -140,7 +138,6 @@ export default function Marketplace() {
     isEmpty: boolean;
     isLoading: boolean;
   } = useMemo(() => {
-    console.log("UseEffect5");
 
     if (!listings) return { isLoading: true, isEmpty: false };
     const listingObj = Object.values(listings).reduce(
@@ -177,7 +174,6 @@ export default function Marketplace() {
   }, [listings]);
 
   const renderTopCategories = ({ item }) => {
-    console.log("UseEffect6");
 
     return (
       <View style={{ marginRight: normalizeWidth(10) }}>
@@ -190,7 +186,6 @@ export default function Marketplace() {
               return itemData.indexOf(queryData) > -1;
             });
             if (filtered.length > 0) {
-              console.log("aaaaa", filtered);
               setFilteredByCategory(filtered);
             } else {
               //@ts-ignore

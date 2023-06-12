@@ -15,7 +15,6 @@ export default function NFTs({ data }: IDashboardChildrenProps) {
   const theme = useTheme();
   const NFTs = ({ navigation }: any) => {
     useEffect(() => {
-      console.log("AAAAAA", data);
     }, [data]);
     return (
       <View

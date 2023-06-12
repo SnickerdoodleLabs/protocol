@@ -220,7 +220,6 @@ const MyComponent = () => {
 
   useEffect(() => {
     mobileCore.piiService.getLocation().map((res) => {
-      console.log("res", res);
       if (res) {
         const country = countries.filter((country) => country.value === res);
         setSelectedCountry({

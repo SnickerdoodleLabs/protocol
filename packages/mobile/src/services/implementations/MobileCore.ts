@@ -360,11 +360,9 @@ export class MobileCore {
         return _tokenPriceService.getTokenPrice(chainId, address, timestamp);
       },
       getTokenMarketData: (ids: string[]) => {
-        console.log("ids", ids);
         const _tokenPriceService = this.iocContainer.get<ITokenPriceService>(
           ITokenPriceServiceType,
         );
-        console.log("a", _tokenPriceService.getTokenMarketData(ids));
         return _tokenPriceService.getTokenMarketData(ids);
       },
       getTokenInfo: (

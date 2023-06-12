@@ -120,7 +120,6 @@ const Permission = () => {
   useEffect(() => {
     if (isUnlocked) {
       mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
-        console.log("perm", permission);
         AsyncStorage.getItem("permissionSetted").then((setted) => {
           if (permission.length === 0 && setted == null) {
             AsyncStorage.setItem("permissionSetted", "true");
