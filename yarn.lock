@@ -7839,6 +7839,7 @@ __metadata:
     querystring-es3: ^0.2.1
     react: 18.1.0
     react-native: 0.70.6
+    react-native-app-auth: ^6.4.3
     react-native-argon2: ^2.0.1
     react-native-asset: ^2.1.0
     react-native-crypto: ^2.2.0
@@ -23355,7 +23356,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:*, invariant@npm:^2.2.2, invariant@npm:^2.2.4":
+"invariant@npm:*, invariant@npm:2.2.4, invariant@npm:^2.2.2, invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -34069,6 +34070,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-app-auth@npm:^6.4.3":
+  version: 6.4.3
+  resolution: "react-native-app-auth@npm:6.4.3"
+  dependencies:
+    invariant: 2.2.4
+    react-native-base64: 0.0.2
+  peerDependencies:
+    react-native: ">=0.63.0"
+  checksum: 5edf1e3b390d4feafa7d1f7c2488564c130ef9625283e83e803d896832494da121e032d61b2be062ed1be8bb0506e7176c8b3fdd30c0dd3152aa6ae1b97e3a32
+  languageName: node
+  linkType: hard
+
 "react-native-argon2@npm:^2.0.1":
   version: 2.0.1
   resolution: "react-native-argon2@npm:2.0.1"
@@ -34091,6 +34104,13 @@ __metadata:
   bin:
     react-native-asset: lib/cli.js
   checksum: 6115a9430f17598bba48c7a501fe2f83dfd0ac2638938639cc980d4007e1baec7599f917620afbd92eb012b9490b546f18753c647baea3dd305d636e4d3bc060
+  languageName: node
+  linkType: hard
+
+"react-native-base64@npm:0.0.2":
+  version: 0.0.2
+  resolution: "react-native-base64@npm:0.0.2"
+  checksum: 696f6cad0e3ce26437275bcd791becaf597300d351a3ab2d7084fd42a177731bb9ab1e490534397ed35de4cd2a5a4385ee8d49bf5846069101b5ada98f132d23
   languageName: node
   linkType: hard
 

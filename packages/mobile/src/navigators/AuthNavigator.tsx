@@ -19,6 +19,7 @@ import Permission from "../newcomponents/Onboarding/Permission";
 import PermissionSettings from "../newcomponents/Settings/PermissionSettings";
 import NFTDetails from "../newcomponents/Dashboard/NFTs/NFTDetails";
 import { useTheme } from "../context/ThemeContext";
+import SocialSettings from "../newcomponents/Settings/SocialSettings";
 
 const Stack = createStackNavigator();
 export function AuthNavigator() {
@@ -202,6 +203,21 @@ export function SettingStack() {
       <Stack.Screen
         name={ROUTES.PERSONAL_SETTINGS}
         component={PersonalSettings}
+        options={{
+          headerBackTitleVisible: false,
+          headerTransparent: false,
+          title: false,
+          headerStyle: {
+            backgroundColor: theme?.colors.background,
+          },
+          headerShadowVisible: false, // Hides the header shadow
+          headerTintColor: theme?.colors.title,
+        }}
+      />
+
+      <Stack.Screen
+        name={ROUTES.SOCIAL_SETTINGS}
+        component={SocialSettings}
         options={{
           headerBackTitleVisible: false,
           headerTransparent: false,

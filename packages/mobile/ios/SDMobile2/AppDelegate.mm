@@ -60,8 +60,8 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   [self.window makeKeyAndVisible];
   return YES;
 }
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id> *_Nullable))restorationHandler 
-{ return [RCTLinkingManager application:application continueUserActivity:userActivity restorationHandler:restorationHandler]; 
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id> *_Nullable))restorationHandler
+{ return [RCTLinkingManager application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
 }
 
 
@@ -95,12 +95,12 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-- (BOOL)application:(UIApplication *)application
-   openURL:(NSURL *)url
-   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
-{
-  return [RCTLinkingManager application:application openURL:url options:options];
-}
+ - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *) options {
+  if ([self.authorizationFlowManagerDelegate resumeExternalUserAgentFlowWithURL:url]) {
+    return YES;
+  }
+  return [RCTLinkingManager application:app openURL:url options:options];
+ }
 
 #if RCT_NEW_ARCH_ENABLED
 
@@ -144,3 +144,4 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   return [Orientation getOrientation];
 }
 @end
+

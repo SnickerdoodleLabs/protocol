@@ -135,6 +135,51 @@ export default function Settings() {
             </View>
           </TouchableOpacity>
 
+      {/*     <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: normalizeHeight(32),
+            }}
+            onPress={() => {
+              navigation.navigate(ROUTES.SOCIAL_SETTINGS);
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View
+                style={{
+                  width: 62,
+                  height: 62,
+                  borderRadius: 100,
+                  backgroundColor: "#f3f2f9",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon name="share-social" size={normalizeWidth(28)} />
+              </View>
+
+              <Text
+                style={{
+                  paddingLeft: normalizeWidth(20),
+                  fontWeight: "700",
+                  fontSize: 19,
+                  color: theme?.colors.description,
+                }}
+              >
+                Linked Socails
+              </Text>
+            </View>
+            <View>
+              <Icon
+                name="chevron-forward-outline"
+                size={25}
+                color={theme?.colors.description}
+              />
+            </View>
+          </TouchableOpacity> */}
+
           <TouchableOpacity
             style={{
               flexDirection: "row",
