@@ -174,7 +174,6 @@ class AccountServiceMocks {
         new PublicEvents(), // publicEvents
         new PrivateEvents(), // privateEvents
         false, // restoreInProgress
-        new Subject<void>(), // heartbeat,
         UnixTimestamp(0), // startTime,
         new ComponentStatus(
           EComponentStatus.TemporarilyDisabled,

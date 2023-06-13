@@ -104,7 +104,7 @@ export class QueryService implements IQueryService {
 
   public initialize(): ResultAsync<void, never> {
     return this.contextProvider.getContext().map((context) => {
-      context.heartbeat.subscribe(() => {
+      context.privateEvents.heartbeat.subscribe(() => {
         // For every heartbeat, we'll see if there are queries to return
         this.returnQueries().mapErr((e) => {
           this.logUtils.error(e);
