@@ -225,30 +225,29 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   (reward as DirectReward).chainId == chainId
                 );
               }) as DirectReward[]
-            )
-              .map((reward) => {
-                return {
-                  ...reward,
-                  image: URLString(
-                    urlJoin(config.ipfsFetchBaseUrl, reward.image),
-                  ),
-                };
-              })
-              .map((reward) => {
-                return new EVMNFT(
-                  reward.contractAddress,
-                  BigNumberString("1"),
-                  reward.type,
-                  reward.recipientAddress,
-                  undefined,
-                  { raw: ObjectUtils.serialize(reward) }, // metadata
-                  BigNumberString("1"),
-                  reward.name,
-                  chainId,
-                  undefined,
-                  undefined,
-                );
-              });
+            ).map((reward) => {
+              return new EVMNFT(
+                reward.contractAddress,
+                BigNumberString("1"),
+                reward.type,
+                reward.recipientAddress,
+                undefined,
+                {
+                  // Add image URL to the raw data
+                  raw: ObjectUtils.serialize({
+                    ...reward,
+                    image: URLString(
+                      urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                    ),
+                  }),
+                }, // metadata
+                BigNumberString("1"),
+                reward.name,
+                chainId,
+                undefined,
+                undefined,
+              );
+            });
           });
         }
 
