@@ -241,7 +241,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
               return rewards.map((reward) => {
                 return new EVMNFT(
                   reward.contractAddress,
-                  BigNumberString("123"),
+                  BigNumberString("1"),
                   reward.type,
                   reward.recipientAddress,
                   undefined,
@@ -255,7 +255,49 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
               });
             })
             .map((nfts) => {
-              console.log("Earned Rewards 5: " + JSON.stringify(nfts));
+              return nfts;
+            });
+        }
+
+        if (chainId == EChain.Shibuya) {
+          return ResultUtils.combine([
+            this.accountRepo.getEarnedRewards(),
+            this.configProvider.getConfig(),
+          ])
+            .map(([rewards, config]) => {
+              return (
+                rewards.filter((reward) => {
+                  return reward.type == ERewardType.Direct;
+                }) as DirectReward[]
+              )
+                .filter((reward) => reward.chainId == ChainId(81))
+                .map((reward) => {
+                  return {
+                    ...reward,
+                    image: URLString(
+                      urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                    ),
+                  };
+                });
+            })
+            .map((rewards) => {
+              return rewards.map((reward) => {
+                return new EVMNFT(
+                  reward.contractAddress,
+                  BigNumberString("123"),
+                  reward.type,
+                  reward.recipientAddress,
+                  undefined,
+                  { raw: ObjectUtils.serialize(reward) }, // metadata
+                  BigNumberString("1"),
+                  reward.name,
+                  ChainId(81),
+                  undefined,
+                  undefined,
+                );
+              });
+            })
+            .map((nfts) => {
               return nfts;
             });
         }
