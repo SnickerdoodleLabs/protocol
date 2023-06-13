@@ -1,10 +1,19 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IIndexerContextProvider } from "@snickerdoodlelabs/indexers";
-import { injectable } from "inversify";
+import {
+  ComponentStatus,
+  EChain,
+  EComponentStatus,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { PublicEvents, CoreContext } from "@core/interfaces/objects/index.js";
+import {
+  PublicEvents,
+  CoreContext,
+  PrivateEvents,
+} from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
-import { ComponentStatus, EChain, EComponentStatus } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class ContextProvider
@@ -12,13 +21,15 @@ export class ContextProvider
 {
   protected context: CoreContext;
 
-  public constructor() {
+  public constructor(@inject(ITimeUtilsType) protected timeUtils: ITimeUtils) {
     this.context = new CoreContext(
       null, // dataWalletAddress
       null, // dataWalletKey
       false, // unlockInProgress
       new PublicEvents(), // publicEvents,
-      false,
+      new PrivateEvents(), // privateEvents
+      false, // restoreInProgress
+      this.timeUtils.getUnixNow(), // startTime
       new ComponentStatus(
         EComponentStatus.TemporarilyDisabled,
         EComponentStatus.TemporarilyDisabled,

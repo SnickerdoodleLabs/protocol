@@ -3,9 +3,10 @@ import {
   BaseURI,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
 import { ethers } from "ethers";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { ResultAsync } from "neverthrow";
+
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface IRewardsContractFactory {
   deployERC721Reward(

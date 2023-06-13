@@ -10,14 +10,14 @@ import { okAsync } from "neverthrow";
 import "reflect-metadata";
 import * as td from "testdouble";
 
-import { SocialDataMock } from "@core-tests/mock/mocks";
-import { ConfigProviderMock } from "@core-tests/mock/utilities/index.js";
 import { SocialRepository } from "@core/implementations/data/index.js";
 import {
   IDataWalletPersistence,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import { SocialDataMock } from "@core-tests/mock/mocks/index.js";
+import { ConfigProviderMock } from "@core-tests/mock/utilities/index.js";
 
 class SocialRepositoryMock {
   public configProvider: IConfigProvider;

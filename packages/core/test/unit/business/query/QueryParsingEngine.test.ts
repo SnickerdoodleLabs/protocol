@@ -40,13 +40,13 @@ import {
   QueryRepository,
   BalanceQueryEvaluator,
   NftQueryEvaluator,
+  QueryFactories,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
   AdContentRepository,
   AdDataRepository,
 } from "@core/implementations/data";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { SnickerdoodleCore } from "@core/index";
+import { IQueryFactories } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
   IDataWalletPersistence,
@@ -55,8 +55,10 @@ import {
   ISocialRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
+import {
+  AjaxUtilsMock,
+  ConfigProviderMock,
+} from "@core-tests/mock/utilities/index.js";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -100,16 +102,9 @@ class QueryParsingMocks {
 
   public adContentRepository: AdContentRepository;
 
-  public snickerDoodleCore: SnickerdoodleCore;
-
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.snickerDoodleCore = new SnickerdoodleCore(
-      undefined,
-      undefined,
-      td.object(),
-    );
     this.queryFactories = new QueryFactories(
       this.queryObjectFactory,
       this.queryWrapperFactory,
@@ -137,7 +132,6 @@ class QueryParsingMocks {
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
       this.nftQueryEvaluator,
-      this.snickerDoodleCore,
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,
@@ -152,7 +146,6 @@ class QueryParsingMocks {
     td.when(this.demoDataRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
     );
-    // td.when(this.snickerDoodleCore.getAge()).thenReturn(okAsync(Age(10)));
     td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(10)));
     td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
     td.when(

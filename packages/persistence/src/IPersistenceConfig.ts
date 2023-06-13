@@ -10,7 +10,6 @@ export interface IPersistenceConfig {
   accountBalancePollingIntervalMS: number;
   accountNFTPollingIntervalMS: number;
   backupChunkSizeTarget: number;
-  ceramicNodeURL: URLString;
   chainInformation: Map<ChainId, ChainInformation>;
   defaultInsightPlatformBaseUrl: URLString;
   defaultGoogleCloudBucket: string;
