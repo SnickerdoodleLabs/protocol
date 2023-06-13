@@ -23,7 +23,8 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ExprParser } from "@query-parser/implementations/index.js";
+import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
+import { DependencyParser } from "@query-parser/implementations/business/DependencyParser.js";
 import {
   AST,
   AST_Ad,
@@ -37,18 +38,16 @@ import {
   AST_RequireExpr,
   AST_SubQuery,
   AST_Web3Query,
-  BinaryCondition,
   Condition,
   IQueryObjectFactory,
-  Operator,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-  TypeChecker,
 } from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
   public exprParser: ExprParser;
+  public dependencyParser: DependencyParser;
 
   public queries = new Map<SDQL_Name, AST_SubQuery>();
   public ads = new Map<SDQL_Name, AST_Ad>();
@@ -62,6 +61,7 @@ export class SDQLParser {
     readonly queryObjectFactory: IQueryObjectFactory,
   ) {
     this.exprParser = new ExprParser(this.context);
+    this.dependencyParser = new DependencyParser();
   }
 
   public buildAST(): ResultAsync<
@@ -486,32 +486,12 @@ export class SDQLParser {
   }
 
   public getQueryDependencies(
-    expr: unknown,
-  ): ResultAsync<AST_SubQuery[], MissingASTError> {
-    if (expr == null) {
-      return errAsync(new MissingASTError("Null expr"));
-    }
-    if (TypeChecker.isValue(expr)) {
-      return okAsync([]);
-    }
-    if (TypeChecker.isSubQuery(expr)) {
-      return okAsync([expr as AST_SubQuery]);
-    }
-    if (TypeChecker.isBinaryCondition(expr)) {
-      const leftDeps = this.getQueryDependencies(
-        (expr as BinaryCondition).lval,
-      );
-      const rightDeps = this.getQueryDependencies(
-        (expr as BinaryCondition).rval,
-      );
-      return [...leftDeps, ...rightDeps];
-    }
-
-    const source = expr.source!;
-
-    if (TypeChecker.isConditionExpr(source) || TypeChecker.isOperator(source)) {
-      return this.getQueryDependencies(source as AST_Expr);
-    }
-    return errAsync(new MissingASTError("Invalid expr"));
+    expr: AST_RequireExpr,
+    possibleInsightsAndAds?: (InsightKey | AdKey)[],
+  ): ResultAsync<Set<AST_SubQuery>, MissingASTError> {
+    return this.dependencyParser.getQueryDependencies(
+      expr,
+      possibleInsightsAndAds,
+    );
   }
 }

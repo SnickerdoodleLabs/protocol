@@ -53,8 +53,6 @@ export const avalanche1SchemaStr = SDQLString(
         keywords: ["q", "w", "e"],
         target: "$q1>30",
       },
-      
-      
     },
     queries: {
       q1: {
@@ -75,7 +73,7 @@ export const avalanche1SchemaStr = SDQLString(
       },
       q2: {
         name: "age",
-        return: "number"
+        return: "number",
       },
       q3: {
         name: "location",
@@ -99,7 +97,7 @@ export const avalanche1SchemaStr = SDQLString(
       i2: {
         name: "q2",
         target: "$q2",
-        returns: "'yum'",//TODO add not qualified
+        returns: "'yum'", //TODO add not qualified
       },
       i3: {
         name: "query_response",
@@ -127,7 +125,7 @@ export const avalanche1SchemaStr = SDQLString(
         name: "Sugar to your coffee",
         image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
         description: "10% discount code for Starbucks",
-        requires: "$i1",
+        requires: "$i1 or $a2",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress"],

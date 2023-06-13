@@ -10,6 +10,7 @@ import {
   IInsightWithProof,
   Insight,
   InsightKey,
+  InsightString,
   InsightWithProof,
   IpfsCID,
   IQueryDeliveryAds,
@@ -17,6 +18,7 @@ import {
   IQueryDeliveryItems,
   JsonWebToken,
   PossibleReward,
+  ProofString,
   QueryDeliveryItems,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
@@ -31,7 +33,7 @@ import { ISDQLParserFactory } from "@query-parser/interfaces/utilities/ISDQLPars
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 import { okAsync } from "neverthrow";
 
-const avalanche1Rewards = [
+const avalanche1PossibleRewards = [
   new PossibleReward(
     IpfsCID(""),
     CompensationKey("c1"),
@@ -55,7 +57,7 @@ const avalanche1Rewards = [
   new PossibleReward(
     IpfsCID(""),
     CompensationKey("c3"),
-    [],
+    ["location"],
     "c3",
     IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
     "a free CrazyApesClub NFT",
@@ -63,6 +65,29 @@ const avalanche1Rewards = [
     ERewardType.Direct,
   ),
 ];
+
+const queryDeliveryItems: QueryDeliveryItems = {
+  insights: {
+    i1: { insight: InsightString("qualified"), proof: ProofString("") },
+    i2: { insight: InsightString("tasty"), proof: ProofString("") },
+    i3: { insight: InsightString("1"), proof: ProofString("") },
+  },
+  ads: {},
+};
+
+const avalanche1RewardKeys = [
+  CompensationKey("c1"),
+  CompensationKey("c2"),
+  CompensationKey("c3"),
+];
+
+const avalanche1AnsweredInsights = [
+  InsightKey("i1"),
+  InsightKey("i2"),
+  InsightKey("i3"),
+];
+
+const avalanche1AnsweredAds = [AdKey("a1"), AdKey("a2"), AdKey("a3")];
 class SDQLQueryUtilsMocks {
   protected parserFactory: ISDQLParserFactory;
   readonly queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
@@ -158,29 +183,14 @@ describe("Compensation tests", () => {
     const dispensableKeys = result._unsafeUnwrap();
     expect(dispensableKeys).toEqual(expectedKeys);
   });
-});
 
-describe("SDQLQueryUtils query to compensation tests", () => {
   test("avalanche 1: all insights answered", async () => {
-    const schemaString = SDQLString(avalanche1SchemaStr);
-    const insights = [InsightKey("$i1"), InsightKey("$i2"), InsightKey("$i3")];
-    new PossibleReward(
-      IpfsCID(""),
-      CompensationKey("c1"),
-      ["location"],
-      "c1",
-      IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
-      "10% discount code for Starbucks",
-      ChainId(1),
-      ERewardType.Direct,
-    );
-
     const mocks = new SDQLQueryUtilsMocks();
     await mocks
       .factory()
-      .getPossibleRewardsFromIP(schemaString, IpfsCID(""), insights)
+      .getCompensationsToDispense(avalanche1SchemaStr, queryDeliveryItems)
       .andThen((rewards) => {
-        expect(rewards).toStrictEqual(avalanche1Rewards);
+        expect(rewards).toStrictEqual(avalanche1RewardKeys);
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -190,15 +200,15 @@ describe("SDQLQueryUtils query to compensation tests", () => {
   });
 
   test("avalanche 1: insight 1 and insight 2 answered", async () => {
-    const schemaString = SDQLString(avalanche1SchemaStr);
-    const insights = [InsightKey("$i1"), InsightKey("$i2")];
-
     const mocks = new SDQLQueryUtilsMocks();
+    const queryDelivery1and2 = queryDeliveryItems;
+    queryDelivery1and2.insights!["i3"] = null;
+    Object.assign;
     await mocks
       .factory()
-      .getPossibleRewardsFromIP(schemaString, IpfsCID(""), insights)
+      .getCompensationsToDispense(avalanche1SchemaStr, queryDelivery1and2)
       .andThen((rewards) => {
-        expect(rewards).toStrictEqual(avalanche1Rewards.slice(0, 2));
+        expect(rewards).toStrictEqual(avalanche1RewardKeys.slice(0, 2));
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -208,18 +218,119 @@ describe("SDQLQueryUtils query to compensation tests", () => {
   });
 
   test("avalanche 1: ad 1 answered", async () => {
-    const schemaString = SDQLString(avalanche1SchemaStr);
-    const insights = [AdKey("$a1")];
-
-    const reward3 = avalanche1Rewards[2];
-    Object.assign(reward3, { estimatedQueryDependencies: ["network"] });
-    // ad 1 depends on the network query
+    const queryDeliveryAd1 = queryDeliveryItems;
+    const ad1delivery: IQueryDeliveryAds = {
+      a1: new AdSignature(
+        EVMContractAddress("0x"),
+        IpfsCID("CID"),
+        AdKey("a1"),
+        JsonWebToken("token"),
+      ),
+    };
+    Object.assign(queryDeliveryAd1, { insights: null, ads: ad1delivery });
     const mocks = new SDQLQueryUtilsMocks();
     await mocks
       .factory()
-      .getPossibleRewardsFromIP(schemaString, IpfsCID(""), insights)
+      .getCompensationsToDispense(avalanche1SchemaStr, queryDeliveryItems)
       .andThen((rewards) => {
-        expect(rewards).toStrictEqual([reward3]);
+        expect(rewards).toStrictEqual([avalanche1RewardKeys[2]]);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});
+
+describe("SDQLQueryUtils filterCompensationsForPreviews tests", () => {
+  test("avalanche 1: all compensations given, all insights", async () => {
+    const mocks = new SDQLQueryUtilsMocks();
+    await mocks
+      .factory()
+      .filterCompensationsForPreviews(
+        avalanche1SchemaStr,
+        avalanche1RewardKeys,
+        avalanche1AnsweredInsights,
+      )
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual(avalanche1PossibleRewards);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("avalanche 1:  compensation 1 ,insight 1 and insight 2 answered", async () => {
+    const mocks = new SDQLQueryUtilsMocks();
+    Object.assign;
+    await mocks
+      .factory()
+      .filterCompensationsForPreviews(
+        avalanche1SchemaStr,
+        [avalanche1RewardKeys[0]],
+        avalanche1AnsweredInsights.slice(0, 2),
+      )
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual(avalanche1PossibleRewards.slice(0, 1));
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("avalanche 1: compensation 1, 3 , all ads answered", async () => {
+    const reward1 = avalanche1PossibleRewards[0];
+    const reward3 = avalanche1PossibleRewards[2];
+    //ad1 depends on network
+    Object.assign(reward3, { estimatedQueryDependencies: ["network"] });
+    //ad2 depends on age
+    Object.assign(reward1, { estimatedQueryDependencies: ["age"] });
+    const mocks = new SDQLQueryUtilsMocks();
+    await mocks
+      .factory()
+      .filterCompensationsForPreviews(
+        avalanche1SchemaStr,
+        [avalanche1RewardKeys[0], avalanche1RewardKeys[2]],
+        avalanche1AnsweredAds,
+      )
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual([reward1, reward3]);
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("avalanche 1: all compensations, all insights and all ads answered", async () => {
+    const reward1 = avalanche1PossibleRewards[0];
+    const reward3 = avalanche1PossibleRewards[2];
+    //ad1 depends on network , i1 depends on location
+    Object.assign(reward3, {
+      estimatedQueryDependencies: ["location", "network"],
+    });
+    //ad2 depends on age , i3 depends on location
+    Object.assign(reward1, { estimatedQueryDependencies: ["location", "age"] });
+    const mocks = new SDQLQueryUtilsMocks();
+    await mocks
+      .factory()
+      .filterCompensationsForPreviews(
+        avalanche1SchemaStr,
+        avalanche1RewardKeys,
+        [...avalanche1AnsweredAds, ...avalanche1AnsweredInsights],
+      )
+      .andThen((rewards) => {
+        expect(rewards).toStrictEqual([
+          reward1,
+          avalanche1PossibleRewards[1],
+          reward3,
+        ]);
         return okAsync(undefined);
       })
       .mapErr((e) => {

@@ -27,16 +27,18 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
   >;
 
-  // getPossibleRewardsFromIP(
-  //   schemaString: SDQLString,
-  //   queryCID: IpfsCID,
-  //   possibleInsightsAndAds: (InsightKey | AdKey)[],
-  // ): ResultAsync<PossibleReward[], ParserError>
   filterCompensationsForPreviews(
-    scheamString: SDQLString,
+    schemaString: SDQLString,
     activeCompensationKeys: CompensationKey[],
     possibleInsightsAndAds: (InsightKey | AdKey)[],
-  ): ResultAsync<PossibleReward[], never>;
+  ): ResultAsync<
+    PossibleReward[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  >;
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");
