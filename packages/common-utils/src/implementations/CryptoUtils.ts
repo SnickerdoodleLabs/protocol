@@ -5,22 +5,28 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import {
-  EVMAccountAddress,
-  Signature,
   AESEncryptedString,
   AESKey,
-  Argon2Hash,
-  EncryptedString,
-  EVMPrivateKey,
-  InitializationVector,
-  SHA256Hash,
-  HexString,
-  TokenId,
   Base64String,
+  EncryptedString,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  HexString,
+  InitializationVector,
+  InvalidParametersError,
+  KeyGenerationError,
+  PEMEncodedRSAPrivateKey,
+  PEMEncodedRSAPublicKey,
+  RSAKeyPair,
+  SHA256Hash,
+  Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
-  InvalidParametersError,
-  EVMContractAddress,
+  TokenAndSecret,
+  TokenId,
+  URLString,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -29,13 +35,20 @@ import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import nacl from "tweetnacl";
+import { v4 } from "uuid";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
+import { OAuth1Config } from "@snickerdoodlelabs/objects/src/businessObjects/oauth/OAuth1Config.js";
+import OAuth from "oauth-1.0a";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
   constructor() {}
+
+  public getUUID(): UUID {
+    return UUID(v4());
+  }
 
   public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
     const baseString = Base64String(
@@ -151,6 +164,41 @@ export class CryptoUtils implements ICryptoUtils {
       );
       return new Uint8Array(keyBuffer.buffer);
     });
+  }
+
+  public createRSAKeyPair(): ResultAsync<RSAKeyPair, KeyGenerationError> {
+    return ResultAsync.fromPromise(
+      new Promise((resolve, reject) => {
+        Crypto.generateKeyPair(
+          "rsa",
+          {
+            modulusLength: 4096,
+            publicKeyEncoding: {
+              type: "spki",
+              format: "pem",
+            },
+            privateKeyEncoding: {
+              type: "pkcs8",
+              format: "pem",
+            },
+          } as Crypto.RSAKeyPairOptions<"pem", "pem">,
+          (err, publicKey, privateKey) => {
+            if (err != null) {
+              reject(err);
+            }
+            resolve(
+              new RSAKeyPair(
+                PEMEncodedRSAPrivateKey(privateKey),
+                PEMEncodedRSAPublicKey(publicKey),
+              ),
+            );
+          },
+        );
+      }),
+      (e) => {
+        return new KeyGenerationError("Unable to generate a new RSA Key", e);
+      },
+    );
   }
 
   public createAESKey(): ResultAsync<AESKey, never> {
@@ -397,6 +445,46 @@ export class CryptoUtils implements ICryptoUtils {
       out[i] = this.randomInt(randFunc, 0, 256);
     }
     return out;
+  }
+
+  public packOAuth1Credentials(
+    config: OAuth1Config,
+    url: URLString,
+    method: string,
+    pathAndBodyParams?: object,
+    accessTokenAndSecret?: TokenAndSecret,
+  ): string {
+    const oAuth = new OAuth({
+      consumer: {
+        key: config.apiKey,
+        secret: config.apiSecretKey,
+      },
+      signature_method:
+        config.signingAlgorithm.toUpperCase() +
+        "-" +
+        config.hashingAlgorithm.toUpperCase(),
+      hash_function: (baseString, secretKey) =>
+        Base64String(
+          Crypto.createHmac(config.hashingAlgorithm.toLowerCase(), secretKey)
+            .update(baseString)
+            .digest("base64"),
+        ),
+    });
+    return oAuth.toHeader(
+      oAuth.authorize(
+        {
+          url: url,
+          method: method,
+          ...(pathAndBodyParams ? { data: pathAndBodyParams } : {}),
+        } as OAuth.RequestOptions,
+        accessTokenAndSecret
+          ? {
+              key: accessTokenAndSecret.token,
+              secret: accessTokenAndSecret.secret,
+            }
+          : undefined,
+      ),
+    ).Authorization;
   }
 
   protected hexStringToBuffer(

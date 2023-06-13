@@ -3,6 +3,8 @@ import {
   IAxiosAjaxUtils,
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtilsType,
+  ILogUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { ICrumbsContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -14,11 +16,15 @@ import {
   CrumbsContractError,
   ICrumbContent,
   TokenId,
+  HexString,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICrumbsRepository } from "@core/interfaces/data/index.js";
+import { CrumbCallData } from "@core/interfaces/objects/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
@@ -41,6 +47,7 @@ export class CrumbsRepository implements ICrumbsRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getCrumb(
@@ -100,6 +107,49 @@ export class CrumbsRepository implements ICrumbsRepository {
   > {
     return this.getCrumbsContract().andThen((contract) => {
       return contract.addressToCrumbId(accountAddress);
+    });
+  }
+
+  public encodeCreateCrumb(
+    languageCode: LanguageCode,
+    encryptedDataWalletKey: AESEncryptedString,
+  ): ResultAsync<CrumbCallData, BlockchainProviderError | UninitializedError> {
+    return ResultUtils.combine([
+      this.getCrumbsContract(),
+      this.cryptoUtils.getTokenId(),
+    ]).map(([crumbsContract, crumbId]) => {
+      // Create the crumb content
+      const crumbContent = TokenUri(
+        JSON.stringify({
+          [languageCode]: {
+            d: encryptedDataWalletKey.data,
+            iv: encryptedDataWalletKey.initializationVector,
+          },
+        } as ICrumbContent),
+      );
+      return new CrumbCallData(
+        crumbsContract.encodeCreateCrumb(crumbId, crumbContent),
+        crumbId,
+      );
+    });
+  }
+
+  public encodeBurnCrumb(
+    tokenId: TokenId,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getCrumbsContract().map((crumbsContract) => {
+      return crumbsContract.encodeBurnCrumb(tokenId);
+    });
+  }
+
+  public getURI(
+    tokenId: TokenId,
+  ): ResultAsync<
+    TokenUri | null,
+    BlockchainProviderError | UninitializedError | CrumbsContractError
+  > {
+    return this.getCrumbsContract().andThen((crumbsContract) => {
+      return crumbsContract.tokenURI(tokenId);
     });
   }
 

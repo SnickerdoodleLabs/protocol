@@ -1,19 +1,6 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
-  title: {
-    fontFamily: "Shrikhand",
-    fontSize: 36,
-    fontWeight: 400,
-    color: "#232039",
-  },
-  description: {
-    fontFamily: "'Space Grotesk'",
-    fontStyle: "normal",
-    fontWeight: 400,
-    fontSize: "16px",
-    lineHeight: "24px",
-  },
   link: {
     textDecorationLine: "underline",
     cursor: "pointer",
@@ -23,5 +10,23 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 14.5,
     lineHeight: "17px",
     color: " #D32F2F",
+  },
+  emptyText: {
+    fontFamily: "'Roboto'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    lineHeight: "24px",
+    textAlign: "center",
+    color: "rgba(35, 32, 57, 0.8)",
+  },
+  btnText: {
+    fontFamily: "'Public Sans'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "14px",
+    lineHeight: "22px",
+    textAlign: "center",
+    color: "#262626",
   },
 }));

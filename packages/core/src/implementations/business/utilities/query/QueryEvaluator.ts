@@ -1,33 +1,13 @@
 import {
-  IProfileService,
-  IProfileServiceType,
-} from "@core/interfaces/business/IProfileService.js";
-import {
-  IBlockchainTransactionQueryEvaluator,
-  IBlockchainTransactionQueryEvaluatorType,
-  INftQueryEvaluator,
-  INftQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
-  IQueryEvaluator,
-} from "@core/interfaces/business/utilities/query/index.js";
-import {
-  IBrowsingDataRepository,
-  IBrowsingDataRepositoryType,
-  IDemographicDataRepository,
-  IDemographicDataRepositoryType,
-  ITransactionHistoryRepository,
-  ITransactionHistoryRepositoryType,
-} from "@core/interfaces/data/index.js";
-import {
   Age,
   CountryCode,
+  DiscordGuildProfile,
+  ESocialType,
   EvalNotImplementedError,
   Gender,
   PersistenceError,
   SDQL_Return,
+  TwitterProfile,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -44,7 +24,29 @@ import {
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+
+import {
+  IBlockchainTransactionQueryEvaluator,
+  IBlockchainTransactionQueryEvaluatorType,
+  INftQueryEvaluator,
+  INftQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+  IQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -55,14 +57,14 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected blockchainTransactionQueryEvaluator: IBlockchainTransactionQueryEvaluator,
     @inject(INftQueryEvaluatorType)
     protected nftQueryEvaluator: INftQueryEvaluator,
-    @inject(IProfileServiceType)
-    protected profileService: IProfileService,
     @inject(IDemographicDataRepositoryType)
     protected demographicDataRepo: IDemographicDataRepository,
     @inject(IBrowsingDataRepositoryType)
     protected browsingDataRepo: IBrowsingDataRepository,
     @inject(ITransactionHistoryRepositoryType)
     protected transactionRepo: ITransactionHistoryRepository,
+    @inject(ISocialRepositoryType)
+    protected socialRepo: ISocialRepository,
   ) {}
 
   protected age: Age = Age(0);
@@ -94,7 +96,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
-        return this.profileService.getAge().andThen((age) => {
+        return this.demographicDataRepo.getAge().andThen((age) => {
           switch (q.returnType) {
             case "boolean":
               for (const condition of q.conditions) {
@@ -131,7 +133,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.demographicDataRepo.getGender().andThen((gender) => {
           switch (q.returnType) {
             case "enum":
-              if(q.enum_keys){
+              if (q.enum_keys) {
                 for (const key of q.enum_keys) {
                   if (key == gender) {
                     return okAsync(SDQL_Return(gender));
@@ -155,6 +157,10 @@ export class QueryEvaluator implements IQueryEvaluator {
           .andThen((transactionArray) => {
             return okAsync(SDQL_Return(transactionArray));
           });
+      case "social_discord":
+        return this.getDiscordProfiles();
+      case "social_twitter":
+        return this.getTwitterFollowers();
       default:
         return okAsync(result);
     }
@@ -199,5 +205,36 @@ export class QueryEvaluator implements IQueryEvaluator {
 
     console.error(`EvalNotImplementedError ${condition.constructor.name}`);
     throw new EvalNotImplementedError(condition.constructor.name);
+  }
+
+  getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {
+    return this.socialRepo
+      .getGroupProfiles<DiscordGuildProfile>(ESocialType.DISCORD)
+      .map((profiles) => {
+        return SDQL_Return(
+          profiles.map((profile) => {
+            return {
+              id: profile.id,
+              name: profile.name,
+              icon: profile.icon,
+              joinedAt: profile.joinedAt,
+            };
+          }),
+        );
+      });
+  }
+
+  getTwitterFollowers(): ResultAsync<SDQL_Return, PersistenceError> {
+    return this.socialRepo
+      .getProfiles<TwitterProfile>(ESocialType.TWITTER)
+      .map((profiles) => {
+        return SDQL_Return(
+          profiles.map((profile) => {
+            return {
+              following: profile.followData?.following || [],
+            };
+          }),
+        );
+      });
   }
 }

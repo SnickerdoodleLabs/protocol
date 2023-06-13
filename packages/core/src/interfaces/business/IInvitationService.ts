@@ -19,6 +19,8 @@ import {
   IpfsCID,
   HexString32,
   AccountAddress,
+  IConsentCapacity,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -50,6 +52,7 @@ export interface IInvitationService {
 
   rejectInvitation(
     invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -103,6 +106,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+    | PersistenceError
   >;
 
   getAcceptedInvitationsCID(): ResultAsync<
@@ -112,6 +116,12 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+  >;
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getInvitationMetadataByCID(
@@ -128,6 +138,19 @@ export interface IInvitationService {
     | ConsentError
     | PersistenceError
     | ConsentFactoryContractError
+  >;
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
   >;
 
   getAvailableInvitationsCID(): ResultAsync<

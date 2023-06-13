@@ -1,41 +1,17 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  Age,
   Invitation,
-  CountryCode,
   DomainName,
-  EInvitationStatus,
-  EmailAddressString,
-  FamilyName,
-  Gender,
-  GivenName,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-  EScamFilterStatus,
+  EarnedReward,
   EChain,
-  LinkedAccount,
-  EWalletDataType,
-  AccountAddress,
+  EInvitationStatus,
   TokenId,
   BigNumberString,
-  TokenBalance,
-  WalletNFT,
-  EarnedReward,
-  ChainId,
-  TokenAddress,
-  TokenInfo,
-  TokenMarketData,
-  URLString,
-  SiteVisit,
-  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -47,25 +23,28 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
-import { AsyncRpcResponseSender } from "@synamint-extension-sdk/core/implementations/utilities";
 import { IRpcCallHandler } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IInvitationService,
   IInvitationServiceType,
   IPIIService,
   IPIIServiceType,
+  IScamFilterService,
+  IScamFilterServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
+  ITwitterService,
+  ITwitterServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/IScamFilterService";
-import {
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
   IDataPermissionsUtils,
@@ -77,49 +56,618 @@ import {
 } from "@synamint-extension-sdk/core/interfaces/utilities/IScamFilterSettingsUtils";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import {
-  DEFAULT_SUBDOMAIN,
   DEFAULT_RPC_SUCCESS_RESULT,
-  EExternalActions,
-  EInternalActions,
-  ExtensionStorageError,
-  IUnlockParams,
-  IGetUnlockMessageParams,
-  IAddAccountParams,
-  ISetGivenNameParams,
-  ISetFamilyNameParams,
-  ISetBirthdayParams,
-  ISetGenderParams,
-  ISetLocationParams,
-  ISetEmailParams,
-  IGetInvitationWithDomainParams,
-  IAcceptInvitationByUUIDParams,
-  IRejectInvitationParams,
-  ILeaveCohortParams,
-  IInvitationDomainWithUUID,
-  IGetInvitationMetadataByCIDParams,
-  ICheckURLParams,
-  IGetAgreementPermissionsParams,
-  ISetDefaultPermissionsWithDataTypesParams,
-  ISetApplyDefaultPermissionsParams,
-  IUnlinkAccountParams,
-  IAcceptInvitationParams,
-  IScamFilterSettingsParams,
-  IGetConsentContractCIDParams,
-  ICheckInvitationStatusParams,
-  IGetTokenPriceParams,
-  IGetTokenMarketDataParams,
-  IGetTokenInfoParams,
-  IGetMarketplaceListingsParams,
-  ISetDefaultReceivingAddressParams,
-  ISetReceivingAddressParams,
-  IScamFilterPreferences,
-  IGetReceivingAddressParams,
+  ECoreActions,
+  UnlockParams,
+  GetUnlockMessageParams,
+  AddAccountParams,
+  SetGivenNameParams,
+  SetFamilyNameParams,
+  SetBirthdayParams,
+  SetGenderParams,
+  SetLocationParams,
+  SetEmailParams,
+  GetInvitationWithDomainParams,
+  AcceptInvitationByUUIDParams,
+  RejectInvitationParams,
+  LeaveCohortParams,
+  GetInvitationMetadataByCIDParams,
+  CheckURLParams,
+  GetAgreementPermissionsParams,
+  SetDefaultPermissionsWithDataTypesParams,
+  SetApplyDefaultPermissionsParams,
+  UnlinkAccountParams,
+  AcceptInvitationParams,
+  ScamFilterSettingsParams,
+  GetConsentContractCIDParams,
+  CheckInvitationStatusParams,
+  GetTokenPriceParams,
+  GetTokenMarketDataParams,
+  GetTokenInfoParams,
+  SetDefaultReceivingAddressParams,
+  SetReceivingAddressParams,
+  GetReceivingAddressParams,
   mapToObj,
-  SnickerDoodleCoreError,
+  GetEarnedRewardsParams,
+  GetAccountsParams,
+  GetAccountBalancesParams,
+  GetAccountNFTsParams,
+  GetAgeParams,
+  GetGivenNameParams,
+  GetEmailParams,
+  GetFamilyNameParams,
+  GetBirthdayParams,
+  GetGenderParams,
+  GetLocationParams,
+  GetSiteVisitsParams,
+  GetSiteVisitsMapParams,
+  GetAcceptedInvitationsCIDParams,
+  GetAvailableInvitationsCIDParams,
+  GetDefaultPermissionsParams,
+  SetDefaultPermissionsToAllParams,
+  GetApplyDefaultPermissionsOptionParams,
+  GetScamFilterSettingsParams,
+  CloseTabParams,
+  GetStateParams,
+  GetInternalStateParams,
+  GetDataWalletAddressParams,
+  IsDataWalletAddressInitializedParams,
+  CoreActionParams,
+  InitializeDiscordUserParams,
+  GetDiscordInstallationUrlParams,
+  GetDiscordGuildProfilesParams,
+  GetDiscordUserProfilesParams,
+  UnlinkDiscordAccountParams,
+  GetMarketplaceListingsByTagParams,
+  GetListingsTotalByTagParams,
+  GetConsentCapacityParams,
+  GetPossibleRewardsParams,
+  DEFAULT_SUBDOMAIN,
+  TwitterGetRequestTokenParams,
+  TwitterLinkProfileParams,
+  TwitterUnlinkProfileParams,
+  TwitterGetLinkedProfilesParams,
+  GetConfigParams,
 } from "@synamint-extension-sdk/shared";
+
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected rpcCalls: CoreActionHandler<any>[] = [
+    new CoreActionHandler<UnlockParams>(
+      // Annoying that we need to do this; TS doesn't support abstract static methods
+      UnlockParams.getCoreAction(),
+      (params) => {
+        return this.accountService.unlock(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+    new CoreActionHandler<AddAccountParams>(
+      AddAccountParams.getCoreAction(),
+      (params) => {
+        return this.accountService.addAccount(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+    new CoreActionHandler<GetUnlockMessageParams>(
+      GetUnlockMessageParams.getCoreAction(),
+      (params) => {
+        return this.accountService.getUnlockMessage(params.languageCode);
+      },
+    ),
+    new CoreActionHandler<GetEarnedRewardsParams>(
+      GetEarnedRewardsParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getEarnedRewards();
+      },
+    ),
+    new CoreActionHandler<GetAccountsParams>(
+      GetAccountsParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getAccounts();
+      },
+    ),
+    new CoreActionHandler<GetTokenPriceParams>(
+      GetTokenPriceParams.getCoreAction(),
+      (params) => {
+        return this.tokenPriceService.getTokenPrice(
+          params.chainId,
+          params.address,
+          params.timestamp,
+        );
+      },
+    ),
+    new CoreActionHandler<GetTokenMarketDataParams>(
+      GetTokenMarketDataParams.getCoreAction(),
+      (params) => {
+        return this.tokenPriceService.getTokenMarketData(params.ids);
+      },
+    ),
+    new CoreActionHandler<GetTokenInfoParams>(
+      GetTokenInfoParams.getCoreAction(),
+      (params) => {
+        return this.tokenPriceService.getTokenInfo(
+          params.chainId,
+          params.contractAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetAccountBalancesParams>(
+      GetAccountBalancesParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getAccountBalances();
+      },
+    ),
+    new CoreActionHandler<GetAccountNFTsParams>(
+      GetAccountNFTsParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.getAccountNFTs();
+      },
+    ),
+    new CoreActionHandler<SetGivenNameParams>(
+      SetGivenNameParams.getCoreAction(),
+      (params) => {
+        return this.piiService.setGivenName(params.givenName);
+      },
+    ),
+    new CoreActionHandler<SetEmailParams>(
+      SetEmailParams.getCoreAction(),
+      (params) => {
+        return this.piiService.setEmail(params.email);
+      },
+    ),
+    new CoreActionHandler<SetFamilyNameParams>(
+      SetFamilyNameParams.getCoreAction(),
+      (params) => {
+        return this.piiService.setFamilyName(params.familyName);
+      },
+    ),
+    new CoreActionHandler<SetBirthdayParams>(
+      SetBirthdayParams.getCoreAction(),
+      (params) => {
+        return this.piiService.setBirthday(params.birthday);
+      },
+    ),
+    new CoreActionHandler<SetGenderParams>(
+      SetGenderParams.getCoreAction(),
+      (params) => {
+        return this.piiService.setGender(params.gender);
+      },
+    ),
+    new CoreActionHandler<SetLocationParams>(
+      SetLocationParams.getCoreAction(),
+      (params) => {
+        return this.piiService.setLocation(params.location);
+      },
+    ),
+    new CoreActionHandler<GetAgeParams>(
+      GetAgeParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getAge();
+      },
+    ),
+    new CoreActionHandler<GetGivenNameParams>(
+      GetGivenNameParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getGivenName();
+      },
+    ),
+    new CoreActionHandler<GetEmailParams>(
+      GetEmailParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getEmail();
+      },
+    ),
+    new CoreActionHandler<GetFamilyNameParams>(
+      GetFamilyNameParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getFamilyName();
+      },
+    ),
+    new CoreActionHandler<GetBirthdayParams>(
+      GetBirthdayParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getBirthday();
+      },
+    ),
+    new CoreActionHandler<GetGenderParams>(
+      GetGenderParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getGender();
+      },
+    ),
+    new CoreActionHandler<GetLocationParams>(
+      GetLocationParams.getCoreAction(),
+      (_params) => {
+        return this.piiService.getLocation();
+      },
+    ),
+    new CoreActionHandler<GetSiteVisitsParams>(
+      GetSiteVisitsParams.getCoreAction(),
+      (_params) => {
+        return this.userSiteInteractionService.getSiteVisits();
+      },
+    ),
+    new CoreActionHandler<GetSiteVisitsMapParams>(
+      GetSiteVisitsMapParams.getCoreAction(),
+      (_params) => {
+        return this.userSiteInteractionService.getSiteVisitsMap();
+      },
+    ),
+    new CoreActionHandler<GetAcceptedInvitationsCIDParams>(
+      GetAcceptedInvitationsCIDParams.getCoreAction(),
+      (_params) => {
+        return this.invitationService
+          .getAcceptedInvitationsCID()
+          .map((res) => mapToObj(res)); // TODO: mapToObj is probably just for dealing with serialization; the improved serializer in ObjectUtils probably makes this unnecessary.
+      },
+    ),
+    new CoreActionHandler<SetDefaultReceivingAddressParams>(
+      SetDefaultReceivingAddressParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.setDefaultReceivingAddress(
+          params.receivingAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<SetReceivingAddressParams>(
+      SetReceivingAddressParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.setReceivingAddress(
+          params.contractAddress,
+          params.receivingAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetReceivingAddressParams>(
+      GetReceivingAddressParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getReceivingAddress(
+          params.contractAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetInvitationMetadataByCIDParams>(
+      GetInvitationMetadataByCIDParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getInvitationMetadataByCID(
+          params.ipfsCID,
+        );
+      },
+    ),
+    new CoreActionHandler<CheckInvitationStatusParams>(
+      CheckInvitationStatusParams.getCoreAction(),
+      (params) => {
+        return this._getTokenId(params.tokenId).andThen((tokenId) => {
+          return this.invitationService.checkInvitationStatus(
+            new Invitation(
+              "" as DomainName,
+              params.consentAddress,
+              tokenId,
+              params.signature ?? null,
+            ),
+          );
+        });
+      },
+    ),
+    new CoreActionHandler<GetConsentContractCIDParams>(
+      GetConsentContractCIDParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getConsentContractCID(
+          params.consentAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<UnlinkAccountParams>(
+      UnlinkAccountParams.getCoreAction(),
+      (params) => {
+        return this.accountService.unlinkAccount(
+          params.accountAddress,
+          params.signature,
+          params.chain,
+          params.languageCode,
+        );
+      },
+    ),
+    new CoreActionHandler<LeaveCohortParams>(
+      LeaveCohortParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.leaveCohort(
+          params.consentContractAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetInvitationWithDomainParams>(
+      GetInvitationWithDomainParams.getCoreAction(),
+      (params) => {
+        return this.invitationService
+          .getInvitationByDomain(params.domain)
+          .andThen((pageInvitations) => {
+            console.log("pageInvitations", pageInvitations);
+            const pageInvitation = pageInvitations.find((value) => {
+              const incomingUrl = value.url.replace(/^https?:\/\//, "");
+              const incomingUrlInfo = parse(incomingUrl);
+              if (!incomingUrlInfo.subdomain && parse(params.path).subdomain) {
+                return (
+                  `${DEFAULT_SUBDOMAIN}.${incomingUrl.replace(/\/$/, "")}` ===
+                  params.path
+                );
+              }
+              return incomingUrl.replace(/\/$/, "") === params.path;
+            });
+            if (pageInvitation) {
+              return this.invitationService
+                .checkInvitationStatus(pageInvitation.invitation)
+                .map((invitationStatus) => {
+                  console.log("invitationStatus", invitationStatus);
+                  if (invitationStatus === EInvitationStatus.New) {
+                    const invitationUUID = this.contextProvider.addInvitation(
+                      pageInvitation.invitation,
+                    );
+                    return Object.assign(pageInvitation.domainDetails, {
+                      id: invitationUUID,
+                      consentAddress:
+                        pageInvitation.invitation.consentContractAddress,
+                    });
+                  } else {
+                    return null;
+                  }
+                });
+            } else {
+              return okAsync(null);
+            }
+          });
+      },
+    ),
+    new CoreActionHandler<GetAvailableInvitationsCIDParams>(
+      GetAvailableInvitationsCIDParams.getCoreAction(),
+      (_params) => {
+        return this.invitationService
+          .getAvailableInvitationsCID()
+          .map((res) => mapToObj(res));
+      },
+    ),
+    new CoreActionHandler<GetAgreementPermissionsParams>(
+      GetAgreementPermissionsParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getAgreementPermissions(
+          params.consentContractAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetDefaultPermissionsParams>(
+      GetDefaultPermissionsParams.getCoreAction(),
+      (_params) => {
+        return this.dataPermissionsUtils.defaultFlags.andThen((flags) =>
+          this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
+        );
+      },
+    ),
+    new CoreActionHandler<SetDefaultPermissionsWithDataTypesParams>(
+      SetDefaultPermissionsWithDataTypesParams.getCoreAction(),
+      (params) => {
+        return this.dataPermissionsUtils.setDefaultFlagsWithDataTypes(
+          params.dataTypes,
+        );
+      },
+    ),
+    new CoreActionHandler<SetDefaultPermissionsToAllParams>(
+      SetDefaultPermissionsToAllParams.getCoreAction(),
+      (_params) => {
+        return this.dataPermissionsUtils.setDefaultFlagsToAll();
+      },
+    ),
+    new CoreActionHandler<GetApplyDefaultPermissionsOptionParams>(
+      GetApplyDefaultPermissionsOptionParams.getCoreAction(),
+      (_params) => {
+        return this.dataPermissionsUtils.applyDefaultPermissionsOption;
+      },
+    ),
+    new CoreActionHandler<SetApplyDefaultPermissionsParams>(
+      SetApplyDefaultPermissionsParams.getCoreAction(),
+      (params) => {
+        return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(
+          params.option,
+        );
+      },
+    ),
+    new CoreActionHandler<AcceptInvitationByUUIDParams>(
+      AcceptInvitationByUUIDParams.getCoreAction(),
+      (params) => {
+        const invitation = this.contextProvider.getInvitation(
+          params.id,
+        ) as Invitation;
+        return this.invitationService.acceptInvitation(
+          invitation,
+          params.dataTypes,
+        );
+      },
+    ),
+    new CoreActionHandler<GetScamFilterSettingsParams>(
+      GetScamFilterSettingsParams.getCoreAction(),
+      (_params) => {
+        return this.scamFilterSettingsUtils.getScamFilterSettings();
+      },
+    ),
+    new CoreActionHandler<ScamFilterSettingsParams>(
+      ScamFilterSettingsParams.getCoreAction(),
+      (params) => {
+        return this.scamFilterSettingsUtils.setScamFilterSettings(
+          params.isScamFilterActive,
+          params.showMessageEveryTime,
+        );
+      },
+    ),
+    new CoreActionHandler<AcceptInvitationParams>(
+      AcceptInvitationParams.getCoreAction(),
+      (params) => {
+        return this._getTokenId(params.tokenId).andThen((tokenId) => {
+          return this.invitationService.acceptInvitation(
+            new Invitation(
+              "" as DomainName,
+              params.consentContractAddress,
+              tokenId,
+              params.businessSignature ?? null,
+            ),
+            params.dataTypes,
+          );
+        });
+      },
+    ),
+    new CoreActionHandler<RejectInvitationParams>(
+      RejectInvitationParams.getCoreAction(),
+      (params) => {
+        const invitation = this.contextProvider.getInvitation(
+          params.id,
+        ) as Invitation;
+        return this.invitationService.rejectInvitation(invitation);
+      },
+    ),
+    new CoreActionHandler<CheckURLParams>(
+      CheckURLParams.getCoreAction(),
+      (params) => {
+        return this.scamFilterService.checkURL(params.domain);
+      },
+    ),
+    new CoreActionHandler<CloseTabParams>(
+      CloseTabParams.getCoreAction(),
+      (_params, sender) => {
+        sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
+        return okAsync(undefined);
+      },
+    ),
+    new CoreActionHandler<GetStateParams>(
+      GetStateParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.contextProvider.getExterenalState());
+      },
+    ),
+    new CoreActionHandler<GetInternalStateParams>(
+      GetInternalStateParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.contextProvider.getInternalState());
+      },
+    ),
+    new CoreActionHandler<GetDataWalletAddressParams>(
+      GetDataWalletAddressParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.contextProvider.getAccountContext().getAccount());
+      },
+    ),
+    new CoreActionHandler<IsDataWalletAddressInitializedParams>(
+      IsDataWalletAddressInitializedParams.getCoreAction(),
+      (_params) => {
+        return this.accountService.isDataWalletAddressInitialized();
+      },
+    ),
+    new CoreActionHandler<InitializeDiscordUserParams>(
+      InitializeDiscordUserParams.getCoreAction(),
+      (params) => {
+        return this.discordService.initializeUserWithAuthorizationCode(
+          params.code,
+        );
+      },
+    ),
+    new CoreActionHandler<GetDiscordInstallationUrlParams>(
+      GetDiscordInstallationUrlParams.getCoreAction(),
+      (_params) => {
+        return this.discordService.installationUrl();
+      },
+    ),
+    new CoreActionHandler<GetDiscordGuildProfilesParams>(
+      GetDiscordGuildProfilesParams.getCoreAction(),
+      (_params) => {
+        return this.discordService.getGuildProfiles();
+      },
+    ),
+    new CoreActionHandler<GetDiscordUserProfilesParams>(
+      GetDiscordUserProfilesParams.getCoreAction(),
+      (_params) => {
+        return this.discordService.getUserProfiles();
+      },
+    ),
+    new CoreActionHandler<UnlinkDiscordAccountParams>(
+      UnlinkDiscordAccountParams.getCoreAction(),
+      (params) => {
+        return this.discordService.unlink(params.discordProfileId);
+      },
+    ),
+    new CoreActionHandler<GetMarketplaceListingsByTagParams>(
+      GetMarketplaceListingsByTagParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getMarketplaceListingsByTag(
+          params.pagingReq,
+          params.tag,
+          params.filterActive,
+        );
+      },
+    ),
+    new CoreActionHandler<GetListingsTotalByTagParams>(
+      GetListingsTotalByTagParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getListingsTotalByTag(params.tag);
+      },
+    ),
+    new CoreActionHandler<GetConsentCapacityParams>(
+      GetConsentCapacityParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.getConsentCapacity(
+          params.contractAddress,
+        );
+      },
+    ),
+    new CoreActionHandler<GetPossibleRewardsParams>(
+      GetPossibleRewardsParams.getCoreAction(),
+      (params) => {
+        return this.invitationService
+          .getPossibleRewards(params.contractAddresses, params.timeoutMs)
+          .map((res) => mapToObj(res));
+      },
+    ),
+    new CoreActionHandler<TwitterGetRequestTokenParams>(
+      TwitterGetRequestTokenParams.getCoreAction(),
+      (_params) => {
+        return this.twitterService.getOAuth1aRequestToken();
+      },
+    ),
+    new CoreActionHandler<TwitterLinkProfileParams>(
+      TwitterLinkProfileParams.getCoreAction(),
+      (params) => {
+        return this.twitterService.initTwitterProfile(
+          params.requestToken,
+          params.oAuthVerifier,
+        );
+      },
+    ),
+    new CoreActionHandler<TwitterUnlinkProfileParams>(
+      TwitterUnlinkProfileParams.getCoreAction(),
+      (params) => {
+        return this.twitterService.unlinkProfile(params.id);
+      },
+    ),
+    new CoreActionHandler<TwitterGetLinkedProfilesParams>(
+      TwitterGetLinkedProfilesParams.getCoreAction(),
+      (_params) => {
+        return this.twitterService.getUserProfiles();
+      },
+    ),
+    new CoreActionHandler<GetConfigParams>(
+      GetConfigParams.getCoreAction(),
+      (_params) => {
+        return okAsync(this.configProvider.getConfig());
+      },
+    ),
+  ];
+
   constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ITokenPriceServiceType)
@@ -137,6 +685,12 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
     @inject(IUserSiteInteractionServiceType)
     protected userSiteInteractionService: IUserSiteInteractionService,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
+    @inject(ITwitterServiceType)
+    protected twitterService: ITwitterService,
+    @inject(IConfigProviderType)
+    protected configProvider: IConfigProvider,
   ) {}
 
   public async handleRpcCall(
@@ -147,480 +701,20 @@ export class RpcCallHandler implements IRpcCallHandler {
   ) {
     const { method, params } = req;
 
-    switch (method) {
-      case EExternalActions.UNLOCK: {
-        const { accountAddress, signature, chain, languageCode } =
-          params as IUnlockParams;
-        return new AsyncRpcResponseSender(
-          this.unlock(accountAddress, signature, chain, languageCode),
-          res,
-        ).call();
-      }
-      case EExternalActions.ADD_ACCOUNT: {
-        const { accountAddress, signature, chain, languageCode } =
-          params as IAddAccountParams;
-        return new AsyncRpcResponseSender(
-          this.addAccount(accountAddress, signature, chain, languageCode),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_UNLOCK_MESSAGE: {
-        const { languageCode } = params as IGetUnlockMessageParams;
-        return new AsyncRpcResponseSender(
-          this.getUnlockMessage(languageCode),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_EARNED_REWARDS: {
-        return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
-      }
-      case EExternalActions.GET_ACCOUNTS:
-      case EInternalActions.GET_ACCOUNTS: {
-        return new AsyncRpcResponseSender(this.getAccounts(), res).call();
-      }
-      case EExternalActions.GET_TOKEN_PRICE: {
-        const { chainId, address, timestamp } = params as IGetTokenPriceParams;
-        return new AsyncRpcResponseSender(
-          this.getTokenPrice(chainId, address, timestamp),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_TOKEN_MARKET_DATA: {
-        const { ids } = params as IGetTokenMarketDataParams;
-        return new AsyncRpcResponseSender(
-          this.getTokenMarketData(ids),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_TOKEN_INFO: {
-        const { chainId, contractAddress } = params as IGetTokenInfoParams;
-        return new AsyncRpcResponseSender(
-          this.getTokenInfo(chainId, contractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_ACCOUNT_BALANCES:
-      case EInternalActions.GET_ACCOUNT_BALANCES: {
-        return new AsyncRpcResponseSender(
-          this.getAccountBalances(),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_ACCOUNT_NFTS:
-      case EInternalActions.GET_ACCOUNT_NFTS: {
-        return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
-      }
-      case EExternalActions.SET_GIVEN_NAME: {
-        const { givenName } = params as ISetGivenNameParams;
-        return new AsyncRpcResponseSender(
-          this.setGivenName(givenName),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_EMAIL: {
-        const { email } = params as ISetEmailParams;
-        return new AsyncRpcResponseSender(this.setEmail(email), res).call();
-      }
-      case EExternalActions.SET_FAMILY_NAME: {
-        const { familyName } = params as ISetFamilyNameParams;
-        return new AsyncRpcResponseSender(
-          this.setFamilyName(familyName),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_BIRTHDAY: {
-        const { birthday } = params as ISetBirthdayParams;
-        return new AsyncRpcResponseSender(
-          this.setBirthday(birthday),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_GENDER: {
-        const { gender } = params as ISetGenderParams;
-        return new AsyncRpcResponseSender(this.setGender(gender), res).call();
-      }
-      case EExternalActions.SET_LOCATION: {
-        const { location } = params as ISetLocationParams;
-        return new AsyncRpcResponseSender(
-          this.setLocation(location),
-          res,
-        ).call();
-      }
+    // Find the action
+    const externalActionHandler = this.rpcCalls.find((rpc) => {
+      return rpc.action == method;
+    });
 
-      case EExternalActions.GET_AGE: {
-        return new AsyncRpcResponseSender(this.getAge(), res).call();
-      }
-      case EInternalActions.GET_GIVEN_NAME:
-      case EExternalActions.GET_GIVEN_NAME: {
-        return new AsyncRpcResponseSender(this.getGivenName(), res).call();
-      }
-      case EInternalActions.GET_EMAIL:
-      case EExternalActions.GET_EMAIL: {
-        return new AsyncRpcResponseSender(this.getEmail(), res).call();
-      }
-      case EInternalActions.GET_FAMILY_NAME:
-      case EExternalActions.GET_FAMILY_NAME: {
-        return new AsyncRpcResponseSender(this.getFamilyName(), res).call();
-      }
-      case EExternalActions.GET_BIRTHDAY: {
-        return new AsyncRpcResponseSender(this.getBirthday(), res).call();
-      }
-      case EExternalActions.GET_GENDER: {
-        return new AsyncRpcResponseSender(this.getGender(), res).call();
-      }
-      case EExternalActions.GET_LOCATION: {
-        return new AsyncRpcResponseSender(this.getLocation(), res).call();
-      }
-      case EExternalActions.GET_SITE_VISITS: {
-        return new AsyncRpcResponseSender(this.getSiteVisits(), res).call();
-      }
-      case EExternalActions.GET_SITE_VISITS_MAP: {
-        return new AsyncRpcResponseSender(this.getSiteVisitsMap(), res).call();
-      }
-      case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
-        return new AsyncRpcResponseSender(
-          this.getAcceptedInvitationsCID(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_DEFAULT_RECEIVING_ACCOUNT: {
-        const { receivingAddress } =
-          params as ISetDefaultReceivingAddressParams;
-        return new AsyncRpcResponseSender(
-          this.setDefaultReceivingAddress(receivingAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_RECEIVING_ACCOUNT: {
-        const { contractAddress, receivingAddress } =
-          params as ISetReceivingAddressParams;
-        return new AsyncRpcResponseSender(
-          this.setReceivingAddress(contractAddress, receivingAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_RECEIVING_ACCOUNT: {
-        const { contractAddress } = params as IGetReceivingAddressParams;
-        return new AsyncRpcResponseSender(
-          this.getReceivingAddress(contractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_INVITATION_METADATA_BY_CID: {
-        const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
-        return new AsyncRpcResponseSender(
-          this.getInvitationMetadataByCID(ipfsCID),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.CHECK_INVITATION_STATUS: {
-        const { signature, consentAddress, tokenId } =
-          params as ICheckInvitationStatusParams;
-        return new AsyncRpcResponseSender(
-          this.checkInvitationStatus(consentAddress, signature, tokenId),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
-        const { count, headAt } = params as IGetMarketplaceListingsParams;
-        return new AsyncRpcResponseSender(
-          this.getMarketplaceListings(count, headAt),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.GET_LISTING_TOTAL: {
-        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
-      }
-
-      case EExternalActions.GET_CONTRACT_CID: {
-        const { consentAddress } = params as IGetConsentContractCIDParams;
-        return new AsyncRpcResponseSender(
-          this.getConsentContractCID(consentAddress),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.UNLINK_ACCOUNT: {
-        const { accountAddress, chain, languageCode, signature } =
-          params as IUnlinkAccountParams;
-        return new AsyncRpcResponseSender(
-          this.unlinkAccount(accountAddress, signature, chain, languageCode),
-          res,
-        ).call();
-      }
-
-      case EExternalActions.LEAVE_COHORT: {
-        const { consentContractAddress } = params as ILeaveCohortParams;
-        return new AsyncRpcResponseSender(
-          this.leaveCohort(consentContractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
-        const { domain, path } = params as IGetInvitationWithDomainParams;
-        return new AsyncRpcResponseSender(
-          this.getInvitationsByDomain(domain, path),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_AVAILABLE_INVITATIONS_CID: {
-        return new AsyncRpcResponseSender(
-          this.getAvailableInvitationsCID(),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_AGREEMENT_PERMISSIONS: {
-        const { consentContractAddress } =
-          params as IGetAgreementPermissionsParams;
-        return new AsyncRpcResponseSender(
-          this.getAgreementPermissions(consentContractAddress),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_DEFAULT_PERMISSIONS: {
-        return new AsyncRpcResponseSender(
-          this.getDefaultPermissions(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_DEFAULT_PERMISSIONS: {
-        const { dataTypes } =
-          params as ISetDefaultPermissionsWithDataTypesParams;
-        return new AsyncRpcResponseSender(
-          this.setDefaultPermissionsWithDataTypes(dataTypes),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL: {
-        return new AsyncRpcResponseSender(
-          this.setDefaultPermissionsToAll(),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION: {
-        return new AsyncRpcResponseSender(
-          this.getApplyDefaultPermissionOptions(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION: {
-        const { option } = params as ISetApplyDefaultPermissionsParams;
-        return new AsyncRpcResponseSender(
-          this.setApplyDefaultPermissionOptions(option),
-          res,
-        ).call();
-      }
-      case EExternalActions.ACCEPT_INVITATION_BY_UUID: {
-        const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
-        return new AsyncRpcResponseSender(
-          this.acceptInvitationByUUID(dataTypes, id),
-          res,
-        ).call();
-      }
-      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
-        return new AsyncRpcResponseSender(
-          this.getScamFilterSettings(),
-          res,
-        ).call();
-      }
-      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
-        const { isScamFilterActive, showMessageEveryTime } =
-          params as IScamFilterSettingsParams;
-        return new AsyncRpcResponseSender(
-          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
-          res,
-        ).call();
-      }
-      case EExternalActions.ACCEPT_INVITATION: {
-        const {
-          dataTypes,
-          consentContractAddress,
-          tokenId,
-          businessSignature,
-        } = params as IAcceptInvitationParams;
-        return new AsyncRpcResponseSender(
-          this.acceptInvitation(
-            dataTypes,
-            consentContractAddress,
-            tokenId,
-            businessSignature,
-          ),
-          res,
-        ).call();
-      }
-      case EExternalActions.REJECT_INVITATION: {
-        const { id } = params as IRejectInvitationParams;
-        return new AsyncRpcResponseSender(
-          this.rejectInvitation(id),
-          res,
-        ).call();
-      }
-      case EExternalActions.CHECK_URL: {
-        const { domain } = params as ICheckURLParams;
-        return new AsyncRpcResponseSender(this.checkURL(domain), res).call();
-      }
-      case EExternalActions.CLOSE_TAB: {
-        sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
-        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
-      }
-      case EExternalActions.GET_STATE:
-        return (res.result = this.contextProvider.getExterenalState());
-
-      case EInternalActions.GET_STATE:
-        return (res.result = this.contextProvider.getInternalState());
-      // TODO move it to correct place
-      case EExternalActions.GET_DATA_WALLET_ADDRESS:
-        return (res.result = this.contextProvider
-          .getAccountContext()
-          .getAccount());
-      case EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED:
-      case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
-        return new AsyncRpcResponseSender(
-          this.accountService.isDataWalletAddressInitialized(),
-          res,
-        ).call();
-      }
-      default:
-        return next();
+    // No action found
+    if (externalActionHandler == null) {
+      console.warn(
+        `No action handler found for ${method} in RpcCallHandler, skipping!`,
+      );
+      return next();
     }
-  }
 
-  private getInvitationsByDomain(
-    domain: DomainName,
-    url: string,
-  ): ResultAsync<IInvitationDomainWithUUID | null, SnickerDoodleCoreError> {
-    return this.invitationService
-      .getInvitationByDomain(domain)
-      .andThen((pageInvitations) => {
-        console.log("pageInvitations", pageInvitations);
-        const pageInvitation = pageInvitations.find((value) => {
-          const incomingUrl = value.url.replace(/^https?:\/\//, "");
-          const incomingUrlInfo = parse(incomingUrl);
-          if (!incomingUrlInfo.subdomain && parse(url).subdomain) {
-            return (
-              `${DEFAULT_SUBDOMAIN}.${incomingUrl.replace(/\/$/, "")}` === url
-            );
-          }
-          return incomingUrl.replace(/\/$/, "") === url;
-        });
-        if (pageInvitation) {
-          return this.invitationService
-            .checkInvitationStatus(pageInvitation.invitation)
-            .andThen((invitationStatus) => {
-              console.log("invitationStatus", invitationStatus);
-              if (invitationStatus === EInvitationStatus.New) {
-                const invitationUUID = this.contextProvider.addInvitation(
-                  pageInvitation.invitation,
-                );
-                return okAsync(
-                  Object.assign(pageInvitation.domainDetails, {
-                    id: invitationUUID,
-                    consentAddress:
-                      pageInvitation.invitation.consentContractAddress,
-                  }),
-                );
-              } else {
-                return okAsync(null);
-              }
-            });
-        } else {
-          return okAsync(null);
-        }
-      });
-  }
-
-  private getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  > {
-    return this.invitationService
-      .getAcceptedInvitationsCID()
-      .map((res) => mapToObj(res));
-  }
-
-  private getInvitationMetadataByCID(
-    ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
-    return this.invitationService.getInvitationMetadataByCID(ipfsCID);
-  }
-
-  private leaveCohort(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationService.leaveCohort(consentContractAddress);
-  }
-
-  private acceptInvitationByUUID(
-    dataTypes: EWalletDataType[] | null,
-    id: UUID,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    const invitation = this.contextProvider.getInvitation(id) as Invitation;
-    return this.invitationService.acceptInvitation(invitation, dataTypes);
-  }
-
-  private getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
-    SnickerDoodleCoreError
-  > {
-    return this.invitationService
-      .getAvailableInvitationsCID()
-      .map((res) => mapToObj(res));
-  }
-
-  private acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId: BigNumberString | undefined,
-    businessSignature: Signature | undefined,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this._getTokenId(tokenId).andThen((tokenId) => {
-      return this.invitationService.acceptInvitation(
-        new Invitation(
-          "" as DomainName,
-          consentContractAddress,
-          tokenId,
-          businessSignature ?? null,
-        ),
-        dataTypes,
-      );
-    });
-  }
-
-  private checkInvitationStatus(
-    consentAddress: EVMContractAddress,
-    signature?: Signature,
-    tokenId?: BigNumberString,
-  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
-    return this._getTokenId(tokenId).andThen((tokenId) => {
-      return this.invitationService.checkInvitationStatus(
-        new Invitation(
-          "" as DomainName,
-          consentAddress,
-          tokenId,
-          signature ?? null,
-        ),
-      );
-    });
-  }
-
-  private getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
-    return this.invitationService.getMarketplaceListings(count, headAt);
-  }
-
-  private getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.invitationService.getListingsTotal();
-  }
-
-  private getConsentContractCID(
-    consentAddress: EVMContractAddress,
-  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
-    return this.invitationService.getConsentContractCID(consentAddress);
+    return externalActionHandler.execute(params, res, sender);
   }
 
   private _getTokenId(tokenId: BigNumberString | undefined) {
@@ -629,254 +723,34 @@ export class RpcCallHandler implements IRpcCallHandler {
     }
     return this.cryptoUtils.getTokenId();
   }
+}
 
-  private getAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
-    return this.invitationService.getAgreementPermissions(
-      consentContractAddress,
-    );
-  }
+class CoreActionHandler<
+  TParams extends CoreActionParams<ReturnType<TParams["returnMethodMarker"]>>,
+> {
+  public constructor(
+    public action: ECoreActions,
+    public handler: (
+      params: TParams,
+      sender?: Runtime.MessageSender | undefined,
+    ) => ResultAsync<ReturnType<TParams["returnMethodMarker"]>, unknown>,
+  ) {}
 
-  private getDefaultPermissions(): ResultAsync<
-    EWalletDataType[],
-    ExtensionStorageError
-  > {
-    return this.dataPermissionsUtils.defaultFlags.andThen((flags) =>
-      this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
-    );
-  }
-
-  private setDefaultPermissionsWithDataTypes(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ExtensionStorageError> {
-    return this.dataPermissionsUtils.setDefaultFlagsWithDataTypes(dataTypes);
-  }
-
-  private setDefaultPermissionsToAll(): ResultAsync<
-    void,
-    ExtensionStorageError
-  > {
-    return this.dataPermissionsUtils.setDefaultFlagsToAll();
-  }
-
-  private getApplyDefaultPermissionOptions(): ResultAsync<
-    boolean,
-    ExtensionStorageError
-  > {
-    return this.dataPermissionsUtils.applyDefaultPermissionsOption;
-  }
-
-  private setApplyDefaultPermissionOptions(
-    option: boolean,
-  ): ResultAsync<void, ExtensionStorageError> {
-    return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(option);
-  }
-  private setScamFilterSettings(
-    isScamFilterActive,
-    showMessageEveryTime,
-  ): ResultAsync<void, ExtensionStorageError> {
-    return this.scamFilterSettingsUtils.setScamFilterSettings(
-      isScamFilterActive,
-      showMessageEveryTime,
-    );
-  }
-  private getScamFilterSettings(): ResultAsync<
-    IScamFilterPreferences,
-    ExtensionStorageError
-  > {
-    return this.scamFilterSettingsUtils.getScamFilterSettings();
-  }
-
-  private rejectInvitation(
-    id: UUID,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    const invitation = this.contextProvider.getInvitation(id) as Invitation;
-    return this.invitationService.rejectInvitation(invitation);
-  }
-  private checkURL(
-    domain: DomainName,
-  ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
-    return this.scamFilterService.checkURL(domain);
-  }
-
-  private unlock(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.unlock(account, signature, chain, languageCode);
-  }
-  private addAccount(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.addAccount(
-      account,
-      signature,
-      chain,
-      languageCode,
-    );
-  }
-  private unlinkAccount(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.unlinkAccount(
-      account,
-      signature,
-      chain,
-      languageCode,
-    );
-  }
-  private getUnlockMessage(
-    languageCode: LanguageCode,
-  ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.accountService.getUnlockMessage(languageCode);
-  }
-
-  private getEarnedRewards(): ResultAsync<
-    EarnedReward[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountService.getEarnedRewards();
-  }
-
-  private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    return this.accountService.getAccounts();
-  }
-
-  private getTokenPrice(
-    chainId: ChainId,
-    address: TokenAddress | null,
-    timestamp?: UnixTimestamp,
-  ): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.tokenPriceService.getTokenPrice(chainId, address, timestamp);
-  }
-  private getTokenMarketData(
-    ids: string[],
-  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
-    return this.tokenPriceService.getTokenMarketData(ids);
-  }
-  private getTokenInfo(
-    chainId: ChainId,
-    contractAddress: TokenAddress | null,
-  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
-    return this.tokenPriceService.getTokenInfo(chainId, contractAddress);
-  }
-
-  private getAccountBalances(): ResultAsync<
-    TokenBalance[],
-    SnickerDoodleCoreError
-  > {
-    return this.accountService.getAccountBalances();
-  }
-
-  private getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.accountService.getAccountNFTs();
-  }
-
-  private getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
-    return this.piiService.getAge();
-  }
-
-  private setGivenName(
-    name: GivenName,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setGivenName(name);
-  }
-
-  private getGivenName(): ResultAsync<
-    GivenName | null,
-    SnickerDoodleCoreError
-  > {
-    return this.piiService.getGivenName();
-  }
-
-  private setFamilyName(
-    name: FamilyName,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setFamilyName(name);
-  }
-  private getFamilyName(): ResultAsync<
-    FamilyName | null,
-    SnickerDoodleCoreError
-  > {
-    return this.piiService.getFamilyName();
-  }
-  private setBirthday(
-    birthday: UnixTimestamp,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setBirthday(birthday);
-  }
-  private getBirthday(): ResultAsync<
-    UnixTimestamp | null,
-    SnickerDoodleCoreError
-  > {
-    return this.piiService.getBirthday();
-  }
-  private setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setGender(gender);
-  }
-  private getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
-    return this.piiService.getGender();
-  }
-  private setEmail(
-    email: EmailAddressString,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setEmail(email);
-  }
-  private getEmail(): ResultAsync<
-    EmailAddressString | null,
-    SnickerDoodleCoreError
-  > {
-    return this.piiService.getEmail();
-  }
-  private setLocation(
-    location: CountryCode,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setLocation(location);
-  }
-  private getLocation(): ResultAsync<
-    CountryCode | null,
-    SnickerDoodleCoreError
-  > {
-    return this.piiService.getLocation();
-  }
-  private getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError> {
-    return this.userSiteInteractionService.getSiteVisits();
-  }
-  private getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
-    SnickerDoodleCoreError
-  > {
-    return this.userSiteInteractionService.getSiteVisitsMap();
-  }
-
-  private setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationService.setDefaultReceivingAddress(receivingAddress);
-  }
-
-  private setReceivingAddress(
-    contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationService.setReceivingAddress(
-      contractAddress,
-      receivingAddress,
-    );
-  }
-
-  private getReceivingAddress(
-    contractAddress?: EVMContractAddress,
-  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
-    return this.invitationService.getReceivingAddress(contractAddress);
+  public async execute(
+    params: TParams,
+    res: PendingJsonRpcResponse<unknown>,
+    sender: Runtime.MessageSender | undefined,
+  ): Promise<void> {
+    await this.handler(params!, sender)
+      .mapErr((err) => {
+        res.error = err as Error;
+      })
+      .map((result) => {
+        if (typeof result === typeof undefined) {
+          res.result = DEFAULT_RPC_SUCCESS_RESULT;
+        } else {
+          res.result = ObjectUtils.toGenericObject(result);
+        }
+      });
   }
 }

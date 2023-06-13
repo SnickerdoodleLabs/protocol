@@ -10,31 +10,33 @@ import {
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  Invitation,
-  EInvitationStatus,
-  UninitializedError,
-  PersistenceError,
-  DataPermissions,
-  ConsentError,
-  EVMContractAddress,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  BlockchainProviderError,
+  AccountAddress,
   AjaxError,
   BigNumberString,
-  MinimalForwarderContractError,
-  DomainName,
-  IPFSError,
-  PageInvitation,
+  BlockchainProviderError,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  ConsentError,
   ConsentFactoryContractError,
+  DataPermissions,
+  DomainName,
+  EInvitationStatus,
+  EVMContractAddress,
+  HexString32,
+  Invitation,
   IOpenSeaMetadata,
   IpfsCID,
-  HexString32,
-  TokenId,
-  Signature,
-  MarketplaceListing,
-  AccountAddress,
+  IPFSError,
   LinkedAccount,
+  IConsentCapacity,
+  MinimalForwarderContractError,
+  PageInvitation,
+  PersistenceError,
+  Signature,
+  TokenId,
+  UninitializedError,
+  UnixTimestamp,
+  DataPermissionsUpdatedEvent,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -50,16 +52,14 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IDNSRepositoryType,
   IDNSRepository,
-  IInvitationRepositoryType,
+  IDNSRepositoryType,
   IInvitationRepository,
-  IMetatransactionForwarderRepositoryType,
-  IMetatransactionForwarderRepository,
-  IMarketplaceRepositoryType,
-  IMarketplaceRepository,
-  ILinkedAccountRepositoryType,
+  IInvitationRepositoryType,
   ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
@@ -107,14 +107,12 @@ export class InvitationService implements IInvitationService {
   > {
     let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
-      this.accountRepo.getRejectedCohorts(),
-      this.accountRepo.getAcceptedInvitations(),
+      this.invitationRepo.getRejectedInvitations(),
+      this.invitationRepo.getAcceptedInvitations(),
       // isAddressOptedIn() just checks for a balance- it does not require that the persistence
       // layer actually know about the token
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
-      this.consentRepo.getAvailableOptInCount(
-        invitation.consentContractAddress,
-      ),
+      this.getConsentCapacity(invitation.consentContractAddress),
       this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
     ])
       .andThen(
@@ -122,7 +120,7 @@ export class InvitationService implements IInvitationService {
           rejectedConsentContracts,
           acceptedInvitations,
           optedInOnChain,
-          availableOptIns,
+          consentCapacity,
           openOptInDisabled,
         ]) => {
           const rejected = rejectedConsentContracts.includes(
@@ -144,11 +142,20 @@ export class InvitationService implements IInvitationService {
               return okAsync(EInvitationStatus.Accepted);
             }
             // There's no known accepted invitation
-            // Add it to the persistence, then return Accepted
-            return this.accountRepo
-              .addAcceptedInvitations([invitation])
-              .map(() => {
-                return EInvitationStatus.Accepted;
+            // Get latest opt-in tokenId from chain, and restore Invitation in the persistence
+            return this.consentRepo
+              .getLatestConsentTokenId(invitation.consentContractAddress)
+              .andThen((tokenIdOrNull) => {
+                return this.invitationRepo
+                  .addAcceptedInvitations([
+                    new Invitation(
+                      invitation.domain,
+                      invitation.consentContractAddress,
+                      tokenIdOrNull ?? invitation.tokenId,
+                      invitation.businessSignature,
+                    ),
+                  ])
+                  .map(() => EInvitationStatus.Accepted);
               });
           }
 
@@ -159,7 +166,7 @@ export class InvitationService implements IInvitationService {
             // Fortunately the rest of the stuff doesn't care about acceptedInvitation,
             // so we'll just add a cleanupAction.
             cleanupActions =
-              this.accountRepo.removeAcceptedInvitationsByContractAddress([
+              this.invitationRepo.removeAcceptedInvitationsByContractAddress([
                 invitation.consentContractAddress,
               ]);
           }
@@ -170,7 +177,7 @@ export class InvitationService implements IInvitationService {
           }
 
           // Next up, if there are no slots available, then it's an Invalid invitation
-          if (availableOptIns == 0) {
+          if (consentCapacity.availableOptInCount == 0) {
             return okAsync(EInvitationStatus.OutOfCapacity);
           }
 
@@ -351,7 +358,7 @@ export class InvitationService implements IInvitationService {
           optInData,
           this.forwarderRepo.getNonce(optInAddress),
           this.configProvider.getConfig(),
-          this.accountRepo.addAcceptedInvitations([invitation]),
+          this.invitationRepo.addAcceptedInvitations([invitation]),
         ])
           .andThen(([callData, nonce, config]) => {
             // We need to take the types, and send it to the account signer
@@ -359,7 +366,7 @@ export class InvitationService implements IInvitationService {
               invitation.consentContractAddress, // Contract address for the metatransaction
               optInAddress, // EOA to run the transaction as
               BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(config.gasAmounts.optInGas), // The amount of gas to pay.
               BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
               callData, // The actual bytes of the request, encoded as a hex string
             );
@@ -375,7 +382,9 @@ export class InvitationService implements IInvitationService {
                   invitation.consentContractAddress, // contract address
                   BigNumberString(BigNumber.from(nonce).toString()),
                   BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  BigNumberString(
+                    BigNumber.from(config.gasAmounts.optInGas).toString(),
+                  ), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
                   optInPrivateKey,
@@ -400,7 +409,7 @@ export class InvitationService implements IInvitationService {
               .orElse((e) => {
                 // Metatransaction failed!
                 // Need to do some cleanup
-                return this.accountRepo
+                return this.invitationRepo
                   .removeAcceptedInvitationsByContractAddress([
                     invitation.consentContractAddress,
                   ])
@@ -421,6 +430,7 @@ export class InvitationService implements IInvitationService {
 
   public rejectInvitation(
     invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -443,9 +453,10 @@ export class InvitationService implements IInvitationService {
           );
         }
 
-        return this.accountRepo.addRejectedCohorts([
-          invitation.consentContractAddress,
-        ]);
+        return this.invitationRepo.addRejectedInvitations(
+          [invitation.consentContractAddress],
+          rejectUntil ?? null,
+        );
       });
   }
 
@@ -471,7 +482,7 @@ export class InvitationService implements IInvitationService {
       }
 
       // We need to find your opt-in token
-      return this.accountRepo
+      return this.invitationRepo
         .getAcceptedInvitations()
         .andThen((invitations) => {
           const currentInvitation = invitations.find((invitation) => {
@@ -497,12 +508,12 @@ export class InvitationService implements IInvitationService {
             // You're not actually opted in!
             // But we think we are. We should remove this from persistence
             this.logUtils.warning(
-              "No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!",
+              `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!`,
             );
             return okAsync(undefined);
           }
 
-          this.logUtils.debug("Existing consent token", consentToken);
+          this.logUtils.debug("Existing consent token ", consentToken);
 
           const optInAccountAddress =
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
@@ -526,7 +537,7 @@ export class InvitationService implements IInvitationService {
               consentContractAddress, // Contract address for the metatransaction
               optInAccountAddress, // EOA to run the transaction as
               BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(config.gasAmounts.optOutGas), // The amount of gas to pay.
               BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
               callData, // The actual bytes of the request, encoded as a hex string
             );
@@ -542,7 +553,9 @@ export class InvitationService implements IInvitationService {
                   consentContractAddress, // contract address
                   BigNumberString(BigNumber.from(nonce).toString()),
                   BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  BigNumberString(
+                    BigNumber.from(config.gasAmounts.optOutGas).toString(),
+                  ), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
                   optInPrivateKey,
@@ -552,9 +565,9 @@ export class InvitationService implements IInvitationService {
           });
         })
         .andThen(() => {
-          return this.accountRepo.removeAcceptedInvitationsByContractAddress([
-            consentContractAddress,
-          ]);
+          return this.invitationRepo.removeAcceptedInvitationsByContractAddress(
+            [consentContractAddress],
+          );
         })
         .map(() => {
           // Notify the world that we've opted in to the cohort
@@ -564,7 +577,7 @@ export class InvitationService implements IInvitationService {
   }
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
-    return this.accountRepo.getAcceptedInvitations();
+    return this.invitationRepo.getAcceptedInvitations();
   }
 
   public getInvitationsByDomain(
@@ -576,6 +589,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+    | PersistenceError
   > {
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
@@ -601,7 +615,7 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | PersistenceError
   > {
-    return this.accountRepo
+    return this.invitationRepo
       .getAcceptedInvitations()
       .andThen((optInInfo) => {
         return this.consentRepo.getConsentContracts(
@@ -628,6 +642,15 @@ export class InvitationService implements IInvitationService {
       );
   }
 
+  public getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo.getConsentCapacity(consentContractAddress);
+  }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
@@ -652,44 +675,191 @@ export class InvitationService implements IInvitationService {
     | UninitializedError
     | ConsentContractError
     | IPFSError
+    | PersistenceError
   > {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
-      this.consentRepo.getAvailableOptInCount(consentContractAddress),
-    ]).andThen(([invitationUrls, ipfsCID, availableOptIns]) => {
-      // If there's no slots, there's no invites
-      if (availableOptIns == 0) {
-        return okAsync([]);
+      this.getConsentCapacity(consentContractAddress),
+      this.invitationRepo.getRejectedInvitations(),
+    ]).andThen(
+      ([invitationUrls, ipfsCID, consentCapacity, rejectedInvitations]) => {
+        // If there's no slots, there's no invites
+        if (consentCapacity.availableOptInCount == 0) {
+          return okAsync([]);
+        }
+
+        const rejected = rejectedInvitations.find((rejectedInvitation) => {
+          return rejectedInvitation == consentContractAddress;
+        });
+
+        if (rejected != null) {
+          return okAsync([]);
+        }
+
+        // The baseUri is an IPFS CID
+        return this.invitationRepo
+          .getInvitationDomainByCID(ipfsCID, domain)
+          .andThen((invitationDomain) => {
+            if (invitationDomain == null) {
+              return errAsync(
+                new IPFSError(
+                  `No invitation details could be found at IPFS CID ${ipfsCID}`,
+                ),
+              );
+            }
+            return ResultUtils.combine(
+              invitationUrls.map((invitationUrl) => {
+                return this.cryptoUtils.getTokenId().map((tokenId) => {
+                  return new PageInvitation(
+                    invitationUrl, // getDomains() is actually misnamed, it returns URLs now
+                    new Invitation(
+                      domain,
+                      consentContractAddress,
+                      tokenId,
+                      null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+                    ),
+                    invitationDomain,
+                  );
+                });
+              }),
+            );
+          });
+      },
+    );
+  }
+
+  public updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  > {
+    // This will actually create a metatransaction. We need to update the on-chain
+    // DataPermissions. You can only do this every so often, which we will need to
+    // enforce in the contract itself.
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
       }
 
-      // The baseUri is an IPFS CID
+      // We need to find your opt-in token
       return this.invitationRepo
-        .getInvitationDomainByCID(ipfsCID, domain)
-        .andThen((invitationDomain) => {
-          if (invitationDomain == null) {
+        .getAcceptedInvitations()
+        .andThen((invitations) => {
+          const currentInvitation = invitations.find((invitation) => {
+            return invitation.consentContractAddress == consentContractAddress;
+          });
+          if (currentInvitation == null) {
             return errAsync(
-              new IPFSError(
-                `No invitation details could be found at IPFS CID ${ipfsCID}`,
+              new ConsentError(
+                "Cannot update permissions for a consent contract you haven't opted in to",
               ),
             );
           }
-          return ResultUtils.combine(
-            invitationUrls.map((invitationUrl) => {
-              return this.cryptoUtils.getTokenId().map((tokenId) => {
-                return new PageInvitation(
-                  invitationUrl, // getDomains() is actually misnamed, it returns URLs now
-                  new Invitation(
-                    domain,
-                    consentContractAddress,
-                    tokenId,
-                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+          return ResultUtils.combine([
+            this.consentRepo.getConsentToken(currentInvitation),
+            this.dataWalletUtils.deriveOptInPrivateKey(
+              consentContractAddress,
+              context.dataWalletKey!,
+            ),
+          ]);
+        })
+        .andThen(([consentToken, optInPrivateKey]) => {
+          if (consentToken == null) {
+            // You're not actually opted in!
+            // But we think we are. We should remove this from persistence
+            this.logUtils.warning(
+              `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!`,
+            );
+            return this.invitationRepo
+              .removeAcceptedInvitationsByContractAddress([
+                consentContractAddress,
+              ])
+              .andThen(() => {
+                return errAsync(
+                  new ConsentError(
+                    `No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removed from persistence!`,
                   ),
-                  invitationDomain,
                 );
               });
-            }),
+          }
+
+          this.logUtils.debug("Existing consent token ", consentToken);
+
+          const optInAccountAddress =
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              optInPrivateKey,
+            );
+
+          this.logUtils.log(
+            `Updating data permissions on consent contract ${consentContractAddress} with derived account ${optInAccountAddress}`,
           );
+
+          // Encode the call to the consent contract and get the nonce for the forwarder
+          return ResultUtils.combine([
+            this.consentRepo.encodeUpdateAgreementFlags(
+              consentContractAddress,
+              consentToken.tokenId,
+              dataPermissions,
+            ),
+            this.forwarderRepo.getNonce(optInAccountAddress),
+            this.configProvider.getConfig(),
+          ])
+            .andThen(([callData, nonce, config]) => {
+              const request = new MetatransactionRequest(
+                consentContractAddress, // Contract address for the metatransaction
+                optInAccountAddress, // EOA to run the transaction as
+                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                BigNumber.from(config.gasAmounts.updateAgreementFlagsGas), // The amount of gas to pay.
+                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                callData, // The actual bytes of the request, encoded as a hex string
+              );
+
+              return this.forwarderRepo
+                .signMetatransactionRequest(request, optInPrivateKey)
+                .andThen((metatransactionSignature) => {
+                  // Got the signature for the metatransaction, now we can execute it.
+                  // .executeMetatransaction will sign everything and have the server run
+                  // the metatransaction.
+                  return this.insightPlatformRepo.executeMetatransaction(
+                    optInAccountAddress, // account address
+                    consentContractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(
+                      BigNumber.from(
+                        config.gasAmounts.updateAgreementFlagsGas,
+                      ).toString(),
+                    ), // The amount of gas to pay.
+                    callData,
+                    metatransactionSignature,
+                    optInPrivateKey,
+                    config.defaultInsightPlatformBaseUrl,
+                  );
+                });
+            })
+            .map(() => {
+              // Metatransaction complete. We don't actually store the permissions in our
+              // persistence layer, they are only stored on the chain, so there's nothing more
+              // to do for that. We should let the world know we made this change though.
+              // Notify the world that we've opted in to the cohort
+              context.publicEvents.onDataPermissionsUpdated.next(
+                new DataPermissionsUpdatedEvent(
+                  consentContractAddress,
+                  dataPermissions,
+                ),
+              );
+            });
         });
     });
   }
@@ -916,8 +1086,8 @@ export class InvitationService implements IInvitationService {
       // can be fetched via insight-platform API call
       // or indexing can be used to avoid this relatively expensive look through
       this.consentRepo.getDeployedConsentContractAddresses(),
-      this.accountRepo.getAcceptedInvitations(),
-      this.accountRepo.getRejectedCohorts(),
+      this.invitationRepo.getAcceptedInvitations(),
+      this.invitationRepo.getRejectedInvitations(),
     ]).andThen(([consents, acceptedInvitations, rejectedConsents]) => {
       return ResultUtils.combine(
         consents
@@ -933,12 +1103,10 @@ export class InvitationService implements IInvitationService {
             );
           })
           .map((consentAddress) =>
-            this.consentRepo
-              .getAvailableOptInCount(consentAddress)
-              .map((availableOptIns) => ({
-                availableOptIns,
-                consentAddress,
-              })),
+            this.getConsentCapacity(consentAddress).map((consentCapacity) => ({
+              availableOptIns: consentCapacity.availableOptInCount,
+              consentAddress,
+            })),
           ),
       ).map((results) =>
         results

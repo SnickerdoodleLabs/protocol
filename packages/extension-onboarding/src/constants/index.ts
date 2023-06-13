@@ -12,25 +12,34 @@ export enum EWalletProviderKeys {
   COINBASE = "coinbase",
 }
 
+export enum ESocialMediaProviderKeys {
+  DISCORD = "discord",
+}
+export const DOWNLOAD_URL_IOS =
+  "https://apps.apple.com/us/app/snickerdoodle/id6446097751";
+
 export const DOWNLOAD_URL =
-  "https://chrome.google.com/webstore/detail/data-wallet/eakgkbblgjcanmmalnebjolplnlijmkc";
+  "https://chrome.google.com/webstore/detail/snickerdoodle-own-your-da/eakgkbblgjcanmmalnebjolplnlijmkc";
 
 export const googleScopes =
   "profile email https://www.googleapis.com/auth/user.addresses.read https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/user.phonenumbers.read https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
+export const LOCAL_STORAGE_TAGS_KEY = "sdlSelectedTags";
 export const LOCAL_STORAGE_SDL_INVITATION_KEY = "sdlInvitation";
 export const LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION =
   "rewardsMarketplaceIntroduction";
 
 export const PRIVACY_POLICY_URL =
-  "https://policy.snickerdoodle.com/snickerdoodle-labs-data-privacy-policy";
-
+  "https://policy.snickerdoodle.com/data-privacy-policy";
+export const HOTJAR_DISCLAIMER_URL =
+  "https://policy.snickerdoodle.com/hotjar-disclaimer";
+export const TERMS_OF_SERVICE_URL = "https://policy.snickerdoodle.com/";
 export const ZENDEKS_URL =
   "https://data-wallet.zendesk.com/hc/en-us/requests/new";
 export const SURVEY_URL = "https://ndhg1975huo.typeform.com/to/lEcLm7e2";
 
 export const PRODUCT_VIDEO_URL =
-  "https://drive.google.com/uc?export=download&id=1ohloSDHad0O8J2r-sqRIgS5xOtK8dedM";
+  "https://storage.googleapis.com/dw-assets/spa/videos/sd.mp4";
 
 export const FAQ_URL =
   "https://data-wallet.zendesk.com/hc/en-us/sections/10560934964109-FAQ";

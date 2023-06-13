@@ -3,17 +3,18 @@ import { useStyles } from "@browser-extension/popup/pages/Home/components/LinkCa
 import { Box, Typography } from "@material-ui/core";
 import React from "react";
 import Browser from "webextension-polyfill";
-
 interface ILinkCardProps {
   navigateTo: string;
   icon: string;
   title: string;
 }
 const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
-  const { config } = useAppContext();
+  const { coreGateway } = useAppContext();
   const classes = useStyles();
   const navigate = () => {
-    window.open(`${config.getConfig().onboardingUrl}${navigateTo}`, "_blank");
+    coreGateway.getConfig().map((config) => {
+      window.open(`${config.onboardingUrl}${navigateTo}`, "_blank");
+    });
   };
   return (
     <Box

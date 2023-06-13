@@ -3,26 +3,36 @@ import { EventEmitter } from "events";
 import { ResultAsync } from "neverthrow";
 
 import {
+  DiscordGuildProfile,
+  DiscordProfile,
   EarnedReward,
+  TokenAndSecret,
   LinkedAccount,
+  MarketplaceListing,
+  PagedResponse,
+  PagingRequest,
+  PossibleReward,
+  SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
+  TwitterProfile,
   WalletNFT,
-  SiteVisit,
-  MarketplaceListing,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
 import {
   AccountAddress,
   Age,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
   DataWalletAddress,
+  DiscordID,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
@@ -30,7 +40,11 @@ import {
   GivenName,
   IpfsCID,
   LanguageCode,
+  MarketplaceTag,
+  OAuthAuthorizationCode,
+  OAuthVerifier,
   Signature,
+  TwitterID,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -100,7 +114,7 @@ export interface ISdlDataWallet extends EventEmitter {
   getApplyDefaultPermissionsOption(): ResultAsync<boolean, JsonRpcError>;
   setApplyDefaultPermissionsOption(
     option: boolean,
-  ): ResultAsync<boolean, JsonRpcError>;
+  ): ResultAsync<void, JsonRpcError>;
   getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
@@ -141,14 +155,15 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
 
-  getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
 
-  getMarketplaceListings(
-    count?: number,
-    headAt?: number,
-  ): ResultAsync<MarketplaceListing, JsonRpcError>;
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError>;
 
-  getListingsTotal(): ResultAsync<number, JsonRpcError>;
+  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, JsonRpcError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
@@ -162,4 +177,53 @@ export interface ISdlDataWallet extends EventEmitter {
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, JsonRpcError>;
+
+  getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, JsonRpcError>;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
+
+  discord: ISdlDiscordMethods;
+  twitter: ISdlTwitterMethods;
+}
+
+export interface ISdlDiscordMethods {
+  /**
+   * This method will upsert a users discord profile and
+   * discord guild data given a token which will come from discord api
+   * @param authToken
+   */
+  initializeUserWithAuthorizationCode(
+    code: OAuthAuthorizationCode,
+  ): ResultAsync<void, JsonRpcError>;
+
+  /**
+   * This method will return url for the discord api
+   * call to be made. If user gives consent token can be used
+   * to initialize the user
+   */
+  installationUrl(): ResultAsync<URLString, JsonRpcError>;
+
+  getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], JsonRpcError>;
+  /**
+   * This method will remove a users discord profile and
+   * discord guild data given their profile id
+   * @param discordProfileId
+   */
+  unlink(discordProfileId: DiscordID): ResultAsync<void, JsonRpcError>;
+}
+
+export interface ISdlTwitterMethods {
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, JsonRpcError>;
+  initTwitterProfile(
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
+  ): ResultAsync<TwitterProfile, JsonRpcError>;
+  unlinkProfile(id: TwitterID): ResultAsync<void, JsonRpcError>;
+  getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;
 }

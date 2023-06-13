@@ -1,42 +1,46 @@
 import {
-  AjaxError,
   BlockchainProviderError,
-  Invitation,
-  DataPermissions,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  ConsentError,
-  DomainName,
-  EInvitationStatus,
-  EVMContractAddress,
-  MinimalForwarderContractError,
-  PersistenceError,
   UninitializedError,
-  PageInvitation,
-  IPFSError,
-  IOpenSeaMetadata,
   ConsentFactoryContractError,
-  IpfsCID,
-  HexString32,
-  Signature,
-  TokenId,
   MarketplaceListing,
+  MarketplaceTag,
+  PagedResponse,
+  PagingRequest,
+  ConsentContractError,
+  EvaluationError,
+  EVMContractAddress,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IMarketplaceService {
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
+  getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
   ): ResultAsync<
-    MarketplaceListing,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    PagedResponse<MarketplaceListing>,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
 
-  getListingsTotal(): ResultAsync<
+  getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<
     number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   >;
+
+  getRecommendationsByListing(
+    listing: MarketplaceListing,
+  ): ResultAsync<
+    MarketplaceTag[],
+    UninitializedError | BlockchainProviderError | ConsentContractError
+  >;
+
+  getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs: number,
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
 }
 
 export const IMarketplaceServiceType = Symbol.for("IMarketplaceService");

@@ -13,8 +13,23 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AnkrIndexer,
+  AlchemyIndexer,
+  CovalentEVMTransactionRepository,
+  EtherscanIndexer,
+  EtherscanNativeBalanceRepository,
+  MoralisEVMPortfolioRepository,
+  NftScanEVMPortfolioRepository,
+  OklinkIndexer,
+  PoapRepository,
+  PolygonIndexer,
+  SimulatorEVMTransactionRepository,
+  SolanaIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+  MasterIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -22,15 +37,43 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
+  IAlchemyIndexerType,
+  IAnkrIndexerType,
+  ICovalentEVMTransactionRepositoryType,
+  IEtherscanIndexerType,
+  IEtherscanNativeBalanceRepositoryType,
+  IEVMIndexer,
+  IMasterIndexer,
+  IMasterIndexerType,
+  IMoralisEVMPortfolioRepositoryType,
+  INftScanEVMPortfolioRepositoryType,
+  IOklinkIndexerType,
+  IPoapRepositoryType,
+  IPolygonIndexerType,
+  ISimulatorEVMTransactionRepositoryType,
+  ISolanaIndexer,
+  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
+  BackupUtils,
+  ChunkRendererFactory,
+  FieldSchemaProvider,
   IBackupManagerProvider,
   IBackupManagerProviderType,
+  IBackupUtils,
+  IBackupUtilsType,
+  IChunkRendererFactory,
+  IChunkRendererFactoryType,
+  IFieldSchemaProvider,
+  IFieldSchemaProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
+  IVolatileStorageSchemaProvider,
+  IVolatileStorageSchemaProviderType,
+  VolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -51,20 +94,24 @@ import { ContainerModule, interfaces } from "inversify";
 import {
   AccountIndexerPoller,
   BlockchainListener,
+  HeartbeatGenerator,
+  SocialMediaPoller,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
   AdService,
   ConsentTokenUtils,
+  DiscordService,
+  IntegrationService,
   InvitationService,
+  MarketplaceService,
+  MetricsService,
   MonitoringService,
   ProfileService,
   QueryParsingEngine,
   QueryService,
   SiftContractService,
-  CampaignService,
-  MarketplaceService,
-  IntegrationService,
+  TwitterService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -72,32 +119,36 @@ import {
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
+  QueryFactories,
   QueryRepository,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
+  AdContentRepository,
   AdDataRepository,
   BrowsingDataRepository,
-  LinkedAccountRepository,
-  PortfolioBalanceRepository,
-  TransactionHistoryRepository,
-  DemographicDataRepository,
-  AdContentRepository,
+  CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
   CrumbsRepository,
-  DataWalletPersistence,
   DNSRepository,
+  DataWalletPersistence,
+  DemographicDataRepository,
+  DiscordRepository,
+  DomainCredentialRepository,
   InvitationRepository,
+  LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  MetricsRepository,
+  OauthUtils,
+  PermissionRepository,
+  PortfolioBalanceRepository,
   SDQLQueryRepository,
   SiftContractRepository,
-  CoinGeckoTokenPriceRepository,
-  PermissionRepository,
+  SocialRepository,
+  TransactionHistoryRepository,
+  TwitterRepository,
 } from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
+import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
@@ -109,20 +160,26 @@ import {
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
+  ISocialMediaPoller,
+  ISocialMediaPollerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
   IAdService,
   IAdServiceType,
-  ICampaignService,
-  ICampaignServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -131,66 +188,80 @@ import {
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
+  ITwitterService,
+  ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   IBlockchainTransactionQueryEvaluator,
   IBlockchainTransactionQueryEvaluatorType,
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
   INftQueryEvaluator,
   INftQueryEvaluatorType,
+  IPermissionUtils,
+  IPermissionUtilsType,
   IQueryEvaluator,
   IQueryEvaluatorType,
+  IQueryFactories,
+  IQueryFactoriesType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
-  IPermissionUtils,
-  IPermissionUtilsType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
+  IAdDataRepository,
+  IAdDataRepositoryType,
   IAdRepositoryType,
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   IDNSRepository,
   IDNSRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  IDemographicDataRepository,
+  IDemographicDataRepositoryType,
+  IDiscordRepository,
+  IDiscordRepositoryType,
+  IDomainCredentialRepository,
+  IDomainCredentialRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
   IMarketplaceRepository,
   IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
+  IOauthUtils,
+  IOAuthRepositoryType,
+  IPermissionRepository,
+  IPermissionRepositoryType,
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
   ISiftContractRepositoryType,
-  IAdDataRepository,
-  IAdDataRepositoryType,
-  IBrowsingDataRepositoryType,
-  IBrowsingDataRepository,
-  ILinkedAccountRepositoryType,
-  ILinkedAccountRepository,
-  IPortfolioBalanceRepositoryType,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepositoryType,
+  ISocialRepository,
+  ISocialRepositoryType,
   ITransactionHistoryRepository,
-  IDemographicDataRepositoryType,
-  IDemographicDataRepository,
-  IPermissionRepository,
-  IPermissionRepositoryType,
+  ITransactionHistoryRepositoryType,
+  ITwitterRepository,
+  ITwitterRepositoryType,
+  IMetricsRepository,
+  IMetricsRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -210,11 +281,17 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    bind<ISocialMediaPoller>(ISocialMediaPollerType)
+      .to(SocialMediaPoller)
+      .inSingletonScope();
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
       .inSingletonScope();
     bind<IAccountIndexerPoller>(IAccountIndexerPollerType)
       .to(AccountIndexerPoller)
+      .inSingletonScope();
+    bind<IHeartbeatGenerator>(IHeartbeatGeneratorType)
+      .to(HeartbeatGenerator)
       .inSingletonScope();
 
     bind<IAccountService>(IAccountServiceType)
@@ -235,14 +312,21 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
-    bind<ICampaignService>(ICampaignServiceType)
-      .to(CampaignService)
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
       .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
     bind<ISiftContractService>(ISiftContractServiceType)
       .to(SiftContractService)
+      .inSingletonScope();
+
+    bind<IDiscordService>(IDiscordServiceType)
+      .to(DiscordService)
+      .inSingletonScope();
+    bind<ITwitterService>(ITwitterServiceType)
+      .to(TwitterService)
       .inSingletonScope();
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
@@ -276,11 +360,17 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
       .inSingletonScope();
+    bind<IDomainCredentialRepository>(IDomainCredentialRepositoryType)
+      .to(DomainCredentialRepository)
+      .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+    bind<IMetricsRepository>(IMetricsRepositoryType)
+      .to(MetricsRepository)
       .inSingletonScope();
 
     // Data Persistence and Indexing
@@ -289,6 +379,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IBackupManagerProvider>(IBackupManagerProviderType)
       .to(BackupManagerProvider)
+      .inSingletonScope();
+    bind<IChunkRendererFactory>(IChunkRendererFactoryType)
+      .to(ChunkRendererFactory)
       .inSingletonScope();
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(CoinGeckoTokenPriceRepository)
@@ -314,6 +407,25 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
+    bind<IOauthUtils>(IOAuthRepositoryType).to(OauthUtils).inSingletonScope();
+    bind<IDiscordRepository>(IDiscordRepositoryType)
+      .to(DiscordRepository)
+      .inSingletonScope();
+    bind<ITwitterRepository>(ITwitterRepositoryType)
+      .to(TwitterRepository)
+      .inSingletonScope();
+    bind<ISocialRepository>(ISocialRepositoryType).to(SocialRepository);
+
+    bind<IBackupUtils>(IBackupUtilsType).to(BackupUtils).inSingletonScope();
+    bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
+      .to(VolatileStorageSchemaProvider)
+      .inSingletonScope();
+    bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
+      .to(FieldSchemaProvider)
+      .inSingletonScope();
+    bind<IMasterIndexer>(IMasterIndexerType)
+      .to(MasterIndexer)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
@@ -326,6 +438,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     ).toConstantValue(configProvider);
 
     bind<IContextProvider>(IContextProviderType)
+      .to(ContextProvider)
+      .inSingletonScope();
+
+    bind<IIndexerContextProvider>(IIndexerContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
     bind<IBlockchainProvider>(IBlockchainProviderType)
@@ -393,5 +509,50 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    /* EVM compatible Indexers */
+    bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
+    bind<IEVMIndexer>(IAlchemyIndexerType)
+      .to(AlchemyIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
+      .to(CovalentEVMTransactionRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IEtherscanIndexerType)
+      .to(EtherscanIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IEtherscanNativeBalanceRepositoryType)
+      .to(EtherscanNativeBalanceRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
+      .to(MoralisEVMPortfolioRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
+      .to(NftScanEVMPortfolioRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
+
+    bind<IEVMIndexer>(IPoapRepositoryType)
+      .to(PoapRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IPolygonIndexerType)
+      .to(PolygonIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
+      .to(SimulatorEVMTransactionRepository)
+      .inSingletonScope();
+
+    /* Solana Indexers */
+    bind<ISolanaIndexer>(ISolanaIndexerType)
+      .to(SolanaIndexer)
+      .inSingletonScope();
   },
 );

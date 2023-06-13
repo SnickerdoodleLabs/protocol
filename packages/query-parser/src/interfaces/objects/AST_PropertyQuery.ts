@@ -34,13 +34,16 @@ export class AST_PropertyQuery extends AST_Query {
     readonly property: Web2QueryTypes,
     readonly conditions: Array<BinaryCondition>,
     // for reading gender
-    readonly enum_keys ? : Array<string>,
-    readonly patternProperties ? : Record<string , unknown>,
-    readonly timestampRange ? : ISDQLTimestampRange
+    readonly enum_keys?: Array<string>,
+    readonly patternProperties?: Record<string, unknown>,
+    readonly timestampRange?: ISDQLTimestampRange,
   ) {
     super(name, returnType);
   }
-  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
+  static fromSchema(
+    name: SDQL_Name,
+    schema: ISDQLQueryClause,
+  ): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
 
     return new AST_PropertyQuery(
@@ -50,7 +53,7 @@ export class AST_PropertyQuery extends AST_Query {
       conditions,
       schema.enum_keys,
       schema.patternProperties,
-      schema.timestampRange
+      schema.timestampRange,
     );
   }
 
@@ -70,12 +73,14 @@ export class AST_PropertyQuery extends AST_Query {
         return ok(EWalletDataType.Email);
       case "location":
         return ok(EWalletDataType.Location);
-      case "browsing_history":
-        return ok(EWalletDataType.SiteVisits);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
       case "chain_transactions":
         return ok(EWalletDataType.EVMTransactions);
+      case "social_discord":
+        return ok(EWalletDataType.Discord);
+      case "social_twitter":
+        return ok(EWalletDataType.Twitter);
       default:
         const missingWalletType = new MissingWalletDataTypeError(this.property);
         console.error(missingWalletType);

@@ -1,44 +1,35 @@
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountAddress,
-  AESEncryptedString,
-  AESKey,
   BackupFileName,
   BigNumberString,
   ChainId,
   CountryCode,
-  DataWalletBackupID,
   EarnedReward,
-  EncryptedString,
   ERewardType,
   EVMAccountAddress,
   EVMTransaction,
   EVMTransactionHash,
-  FieldMap,
   Gender,
-  HexString,
-  IDataWalletBackup,
-  InitializationVector,
   IpfsCID,
-  Signature,
   SiteVisit,
-  TableMap,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
+import { GetBearerToken } from "@test-harness/prompts/GetBearerToken.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+import { UpdateDataPermissions } from "@test-harness/prompts/UpdateDataPermissions.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -48,17 +39,19 @@ export class CorePrompt extends DataWalletPrompt {
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
+  private updateDataPermissions: UpdateDataPermissions;
 
-  public constructor(public env: Environment) {
+  public constructor(public env: Environment, protected timeUtils: ITimeUtils) {
     super(env);
 
     this.unlockCore = new UnlockCore(this.env);
     this.addAccount = new AddAccount(this.env);
     this.checkAccount = new CheckAccount(this.env);
     this.removeAccount = new RemoveAccount(this.env);
-    this.optInCampaign = new OptInCampaign(this.env);
+    this.optInCampaign = new OptInCampaign(this.env, this.timeUtils);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
+    this.updateDataPermissions = new UpdateDataPermissions(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -79,6 +72,10 @@ export class CorePrompt extends DataWalletPrompt {
       {
         name: "Opt Out of Campaign",
         value: "optOutCampaign",
+      },
+      {
+        name: "Update Data Permissions",
+        value: "updateDataPermissions",
       },
       new inquirer.Separator(),
       { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
@@ -122,6 +119,10 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "backup inspection", value: "backupInspection" },
       { name: "manual backup", value: "manualBackup" },
       { name: "clear cloud store", value: "clearCloudStore" },
+      new inquirer.Separator(),
+      { name: "Get Bearer Token", value: "getBearerToken" },
+      new inquirer.Separator(),
+      { name: "Metrics", value: "metrics" },
     ];
 
     let choices = [
@@ -166,7 +167,7 @@ export class CorePrompt extends DataWalletPrompt {
 
       switch (answers.core) {
         case "NOOP": // this is super important as we have the accept query appearing from another thread
-          return okAsync(undefined);
+          return okAsync<void, never>(undefined);
         case "unlock":
           return this.unlockCore.start();
         case "selectProfile":
@@ -181,6 +182,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optInCampaign.start();
         case "optOutCampaign":
           return this.optOutCampaign.start();
+        case "updateDataPermissions":
+          return this.updateDataPermissions.start();
         case "getAge":
           return this.core.getAge().map(console.log);
         case "setGender":
@@ -349,8 +352,15 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.postBackups().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
+        case "getBearerToken":
+          const getBearerToken = new GetBearerToken(this.env);
+          return getBearerToken.start();
+        case "metrics":
+          return this.core.metrics.getMetrics().map((metrics) => {
+            console.log(metrics);
+          });
       }
-      return okAsync(undefined);
+      return okAsync<void, never>(undefined);
     });
   }
 }

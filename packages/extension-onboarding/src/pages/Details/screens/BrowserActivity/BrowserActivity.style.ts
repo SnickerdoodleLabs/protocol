@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   btnText: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 700,
     fontSize: "16px",
@@ -13,7 +13,7 @@ export const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   title: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 700,
     fontSize: "20px",
@@ -21,7 +21,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#212121",
   },
   description: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "'Roboto'",
     fontStyle: "normal",
     fontWeight: 400,
     fontSize: "14px",

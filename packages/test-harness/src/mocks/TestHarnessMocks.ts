@@ -1,4 +1,5 @@
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { ConfigProvider } from "@snickerdoodlelabs/core";
 import {
   DomainName,
   EChain,
@@ -6,7 +7,10 @@ import {
   LanguageCode,
   SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
-import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
+import {
+  FakeDBVolatileStorage,
+  VolatileStorageSchemaProvider,
+} from "@snickerdoodlelabs/persistence";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
 import { query1, query2, query3, query4 } from "@test-harness/queries/index.js";
@@ -15,8 +19,13 @@ import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
 export class TestHarnessMocks {
   public cryptoUtils = new CryptoUtils();
+  public configProvider = new ConfigProvider();
+  public schemaProvider = new VolatileStorageSchemaProvider(
+    this.configProvider,
+  );
+  public timeUtils = new TimeUtils();
 
-  public fakeDBVolatileStorage = new FakeDBVolatileStorage();
+  public fakeDBVolatileStorage = new FakeDBVolatileStorage(this.schemaProvider);
 
   public devAccountKeys = [
     new TestWallet(

@@ -5,27 +5,38 @@ import {
 import {
   AESEncryptedString,
   AESKey,
-  Argon2Hash,
-  EVMPrivateKey,
-  SHA256Hash,
-  EVMAccountAddress,
-  Signature,
-  HexString,
-  TokenId,
   Base64String,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  HexString,
+  InvalidParametersError,
+  KeyGenerationError,
+  RSAKeyPair,
+  SHA256Hash,
+  Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
-  EVMContractAddress,
-  InvalidParametersError,
+  TokenAndSecret,
+  TokenId,
+  URLString,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config";
 
 export interface ICryptoUtils {
+  getUUID(): UUID;
   getNonce(nonceSize?: number): ResultAsync<Base64String, never>;
   getTokenId(): ResultAsync<TokenId, never>;
   getTokenIds(quantity: number): ResultAsync<TokenId[], never>;
 
+  /**
+   * Creates a new 4096 bit RSA public/private keypair. There's no way to derive a valid RSA key
+   * via PBKDF2. The resulting keys are PEM encoded but not encrypted
+   */
+  createRSAKeyPair(): ResultAsync<RSAKeyPair, KeyGenerationError>;
   createAESKey(): ResultAsync<AESKey, never>;
   deriveAESKeyFromSignature(
     signature: Signature,
@@ -113,6 +124,14 @@ export interface ICryptoUtils {
       BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
+
+  packOAuth1Credentials(
+    config: OAuth1Config,
+    url: URLString,
+    method: string,
+    pathAndBodyParams?: object,
+    accessTokenAndSecret?: TokenAndSecret,
+  ): string;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");

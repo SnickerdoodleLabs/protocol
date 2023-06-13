@@ -55,12 +55,20 @@ export class IndexedDBCursor<T extends VersionedObject>
   }
 
   public nextValue(): ResultAsync<T | null, PersistenceError> {
-    return this._next().map((x) => (x == null ? null : x.data));
+    return this._next()
+      .andThen((next) => {
+        if (next != null && next.deleted) {
+          return this._next();
+        } else {
+          return okAsync(next);
+        }
+      })
+      .map((x) => (x == null ? null : x.data));
   }
 
   public allValues(): ResultAsync<T[], PersistenceError> {
     return this._all().map((values) => {
-      return values.map((x) => x.data);
+      return values.filter((x) => !x.deleted).map((x) => x.data);
     });
   }
 }
