@@ -224,7 +224,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
             .map(([rewards, config]) => {
               return (
                 rewards.filter((reward) => {
-                  reward.type == ERewardType.Direct;
+                  return reward.type == ERewardType.Direct;
                 }) as DirectReward[]
               )
                 .filter((reward) => reward.chainId == ChainId(592))
