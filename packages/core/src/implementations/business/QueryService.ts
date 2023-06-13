@@ -267,6 +267,9 @@ export class QueryService implements IQueryService {
     | AjaxError
   > {
     // Step 1, get all queries that are ready to return insights
+    this.logUtils.debug(
+      "Checking for queries to process and return (in AdsCompleted status)",
+    );
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -275,6 +278,11 @@ export class QueryService implements IQueryService {
       ),
     ])
       .andThen(([context, config, queryStatii]) => {
+        if (queryStatii.length == 0) {
+          this.logUtils.debug("No queries to process and return");
+          return okAsync(undefined);
+        }
+
         // For each query, we'll do some basic checks- make sure consent is still
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
