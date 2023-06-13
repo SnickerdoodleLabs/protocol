@@ -217,26 +217,24 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         }
 
         if (chainId == EChain.Astar || chainId == EChain.Shibuya) {
-          return this.accountRepo
-            .getEarnedRewards()
-            .map((rewards) => {
-              return (
-                rewards.filter((reward) => {
-                  return reward.type == ERewardType.Direct;
-                }) as DirectReward[]
-              )
-                .filter((reward) => reward.chainId == chainId)
-                .map((reward) => {
-                  return {
-                    ...reward,
-                    image: URLString(
-                      urlJoin(config.ipfsFetchBaseUrl, reward.image),
-                    ),
-                  };
-                });
-            })
-            .map((rewards) => {
-              return rewards.map((reward) => {
+          return this.accountRepo.getEarnedRewards().map((rewards) => {
+            return (
+              rewards.filter((reward) => {
+                return (
+                  reward.type == ERewardType.Direct &&
+                  (reward as DirectReward).chainId == chainId
+                );
+              }) as DirectReward[]
+            )
+              .map((reward) => {
+                return {
+                  ...reward,
+                  image: URLString(
+                    urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                  ),
+                };
+              })
+              .map((reward) => {
                 return new EVMNFT(
                   reward.contractAddress,
                   BigNumberString("1"),
@@ -251,7 +249,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                   undefined,
                 );
               });
-            });
+          });
         }
 
         const fetch = this.masterIndexer
