@@ -114,6 +114,7 @@ export class InvitationService implements IInvitationService {
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
       this.getConsentCapacity(invitation.consentContractAddress),
       this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
+      this.contextProvider.getContext(),
     ])
       .andThen(
         ([
@@ -122,6 +123,7 @@ export class InvitationService implements IInvitationService {
           optedInOnChain,
           consentCapacity,
           openOptInDisabled,
+          contex,
         ]) => {
           const rejected = rejectedConsentContracts.includes(
             invitation.consentContractAddress,
@@ -155,7 +157,11 @@ export class InvitationService implements IInvitationService {
                       invitation.businessSignature,
                     ),
                   ])
-                  .map(() => EInvitationStatus.Accepted);
+                  .map(() => {
+                    // trigger backup polling manually
+                    contex.privateEvents.onPollBackupRequested.next();
+                    return EInvitationStatus.Accepted;
+                  });
               });
           }
 

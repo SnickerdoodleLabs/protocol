@@ -17,6 +17,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class AccountIndexerPoller implements IAccountIndexerPoller {
@@ -32,7 +33,16 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return this.configProvider.getConfig().map((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).map(([config, context]) => {
+      context.privateEvents.onPollBackupRequested.subscribe(() => {
+        this.monitoringService.pollBackups().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      });
+
       setInterval(() => {
         this.monitoringService.pollBackups().mapErr((e) => {
           this.logUtils.error(e);
