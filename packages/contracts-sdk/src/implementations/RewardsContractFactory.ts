@@ -58,6 +58,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
         "deploy",
         [name, symbol, baseURI],
         contractOverrides,
+        true,
       );
     });
   }
@@ -89,11 +90,12 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     functionName: string,
     functionParams: any[],
     overrides?: ContractOverrides,
+    isDeployingContract?: boolean,
   ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {
         ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
+      }) as Promise<ethers.providers.TransactionResponse | ethers.Contract>,
       (e) => {
         return new RewardsFactoryError(
           `Unable to call ${functionName}()`,
@@ -101,27 +103,18 @@ export class RewardsContractFactory implements IRewardsContractFactory {
           e,
         );
       },
-    ).map((tx) => {
-      return this.toWrappedTransactionResponse(
-        tx,
+    ).map((transactionResponse) => {
+      // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
+      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+        isDeployingContract == true
+          ? (transactionResponse as ethers.Contract).deployTransaction
+          : (transactionResponse as ethers.providers.TransactionResponse),
+        EVMContractAddress(""),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
         functionName,
         functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
       );
     });
-  }
-
-  protected toWrappedTransactionResponse(
-    transactionResponse: ethers.providers.TransactionResponse,
-    functionName: string,
-    functionParams: any[],
-  ): WrappedTransactionResponse {
-    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-      transactionResponse,
-      EVMContractAddress(""),
-      EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-      functionName,
-      functionParams,
-      ContractsAbis.ConsentFactoryAbi.abi,
-    );
   }
 }

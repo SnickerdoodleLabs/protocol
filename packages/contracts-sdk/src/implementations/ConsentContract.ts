@@ -832,28 +832,16 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map((tx) => {
-      return this.toWrappedTransactionResponse(
-        tx,
+    ).map((transactionResponse) => {
+      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+        transactionResponse,
+        EVMContractAddress(this.contract.address),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
         functionName,
         functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
       );
     });
-  }
-
-  protected toWrappedTransactionResponse(
-    transactionResponse: ethers.providers.TransactionResponse,
-    functionName: string,
-    functionParams: any[],
-  ): WrappedTransactionResponse {
-    return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-      transactionResponse,
-      EVMContractAddress(this.contract.address),
-      EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-      functionName,
-      functionParams,
-      ContractsAbis.ConsentFactoryAbi.abi,
-    );
   }
 }
 
