@@ -61,7 +61,7 @@ export class ConsentContract implements IConsentContract {
     agreementFlags: HexString32,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("optIn", [tokenId, agreementFlags, overrides]);
+    return this.writeToContract("optIn", [tokenId, agreementFlags], overrides);
   }
 
   // TODO: add data permissions param
@@ -80,12 +80,11 @@ export class ConsentContract implements IConsentContract {
     signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("restrictedOptIn", [
-      tokenId,
-      agreementFlags,
-      signature,
+    return this.writeToContract(
+      "restrictedOptIn",
+      [tokenId, agreementFlags, signature],
       overrides,
-    ]);
+    );
   }
 
   public encodeRestrictedOptIn(
@@ -108,12 +107,11 @@ export class ConsentContract implements IConsentContract {
     signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("anonymousRestrictedOptIn", [
-      tokenId,
-      agreementFlags,
-      signature,
+    return this.writeToContract(
+      "anonymousRestrictedOptIn",
+      [tokenId, agreementFlags, signature],
       overrides,
-    ]);
+    );
   }
 
   public encodeAnonymousRestrictedOptIn(
@@ -134,7 +132,7 @@ export class ConsentContract implements IConsentContract {
     tokenId: TokenId,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("optOut", [tokenId, overrides]);
+    return this.writeToContract("optOut", [tokenId], overrides);
   }
 
   public encodeOptOut(tokenId: TokenId): HexString {
@@ -177,7 +175,7 @@ export class ConsentContract implements IConsentContract {
     maxCapacity: number,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("updateMaxCapacity", [maxCapacity, overrides]);
+    return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
   }
 
   public updateAgreementFlags(
@@ -225,7 +223,7 @@ export class ConsentContract implements IConsentContract {
     ipfsCID: IpfsCID,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("requestForData", [ipfsCID, overrides]);
+    return this.writeToContract("requestForData", [ipfsCID], overrides);
   }
 
   // Returns the address Consent contract contract's owner
@@ -522,14 +520,14 @@ export class ConsentContract implements IConsentContract {
     domain: string,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("addDomain", [domain, overrides]);
+    return this.writeToContract("addDomain", [domain], overrides);
   }
 
   public removeDomain(
     domain: string,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("removeDomain", [domain, overrides]);
+    return this.writeToContract("removeDomain", [domain], overrides);
   }
 
   public getDomains(): ResultAsync<DomainName[], ConsentContractError> {
@@ -602,13 +600,13 @@ export class ConsentContract implements IConsentContract {
   public disableOpenOptIn(
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("disableOpenOptIn", [overrides]);
+    return this.writeToContract("disableOpenOptIn", [], overrides);
   }
 
   public enableOpenOptIn(
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("enableOpenOptIn", [overrides]);
+    return this.writeToContract("enableOpenOptIn", [], overrides);
   }
 
   public baseURI(): ResultAsync<BaseURI, ConsentContractError> {
@@ -628,7 +626,7 @@ export class ConsentContract implements IConsentContract {
     baseUri: BaseURI,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("setBaseURI", [baseUri, overrides]);
+    return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
   public hasRole(
@@ -652,7 +650,7 @@ export class ConsentContract implements IConsentContract {
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("grantRole", [role, address, overrides]);
+    return this.writeToContract("grantRole", [role, address], overrides);
   }
 
   public revokeRole(
@@ -660,7 +658,7 @@ export class ConsentContract implements IConsentContract {
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("revokeRole", [role, address, overrides]);
+    return this.writeToContract("revokeRole", [role, address], overrides);
   }
 
   public renounceRole(
@@ -668,7 +666,7 @@ export class ConsentContract implements IConsentContract {
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("renounceRole", [role, address, overrides]);
+    return this.writeToContract("renounceRole", [role, address], overrides);
   }
 
   public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
@@ -688,7 +686,7 @@ export class ConsentContract implements IConsentContract {
     blockNumber: BlockNumber,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("setQueryHorizon", [blockNumber, overrides]);
+    return this.writeToContract("setQueryHorizon", [blockNumber], overrides);
   }
 
   // Get the number of opted in addresses
@@ -775,11 +773,11 @@ export class ConsentContract implements IConsentContract {
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("newGlobalTag", [
-      tag,
-      newStakeAmount,
+    return this.writeToContract(
+      "newGlobalTag",
+      [tag, newStakeAmount],
       overrides,
-    ]);
+    );
   }
 
   public newLocalTagUpstream(
@@ -788,12 +786,11 @@ export class ConsentContract implements IConsentContract {
     existingStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("newLocalTagUpstream", [
-      tag,
-      newStakeAmount,
-      existingStakeAmount,
+    return this.writeToContract(
+      "newLocalTagUpstream",
+      [tag, newStakeAmount, existingStakeAmount],
       overrides,
-    ]);
+    );
   }
 
   public newLocalTagDownstream(
@@ -802,12 +799,11 @@ export class ConsentContract implements IConsentContract {
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("newLocalTagDownstream", [
-      tag,
-      existingStakeAmount,
-      newStakeAmount,
+    return this.writeToContract(
+      "newLocalTagDownstream",
+      [tag, existingStakeAmount, newStakeAmount],
       overrides,
-    ]);
+    );
   }
 
   public replaceExpiredListing(
@@ -815,18 +811,18 @@ export class ConsentContract implements IConsentContract {
     stakeAmount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("replaceExpiredListing", [
-      tag,
-      stakeAmount,
+    return this.writeToContract(
+      "replaceExpiredListing",
+      [tag, stakeAmount],
       overrides,
-    ]);
+    );
   }
 
   public removeListing(
     tag: string,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return this.writeToContract("removeListing", [tag, overrides]);
+    return this.writeToContract("removeListing", [tag], overrides);
   }
 
   public filters = {
@@ -862,11 +858,12 @@ export class ConsentContract implements IConsentContract {
   protected writeToContract(
     functionName: string,
     functionParams: any[],
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract[functionName](
-        ...functionParams,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
           `Unable to call ${functionName}()`,
