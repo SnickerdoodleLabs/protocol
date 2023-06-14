@@ -1,8 +1,11 @@
 import {
   EVMAccountAddress,
   EVMContractAddress,
+  IBlockchainError,
+  TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 
 export class WrappedTransactionResponse {
   public constructor(
@@ -14,7 +17,15 @@ export class WrappedTransactionResponse {
     public abi?: string,
   ) {}
 
-  wait(): Promise<ethers.providers.TransactionReceipt> {
-    return this.txResponse.wait();
+  wait(): ResultAsync<
+    ethers.providers.TransactionReceipt,
+    TransactionResponseError
+  > {
+    return ResultAsync.fromPromise(this.txResponse.wait(), (e) => {
+      return new TransactionResponseError(
+        "Unable to call wait() for transaction response.",
+        (e as IBlockchainError).reason,
+      );
+    });
   }
 }

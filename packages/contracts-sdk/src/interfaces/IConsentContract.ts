@@ -115,7 +115,8 @@ export interface IConsentContract extends IBaseContract {
   updateAgreementFlags(
     tokenId: TokenId,
     newAgreementFlags: HexString32,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeUpdateAgreementFlags(
     tokenId: TokenId,

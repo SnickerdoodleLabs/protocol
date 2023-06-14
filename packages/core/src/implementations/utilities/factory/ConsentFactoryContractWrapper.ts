@@ -59,7 +59,7 @@ export class ConsentFactoryContractWrapper
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides | undefined,
-  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
     return this.fallback(
       () => this.primary.createConsent(ownerAddress, baseUri, name, overrides),
       () =>

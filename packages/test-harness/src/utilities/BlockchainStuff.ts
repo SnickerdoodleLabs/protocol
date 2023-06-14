@@ -18,11 +18,12 @@ import {
   DomainName,
   EVMContractAddress,
   IpfsCID,
+  TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, ok } from "neverthrow";
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
@@ -105,7 +106,9 @@ export class BlockchainStuff {
     metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
-    ConsentFactoryContractError | ConsentContractError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | TransactionResponseError
   > {
     return this.consentFactoryContract
       .createConsent(
@@ -114,57 +117,50 @@ export class BlockchainStuff {
         name,
       )
       .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for createConsent() failed",
-            "Unknown",
-            e,
+        return tx.wait().map((receipt) => {
+          // Get the hash of the event
+          const event = "ConsentDeployed(address,address)";
+          const eventHash = ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes(event),
           );
+
+          // Filter out for the ConsentDeployed event from the receipt's logs
+          // returns an array
+          const consentDeployedLog = receipt.logs.filter(
+            (_log) => _log.topics[0] == eventHash,
+          );
+
+          // access the data and topics from the filtered log
+          const data = consentDeployedLog[0].data;
+          const topics = consentDeployedLog[0].topics;
+
+          // Declare a new interface
+          const Interface = ethers.utils.Interface;
+          const iface = new Interface([
+            "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
+          ]);
+
+          // Decode the log from the given data and topic
+          const decodedLog = iface.decodeEventLog(
+            "ConsentDeployed",
+            data,
+            topics,
+          );
+
+          const deployedConsentAddress: EVMContractAddress =
+            decodedLog.consentAddress;
+
+          // Got the new consent contract address
+          // Create the contract wrapper
+          const consentContract = new ConsentContract(
+            this.serverSigner,
+            deployedConsentAddress,
+            this.cryptoUtils,
+          );
+          this.consentContracts.set(deployedConsentAddress, consentContract);
+
+          return deployedConsentAddress;
         });
-      })
-      .map((receipt) => {
-        // Get the hash of the event
-        const event = "ConsentDeployed(address,address)";
-        const eventHash = ethers.utils.keccak256(
-          ethers.utils.toUtf8Bytes(event),
-        );
-
-        // Filter out for the ConsentDeployed event from the receipt's logs
-        // returns an array
-        const consentDeployedLog = receipt.logs.filter(
-          (_log) => _log.topics[0] == eventHash,
-        );
-
-        // access the data and topics from the filtered log
-        const data = consentDeployedLog[0].data;
-        const topics = consentDeployedLog[0].topics;
-
-        // Declare a new interface
-        const Interface = ethers.utils.Interface;
-        const iface = new Interface([
-          "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
-        ]);
-
-        // Decode the log from the given data and topic
-        const decodedLog = iface.decodeEventLog(
-          "ConsentDeployed",
-          data,
-          topics,
-        );
-
-        const deployedConsentAddress: EVMContractAddress =
-          decodedLog.consentAddress;
-
-        // Got the new consent contract address
-        // Create the contract wrapper
-        const consentContract = new ConsentContract(
-          this.serverSigner,
-          deployedConsentAddress,
-          this.cryptoUtils,
-        );
-        this.consentContracts.set(deployedConsentAddress, consentContract);
-
-        return deployedConsentAddress;
       });
   }
 

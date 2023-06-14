@@ -28,8 +28,6 @@ export interface IMinimalForwarderContract extends IBaseContract {
     signature: Signature,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError>;
-
-  getContract(): ethers.Contract;
 }
 
 export const IMinimalForwarderContractType = Symbol.for(
