@@ -517,14 +517,14 @@ export class ConsentContract implements IConsentContract {
   }
 
   public addDomain(
-    domain: string,
+    domain: DomainName,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return this.writeToContract("addDomain", [domain], overrides);
   }
 
   public removeDomain(
-    domain: string,
+    domain: DomainName,
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     return this.writeToContract("removeDomain", [domain], overrides);

@@ -17,7 +17,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { WrapElementHandle } from "puppeteer";
 
@@ -30,7 +30,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
@@ -45,7 +45,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   }
 
   public getContractAddress(): EVMContractAddress {
-    return this.contractAddress as EVMContractAddress;
+    return this.contractAddress;
   }
 
   public getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError> {
@@ -221,9 +221,9 @@ export class ERC721RewardContract implements IERC721RewardContract {
     ).orElse((error) => {
       // The contract reverts with this message if tokenId does not exist
       if (error.reason === "ERC721: operator query for nonexistent token") {
-        return ok(null);
+        return okAsync(null);
       }
-      return err(error);
+      return errAsync(error);
     });
   }
 

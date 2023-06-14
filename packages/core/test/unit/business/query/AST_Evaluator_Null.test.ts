@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 import {
   AST_BoolExpr,
@@ -5,7 +7,7 @@ import {
   ConditionOr,
 } from "@snickerdoodlelabs/query-parser";
 
-import { ASTMocks } from "@core-tests/mock/mocks";
+import { ASTMocks } from "@core-tests/mock/mocks/ASTMocks.js";
 
 describe("Conditions", () => {
   test("boolean null is false", async () => {

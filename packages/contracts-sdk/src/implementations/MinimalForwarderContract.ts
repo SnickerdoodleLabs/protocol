@@ -1,10 +1,10 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder.js";
 import {
   ContractOverrides,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces";
+} from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   EVMAccountAddress,
@@ -26,13 +26,17 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
       ContractsAbis.MinimalForwarderAbi.abi,
       providerOrSigner,
     );
+  }
+
+  public getContractAddress(): EVMContractAddress {
+    return this.contractAddress;
   }
 
   public getNonce(

@@ -1,11 +1,14 @@
 import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
+import {
   RewardsFactoryError,
   BaseURI,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
 import { ethers } from "ethers";
-import { ContractOverrides, WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IRewardsContractFactory {
   deployERC721Reward(

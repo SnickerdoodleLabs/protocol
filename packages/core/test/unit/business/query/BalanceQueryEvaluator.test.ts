@@ -27,8 +27,8 @@ import {
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
   IDemographicDataRepository,

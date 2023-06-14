@@ -1,22 +1,16 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   SiftContractError,
-  EVMAccountAddress,
-  IpfsCID,
   TokenUri,
-  Signature,
-  ConsentToken,
-  RequestForData,
-  BlockNumber,
   DomainName,
   BaseURI,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { WrappedTransactionResponse } from "./objects";
 
-export interface ISiftContract {
+export interface ISiftContract extends IBaseContract {
   /**
    * Verifies a URL
    * Marks the domain tokenURI value as VERIFIED

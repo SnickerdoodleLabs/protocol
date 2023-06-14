@@ -1,3 +1,4 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ContractOverrides,
   WrappedTransactionResponse,
@@ -8,23 +9,19 @@ import {
   TokenId,
   TokenUri,
   HexString,
-  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-export interface ICrumbsContract {
-  /**
-   * The address of the contract
-   */
-  contractAddress: EVMContractAddress;
+export interface ICrumbsContract extends IBaseContract {
   /**
    * Gets the token id mapped to a particular account address, returns 0 if no such token exists
    * @param accountAddress the owner account address
-   * @param overrides for overriding transaction gas object
+   * @param contractOverrides for overriding transaction gas object
    */
   addressToCrumbId(
     accountAddress: EVMAccountAddress,
+    contractOverrides?: ContractOverrides,
   ): ResultAsync<TokenId | null, CrumbsContractError>;
 
   /**
@@ -33,7 +30,10 @@ export interface ICrumbsContract {
    * @param tokenId the token id to query
    * @param overrides for overriding transaction gas object
    */
-  tokenURI(tokenId: TokenId): ResultAsync<TokenUri | null, CrumbsContractError>;
+  tokenURI(
+    tokenId: TokenId,
+    contractOverrides?: ContractOverrides,
+  ): ResultAsync<TokenUri | null, CrumbsContractError>;
 
   /**
    * Creates a crumb id for the address calling the contract
@@ -63,8 +63,6 @@ export interface ICrumbsContract {
   ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
-
-  getContract(): ethers.Contract;
 }
 
 export const ICrumbsContractType = Symbol.for("ICrumbsContract");

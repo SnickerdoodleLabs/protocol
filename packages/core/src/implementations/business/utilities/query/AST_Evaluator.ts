@@ -25,9 +25,12 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IAST_Evaluator,
+  IQueryRepository,
+} from "@core/interfaces/business/utilities/query/index.js";
 
-export class AST_Evaluator {
+export class AST_Evaluator implements IAST_Evaluator {
   /**
    * @remarks This class should not be instantiated directly. Use the AST_Factories instead.
    */

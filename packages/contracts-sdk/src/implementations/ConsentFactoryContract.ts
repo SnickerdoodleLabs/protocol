@@ -13,7 +13,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, Result, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
@@ -33,17 +33,17 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentFactoryAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
-      consentFactoryAddress,
+      contractAddress,
       ContractsAbis.ConsentFactoryAbi.abi,
       providerOrSigner,
     );
   }
 
   public getContractAddress(): EVMContractAddress {
-    return EVMContractAddress(this.contract?.address || "");
+    return this.contractAddress;
   }
 
   public createConsent(

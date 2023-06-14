@@ -13,8 +13,23 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AnkrIndexer,
+  AlchemyIndexer,
+  CovalentEVMTransactionRepository,
+  EtherscanIndexer,
+  EtherscanNativeBalanceRepository,
+  MoralisEVMPortfolioRepository,
+  NftScanEVMPortfolioRepository,
+  OklinkIndexer,
+  PoapRepository,
+  PolygonIndexer,
+  SimulatorEVMTransactionRepository,
+  SolanaIndexer,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+  MasterIndexer,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
@@ -22,6 +37,22 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
+  IAlchemyIndexerType,
+  IAnkrIndexerType,
+  ICovalentEVMTransactionRepositoryType,
+  IEtherscanIndexerType,
+  IEtherscanNativeBalanceRepositoryType,
+  IEVMIndexer,
+  IMasterIndexer,
+  IMasterIndexerType,
+  IMoralisEVMPortfolioRepositoryType,
+  INftScanEVMPortfolioRepositoryType,
+  IOklinkIndexerType,
+  IPoapRepositoryType,
+  IPolygonIndexerType,
+  ISimulatorEVMTransactionRepositoryType,
+  ISolanaIndexer,
+  ISolanaIndexerType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -74,6 +105,7 @@ import {
   IntegrationService,
   InvitationService,
   MarketplaceService,
+  MetricsService,
   MonitoringService,
   ProfileService,
   QueryParsingEngine,
@@ -87,6 +119,7 @@ import {
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
+  QueryFactories,
   QueryRepository,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
@@ -105,6 +138,7 @@ import {
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  MetricsRepository,
   OauthUtils,
   PermissionRepository,
   PortfolioBalanceRepository,
@@ -114,10 +148,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
 } from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
+import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
@@ -147,6 +178,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -171,6 +204,8 @@ import {
   IPermissionUtilsType,
   IQueryEvaluator,
   IQueryEvaluatorType,
+  IQueryFactories,
+  IQueryFactoriesType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
@@ -221,12 +256,12 @@ import {
   ITransactionHistoryRepositoryType,
   ITwitterRepository,
   ITwitterRepositoryType,
+  IMetricsRepository,
+  IMetricsRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -277,6 +312,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
+      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -331,6 +369,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
       .inSingletonScope();
+    bind<IMetricsRepository>(IMetricsRepositoryType)
+      .to(MetricsRepository)
+      .inSingletonScope();
 
     // Data Persistence and Indexing
     bind<IDataWalletPersistence>(IDataWalletPersistenceType)
@@ -366,9 +407,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
-    bind<IOauthUtils>(IOAuthRepositoryType)
-      .to(OauthUtils)
-      .inSingletonScope();
+    bind<IOauthUtils>(IOAuthRepositoryType).to(OauthUtils).inSingletonScope();
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
       .inSingletonScope();
@@ -384,6 +423,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
       .to(FieldSchemaProvider)
       .inSingletonScope();
+    bind<IMasterIndexer>(IMasterIndexerType)
+      .to(MasterIndexer)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
@@ -396,6 +438,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     ).toConstantValue(configProvider);
 
     bind<IContextProvider>(IContextProviderType)
+      .to(ContextProvider)
+      .inSingletonScope();
+
+    bind<IIndexerContextProvider>(IIndexerContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
     bind<IBlockchainProvider>(IBlockchainProviderType)
@@ -463,5 +509,50 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    /* EVM compatible Indexers */
+    bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();
+    bind<IEVMIndexer>(IAlchemyIndexerType)
+      .to(AlchemyIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ICovalentEVMTransactionRepositoryType)
+      .to(CovalentEVMTransactionRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IEtherscanIndexerType)
+      .to(EtherscanIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IEtherscanNativeBalanceRepositoryType)
+      .to(EtherscanNativeBalanceRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
+      .to(MoralisEVMPortfolioRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(INftScanEVMPortfolioRepositoryType)
+      .to(NftScanEVMPortfolioRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IOklinkIndexerType).to(OklinkIndexer).inSingletonScope();
+
+    bind<IEVMIndexer>(IPoapRepositoryType)
+      .to(PoapRepository)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(IPolygonIndexerType)
+      .to(PolygonIndexer)
+      .inSingletonScope();
+
+    bind<IEVMIndexer>(ISimulatorEVMTransactionRepositoryType)
+      .to(SimulatorEVMTransactionRepository)
+      .inSingletonScope();
+
+    /* Solana Indexers */
+    bind<ISolanaIndexer>(ISolanaIndexerType)
+      .to(SolanaIndexer)
+      .inSingletonScope();
   },
 );

@@ -1,19 +1,20 @@
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
-import { ContractOverrides, WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import {
   ERC721RewardContractError,
   EVMAccountAddress,
   TokenId,
   TokenUri,
   BaseURI,
-  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event, BigNumber } from "ethers";
+import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-export interface IERC721RewardContract {
-  getContractAddress(): EVMContractAddress;
-
+export interface IERC721RewardContract extends IBaseContract {
   getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;
 
   getDefaultAdminRoleMembers(): ResultAsync<

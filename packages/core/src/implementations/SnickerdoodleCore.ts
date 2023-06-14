@@ -4,11 +4,6 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 import {
-  DefaultAccountBalances,
-  DefaultAccountIndexers,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
-import {
   AccountAddress,
   AccountIndexingError,
   AdKey,
@@ -21,9 +16,7 @@ import {
   ChainId,
   ChainTransaction,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
-  ConsentFactoryContractError,
   CountryCode,
   CrumbsContractError,
   DataPermissions,
@@ -35,7 +28,6 @@ import {
   EarnedReward,
   EChain,
   EDataWalletPermission,
-  EInvitationStatus,
   EligibleAd,
   EmailAddressString,
   EScamFilterStatus,
@@ -44,10 +36,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  HexString32,
-  IAccountBalancesType,
-  IAccountIndexingType,
-  IAccountNFTsType,
   IAdMethods,
   IConfigOverrides,
   IConsentCapacity,
@@ -57,10 +45,11 @@ import {
   ICoreTwitterMethods,
   IDynamicRewardParameter,
   IInvitationMethods,
+  IMasterIndexerType,
+  IMetricsMethods,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
-  IOpenSeaMetadata,
   IpfsCID,
   IPFSError,
   ISnickerdoodleCore,
@@ -75,7 +64,6 @@ import {
   OAuth1RequstToken,
   OAuthAuthorizationCode,
   OAuthVerifier,
-  PageInvitation,
   PagingRequest,
   PersistenceError,
   QueryFormatError,
@@ -97,6 +85,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   WalletNFT,
+  IMasterIndexer,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -139,6 +128,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
@@ -172,6 +163,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public discord: ICoreDiscordMethods;
   public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
+  public metrics: IMetricsMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -215,21 +207,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
-
-    this.iocContainer
-      .bind(IAccountIndexingType)
-      .to(DefaultAccountIndexers)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountBalancesType)
-      .to(DefaultAccountBalances)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountNFTsType)
-      .to(DefaultAccountNFTs)
-      .inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -445,6 +422,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
       },
     };
+
+    // Metrics Methods ---------------------------------------------------------------
+    this.metrics = {
+      getMetrics: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getMetrics();
+      },
+    };
+
     // Social Media Methods ----------------------------------------------------------
     this.twitter = {
       getOAuth1aRequestToken: () => {
@@ -605,6 +593,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
+    const metricsService =
+      this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
     const blockchainListener = this.iocContainer.get<IBlockchainListener>(
       IBlockchainListenerType,
     );
@@ -617,8 +608,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IHeartbeatGeneratorType,
     );
 
+    const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
     // BlockchainProvider needs to be ready to go in order to do the unlock
-    return ResultUtils.combine([blockchainProvider.initialize()])
+    return ResultUtils.combine([
+      blockchainProvider.initialize(),
+      indexers.initialize(),
+    ])
       .andThen(() => {
         return accountService.unlock(
           accountAddress,
@@ -629,7 +625,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       })
       .andThen(() => {
         // Service Layer
-        return ResultUtils.combine([queryService.initialize()]);
+        return ResultUtils.combine([
+          queryService.initialize(),
+          metricsService.initialize(),
+        ]);
       })
       .andThen(() => {
         // API Layer

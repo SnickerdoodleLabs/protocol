@@ -1,24 +1,20 @@
 import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/index.js";
 import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
-  EVMAccountAddress,
   EVMContractAddress,
   TokenUri,
-  TokenId,
   SiftContractError,
   IBlockchainError,
-  HexString,
   BaseURI,
   DomainName,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
-import { EdgeInsetsPropType } from "react-native";
-
-import { WrappedTransactionResponse } from "..";
+import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class SiftContract implements ISiftContract {
@@ -28,13 +24,17 @@ export class SiftContract implements ISiftContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
       ContractsAbis.SiftAbi.abi,
       providerOrSigner,
     );
+  }
+
+  public getContractAddress(): EVMContractAddress {
+    return this.contractAddress;
   }
 
   public checkURL(
