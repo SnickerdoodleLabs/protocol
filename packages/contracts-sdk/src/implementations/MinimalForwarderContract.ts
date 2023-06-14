@@ -1,4 +1,6 @@
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import {
+  ContractOverrides,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
   WrappedTransactionResponse,
@@ -69,25 +71,41 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.execute(
-        request,
-        signature,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new MinimalForwarderContractError(
-          `Unable to call execute()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("execute", [request, signature], overrides);
   }
 
   public getContract(): ethers.Contract {
     return this.contract;
+  }
+
+  // Takes the MinimalForwarder Reward contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+    return ResultAsync.fromPromise(
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new MinimalForwarderContractError(
+          `Unable to call ${functionName}()`,
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((transactionResponse) => {
+      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+        transactionResponse,
+        EVMContractAddress(this.contract.address),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+        functionName,
+        functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
+      );
+    });
   }
 }

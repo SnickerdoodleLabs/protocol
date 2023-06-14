@@ -1,5 +1,7 @@
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import {
+  ContractOverrides,
   IERC721RewardContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
@@ -167,21 +169,9 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public setBaseURI(
     baseUri: BaseURI,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setBaseURI(
-        baseUri,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call setBaseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract("setBaseURI", [baseUri, overrides]);
   }
 
   public balanceOf(
@@ -256,64 +246,37 @@ export class ERC721RewardContract implements IERC721RewardContract {
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.grantRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call grantRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract(
+      "grantRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
   }
 
   public revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.revokeRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call revokeRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract(
+      "revokeRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
   }
 
   public renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.renounceRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call renounceRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract(
+      "renounceRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
   }
 
   public filters = {
@@ -327,5 +290,34 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public getContract(): ethers.Contract {
     return this.contract;
+  }
+
+  // Takes the ERC721 Reward contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
+    return ResultAsync.fromPromise(
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ERC721RewardContractError(
+          `Unable to call ${functionName}()`,
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((transactionResponse) => {
+      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+        transactionResponse,
+        EVMContractAddress(this.contract.address),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+        functionName,
+        functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
+      );
+    });
   }
 }

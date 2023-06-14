@@ -24,6 +24,7 @@ export interface ISiftContract {
    */
   verifyURL(
     domain: DomainName,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 
   /**
@@ -33,6 +34,7 @@ export interface ISiftContract {
    */
   maliciousURL(
     domain: DomainName,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 
   /**
@@ -49,6 +51,7 @@ export interface ISiftContract {
    */
   setBaseURI(
     baseUri: BaseURI,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 }
 

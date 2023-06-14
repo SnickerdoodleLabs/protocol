@@ -16,9 +16,11 @@ import { injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import {
   ConsentRoles,
+  ContractOverrides,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -44,29 +46,17 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     return EVMContractAddress(this.contract?.address || "");
   }
 
-  // Function to help user create consent
-  // After creating consent, call getUserDeployedConsentsCount to get total number of deployed consents
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.createConsent(
-        ownerAddress,
-        baseUri,
-        name,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call createConsent()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract(
+      "createConsent",
+      [ownerAddress, baseUri, name],
+      overrides,
+    );
   }
 
   // Gets the count of user's deployed Consents
@@ -234,57 +224,36 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public setListingDuration(
     listingDuration: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setListingDuration(
-        listingDuration,
-      ) as Promise<WrappedTransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call setListingDuration()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
+    return this.writeToContract(
+      "setListingDuration",
+      [listingDuration],
+      overrides,
     );
   }
 
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setMaxTagsPerListing(
-        maxTagsPerListing,
-      ) as Promise<WrappedTransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call setListingDuration()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
+    return this.writeToContract(
+      "setMaxTagsPerListing",
+      [maxTagsPerListing],
+      overrides,
     );
   }
 
   public adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.adminRemoveListing(
-        tag,
-        removedSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call adminRemoveListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    return this.writeToContract(
+      "setMaxTagsPerListing",
+      [tag, removedSlot],
+      overrides,
+    );
   }
 
   public getListingDetail(
@@ -441,6 +410,35 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         highestRankListingSlot,
         tagTotal,
         removeExpired,
+      );
+    });
+  }
+
+  // Takes the Consent contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          `Unable to call ${functionName}()`,
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((transactionResponse) => {
+      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+        transactionResponse,
+        EVMContractAddress(this.contract.address),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+        functionName,
+        functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
       );
     });
   }

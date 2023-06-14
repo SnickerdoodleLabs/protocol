@@ -1,4 +1,5 @@
 import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import {
   ContractOverrides,
   IRewardsContractFactory,
@@ -9,6 +10,7 @@ import {
 } from "@contracts-sdk/interfaces/objects";
 import {
   EVMContractAddress,
+  EVMAccountAddress,
   IBlockchainError,
   BaseURI,
   RewardsFactoryError,
@@ -43,28 +45,21 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     name: string,
     symbol: string,
     baseURI: BaseURI,
-    overrides: ContractOverrides | null = null,
+    overrides: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
     return GasUtils.getGasFee<RewardsFactoryError>(
       this.providerOrSigner,
     ).andThen((gasFee) => {
-      return ResultAsync.fromPromise(
-        this.contractFactory.deploy(name, symbol, baseURI, {
-          ...gasFee,
-          ...overrides,
-        }),
-        (e) => {
-          return new RewardsFactoryError(
-            "Failed to deploy contract",
-            (e as IBlockchainError).reason,
-            e,
-          );
-        },
-      ).map((deployedContract) => {
-        return new WrappedTransactionResponse(
-          deployedContract.deployTransaction,
-        );
-      });
+      const contractOverrides = {
+        ...gasFee,
+        ...overrides,
+      };
+      return this.writeToContract(
+        "deploy",
+        [name, symbol, baseURI],
+        contractOverrides,
+        true,
+      );
     });
   }
 
@@ -87,6 +82,39 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     ).map((estimatedGas) => {
       // Increase estimated gas buffer by 20%
       return estimatedGas.mul(120).div(100);
+    });
+  }
+
+  // Takes the ERC721 factory's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected writeToContract(
+    functionName: string,
+    functionParams: any[],
+    overrides?: ContractOverrides,
+    isDeployingContract?: boolean,
+  ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
+    return ResultAsync.fromPromise(
+      this.contractFactory[functionName](...functionParams, {
+        ...overrides,
+      }) as Promise<ethers.providers.TransactionResponse | ethers.Contract>,
+      (e) => {
+        return new RewardsFactoryError(
+          `Unable to call ${functionName}()`,
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((transactionResponse) => {
+      // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
+      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+        isDeployingContract == true
+          ? (transactionResponse as ethers.Contract).deployTransaction
+          : (transactionResponse as ethers.providers.TransactionResponse),
+        EVMContractAddress(""),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+        functionName,
+        functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
+      );
     });
   }
 }

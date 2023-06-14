@@ -104,15 +104,18 @@ export interface IConsentFactoryContract {
 
   setListingDuration(
     listingDuration: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   setMaxTagsPerListing(
     maxTagsPerListing: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   getListingDetail(
