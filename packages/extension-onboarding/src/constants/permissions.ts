@@ -9,6 +9,7 @@ export const UI_SUPPORTED_PERMISSIONS = [
   EWalletDataType.AccountBalances,
   EWalletDataType.AccountNFTs,
   EWalletDataType.Discord,
+  EWalletDataType.Twitter
 ];
 
 export const PERMISSION_NAMES = {
@@ -20,6 +21,7 @@ export const PERMISSION_NAMES = {
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
   [EWalletDataType.Discord]: "Discord",
+  [EWalletDataType.Twitter]: "Twitter",
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
@@ -55,7 +57,7 @@ export const PERMISSIONS = [
   },
   {
     title: "Social Data",
-    dataTypes: [EWalletDataType.Discord],
+    dataTypes: [EWalletDataType.Discord , EWalletDataType.Twitter],
   },
 ];
 
@@ -72,4 +74,6 @@ export const PERMISSION_DESCRIPTIONS = {
     "NFT projects you interact with and/or currently own accross different blockchain networks",
   [EWalletDataType.Discord]:
     "Server name,  server icon, server ownership information",
+  [EWalletDataType.Twitter]:
+    "Name,  User Name, User ID, Followers, Following information",
 };

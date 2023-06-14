@@ -25,7 +25,10 @@ process.env.__ENABLE_BACKUP_ENCRYPTION__ = "";
 process.env.__DISCORD_CLIENT_ID__ = "1089994449830027344";
 process.env.__DISCORD_CLIENT_KEY__ = "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ";
 process.env.__DISCORD_POLL_INTERVAL__ = "86400000";
-
+process.env.__TWITTER_CONSUMER_KEY__ = "IksHLFQGjifiBzswDKpdjtyqW";
+process.env.__TWITTER_CONSUMER_SECRET__ =
+  "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx";
+process.env.__TWITTER_POLL_INTERVAL__ = "86400000";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

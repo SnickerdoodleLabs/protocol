@@ -17,15 +17,11 @@ import {
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-
-import { IMetatransactionForwarderRepository } from "@core/interfaces/data/index.js";
-
 import { errAsync, ResultAsync } from "neverthrow";
-
-import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IMetatransactionForwarderRepository } from "@core/interfaces/data/index.js";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
