@@ -57,7 +57,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       ankrApiKey: string;
     },
     public dnsServerAddress: URLString,
-    public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
@@ -72,6 +71,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
     public devChainProviderURL: ProviderUrl,
+    public maxStatsRetentionSeconds: number,
   ) {}
 }
 

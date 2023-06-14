@@ -19,6 +19,7 @@ import {
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ConsentRoles,
   ContractOverrides,
@@ -26,9 +27,7 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
-export interface IConsentContract {
-  getContractAddress(): EVMContractAddress;
-
+export interface IConsentContract extends IBaseContract {
   /**
    * Create a consent token owned by the signer
    * @param tokenId randomly generated token id

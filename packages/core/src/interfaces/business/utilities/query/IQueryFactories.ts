@@ -6,8 +6,8 @@ import {
 import { AST, SDQLParser } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
+import { IAST_Evaluator } from "@core/interfaces/business/utilities/query/IAST_Evaluator.js";
+import { IQueryRepository } from "@core/interfaces/business/utilities/query/IQueryRepository.js";
 
 export interface IQueryFactories {
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser;
@@ -19,7 +19,7 @@ export interface IQueryFactories {
     cid: IpfsCID,
     ast: AST | null,
     queryRepository: IQueryRepository,
-  ): AST_Evaluator;
+  ): IAST_Evaluator;
 }
 
 export const IQueryFactoriesType = Symbol.for("IQueryFactories");

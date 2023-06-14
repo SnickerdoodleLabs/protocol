@@ -4,7 +4,6 @@ import { injectable } from "inversify";
 import { IConfigProvider } from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
   IExtensionConfig,
-  IExtensionConfigDefaults,
   IExtensionConfigOverrides,
 } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -28,7 +27,6 @@ const defaultConfigs: IExtensionConfig = {
     "https://insight-api.snickerdoodle.com/v0/",
   ),
   domainFilter: "(localhost|chrome://)",
-  ceramicNodeUrl: URLString(""),
   portfolioPollingIntervalMS: ONE_MINUTE_MS,
   transactionPollingIntervalMS: ONE_MINUTE_MS,
   backupPollingIntervalMS: ONE_MINUTE_MS,
@@ -60,8 +58,6 @@ export class ConfigProvider implements IConfigProvider {
       this.config.defaultInsightPlatformBaseUrl;
     this.config.domainFilter =
       configOverrides.domainFilter ?? this.config.domainFilter;
-    this.config.ceramicNodeUrl =
-      configOverrides.ceramicNodeUrl ?? this.config.ceramicNodeUrl;
     this.config.portfolioPollingIntervalMS =
       configOverrides.portfolioPollingIntervalMS ??
       this.config.portfolioPollingIntervalMS;

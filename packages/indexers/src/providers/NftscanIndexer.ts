@@ -23,18 +23,19 @@ import {
   EChain,
   IndexerSupportSummary,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import { IIndexerHealthCheck } from "../interfaces/IIndexerHealthCheck";
-
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class NftScanEVMPortfolioRepository implements IEVMIndexer {
@@ -68,6 +69,8 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
@@ -94,29 +97,34 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return this.generateQueryConfig(chainId, accountAddress)
-      .andThen((requestConfig) => {
+    return ResultUtils.combine([
+      this.generateQueryConfig(chainId, accountAddress),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([requestConfig, context]) => {
+        context.privateEvents.onApiAccessed.next(EExternalApi.NftScan);
         return this.ajaxUtils
           .get<INftScanResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             new URL(requestConfig.url!),
             requestConfig,
           )
-          .andThen((response) => {
-            if (response.code !== 200) {
-              return errAsync(
-                new AccountIndexingError(
-                  "NftScan server error 2 was located!",
-                  500,
-                ),
-              );
-            }
-            return this.getPages(chainId, response);
-          });
+          .mapErr(
+            (e) =>
+              new AccountIndexingError("error fetching nfts from nftscan", e),
+          );
       })
-      .mapErr(
-        (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
-      );
+      .andThen((response) => {
+        if (response.code !== 200) {
+          return errAsync(
+            new AccountIndexingError(
+              "NftScan server error 2 was located!",
+              500,
+            ),
+          );
+        }
+        return this.getPages(chainId, response);
+      });
   }
 
   // private editComponentStatus(): Map<EChain, IndexerSupportSummary> {

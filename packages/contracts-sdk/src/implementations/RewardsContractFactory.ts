@@ -1,4 +1,3 @@
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   EVMContractAddress,
   IBlockchainError,
@@ -9,11 +8,13 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils.js";
 import {
   ContractOverrides,
   IRewardsContractFactory,
 } from "@contracts-sdk/interfaces/index.js";
-import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi/index.js";
 
 @injectable()
 export class RewardsContractFactory implements IRewardsContractFactory {
