@@ -33,6 +33,7 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   IVolatileStorageType,
+  NullCloudStorage,
   ReactNativeVolatileStorage,
 } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
