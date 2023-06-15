@@ -21,7 +21,6 @@ export class ExtensionConfig {
     public supportedChains: ChainId[],
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
-    public ceramicNodeUrl: URLString,
     public apiKeys: {
       alchemyApiKeys?: {
         Arbitrum: string;

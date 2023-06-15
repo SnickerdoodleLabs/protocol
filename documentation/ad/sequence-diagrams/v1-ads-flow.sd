@@ -1,0 +1,31 @@
+title V1 Ads Flow
+participant Consent Contract
+participant Core
+participant Persistence
+participant Form Factor
+participant Insight Platform
+Consent Contract->Core:SyQL Offer Posted
+activate Core
+Core->Persistence:SyQL Offer
+Core->Core:Parse SyQL
+Core->Persistence:Elibible Ads\nIndexed by SyQL ID
+Core->Form Factor:OnAdReceived()\nSends display info and IpfsCID
+deactivateafter Core
+activate Form Factor
+Form Factor->Form Factor:Retrieve Ad Content
+Form Factor->Form Factor:Calculate Content Hash
+note over Form Factor:Shows Ad as Notification
+Core<-Form Factor:adDisplayed(SyQLID, ContentHash)
+deactivateafter Form Factor
+activate Core
+Core->Core:Sign ContentHash with DW Key
+Core->Persistence:Store ad signature
+deactivateafter Core
+note over Core:Once all ads are viewed (signatures collected),\nwe can then process the query
+activate Core
+Core->Core:Process Data for Query
+Core->Insight Platform:Insights & Ad Signatures
+activate Insight Platform
+Core<-Insight Platform:Rewards
+deactivateafter Insight Platform
+deactivateafter Core

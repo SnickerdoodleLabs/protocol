@@ -3,12 +3,10 @@ import {
   IAxiosAjaxUtilsType,
   ILogUtils,
   ILogUtilsType,
-  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   EChainTechnology,
   TickerSymbol,
-  getChainInfoByChainId,
   AccountIndexingError,
   AjaxError,
   ChainId,
@@ -27,21 +25,25 @@ import {
   IEVMIndexer,
   MethodSupportError,
   getChainInfoByChain,
+  EExternalApi,
   EComponentStatus,
-  IIndexer,
   IndexerSupportSummary,
   EDataProvider,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
 import Web3 from "web3";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/interfaces/IIndexerConfigProvider.js";
+import {
+  IIndexerContext,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class AlchemyIndexer implements IEVMIndexer {
@@ -71,12 +73,23 @@ export class AlchemyIndexer implements IEVMIndexer {
     ],
   ]);
 
+  protected chainToApiMap = new Map<EChain, EExternalApi>([
+    [EChain.Arbitrum, EExternalApi.AlchemyArbitrum],
+    [EChain.Astar, EExternalApi.AlchemyAstar],
+    [EChain.Mumbai, EExternalApi.AlchemyMumbai],
+    [EChain.Optimism, EExternalApi.AlchemyOptimism],
+    [EChain.Solana, EExternalApi.AlchemySolana],
+    [EChain.Polygon, EExternalApi.AlchemyPolygon],
+  ]);
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this._alchemyNonNativeSupport = new Map([
@@ -251,10 +264,14 @@ export class AlchemyIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
-    return this.retrieveAlchemyUrl(chain).andThen((url) => {
+    return ResultUtils.combine([
+      this.retrieveAlchemyUrl(chain),
+      this.contextProvider.getContext(),
+    ]).andThen(([url, context]) => {
       const [requestParams, nativeTickerSymbol, nativeChain] =
         this.nativeBalanceParams(chain, accountAddress);
 
+      this.reportApiUsage(chain, context);
       return this.ajaxUtils
         .post<IAlchemyNativeBalanceResponse>(new URL(url), requestParams, {
           headers: {
@@ -284,7 +301,12 @@ export class AlchemyIndexer implements IEVMIndexer {
     if (!this._alchemyNonNativeSupport.get(chain)) {
       return okAsync([]);
     }
-    return this.retrieveAlchemyUrl(chain).andThen((url) => {
+    return ResultUtils.combine([
+      this.retrieveAlchemyUrl(chain),
+      this.contextProvider.getContext(),
+    ]).andThen(([url, context]) => {
+      // const url = config.alchemyEndpoints[chainInfo.name.toString()];
+      this.reportApiUsage(chain, context);
       return this.ajaxUtils
         .post<IAlchemyNonNativeReponse>(
           new URL(url),
@@ -334,6 +356,13 @@ export class AlchemyIndexer implements IEVMIndexer {
           });
         });
     });
+  }
+  protected reportApiUsage(chain: EChain, context: IIndexerContext): void {
+    let api = this.chainToApiMap.get(chain);
+    if (api == null) {
+      api = EExternalApi.Unknown;
+    }
+    context.privateEvents.onApiAccessed.next(api);
   }
 }
 

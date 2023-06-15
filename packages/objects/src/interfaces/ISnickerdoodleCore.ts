@@ -28,6 +28,7 @@ import {
   TransactionPaymentCounter,
   TwitterProfile,
   WalletNFT,
+  RuntimeMetrics,
 } from "@objects/businessObjects";
 import {
   EChain,
@@ -477,6 +478,13 @@ export interface IInvitationMethods {
   >;
 }
 
+export interface IMetricsMethods {
+  /**
+   * Returns the current runtime data for the user's data wallet.
+   */
+  getMetrics(): ResultAsync<RuntimeMetrics, never>;
+}
+
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
    * The Form Factor must have this string signed by the user's key (via Metamask,
@@ -828,6 +836,7 @@ export interface ISnickerdoodleCore {
   integration: ICoreIntegrationMethods;
   discord: ICoreDiscordMethods;
   twitter: ICoreTwitterMethods;
+  metrics: IMetricsMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -1,8 +1,8 @@
+import "reflect-metadata";
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 import { ConditionGE } from "@snickerdoodlelabs/query-parser";
 
-import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks";
-import "reflect-metadata";
+import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks.js";
 
 describe("test balance query parsing", () => {
   test("q5 should have networkId 1 and and one ge (10) condition ", () => {

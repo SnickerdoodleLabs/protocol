@@ -75,6 +75,7 @@ export class MasterIndexer implements IMasterIndexer {
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
+    [EChain.Shibuya, [this.alchemy]],
 
     /* Etherscan Native Balance Preferred */
     [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
@@ -110,7 +111,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
-
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -320,7 +320,11 @@ export class MasterIndexer implements IMasterIndexer {
         new Date(timestamp * 1000),
       );
     }
-    const providers = this.preferredIndexers.get(chain)!;
+    let providers = this.preferredIndexers.get(chain);
+    if (providers == null) {
+      this.logUtils.warning(`No preferred indexers for chain ${chain}`);
+      providers = [];
+    }
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.transactions &&

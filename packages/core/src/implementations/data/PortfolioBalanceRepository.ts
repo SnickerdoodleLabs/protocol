@@ -1,4 +1,8 @@
-import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtilsType,
+  ILogUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   ChainId,
   LinkedAccount,
@@ -17,16 +21,26 @@ import {
   IMasterIndexerType,
   IMasterIndexer,
   MethodSupportError,
+  EChain,
+  ERecordKey,
+  EarnedReward,
+  ERewardType,
+  DirectReward,
+  EChainTechnology,
+  EVMNFT,
+  BigNumberString,
+  TokenUri,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoin } from "url-join-ts";
 
 import {
   IDataWalletPersistence,
@@ -194,11 +208,48 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     return ResultUtils.combine([
       this._getNftCache(),
       this.contextProvider.getContext(),
-    ]).andThen(([cache, context]) => {
+      this.configProvider.getConfig(),
+    ]).andThen(([cache, context, config]) => {
       return cache.get(chainId, accountAddress).andThen((cacheResult) => {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
+
+        if (chainId == EChain.Astar || chainId == EChain.Shibuya) {
+          return this.accountRepo.getEarnedRewards().map((rewards) => {
+            return (
+              rewards.filter((reward) => {
+                return (
+                  reward.type == ERewardType.Direct &&
+                  (reward as DirectReward).chainId == chainId
+                );
+              }) as DirectReward[]
+            ).map((reward) => {
+              return new EVMNFT(
+                reward.contractAddress,
+                BigNumberString("1"),
+                reward.type,
+                reward.recipientAddress,
+                undefined,
+                {
+                  // Add image URL to the raw data
+                  raw: ObjectUtils.serialize({
+                    ...reward,
+                    image: URLString(
+                      urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                    ),
+                  }),
+                }, // metadata
+                BigNumberString("1"),
+                reward.name,
+                chainId,
+                undefined,
+                undefined,
+              );
+            });
+          });
+        }
+
         const fetch = this.masterIndexer
           .getLatestNFTs(chainId, accountAddress)
           .map((result) => {

@@ -15,9 +15,12 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
-import { IQueryRepository } from "@core/interfaces/business/utilities/query/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator.js";
+import {
+  IAST_Evaluator,
+  IQueryFactories,
+  IQueryRepository,
+} from "@core/interfaces/business/utilities/query/index.js";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
@@ -53,7 +56,7 @@ export class QueryFactories implements IQueryFactories {
     cid: IpfsCID,
     ast: AST | null,
     queryRepository: IQueryRepository,
-  ): AST_Evaluator {
+  ): IAST_Evaluator {
     const astEvaluator = new AST_Evaluator(cid, ast, queryRepository);
     // astEvaluator.postConstructor();
     return astEvaluator;
