@@ -7,7 +7,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { Subject } from "rxjs";
 
 import {
   PublicEvents,
@@ -30,7 +29,6 @@ export class ContextProvider
       new PublicEvents(), // publicEvents,
       new PrivateEvents(), // privateEvents
       false, // restoreInProgress
-      new Subject<void>(), // heartbeat
       this.timeUtils.getUnixNow(), // startTime
       new ComponentStatus(
         EComponentStatus.TemporarilyDisabled,

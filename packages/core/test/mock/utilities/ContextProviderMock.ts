@@ -51,7 +51,6 @@ export class ContextProviderMock implements IContextProvider {
         new PublicEvents(), //publicEvents
         new PrivateEvents(), // privateEvents
         false, // restoreInProgress
-        new Subject<void>(), // heartbeat
         UnixTimestamp(0), // startTime,
         new ComponentStatus(
           EComponentStatus.TemporarilyDisabled,
@@ -93,7 +92,7 @@ export class ContextProviderMock implements IContextProvider {
       this.onDataPermissionsUpdatedActivations.push(val);
     });
 
-    this.context.heartbeat.subscribe((val) => {
+    this.privateEvents.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
 

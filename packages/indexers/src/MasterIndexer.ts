@@ -75,6 +75,7 @@ export class MasterIndexer implements IMasterIndexer {
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
+    [EChain.Shibuya, [this.alchemy]],
 
     /* Etherscan Native Balance Preferred */
     [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],

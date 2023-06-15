@@ -58,13 +58,6 @@ export class BlockchainProvider implements IBlockchainProvider {
               `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.secondaryInfuraKey}`,
             );
           }
-          // else if (config.apiKeys.alchemyApiKeys[] != null) {
-          //   // TODO: update URL for alchemy when internet comes back on. We also have to make sure
-          //   // the control chain is supported by alchemy
-          //   this.secondaryProvider = new ethers.providers.JsonRpcProvider(
-          //     `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.alchemyKey}`,
-          //   );
-          // }
         }
       });
 

@@ -80,6 +80,18 @@ export class AnkrIndexer implements IEVMIndexer {
     ["eth", EChain.EthereumMainnet],
     ["avalanche", EChain.Avalanche],
     ["arbitrum", EChain.Arbitrum],
+    ["optimism", EChain.Optimism],
+  ]);
+
+  protected nftSupport = new Map<ChainId, string>([
+    [ChainId(1), "eth"],
+    [ChainId(137), "polygon"],
+    [ChainId(80001), "polygon_mumbai"],
+    [ChainId(43114), "avalanche"],
+    [ChainId(43113), "avalanche_fuji"],
+    [ChainId(56), "bsc"],
+    [ChainId(42161), "arbitrum"],
+    [ChainId(10), "optimism"],
   ]);
 
   public constructor(
@@ -166,11 +178,18 @@ export class AnkrIndexer implements IEVMIndexer {
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
         "/?ankr_getNFTsByOwner";
+      const nftSupportChain = this.nftSupport.get(chainId);
+      if (nftSupportChain == undefined) {
+        return okAsync([]);
+      }
+
       const requestParams = {
         jsonrpc: "2.0",
         method: "ankr_getNFTsByOwner",
         params: {
           walletAddress: accountAddress,
+          pageSize: 50,
+          blockchain: [nftSupportChain],
         },
         id: 1,
       };

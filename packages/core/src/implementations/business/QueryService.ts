@@ -38,7 +38,6 @@ import {
   SDQLQueryRequest,
   ServerRewardError,
   UninitializedError,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   ISDQLQueryWrapperFactory,
@@ -105,7 +104,7 @@ export class QueryService implements IQueryService {
 
   public initialize(): ResultAsync<void, never> {
     return this.contextProvider.getContext().map((context) => {
-      context.heartbeat.subscribe(() => {
+      context.privateEvents.heartbeat.subscribe(() => {
         // For every heartbeat, we'll see if there are queries to return
         this.returnQueries().mapErr((e) => {
           this.logUtils.error(e);
@@ -268,6 +267,9 @@ export class QueryService implements IQueryService {
     | AjaxError
   > {
     // Step 1, get all queries that are ready to return insights
+    this.logUtils.debug(
+      "Checking for queries to process and return (in AdsCompleted status)",
+    );
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -276,10 +278,19 @@ export class QueryService implements IQueryService {
       ),
     ])
       .andThen(([context, config, queryStatii]) => {
+        if (queryStatii.length == 0) {
+          this.logUtils.debug("No queries to process and return");
+          return okAsync(undefined);
+        }
+
         // For each query, we'll do some basic checks- make sure consent is still
         // valid, that the context is sane, etc.
         return ResultUtils.combine(
           queryStatii.map((queryStatus) => {
+            this.logUtils.debug(
+              `Attempting to process and return query ${queryStatus.queryCID}`,
+            );
+
             // The rewards parameters need to be deserialized, or at least the basics provided.
             if (queryStatus.rewardsParameters == null) {
               // We can't really do much here right now, so I'll just mark the query as waiting
@@ -320,11 +331,18 @@ export class QueryService implements IQueryService {
                 .andThen(() => {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
+                  this.logUtils.debug(
+                    "Starting queryParsingEngine for query ${query.cid}",
+                  );
                   return ResultUtils.combine([
-                    this.queryParsingEngine.handleQuery(
-                      query,
-                      consentToken!.dataPermissions,
-                    ),
+                    this.queryParsingEngine
+                      .handleQuery(query, consentToken!.dataPermissions)
+                      .map((insights) => {
+                        this.logUtils.debug(
+                          `Query ${query.cid} processed into insights`,
+                        );
+                        return insights;
+                      }),
                     this.dataWalletUtils.deriveOptInPrivateKey(
                       queryStatus.consentContractAddress,
                       context.dataWalletKey!,
@@ -382,7 +400,10 @@ export class QueryService implements IQueryService {
                 .orElse((err) => {
                   // We are going to consume errors from adding earned rewards or updating the
                   // query status, or a continuing error from posting, and just say it's successful
-                  this.logUtils.warning(err);
+                  this.logUtils.warning(
+                    `Problem while processing and returning insights for query ${query.cid}`,
+                    err,
+                  );
                   return okAsync(undefined);
                 });
             });

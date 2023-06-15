@@ -34,7 +34,6 @@ export class CoreContext implements IIndexerContext {
     public publicEvents: PublicEvents,
     public privateEvents: PrivateEvents,
     public restoreInProgress: boolean,
-    public heartbeat: Subject<void>,
     public startTime: UnixTimestamp,
     public components: ComponentStatus,
   ) {}
