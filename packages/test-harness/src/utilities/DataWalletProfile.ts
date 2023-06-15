@@ -44,6 +44,7 @@ import {
   EBackupPriority,
   AESKey,
   TokenSecret,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -160,7 +161,7 @@ export class DataWalletProfile {
   > {
     return this.getSignatureForAccount(wallet)
       .andThen((signature) => {
-        return this.core.unlock(
+        return this.core.account.unlock(
           wallet.accountAddress,
           signature,
           this.mocks.languageCode,
@@ -492,8 +493,8 @@ export class DataWalletProfile {
 
   public getSignatureForAccount(
     wallet: TestWallet,
-  ): ResultAsync<Signature, UnsupportedLanguageError> {
-    return this.core
+  ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
+    return this.core.account
       .getUnlockMessage(this.mocks.languageCode)
       .andThen((message) => {
         return wallet.signMessage(message);

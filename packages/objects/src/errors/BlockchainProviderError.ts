@@ -1,5 +1,5 @@
-import errorCodes from "@objects/errors/errorCodes";
-import { ChainId } from "@objects/primitives";
+import errorCodes from "@objects/errors/errorCodes.js";
+import { ChainId } from "@objects/primitives/index.js";
 
 export class BlockchainProviderError extends Error {
   protected errorCode: string = errorCodes[BlockchainProviderError.name];

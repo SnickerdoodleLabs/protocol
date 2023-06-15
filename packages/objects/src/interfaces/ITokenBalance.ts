@@ -3,7 +3,7 @@ import {
   ChainId,
   EVMContractAddress,
   TickerSymbol,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export interface ITokenBalance {
   ticker: TickerSymbol;

@@ -29,7 +29,7 @@ import {
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
-  EVMContractAddress,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -103,6 +103,43 @@ export interface IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+  >;
+
+  unlockWithPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | MinimalForwarderContractError
+  >;
+
+  addPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | MinimalForwarderContractError
+  >;
+
+  removePassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | AjaxError
+    | MinimalForwarderContractError
   >;
 
   getAccounts(

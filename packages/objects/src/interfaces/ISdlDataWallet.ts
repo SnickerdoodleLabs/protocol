@@ -19,11 +19,15 @@ import {
   TokenMarketData,
   TwitterProfile,
   WalletNFT,
-} from "@objects/businessObjects";
-import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
-import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
-import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
+} from "@objects/businessObjects/index.js";
+import {
+  EChain,
+  EInvitationStatus,
+  EWalletDataType,
+} from "@objects/enum/index.js";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
 import {
   AccountAddress,
   Age,
@@ -47,7 +51,7 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {

@@ -1,9 +1,9 @@
-import { DataPermissions } from "@objects/businessObjects/DataPermissions";
+import { DataPermissions } from "@objects/businessObjects/DataPermissions.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
   TokenId,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class ConsentToken {
   public constructor(

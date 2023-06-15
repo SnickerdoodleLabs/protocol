@@ -110,6 +110,29 @@ describe("CryptoUtils tests", () => {
     expect(key.length).toBe(44);
   });
 
+  test("deriveAESKeyFromString returns 32 bytes as 44 characters of base64", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const password = "ThisIsAnOKPassword!";
+
+    // Act
+    const result = await utils.deriveAESKeyFromString(
+      password,
+      HexString("0x00123456789abcdf"),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const key = result._unsafeUnwrap();
+    expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
+    expect(Buffer.from(key, "base64").byteLength).toBe(32);
+    expect(key.length).toBe(44);
+    expect(key).toBe("naXUBGgZVRgBUlsSXaZ9+t59Y71O2V609Xjvp+o4gx0=");
+  });
+
   test("deriveEVMPrivateKeyFromSignature returns 32 bytes as 64 characters of hex", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();

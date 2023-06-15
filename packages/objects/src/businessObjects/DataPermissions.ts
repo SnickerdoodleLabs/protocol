@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 
-import { EWalletDataType } from "@objects/enum/EWalletDataType";
-import { HexString32 } from "@objects/primitives";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { HexString32 } from "@objects/primitives/index.js";
 
 /**
  * DataPermissions represent the rules to follow when processing queries for a particular

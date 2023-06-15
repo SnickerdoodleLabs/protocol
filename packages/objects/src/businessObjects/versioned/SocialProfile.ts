@@ -1,7 +1,5 @@
-import {
-  TokenAndSecret,
-  OAuth2Tokens,
-} from "@objects/businessObjects/index.js";
+import { OAuth2Tokens } from "@objects/businessObjects/OAuth2Tokens.js";
+import { TokenAndSecret } from "@objects/businessObjects/TokenAndSecret.js";
 import {
   VersionedObject,
   VersionedObjectMigrator,

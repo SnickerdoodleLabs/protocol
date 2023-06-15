@@ -60,7 +60,7 @@ export class AddAccount extends Prompt {
         return this.dataWalletProfile
           .getSignatureForAccount(wallet)
           .andThen((signature) => {
-            return this.core.addAccount(
+            return this.core.account.addAccount(
               wallet.accountAddress,
               signature,
               this.mocks.languageCode,

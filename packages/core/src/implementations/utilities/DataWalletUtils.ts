@@ -16,6 +16,7 @@ import {
   SolanaAccountAddress,
   EVMAccountAddress,
   EVMContractAddress,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
@@ -46,6 +47,16 @@ export class DataWalletUtils implements IDataWalletUtils {
     );
   }
 
+  public deriveEncryptionKeyFromPassword(
+    password: PasswordString,
+  ): ResultAsync<AESKey, never> {
+    // The hard thing here is the salt.
+    return this.cryptoUtils.deriveAESKeyFromString(
+      password,
+      HexString("0xdeadbeef"),
+    );
+  }
+
   public getDerivedEVMAccountFromSignature(
     accountAddress: AccountAddress,
     signature: Signature,
@@ -55,6 +66,23 @@ export class DataWalletUtils implements IDataWalletUtils {
         signature,
         this.accountAddressToHex(accountAddress),
       )
+      .map((derivedEVMKey) => {
+        const derivedEVMAccountAddress =
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            derivedEVMKey,
+          );
+        return new ExternallyOwnedAccount(
+          derivedEVMAccountAddress,
+          derivedEVMKey,
+        );
+      });
+  }
+
+  public getDerivedEVMAccountFromPassword(
+    password: PasswordString,
+  ): ResultAsync<ExternallyOwnedAccount, never> {
+    return this.cryptoUtils
+      .deriveEVMPrivateKeyFromString(password, HexString("0xdeadbeef"))
       .map((derivedEVMKey) => {
         const derivedEVMAccountAddress =
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(

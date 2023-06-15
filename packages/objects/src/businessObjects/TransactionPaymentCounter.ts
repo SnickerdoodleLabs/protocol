@@ -1,4 +1,4 @@
-import { BigNumberString, ChainId } from "@objects/primitives";
+import { BigNumberString, ChainId } from "@objects/primitives/index.js";
 export class TransactionPaymentCounter {
   constructor(
     public chainId: ChainId,
