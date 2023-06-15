@@ -55,7 +55,8 @@ export const SubscriptionSuccess: FC<ISubscriptionSuccessProps> = ({
             </Typography>
           </Box>
           <Typography className={classes.content}>
-            Snickerdoodle is delivering your reward!
+            Your reward will be in your wallet shortly. Thank you for
+            subscribing!
           </Typography>
         </Box>
         <Box mt={3} display="flex">
