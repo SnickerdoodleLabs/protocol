@@ -17,6 +17,7 @@ export default {
   REWARDS_SETTINGS: "Rewards_Settings",
   PERMISSION_SETTINGS: "Permission_Settings",
   SOCIAL_SETTINGS: "Social_Settings",
+  EXPORT_SETTINGS: "Export_Settings",
   MARKETPLACE: "Marketplace",
   DASHBOARD: "Dashboard",
 };

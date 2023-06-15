@@ -21,7 +21,7 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
       borderColor: theme?.colors.border,
       borderRadius: normalizeWidth(16),
       paddingHorizontal: normalizeWidth(20),
-      paddingVertical: normalizeHeight(20),
+      paddingTop: normalizeHeight(20),
       marginBottom: normalizeHeight(16),
     },
     rowTitle: {
@@ -43,7 +43,9 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <Text style={{color:theme?.colors.description}}>{item.name}</Text>
+            <Text style={{ color: theme?.colors.description }}>
+              {item.name}
+            </Text>
             <CustomSwitch
               value={item.state.status}
               onValueChange={() => {
@@ -116,6 +118,10 @@ const Permission = () => {
     walletDataType: EWalletDataType.Discord,
     status: false,
   });
+  const [twitter, setTwitter] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.Twitter,
+    status: false,
+  });
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   useEffect(() => {
     if (isUnlocked) {
@@ -132,6 +138,7 @@ const Permission = () => {
               EWalletDataType.AccountBalances,
               EWalletDataType.EVMTransactions,
               EWalletDataType.Discord,
+              EWalletDataType.Twitter,
             ]);
 
             setPermissions([
@@ -143,6 +150,7 @@ const Permission = () => {
               EWalletDataType.AccountBalances,
               EWalletDataType.EVMTransactions,
               EWalletDataType.Discord,
+              EWalletDataType.Twitter,
             ]);
           } else {
             setPermissions(permission);
@@ -179,6 +187,9 @@ const Permission = () => {
       }
       if (discord.walletDataType === perm) {
         setDiscord({ walletDataType: perm, status: true });
+      }
+      if (twitter.walletDataType === perm) {
+        setTwitter({ walletDataType: perm, status: true });
       }
     });
   }, [permissions, isUnlocked]);
@@ -262,8 +273,17 @@ const Permission = () => {
             permissions,
             setPermissions,
           },
+          {
+            name: "Twitter",
+            state: twitter,
+            setState: setTwitter,
+            ewalletType: EWalletDataType.Twitter,
+            permissions,
+            setPermissions,
+          },
         ]}
       />
+      <View style={{ height: normalizeHeight(0) }} />
     </View>
   );
 };

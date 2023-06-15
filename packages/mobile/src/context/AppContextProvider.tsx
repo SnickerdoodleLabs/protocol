@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState, useContext } from "react";
 import { AppState, AppStateStatus } from "react-native";
 
 import { MobileCore } from "../services/implementations/MobileCore";
+import { ThemeContext } from "./ThemeContext";
 
 export interface IAppCtx {
   mobileCore: MobileCore;

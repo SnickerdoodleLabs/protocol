@@ -2,6 +2,7 @@ import {
   Animated,
   FlatList,
   Image,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -50,12 +51,10 @@ export default function Marketplace() {
   const theme = useTheme();
 
   React.useEffect(() => {
-
     Orientation.lockToPortrait(); // lock to portrait mode
   }, []);
 
   useEffect(() => {
-
     ResultUtils.combine(
       Object.values(ETag).map((tag) =>
         mobileCore
@@ -138,7 +137,6 @@ export default function Marketplace() {
     isEmpty: boolean;
     isLoading: boolean;
   } = useMemo(() => {
-
     if (!listings) return { isLoading: true, isEmpty: false };
     const listingObj = Object.values(listings).reduce(
       (acc, item) => {
@@ -174,7 +172,6 @@ export default function Marketplace() {
   }, [listings]);
 
   const renderTopCategories = ({ item }) => {
-
     return (
       <View style={{ marginRight: normalizeWidth(10) }}>
         <TouchableOpacity
@@ -239,11 +236,83 @@ export default function Marketplace() {
     setCategoryFilter(!categoryFilter);
   };
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    ResultUtils.combine(
+      Object.values(ETag).map((tag) =>
+        mobileCore
+          .getCore()
+          .marketplace?.getMarketplaceListingsByTag(
+            new PagingRequest(1, 50),
+            tag as MarketplaceTag,
+            true,
+          )
+          .map(
+            (response) =>
+              ({ [tag]: response } as Record<
+                ETag,
+                PagedResponse<MarketplaceListing>
+              >),
+          ),
+      ),
+    ).map((responses) => {
+      const structuredItems = responses.reduce((acc, item) => {
+        acc = { ...acc, ...item };
+        return acc;
+      }, {} as Record<ETag, PagedResponse<MarketplaceListing>>);
+
+      let allResponseListings = [];
+
+      for (const key in structuredItems) {
+        if (
+          structuredItems.hasOwnProperty(key) &&
+          structuredItems[key].response.length > 0
+        ) {
+          allResponseListings.push(...structuredItems[key].response);
+        }
+      }
+      Promise.all(getAllCampaigns(allResponseListings))
+        .then((resolved) => {
+          return resolved.map((a) => {
+            return a.value;
+          });
+        })
+        .then((allListingsOpensea) => {
+          const filtered = allListingsOpensea.filter(
+            (obj, index, self) =>
+              index ===
+              self.findIndex(
+                (o) => o.marketplaceListing.cid === obj.marketplaceListing.cid,
+              ),
+          );
+          setAllListings(filtered);
+        });
+
+      setListings(structuredItems);
+    });
+
+    setRefreshing(true);
+
+    // Simulate a delay for demonstration purposes
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  };
+
   return (
     <SafeAreaView
       style={{ backgroundColor: theme?.colors.background, height: "100%" }}
     >
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme?.colors.indicator}
+          />
+        }
+      >
         <SafeAreaView style={{ marginLeft: normalizeWidth(15) }}>
           <View>
             <View>

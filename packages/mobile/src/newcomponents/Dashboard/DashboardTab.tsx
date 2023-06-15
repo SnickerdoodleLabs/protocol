@@ -46,7 +46,11 @@ const Tabs = ({ data, activeTab, setActiveTab }: any) => {
   });
   return (
     <View
-      style={{ width: "35%", paddingTop: normalizeHeight(30), marginLeft: normalizeWidth(10) }}
+      style={{
+        width: "35%",
+        paddingTop: normalizeHeight(30),
+        marginLeft: normalizeWidth(10),
+      }}
     >
       <View style={styles.tabsContainer}>
         {data.map((item: any) => {
@@ -72,6 +76,11 @@ const Tabs = ({ data, activeTab, setActiveTab }: any) => {
 const DashboardTab = ({ data }: IDashboardChildrenProps) => {
   const [activeTab, setActiveTab] = React.useState("Tokens");
   const theme = useTheme();
+
+  useEffect(() => {
+    console.log("data", data.tokens);
+  }, [data]);
+
   return (
     <View style={{ backgroundColor: theme?.colors.background, height: "100%" }}>
       <Tabs

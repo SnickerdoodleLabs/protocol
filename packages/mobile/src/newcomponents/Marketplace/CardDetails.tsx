@@ -92,6 +92,10 @@ export const walletDataTypeMap: Map<EWalletDataType, NodeRequire | null> =
       EWalletDataType.Discord,
       require("../../assets/images/renting-discord.png"),
     ],
+    [
+      EWalletDataType.Twitter,
+      require("../../assets/images/renting-twitter.png"),
+    ],
   ]);
 
 export const LineBreaker = () => {
@@ -137,28 +141,47 @@ const CardDetails = ({ navigation, route }) => {
 
   useEffect(() => {
     mobileCore
-      .getCore()
-      .invitation.getAcceptedInvitationsCID()
-      .map((consentAddresses) => {
-        if (consentAddresses.get(marketplaceListing.consentContract)) {
-          setIsSubscribed(true);
-        }
-      });
+      .getCyrptoUtils()
+      .getTokenId()
+      .map((tokenId) => {
+        return {
+          consentContractAddress:
+            marketplaceListing.consentContract as EVMContractAddress,
+          tokenId,
+          domain: DomainName(""),
+          businessSignature: null,
+        };
+      })
+      .map((invitation) => {
+        mobileCore
+          .getCore()
+          .invitation.checkInvitationStatus(invitation)
+          .map(() => {
+            mobileCore
+              .getCore()
+              .invitation.getAcceptedInvitationsCID()
+              .map((consentAddresses) => {
+                if (consentAddresses.get(marketplaceListing.consentContract)) {
+                  setIsSubscribed(true);
+                }
+              });
 
-    mobileCore
-      .getCore()
-      ?.getConsentCapacity(marketplaceListing.consentContract)
-      .map((capacity) => {
-        setConsentCapacity(capacity);
-      });
+            mobileCore
+              .getCore()
+              ?.getConsentCapacity(marketplaceListing.consentContract)
+              .map((capacity) => {
+                setConsentCapacity(capacity);
+              });
 
-    if (campaignPermissions.length == 0) {
-      mobileCore.dataPermissionUtils.getPermissions().map((perms) => {
-        setCampaignPermissions(perms);
+            if (campaignPermissions.length == 0) {
+              mobileCore.dataPermissionUtils.getPermissions().map((perms) => {
+                setCampaignPermissions(perms);
+              });
+            } else {
+              // mobileCore.dataPermissionUtils.setPermissions(myPermissions);
+            }
+          });
       });
-    } else {
-      // mobileCore.dataPermissionUtils.setPermissions(myPermissions);
-    }
   }, [campaignPermissions, marketplaceListing]);
 
   useEffect(() => {

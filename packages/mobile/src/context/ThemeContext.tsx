@@ -20,6 +20,7 @@ type ThemeContextType = {
     description: string;
     bottomTabBackground: string;
     bottomTabColor: string;
+    indicator: string;
     // Extend this type as needed
   };
 };
@@ -60,6 +61,8 @@ export const ThemeContextProvider = ({
       tokenText: isDarkMode ? "#E8E5F0" : "#616161",
       description: isDarkMode ? "#A8A7B4" : "#616161",
       iconColor: isDarkMode ? "#DDD6FF" : "#9E9E9E",
+      indicator: isDarkMode ? "white" : "grey",
+
       // Add any additional colors you need here
     },
   };

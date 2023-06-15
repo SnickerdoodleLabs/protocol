@@ -5,6 +5,7 @@ import {
   FlatList,
   Image,
   Platform,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -31,7 +32,7 @@ import { useNavigation } from "@react-navigation/native";
 
 export interface IDashboardChildrenProps {
   data: {
-    nfts: string[];
+    nfts: any[];
     tokens: any[];
     totalBalance: Number;
     selectedAccount: any;
@@ -165,6 +166,7 @@ const Dashboard = () => {
       setMyTokens(allTokens);
     }
   };
+  useEffect(() => {}, [myTokens]);
 
   const [myNFTsNew, setMyNFTsNew] = useState<WalletNFT[]>([]);
   const theme = useTheme();
@@ -303,6 +305,39 @@ const Dashboard = () => {
     },
   });
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    getTokens(isMainnet);
+
+    mobileCore
+      .getCore()
+      .getAccountNFTs()
+      .map((nfts) => {
+        const filtered = nfts.filter(
+          (item) =>
+            item.owner.toLowerCase() === selectedAccount.toLowerCase() &&
+            selectedChains.includes(item.chain.toString()),
+        );
+        const parsedArr = filtered.map((obj) => {
+          const parsedMetadata = JSON.parse(obj?.metadata.raw ?? null);
+          return {
+            ...obj,
+            parsed_metadata: parsedMetadata,
+          };
+        });
+
+        setMyNFTsNew(parsedArr);
+      });
+
+    setRefreshing(true);
+
+    // Simulate a delay for demonstration purposes
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  };
+
   return (
     <SafeAreaView
       style={{ backgroundColor: theme?.colors.background, height: "100%" }}
@@ -312,6 +347,13 @@ const Dashboard = () => {
           backgroundColor: theme?.colors.background,
           marginHorizontal: normalizeWidth(5),
         }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme?.colors.indicator}
+          />
+        }
       >
         <SafeAreaView
           style={{
@@ -351,7 +393,7 @@ const Dashboard = () => {
             <View style={{ backgroundColor: "red", height: "100%" }}>
               <DashboardTab
                 data={{
-                  nfts: myNFTs,
+                  nfts: myNFTsNew,
                   tokens: myTokens,
                   totalBalance: totalVal,
                   selectedAccount,

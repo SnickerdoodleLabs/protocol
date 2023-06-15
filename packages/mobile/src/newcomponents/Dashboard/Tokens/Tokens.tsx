@@ -8,6 +8,7 @@ import Pie from "react-native-pie";
 import tinycolor from "tinycolor2";
 import PieChartComponent from "../../Custom/PieChart";
 import { useTheme } from "../../../context/ThemeContext";
+import { useAppContext } from "../../../context/AppContextProvider";
 
 export function generateShades(baseColor: string, numShades: number): string[] {
   const shades: string[] = [];
@@ -21,6 +22,7 @@ export function generateShades(baseColor: string, numShades: number): string[] {
 }
 
 export default function Tokens({ data }: IDashboardChildrenProps) {
+  const { mobileCore } = useAppContext();
   const [groupedTokens, setGroupedTokens] = React.useState([]);
 
   const data3: SliceData[] = [

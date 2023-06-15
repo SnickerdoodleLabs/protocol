@@ -46,7 +46,6 @@ const EventContextProvider = ({ children }) => {
     );
     console.debug(request.query.query);
 
-    console.log("1");
     // @TODO - remove once ipfs issue is resolved
     const getStringQuery = () => {
       const queryObjOrStr = request.query.query;
@@ -58,7 +57,6 @@ const EventContextProvider = ({ children }) => {
       }
       return queryString;
     };
-    console.log("2");
 
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
@@ -82,7 +80,6 @@ const EventContextProvider = ({ children }) => {
             } as IDynamicRewardParameter);
           }
         });
-        console.log("3");
 
         mobileCore
           .getCore()

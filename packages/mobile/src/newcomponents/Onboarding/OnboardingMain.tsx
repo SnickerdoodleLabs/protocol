@@ -329,6 +329,10 @@ const OnboardingMain = () => {
     const walletObject = new ethers.Wallet(privateKey);
 
     // Sign the message with your private key
+    AsyncStorage.setItem(
+      "generated-wallet",
+      JSON.stringify({ publicKey, privateKey }),
+    );
 
     setWalletObject(walletObject);
     setPublicKey(address);
@@ -387,6 +391,7 @@ const OnboardingMain = () => {
         EWalletDataType.AccountBalances,
         EWalletDataType.EVMTransactions,
         EWalletDataType.Discord,
+        EWalletDataType.Twitter,
       ]);
     }
   }, [isUnlocked]);

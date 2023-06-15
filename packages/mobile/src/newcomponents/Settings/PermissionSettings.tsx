@@ -28,38 +28,40 @@ export default function PermissionSettings() {
   };
 
   return (
-    <ScrollView
-      style={{
-        paddingHorizontal: normalizeWidth(20),
-        backgroundColor: theme?.colors.background,
-      }}
-    >
-      <SafeAreaView>
-        <Text
-          style={{
-            fontWeight: "700",
-            fontSize: normalizeWidth(24),
-            color:theme?.colors.title,
-            marginTop: normalizeHeight(10),
-          }}
-        >
-          Data Permissions
-        </Text>
+    <SafeAreaView>
+      <ScrollView
+        style={{
+          paddingHorizontal: normalizeWidth(20),
+          backgroundColor: theme?.colors.background,
+        }}
+      >
+        <SafeAreaView style={{height:normalizeHeight(750)}}>
+          <Text
+            style={{
+              fontWeight: "700",
+              fontSize: normalizeWidth(24),
+              color: theme?.colors.title,
+              marginTop: normalizeHeight(10),
+            }}
+          >
+            Data Permissions
+          </Text>
 
-        <Text
-          style={{
-            fontSize: normalizeWidth(16),
-            lineHeight: normalizeHeight(22),
-            fontWeight: "400",
-            color: theme?.colors.description,
-            marginTop: normalizeHeight(32),
-          }}
-        >
-          {`Consent to share aggregated, anonymized insights\nderived from your data. You can set permissions\nindividually, for each item.`}
-        </Text>
-        <Permission />
-      </SafeAreaView>
-    </ScrollView>
+          <Text
+            style={{
+              fontSize: normalizeWidth(16),
+              lineHeight: normalizeHeight(22),
+              fontWeight: "400",
+              color: theme?.colors.description,
+              marginTop: normalizeHeight(20),
+            }}
+          >
+            {`Consent to share aggregated, anonymized insights\nderived from your data. You can set permissions\nindividually, for each item.`}
+          </Text>
+          <Permission />
+        </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
