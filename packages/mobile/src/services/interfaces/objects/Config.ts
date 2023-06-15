@@ -67,4 +67,5 @@ export const coreConfig = {
   primaryInfuraKey: "7ac88985c1ed458dbd464b2c5245a6e1",
   secondaryInfuraKey: "",
   devChainProviderURL: ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
+  enableBackupEncryption: true,
 } as IConfigOverrides;
