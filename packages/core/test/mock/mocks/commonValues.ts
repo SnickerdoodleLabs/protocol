@@ -160,7 +160,7 @@ export const testCoreConfig = new CoreConfig(
   ), // metatransactionGasAmounts
   ProviderUrl(""), // devChainProviderUrl
   60, // maxStatsRetentionSeconds
-  LanguageCode("en"),
+  LanguageCode("en-pw"), // passwordLanguageCode
 );
 
 // #endregion

@@ -56,7 +56,7 @@ class MetricsServiceMocks {
       okAsync(queryStats),
     );
 
-    td.when(this.metricsRepo.getQueriesPostedSummary()).thenReturn(
+    td.when(this.metricsRepo.getRestoredBackupSummary()).thenReturn(
       okAsync(backupStats),
     );
   }
