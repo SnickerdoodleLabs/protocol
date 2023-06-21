@@ -1,4 +1,4 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/index.js";
 import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
@@ -17,8 +17,10 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 @injectable()
-export class SiftContract implements ISiftContract {
-  protected contract: ethers.Contract;
+export class SiftContract
+  extends BaseContract<SiftContractError>
+  implements ISiftContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -26,11 +28,7 @@ export class SiftContract implements ISiftContract {
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.SiftAbi.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.ConsentAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -54,6 +52,7 @@ export class SiftContract implements ISiftContract {
     );
   }
 
+  // Sets a domain as VERIFIED
   public verifyURL(
     domain: DomainName,
     overrides?: ContractOverrides,
@@ -61,6 +60,7 @@ export class SiftContract implements ISiftContract {
     return this.writeToContract("verifyURL", [domain], overrides);
   }
 
+  // Sets a domain as MALICIOUS
   public maliciousURL(
     domain: DomainName,
     overrides?: ContractOverrides,
@@ -79,32 +79,11 @@ export class SiftContract implements ISiftContract {
     return this.contract;
   }
 
-  // Takes the Sift contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
-    functionName: string,
-    functionParams: any[],
-    overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new SiftContractError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
-      );
-    });
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): SiftContractError {
+    return new SiftContractError(msg, reason, e);
   }
 }

@@ -1,3 +1,12 @@
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import {
+  ConsentRoles,
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   BaseURI,
   BigNumberString,
@@ -9,6 +18,7 @@ import {
   IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
+  TransactionResponseError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
@@ -16,18 +26,11 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import {
-  ConsentRoles,
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-
 @injectable()
-export class ConsentFactoryContract implements IConsentFactoryContract {
-  protected contract: ethers.Contract;
+export class ConsentFactoryContract
+  extends BaseContract<ConsentFactoryContractError>
+  implements IConsentFactoryContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -35,10 +38,10 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
+    super(
+      providerOrSigner,
       contractAddress,
       ContractsAbis.ConsentFactoryAbi.abi,
-      providerOrSigner,
     );
   }
 
@@ -414,33 +417,46 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 
-  // Takes the Consent contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
-    functionName: string,
-    functionParams: any[],
-    overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
+  public getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError> {
+    return txRes.wait().map((receipt) => {
+      // Get the hash of the event
+      const event = "ConsentDeployed(address,address)";
+      const eventHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(event));
+
+      // Filter out for the ConsentDeployed event from the receipt's logs
+      // returns an array
+      const consentDeployedLog = receipt.logs.filter(
+        (_log) => _log.topics[0] == eventHash,
       );
+
+      // access the data and topics from the filtered log
+      const data = consentDeployedLog[0].data;
+      const topics = consentDeployedLog[0].topics;
+
+      // Declare a new interface
+      const Interface = ethers.utils.Interface;
+      const iface = new Interface([
+        "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
+      ]);
+
+      // Decode the log from the given data and topic
+      const decodedLog = iface.decodeEventLog("ConsentDeployed", data, topics);
+
+      const deployedConsentAddress: EVMContractAddress =
+        decodedLog.consentAddress;
+
+      return deployedConsentAddress;
     });
+  }
+
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): ConsentFactoryContractError {
+    return new ConsentFactoryContractError(msg, reason, e);
   }
 }
 interface IListingStruct {

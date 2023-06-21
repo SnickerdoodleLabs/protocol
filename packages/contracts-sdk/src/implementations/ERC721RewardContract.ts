@@ -24,7 +24,6 @@ import { WrapElementHandle } from "puppeteer";
 @injectable()
 export class ERC721RewardContract implements IERC721RewardContract {
   protected contract: ethers.Contract;
-  protected contractFactory: ethers.ContractFactory;
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -36,11 +35,6 @@ export class ERC721RewardContract implements IERC721RewardContract {
       contractAddress,
       ContractsAbis.ERC721Reward.abi,
       providerOrSigner,
-    );
-    this.contractFactory = new ethers.ContractFactory(
-      ContractsAbis.ERC721Reward.abi,
-      ContractsAbis.ERC721Reward.bytecode,
-      providerOrSigner as ethers.Wallet,
     );
   }
 

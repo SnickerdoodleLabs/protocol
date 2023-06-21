@@ -1,4 +1,4 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder.js";
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import {
   ContractOverrides,
   IMinimalForwarderContract,
@@ -19,8 +19,10 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 @injectable()
-export class MinimalForwarderContract implements IMinimalForwarderContract {
-  protected contract: ethers.Contract;
+export class MinimalForwarderContract
+  extends BaseContract<MinimalForwarderContractError>
+  implements IMinimalForwarderContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -28,10 +30,10 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
+    super(
+      providerOrSigner,
       contractAddress,
       ContractsAbis.MinimalForwarderAbi.abi,
-      providerOrSigner,
     );
   }
 
@@ -84,32 +86,11 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
     return this.contract;
   }
 
-  // Takes the MinimalForwarder Reward contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
-    functionName: string,
-    functionParams: any[],
-    overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new MinimalForwarderContractError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
-      );
-    });
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): MinimalForwarderContractError {
+    return new MinimalForwarderContractError(msg, reason, e);
   }
 }

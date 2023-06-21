@@ -1,12 +1,12 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
 import {
   WrappedTransactionResponse,
   ConsentRoles,
   Tag,
   ContractOverrides,
+  ContractsAbis,
 } from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
@@ -34,8 +34,10 @@ import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
-export class ConsentContract implements IConsentContract {
-  protected contract: ethers.Contract;
+export class ConsentContract
+  extends BaseContract<ConsentContractError>
+  implements IConsentContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -44,11 +46,7 @@ export class ConsentContract implements IConsentContract {
     protected contractAddress: EVMContractAddress,
     protected cryptoUtils: ICryptoUtils,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.ConsentAbi.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.ConsentAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -836,33 +834,12 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  // Takes the Consent contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
-    functionName: string,
-    functionParams: any[],
-    overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
-      );
-    });
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): ConsentContractError {
+    return new ConsentContractError(msg, reason, e);
   }
 }
 

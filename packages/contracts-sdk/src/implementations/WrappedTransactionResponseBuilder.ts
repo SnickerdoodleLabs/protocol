@@ -1,10 +1,10 @@
-import { ethers } from "ethers";
 import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
-import { injectable } from "inversify";
 import {
   EVMAccountAddress,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import { injectable } from "inversify";
 
 @injectable()
 export class WrappedTransactionResponseBuilder {
@@ -22,7 +22,10 @@ export class WrappedTransactionResponseBuilder {
       signerAddress,
       functionName,
       JSON.stringify(functionParams || []),
-      this.extractFunctionAbi(functionName, contractAbi),
+      WrappedTransactionResponseBuilder.extractFunctionAbi(
+        functionName,
+        contractAbi,
+      ),
     );
   }
 

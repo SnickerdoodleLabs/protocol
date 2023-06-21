@@ -1,6 +1,9 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import {
+  ContractsAbis,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   EVMAccountAddress,
@@ -15,11 +18,11 @@ import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, errAsync, ResultAsync } from "neverthrow";
 
-import { WrappedTransactionResponse } from "..";
-
 @injectable()
-export class CrumbsContract implements ICrumbsContract {
-  protected contract: ethers.Contract;
+export class CrumbsContract
+  extends BaseContract<CrumbsContractError>
+  implements ICrumbsContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -27,11 +30,7 @@ export class CrumbsContract implements ICrumbsContract {
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.CrumbsAbi.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.SiftAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -130,32 +129,11 @@ export class CrumbsContract implements ICrumbsContract {
     return this.contract;
   }
 
-  // Takes the Crumbs contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
-    functionName: string,
-    functionParams: any[],
-    overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new CrumbsContractError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
-      );
-    });
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): CrumbsContractError {
+    return new CrumbsContractError(msg, reason, e);
   }
 }

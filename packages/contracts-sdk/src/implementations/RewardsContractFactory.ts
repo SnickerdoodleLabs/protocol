@@ -54,7 +54,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
         ...gasFee,
         ...overrides,
       };
-      return this.writeToContract(
+      return this.writeToContractFactory(
         "deploy",
         [name, symbol, baseURI],
         contractOverrides,
@@ -86,7 +86,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
   }
 
   // Takes the ERC721 factory's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
+  protected writeToContractFactory(
     functionName: string,
     functionParams: any[],
     overrides?: ContractOverrides,

@@ -8,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { WrappedTransactionResponse } from "./objects";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface ISiftContract extends IBaseContract {
   /**

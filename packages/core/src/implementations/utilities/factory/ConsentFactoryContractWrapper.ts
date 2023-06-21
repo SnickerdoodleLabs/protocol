@@ -29,6 +29,7 @@ import {
   ConsentName,
   MarketplaceListing,
   MarketplaceTag,
+  TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -256,6 +257,15 @@ export class ConsentFactoryContractWrapper
     return this.fallback(
       () => this.primary.getListingsByTag(tag, removeExpired),
       () => this.secondary?.getListingsByTag(tag, removeExpired),
+    );
+  }
+
+  public getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError> {
+    return this.fallback(
+      () => this.primary.getAddressOfConsentCreated(txRes),
+      () => this.secondary?.getAddressOfConsentCreated(txRes),
     );
   }
 }

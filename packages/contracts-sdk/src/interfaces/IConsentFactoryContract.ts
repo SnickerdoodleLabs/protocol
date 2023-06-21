@@ -7,6 +7,7 @@ import {
   EVMContractAddress,
   MarketplaceListing,
   MarketplaceTag,
+  TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -146,4 +147,8 @@ export interface IConsentFactoryContract extends IBaseContract {
     tag: MarketplaceTag,
     removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+
+  getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError>;
 }
