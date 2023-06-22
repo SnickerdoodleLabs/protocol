@@ -95,6 +95,7 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
+  PasswordString,
 } from "@objects/primitives/index.js";
 
 /**
@@ -235,6 +236,46 @@ export interface IAccountMethods {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | UnauthorizedError
+  >;
+
+  unlockWithPassword(
+    password: PasswordString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | MinimalForwarderContractError
+  >;
+
+  addPassword(
+    password: PasswordString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | MinimalForwarderContractError
+  >;
+
+  removePassword(
+    password: PasswordString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | AjaxError
+    | MinimalForwarderContractError
   >;
 }
 

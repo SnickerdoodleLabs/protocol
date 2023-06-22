@@ -20,6 +20,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
+import { AddPasswordPrompt } from "@test-harness/prompts/AddPasswordPrompt";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { GetBearerToken } from "@test-harness/prompts/GetBearerToken.js";
@@ -27,15 +28,20 @@ import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+import { RemovePasswordPrompt } from "@test-harness/prompts/RemovePasswordPrompt";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+import { UnlockWithPasswordPrompt } from "@test-harness/prompts/UnlockWithPasswordPrompt.js";
 import { UpdateDataPermissions } from "@test-harness/prompts/UpdateDataPermissions.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
+  private unlockWithPassword: UnlockWithPasswordPrompt;
   private addAccount: AddAccount;
+  private addPassword: AddPasswordPrompt;
   private checkAccount: CheckAccount;
   private removeAccount: RemoveAccount;
+  private removePassword: RemovePasswordPrompt;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
   private selectProfile: SelectProfile;
@@ -45,9 +51,12 @@ export class CorePrompt extends DataWalletPrompt {
     super(env);
 
     this.unlockCore = new UnlockCore(this.env);
+    this.unlockWithPassword = new UnlockWithPasswordPrompt(this.env);
     this.addAccount = new AddAccount(this.env);
+    this.addPassword = new AddPasswordPrompt(this.env);
     this.checkAccount = new CheckAccount(this.env);
     this.removeAccount = new RemoveAccount(this.env);
+    this.removePassword = new RemovePasswordPrompt(this.env);
     this.optInCampaign = new OptInCampaign(this.env, this.timeUtils);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
@@ -62,7 +71,9 @@ export class CorePrompt extends DataWalletPrompt {
 
     const choicesWhenUnlocked = [
       { name: "Add Account", value: "addAccount" },
+      { name: "Add Password", value: "addPassword" },
       { name: "Remove Account", value: "removeAccount" },
+      { name: "Remove Password", value: "removePassword" },
       { name: "Check Account", value: "checkAccount" },
       new inquirer.Separator(),
       {
@@ -141,6 +152,7 @@ export class CorePrompt extends DataWalletPrompt {
         { name: "NOOP", value: "NOOP" },
         { name: "Select Profile", value: "selectProfile" },
         { name: "Unlock", value: "unlock" },
+        { name: "Unlock With Password", value: "unlockWithPassword" },
         new inquirer.Separator(),
         { name: "Cancel", value: "cancel" },
         new inquirer.Separator(),
@@ -170,14 +182,20 @@ export class CorePrompt extends DataWalletPrompt {
           return okAsync<void, never>(undefined);
         case "unlock":
           return this.unlockCore.start();
+        case "unlockWithPassword":
+          return this.unlockWithPassword.start();
         case "selectProfile":
           return this.selectProfile.start();
         case "addAccount":
           return this.addAccount.start();
+        case "addPassword":
+          return this.addPassword.start();
         case "checkAccount":
           return this.checkAccount.start();
         case "removeAccount":
           return this.removeAccount.start();
+        case "removePassword":
+          return this.removePassword.start();
         case "optInCampaign":
           return this.optInCampaign.start();
         case "optOutCampaign":

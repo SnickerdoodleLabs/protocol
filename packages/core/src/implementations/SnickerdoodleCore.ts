@@ -87,6 +87,7 @@ import {
   WalletNFT,
   IMasterIndexer,
   IAccountMethods,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -371,6 +372,91 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
             chain,
           );
         });
+      },
+      unlockWithPassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        // Get all of our indexers and initialize them
+        // TODO
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountIndexerPoller =
+          this.iocContainer.get<IAccountIndexerPoller>(
+            IAccountIndexerPollerType,
+          );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        const queryService =
+          this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+          IBlockchainListenerType,
+        );
+
+        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+          ISocialMediaPollerType,
+        );
+
+        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+          IHeartbeatGeneratorType,
+        );
+
+        const indexers =
+          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+        ])
+          .andThen(() => {
+            return accountService.unlockWithPassword(password);
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
+      },
+
+      addPassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addPassword(password);
+      },
+
+      removePassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.removePassword(password);
       },
     };
 
