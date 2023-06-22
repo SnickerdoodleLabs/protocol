@@ -450,7 +450,11 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
-    if (!this.enableEncryption) {
+    // Check the blob. If it does not include the encryption fields, then it is not encrypted
+    if (
+      (blob as AESEncryptedString).data == undefined ||
+      (blob as AESEncryptedString).initializationVector == undefined
+    ) {
       return okAsync(blob as BackupBlob);
     }
 

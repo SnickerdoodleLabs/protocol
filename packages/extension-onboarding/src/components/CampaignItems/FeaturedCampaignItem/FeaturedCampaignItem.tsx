@@ -1,4 +1,4 @@
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@extension-onboarding/components/CampaignItems/FeaturedCampaignItem/FeaturedCampaignItem.style";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";

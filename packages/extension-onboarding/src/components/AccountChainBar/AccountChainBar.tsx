@@ -1,5 +1,5 @@
 import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
+import { AccountIdentIcon } from "@snickerdoodlelabs/shared-components";
 import Switch from "@extension-onboarding/components/Switch";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";

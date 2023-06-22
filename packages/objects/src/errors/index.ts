@@ -15,6 +15,7 @@ export * from "@objects/errors/InvalidParametersError.js";
 export * from "@objects/errors/InvalidSignatureError.js";
 export * from "@objects/errors/IPFSError.js";
 export * from "@objects/errors/KeyGenerationError.js";
+export * from "@objects/errors/MethodSupportError.js";
 export * from "@objects/errors/MinimalForwarderContractError.js";
 export * from "@objects/errors/MissingASTError.js";
 export * from "@objects/errors/MissingWalletDataTypeError.js";

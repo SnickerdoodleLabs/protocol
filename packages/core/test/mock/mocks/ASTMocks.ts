@@ -10,18 +10,19 @@ import {
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { ProfileService } from "@core/implementations/business";
 import {
   BlockchainTransactionQueryEvaluator,
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
   BalanceQueryEvaluator,
+  QueryFactories,
 } from "@core/implementations/business/utilities/query/index.js";
-import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
-import { IProfileService } from "@core/interfaces/business/index.js";
-import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/index.js";
+import {
+  IBalanceQueryEvaluator,
+  IQueryFactories,
+} from "@core/interfaces/business/utilities/query/index.js";
 import {
   IBrowsingDataRepository,
   IPortfolioBalanceRepository,
@@ -29,7 +30,6 @@ import {
   IDemographicDataRepository,
   ISocialRepository,
 } from "@core/interfaces/data/index.js";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -52,7 +52,6 @@ export class ASTMocks {
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
   public blockchainTransactionEvaluator: IBlockchainTransactionQueryEvaluator;
   public nftQueryEvaluator: NftQueryEvaluator;
-  public profileService: IProfileService;
 
   public constructor() {
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
@@ -65,7 +64,6 @@ export class ASTMocks {
       new BlockchainTransactionQueryEvaluator(this.txRepo);
     this.nftQueryEvaluator = new NftQueryEvaluator(this.balanceRepo);
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.balanceRepo);
-    this.profileService = new ProfileService(this.demoRepo);
 
     td.when(this.demoRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoRepo.getLocation()).thenReturn(okAsync(CountryCode("1")));
@@ -74,11 +72,10 @@ export class ASTMocks {
       this.balanceQueryEvaluator,
       this.blockchainTransactionEvaluator,
       this.nftQueryEvaluator,
-      this.profileService,
       this.demoRepo,
       this.browsingRepo,
       this.txRepo,
-      this.socialRepo
+      this.socialRepo,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }

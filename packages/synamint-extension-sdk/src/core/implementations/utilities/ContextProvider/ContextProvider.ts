@@ -12,11 +12,11 @@ import { v4 } from "uuid";
 
 import { AccountContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AppContext";
-import { IContextProvider } from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
+  IContextProvider,
   IConfigProvider,
   IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
   IInternalState,
   IExternalState,

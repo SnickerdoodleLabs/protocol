@@ -9,11 +9,34 @@ process.env.__CONTROL_CHAIN_ID__ = "31337";
 process.env.__SUPPORTED_CHAINS__ = "42,43113";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
+
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
 process.env.__NFTSCAN_API_KEY__ = "";
 process.env.__POAP_API_KEY__ = "";
 process.env.__OKLINK_API_KEY__ = "";
+process.env.__ANKR_API_KEY__ = "";
+
+process.env.__ALCHEMY_ARBITRUM_API_KEY__ = "";
+process.env.__ALCHEMY_ASTAR_API_KEY__ = "";
+process.env.__ALCHEMY_MUMBAI_API_KEY__ = "";
+process.env.__ALCHEMY_OPTIMISM_API_KEY__ = "";
+process.env.__ALCHEMY_POLYGON_API_KEY__ = "";
+process.env.__ALCHEMY_SOLANA_API_KEY__ = "";
+process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__ = "";
+
+process.env.__ETHERSCAN_ETHEREUM_API_KEY__ = "";
+process.env.__ETHERSCAN_POLYGON_API_KEY__ = "";
+process.env.__ETHERSCAN_AVALANCHE_API_KEY__ = "";
+process.env.__ETHERSCAN_BINANCE_API_KEY__ = "";
+process.env.__ETHERSCAN_MOONBEAM_API_KEY__ = "";
+process.env.__ETHERSCAN_OPTIMISM_API_KEY__ = "";
+process.env.__ETHERSCAN_ARBITRUM_API_KEY__ = "";
+process.env.__ETHERSCAN_GNOSIS_API_KEY__ = "";
+process.env.__ETHERSCAN_FUJI_API_KEY__ = "";
+
+process.env.__PRIMARY_INFURA_KEY__ = "";
+process.env.__SECONDARY_INFURA_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
 process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
 process.env.__DOMAIN_FILTER__ = "(localhost|chrome://)";

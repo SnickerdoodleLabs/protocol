@@ -121,6 +121,8 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "clear cloud store", value: "clearCloudStore" },
       new inquirer.Separator(),
       { name: "Get Bearer Token", value: "getBearerToken" },
+      new inquirer.Separator(),
+      { name: "Metrics", value: "metrics" },
     ];
 
     let choices = [
@@ -353,6 +355,10 @@ export class CorePrompt extends DataWalletPrompt {
         case "getBearerToken":
           const getBearerToken = new GetBearerToken(this.env);
           return getBearerToken.start();
+        case "metrics":
+          return this.core.metrics.getMetrics().map((metrics) => {
+            console.log(metrics);
+          });
       }
       return okAsync<void, never>(undefined);
     });
