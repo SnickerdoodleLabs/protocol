@@ -38,10 +38,9 @@ import {
   Command,
   Command_IF,
   ISDQLQueryUtils,
+  AST,
 } from "@query-parser/interfaces/index.js";
-import {
-  SDQLParser
-} from "@query-parser/implementations/index.js"
+import { SDQLParser } from "@query-parser/implementations/index.js";
 import {
   ISDQLParserFactory,
   ISDQLParserFactoryType,
@@ -50,7 +49,6 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
-
 
 @injectable()
 export class SDQLQueryUtils implements ISDQLQueryUtils {
@@ -371,267 +369,96 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
   }
 
   /**
-   * 
+   *
    * @param activeCompensationKeys the rewards which are not expired yet.
    * @param possibleInsightsAndAds the possible set of insights and ads the api caller can generate
-   * @returns 
+   * @returns
    */
   public filterCompensationsForPreviews(
-    scheamString: SDQLString,
+    schemaString: SDQLString,
     activeCompensationKeys: CompensationKey[],
-    possibleInsightsAndAds: (InsightKey | AdKey)[]
-  ): ResultAsync<PossibleReward[], never> {
-    return okAsync([]);
-    // 1. create the available map
-    // 2. for each compensation in active list, evaluate the requires expression
-    // 3. if it evaluates to true, then get query dependencies with getCompensationQueryDeps
-    // 4. construct possible rewards
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
+  ): ResultAsync<
+    PossibleReward[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+    return this.parserFactory
+      .makeParser(IpfsCID(""), schemaString)
+      .andThen((parser) => {
+        return parser.buildAST().andThen((ast) => {
+          const compensationQueryDependeciesAsync = activeCompensationKeys.map(
+            (compensationKey) => {
+              return parser.getQueryDependencies(
+                ast.compensations.get(SDQL_Name(compensationKey))!.requires,
+                possibleInsightsAndAds,
+              );
+            },
+          );
+          return ResultUtils.combine(compensationQueryDependeciesAsync).map(
+            (compensationQueryDependecies) => {
+              return this.getPossibleRewards(
+                compensationQueryDependecies,
+                parser.cid,
+                ast,
+                activeCompensationKeys,
+              );
+            },
+          );
+        });
+      });
   }
 
-  // public getPossibleRewardsFromIP(
-  //   schemaString: SDQLString,
-  //   queryCID: IpfsCID,
-  //   answeredInsightsAndAdKeys: (InsightKey | AdKey)[],
-  // ): ResultAsync<PossibleReward[], ParserError> {
-  //   return this.parserFactory
-  //     .makeParser(queryCID, schemaString)
-  //     .andThen((parser) => {
-  //       return parser.buildAST().map((ast) => {
-  //         const compensationsMap = ast.compensations;
+  getPossibleRewards(
+    compensationQueryDependecies: Set<AST_SubQuery>[],
+    cid: IpfsCID,
+    ast: AST,
+    activeCompensationKeys: CompensationKey[],
+  ): PossibleReward[] {
+    return compensationQueryDependecies.reduce<PossibleReward[]>(
+      (possibleRewards, compensationQueryDependency, currentIndex) => {
+        const compensation = ast.compensations.get(
+          SDQL_Name(activeCompensationKeys[currentIndex]),
+        );
+        if (compensation) {
+          possibleRewards.push(
+            new PossibleReward(
+              cid,
+              CompensationKey(activeCompensationKeys[currentIndex]),
+              this.getSubQueryDependicies(compensationQueryDependency),
+              compensation.name,
+              compensation.image,
+              compensation.description,
+              compensation.chainId,
+              ERewardType.Direct,
+            ),
+          );
+        }
 
-  //         // 1. Create the available map
-  //         // 2. Use the requires evaluator to get the compensation ids
-  //         // 3. 
-
-  //         const possibleRewards: PossibleReward[] = [];
-
-  //         compensationsMap.forEach((compensation, compensationKey) => {
-  //           const { requirementsAreSatisfied, requiredInsightsAndAds } =
-  //             this.evaluateAstRawCompensationRequires(
-  //               compensation.requiresRaw,
-  //               answeredInsightsAndAdKeys,
-  //             );
-  //           if (requirementsAreSatisfied) {
-  //             const queryDependecies: QueryTypes[] = this.getQueryDependicies(
-  //               requiredInsightsAndAds,
-  //               ast.subqueries,
-  //               ast.insights,
-  //               ast.ads,
-  //             );
-  //             const possibleReward = new PossibleReward(
-  //               parser.cid,
-  //               CompensationKey(compensationKey),
-  //               queryDependecies,
-  //               compensation.name,
-  //               compensation.image,
-  //               compensation.description,
-  //               compensation.chainId,
-  //               ERewardType.Direct,
-  //             );
-  //             possibleRewards.push(possibleReward);
-  //           }
-  //         });
-
-  //         return possibleRewards;
-  //       });
-  //     });
-  // }
-
-  // removeDollarSign(values: string[]) {
-  //   return values.map((value) => value.replace("$", ""));
-  // }
-  // getQueryDependicies(
-  //   insightAndAdKeys: string[],
-  //   astQueries: Map<SDQL_Name, AST_SubQuery>,
-  //   astInsights: Map<SDQL_Name, AST_Insight>,
-  //   astAds: Map<SDQL_Name, AST_Ad>,
-  // ): QueryTypes[] {
-  //   const queryTypes: QueryTypes[] = [];
-
-  //   const dollerizedKeys = this.getQueryKeys(
-  //     this.removeDollarSign(insightAndAdKeys),
-  //     astInsights,
-  //     astAds,
-  //   );
-  //   const queryKeys = new Set(this.removeDollarSign(dollerizedKeys));
-
-  //   queryKeys.forEach((queryKey) => {
-  //     const type = this.getQueryType(astQueries.get(SDQL_Name(queryKey))!);
-  //     if (type) {
-  //       queryTypes.push(type);
-  //     }
-  //   });
-  //   return queryTypes;
-  // }
-
-  // getQueryType(query: AST_SubQuery): QueryTypes | null {
-  //   if (query instanceof AST_Web3Query) {
-  //     return query.type;
-  //   } else if (query instanceof AST_PropertyQuery) {
-  //     return query.property;
-  //   }
-  //   return null;
-  // }
-
-  // getQueryKeysFromTargetRaw(targetRaw: string) {
-  //   const queryKeys = targetRaw.match(/\$q\d+/g);
-  //   if (queryKeys) {
-  //     return queryKeys;
-  //   }
-  //   return [];
-  // }
-  // getQueryKeys(
-  //   insightAndAdKeys: string[],
-  //   astInsights: Map<SDQL_Name, AST_Insight>,
-  //   astAds: Map<SDQL_Name, AST_Ad>,
-  // ): string[] {
-  //   let queryKeys: string[] = [];
-  //   insightAndAdKeys.forEach((key) => {
-  //     if (key.startsWith("i")) {
-  //       queryKeys = [
-  //         ...queryKeys,
-  //         ...this.getQueryKeysFromTargetRaw(
-  //           astInsights.get(SDQL_Name(key))!.targetRaw,
-  //         ),
-  //       ];
-  //     } else {
-  //       queryKeys = [
-  //         ...queryKeys,
-  //         ...this.getQueryKeysFromTargetRaw(
-  //           astAds.get(SDQL_Name(key))!.targetRaw,
-  //         ),
-  //       ];
-  //     }
-  //   });
-  //   return queryKeys;
-  // }
-
-
-  // splitCompensationRequirementsToProcessableExpressions(
-  //   subRequirementExpression: string,
-  // ): RegExpMatchArray {
-  //   const subExprRegex = /(\$[ia]\d+)|\(|\)|and|or/g;
-  //   const parts = subRequirementExpression.match(subExprRegex);
-  //   if (parts) {
-  //     return parts;
-  //   }
-  //   throw new QueryFormatError("Invalid requires string: Unknown expression.");
-  // }
-
-  
-  // evaluateAstRawCompensationRequires(compensationRequiresRaw: string, totalInsightsAndAdsAnswered: string[]): { requirementsAreSatisfied: boolean, requiredInsightsAndAds: string[] } {
-  //   const totalInsightAndAdsAnsweredSet: Set<string> = new Set(
-  //     totalInsightsAndAdsAnswered,
-  //   );
-  //   const requiredInsightsAndAds: string[] = [];
-
-  //   const requirementsAreSatisfied = this.evaluateAstRawRequires(
-  //     compensationRequiresRaw,
-  //     totalInsightAndAdsAnsweredSet,
-  //     requiredInsightsAndAds,
-  //   );
-  //   return { requirementsAreSatisfied, requiredInsightsAndAds };
-  // }
-
-  // evaluateAstRawRequires(compensationRequiresRaw: string ,totalInsightAndAdsAnsweredSet: Set<string> ,  requiredInsightsAndAds: string[]): boolean {
-  //   const expressions =
-  //     this.splitCompensationRequirementsToProcessableExpressions(
-  //       compensationRequiresRaw,
-  //     );
-
-  //   const operandStack: boolean[] = [];
-  //   const operatorStack: string[] = [];
-
-  //   for (const expression of expressions) {
-  //     switch (expression) {
-  //       case '(':
-  //         operatorStack.push('(');
-  //         break;
-  //       case ')':
-  //         while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== '(') {
-  //           this.evaluateOperands(operandStack,operatorStack)
-  //         }
-  //         operatorStack.pop();
-  //         break;
-  //       case 'and':
-  //       case 'or':
-  //         while (
-  //           operatorStack.length > 0 &&
-  //           operatorStack[operatorStack.length - 1] !== '(' &&
-  //           this.hasPrecedence(operatorStack[operatorStack.length - 1], expression)
-  //         ) {
-  //           this.evaluateOperands(operandStack,operatorStack)
-  //         }
-  //         operatorStack.push(expression);
-  //         break;
-  //       default:
-  //         const keyExists = totalInsightAndAdsAnsweredSet.has(expression);
-  //         if(keyExists){
-  //           requiredInsightsAndAds.push(expression);
-  //         }
-  //         operandStack.push(keyExists);
-  //         break;
-  //     }
-  //   }
-
-  //   while (operatorStack.length > 0) {
-  //     this.evaluateOperands(operandStack, operatorStack)
-  //   }
-
-  //   if (operandStack.length !== 1) {
-  //     throw new QueryFormatError('Invalid requires raw string: Malformed expression.');
-  //   }
-
-  //   return operandStack[0];
-  // }
-
-  // evaluateOperands(operandStack: boolean[],operatorStack: string[]){
-  //   const operator = operatorStack.pop()!;
-  //   const operand2 = operandStack.pop()!;
-  //   const operand1 = operandStack.pop()!;
-  //   const result = this.evaluateOperation(operand1, operator, operand2);
-  //   operandStack.push(result);
-  // }
-
-  // evaluateOperation(operand1: boolean, operator: string, operand2: boolean): boolean {
-  //   switch (operator) {
-  //     case 'and':
-  //       return operand1 && operand2;
-  //     case 'or':
-  //       return operand1 || operand2;
-  //     default:
-  //       throw new QueryFormatError('Invalid operator at requires raw string: ' + operator);
-  //   }
-  // }
-
-  // hasPrecedence(operator1: string, operator2: string): boolean {
-  //   return operator1 === 'and' && operator2 === 'or';
-  // }
-
-  public getInsightQueryDeps(
-    insight: AST_Insight
-  ): ResultAsync<AST_SubQuery[], MissingASTError> {
-    return okAsync([]);
-    // Union(parser.getQueryDependencies(insight.target), parser.getQueryDependencies(insight.returns))
+        return possibleRewards;
+      },
+      [],
+    );
   }
-
-  public getAdsQueryDeps(
-    ad: AST_Ad
-  ): ResultAsync<AST_SubQuery[], MissingASTError> {
-    return okAsync([]);
-    // parser.getQueryDependencies(ad.target)
+  getSubQueryDependicies(astSubQueries: Set<AST_SubQuery>): QueryTypes[] {
+    const queryTypes: QueryTypes[] = [];
+    astSubQueries.forEach((subQuery) => {
+      const type = this.getQueryType(subQuery);
+      if (type) {
+        queryTypes.push(type);
+      }
+    });
+    return queryTypes;
   }
-
-  public getCompensationDeps(
-    compensation: AST_Compensation
-  ): ResultAsync<(AST_Insight | AST_Ad)[], MissingASTError> {
-    return okAsync([]);
-  }
-
-  public getCompensationQueryDeps(
-    compensation: AST_Compensation
-  ): ResultAsync<AST_SubQuery[], MissingASTError> {
-    return okAsync([]);
-    // get compensation deps. then for each, get query deps.
+  getQueryType(query: AST_SubQuery): QueryTypes | null {
+    if (query instanceof AST_Web3Query) {
+      return query.type;
+    } else if (query instanceof AST_PropertyQuery) {
+      return query.property;
+    }
+    return null;
   }
 }
