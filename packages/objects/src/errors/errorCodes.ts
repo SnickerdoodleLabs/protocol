@@ -32,7 +32,6 @@ const errorCodes = {
   UninitializedError: "ERR_UNINITIALIZED",
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   GasPriceError: "ERR_GAS_PRICE",
-  BaseContractError: "BASE_CONTRACT",
 };
 
 export default errorCodes;

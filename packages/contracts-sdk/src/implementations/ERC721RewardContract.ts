@@ -1,11 +1,11 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
 import {
   ContractOverrides,
   IERC721RewardContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -19,11 +19,11 @@ import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { WrapElementHandle } from "puppeteer";
-
 @injectable()
-export class ERC721RewardContract implements IERC721RewardContract {
-  protected contract: ethers.Contract;
+export class ERC721RewardContract
+  extends BaseContract<ERC721RewardContractError>
+  implements IERC721RewardContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -31,11 +31,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.ERC721Reward.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.ERC721Reward.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -273,6 +269,14 @@ export class ERC721RewardContract implements IERC721RewardContract {
     );
   }
 
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): ERC721RewardContractError {
+    return new ERC721RewardContractError(msg, reason, e);
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
@@ -281,37 +285,4 @@ export class ERC721RewardContract implements IERC721RewardContract {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
   };
-
-  public getContract(): ethers.Contract {
-    return this.contract;
-  }
-
-  // Takes the ERC721 Reward contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
-  protected writeToContract(
-    functionName: string,
-    functionParams: any[],
-    overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
-      );
-    });
-  }
 }

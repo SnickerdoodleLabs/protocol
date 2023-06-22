@@ -1,10 +1,10 @@
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
+import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract.js";
 import {
   ContractsAbis,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+} from "@contracts-sdk/interfaces/objects/index.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -123,10 +123,6 @@ export class CrumbsContract
       [crumbId, tokenURI],
       overrides,
     );
-  }
-
-  public getContract(): ethers.Contract {
-    return this.contract;
   }
 
   protected generateError(

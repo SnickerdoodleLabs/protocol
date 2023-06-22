@@ -1,13 +1,10 @@
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import {
   IBaseContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMContractAddress,
-  BaseContractError,
   IBlockchainError,
   EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
@@ -16,10 +13,7 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 @injectable()
-export abstract class BaseContract<TError>
-  extends WrappedTransactionResponseBuilder
-  implements IBaseContract
-{
+export abstract class BaseContract<TError> implements IBaseContract {
   protected contract: ethers.Contract;
   protected contractAbi: ethers.ContractInterface;
 
@@ -31,7 +25,6 @@ export abstract class BaseContract<TError>
     protected contractAddress: EVMContractAddress,
     protected abi: ethers.ContractInterface,
   ) {
-    super();
     this.contract = new ethers.Contract(contractAddress, abi, providerOrSigner);
     this.contractAbi = abi;
   }
@@ -70,7 +63,7 @@ export abstract class BaseContract<TError>
         );
       },
     ).map((transactionResponse) => {
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+      return BaseContract.buildWrappedTransactionResponse(
         transactionResponse,
         EVMContractAddress(this.contract.address),
         EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
@@ -79,5 +72,35 @@ export abstract class BaseContract<TError>
         this.contractAbi,
       );
     });
+  }
+
+  static buildWrappedTransactionResponse(
+    transactionResponse: ethers.providers.TransactionResponse,
+    contractAddress: EVMContractAddress,
+    signerAddress: EVMAccountAddress,
+    functionName: string,
+    functionParams: any[],
+    contractAbi: any,
+  ): WrappedTransactionResponse {
+    return new WrappedTransactionResponse(
+      transactionResponse,
+      contractAddress,
+      signerAddress,
+      functionName,
+      JSON.stringify(functionParams || []),
+      BaseContract.extractFunctionAbi(functionName, contractAbi),
+    );
+  }
+
+  static extractFunctionAbi(functionName: string, contractAbi: any): string {
+    if (contractAbi == null || contractAbi.abi instanceof Array === false) {
+      return "";
+    }
+    for (const item of contractAbi.abi) {
+      if (item.type === "function" && item.name === functionName) {
+        return item;
+      }
+    }
+    return "";
   }
 }

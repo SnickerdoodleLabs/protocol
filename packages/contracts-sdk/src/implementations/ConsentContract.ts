@@ -1,12 +1,12 @@
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
 import {
   WrappedTransactionResponse,
   ConsentRoles,
   Tag,
   ContractOverrides,
   ContractsAbis,
-} from "@contracts-sdk/interfaces/objects";
+} from "@contracts-sdk/interfaces/objects/index.js";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,

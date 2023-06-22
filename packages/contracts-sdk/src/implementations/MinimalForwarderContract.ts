@@ -5,7 +5,7 @@ import {
   IMinimalForwarderRequest,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -80,10 +80,6 @@ export class MinimalForwarderContract
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
     return this.writeToContract("execute", [request, signature], overrides);
-  }
-
-  public getContract(): ethers.Contract {
-    return this.contract;
   }
 
   protected generateError(

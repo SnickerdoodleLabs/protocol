@@ -1,12 +1,11 @@
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   ConsentRoles,
   ContractOverrides,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   BaseURI,
   BigNumberString,

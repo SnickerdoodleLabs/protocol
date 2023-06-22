@@ -1,8 +1,8 @@
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/index.js";
-import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMContractAddress,
   TokenUri,
@@ -10,7 +10,6 @@ import {
   IBlockchainError,
   BaseURI,
   DomainName,
-  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -73,10 +72,6 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return this.writeToContract("setBaseURI", [baseUri], overrides);
-  }
-
-  public getContract(): ethers.Contract {
-    return this.contract;
   }
 
   protected generateError(

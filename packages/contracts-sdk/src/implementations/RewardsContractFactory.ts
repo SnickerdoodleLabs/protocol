@@ -1,5 +1,5 @@
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
-import { WrappedTransactionResponseBuilder } from "@contracts-sdk/implementations/WrappedTransactionResponseBuilder";
 import {
   ContractOverrides,
   IRewardsContractFactory,
@@ -7,7 +7,7 @@ import {
 import {
   ContractsAbis,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
+} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMContractAddress,
   EVMAccountAddress,
@@ -21,7 +21,10 @@ import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 @injectable()
-export class RewardsContractFactory implements IRewardsContractFactory {
+export class RewardsContractFactory
+  extends BaseContract<RewardsFactoryError>
+  implements IRewardsContractFactory
+{
   protected contractFactory: ethers.ContractFactory;
   protected rewardTypeToDeploy: ECreatedRewardType;
   constructor(
@@ -31,6 +34,11 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       | ethers.Wallet,
     protected rewardType: ECreatedRewardType,
   ) {
+    super(
+      providerOrSigner,
+      EVMContractAddress(ethers.constants.AddressZero), // The rewards contract factory deploys a new contract, hence doesn't have a contract address
+      ContractsAbis.ERC721Reward.abi,
+    );
     // Set the correct contract factory based on rewardTypeToDeploy
     this.contractFactory = new ethers.ContractFactory(
       ContractsAbis.ERC721Reward.abi,
@@ -85,7 +93,15 @@ export class RewardsContractFactory implements IRewardsContractFactory {
     });
   }
 
-  // Takes the ERC721 factory's function name and params, submits the transaction and returns a WrappedTransactionResponse
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): RewardsFactoryError {
+    return new RewardsFactoryError(msg, reason, e);
+  }
+
+  // Takes the factory's deploy function name and params, submits the transaction and returns a WrappedTransactionResponse
   protected writeToContractFactory(
     functionName: string,
     functionParams: any[],
@@ -105,7 +121,7 @@ export class RewardsContractFactory implements IRewardsContractFactory {
       },
     ).map((transactionResponse) => {
       // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
-      return WrappedTransactionResponseBuilder.buildWrappedTransactionResponse(
+      return RewardsContractFactory.buildWrappedTransactionResponse(
         isDeployingContract == true
           ? (transactionResponse as ethers.Contract).deployTransaction
           : (transactionResponse as ethers.providers.TransactionResponse),
