@@ -16,4 +16,5 @@ export interface IPersistenceConfig {
   restoreTimeoutMS: number;
   enableBackupEncryption: boolean;
   dataWalletBackupIntervalMS: number;
+  ipfsFetchBaseUrl: URLString;
 }
