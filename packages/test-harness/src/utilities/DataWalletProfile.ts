@@ -4,21 +4,18 @@ import path from "path";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  AESEncryptedString,
   BigNumberString,
   ChainId,
   DirectReward,
   EarnedReward,
   EChain,
   ECredentialType,
-  EncryptedString,
   ERewardType,
   EVMAccountAddress,
   EVMPrivateKey,
   EVMTransaction,
   IConfigOverrides,
   DataWalletBackup,
-  InitializationVector,
   IpfsCID,
   LazyReward,
   MetatransactionSignatureRequest,
@@ -27,7 +24,6 @@ import {
   SDQLQueryRequest,
   Signature,
   SiteVisit,
-  TransactionReceipt,
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
@@ -41,20 +37,18 @@ import {
   PersistenceError,
   UninitializedError,
   EVMContractAddress,
-  EBackupPriority,
-  AESKey,
   TokenSecret,
   UnauthorizedError,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
-// import fs from "fs";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 
-import { Environment, TestHarnessMocks } from "@test-harness/mocks";
-import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
+import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
+import { ApproveQuery } from "@test-harness/prompts/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
 @injectable()
@@ -175,6 +169,29 @@ export class DataWalletProfile {
           console.log(`Loaded complete profile for newly unlocked wallet`);
         });
       });
+  }
+
+  public unlockWithPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
+    | Error
+  > {
+    return this.core.account.unlockWithPassword(password).andThen(() => {
+      this._unlocked = true;
+      console.log(`Unlocked account with password ${password}!`);
+      return this.loadFromPathAfterUnlocked().map(() => {
+        console.log(`Loaded complete profile for password`);
+      });
+    });
   }
 
   protected destroyCore(): void {

@@ -20,7 +20,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
-import { AddPasswordPrompt } from "@test-harness/prompts/AddPasswordPrompt";
+import { AddPasswordPrompt } from "@test-harness/prompts/AddPasswordPrompt.js";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { GetBearerToken } from "@test-harness/prompts/GetBearerToken.js";
@@ -28,7 +28,7 @@ import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
-import { RemovePasswordPrompt } from "@test-harness/prompts/RemovePasswordPrompt";
+import { RemovePasswordPrompt } from "@test-harness/prompts/RemovePasswordPrompt.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
 import { UnlockWithPasswordPrompt } from "@test-harness/prompts/UnlockWithPasswordPrompt.js";

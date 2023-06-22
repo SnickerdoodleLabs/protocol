@@ -36,7 +36,7 @@ export class UnlockWithPasswordPrompt extends DataWalletPrompt {
     ])
       .andThen((answers) => {
         const password = answers.unlockWithPasswordInput as PasswordString;
-        return this.profile.core.account.unlockWithPassword(password);
+        return this.profile.unlockWithPassword(password);
       })
       .mapErr((e) => {
         console.error(e);
