@@ -1,4 +1,5 @@
 import {
+  AST_RequireExpr,
   AST_SubQuery,
   BinaryCondition,
 } from "@query-parser/interfaces/index.js";
@@ -67,6 +68,10 @@ export class TypeChecker {
 
   static isCommandIf(expr: any): expr is Command_IF {
     return expr instanceof Command_IF;
+  }
+
+  static isAstRequireExpr(expr: any): expr is AST_RequireExpr {
+    return expr instanceof AST_RequireExpr;
   }
 
   static isPrimitiveExpr(expr: any): boolean {

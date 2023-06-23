@@ -14,6 +14,7 @@ import {
   SDQLQuery,
   UnixTimestamp,
   URLString,
+  SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -32,6 +33,8 @@ import {
   AST_Insight,
   AST_PropertyQuery,
   AST_RequireExpr,
+  BinaryCondition,
+  ConditionOperandTypes,
   ParserContextDataTypes,
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
@@ -56,7 +59,7 @@ export class ExprParserMocks {
     });
   }
 
-  public createAd(name: string): AST_Ad {
+  public createAd(name: string, target?: AST_ConditionExpr): AST_Ad {
     return new AST_Ad(
       SDQL_Name(name),
       SDQL_Name(name),
@@ -66,15 +69,15 @@ export class ExprParserMocks {
       3,
       UnixTimestamp(0),
       ["a"],
-      new AST_ConditionExpr(SDQL_Name(name), true),
+      target ?? new AST_ConditionExpr(SDQL_Name(name), true),
       ISDQLConditionString("true"),
     );
   }
 
-  public createInsight(name: string): AST_Insight {
+  public createInsight(name: string, target?: AST_ConditionExpr): AST_Insight {
     return new AST_Insight(
       SDQL_Name(name),
-      new AST_ConditionExpr(SDQL_Name(name), true),
+      target ?? new AST_ConditionExpr(SDQL_Name(name), true),
       ISDQLConditionString("true"),
       new AST_Expr(SDQL_Name(name), "e"),
       ISDQLExpressionString("e"),
@@ -103,7 +106,7 @@ export class ExprParserMocks {
         data: {},
       },
       [],
-      URLString("")
+      URLString(""),
     );
   }
 
@@ -142,6 +145,97 @@ export class ExprParserMocks {
     );
     this.context = fakeContext;
     return fakeContext;
+  }
+
+  public createAstRequireExpr(
+    name: string,
+    source: AST_RequireExpr["source"],
+  ): AST_RequireExpr {
+    return new AST_RequireExpr(SDQL_Name(name), source);
+  }
+
+  public createAstConditionExprs(
+    name: string,
+    source: AST_ConditionExpr["source"],
+  ): AST_ConditionExpr {
+    return new AST_ConditionExpr(SDQL_Name(name), source);
+  }
+
+  public createAstBinaryOp<T extends BinaryCondition>(
+    name: string,
+    className: {
+      new (
+        name: SDQL_OperatorName,
+        lval: ConditionOperandTypes,
+        rval: ConditionOperandTypes,
+      ): T;
+    },
+    lval: ConditionOperandTypes,
+    rval: ConditionOperandTypes,
+  ): T {
+    return new className(SDQL_OperatorName(name), lval, rval);
+  }
+
+  public createInsightAdRequires<
+    T extends `${"a" | "i"}${number}`,
+    F extends BinaryCondition,
+  >(
+    name: T,
+    operationsWithNames?: {
+      lvalName: T;
+      binaryOperation: {
+        new (
+          name: SDQL_OperatorName,
+          lval: ConditionOperandTypes,
+          rval: ConditionOperandTypes,
+        ): F;
+      };
+      rvalName?: T;
+    }[],
+  ): AST_RequireExpr {
+    if (operationsWithNames) {
+      const finalRes = operationsWithNames.reduce<AST_RequireExpr[]>(
+        (array, { lvalName, binaryOperation, rvalName }) => {
+          const lval = this.createInsightOrAdDependentOnQuery(lvalName);
+          if (array.length >= 1) {
+            const condExpr = this.createAstBinaryOp(
+              String(binaryOperation),
+              binaryOperation,
+              lval,
+              array[0],
+            );
+            array[0] = (this.createAstRequireExpr(lvalName, condExpr));
+          } else if (rvalName) {
+            const rval = this.createInsightOrAdDependentOnQuery(rvalName);
+            const condExpr = this.createAstBinaryOp(
+              String(binaryOperation),
+              binaryOperation,
+              lval,
+              rval,
+            );
+            array.push(this.createAstRequireExpr(lvalName, condExpr));
+          }
+
+          return array;
+        },
+        [],
+      );
+      return finalRes[0];
+    }
+    const insightOrAd = this.createInsightOrAdDependentOnQuery(name);
+    return this.createAstRequireExpr(name, insightOrAd);
+  }
+
+  public createInsightOrAdDependentOnQuery<T extends `${"a" | "i"}${number}`>(
+    name: T,
+  ): AST_Insight | AST_Ad {
+    const queryName = name.replace(/[ia]/g, "q");
+    const query = this.createPropQuery(queryName);
+    const queryRequires = this.createAstConditionExprs(queryName, query);
+    if (name.startsWith("i")) {
+      return this.createInsight(name, queryRequires);
+    }
+    return this.createAd(name, queryRequires);
   }
 
   public createExprParser(

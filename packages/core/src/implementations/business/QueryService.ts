@@ -481,6 +481,26 @@ export class QueryService implements IQueryService {
   //     );
   //   });
   // }
+  public getPossibleRewards(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    config: CoreConfig,
+  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
+    return this.getPossibleInisightAndAdKeys(query).andThen(
+      (possibleInsightsAndAds) => {
+        return this.getPossibleRewardsFromIP(
+          consentToken,
+          optInKey,
+          consentContractAddress,
+          query.cid,
+          config,
+          possibleInsightsAndAds,
+        );
+      },
+    );
+  }
 
   protected constructAndPublishSDQLQueryRequest(
     consentToken: ConsentToken,
@@ -491,27 +511,21 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
-    // TODO get all the possible rewards and send them to next
-    return this.getPossibleInisightAndAdKeys(query).map(
-      (possibleInsightsAndAds) => {
-        this.getPossibleRewardsFromIP(
-          consentToken,
-          optInKey,
-          consentContractAddress,
-          query.cid,
-          config,
-          possibleInsightsAndAds,
-        ).map((possibleRewards) => {
-          this.publishSDQLQueryRequest(
-            consentContractAddress,
-            query,
-            possibleRewards,
-            accounts,
-            context,
-          );
-        });
-      },
-    );
+    return this.getPossibleRewards(
+      consentToken,
+      optInKey,
+      consentContractAddress,
+      query,
+      config,
+    ).map((possibleRewards) => {
+      this.publishSDQLQueryRequest(
+        consentContractAddress,
+        query,
+        possibleRewards,
+        accounts,
+        context,
+      );
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
@@ -588,42 +602,6 @@ export class QueryService implements IQueryService {
       config.defaultInsightPlatformBaseUrl,
       possibleInsightsAndAds,
     );
-  }
-
-  public getPossibleRewardsFromIPBySDQLQuery(
-    query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError> {
-    return this.queryParsingEngine.parseQuery(query).map((ast) => {
-      return this.constructPossibleRewards(ast, query.cid);
-    });
-    // TODO return everything now, later  return from getPossibleRewardsFromIP
-  }
-
-  protected constructPossibleRewards(
-    ast: AST,
-    queryCID: IpfsCID,
-  ): PossibleReward[] {
-    const expectedRewardList: PossibleReward[] = [];
-
-    for (const [
-      currentKeyAsString,
-      currentSDQLCompensation,
-    ] of ast.compensations) {
-      const currentSDQLCompensationsKey = CompensationKey(currentKeyAsString);
-      expectedRewardList.push(
-        new PossibleReward(
-          queryCID,
-          currentSDQLCompensationsKey,
-          [],
-          currentSDQLCompensation.name,
-          currentSDQLCompensation.image,
-          currentSDQLCompensation.description,
-          currentSDQLCompensation.chainId,
-          ERewardType.Direct,
-        ),
-      );
-    }
-    return expectedRewardList;
   }
 
   protected getPossibleInisightAndAdKeys(

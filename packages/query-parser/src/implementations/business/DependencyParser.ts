@@ -21,6 +21,15 @@ export class DependencyParser {
     return true;
   }
 
+  getSet(queries: AST_SubQuery[]): Set<AST_SubQuery> {
+    return new Set(
+      queries.filter(
+        (value, index, array) =>
+          index === array.findIndex((query) => query.name === value.name),
+      ),
+    );
+  }
+
   public getQueryDependencies(
     expr: AST_RequireExpr,
     possibleInsightsAndAds?: (InsightKey | AdKey)[],
@@ -29,10 +38,12 @@ export class DependencyParser {
       return errAsync(new MissingASTError("Null expr"));
     }
     this.possibleInsightsAndAds = possibleInsightsAndAds;
-
     if (TypeChecker.isInsight(expr.source)) {
+      if (!this.keyExists(InsightKey(expr.name))) {
+        return okAsync(new Set([]));
+      }
       return okAsync(
-        new Set(
+        this.getSet(
           this.getAstConditionExprDependencies(
             expr.source.target,
             expr.source.returns,
@@ -41,17 +52,25 @@ export class DependencyParser {
       );
     }
     if (TypeChecker.isAd(expr.source)) {
+      if (!this.keyExists(AdKey(expr.name))) {
+        return okAsync(new Set([]));
+      }
       return okAsync(
-        new Set(this.getAstConditionExprDependencies(expr.source.target)),
+        this.getSet(this.getAstConditionExprDependencies(expr.source.target)),
       );
     }
     if (TypeChecker.isBinaryCondition(expr.source)) {
-      return okAsync(new Set(this.getBinaryConditionDependencies(expr.source)));
+      return okAsync(
+        this.getSet(this.getBinaryConditionDependencies(expr.source)),
+      );
     }
     if (TypeChecker.isCommandIf(expr.source)) {
       return okAsync(
-        new Set(this.getAstExprDependencies(expr.source.conditionExpr)),
+        this.getSet(this.getAstExprDependencies(expr.source.conditionExpr)),
       );
+    }
+    if (TypeChecker.isBoolean(expr.source)) {
+      return okAsync(new Set([]));
     }
 
     return errAsync(new MissingASTError("Invalid expr"));
@@ -93,9 +112,31 @@ export class DependencyParser {
 
     this.checkAdAndAddDependencies(expr.lval, queries);
     this.checkAdAndAddDependencies(expr.rval, queries);
+
+    this.checkAstExprAndAddDependencies(expr.lval, queries);
+    this.checkAstExprAndAddDependencies(expr.rval, queries);
+
     return queries;
   }
+  private getAstExprDependecies(expr: AST_Expr): AST_SubQuery[] {
+    const queries: AST_SubQuery[] = [];
+    this.checkInsightAndAddDependencies(expr.source, queries);
+    this.checkAdAndAddDependencies(expr.source, queries);
+    this.checkBinaryConditionAndAddDependencies(expr.source, queries);
 
+    if (TypeChecker.isBoolean(expr.source)) {
+      return [];
+    }
+    return queries;
+  }
+  private checkAstExprAndAddDependencies(
+    expr: AST_Expr | any,
+    queries: AST_SubQuery[],
+  ) {
+    if (TypeChecker.isAstRequireExpr(expr)) {
+      queries.push(...this.getAstExprDependecies(expr));
+    }
+  }
   private checkAdAndAddDependencies(
     expr: AST_Ad | any,
     queries: AST_SubQuery[],
