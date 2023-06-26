@@ -7,7 +7,7 @@ import {
   BinaryCondition,
   AST_Ad,
   AST_Insight,
-} from "@query-parser/interfaces";
+} from "@query-parser/interfaces/index.js";
 import { AdKey, InsightKey, MissingASTError } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 

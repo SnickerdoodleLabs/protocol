@@ -5,6 +5,6 @@ export const insightPreviewTypes: Record<string, TypedDataField[]> = {
     { name: "consentContractId", type: "address" },
     { name: "queryCID", type: "string" },
     { name: "tokenId", type: "uint256" },
-    { name: "queries", type: "string" },
+    { name: "possibleInsightsAndAds", type: "string" },
   ],
 };

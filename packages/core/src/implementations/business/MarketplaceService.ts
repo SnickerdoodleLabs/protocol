@@ -7,7 +7,7 @@ import {
 import {
   IConsentTokenUtilsType,
   IConsentTokenUtils,
-} from "@core/interfaces/business/utilities";
+} from "@core/interfaces/business/utilities/index.js";
 
 import {
   IMarketplaceRepositoryType,
@@ -17,7 +17,7 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {
   IConfigProviderType,
   IConfigProvider,
@@ -25,7 +25,7 @@ import {
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {

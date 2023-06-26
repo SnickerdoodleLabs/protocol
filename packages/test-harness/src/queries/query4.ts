@@ -6,7 +6,7 @@ export const query4 = {
   business: "Hentai Paradise",
   ads: {
     a1: {
-      name: "TestAd1",
+      name: "a1",
       content: {
         type: "image",
         src: "testSrc",
@@ -19,7 +19,7 @@ export const query4 = {
       target: "$q1",
     },
     a2: {
-      name: "TestAd2",
+      name: "a2",
       content: {
         type: "video",
         src: "testSrc",
@@ -32,7 +32,7 @@ export const query4 = {
       target: "true",
     },
     a3: {
-      name: "TestAd3",
+      name: "a3",
       content: {
         type: "image",
         src: "testSrc",
