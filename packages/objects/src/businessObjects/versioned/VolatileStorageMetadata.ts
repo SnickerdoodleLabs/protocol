@@ -1,9 +1,7 @@
 import Realm from "realm";
 
-import {
-  VersionedObject,
-  VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
 import { EBoolean, ERecordKey } from "@objects/enum/index.js";
 import {
   UnixTimestamp,
@@ -16,16 +14,17 @@ export interface VolatileStorageMetadataWrapper<T extends VersionedObject> {
 }
 
 export class VolatileStorageMetadata extends VersionedObject {
-  public pKey: string;
+  public get primaryKey(): VolatileStorageKey {
+    return VolatileStorageMetadata.getKey(this.recordKey, this.pKey);
+  }
 
   public constructor(
     public recordKey: ERecordKey,
-    public primaryKey: VolatileStorageKey,
+    public pKey: string,
     public lastUpdate: UnixTimestamp,
     public deleted: EBoolean = EBoolean.FALSE,
   ) {
     super();
-    this.pKey = VolatileStorageMetadata.getKey(recordKey, primaryKey);
   }
 
   public static CURRENT_VERSION = 1;
@@ -49,7 +48,7 @@ export class VolatileStorageMetadataMigrator extends VersionedObjectMigrator<Vol
   public factory(data: Record<string, unknown>): VolatileStorageMetadata {
     return new VolatileStorageMetadata(
       data["recordKey"] as ERecordKey,
-      data["primaryKey"] as VolatileStorageKey,
+      data["pKey"] as string,
       data["lastUpdate"] as UnixTimestamp,
       data["deleted"] as EBoolean,
     );
@@ -77,6 +76,6 @@ export class RealmVolatileStorageMetadata extends Realm.Object<RealmVolatileStor
       sourceChain: "int",
       derivedAccountAddress: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

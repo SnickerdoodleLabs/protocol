@@ -157,7 +157,7 @@ export class TwitterRepository implements ITwitterRepository {
           ),
         );
       }
-      return this.socialRepository.deleteProfile(profile.pKey);
+      return this.socialRepository.deleteProfile(profile.primaryKey);
     });
   }
 

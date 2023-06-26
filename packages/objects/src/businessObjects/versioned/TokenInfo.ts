@@ -2,12 +2,14 @@ import { TokenAddress } from "@objects/businessObjects/TokenAddress";
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
+} from "@objects/businessObjects/versioned/index.js";
 import { EChain, ERecordKey } from "@objects/enum";
 import { TickerSymbol, VolatileStorageKey } from "@objects/primitives";
 
 export class TokenInfo extends VersionedObject {
-  public pKey: string;
+  public get primaryKey(): VolatileStorageKey {
+    return TokenInfo.getKey(this.chain, this.address);
+  }
 
   public constructor(
     public id: string,
@@ -18,7 +20,6 @@ export class TokenInfo extends VersionedObject {
     public decimals?: number,
   ) {
     super();
-    this.pKey = TokenInfo.getKey(this.chain, this.address);
   }
 
   public static CURRENT_VERSION = 1;
@@ -56,7 +57,7 @@ export class TokenInfoMigrator extends VersionedObjectMigrator<TokenInfo> {
 }
 
 export class RealmTokenInfo extends Realm.Object<RealmTokenInfo> {
-  pKey!: string;
+  primaryKey!: string;
   symbol!: string;
   name!: string;
   chain!: number;
@@ -66,13 +67,13 @@ export class RealmTokenInfo extends Realm.Object<RealmTokenInfo> {
   static schema = {
     name: ERecordKey.COIN_INFO,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       symbol: "string",
       name: "string",
       chain: "int",
       address: "string",
       decimals: "int",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

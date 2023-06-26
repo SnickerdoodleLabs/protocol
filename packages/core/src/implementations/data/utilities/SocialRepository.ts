@@ -42,9 +42,9 @@ export class SocialRepository implements ISocialRepository {
     );
   }
   public getProfileByPK<T extends SocialProfile>(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.persistence.getObject<T>(ERecordKey.SOCIAL_PROFILE, pKey);
+    return this.persistence.getObject<T>(ERecordKey.SOCIAL_PROFILE, primaryKey);
   }
 
   public upsertGroupProfiles<T extends SocialGroupProfile>(
@@ -84,19 +84,19 @@ export class SocialRepository implements ISocialRepository {
   }
 
   public getGroupProfileByPK<T extends SocialGroupProfile>(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.persistence.getObject<T>(ERecordKey.SOCIAL_GROUP, pKey);
+    return this.persistence.getObject<T>(ERecordKey.SOCIAL_GROUP, primaryKey);
   }
 
   public deleteProfile(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.deleteRecord(ERecordKey.SOCIAL_PROFILE, pKey);
+    return this.persistence.deleteRecord(ERecordKey.SOCIAL_PROFILE, primaryKey);
   }
   public deleteGroupProfile(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.deleteRecord(ERecordKey.SOCIAL_GROUP, pKey);
+    return this.persistence.deleteRecord(ERecordKey.SOCIAL_GROUP, primaryKey);
   }
 }

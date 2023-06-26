@@ -17,7 +17,7 @@ export interface ISocialRepository {
   ): ResultAsync<T[], PersistenceError>;
 
   getProfileByPK<T extends SocialProfile>(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError>;
 
   upsertGroupProfiles<T extends SocialGroupProfile>(
@@ -37,12 +37,12 @@ export interface ISocialRepository {
   ): ResultAsync<T[], PersistenceError>;
 
   getGroupProfileByPK<T extends SocialGroupProfile>(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<T | null, PersistenceError>;
 
-  deleteProfile(pKey: SocialPrimaryKey): ResultAsync<void, PersistenceError>;
+  deleteProfile(primaryKey: SocialPrimaryKey): ResultAsync<void, PersistenceError>;
   deleteGroupProfile(
-    pKey: SocialPrimaryKey,
+    primaryKey: SocialPrimaryKey,
   ): ResultAsync<void, PersistenceError>;
 }
 

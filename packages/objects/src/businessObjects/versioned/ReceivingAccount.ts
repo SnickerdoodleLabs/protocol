@@ -1,20 +1,23 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { ERecordKey } from "@objects/enum";
-import { VolatileStorageKey } from "@objects/primitives";
-import { AccountAddress } from "@objects/primitives/AccountAddress";
-import { EVMContractAddress } from "@objects/primitives/EVMContractAddress";
+} from "@objects/businessObjects/versioned/index.js";
+import { ERecordKey } from "@objects/enum/index.js";
+import {
+  AccountAddress,
+  EVMContractAddress,
+  VolatileStorageKey,
+} from "@objects/primitives/index.js";
 
 export class ReceivingAccount extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public get primaryKey(): VolatileStorageKey {
+    return this.contractAddress;
+  }
   public constructor(
     public contractAddress: EVMContractAddress,
     public receivingAddress: AccountAddress,
   ) {
     super();
-    this.pKey = contractAddress;
   }
 
   public static CURRENT_VERSION = 1;
@@ -44,17 +47,17 @@ export class ReceivingAccountMigrator extends VersionedObjectMigrator<ReceivingA
 }
 
 export class RealmReceivingAccount extends Realm.Object<RealmReceivingAccount> {
-  pKey!: string;
+  primaryKey!: string;
   contractAddres!: string;
   receivingAddress!: string;
 
   static schema = {
     name: ERecordKey.RECEIVING_ADDRESSES,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       contractAddres: "string",
       receivingAddress: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

@@ -287,7 +287,7 @@ export class MobileCore {
         ERecordKey.SOCIAL_PROFILE,
         new VolatileTableIndex(
           ERecordKey.SOCIAL_PROFILE,
-          "pKey",
+          "primaryKey",
           false,
           new SocialProfileMigrator(),
           EBackupPriority.NORMAL,
@@ -300,7 +300,7 @@ export class MobileCore {
         ERecordKey.SOCIAL_GROUP,
         new VolatileTableIndex(
           ERecordKey.SOCIAL_GROUP,
-          "pKey",
+          "primaryKey",
           false,
           new SocialGroupProfileMigrator(),
           EBackupPriority.NORMAL,

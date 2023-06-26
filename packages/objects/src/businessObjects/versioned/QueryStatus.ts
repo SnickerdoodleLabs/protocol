@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
+} from "@objects/businessObjects/versioned/index.js";
 import { EQueryProcessingStatus, ERecordKey } from "@objects/enum/index.js";
 import {
   BlockNumber,
@@ -25,7 +25,10 @@ import {
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
 export class QueryStatus extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public get primaryKey(): VolatileStorageKey {
+    return this.queryCID;
+  }
+
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
@@ -35,7 +38,6 @@ export class QueryStatus extends VersionedObject {
     public rewardsParameters: JSONString | null,
   ) {
     super();
-    this.pKey = queryCID;
   }
 
   public static CURRENT_VERSION = 2;
@@ -79,7 +81,7 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
 }
 
 export class RealmQueryStatus extends Realm.Object<QueryStatus> {
-  pKey!: string;
+  primaryKey!: string;
   consentContractAddress!: string;
   queryCID!: string;
   receivedBlock!: number;
@@ -90,7 +92,7 @@ export class RealmQueryStatus extends Realm.Object<QueryStatus> {
   static schema = {
     name: ERecordKey.QUERY_STATUS,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       consentContractAddress: "string",
       queryCID: "string",
       receivedBlock: "int",
@@ -98,6 +100,6 @@ export class RealmQueryStatus extends Realm.Object<QueryStatus> {
       expirationDate: "int",
       rewardsParameters: "string?",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

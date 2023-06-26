@@ -105,7 +105,7 @@ export class BackupManager implements IBackupManager {
     const timestamp = this.timeUtils.getUnixNow();
     return this._checkRecordUpdateRecency(
       recordKey,
-      value.pKey,
+      value.primaryKey,
       timestamp,
     ).andThen((valid) => {
       if (!valid) {
@@ -129,7 +129,7 @@ export class BackupManager implements IBackupManager {
               .update(
                 new VolatileDataUpdate(
                   EDataUpdateOpCode.UPDATE,
-                  value.pKey,
+                  value.primaryKey,
                   timestamp,
                   value,
                   version,
@@ -143,14 +143,14 @@ export class BackupManager implements IBackupManager {
               });
           })
           .andThen(() => {
-            if (value.pKey == null) {
+            if (value.primaryKey == null) {
               return okAsync(undefined);
             }
 
             return this._setMetadata(
               new VolatileStorageMetadata(
                 recordKey,
-                value.pKey,
+                value.primaryKey,
                 timestamp,
                 EBoolean.FALSE,
               ),

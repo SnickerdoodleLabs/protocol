@@ -1,15 +1,19 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { ERecordKey } from "@objects/enum";
-import { DataWalletBackupID, VolatileStorageKey } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/index.js";
+import { ERecordKey } from "@objects/enum/index.js";
+import {
+  DataWalletBackupID,
+  VolatileStorageKey,
+} from "@objects/primitives/index.js";
 
 export class RestoredBackup extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public get primaryKey(): VolatileStorageKey {
+    return this.id;
+  }
   public constructor(public id: DataWalletBackupID) {
     super();
-    this.pKey = id;
   }
 
   public static CURRENT_VERSION = 1;
@@ -36,15 +40,15 @@ export class RestoredBackupMigrator extends VersionedObjectMigrator<RestoredBack
 }
 
 export class RealmRestoredBackup extends Realm.Object<RealmRestoredBackup> {
-  pKey!: string;
+  primaryKey!: string;
   id!: string;
 
   static schema = {
     name: ERecordKey.RESTORED_BACKUPS,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       id: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

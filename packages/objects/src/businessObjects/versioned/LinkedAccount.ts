@@ -1,13 +1,11 @@
-import {
-  VersionedObject,
-  VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { EChain, ERecordKey } from "@objects/enum";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
+import { EChain, ERecordKey } from "@objects/enum/index.js";
 import {
   AccountAddress,
   EVMAccountAddress,
   VolatileStorageKey,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount> {
   public getCurrentVersion(): number {
@@ -31,14 +29,14 @@ export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount
 }
 
 export class LinkedAccount extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public primaryKey: VolatileStorageKey;
   public constructor(
     public sourceChain: EChain,
     public sourceAccountAddress: AccountAddress,
     public derivedAccountAddress: EVMAccountAddress,
   ) {
     super();
-    this.pKey = sourceAccountAddress;
+    this.primaryKey = sourceAccountAddress;
   }
 
   public static CURRENT_VERSION = 1;
@@ -48,7 +46,7 @@ export class LinkedAccount extends VersionedObject {
 }
 
 export class RealmLinkedAccount extends Realm.Object<LinkedAccount> {
-  pKey!: string;
+  primaryKey!: string;
   sourceChain!: number;
   sourceAccountAddress!: string;
   derivedAccountAddress!: string;
@@ -56,11 +54,11 @@ export class RealmLinkedAccount extends Realm.Object<LinkedAccount> {
   static schema = {
     name: ERecordKey.ACCOUNT,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       sourceAccountAddress: "string",
       sourceChain: "int",
       derivedAccountAddress: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

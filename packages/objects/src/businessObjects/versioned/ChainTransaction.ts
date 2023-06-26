@@ -1,13 +1,16 @@
-import {
-  VersionedObject,
-} from "@objects/businessObjects/versioned/VersionedObject";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   ChainId,
   TransactionHash,
   UnixTimestamp,
-} from "@objects/primitives";
+  VolatileStorageKey,
+} from "@objects/primitives/index.js";
 
 export abstract class ChainTransaction extends VersionedObject {
+  public get primaryKey(): VolatileStorageKey {
+    return `${this.chainId}_${this.hash}`;
+  }
+
   public static CURRENT_VERSION = 1;
 
   constructor(

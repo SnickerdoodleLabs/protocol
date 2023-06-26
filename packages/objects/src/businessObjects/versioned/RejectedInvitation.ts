@@ -1,8 +1,8 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
-import { ERecordKey } from "@objects/enum";
+} from "@objects/businessObjects/versioned/index.js";
+import { ERecordKey } from "@objects/enum/index.js";
 import {
   EVMContractAddress,
   UnixTimestamp,
@@ -13,13 +13,14 @@ import {
  * This represents an invitation that has been rejected- either temporarily or permanently
  */
 export class RejectedInvitation extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public get primaryKey(): VolatileStorageKey {
+    return this.consentContractAddress;
+  }
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public rejectUntil: UnixTimestamp | null,
   ) {
     super();
-    this.pKey = consentContractAddress;
   }
 
   public static CURRENT_VERSION = 1;
@@ -49,17 +50,17 @@ export class RejectedInvitationMigrator extends VersionedObjectMigrator<Rejected
 }
 
 export class RealmRejectedInvitation extends Realm.Object<RealmRejectedInvitation> {
-  pKey!: string;
+  primaryKey!: string;
   consentContractAddress!: string;
   rejectUntil!: number | null;
 
   static schema = {
     name: ERecordKey.REJECTED_INVITATIONS,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       consentContractAddress: "string",
       rejectUntil: "int?",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

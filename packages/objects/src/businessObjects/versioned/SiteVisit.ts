@@ -1,20 +1,22 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { ERecordKey } from "@objects/enum";
+} from "@objects/businessObjects/versioned/index.js";
+import { ERecordKey } from "@objects/enum/index.js";
 import {
   URLString,
   DomainName,
   UnixTimestamp,
   VolatileStorageKey,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 /**
  * Represents a visit to a particular Url
  */
 export class SiteVisit extends VersionedObject {
-  public pKey: VolatileStorageKey | null = null;
+  public get primaryKey(): VolatileStorageKey {
+    return `${this.url}_${this.startTime}`;
+  }
   public domain: DomainName | undefined;
 
   public constructor(
@@ -53,7 +55,7 @@ export class SiteVisitMigrator extends VersionedObjectMigrator<SiteVisit> {
 }
 
 export class RealmSiteVisit extends Realm.Object<RealmSiteVisit> {
-  pKey!: Realm.BSON.UUID;
+  primaryKey!: Realm.BSON.UUID;
   domain?: string;
   url!: string;
   startTime!: number;
@@ -62,12 +64,12 @@ export class RealmSiteVisit extends Realm.Object<RealmSiteVisit> {
   static schema = {
     name: ERecordKey.SITE_VISITS,
     properties: {
-      pKey: "uuid",
+      primaryKey: "uuid",
       domain: "string?",
       url: "string",
       startTime: "int",
       endTime: "int",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

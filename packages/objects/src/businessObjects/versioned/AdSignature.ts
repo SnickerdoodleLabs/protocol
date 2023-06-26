@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
+} from "@objects/businessObjects/versioned/index.js";
 import { ERecordKey } from "@objects/enum";
 import {
   IpfsCID,
@@ -13,7 +13,7 @@ import {
 } from "@objects/primitives";
 
 export class AdSignature extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public primaryKey: VolatileStorageKey;
 
   public constructor(
     public consentContractAddress: EVMContractAddress,
@@ -22,7 +22,7 @@ export class AdSignature extends VersionedObject {
     public signature: Signature | JsonWebToken,
   ) {
     super();
-    this.pKey = AdSignature.getKey(queryCID, adKey);
+    this.primaryKey = AdSignature.getKey(queryCID, adKey);
   }
 
   public static CURRENT_VERSION = 1;
@@ -58,7 +58,7 @@ export class AdSignatureMigrator extends VersionedObjectMigrator<AdSignature> {
 }
 
 export class RealmAdSignature extends Realm.Object<RealmAdSignature> {
-  pKey!: string;
+  primaryKey!: string;
   consentContractAddress!: string;
   queryCID!: string;
   adKey!: string;
@@ -67,12 +67,12 @@ export class RealmAdSignature extends Realm.Object<RealmAdSignature> {
   static schema = {
     name: ERecordKey.AD_SIGNATURES,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       consentContractAddress: "string",
       queryCID: "string",
       adKey: "string",
       signature: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

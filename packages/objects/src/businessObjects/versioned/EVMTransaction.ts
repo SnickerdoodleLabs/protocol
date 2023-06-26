@@ -1,11 +1,11 @@
 import { Interface } from "ethers/lib/utils";
 
-import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction";
-import { EVMEvent } from "@objects/businessObjects/EVMEvent";
+import { EVMEvent } from "@objects/businessObjects/EVMEvent.js";
 import {
   EVMFunctionParameter,
   EVMFunctionSignature,
-} from "@objects/businessObjects/EVMFunctionSignature";
+} from "@objects/businessObjects/EVMFunctionSignature.js";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
 import {
   ChainId,
   EVMAccountAddress,
@@ -14,7 +14,8 @@ import {
   EVMAccountAddressRegex,
   EVMTransactionHash,
   EVMContractAddress,
-} from "@objects/primitives";
+  VolatileStorageKey,
+} from "@objects/primitives/index.js";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
@@ -23,6 +24,10 @@ import {
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
 export class EVMTransaction extends ChainTransaction {
+  public get primaryKey(): VolatileStorageKey {
+    return this.hash;
+  }
+
   public accountAddresses: EVMAccountAddress[]; // null safety necessary for old transactions
   public functionSignature: EVMFunctionSignature | null = null;
 

@@ -17,4 +17,5 @@ export * from "@objects/businessObjects/versioned/SocialProfile.js";
 export * from "@objects/businessObjects/versioned/SolanaTransaction.js";
 export * from "@objects/businessObjects/versioned/TokenInfo.js";
 export * from "@objects/businessObjects/versioned/VersionedObject.js";
+export * from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
 export * from "@objects/businessObjects/versioned/VolatileStorageMetadata.js";

@@ -1,20 +1,20 @@
-import {
-  VersionedObject,
-  VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { ERecordKey } from "@objects/enum";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
+import { ERecordKey } from "@objects/enum/index.js";
 import {
   URLString,
   UnixTimestamp,
   VolatileStorageKey,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 /**
  * I honestly don't know what we need to collect for clicks. I'm not a data guy. Presumeably,
  * you want to know where you clicked and when you did it.
  */
 export class ClickData extends VersionedObject {
-  public pKey: VolatileStorageKey | null = null;
+  public get primaryKey(): VolatileStorageKey {
+    return `${this.url}_${this.timestamp}_${this.element}`;
+  }
   public constructor(
     public url: URLString,
     public timestamp: UnixTimestamp,
@@ -51,7 +51,7 @@ export class ClickDataMigrator extends VersionedObjectMigrator<ClickData> {
 }
 
 export class RealmClickData extends Realm.Object<RealmClickData> {
-  pKey!: Realm.BSON.UUID;
+  primaryKey!: Realm.BSON.UUID;
   url!: string;
   timestamp!: number;
   element!: string;
@@ -59,11 +59,11 @@ export class RealmClickData extends Realm.Object<RealmClickData> {
   static schema = {
     name: ERecordKey.CLICKS,
     properties: {
-      pKey: "uuid",
+      primaryKey: "uuid",
       url: "string",
       timestamp: "number",
       element: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

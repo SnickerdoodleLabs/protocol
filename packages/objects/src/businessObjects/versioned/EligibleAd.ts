@@ -1,9 +1,7 @@
 import { AdContent } from "@objects/businessObjects/AdContent.js";
-import {
-  VersionedObject,
-  VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
-import { ERecordKey } from "@objects/enum";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
+import { ERecordKey } from "@objects/enum/index.js";
 import {
   AdKey,
   EVMContractAddress,
@@ -14,7 +12,9 @@ import {
 } from "@objects/primitives/index.js";
 
 export class EligibleAd extends VersionedObject {
-  public pKey: VolatileStorageKey | null;
+  public get primaryKey(): VolatileStorageKey {
+    return EligibleAd.getKey(this.queryCID, this.key);
+  }
 
   public constructor(
     public consentContractAddress: EVMContractAddress,
@@ -29,7 +29,6 @@ export class EligibleAd extends VersionedObject {
     public keywords: string[],
   ) {
     super();
-    this.pKey = EligibleAd.getKey(queryCID, key);
   }
 
   public getUniqueId(): string {
@@ -75,7 +74,7 @@ export class EligibleAdMigrator extends VersionedObjectMigrator<EligibleAd> {
 }
 
 export class RealmEligibleAd extends Realm.Object<RealmEligibleAd> {
-  pKey!: string;
+  primaryKey!: string;
   consentContractAddress!: string;
   queryCID!: string;
   key!: string;
@@ -90,7 +89,7 @@ export class RealmEligibleAd extends Realm.Object<RealmEligibleAd> {
   static schema = {
     name: ERecordKey.ELIGIBLE_ADS,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       consentContractAddress: "string",
       queryCID: "string",
       key: "string",
@@ -102,7 +101,7 @@ export class RealmEligibleAd extends Realm.Object<RealmEligibleAd> {
       expiry: "int",
       keywords: "string[]",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }
 

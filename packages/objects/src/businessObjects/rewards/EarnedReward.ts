@@ -1,13 +1,15 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
+} from "@objects/businessObjects/versioned/index.js";
 import { ERecordKey } from "@objects/enum";
 import { ERewardType } from "@objects/enum/ERewardType";
 import { IpfsCID, VolatileStorageKey } from "@objects/primitives";
 
 export class EarnedReward extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public get primaryKey(): VolatileStorageKey {
+    return EarnedReward.getKey(this.queryCID, this.name);
+  }
 
   constructor(
     readonly queryCID: IpfsCID,
@@ -17,7 +19,6 @@ export class EarnedReward extends VersionedObject {
     readonly type: ERewardType,
   ) {
     super();
-    this.pKey = EarnedReward.getKey(queryCID, name);
   }
 
   public static CURRENT_VERSION = 1;
@@ -54,7 +55,7 @@ export class EarnedRewardMigrator extends VersionedObjectMigrator<EarnedReward> 
 }
 
 export class RealmEarnedReward extends Realm.Object<RealmEarnedReward> {
-  pKey!: string;
+  primaryKey!: string;
   queryCID!: string;
   name!: string;
   image!: string | null;
@@ -64,13 +65,13 @@ export class RealmEarnedReward extends Realm.Object<RealmEarnedReward> {
   static schema = {
     name: ERecordKey.EARNED_REWARDS,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       queryCID: "string",
       name: "string",
       image: "string?",
       description: "string",
       type: "string",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }

@@ -1,19 +1,19 @@
 import { RSAKeyPair } from "@objects/businessObjects/RSAKeyPair.js";
-import {
-  VersionedObject,
-  VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
-import { ERecordKey } from "@objects/enum";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
+import { ERecordKey } from "@objects/enum/index.js";
 import {
   DomainName,
   PEMEncodedRSAPrivateKey,
   PEMEncodedRSAPublicKey,
   UUID,
   VolatileStorageKey,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class DomainCredential extends VersionedObject {
-  public pKey: VolatileStorageKey;
+  public get primaryKey(): VolatileStorageKey {
+    return this.domain;
+  }
 
   public constructor(
     public domain: DomainName,
@@ -21,7 +21,6 @@ export class DomainCredential extends VersionedObject {
     public key: RSAKeyPair,
   ) {
     super();
-    this.pKey = domain;
   }
 
   public static CURRENT_VERSION = 1;
@@ -57,18 +56,18 @@ export class DomainCredentialMigrator extends VersionedObjectMigrator<DomainCred
 }
 
 export class RealmDomainCredential extends Realm.Object<RealmDomainCredential> {
-  pKey!: string;
+  primaryKey!: string;
   id!: string;
   key!: RealmRsaKeyPair;
 
   static schema = {
     name: ERecordKey.DOMAIN_CREDENTIALS,
     properties: {
-      pKey: "string",
+      primaryKey: "string",
       id: "string",
       key: "{}",
     },
-    primaryKey: "pKey",
+    primaryKey: "primaryKey",
   };
 }
 

@@ -182,8 +182,8 @@ export class DiscordRepository implements IDiscordRepository {
   public getProfileById(
     id: DiscordID,
   ): ResultAsync<DiscordProfile | null, PersistenceError> {
-    const pKey = SocialPrimaryKey(`discord-${id}`); // Should be in a Utils class.
-    return this.socialRepository.getProfileByPK<DiscordProfile>(pKey);
+    const primaryKey = SocialPrimaryKey(`discord-${id}`); // Should be in a Utils class.
+    return this.socialRepository.getProfileByPK<DiscordProfile>(primaryKey);
   }
 
   public upsertGuildProfiles(
@@ -276,16 +276,16 @@ export class DiscordRepository implements IDiscordRepository {
     uProfile: DiscordProfile,
   ): ResultAsync<void, PersistenceError> {
     return this.socialRepository
-      .deleteProfile(uProfile.pKey)
+      .deleteProfile(uProfile.primaryKey)
       .andThen(() => {
         return this.socialRepository.getGroupProfilesByOwnerId<DiscordGuildProfile>(
-          uProfile.pKey,
+          uProfile.primaryKey,
         );
       })
       .andThen((guildProfiles) => {
         return ResultUtils.combine(
           guildProfiles.map((guildProfile) => {
-            return this.socialRepository.deleteGroupProfile(guildProfile.pKey);
+            return this.socialRepository.deleteGroupProfile(guildProfile.primaryKey);
           }),
         );
       })

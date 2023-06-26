@@ -11,7 +11,7 @@ import { IStorageIndex } from "@persistence/IStorageIndex.js";
 export class VolatileTableIndex<T extends VersionedObject>
   implements IStorageIndex
 {
-  public static DEFAULT_KEY = "pKey";
+  public static DEFAULT_KEY = "primaryKey";
   public constructor(
     public name: ERecordKey,
     public realmClass: ObjectClass<any>,

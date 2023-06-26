@@ -1,7 +1,7 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
+} from "@objects/businessObjects/versioned/index.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
   DiscordID,
@@ -16,7 +16,7 @@ import {
 export abstract class SocialGroupProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
   public constructor(
-    public pKey: SocialPrimaryKey,
+    public primaryKey: SocialPrimaryKey,
     public type: ESocialType,
     public ownerId?: SocialPrimaryKey,
   ) {
@@ -27,11 +27,11 @@ export abstract class SocialGroupProfile extends VersionedObject {
 export class InvalidSocialGroupProfile extends SocialGroupProfile {
   public static CURRENT_VERSION = 1;
   public constructor(
-    public pKey: SocialPrimaryKey,
+    public primaryKey: SocialPrimaryKey,
     public type: ESocialType,
     public ownerId: SocialPrimaryKey,
   ) {
-    super(pKey, type, ownerId);
+    super(primaryKey, type, ownerId);
   }
   public getVersion(): number {
     return InvalidSocialGroupProfile.CURRENT_VERSION;
@@ -55,7 +55,7 @@ export class SocialGroupProfileMigrator extends VersionedObjectMigrator<SocialGr
         return this.discordMigrator.factory(data);
     }
     return new InvalidSocialGroupProfile( // Cannot return null
-      SocialPrimaryKey(data["pKey"] as string),
+      SocialPrimaryKey(data["primaryKey"] as string),
       ESocialType[data["type"] as string],
       SocialPrimaryKey(data["ownerId"] as string),
     );

@@ -66,8 +66,8 @@ export class RealmVolatileStorage implements IVolatileStorage {
       const { RealmProvider, useRealm, useObject, useQuery } = context;
       const realm = useRealm();
       try {
-        if (obj.pKey == null) {
-          obj.pKey = new Realm.BSON.UUID();
+        if (obj.primaryKey == null) {
+          obj.primaryKey = new Realm.BSON.UUID();
         }
 
         realm.write(() => {
@@ -164,7 +164,7 @@ export class RealmVolatileStorage implements IVolatileStorage {
   ): ResultAsync<T[], PersistenceError> {
     // no get keys functionality for realm
     return this.getAll(recordKey, query).map((results) => {
-      return results.map((x) => x.pKey as T);
+      return results.map((x) => x.primaryKey as T);
     });
   }
 

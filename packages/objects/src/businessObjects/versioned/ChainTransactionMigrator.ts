@@ -2,7 +2,7 @@ import { EVMEvent } from "@objects/businessObjects/EVMEvent.js";
 import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
 import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction.js";
 import { SolanaTransaction } from "@objects/businessObjects/versioned/SolanaTransaction.js";
-import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { VersionedObjectMigrator } from "@objects/businessObjects/versioned/VersionedObjectMigrator.js";
 import { getChainInfoByChainId } from "@objects/configuration/index.js";
 import { EChainTechnology } from "@objects/enum/index.js";
 import {
@@ -13,14 +13,14 @@ import {
   EVMTransactionHash,
   SolanaTransactionSignature,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class ChainTransactionMigrator extends VersionedObjectMigrator<ChainTransaction> {
   public getCurrentVersion(): number {
     return ChainTransaction.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): ChainTransaction {
+  public factory(data: Record<string, unknown>): ChainTransaction {
     switch (getChainInfoByChainId(data["chainId"] as ChainId).chainTechnology) {
       case EChainTechnology.Solana:
         return new SolanaTransaction(

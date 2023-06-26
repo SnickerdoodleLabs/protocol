@@ -5,7 +5,7 @@ import {
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject.js";
+} from "@objects/businessObjects/versioned/index.js";
 import { ESocialType } from "@objects/enum/index.js";
 import {
   Integer,
@@ -17,7 +17,10 @@ import {
 
 export abstract class SocialProfile extends VersionedObject {
   public static CURRENT_VERSION = 1;
-  public constructor(public pKey: SocialPrimaryKey, public type: ESocialType) {
+  public constructor(
+    public primaryKey: SocialPrimaryKey,
+    public type: ESocialType,
+  ) {
     super();
   }
   public getVersion(): number {
@@ -27,8 +30,11 @@ export abstract class SocialProfile extends VersionedObject {
 
 export class InvalidSocialProfile extends SocialProfile {
   public static CURRENT_VERSION = 1;
-  public constructor(public pKey: SocialPrimaryKey, public type: ESocialType) {
-    super(pKey, type);
+  public constructor(
+    public primaryKey: SocialPrimaryKey,
+    public type: ESocialType,
+  ) {
+    super(primaryKey, type);
   }
   public getVersion(): number {
     return InvalidSocialProfile.CURRENT_VERSION;
@@ -49,7 +55,7 @@ export class SocialProfileMigrator extends VersionedObjectMigrator<SocialProfile
     this.twitterMigrator = new TwitterProfileMigrator();
   }
 
-  protected factory(data: Record<string, unknown>): SocialProfile {
+  public factory(data: Record<string, unknown>): SocialProfile {
     switch (data["type"]) {
       case ESocialType.DISCORD:
         return this.discordMigrator.factory(data);
@@ -57,7 +63,7 @@ export class SocialProfileMigrator extends VersionedObjectMigrator<SocialProfile
         return this.twitterMigrator.factory(data);
     }
     return new InvalidSocialProfile( // Cannot return null
-      SocialPrimaryKey(data["pKey"] as string),
+      SocialPrimaryKey(data["primaryKey"] as string),
       ESocialType[data["type"] as string],
     );
   }
