@@ -129,6 +129,8 @@ export class AnkrIndexer implements IEVMIndexer {
         },
         id: 1,
       };
+      console.log("getBalancesForAccount url: " + url);
+      console.log("requestParams: " + requestParams);
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils
@@ -178,6 +180,7 @@ export class AnkrIndexer implements IEVMIndexer {
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
         "/?ankr_getNFTsByOwner";
+
       const nftSupportChain = this.nftSupport.get(chainId);
       if (nftSupportChain == undefined) {
         return okAsync([]);
@@ -193,6 +196,9 @@ export class AnkrIndexer implements IEVMIndexer {
         },
         id: 1,
       };
+
+      console.log("getTokensForAccount url: " + url);
+      console.log("requestParams: " + requestParams);
 
       context.privateEvents.onApiAccessed.next(EExternalApi.Ankr);
       return this.ajaxUtils

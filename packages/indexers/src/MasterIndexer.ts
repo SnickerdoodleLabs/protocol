@@ -26,7 +26,6 @@ import {
   ICovalentEVMTransactionRepositoryType,
   IDummySolanaIndexerType,
   IEtherscanIndexerType,
-  IEtherscanNativeBalanceRepositoryType,
   IEVMIndexer,
   IMasterIndexer,
   IMoralisEVMPortfolioRepositoryType,
@@ -68,19 +67,19 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.EthereumMainnet, [this.ankr, this.etherscan]],
     [EChain.Polygon, [this.ankr, this.alchemy]],
     [EChain.Optimism, [this.ankr, this.alchemy, this.nftscan]],
-    [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
+    [EChain.Binance, [this.ankr, this.etherscan, this.nftscan]],
     [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
-    [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
+    [EChain.Avalanche, [this.ankr, this.etherscan, this.nftscan]],
+
+    /* Etherscan Balance Preferred */
+    [EChain.Moonbeam, [this.etherscan, this.nftscan]],
+    [EChain.Gnosis, [this.etherscan, this.poapRepo]],
+    [EChain.Fuji, [this.etherscan, this.nftscan]],
 
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
     [EChain.Shibuya, [this.alchemy]],
-
-    /* Etherscan Native Balance Preferred */
-    [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
-    [EChain.Gnosis, [this.etherscanNative, this.poapRepo]],
-    [EChain.Fuji, [this.etherscanNative, this.nftscan]],
   ]);
 
   protected componentStatus: ComponentStatus = new ComponentStatus(
@@ -102,8 +101,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
-    @inject(IEtherscanNativeBalanceRepositoryType)
-    protected etherscanNative: IEVMIndexer,
     @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
     @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
@@ -130,7 +127,6 @@ export class MasterIndexer implements IMasterIndexer {
       this.ankr.getHealthCheck(),
       this.covalent.getHealthCheck(),
       this.etherscan.getHealthCheck(),
-      this.etherscanNative.getHealthCheck(),
       this.matic.getHealthCheck(),
       this.moralis.getHealthCheck(),
       this.nftscan.getHealthCheck(),
@@ -145,7 +141,6 @@ export class MasterIndexer implements IMasterIndexer {
         ankrHealth,
         covalentHealth,
         etherscanHealth,
-        etherscanNativeHealth,
         maticHealth,
         moralisHealth,
         nftscanHealth,
