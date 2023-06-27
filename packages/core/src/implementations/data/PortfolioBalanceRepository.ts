@@ -22,14 +22,10 @@ import {
   IMasterIndexer,
   MethodSupportError,
   EChain,
-  ERecordKey,
-  EarnedReward,
   ERewardType,
   DirectReward,
-  EChainTechnology,
   EVMNFT,
   BigNumberString,
-  TokenUri,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -131,6 +127,38 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
   }
 
+  public getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], PersistenceError> {
+    return ResultUtils.combine([
+      this.accountRepo.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([linkedAccounts, config]) => {
+        return ResultUtils.combine(
+          (accounts ?? linkedAccounts).map((linkedAccount) => {
+            return ResultUtils.combine(
+              (chains ?? config.supportedChains).map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
+                return this.getCachedNFTs(
+                  chainId,
+                  linkedAccount.sourceAccountAddress,
+                );
+              }),
+            );
+          }),
+        );
+      })
+      .map((nftArr) => {
+        return nftArr.flat(2);
+      })
+      .mapErr((e) => new PersistenceError("error aggregating nfts", e));
+  }
+
   private getCachedBalances(
     chainId: ChainId,
     accountAddress: AccountAddress,
@@ -164,38 +192,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           .andThen(() => fetch);
       });
     });
-  }
-
-  public getAccountNFTs(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<WalletNFT[], PersistenceError> {
-    return ResultUtils.combine([
-      this.accountRepo.getAccounts(),
-      this.configProvider.getConfig(),
-    ])
-      .andThen(([linkedAccounts, config]) => {
-        return ResultUtils.combine(
-          (accounts ?? linkedAccounts).map((linkedAccount) => {
-            return ResultUtils.combine(
-              (chains ?? config.supportedChains).map((chainId) => {
-                if (!isAccountValidForChain(chainId, linkedAccount)) {
-                  return okAsync([]);
-                }
-
-                return this.getCachedNFTs(
-                  chainId,
-                  linkedAccount.sourceAccountAddress,
-                );
-              }),
-            );
-          }),
-        );
-      })
-      .map((nftArr) => {
-        return nftArr.flat(2);
-      })
-      .mapErr((e) => new PersistenceError("error aggregating nfts", e));
   }
 
   private getCachedNFTs(
