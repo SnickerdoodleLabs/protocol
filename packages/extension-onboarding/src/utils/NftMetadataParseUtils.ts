@@ -1,5 +1,10 @@
-import { EContentType, INFT } from "@extension-onboarding/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import {
+  EContentType,
+  INFT,
+  INFTEventField,
+} from "@extension-onboarding/objects";
 
 const emptytNft: INFT = {
   name: null,
@@ -10,14 +15,13 @@ const emptytNft: INFT = {
   contentType: null,
   contentUrls: null,
   attributes: null,
+  event: null,
 };
 
 export class NftMetadataParseUtils {
-  public static getParsedNFT = (
-    metadataString: string,
-  ): ResultAsync<INFT, never> => {
+  public static getParsedNFT = (metadataString: string): INFT => {
     if (!metadataString) {
-      return okAsync(emptytNft);
+      return emptytNft;
     }
     let metadataObj = null;
     try {
@@ -27,9 +31,9 @@ export class NftMetadataParseUtils {
       metadataObj = null;
     }
     if (!metadataObj) {
-      return okAsync(emptytNft);
+      return emptytNft;
     }
-    return okAsync({
+    return {
       name: this.getName(metadataObj),
       description: this.getDescription(metadataObj),
       imageUrl: this.getImageUrl(metadataString),
@@ -38,7 +42,8 @@ export class NftMetadataParseUtils {
       contentType: this.getContentType(metadataObj),
       contentUrls: this.getContentUrls(metadataObj),
       attributes: this.getAttributes(metadataObj),
-    } as INFT);
+      event: this.getEventInfo(metadataObj),
+    } as INFT;
   };
 
   private static getImageUrl(metadataString: string) {
@@ -86,7 +91,7 @@ export class NftMetadataParseUtils {
   }
 
   private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? null;
+    return metadataObj.attributes ?? metadataObj.traits ?? null;
   }
 
   private static getName(metadataObj) {
@@ -96,6 +101,26 @@ export class NftMetadataParseUtils {
     return metadataObj.description ?? null;
   }
 
+  private static getEventInfo(metadataObj) {
+    if (
+      metadataObj.hasOwnProperty("start_date") &&
+      metadataObj.hasOwnProperty("end_date")
+    ) {
+      return {
+        id: metadataObj.id,
+        eventUrl: metadataObj.event_url,
+        country: metadataObj.country,
+        city: metadataObj.city,
+        startDate: metadataObj.start_date,
+        endDate: metadataObj.end_date,
+        expiryDate: metadataObj.expiry_date,
+        supply: metadataObj.supply,
+        year: metadataObj.year,
+      } as INFTEventField;
+    }
+    return null;
+  }
+
   private static normalizeUrl(url: string): string {
     let res = url;
     if (res.includes("ipfs://ipfs/")) {
@@ -103,6 +128,9 @@ export class NftMetadataParseUtils {
     } else {
       res = res.replace("ipfs://", "https://ipfs.io/ipfs/");
     }
+
+    // added for location base issues
+    res = res.replace("https://ipfs.io/ipfs/", "https://cf-ipfs.com/ipfs/");
     return res;
   }
 }

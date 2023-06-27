@@ -2,7 +2,6 @@
   "manifest_version": 3,
   "name": "Snickerdoodle: Own Your Data. Get Rewards.",
   "description": "Get Incredible Rewards for Sharing Anonymous Data, All In One Place. Reclaim Your Cookies!",
-  "options_page": "options.html",
   "background": {
     "service_worker": "background.bundle.js"
   },
@@ -10,8 +9,7 @@
     "default_icon": "assets/appIcons/small.png"
   },
   "host_permissions": [],
-
-  "permissions": ["cookies", "tabs", "storage", "activeTab"],
+  "permissions": ["cookies", "tabs", "storage", "activeTab", "offscreen"],
   "icons": {
     "128": "assets/appIcons/big.png"
   },
@@ -19,18 +17,15 @@
     {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],
       "js": ["contentScript.bundle.js"],
-      "css": ["content.styles.css"],
       "run_at": "document_end"
     }
   ],
-  "devtools_page": "devtools.html",
   "web_accessible_resources": [
     {
       "resources": [
         "content.styles.css",
-        "shadowScript.js",
-        "injectables/*",
-        "assets/*"
+        "assets/*",
+        "dataWalletProxy.bundle.js"
       ],
       "matches": ["<all_urls>"]
     }

@@ -1,7 +1,8 @@
 import optInBg from "@extension-onboarding/assets/images/opt-in-bg.svg";
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -26,7 +27,7 @@ const OptIn: FC = () => {
   const { invitationInfo } = useAppContext();
   const { setLoadingStatus } = useLayoutContext();
   const { setAlert } = useNotificationContext();
-
+  const navigate = useNavigate();
   useEffect(() => {
     getInvitationData();
   }, [JSON.stringify(invitationInfo)]);
@@ -48,8 +49,7 @@ const OptIn: FC = () => {
 
   const navigateToNext = useCallback(() => {
     setLoadingStatus(false);
-    sessionStorage.removeItem("appMode");
-    window.location.reload();
+    navigate(EPaths.ONBOARDING_TAG_SELECTION);
   }, []);
 
   const getInvitationData = useCallback(() => {
@@ -92,11 +92,21 @@ const OptIn: FC = () => {
   ) => {
     setAcceptLoading(true);
     return window.sdlDataWallet
-      .acceptInvitation(null, consentContractAddress, tokenId, signature)
+      .getDefaultPermissions()
+      .andThen((permissions) =>
+        window.sdlDataWallet.acceptInvitation(
+          permissions,
+          consentContractAddress,
+          tokenId,
+          signature,
+        ),
+      )
       .mapErr((e) => {
-        setAlert({ severity: EAlertSeverity.ERROR, message: "Error" });
-        sessionStorage.removeItem("appMode");
-        window.location.reload();
+        setAlert({
+          severity: EAlertSeverity.ERROR,
+          message: "Error Optin Failed!",
+        });
+        navigateToNext();
       })
       .map(() => {
         setAcceptLoading(false);
@@ -139,18 +149,13 @@ const OptIn: FC = () => {
               alignItems="center"
               px={5}
             >
-              <Box mb={3}>
-                <Typography className={classes.infoText}>
-                  One More Step to View Your NFT
-                </Typography>
-              </Box>
               <Button
                 onClick={() => {
                   navigateToNext();
                 }}
                 fullWidth
               >
-                Go to Data Wallet
+                Next
               </Button>
             </Box>
           </Box>

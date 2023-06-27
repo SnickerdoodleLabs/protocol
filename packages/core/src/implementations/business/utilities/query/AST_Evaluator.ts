@@ -25,9 +25,12 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
+import {
+  IAST_Evaluator,
+  IQueryRepository,
+} from "@core/interfaces/business/utilities/query/index.js";
 
-export class AST_Evaluator {
+export class AST_Evaluator implements IAST_Evaluator {
   /**
    * @remarks This class should not be instantiated directly. Use the AST_Factories instead.
    */
@@ -79,8 +82,9 @@ export class AST_Evaluator {
      */
 
     if (TypeChecker.isPrimitiveExpr(expr)) {
-      const val = SDQL_Return( //Evaluate "null" as false
-        (expr as AST_Expr).source ?? false as SDQL_Return
+      const val = SDQL_Return(
+        //Evaluate "null" as false
+        (expr as AST_Expr).source ?? (false as SDQL_Return),
       );
       return okAsync(val);
     } else {
@@ -189,12 +193,16 @@ export class AST_Evaluator {
   public evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError> {
     return this.evalAny(cond.lval).andThen(
       (lval): ResultAsync<SDQL_Return, EvaluationError> => {
-        const right = this.evalAny(cond.rvals);
+        const right = this.evalAny(cond.rval);
         return right.andThen(
           (rvals): ResultAsync<SDQL_Return, EvaluationError> => {
             // console.log('left', lval);
             // console.log('right', rvals);
-            return okAsync(SDQL_Return((rvals as Array<any>).includes(lval)));
+            return okAsync(
+              SDQL_Return(
+                (rvals as Array<string | number | SDQL_Return>).includes(lval),
+              ),
+            );
           },
         );
       },

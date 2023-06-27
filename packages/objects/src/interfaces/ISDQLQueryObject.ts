@@ -1,5 +1,7 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
+import { AdContent } from "@objects/businessObjects/index.js";
+import { ESDQLQueryReturn } from "@objects/enum/index.js";
 import {
   AccountAddress,
   ChainId,
@@ -9,10 +11,10 @@ import {
   URLString,
   AdKey,
   UnixTimestamp,
-  EAdDisplayType, 
-  ISO8601DateString
-} from "@objects/primitives";
-import { AdContent } from "@objects/businessObjects";
+  EAdDisplayType,
+  ISO8601DateString,
+  QueryTypes,
+} from "@objects/primitives/index.js";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -35,12 +37,16 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return: string;
+  return: ESDQLQueryReturn;
   chain?: string;
+  networkid?: string | string[];
+  address?: string | string[];
+  timestampRange?: ISDQLTimestampRange;
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
   object_schema?: ISDQLObjectSchema;
+  patternProperties ?: Record<string, unknown>;
 }
 
 export interface ISDQLObjectSchema {
@@ -59,8 +65,8 @@ export interface ISDQLQueryContract {
 }
 
 export interface ISDQLTimestampRange {
-  start: number;
-  end: number;
+  start: number | string;
+  end: number | string;
 }
 
 export interface ISDQLQueryConditions {
@@ -91,7 +97,7 @@ export interface ISDQLAdsBlock {
 
 export interface ISDQLAd {
   name: string;
-  content: AdContent,
+  content: AdContent;
   text: string | null;
   displayType: EAdDisplayType;
   weight: number;
@@ -100,9 +106,7 @@ export interface ISDQLAd {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]:
-    | ISDQLCompensationParameters
-    | ISDQLCompensations;
+  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 

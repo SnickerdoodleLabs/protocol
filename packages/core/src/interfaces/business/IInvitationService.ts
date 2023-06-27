@@ -18,10 +18,9 @@ import {
   ConsentFactoryContractError,
   IpfsCID,
   HexString32,
-  Signature,
-  TokenId,
-  MarketplaceListing,
   AccountAddress,
+  IConsentCapacity,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -53,6 +52,7 @@ export interface IInvitationService {
 
   rejectInvitation(
     invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -78,11 +78,11 @@ export interface IInvitationService {
   >;
 
   setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError>;
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
@@ -106,6 +106,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+    | PersistenceError
   >;
 
   getAcceptedInvitationsCID(): ResultAsync<
@@ -115,6 +116,12 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+  >;
+  getConsentCapacity(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IConsentCapacity,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getInvitationMetadataByCID(
@@ -132,6 +139,19 @@ export interface IInvitationService {
     | PersistenceError
     | ConsentFactoryContractError
   >;
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | ConsentContractError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | AjaxError
+  >;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
@@ -140,19 +160,6 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
-  >;
-
-  getMarketplaceListings(
-    count?: number | undefined,
-    headAt?: number | undefined,
-  ): ResultAsync<
-    MarketplaceListing,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
-  >;
-
-  getListingsTotal(): ResultAsync<
-    number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 }
 

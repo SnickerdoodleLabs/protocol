@@ -26,18 +26,33 @@ graph TD;
     PL-->|SDQL callback url|AS
 ```
 
-Processing a network query begins with the detection, by an instance of [`BlockchainLister`](packages\core\src\implementations\api\BlockchainListener.ts), of a 
+Processing a blockchain query begins with the detection, by an instance of [`BlockchainLister`](packages\core\src\implementations\api\BlockchainListener.ts), of a 
 [`requestForData`](/packages/contracts/contracts/consent/Consent.sol) event emitted from a consent contract. The event data includes an IPFS 
 [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be executed. 
-The query CID is then passed into the Query Service via a call to `processQuery`. 
+The query CID is then passed into the Query Service via a call to `approveQuery`. 
 
-The call to `processQuery` then creates two separate abstract syntax tree (AST) objects based on the contents of the [`logic`](/documentation/sdql#logic) block: one for the SDQL 
-[`returns`](/documentation/sdql#returns) block, and one for the [`compensations`](/documentation/sdql#compensations) block. Each of these blocks can themselves reference one or 
-more [`query`](/documentation/sdql#queries) or [`compensation`](/documentation/sdql#compensations) definitions respectively. The ASTs are ultimately evaluated against the data 
-wallet's [persistence layer](/packages/persistence/README.md) consistent with user-specified permissions, i.e. if a `query` specification requires access to the `location` 
-attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query. 
+The call to `approveQuery` then creates one abstract syntax tree (AST) for each and every **logic expression** in the [`logic`](/documentation/sdql#logic) block of given query file. <br>The following logic block results in 3 AST roots.
 
-Finally, after data has been accessed at the persistence layer level, the `processQuery` function delivers a cryptographically signed data payload, via the `deliverInsights`
+    logic: {
+        ads: ["if$q1>30then$a1"],
+        compensations: [
+            "if$q2then$c1",
+            "if$a1then$c2",
+        ],
+    },
+
+
+These logic expressions can reference one or more 
+- [`queries`](/documentation/sdql#queries), 
+- [`ads`](/documentation/sdql#ads),
+- [`compensations`](/documentation/sdql#compensations)
+- and [`returns`](/documentation/sdql#returns).
+
+Given example references $q1, $q2 as queries, $a1 as an ad, and $c1, $c2 as compensations.
+
+Resulting ASTs are ultimately evaluated against data wallet's [persistence layer](/packages/persistence/README.md), in consistence with user-specified permissions (i.e. if a `query` specification requires access to the `location` attribute of a user, the user must have consented to this access by indicating their acceptance in the consent contract associated with the query.)
+
+Finally, after data has been accessed at the persistence layer level, the `approveQuery` function delivers a cryptographically signed data payload, via the `deliverInsights`
 function to the aggregation url specified the query's SDQL JSON file. 
 
 ## Query Execution Flow
@@ -104,3 +119,4 @@ We traverse the tree in post-order (evaluate children first in any order).
 4. $q1and$q2or$q3 -> $q1,$q2,and,q3,or
 5. ($q1and($q2or$q3)) -> $q1,$q2,q3,or,and
 6. if$q1and$q2then$r1 -> $q1, $q2, and, if, $r1, then
+7. if($q1>=30)and($q2<=35)then$a1 -> $q1, 30, >, $q2, 35, <, and, $a1, if

@@ -60,10 +60,16 @@
       "path": "packages/query-parser/test"
     },
     {
+      "path": "packages/shared-components"
+    },
+    {
       "path": "packages/signatureVerification"
     },
     {
       "path": "packages/signatureVerification/test"
+    },
+    {
+      "path": "packages/synamint-extension-sdk"
     },
     {
       "path": "packages/test-harness"

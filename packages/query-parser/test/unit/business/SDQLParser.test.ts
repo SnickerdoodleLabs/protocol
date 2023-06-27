@@ -1,21 +1,24 @@
 import "reflect-metadata";
 
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EWalletDataType,
   IpfsCID,
+  SDQLQuery,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 
-import { SDQLQueryWrapperMocks } from "../../mocks";
-
-
-import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
+import {
+  QueryObjectFactory,
+  SDQLParser,
+  SDQLQueryWrapperFactory,
+} from "@query-parser/implementations";
 import {
   AST,
   AST_BalanceQuery,
   AST_Compensation,
   AST_ConditionExpr,
-  AST_NetworkQuery,
+  AST_BlockchainTransactionQuery,
   AST_PropertyQuery,
   AST_Query,
   AST_Return,
@@ -26,9 +29,14 @@ import {
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
+const cid = IpfsCID("0");
+
 describe("SDQLParser on avalanche", () => {
-  const wrapperMocks = new SDQLQueryWrapperMocks();
-  const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+  const timeUtils = new TimeUtils();
+  const sdqlQueryWrapperFactory = new SDQLQueryWrapperFactory(timeUtils);
+  const schema = sdqlQueryWrapperFactory.makeWrapper(
+    new SDQLQuery(cid, avalanche1SchemaStr),
+  );
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 
@@ -44,9 +52,9 @@ describe("SDQLParser on avalanche", () => {
 
   describe("Checking queries", () => {
     test("q1 is a network query on AVAX", () => {
-      const q1 = parser.context.get("q1") as AST_NetworkQuery;
+      const q1 = parser.context.get("q1") as AST_BlockchainTransactionQuery;
       // console.log(q1.contract);
-      expect(q1 instanceof AST_NetworkQuery).toBeTruthy();
+      expect(q1 instanceof AST_BlockchainTransactionQuery).toBeTruthy();
       expect(q1.returnType).toBe("boolean");
       expect(q1.chain).toBe("AVAX");
       expect(q1.contract.networkId).toBe(43114);
@@ -136,40 +144,24 @@ describe("SDQLParser on avalanche", () => {
       );
       expect(c3.description).toBe("a free CrazyApesClub NFT");
 
-      expect(c1.callback).toEqual(
-        {
-          parameters: [
-            "recipientAddress"
-          ],
-          data: {
-            trackingId: "982JJDSLAcx",
-          }
-        }
-      )
-      expect(c2.callback).toEqual(
-        {
-          parameters: [
-            "recipientAddress",
-            "productId"
-          ],
-          data: {
-            trackingId: "982JJDSLAcx",
-          }
-        }
-      )
-      expect(c3.callback).toEqual(
-        {
-          parameters: [
-            "recipientAddress",
-            "productId"
-          ],
-          data: {
-            trackingId: "982JJDSLAcx",
-          }
-        }
-      )
-
-
+      expect(c1.callback).toEqual({
+        parameters: ["recipientAddress"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      });
+      expect(c2.callback).toEqual({
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      });
+      expect(c3.callback).toEqual({
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      });
     });
 
     test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", () => {
@@ -177,27 +169,22 @@ describe("SDQLParser on avalanche", () => {
       expect(parser.compensationParameters!.recipientAddress).toBeDefined();
       expect(parser.compensationParameters!.productId).toBeDefined();
       expect(parser.compensationParameters!.shippingAddress).toBeDefined();
-      expect(parser.compensationParameters!).toEqual(
-        {
-            recipientAddress: {
-                type: "address",
-                required: true
-            },
-            productId: {
-                type: "string",
-                required: false,
-                values: [
-                  "https://product1",
-                  "https://product2",
-                ]
-            },
-            shippingAddress: {
-                type: "string",
-                required: false,
-            },
-        }
-      );
-    })
+      expect(parser.compensationParameters!).toEqual({
+        recipientAddress: {
+          type: "address",
+          required: true,
+        },
+        productId: {
+          type: "string",
+          required: false,
+          values: ["https://product1", "https://product2"],
+        },
+        shippingAddress: {
+          type: "string",
+          required: false,
+        },
+      });
+    });
   });
 
   describe("Checking Logic return ASTs", () => {
@@ -238,7 +225,7 @@ describe("SDQLParser on avalanche", () => {
       expect(eef.constructor).toBe(Command_IF);
       expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
       const q1 = eef.conditionExpr.source as AST_Query;
-      expect(q1.constructor).toBe(AST_NetworkQuery);
+      expect(q1.constructor).toBe(AST_BlockchainTransactionQuery);
       expect(q1).toEqual(parser.context.get("q1"));
 
       expect(eef.trueExpr.constructor).toBe(AST_Compensation);

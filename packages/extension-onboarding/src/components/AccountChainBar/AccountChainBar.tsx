@@ -1,3 +1,9 @@
+import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
+import { AccountIdentIcon } from "@snickerdoodlelabs/shared-components";
+import Switch from "@extension-onboarding/components/Switch";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
 import {
   AccountAddress,
@@ -7,20 +13,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
-
-import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
-import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
-import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import Switch from "@extension-onboarding/components/Switch";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import {
-  ILinkedAccount,
-  useAppContext,
-} from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
 
 export enum EDisplayMode {
   MAINNET,
@@ -102,39 +94,6 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
     }
     return testnetSupportedChainIds;
   }, [displayMode]);
-
-  const walletIcon = (walletProvider: ILinkedAccount) => {
-    switch (walletProvider.providerKey) {
-      case EWalletProviderKeys.METAMASK:
-        return <img src={metamaskLogo} />;
-        break;
-      case EWalletProviderKeys.PHANTOM:
-        return <img src={phantomSmall} />;
-        break;
-      case EWalletProviderKeys.COINBASE:
-        return <img src={coinbaseSmall} />;
-        break;
-
-      default:
-        return (
-          <Box
-            width={40}
-            height={40}
-            borderRadius={20}
-            bgcolor="#8079B4"
-            justifyContent="center"
-            alignItems="center"
-            display="flex"
-          >
-            <Typography style={{ fontSize: 12, color: "white" }}>
-              {walletProvider.accountAddress.slice(0, 2)}..
-              {walletProvider.accountAddress.slice(-1)}
-            </Typography>
-          </Box>
-        );
-        break;
-    }
-  };
 
   return (
     <Box mt={5} display="flex" mb={2}>

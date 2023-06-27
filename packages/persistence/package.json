@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/persistence",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Data persistence implementations to be used by different form factors.",
   "license": "ISC",
   "repository": {
@@ -28,6 +28,8 @@
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
     "test": "yarn test:ci",
     "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
@@ -43,10 +45,12 @@
     "@glazed/did-datastore": "^0.3.2",
     "@glazed/tile-loader": "^0.2.1",
     "@glazed/types": "^0.2.0",
+    "@react-native-async-storage/async-storage": "^1.17.11",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "dids": "^3.3.0",
+    "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "ipfs-only-hash": "^4.0.0",
     "key-did-provider-ed25519": "^2.0.1",

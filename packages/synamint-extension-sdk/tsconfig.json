@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@synamint-extension-sdk/*": [
+        "./packages/synamint-extension-sdk/src/*"
+      ],
+    }
+  },
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../persistence"
+    },
+    {
+      "path": "../shared-components"
+    }
+  ],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

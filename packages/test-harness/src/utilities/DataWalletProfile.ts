@@ -17,7 +17,7 @@ import {
   EVMPrivateKey,
   EVMTransaction,
   IConfigOverrides,
-  IDataWalletBackup,
+  DataWalletBackup,
   InitializationVector,
   IpfsCID,
   LazyReward,
@@ -42,8 +42,11 @@ import {
   UninitializedError,
   EVMContractAddress,
   EBackupPriority,
+  AESKey,
+  TokenSecret,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
+import { injectable } from "inversify";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 // import fs from "fs";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -53,19 +56,19 @@ import { Environment, TestHarnessMocks } from "@test-harness/mocks";
 import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
+@injectable()
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
   private _unlocked = false;
   private defaultPathInfo = {
-    name: "default",
-    path: "data/profiles/dataWallet/default",
+    name: "empty",
+    path: "data/profiles/dataWallet/empty",
   };
   private _profilePathInfo = this.defaultPathInfo;
 
   private _destroyed = false;
 
   private coreSubscriptions = new Array<Subscription>();
-
   public acceptedInvitations = new Array<PageInvitation>();
 
   public constructor(readonly mocks: TestHarnessMocks) {
@@ -129,6 +132,7 @@ export class DataWalletProfile {
               `Request account address: ${request.accountAddress}`,
             );
 
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             await env
               .dataWalletProfile!.signMetatransactionRequest(request)
               .mapErr((e) => {
@@ -166,7 +170,6 @@ export class DataWalletProfile {
       .andThen(() => {
         this._unlocked = true;
         console.log(`Unlocked account ${wallet.accountAddress}!`);
-
         return this.loadFromPathAfterUnlocked().map(() => {
           console.log(`Loaded complete profile for newly unlocked wallet`);
         });
@@ -179,10 +182,26 @@ export class DataWalletProfile {
   }
 
   protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
+    const discordConfig = {
+      clientId: "1093307083102887996",
+      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
+      oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
+      oauthRedirectUrl: URLString(
+        "https://localhost:9005/data-dashboard/social-media-data",
+      ),
+      accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
+      dataAPIUrl: URLString("https://discord.com/api"),
+      iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
+      pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
+    };
+
     const core = new SnickerdoodleCore(
       {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
+        discordOverrides: discordConfig,
+        heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
       } as IConfigOverrides,
       undefined,
       mocks.fakeDBVolatileStorage,
@@ -288,9 +307,15 @@ export class DataWalletProfile {
         const demographic = JSON.parse(content);
 
         return ResultAsync.combine([
-          this.core.setBirthday(demographic.birthday ?? null),
-          this.core.setGender(demographic.gender ?? null),
-          this.core.setLocation(demographic.location ?? null),
+          demographic.birthday != undefined
+            ? this.core.setBirthday(demographic.birthday)
+            : okAsync(undefined),
+          demographic.gender != undefined
+            ? this.core.setGender(demographic.gender)
+            : okAsync(undefined),
+          demographic.location != undefined
+            ? this.core.setLocation(demographic.location)
+            : okAsync(undefined),
           // TODO: add more
         ]);
       })
@@ -363,8 +388,8 @@ export class DataWalletProfile {
                   IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
                   "direct reward description",
                   ChainId(r.chainId),
+                  EVMContractAddress(r.contractAddress),
                   EVMAccountAddress(r.eoa),
-                  TransactionReceipt(r.transactionReceipt),
                 ),
               );
               break;
@@ -376,6 +401,7 @@ export class DataWalletProfile {
                   IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
                   "lazy reward description",
                   ChainId(r.chainId),
+                  EVMContractAddress(r.contractAddress),
                   EVMAccountAddress(r.eoa),
                   r.functionName,
                   r.functionParams as RewardFunctionParam[],
@@ -408,20 +434,7 @@ export class DataWalletProfile {
     return this.readFile(backupPath, "utf-8")
       .andThen((content) => {
         const backupJson = JSON.parse(content);
-
-        const backup: IDataWalletBackup = {
-          header: {
-            hash: backupJson.hash,
-            timestamp: UnixTimestamp(backupJson.timestamp),
-            signature: backupJson.signature,
-            priority: EBackupPriority.NORMAL,
-          },
-          blob: new AESEncryptedString(
-            EncryptedString(backupJson.blob.data),
-            InitializationVector(backupJson.blob.initializationVector),
-          ),
-        };
-        return this.core.restoreBackup(backup);
+        return this.core.restoreBackup(backupJson as DataWalletBackup);
       })
       .map(() => console.log(`loaded backup from ${backupPath}`))
       .mapErr((e) => this._loadOnError(e, backupPath));

@@ -17,6 +17,8 @@ import {
   Signature,
   OptInInfo,
   TokenUri,
+  IConsentCapacity,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -33,14 +35,14 @@ export interface IConsentContractRepository {
   >;
 
   /**
-   * Returns the number of "slots" available to opt-in to the contract, which is just
+   * Returns the number of "slots" available to opt-in to the contract as availableOptInCount and maxCapacity as maxCapacity, which is just
    * maxCapacity - currentOptins.
    * @param consentContractAddress
    */
-  getAvailableOptInCount(
+  getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
-    number,
+    IConsentCapacity,
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
@@ -71,6 +73,13 @@ export interface IConsentContractRepository {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+  >;
+
+  getLatestConsentTokenId(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
   >;
 
   getConsentContracts(
@@ -107,6 +116,13 @@ export interface IConsentContractRepository {
     ConsentContractError | UninitializedError | BlockchainProviderError
   >;
 
+  getQueryHorizon(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    BlockNumber,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   // Encoders
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
@@ -128,6 +144,11 @@ export interface IConsentContractRepository {
   encodeOptOut(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+  encodeUpdateAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
 }
 

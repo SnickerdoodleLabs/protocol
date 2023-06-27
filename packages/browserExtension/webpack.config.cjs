@@ -50,20 +50,15 @@ var options = {
   // mode: env.NODE_ENV || "development",
   mode: "development",
   entry: {
-    newtab: path.join(__dirname, "src", "app", "Newtab", "index.jsx"),
-    options: path.join(__dirname, "src", "app", "Options", "index.jsx"),
-    popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
-    background: path.join(__dirname, "src", "extensionCore", "index.ts"),
-    contentScript: path.join(__dirname, "src", "app", "Content", "index.tsx"),
-    "injectables/onboarding": path.join(
+    popup: path.join(__dirname, "src", "popup", "index.tsx"),
+    background: path.join(__dirname, "src", "background", "index.ts"),
+    contentScript: path.join(__dirname, "src", "content", "index.ts"),
+    dataWalletProxy: path.join(
       __dirname,
       "src",
-      "app",
-      "Content",
       "injectables",
-      "onboarding.ts",
+      "dataWalletProxy.ts",
     ),
-    devtools: path.join(__dirname, "src", "app", "Devtools", "index.js"),
   },
   output: {
     filename: "[name].bundle.js",
@@ -77,9 +72,7 @@ var options = {
   module: {
     rules: [
       {
-        // look for .css or .scss files
-        test: /\.(css|scss)$/,
-        // in the `src` directory
+        test: /\.(s[ac]ss|css)$/i,
         use: [
           {
             loader: "style-loader",
@@ -90,6 +83,9 @@ var options = {
           {
             loader: "sass-loader",
             options: {
+              sassOptions: {
+                includePaths: [path.resolve(__dirname, "node_modules")],
+              },
               sourceMap: true,
             },
           },
@@ -98,7 +94,6 @@ var options = {
       {
         test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
         type: "asset/resource",
-        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
@@ -119,18 +114,6 @@ var options = {
           },
         },
       },
-      {
-        test: /\.(js|jsx)$/,
-        use: [
-          {
-            loader: "source-map-loader",
-          },
-          {
-            loader: "babel-loader",
-          },
-        ],
-        exclude: /node_modules/,
-      },
     ],
   },
   resolve: {
@@ -139,16 +122,11 @@ var options = {
     extensions: fileExtensions
       .map((extension) => "." + extension)
       .concat([".js", ".jsx", ".ts", ".tsx", ".css", "html"]),
-    // fullySpecified: false,
-    // mainFiles: ["index"],
-    // enforceExtension: false,
   },
   plugins: [
     new NodePolyfillPlugin(),
     new CleanWebpackPlugin({ verbose: true }),
     new webpack.ProgressPlugin(),
-    // expose and write the allowed env vars on the compiled bundle
-    // new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
       __ACCOUNT_COOKIE_URL__: JSON.stringify(
@@ -156,6 +134,9 @@ var options = {
       ),
       __MANIFEST_VERSION__: JSON.stringify(
         process.env.__MANIFEST_VERSION__ || "v3",
+      ),
+      __GOOGLE_CLOUD_BUCKET__: JSON.stringify(
+        process.env.__GOOGLE_CLOUD_BUCKET__ || "ceramic-replacement-bucket",
       ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
       __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
@@ -170,20 +151,116 @@ var options = {
       __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
       ),
-      __CONTROL_CHAIN_PROVIDER_URL__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_PROVIDER_URL__,
+      /* ALCHEMY API KEYS to PASS IN */
+      __ALCHEMY_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_ARBITRUM_API_KEY__,
       ),
+      __ALCHEMY_ASTAR_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_ASTAR_API_KEY__,
+      ),
+      __ALCHEMY_MUMBAI_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_MUMBAI_API_KEY__,
+      ),
+      __ALCHEMY_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_OPTIMISM_API_KEY__,
+      ),
+      __ALCHEMY_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_POLYGON_API_KEY__,
+      ),
+      __ALCHEMY_SOLANA_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_SOLANA_API_KEY__,
+      ),
+      __ALCHEMY_SOLANA_TESTNET_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_SOLANA_TESTNET_API_KEY__,
+      ),
+
+      /* ETHERSCAN KEYS PASSED IN */
+      __ETHERSCAN_ETHEREUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ETHEREUM_API_KEY__,
+      ),
+      __ETHERSCAN_POLYGON_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_POLYGON_API_KEY__,
+      ),
+      __ETHERSCAN_AVALANCHE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_AVALANCHE_API_KEY__,
+      ),
+      __ETHERSCAN_BINANCE_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_BINANCE_API_KEY__,
+      ),
+      __ETHERSCAN_MOONBEAM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_MOONBEAM_API_KEY__,
+      ),
+      __ETHERSCAN_OPTIMISM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_OPTIMISM_API_KEY__,
+      ),
+      __ETHERSCAN_ARBITRUM_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_ARBITRUM_API_KEY__,
+      ),
+      __ETHERSCAN_GNOSIS_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_GNOSIS_API_KEY__,
+      ),
+      __ETHERSCAN_FUJI_API_KEY__: JSON.stringify(
+        process.env.__ETHERSCAN_FUJI_API_KEY__,
+      ),
+
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __NFTSCAN_API_KEY__: JSON.stringify(process.env.__NFTSCAN_API_KEY__),
+      __POAP_API_KEY__: JSON.stringify(process.env.__POAP_API_KEY__),
+      __OKLINK_API_KEY__: JSON.stringify(process.env.__OKLINK_API_KEY__),
+      __ANKR_API_KEY__: JSON.stringify(process.env.__ANKR_API_KEY__),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __SECONDARY_INFURA_KEY__: JSON.stringify(
+        process.env.__SECONDARY_INFURA_KEY__,
+      ),
+
+      /* END */
+
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),
       __COOKIE_LIFETIME__: JSON.stringify(
         process.env.__COOKIE_LIFETIME__ || "1",
       ),
-      __DOMAIN_FILTER__ : JSON.stringify(process.env.__DOMAIN_FILTER__)
+      __DOMAIN_FILTER__: JSON.stringify(process.env.__DOMAIN_FILTER__),
+      __PORTFOLIO_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__PORTFOLIO_POLLING_INTERVAL__,
+      ),
+      __TRANSACTION_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__TRANSACTION_POLLING_INTERVAL__,
+      ),
+      __BACKUP_POLLING_INTERVAL__: JSON.stringify(
+        process.env.__BACKUP_POLLING_INTERVAL__,
+      ),
+      __ENABLE_BACKUP_ENCRYPTION__: JSON.stringify(
+        process.env.__ENABLE_BACKUP_ENCRYPTION__,
+      ),
+      __DISCORD_CLIENT_ID__: JSON.stringify(process.env.__DISCORD_CLIENT_ID__),
+      __DISCORD_CLIENT_KEY__: JSON.stringify(
+        process.env.__DISCORD_CLIENT_KEY__,
+      ),
+      __DISCORD_POLL_INTERVAL__: JSON.stringify(
+        process.env.__DISCORD_POLL_INTERVAL__,
+      ),
+      __TWITTER_CONSUMER_KEY__: JSON.stringify(
+        process.env.__TWITTER_CONSUMER_KEY__,
+      ),
+      __TWITTER_CONSUMER_SECRET__: JSON.stringify(
+        process.env.__TWITTER_CONSUMER_SECRET__,
+      ),
+      __TWITTER_POLL_INTERVAL__: JSON.stringify(
+        process.env.__TWITTER_POLL_INTERVAL__,
+      ),
+      __PRIMARY_INFURA_KEY__: JSON.stringify(
+        process.env.__PRIMARY_INFURA_KEY__,
+      ),
+      __DEV_CHAIN_PROVIDER_URL__: JSON.stringify(
+        process.env.__DEV_CHAIN_PROVIDER_URL__,
+      ),
     }),
+
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -221,52 +298,25 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: "src/app/Content/content.styles.css",
-          to: path.join(__dirname, "build"),
-          force: true,
-        },
-      ],
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: "src/app/Content/injectables",
-          to: path.join(__dirname, "build", "injectables"),
-          force: true,
-        },
-      ],
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
           from: "src/assets",
           to: path.join(__dirname, "build", "assets"),
           force: true,
         },
       ],
     }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Newtab", "index.html"),
-      filename: "newtab.html",
-      chunks: ["newtab"],
-      cache: false,
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "src/offscreen",
+          to: path.join(__dirname, "build", "offscreen"),
+          force: true,
+        },
+      ],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Options", "index.html"),
-      filename: "options.html",
-      chunks: ["options"],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Popup", "index.html"),
+      template: path.join(__dirname, "src", "popup", "index.html"),
       filename: "popup.html",
       chunks: ["popup"],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "app", "Devtools", "index.html"),
-      filename: "devtools.html",
-      chunks: ["devtools"],
       cache: false,
     }),
   ],

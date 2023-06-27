@@ -1,336 +1,443 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ICryptoUtils,
+  ITimeUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DataWalletAddress,
+  VersionedObjectMigrator,
+  VersionedObject,
+  DataWalletBackup,
+  EVMPrivateKey,
+  VolatileStorageKey,
+  EBackupPriority,
+  PersistenceError,
+  VolatileDataUpdate,
+  EDataUpdateOpCode,
+  DataWalletBackupID,
+  RestoredBackup,
+  VolatileStorageMetadata,
+  FieldDataUpdate,
+  UnixTimestamp,
   AESEncryptedString,
   BackupBlob,
-  DataUpdate,
-  DataWalletAddress,
-  DataWalletBackupID,
-  EBackupPriority,
-  EDataUpdateOpCode,
   EVMAccountAddress,
-  EVMPrivateKey,
-  FieldMap,
-  IDataWalletBackup,
-  PersistenceError,
-  Signature,
-  TableMap,
-  UnixTimestamp,
+  ERecordKey,
+  EFieldKey,
+  EBoolean,
+  DataWalletBackupHeader,
+  SerializedObject,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
-import { ELocalStorageKey } from "@persistence/ELocalStorageKey.js";
-import { IVolatileStorage } from "@persistence/volatile/index.js";
+import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
+import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
+import { IChunkRendererFactory } from "@persistence/backup/IChunkRendererFactory.js";
+import { FieldIndex, Serializer } from "@persistence/local/index.js";
+import {
+  IVolatileStorage,
+  IVolatileStorageSchemaProvider,
+  VolatileTableIndex,
+} from "@persistence/volatile/index.js";
 
 export class BackupManager implements IBackupManager {
-  private fieldUpdates: FieldMap = {};
-  private tableUpdates: TableMap = {};
-  private numUpdates = 0;
   private accountAddr: DataWalletAddress;
-
+  private tableRenderers = new Map<ERecordKey, IChunkRenderer>();
+  private fieldRenderers = new Map<EFieldKey, IChunkRenderer>();
   private fieldHistory: Map<string, number> = new Map();
-  private chunkQueue: Array<IDataWalletBackup> = [];
+  private renderedChunks = new Map<DataWalletBackupID, DataWalletBackup>();
+  private migrators = new Map<
+    ERecordKey,
+    VersionedObjectMigrator<VersionedObject>
+  >();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
-    protected tableNames: string[],
-    protected volatileStorage: IVolatileStorage,
+    tables: VolatileTableIndex<VersionedObject>[],
+    fields: FieldIndex[],
     protected cryptoUtils: ICryptoUtils,
+    protected volatileStorage: IVolatileStorage,
     protected storageUtils: IStorageUtils,
-    public maxChunkSize: number,
+    protected enableEncryption: boolean,
+    protected timeUtils: ITimeUtils,
+    protected backupUtils: IBackupUtils,
+    protected chunkRendererFactory: IChunkRendererFactory,
+    protected schemaProvider: IVolatileStorageSchemaProvider,
   ) {
+    tables.forEach((schema) => {
+      if (schema.priority != EBackupPriority.DISABLED) {
+        this.tableRenderers.set(
+          schema.name,
+          this.chunkRendererFactory.createChunkRenderer(
+            schema,
+            enableEncryption,
+            privateKey,
+          ),
+        );
+        this.migrators.set(schema.name, schema.migrator);
+      }
+    });
+    fields.forEach((schema) => {
+      this.fieldRenderers.set(
+        schema.name,
+        this.chunkRendererFactory.createChunkRenderer(
+          schema,
+          enableEncryption,
+          privateKey,
+        ),
+      );
+    });
+
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
-    this.clear();
   }
 
-  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
-    return this.volatileStorage
-      .getAll<RestoredBackupRecord>(ELocalStorageKey.RESTORED_BACKUPS)
-      .map((restored) => {
-        return restored.map((item) => item.id);
-      })
-      .map((restored) => {
-        return new Set(restored);
-      });
-  }
-
-  public clear(): ResultAsync<void, never> {
-    this.tableUpdates = {};
-    this.fieldUpdates = {};
-    this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
-    return okAsync(undefined);
-  }
-
-  public popBackup(): ResultAsync<
-    IDataWalletBackup | undefined,
-    PersistenceError
-  > {
-    if (this.chunkQueue.length == 0) {
-      if (this.numUpdates == 0) {
-        return okAsync(undefined);
-      }
-
-      return this.dump().andThen((backup) => {
-        return this._addRestored(backup).andThen(() => {
-          return this.clear().map(() => backup);
-        });
-      });
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const backup = this.chunkQueue.pop()!;
-    return this._addRestored(backup).map(() => backup);
-  }
-
-  public addRecord(
-    tableName: string,
-    value: object,
-    priority: EBackupPriority,
+  public addRecord<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
-    // this allows us to bypass transactions
-    if (!this.tableUpdates.hasOwnProperty(tableName)) {
-      return this.volatileStorage.putObject(tableName, value);
-    }
+    return this.volatileStorage.getKey(recordKey, value.data).andThen((key) => {
+      return this._checkRecordUpdateRecency(
+        recordKey,
+        key,
+        value.lastUpdate,
+      ).andThen((valid) => {
+        if (!valid) {
+          return okAsync(undefined);
+        }
 
-    this.tableUpdates[tableName].push(
-      new DataUpdate(value, Date.now(), EDataUpdateOpCode.UPDATE, priority),
-    );
-    this.numUpdates += 1;
-    return this.volatileStorage
-      .putObject(tableName, value)
-      .andThen(() => this._checkSize());
-  }
+        return this.volatileStorage.putObject(recordKey, value).andThen(() => {
+          const tableRenderer = this.tableRenderers.get(recordKey);
+          if (tableRenderer == null) {
+            return okAsync(undefined);
+          }
 
-  public updateField(
-    key: string,
-    value: object,
-    priority: EBackupPriority,
-  ): ResultAsync<void, PersistenceError> {
-    if (!(key in this.fieldUpdates)) {
-      this.numUpdates += 1;
-    }
-
-    const timestamp = Date.now();
-    this.fieldUpdates[key] = new DataUpdate(
-      value,
-      timestamp,
-      EDataUpdateOpCode.UPDATE,
-      priority,
-    );
-    this._updateFieldHistory(key, timestamp);
-    return this.storageUtils.write(key, value).andThen(() => this._checkSize());
-  }
-
-  private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
-    return this._generateBlob().andThen(([blob, priority]) => {
-      return this._getContentHash(blob).andThen((hash) => {
-        const timestamp = new Date().getTime();
-        return this._generateBackupSignature(hash, timestamp).andThen((sig) => {
-          const backup: IDataWalletBackup = {
-            header: {
-              hash: hash,
-              timestamp: UnixTimestamp(timestamp),
-              signature: sig,
-              priority: priority,
-            },
-            blob: blob,
-          };
-
-          return okAsync(backup);
+          return this.schemaProvider
+            .getCurrentVersionForTable(recordKey)
+            .andThen((version) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.tableRenderers
+                .get(recordKey)!
+                .update(
+                  new VolatileDataUpdate(
+                    EDataUpdateOpCode.UPDATE,
+                    key,
+                    value.lastUpdate,
+                    value.data,
+                    version,
+                  ),
+                )
+                .map((backup) => {
+                  if (backup != null) {
+                    this.renderedChunks.set(backup.header.hash, backup);
+                  }
+                  return undefined;
+                });
+            });
         });
       });
     });
   }
 
-  public restore(
-    backup: IDataWalletBackup,
+  public deleteRecord(
+    tableName: ERecordKey,
+    key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
-    return this._wasRestored(DataWalletBackupID(backup.header.hash)).andThen(
-      (wasRestored) => {
-        if (wasRestored) {
+    const timestamp = this.timeUtils.getUnixNow();
+    return this._checkRecordUpdateRecency(tableName, key, timestamp).andThen(
+      (valid) => {
+        if (!valid) {
           return okAsync(undefined);
         }
+        return this.volatileStorage
+          .getObject(tableName, key, true)
+          .andThen((found) => {
+            if (!found) {
+              return okAsync(undefined);
+            }
 
-        return this._verifyBackupSignature(backup).andThen((valid) => {
-          if (!valid) {
-            return errAsync(new PersistenceError("invalid backup signature"));
-          }
-
-          return this._unpackBlob(backup.blob)
-            .andThen((unpacked) => {
-              return ResultUtils.combine(
-                Object.keys(unpacked.fields).map((fieldName) => {
-                  const update = unpacked.fields[fieldName];
-                  if (
-                    !(fieldName in this.fieldHistory) ||
-                    update.timestamp > this.fieldHistory[fieldName]
-                  ) {
-                    if (this.fieldUpdates.hasOwnProperty(fieldName)) {
-                      if (update.timestamp > this.fieldUpdates[fieldName][1]) {
-                        this.fieldHistory[fieldName] = update.timestamp;
-                        delete this.fieldUpdates[fieldName];
-                        return this.storageUtils.write(fieldName, update.value);
-                      }
-                    } else {
-                      this.fieldHistory[fieldName] = update.timestamp;
-                      return this.storageUtils.write(fieldName, update.value);
-                    }
-                  }
-
-                  return okAsync(undefined);
-                }),
-              ).andThen(() => {
-                return ResultUtils.combine(
-                  Object.keys(unpacked.records).map((tableName) => {
-                    const table = unpacked.records[tableName];
-                    return ResultUtils.combine(
-                      table.map((value) => {
-                        return this.volatileStorage.putObject(
-                          tableName,
-                          value.value,
-                        );
-                      }),
-                    );
-                  }),
-                );
+            found.deleted = EBoolean.TRUE;
+            found.lastUpdate = timestamp;
+            return this.volatileStorage
+              .putObject(tableName, found)
+              .andThen(() => {
+                return this.schemaProvider
+                  .getCurrentVersionForTable(tableName)
+                  .andThen((version) => {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    return this.tableRenderers
+                      .get(tableName)!
+                      .update(
+                        new VolatileDataUpdate(
+                          EDataUpdateOpCode.REMOVE,
+                          key,
+                          timestamp,
+                          found.data,
+                          version,
+                        ),
+                      )
+                      .map((backup) => {
+                        if (backup != null) {
+                          this.renderedChunks.set(backup?.header.hash, backup);
+                        }
+                        return undefined;
+                      });
+                  });
               });
-            })
-            .andThen(() => {
-              return this._addRestored(backup);
-            });
-        });
+          });
       },
     );
   }
 
-  private _checkSize(): ResultAsync<void, PersistenceError> {
-    if (this.numUpdates >= this.maxChunkSize) {
-      return this.dump().andThen((backup) => {
-        this.chunkQueue.push(backup);
-        return this.clear();
-      });
+  public updateField(
+    key: EFieldKey,
+    value: unknown,
+  ): ResultAsync<void, PersistenceError> {
+    if (!this.fieldRenderers.has(key)) {
+      return errAsync(
+        new PersistenceError("no renderer available for field", key),
+      );
     }
 
+    return Serializer.serialize(value)
+      .asyncAndThen((newValue) => {
+        return this.storageUtils
+          .read<SerializedObject>(key)
+          .andThen((current) => {
+            if (current?.data == newValue.data) {
+              return okAsync(undefined);
+            }
+
+            const timestamp = this.timeUtils.getUnixNow();
+            this.fieldHistory.set(key, timestamp);
+
+            return this.storageUtils
+              .write<SerializedObject>(key, newValue)
+              .andThen(() => {
+                return this.fieldRenderers
+                  .get(key)!
+                  .update(new FieldDataUpdate(key, newValue, timestamp));
+              });
+          });
+      })
+      .map((backup) => {
+        if (backup != null) {
+          this.renderedChunks.set(backup.header.hash, backup);
+        }
+        return undefined;
+      });
+  }
+
+  public restore(
+    backup: DataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    return this._wasRestored(backup.header.hash).andThen((restored) => {
+      if (restored) {
+        return okAsync(undefined);
+      }
+
+      return this.backupUtils
+        .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
+        .andThen((valid) => {
+          if (!valid) {
+            return errAsync(
+              new PersistenceError(
+                "invalid signature for backup",
+                backup.header.hash,
+              ),
+            );
+          }
+          return this._unpackBlob(backup.blob);
+        })
+        .andThen((unpacked) => {
+          if (Array.isArray(unpacked)) {
+            return this._restoreRecords(
+              backup.header,
+              unpacked as VolatileDataUpdate[],
+            );
+          }
+          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
+        })
+        .andThen(() => {
+          return this._addRestored(backup);
+        });
+    });
+  }
+
+  private _restoreRecords(
+    header: DataWalletBackupHeader,
+    blob: VolatileDataUpdate[],
+  ): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine(
+      blob.map((update) => {
+        return this._checkRecordUpdateRecency(
+          header.dataType as ERecordKey,
+          update.key,
+          update.timestamp,
+        ).andThen((valid) => {
+          if (!valid) {
+            return okAsync(undefined);
+          }
+
+          const metadata = new VolatileStorageMetadata<VersionedObject>(
+            update.value,
+            update.timestamp,
+            update.operation == EDataUpdateOpCode.REMOVE
+              ? EBoolean.TRUE
+              : EBoolean.FALSE,
+          );
+          return this.volatileStorage.putObject(
+            header.dataType as ERecordKey,
+            metadata,
+          );
+        });
+      }),
+    ).map(() => {});
+  }
+
+  private _restoreField(
+    header: DataWalletBackupHeader,
+    blob: FieldDataUpdate,
+  ): ResultAsync<void, PersistenceError> {
+    if (
+      !this.fieldHistory.has(header.dataType) ||
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.fieldHistory.get(header.dataType)! < blob.timestamp
+    ) {
+      this.fieldHistory.set(header.dataType, blob.timestamp);
+      return this.storageUtils.write(header.dataType, blob.value);
+    }
     return okAsync(undefined);
   }
 
+  public getRendered(
+    force?: boolean,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    return ResultUtils.combine(
+      [...this.tableRenderers.values(), ...this.fieldRenderers.values()].map(
+        (renderer) => {
+          if (force) {
+            return renderer.clear().map((chunk) => {
+              if (chunk != null) {
+                this.renderedChunks.set(chunk.header.hash, chunk);
+              }
+            });
+          } else {
+            return renderer.checkInterval().map((chunk) => {
+              if (chunk != null) {
+                this.renderedChunks.set(chunk.header.hash, chunk);
+              }
+            });
+          }
+        },
+      ),
+    ).andThen(() => {
+      return okAsync(Array.from(this.renderedChunks.values()));
+    });
+  }
+
+  public popRendered(
+    id: DataWalletBackupID,
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
+    if (!this.renderedChunks.has(id)) {
+      return errAsync(
+        new PersistenceError("no backup with that id in map", id),
+      );
+    }
+
+    return this._addRestored(this.renderedChunks.get(id)!).map(() => {
+      this.renderedChunks.delete(id);
+      return id;
+    });
+  }
+
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return this.volatileStorage
+      .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
+      .map((restored) => {
+        return new Set(restored.map((x) => x.data.id));
+      });
+  }
+
+  public unpackBackupChunk(
+    backup: DataWalletBackup,
+  ): ResultAsync<string, PersistenceError> {
+    return this._unpackBlob(backup.blob).map((backupBlob) => {
+      return ObjectUtils.serialize(backupBlob);
+    });
+  }
+
+  private _checkRecordUpdateRecency<T extends VersionedObject>(
+    tableName: ERecordKey,
+    key: VolatileStorageKey | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<boolean, PersistenceError> {
+    if (key == null) {
+      return okAsync(true);
+    }
+
+    // Get the object out of storage.
+    return this.volatileStorage
+      .getObject<T>(tableName, key, true)
+      .andThen((found) => {
+        // Given that we passed it what should have been a valid key from getKey(), this
+        // if may be perfunctory
+        if (found == null) {
+          return okAsync(true);
+        }
+        return okAsync(found.lastUpdate < timestamp);
+      });
+  }
+
   private _unpackBlob(
-    blob: AESEncryptedString,
+    blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
+    // Check the blob. If it does not include the encryption fields, then it is not encrypted
+    if (
+      (blob as AESEncryptedString).data == undefined ||
+      (blob as AESEncryptedString).initializationVector == undefined
+    ) {
+      return okAsync(blob as BackupBlob);
+    }
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
+        return this.cryptoUtils.decryptAESEncryptedString(
+          blob as AESEncryptedString,
+          aesKey,
+        );
       })
       .map((unencrypted) => {
-        return JSON.parse(unencrypted) as BackupBlob;
+        return ObjectUtils.deserialize<BackupBlob>(JSONString(unencrypted));
       });
-  }
-
-  private _generateBackupSignature(
-    hash: string,
-    timestamp: number,
-  ): ResultAsync<Signature, never> {
-    return this.cryptoUtils.signMessage(
-      this._generateSignatureMessage(hash, timestamp),
-      this.privateKey,
-    );
-  }
-
-  private _verifyBackupSignature(
-    backup: IDataWalletBackup,
-  ): ResultAsync<boolean, PersistenceError> {
-    return this._getContentHash(backup.blob).andThen((hash) => {
-      return this.cryptoUtils
-        .verifyEVMSignature(
-          this._generateSignatureMessage(hash, backup.header.timestamp),
-          Signature(backup.header.signature),
-        )
-        .andThen((addr) =>
-          okAsync(addr == EVMAccountAddress(this.accountAddr)),
-        );
-    });
-  }
-
-  private _generateBlob(): ResultAsync<
-    [AESEncryptedString, EBackupPriority],
-    PersistenceError
-  > {
-    const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
-    return this.cryptoUtils
-      .deriveAESKeyFromEVMPrivateKey(this.privateKey)
-      .andThen((aesKey) => {
-        return ResultUtils.combine([
-          this.cryptoUtils.encryptString(JSON.stringify(blob), aesKey),
-          this._getBlobPriority(blob),
-        ]);
-      });
-  }
-
-  private _getBlobPriority(
-    blob: BackupBlob,
-  ): ResultAsync<EBackupPriority, never> {
-    let result = EBackupPriority.NORMAL;
-    Object.keys(blob.fields).map((key) => {
-      const value = blob.fields[key];
-      result = Math.max(result, value.priority);
-    });
-    Object.keys(blob.records).map((table) => {
-      const updates = blob.records[table];
-      updates.forEach((value) => {
-        result = Math.max(result, value.priority);
-      });
-    });
-    return okAsync(result);
-  }
-
-  private _generateSignatureMessage(hash: string, timestamp: number): string {
-    return JSON.stringify({
-      hash: hash,
-      timestamp: timestamp,
-    });
-  }
-
-  private _getContentHash(
-    blob: AESEncryptedString,
-  ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils
-      .hashStringSHA256(JSON.stringify(blob))
-      .map((hash) => {
-        return hash.toString().replace(new RegExp("/", "g"), "-");
-      });
-  }
-
-  private _updateFieldHistory(field: string, timestamp: number): void {
-    if (!(field in this.fieldHistory) || this.fieldHistory[field] < timestamp) {
-      this.fieldHistory[field] = timestamp;
-    }
   }
 
   private _addRestored(
-    backup: IDataWalletBackup,
+    backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.putObject(ELocalStorageKey.RESTORED_BACKUPS, {
-      id: DataWalletBackupID(backup.header.hash),
-    });
+    return this.volatileStorage.putObject(
+      ERecordKey.RESTORED_BACKUPS,
+      new VolatileStorageMetadata(
+        new RestoredBackup(DataWalletBackupID(backup.header.hash)),
+        this.timeUtils.getUnixNow(),
+      ),
+    );
   }
 
   private _wasRestored(
     id: DataWalletBackupID,
   ): ResultAsync<boolean, PersistenceError> {
     return this.volatileStorage
-      .getObject<RestoredBackupRecord>(ELocalStorageKey.RESTORED_BACKUPS, id)
+      .getObject<RestoredBackup>(ERecordKey.RESTORED_BACKUPS, id)
       .map((result) => {
         return result != null;
       });
   }
-}
-
-interface RestoredBackupRecord {
-  id: DataWalletBackupID;
 }

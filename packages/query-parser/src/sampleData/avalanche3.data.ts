@@ -1,14 +1,17 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { SDQLString, MillisecondTimestamp } from "@snickerdoodlelabs/objects";
 
 const timeUtils = new TimeUtils();
 
-export const avalanche3SchemaStr = JSON.stringify(
-{
+export const avalanche3SchemaStr = SDQLString(
+  JSON.stringify({
     version: 0.1,
-    timestamp:  timeUtils.getISO8601TimeString(),
-    expiry : timeUtils.getISO8601TimeString(Date.now() + (1000 * 60 * 60 * 24)),
+    timestamp: timeUtils.getISO8601TimeString(),
+    expiry: timeUtils.getISO8601TimeString(
+      MillisecondTimestamp(Date.now() + 1000 * 60 * 60 * 24),
+    ),
     description:
-    "Interactions with the Avalanche blockchain for 15-year and older individuals",
+      "Interactions with the Avalanche blockchain for 15-year and older individuals",
     business: "Shrapnel",
     queries: {
       q1: {
@@ -35,14 +38,13 @@ export const avalanche3SchemaStr = JSON.stringify(
         },
       },
       q3: {
-          name: "location",
-          return: "string",
+        name: "location",
+        return: "string",
       },
       q4: {
         name: "balance",
         networkid: "43114",
-        return: "array"
-        
+        return: "array",
       },
       q5: {
         name: "balance",
@@ -50,14 +52,12 @@ export const avalanche3SchemaStr = JSON.stringify(
         conditions: {
           ge: 10,
         },
-        return: "array"
-        
+        return: "array",
       },
       q6: {
         name: "balance",
         networkid: "*",
-        return: "array"
-        
+        return: "array",
       },
     },
     returns: {
@@ -81,31 +81,27 @@ export const avalanche3SchemaStr = JSON.stringify(
         name: "query_response",
         query: "q5",
       },
-        r6: {
-            name: "query_response",
-            query: "q6"
-        },
-        url: "https://418e-64-85-231-39.ngrok.io/insights"
+      r6: {
+        name: "query_response",
+        query: "q6",
+      },
+      url: "https://418e-64-85-231-39.ngrok.io/insights",
     },
     compensations: {
-        parameters: {
-          recipientAddress: {
-              type: "address",
-              required: true
-          },
-          productId: {
-              type: "string",
-              required: false,
-              values: [
-                "https://product1",
-                "https://product2",
-              ]
-          },
-          shippingAddress: {
-              type: "string",
-              required: false,
-          },
-
+      parameters: {
+        recipientAddress: {
+          type: "address",
+          required: true,
+        },
+        productId: {
+          type: "string",
+          required: false,
+          values: ["https://product1", "https://product2"],
+        },
+        shippingAddress: {
+          type: "string",
+          required: false,
+        },
       },
       c1: {
         name: "Sugar to your coffee",
@@ -147,22 +143,15 @@ export const avalanche3SchemaStr = JSON.stringify(
       },
     },
     logic: {
-      returns: [
-        "if($q1and$q2)then$r1else$r2",
-        "$r3",
-        "$r4",
-        "$r5",
-        "$r6",
-      ],
+      returns: ["if($q1and$q2)then$r1else$r2", "$r3", "$r4", "$r5", "$r6"],
       compensations: [
         "if$q1then$c1",
         "if$q2then$c2",
         "if$q3then$c3",
         "if$q4then$c2",
         "if$q5then$c2",
-        "if$q6then$c2"
-    ],
+        "if$q6then$c2",
+      ],
     },
-}
+  }),
 );
-

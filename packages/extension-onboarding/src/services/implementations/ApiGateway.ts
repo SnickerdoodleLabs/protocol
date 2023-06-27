@@ -1,6 +1,11 @@
 import "reflect-metadata";
 
 import {
+  AxiosAjaxUtils,
+  IAxiosAjaxUtils,
+} from "@snickerdoodlelabs/common-utils";
+
+import {
   PIIService,
   NFTMetadataService,
 } from "@extension-onboarding/services/implementations/business";
@@ -16,12 +21,8 @@ import {
 import {
   INFTMetadataRepository,
   IPIIRepository,
-} from "@extension-onboarding/services/interfaces/data";
+} from "@extension-onboarding/services/interfaces/data/index.js";
 import { ApiGatewayConfig } from "@extension-onboarding/services/interfaces/objects";
-import {
-  AxiosAjaxUtils,
-  IAxiosAjaxUtils,
-} from "@snickerdoodlelabs/common-utils";
 
 export class ApiGateway {
   public PIIService: IPIIService;

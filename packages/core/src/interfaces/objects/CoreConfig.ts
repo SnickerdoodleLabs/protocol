@@ -1,14 +1,14 @@
-import { TypedDataDomain } from "@ethersproject/abstract-signer";
-import { MapModelTypes } from "@glazed/types";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ChainId,
   ChainInformation,
   ControlChainInformation,
-  ModelTypes,
-  URLString,
+  DiscordConfig,
   ECurrencyCode,
+  TwitterConfig,
+  URLString,
   EChain,
+  ProviderUrl,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -26,23 +26,61 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
-    public covalentApiKey: string,
-    public moralisApiKey: string,
-    public nftScanApiKey: string,
+    public apiKeys: {
+      alchemyApiKeys: {
+        Arbitrum: string;
+        Astar: string;
+        Mumbai: string;
+        Optimism: string;
+        Polygon: string;
+        Solana: string;
+        SolanaTestnet: string;
+      };
+      etherscanApiKeys: {
+        Ethereum: string;
+        Polygon: string;
+        Avalanche: string;
+        Binance: string;
+        Moonbeam: string;
+        Optimism: string;
+        Arbitrum: string;
+        Gnosis: string;
+        Fuji: string;
+      };
+      covalentApiKey: string;
+      moralisApiKey: string;
+      nftScanApiKey: string;
+      poapApiKey: string;
+      oklinkApiKey: string;
+      primaryInfuraKey: string;
+      secondaryInfuraKey: string;
+      ankrApiKey: string;
+    },
     public dnsServerAddress: URLString,
-    public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
-    public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
-    public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
-    public alchemyEndpoints: {
-      solana: string;
-      solanaTestnet: string;
-      polygon: string;
-      polygonMumbai: string;
-    },
+    public alchemyEndpoints: Map<EChain, URLString>,
     public restoreTimeoutMS: number,
-    public domainFilter : string,
+    public domainFilter: string,
+    public enableBackupEncryption: boolean,
+    public marketplaceListingsCacheTime: number,
+    public backupHeartbeatIntervalMS: number,
+    public discord: DiscordConfig,
+    public twitter: TwitterConfig,
+    public heartbeatIntervalMS: number,
+    public gasAmounts: MetatransactionGasAmounts,
+    public devChainProviderURL: ProviderUrl,
+    public maxStatsRetentionSeconds: number,
+  ) {}
+}
+
+export class MetatransactionGasAmounts {
+  public constructor(
+    public createCrumbGas: number,
+    public removeCrumbGas: number,
+    public optInGas: number,
+    public optOutGas: number,
+    public updateAgreementFlagsGas: number,
   ) {}
 }

@@ -1,16 +1,16 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {
   IMonitoringServiceType,
   IMonitoringService,
 } from "@core/interfaces/business/index.js";
+import {
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -40,11 +40,29 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       }, config.dataWalletBackupIntervalMS);
 
       this.persistence.waitForFullRestore().map(() => {
+        this.contextProvider.getContext().map((ctx) => {
+          ctx.publicEvents.onAccountAdded.subscribe(() => {
+            this.monitoringService.pollTransactions().mapErr((e) => {
+              this.logUtils.error(e);
+            });
+          });
+        });
+
         setInterval(() => {
           this.monitoringService.pollTransactions().mapErr((e) => {
             this.logUtils.error(e);
           });
         }, config.accountIndexingPollingIntervalMS);
+        // poll once
+        this.monitoringService.pollTransactions().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+
+        setInterval(() => {
+          this.monitoringService.postBackups().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.backupHeartbeatIntervalMS);
       });
     });
   }

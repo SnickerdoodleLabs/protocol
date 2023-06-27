@@ -5,7 +5,6 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
@@ -18,18 +17,13 @@ import {
   BlockchainProviderError,
   ChainId,
   ChainTransaction,
-  ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
   EChain,
   EVMAccountAddress,
   EVMPrivateKey,
-  EVMTransaction,
   TransactionFilter,
   ExternallyOwnedAccount,
-  ICrumbContent,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   TokenBalance,
   WalletNFT,
   InvalidParametersError,
@@ -41,7 +35,6 @@ import {
   Signature,
   SiteVisit,
   TokenId,
-  TokenUri,
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
@@ -50,11 +43,13 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
+  EDataWalletPermission,
+  DomainName,
+  UnauthorizedError,
+  ITokenPriceRepositoryType,
+  ITokenPriceRepository,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
-import {
-  forwardRequestTypes,
-  getMinimalForwarderSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -62,13 +57,26 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
 import {
+  IPermissionUtils,
+  IPermissionUtilsType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
+  IPortfolioBalanceRepository,
+  IPortfolioBalanceRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -81,30 +89,38 @@ import {
 @injectable()
 export class AccountService implements IAccountService {
   public constructor(
+    @inject(IPermissionUtilsType) protected permissionUtils: IPermissionUtils,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(ICrumbsRepositoryType)
     protected crumbsRepo: ICrumbsRepository,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IMetatransactionForwarderRepositoryType)
+    protected metatransactionForwarderRepo: IMetatransactionForwarderRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IDataWalletPersistenceType)
+    protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionRepo: ITransactionHistoryRepository,
+    @inject(IBrowsingDataRepositoryType)
+    protected browsingDataRepo: IBrowsingDataRepository,
+    @inject(IPortfolioBalanceRepositoryType)
+    protected balanceRepo: IPortfolioBalanceRepository,
   ) {}
 
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError> {
-    return this.dataWalletPersistence.getTokenPrice(
-      chainId,
-      address,
-      timestamp,
-    );
+  ): ResultAsync<number, AccountIndexingError> {
+    return this.tokenPriceRepo.getTokenPrice(chainId, address, timestamp);
   }
 
   public getUnlockMessage(
@@ -233,7 +249,7 @@ export class AccountService implements IAccountService {
                 // for that wallet, when you call getAccounts() after unlocking you'll get a complete
                 // blank. This assures us that we have at LEAST the account that unlocked the wallet
                 // in our persistence.
-                return this.dataWalletPersistence.addAccount(
+                return this.accountRepo.addAccount(
                   new LinkedAccount(
                     chain,
                     accountAddress,
@@ -355,7 +371,7 @@ export class AccountService implements IAccountService {
           })
           .andThen(() => {
             // Add the account to the data wallet
-            return this.dataWalletPersistence.addAccount(
+            return this.accountRepo.addAccount(
               new LinkedAccount(
                 chain,
                 accountAddress,
@@ -404,7 +420,7 @@ export class AccountService implements IAccountService {
       languageCode,
       chain,
     ).andThen(() => {
-      return this.dataWalletPersistence
+      return this.accountRepo
         .getAccounts()
         .andThen((accounts) => {
           // Two things
@@ -462,9 +478,7 @@ export class AccountService implements IAccountService {
               return this.removeCrumb(derivedEVMAccount, crumbTokenId)
                 .andThen(() => {
                   // Add the account to the data wallet
-                  return this.dataWalletPersistence.removeAccount(
-                    accountAddress,
-                  );
+                  return this.accountRepo.removeAccount(accountAddress);
                 })
                 .andThen(() => {
                   // We need to post a backup immediately upon adding an account, so that we don't lose access
@@ -534,63 +548,72 @@ export class AccountService implements IAccountService {
       });
   }
 
-  public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.dataWalletPersistence.getAccounts();
+  public getAccounts(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
+    return this.permissionUtils
+      .assureSourceDomainHasPermission(
+        sourceDomain,
+        EDataWalletPermission.ReadLinkedAccounts,
+      )
+      .andThen(() => {
+        return this.accountRepo.getAccounts();
+      });
   }
 
   public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
-    return this.dataWalletPersistence.getAccountBalances();
+    return this.balanceRepo.getAccountBalances();
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
-    return this.dataWalletPersistence.getAccountNFTs();
+    return this.balanceRepo.getAccountNFTs();
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
-    return this.dataWalletPersistence.getEarnedRewards();
+    return this.accountRepo.getEarnedRewards();
   }
 
   public addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEarnedRewards(rewards);
+    return this.accountRepo.addEarnedRewards(rewards);
   }
 
   public getTranactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError> {
-    return this.dataWalletPersistence.getTransactions(filter);
+    return this.transactionRepo.getTransactions(filter);
   }
 
   public getTransactionValueByChain(): ResultAsync<
     TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionValueByChain();
+    return this.transactionRepo.getTransactionValueByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<
     Map<URLString, number>,
     PersistenceError
   > {
-    return this.dataWalletPersistence.getSiteVisitsMap();
+    return this.browsingDataRepo.getSiteVisitsMap();
   }
 
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
     return this.filterInvalidDomains(siteVisits).andThen((validSiteVisits) => {
-      return this.dataWalletPersistence.addSiteVisits(validSiteVisits);
+      return this.browsingDataRepo.addSiteVisits(validSiteVisits);
     });
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this.dataWalletPersistence.getSiteVisits();
+    return this.browsingDataRepo.getSiteVisits();
   }
 
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addTransactions(transactions);
+    return this.transactionRepo.addTransactions(transactions);
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
@@ -619,82 +642,58 @@ export class AccountService implements IAccountService {
 
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
-      this.contractFactory.factoryMinimalForwarderContract(),
-      this.contractFactory.factoryCrumbsContract(),
-      this.cryptoUtils.getTokenId(),
+      this.metatransactionForwarderRepo.getNonce(derivedEVMAccountAddress),
+      this.crumbsRepo.encodeCreateCrumb(languageCode, encryptedDataWalletKey),
       this.configProvider.getConfig(),
-    ]).andThen(([minimalForwarder, crumbsContract, crumbId, config]) => {
-      return minimalForwarder
-        .getNonce(derivedEVMAccountAddress)
-        .andThen((nonce) => {
-          this.logUtils.info(
-            `Creating new crumb token for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
-          );
-          // Create the crumb content
-          const crumbContent = TokenUri(
-            JSON.stringify({
-              [languageCode]: {
-                d: encryptedDataWalletKey.data,
-                iv: encryptedDataWalletKey.initializationVector,
-              },
-            } as ICrumbContent),
-          );
-          const callData = crumbsContract.encodeCreateCrumb(
-            crumbId,
-            crumbContent,
-          );
+    ]).andThen(([nonce, { callData, crumbId }, config]) => {
+      this.logUtils.info(
+        `Creating new crumb token for derived account ${derivedEVMAccountAddress} with crumbId ${crumbId}`,
+      );
 
-          // Create a metatransaction request
-          const value = {
-            to: crumbsContract.contractAddress, // Contract address for the metatransaction
-            from: derivedEVMAccountAddress, // EOA to run the transaction as
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(10000000), // gas
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: callData, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
-
-          // Sign the metatransaction request with the derived EVM key
-          return this.cryptoUtils
-            .signTypedData(
-              getMinimalForwarderSigningDomain(
-                config.controlChainInformation.chainId,
-                config.controlChainInformation.metatransactionForwarderAddress,
-              ),
-              forwardRequestTypes,
-              value,
-              derivedEVMKey,
-            )
-            .andThen((metatransactionSignature) => {
-              return this.insightPlatformRepo.executeMetatransaction(
-                derivedEVMAccountAddress,
-                crumbsContract.contractAddress,
-                nonce,
-                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                BigNumberString(BigNumber.from(10000000).toString()), // gas
-                callData,
-                metatransactionSignature,
-                derivedEVMKey,
-                config.defaultInsightPlatformBaseUrl,
+      // Create a metatransaction request to get a signature
+      return this.metatransactionForwarderRepo
+        .signMetatransactionRequest(
+          new MetatransactionRequest(
+            config.controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
+            derivedEVMAccountAddress, // EOA to run the transaction as
+            BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            BigNumber.from(config.gasAmounts.createCrumbGas), // gas
+            BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            callData, // The actual bytes of the request, encoded as a hex string
+          ),
+          derivedEVMKey,
+        )
+        .andThen((metatransactionSignature) => {
+          return this.insightPlatformRepo.executeMetatransaction(
+            derivedEVMAccountAddress,
+            config.controlChainInformation.crumbsContractAddress,
+            nonce,
+            BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+            BigNumberString(
+              BigNumber.from(config.gasAmounts.createCrumbGas).toString(),
+            ), // gas
+            callData,
+            metatransactionSignature,
+            derivedEVMKey,
+            config.defaultInsightPlatformBaseUrl,
+          );
+        })
+        .map(() => {
+          // This is just a double check to make sure the crumb was actually created.
+          this.logUtils.debug(
+            `Delivered metatransaction to Insight Platform, checking to make sure token was created`,
+          );
+          this.crumbsRepo
+            .getURI(crumbId)
+            .map(() => {
+              this.logUtils.info(
+                `Created crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
               );
             })
-            .map(() => {
-              // This is just a double check to make sure the crumb was actually created.
-              this.logUtils.debug(
-                `Delivered metatransaction to Insight Platform, checking to make sure token was created`,
+            .mapErr((e) => {
+              this.logUtils.error(
+                `Could not get crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
               );
-              crumbsContract
-                .tokenURI(crumbId)
-                .map(() => {
-                  this.logUtils.info(
-                    `Created crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
-                  );
-                })
-                .mapErr((e) => {
-                  this.logUtils.error(
-                    `Could not get crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
-                  );
-                });
             });
         });
     });
@@ -712,49 +711,38 @@ export class AccountService implements IAccountService {
   > {
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
-      this.contractFactory.factoryMinimalForwarderContract(),
-      this.contractFactory.factoryCrumbsContract(),
+      this.metatransactionForwarderRepo.getNonce(
+        derivedEVMAccount.accountAddress,
+      ),
+      this.crumbsRepo.encodeBurnCrumb(crumbId),
       this.configProvider.getConfig(),
-    ]).andThen(([minimalForwarder, crumbsContract, config]) => {
-      return minimalForwarder
-        .getNonce(derivedEVMAccount.accountAddress)
-        .andThen((nonce) => {
-          const callData = crumbsContract.encodeBurnCrumb(crumbId);
-
-          // Create a metatransaction request
-          const value = {
-            to: crumbsContract.contractAddress, // Contract address for the metatransaction
-            from: derivedEVMAccount.accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(10000000), // gas
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: callData, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
-
-          // Sign the metatransaction request with the derived EVM key
-          return this.cryptoUtils
-            .signTypedData(
-              getMinimalForwarderSigningDomain(
-                config.controlChainInformation.chainId,
-                config.controlChainInformation.metatransactionForwarderAddress,
-              ),
-              forwardRequestTypes,
-              value,
-              derivedEVMAccount.privateKey,
-            )
-            .andThen((metatransactionSignature) => {
-              return this.insightPlatformRepo.executeMetatransaction(
-                derivedEVMAccount.accountAddress,
-                crumbsContract.contractAddress,
-                nonce,
-                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                BigNumberString(BigNumber.from(10000000).toString()), // gas
-                callData,
-                metatransactionSignature,
-                derivedEVMAccount.privateKey,
-                config.defaultInsightPlatformBaseUrl,
-              );
-            });
+    ]).andThen(([nonce, callData, config]) => {
+      return this.metatransactionForwarderRepo
+        .signMetatransactionRequest(
+          new MetatransactionRequest(
+            config.controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
+            derivedEVMAccount.accountAddress, // EOA to run the transaction as
+            BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            BigNumber.from(config.gasAmounts.removeCrumbGas), // gas
+            BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            callData, // The actual bytes of the request, encoded as a hex string
+          ),
+          derivedEVMAccount.privateKey,
+        )
+        .andThen((metatransactionSignature) => {
+          return this.insightPlatformRepo.executeMetatransaction(
+            derivedEVMAccount.accountAddress,
+            config.controlChainInformation.crumbsContractAddress,
+            nonce,
+            BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+            BigNumberString(
+              BigNumber.from(config.gasAmounts.removeCrumbGas).toString(),
+            ), // gas
+            callData,
+            metatransactionSignature,
+            derivedEVMAccount.privateKey,
+            config.defaultInsightPlatformBaseUrl,
+          );
         });
     });
   }
@@ -764,7 +752,7 @@ export class AccountService implements IAccountService {
   ): ResultAsync<SiteVisit[], never> {
     return this.configProvider.getConfig().map(({ domainFilter }) => {
       const invalidDomains = new RegExp(domainFilter);
-      console.log(invalidDomains);
+
       return domains.filter(({ url }) => !invalidDomains.test(url));
     });
   }

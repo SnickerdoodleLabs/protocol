@@ -6,6 +6,7 @@ WORKDIR /app
 COPY .yarn .yarn
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages/browserExtension/package.json ./packages/browserExtension/
+COPY packages/synamint-extension-sdk/package.json ./packages/synamint-extension-sdk/
 COPY packages/common-utils/package.json ./packages/common-utils/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/contracts-sdk/package.json ./packages/contracts-sdk/
@@ -16,6 +17,7 @@ COPY packages/insight-platform-api/package.json ./packages/insight-platform-api/
 COPY packages/objects/package.json ./packages/objects/
 COPY packages/persistence/package.json ./packages/persistence/
 COPY packages/query-parser/package.json ./packages/query-parser/
+COPY packages/shared-components/package.json ./packages/shared-components/
 COPY packages/signatureVerification/package.json ./packages/signatureVerification/
 COPY packages/test-harness/package.json ./packages/test-harness/
 COPY packages/utils/package.json ./packages/utils/
