@@ -18,6 +18,7 @@ export interface IExtensionConfigDefaults {
   portfolioPollingIntervalMS: number;
   transactionPollingIntervalMS: number;
   backupPollingIntervalMS: number;
+  backupChunkSizeTarget: number;
   requestForDataCheckingFrequency: number;
 }
 

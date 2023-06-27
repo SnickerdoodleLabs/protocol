@@ -1,5 +1,6 @@
-import { ITagItem } from "@extension-onboarding/objects/interfaces/ITagItem";
 import { ETag } from "@snickerdoodlelabs/objects";
+
+import { ITagItem } from "@extension-onboarding/objects/interfaces/ITagItem";
 
 export const tags: ITagItem[] = [
   {
