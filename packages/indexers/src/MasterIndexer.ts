@@ -1,45 +1,30 @@
-import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   AccountIndexingError,
   AjaxError,
   BigNumberString,
-  ChainComponentStatus,
-  chainConfig,
   ChainId,
   ChainTransaction,
   ComponentStatus,
   EChain,
-  EChainType,
   EComponentStatus,
-  EIndexer,
-  EDataProvider,
   EVMAccountAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
   IAnkrIndexerType,
   ICovalentEVMTransactionRepositoryType,
-  IDummySolanaIndexerType,
   IEtherscanIndexerType,
   IEVMIndexer,
   IMasterIndexer,
   IMoralisEVMPortfolioRepositoryType,
-  IndexerSupportSummary,
   INftScanEVMPortfolioRepositoryType,
   IOklinkIndexerType,
   IPoapRepositoryType,
   IPolygonIndexerType,
   ISimulatorEVMTransactionRepositoryType,
-  ISolanaBalanceRepository,
   ISolanaIndexer,
   ISolanaIndexerType,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
@@ -49,13 +34,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
 import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
@@ -120,7 +101,6 @@ export class MasterIndexer implements IMasterIndexer {
 
   /* Sets the health statuses of each provider */
   private getHealthStatuses(): ResultAsync<void, AjaxError> {
-    this.indexerContext.getContext();
     return ResultUtils.combine([
       this.indexerContext.getContext(),
       this.alchemy.getHealthCheck(),
