@@ -5,12 +5,12 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  ConsentToken,
   EvaluationError,
   EVMContractAddress,
+  EVMPrivateKey,
   IDynamicRewardParameter,
-  InsightKey,
   IPFSError,
-  ParserError,
   PersistenceError,
   PossibleReward,
   QueryExpiredError,
@@ -21,6 +21,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+import { CoreConfig } from "../objects";
 
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
@@ -66,9 +67,13 @@ export interface IQueryService {
     | AjaxError
   >;
 
-  getPossibleRewardsFromIPBySDQLQuery(
+  getPossibleRewards(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError>;
+    config: CoreConfig,
+  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError>
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

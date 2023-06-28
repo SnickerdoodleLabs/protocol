@@ -82,7 +82,7 @@ const allPermissions = HexString32(
 const noPermissions = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
-
+const chainIds = undefined
 class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
@@ -147,6 +147,7 @@ class QueryParsingMocks {
       okAsync(new Array<TransactionPaymentCounter>()),
     );
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
+    td.when(this.balanceRepo.getAccountNFTs( chainIds)).thenReturn(okAsync([]));
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,
