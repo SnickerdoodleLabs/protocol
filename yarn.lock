@@ -7984,6 +7984,7 @@ __metadata:
     key-did-resolver: ^2.3.0
     lottie-react-native: ^5.1.4
     mapmoize: ^1.2.1
+    measured-core: ^2.0.0
     metro-react-native-babel-preset: 0.72.3
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2

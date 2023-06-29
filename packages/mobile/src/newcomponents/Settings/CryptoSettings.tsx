@@ -42,11 +42,9 @@ export default function CryptoSettings() {
   };
   const handleCopy = (privateKey: string) => {
     Clipboard.setString(privateKey);
-    Alert.alert(
-      "Information",
-      "Copied to clipboard",
-      [{ text: "OK", onPress: () => console.log("OK Pressed") }],
-    );
+    Alert.alert("Information", "Copied to clipboard", [
+      { text: "OK", onPress: () => console.log("OK Pressed") },
+    ]);
   };
 
   const styles = StyleSheet.create({
@@ -210,122 +208,124 @@ export default function CryptoSettings() {
                 );
               })}
             </View>
-            <View style={styles.borderBox}>
-              <Text
-                style={{
-                  fontWeight: "700",
-                  fontSize: normalizeWidth(20),
-                  color: theme?.colors.description,
-                  marginBottom: normalizeHeight(20),
-                }}
-              >
-                Export Generated Account
-              </Text>
-              <Text
-                style={{
-                  fontSize: normalizeWidth(20),
-                  color: theme?.colors.title,
-                  fontWeight: "700",
-                  lineHeight: normalizeWidth(24),
-                }}
-              >
-                Account Address
-              </Text>
-              <View
-                style={{
-                  width: "100%",
-                  height: normalizeHeight(68),
-                  backgroundColor: theme?.colors.backgroundSecondary,
-                  justifyContent: "center",
-                  paddingHorizontal: normalizeWidth(10),
-                  marginVertical: normalizeHeight(12),
-                }}
-              >
-                <View
+            {generatedInfo && (
+              <View style={styles.borderBox}>
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
+                    fontWeight: "700",
+                    fontSize: normalizeWidth(20),
+                    color: theme?.colors.description,
+                    marginBottom: normalizeHeight(20),
                   }}
                 >
-                  <Text
+                  Export Generated Account
+                </Text>
+                <Text
+                  style={{
+                    fontSize: normalizeWidth(20),
+                    color: theme?.colors.title,
+                    fontWeight: "700",
+                    lineHeight: normalizeWidth(24),
+                  }}
+                >
+                  Account Address
+                </Text>
+                <View
+                  style={{
+                    width: "100%",
+                    height: normalizeHeight(68),
+                    backgroundColor: theme?.colors.backgroundSecondary,
+                    justifyContent: "center",
+                    paddingHorizontal: normalizeWidth(10),
+                    marginVertical: normalizeHeight(12),
+                  }}
+                >
+                  <View
                     style={{
-                      color: theme?.colors.description,
-                      fontSize: normalizeWidth(16),
-                      fontWeight: "600",
+                      flexDirection: "row",
+                      alignItems: "center",
                     }}
                   >
-                    {generatedInfo?.publicKey?.slice(0, 28)}...
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleCopy(generatedInfo?.publicKey ?? "");
-                    }}
-                  >
-                    <Image
+                    <Text
                       style={{
-                        width: normalizeWidth(22),
-                        height: normalizeHeight(22),
-                        marginLeft: normalizeWidth(12),
+                        color: theme?.colors.description,
+                        fontSize: normalizeWidth(16),
+                        fontWeight: "600",
                       }}
-                      source={require("../../assets/images/copyIcon.png")}
-                    />
-                  </TouchableOpacity>
+                    >
+                      {generatedInfo?.publicKey?.slice(0, 28)}...
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        handleCopy(generatedInfo?.publicKey ?? "");
+                      }}
+                    >
+                      <Image
+                        style={{
+                          width: normalizeWidth(22),
+                          height: normalizeHeight(22),
+                          marginLeft: normalizeWidth(12),
+                        }}
+                        source={require("../../assets/images/copyIcon.png")}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
 
-              <Text
-                style={{
-                  fontSize: normalizeWidth(20),
-                  color: theme?.colors.title,
-                  fontWeight: "700",
-                  lineHeight: normalizeWidth(24),
-                }}
-              >
-                Private Key
-              </Text>
-              <View
-                style={{
-                  width: "100%",
-                  height: normalizeHeight(68),
-                  backgroundColor: theme?.colors.backgroundSecondary,
-                  justifyContent: "center",
-                  paddingHorizontal: normalizeWidth(10),
-                  marginTop: normalizeHeight(12),
-                }}
-              >
-                <View
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
+                    fontSize: normalizeWidth(20),
+                    color: theme?.colors.title,
+                    fontWeight: "700",
+                    lineHeight: normalizeWidth(24),
                   }}
                 >
-                  <Text
+                  Private Key
+                </Text>
+                <View
+                  style={{
+                    width: "100%",
+                    height: normalizeHeight(68),
+                    backgroundColor: theme?.colors.backgroundSecondary,
+                    justifyContent: "center",
+                    paddingHorizontal: normalizeWidth(10),
+                    marginTop: normalizeHeight(12),
+                  }}
+                >
+                  <View
                     style={{
-                      color: theme?.colors.description,
-                      fontSize: normalizeWidth(16),
-                      fontWeight: "600",
+                      flexDirection: "row",
+                      alignItems: "center",
                     }}
                   >
-                   ************************************
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleCopy(generatedInfo?.privateKey);
-                    }}
-                  >
-                    <Image
+                    <Text
                       style={{
-                        width: normalizeWidth(22),
-                        height: normalizeHeight(22),
-                        marginLeft: normalizeWidth(12),
+                        color: theme?.colors.description,
+                        fontSize: normalizeWidth(16),
+                        fontWeight: "600",
                       }}
-                      source={require("../../assets/images/copyIcon.png")}
-                    />
-                  </TouchableOpacity>
+                    >
+                      **************************************
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        handleCopy(generatedInfo?.privateKey);
+                      }}
+                    >
+                      <Image
+                        style={{
+                          width: normalizeWidth(22),
+                          height: normalizeHeight(22),
+                          marginLeft: normalizeWidth(12),
+                        }}
+                        source={require("../../assets/images/copyIcon.png")}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-            <View style={{ height: normalizeHeight(100) }}></View>
+            )}
+            <View style={{ height: normalizeHeight(200) }}></View>
           </View>
         </SafeAreaView>
       </ScrollView>
