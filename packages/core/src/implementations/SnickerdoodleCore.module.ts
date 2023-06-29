@@ -17,7 +17,6 @@ import {
   AlchemyIndexer,
   CovalentEVMTransactionRepository,
   EtherscanIndexer,
-  EtherscanNativeBalanceRepository,
   MoralisEVMPortfolioRepository,
   NftScanEVMPortfolioRepository,
   OklinkIndexer,
@@ -522,10 +521,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IEVMIndexer>(IEtherscanIndexerType)
       .to(EtherscanIndexer)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(IEtherscanNativeBalanceRepositoryType)
-      .to(EtherscanNativeBalanceRepository)
       .inSingletonScope();
 
     bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)
