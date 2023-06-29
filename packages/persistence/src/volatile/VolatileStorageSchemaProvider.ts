@@ -78,7 +78,7 @@ export class VolatileStorageSchemaProvider
             "hash",
             false,
             new ChainTransactionMigrator(),
-            EBackupPriority.NORMAL,
+            EBackupPriority.DISABLED,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
             [
