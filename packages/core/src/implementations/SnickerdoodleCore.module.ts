@@ -40,7 +40,6 @@ import {
   IAnkrIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
-  IEtherscanNativeBalanceRepositoryType,
   IEVMIndexer,
   IMasterIndexer,
   IMasterIndexerType,

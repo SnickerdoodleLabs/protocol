@@ -47,10 +47,6 @@ export const IDummySolanaIndexerType = Symbol.for("IDummySolanaIndexer");
 
 export const IEtherscanIndexerType = Symbol.for("IEtherscanIndexer");
 
-export const IEtherscanNativeBalanceRepositoryType = Symbol.for(
-  "IEtherscanNativeBalanceRepository",
-);
-
 export const IMoralisEVMPortfolioRepositoryType = Symbol.for(
   "IMoralisEVMPortfolioRepository",
 );
