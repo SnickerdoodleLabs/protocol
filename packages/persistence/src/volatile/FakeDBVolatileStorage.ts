@@ -23,18 +23,7 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
   public constructor(
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
-  ) {
-    this.indexedDB = this.schemaProvider
-      .getVolatileStorageSchema()
-      .map(
-        (schema) =>
-          new IndexedDB(
-            "SD_Wallet",
-            Array.from(schema.values()),
-            fakeIndexedDB,
-          ),
-      );
-  }
+  ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
     if (this.indexedDB != null) {
@@ -45,7 +34,11 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
       .getVolatileStorageSchema()
       .map(
         (schema) =>
-          new IndexedDB("SD_Wallet", Array.from(schema.values()), indexedDB),
+          new IndexedDB(
+            "SD_Wallet",
+            Array.from(schema.values()),
+            fakeIndexedDB,
+          ),
       );
     return this.indexedDB;
   }

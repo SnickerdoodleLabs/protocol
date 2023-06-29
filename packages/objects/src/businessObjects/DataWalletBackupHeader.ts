@@ -14,4 +14,13 @@ export class DataWalletBackupHeader {
     public dataType: StorageKey,
     public isField: boolean,
   ) {}
+
+  public get name() {
+    const sanitized = this._sanitizeDataType(this.dataType);
+    return `${this.priority}_${sanitized}_${this.timestamp}_${this.hash}_${this.isField}`;
+  }
+
+  private _sanitizeDataType(dataType: StorageKey): string {
+    return dataType.replace("_", "$");
+  }
 }

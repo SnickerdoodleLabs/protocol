@@ -4,7 +4,6 @@ import {
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  BackupBlob,
   DataUpdate,
   DataWalletBackup,
   DataWalletBackupHeader,
@@ -43,14 +42,12 @@ export class ChunkRenderer implements IChunkRenderer {
     DataWalletBackup | null,
     PersistenceError
   > {
+    const now = this.timeUtils.getUnixNow();
     if (this.lastRender == -1) {
-      this.lastRender = this.timeUtils.getUnixNow();
+      this.lastRender = now;
     }
 
-    if (
-      this.timeUtils.getUnixNow() - this.lastRender >=
-      this.schema.backupInterval
-    ) {
+    if (now - this.lastRender >= this.schema.backupInterval) {
       return this.clear();
     }
     return okAsync(null);

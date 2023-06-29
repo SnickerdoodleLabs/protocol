@@ -41,7 +41,7 @@ import {
 
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
-  private backupManager?: ResultAsync<IBackupManager, PersistenceError>;
+  private backupManager?: ResultAsync<IBackupManager, never>;
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
@@ -71,7 +71,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     return okAsync(undefined);
   }
 
-  public getBackupManager(): ResultAsync<IBackupManager, PersistenceError> {
+  public getBackupManager(): ResultAsync<IBackupManager, never> {
     if (this.backupManager != undefined) {
       return this.backupManager;
     }

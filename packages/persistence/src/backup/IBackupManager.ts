@@ -7,6 +7,7 @@ import {
   VolatileStorageMetadata,
   ERecordKey,
   EFieldKey,
+  RestoredBackup,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -25,7 +26,7 @@ export interface IBackupManager {
   ): ResultAsync<void, PersistenceError>;
 
   restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
-  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+  getRestored(): ResultAsync<RestoredBackup[], PersistenceError>;
 
   getRendered(
     force?: boolean,

@@ -1,11 +1,11 @@
-import { URLString } from "@snickerdoodlelabs/objects";
+import { BackupFileName, URLString } from "@snickerdoodlelabs/objects";
 
 export interface IGoogleFileBackup {
   kind: string;
   id: string;
   selfLink: URLString;
   mediaLink: URLString;
-  name: string;
+  name: BackupFileName;
   bucket: string;
   generation: string;
   metageneration: string;

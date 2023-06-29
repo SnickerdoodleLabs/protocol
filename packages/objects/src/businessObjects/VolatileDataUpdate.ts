@@ -6,8 +6,6 @@ import {
   VolatileStorageKey,
 } from "@objects/primitives/index.js";
 
-export type DataUpdate = VolatileDataUpdate | FieldDataUpdate;
-
 export class VolatileDataUpdate {
   public constructor(
     public operation: EDataUpdateOpCode,
@@ -15,13 +13,5 @@ export class VolatileDataUpdate {
     public timestamp: UnixTimestamp,
     public value: VersionedObject,
     public version: number,
-  ) {}
-}
-
-export class FieldDataUpdate {
-  public constructor(
-    public key: EFieldKey,
-    public value: SerializedObject,
-    public timestamp: UnixTimestamp,
   ) {}
 }

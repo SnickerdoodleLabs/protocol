@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   PersistenceError,
   VersionedObject,
@@ -7,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";

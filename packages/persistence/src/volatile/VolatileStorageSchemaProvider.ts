@@ -42,13 +42,13 @@ export class VolatileStorageSchemaProvider
     tableName: ERecordKey,
   ): ResultAsync<number, PersistenceError> {
     return this.getVolatileStorageSchema().andThen((schema) => {
-      if (!schema.has(tableName)) {
+      const volatileTableIndex = schema.get(tableName);
+      if (volatileTableIndex == null) {
         return errAsync(
           new PersistenceError("no schema present for table", tableName),
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(schema.get(tableName)!.migrator.getCurrentVersion());
+      return okAsync(volatileTableIndex.migrator.getCurrentVersion());
     });
   }
 

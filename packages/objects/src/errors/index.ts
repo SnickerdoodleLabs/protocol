@@ -1,6 +1,7 @@
 export * from "@objects/errors/AccountIndexingError.js";
 export * from "@objects/errors/AjaxError.js";
 export * from "@objects/errors/BlockchainProviderError.js";
+export * from "@objects/errors/CloudStorageError.js";
 export * from "@objects/errors/ConsentContractError.js";
 export * from "@objects/errors/ConsentContractRepositoryError.js";
 export * from "@objects/errors/ConsentError.js";

@@ -1,7 +1,6 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  AxiosAjaxUtils,
   CryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
@@ -13,7 +12,6 @@ import {
   EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
-  AjaxError,
   DataWalletBackupID,
   DataWalletBackupHeader,
   EBackupPriority,
@@ -21,14 +19,11 @@ import {
   StorageKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { Err, ok, okAsync, Result, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
-import {
-  IGoogleFileBackup,
-  IGoogleWalletBackupDirectory,
-} from "@persistence/cloud/IGoogleBackup.js";
+import { IGoogleWalletBackupDirectory } from "@persistence/cloud/IGoogleBackup.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -49,49 +44,100 @@ export class GoogleCloudStorage implements ICloudStorage {
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IAxiosAjaxUtilsType)
-    protected ajaxUtils: AxiosAjaxUtils,
+    protected ajaxUtils: IAxiosAjaxUtils,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
   }
 
-  public pollByPriority(
+  public pollByStorageType(
     restored: Set<DataWalletBackupID>,
-    priority: EBackupPriority,
+    storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return this.getWalletListing()
-      .andThen((backupsDirectory) => {
-        const files = backupsDirectory.items;
-        if (files == undefined) {
-          return okAsync([]);
-        }
-        if (files.length == 0) {
-          return okAsync([]);
-        }
+    return this.getWalletListing().andThen((backupsDirectory) => {
+      const files = backupsDirectory.items;
+      if (files == undefined) {
+        return okAsync([]);
+      }
+      if (files.length == 0) {
+        return okAsync([]);
+      }
 
-        // Now iterate only through the found hashes
-        return ResultUtils.combine(
-          files
-            .filter((file) => {
-              const parsed = ParsedBackupFileName.parse(file.name);
-              if (parsed == null) {
-                return false;
-              }
+      // Now iterate only through the found hashes
+      return ResultUtils.combine(
+        files
+          .filter((file) => {
+            const parsed = ParsedBackupFileName.parse(file.name);
+            if (parsed == null) {
+              return false;
+            }
 
-              return (
-                priority == parsed.priority &&
-                !restored.has(DataWalletBackupID(parsed.hash))
+            return (
+              storageKey == parsed.dataType &&
+              !restored.has(DataWalletBackupID(parsed.hash))
+            );
+          })
+          .map((file) => {
+            return this.ajaxUtils
+              .get<DataWalletBackup>(new URL(file.mediaLink))
+              .mapErr(
+                (e) =>
+                  new PersistenceError(`Error fetching backup ${file.name}`, e),
               );
-            })
-            .map((file) => {
-              return this.ajaxUtils.get<DataWalletBackup>(
-                new URL(file.mediaLink as string),
-              );
-            }),
+          }),
+      );
+    });
+  }
+
+  public getLatestBackup(
+    storageKey: StorageKey,
+  ): ResultAsync<DataWalletBackup | null, PersistenceError> {
+    return this.getWalletListing().andThen((backupsDirectory) => {
+      const files = backupsDirectory.items;
+      if (files == undefined) {
+        return okAsync(null);
+      }
+      if (files.length == 0) {
+        return okAsync(null);
+      }
+
+      // Find the latest backup based on the timestamp
+      const sorted = files
+        .filter((file) => {
+          const parsed = ParsedBackupFileName.parse(file.name);
+          if (parsed == null) {
+            return false;
+          }
+
+          return storageKey == parsed.dataType;
+        })
+        .sort((a, b) => {
+          const parsedA = ParsedBackupFileName.parse(a.name);
+          const parsedB = ParsedBackupFileName.parse(b.name);
+          if (parsedA == null || parsedB == null) {
+            return 0;
+          }
+
+          if (parsedA.timestamp > parsedB.timestamp) {
+            return 1;
+          } else if (parsedA.timestamp < parsedB.timestamp) {
+            return -1;
+          }
+          return 0;
+        });
+
+      if (sorted.length == 0) {
+        return okAsync(null);
+      }
+
+      return this.ajaxUtils
+        .get<DataWalletBackup>(new URL(sorted[0].mediaLink))
+        .mapErr(
+          (e) =>
+            new PersistenceError(`Error fetching backup ${sorted[0].name}`, e),
         );
-      })
-      .mapErr((e) => new PersistenceError("error fetching backups", e));
+    });
   }
 
   public unlock(
@@ -137,27 +183,35 @@ export class GoogleCloudStorage implements ICloudStorage {
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-        const fileName = ParsedBackupFileName.fromHeader(
-          backup.header,
-        ).render();
-        return this.insightPlatformRepo.getSignedUrl(
-          privateKey,
-          defaultInsightPlatformBaseUrl,
-          addr + "/" + fileName,
-        );
-      })
-      .andThen((signedUrl) => {
-        // if (signedUrl === typeof URLString) {
-        return this.ajaxUtils
-          .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
-            headers: {
-              "Content-Type": `multipart/form-data;`,
-            },
+        return this.insightPlatformRepo
+          .getSignedUrl(
+            privateKey,
+            defaultInsightPlatformBaseUrl,
+            addr + "/" + backup.header.name,
+          )
+          .mapErr((e) => {
+            return new PersistenceError(
+              `Unable to retrieve a signed URL to post a backup from the insight platform. Backup named ${fileName}`,
+              e,
+            );
           })
-          .map(() => DataWalletBackupID(backup.header.hash));
-        // }
+          .andThen((signedUrl) => {
+            return this.ajaxUtils
+              .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
+                headers: {
+                  "Content-Type": `multipart/form-data;`,
+                },
+              })
+
+              .mapErr((e) => {
+                return new PersistenceError(
+                  `Error posting backup to Google, name: ${backup.header.name}`,
+                  e,
+                );
+              });
+          });
       })
-      .mapErr((e) => new PersistenceError("error putting backup", e));
+      .map(() => DataWalletBackupID(backup.header.hash));
   }
 
   public pollBackups(
@@ -185,7 +239,7 @@ export class GoogleCloudStorage implements ICloudStorage {
             })
             .map((file) => {
               return this.ajaxUtils.get<DataWalletBackup>(
-                new URL(file.mediaLink as string),
+                new URL(file.mediaLink),
               );
             }),
         );
@@ -194,75 +248,71 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
-    return this.getWalletListing()
-      .andThen((backupsDirectory) => {
-        const files = backupsDirectory.items;
-        if (files == undefined) {
-          return okAsync([]);
-        }
-        if (files.length == 0) {
-          return okAsync([]);
-        }
+    return this.getWalletListing().map((backupsDirectory) => {
+      const files = backupsDirectory.items;
+      if (files == undefined) {
+        return [];
+      }
+      if (files.length == 0) {
+        return [];
+      }
 
-        // Now iterate only through the found hashes
-        return okAsync(
-          files.map((file) => {
-            return BackupFileName(file.name);
-          }),
-        );
-      })
-      .mapErr((e) => new PersistenceError("error listing file names", e));
+      // Now iterate only through the found hashes
+      return files.map((file) => {
+        return BackupFileName(file.name);
+      });
+    });
   }
 
   public fetchBackup(
-    backupHeader: string,
+    backupHeader: BackupFileName,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return this.getWalletListing()
-      .andThen((backupsDirectory) => {
-        const files = backupsDirectory.items;
-        if (files == undefined) {
-          return okAsync([]);
-        }
-        if (files.length == 0) {
-          return okAsync([]);
-        }
+    return this.getWalletListing().andThen((backupsDirectory) => {
+      const files = backupsDirectory.items;
+      if (files == undefined) {
+        return okAsync([]);
+      }
+      if (files.length == 0) {
+        return okAsync([]);
+      }
 
-        // Now iterate only through the found hashes
-        return ResultUtils.combine(
-          files
-            .filter((file) => {
-              return file.name.includes(backupHeader);
-            })
-            .map((file) => {
-              return this.ajaxUtils.get<DataWalletBackup>(
-                new URL(file.mediaLink as string),
-              );
-            }),
-        );
-      })
-      .mapErr((e) => new PersistenceError("error fetching backup", e));
+      // Now iterate only through the found hashes
+      return ResultUtils.combine(
+        files
+          .filter((file) => {
+            return file.name.includes(backupHeader);
+          })
+          .map((file) => {
+            return this.ajaxUtils
+              .get<DataWalletBackup>(new URL(file.mediaLink))
+              .mapErr((e) => new PersistenceError("error fetching backup", e));
+          }),
+      );
+    });
   }
 
   protected getWalletListing(): ResultAsync<
     IGoogleWalletBackupDirectory,
-    PersistenceError | AjaxError
+    PersistenceError
   > {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-    ]).andThen(([privateKey, config]) => {
-      const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
-      const addr =
-        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      const dataWalletFolder =
-        "https://storage.googleapis.com/storage/v1/b/" +
-        defaultGoogleCloudBucket +
-        "/o?prefix=" +
-        addr;
-      return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
-        new URL(dataWalletFolder),
-      );
-    });
+    ])
+      .andThen(([privateKey, config]) => {
+        const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        const dataWalletFolder =
+          "https://storage.googleapis.com/storage/v1/b/" +
+          defaultGoogleCloudBucket +
+          "/o?prefix=" +
+          addr;
+        return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
+          new URL(dataWalletFolder),
+        );
+      })
+      .mapErr((e) => new PersistenceError("Error getting wallet listing", e));
   }
 }
 
@@ -274,23 +324,6 @@ class ParsedBackupFileName {
     public hash: DataWalletBackupID,
     public isField: boolean,
   ) {}
-
-  public render(): string {
-    const sanitized = ParsedBackupFileName._sanitizeDataType(this.dataType);
-    return `${this.priority}_${sanitized}_${this.timestamp}_${this.hash}_${this.isField}`;
-  }
-
-  public static fromHeader(
-    header: DataWalletBackupHeader,
-  ): ParsedBackupFileName {
-    return new ParsedBackupFileName(
-      header.priority,
-      header.dataType,
-      header.timestamp,
-      header.hash,
-      header.isField,
-    );
-  }
 
   public static parse(path: string): ParsedBackupFileName | null {
     const name = path.split(/[/ ]+/).pop();
@@ -310,10 +343,6 @@ class ParsedBackupFileName {
       split[3] as DataWalletBackupID,
       split[4] == "true",
     );
-  }
-
-  private static _sanitizeDataType(dataType: StorageKey): string {
-    return dataType.replace("_", "$");
   }
 
   private static _getDataType(raw: string): StorageKey {

@@ -80,14 +80,13 @@ export interface IDataWalletPersistence {
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods
-  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, never>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(
     force?: boolean,
   ): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
-  waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
-  waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
+
   unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;

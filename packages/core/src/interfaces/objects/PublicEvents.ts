@@ -1,6 +1,5 @@
 import {
   DataWalletAddress,
-  DataWalletBackupID,
   DomainName,
   EarnedReward,
   EVMContractAddress,
@@ -18,6 +17,7 @@ import {
   TokenBalance,
   WalletNFT,
   DataPermissionsUpdatedEvent,
+  BackupRestoreEvent,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -36,7 +36,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
-  public onBackupRestored: Subject<DataWalletBackupID>;
+  public onBackupRestored: Subject<BackupRestoreEvent>;
   public onEarnedRewardsAdded: Subject<EarnedReward[]>;
   public onPermissionsGranted: Subject<PermissionsGrantedEvent>;
   public onPermissionsRequested: Subject<PermissionsRequestedEvent>;
