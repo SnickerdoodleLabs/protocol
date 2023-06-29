@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/indexers",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Account indexer implementations compatible with Snickerdoodle Core",
   "license": "ISC",
   "repository": {

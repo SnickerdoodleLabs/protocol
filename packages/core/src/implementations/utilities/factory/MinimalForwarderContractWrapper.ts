@@ -3,6 +3,7 @@ import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
+  WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   EVMContractAddress,
@@ -51,7 +52,7 @@ export class MinimalForwarderContractWrapper
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<TransactionResponse, MinimalForwarderContractError> {
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
     return this.fallback(
       () => this.primary.execute(request, signature),
       () => this.secondary?.execute(request, signature),

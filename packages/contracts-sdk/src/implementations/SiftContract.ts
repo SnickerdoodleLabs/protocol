@@ -1,3 +1,8 @@
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/index.js";
+import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMContractAddress,
   TokenUri,
@@ -10,12 +15,11 @@ import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { ISiftContract } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi/index.js";
-
 @injectable()
-export class SiftContract implements ISiftContract {
-  protected contract: ethers.Contract;
+export class SiftContract
+  extends BaseContract<SiftContractError>
+  implements ISiftContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
@@ -23,11 +27,7 @@ export class SiftContract implements ISiftContract {
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.SiftAbi.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.ConsentAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -51,86 +51,34 @@ export class SiftContract implements ISiftContract {
     );
   }
 
-  public verifyURL(domain: DomainName): ResultAsync<void, SiftContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.verifyURL(
-        domain,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new SiftContractError(
-          "Unable to call verifyURL()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new SiftContractError(
-            "Wait for verifyURL() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  // Sets a domain as VERIFIED
+  public verifyURL(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+    return this.writeToContract("verifyURL", [domain], overrides);
   }
 
+  // Sets a domain as MALICIOUS
   public maliciousURL(
     domain: DomainName,
-  ): ResultAsync<void, SiftContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.maliciousURL(
-        domain,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new SiftContractError(
-          "Unable to call maliciousURL()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new SiftContractError(
-            "Wait for maliciousURL() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+    return this.writeToContract("maliciousURL", [domain], overrides);
   }
 
-  public setBaseURI(baseUri: BaseURI): ResultAsync<void, SiftContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setBaseURI(
-        baseUri,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new SiftContractError(
-          "Unable to call setBaseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new SiftContractError(
-            "Wait for setBaseURI() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public setBaseURI(
+    baseUri: BaseURI,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+    return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
-  public getContract(): ethers.Contract {
-    return this.contract;
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): SiftContractError {
+    return new SiftContractError(msg, reason, e);
   }
 }
