@@ -4,7 +4,6 @@ import {
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  DataUpdate,
   DataWalletBackup,
   DataWalletBackupHeader,
   EVMPrivateKey,
@@ -63,7 +62,7 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   public update(
-    update: DataUpdate,
+    update: FieldDataUpdate | VolatileDataUpdate,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
     if (
       (this.schema instanceof VolatileTableIndex &&

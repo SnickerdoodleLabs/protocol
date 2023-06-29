@@ -8,6 +8,7 @@ import {
   ERecordKey,
   EFieldKey,
   RestoredBackup,
+  SerializedObject,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -22,7 +23,7 @@ export interface IBackupManager {
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
-    value: unknown,
+    value: SerializedObject,
   ): ResultAsync<void, PersistenceError>;
 
   restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;

@@ -198,7 +198,7 @@ export class BackupManager implements IBackupManager {
 
   public updateField(
     key: EFieldKey,
-    value: unknown,
+    value: SerializedObject,
   ): ResultAsync<void, PersistenceError> {
     if (!this.fieldRenderers.has(key)) {
       return errAsync(
@@ -206,25 +206,22 @@ export class BackupManager implements IBackupManager {
       );
     }
 
-    return Serializer.serialize(value)
-      .asyncAndThen((newValue) => {
+    return this.storageUtils
+      .read<SerializedObject>(key)
+      .andThen((current) => {
+        if (current?.data == value.data) {
+          return okAsync(undefined);
+        }
+
+        const timestamp = this.timeUtils.getUnixNow();
+        this.fieldHistory.set(key, timestamp);
+
         return this.storageUtils
-          .read<SerializedObject>(key)
-          .andThen((current) => {
-            if (current?.data == newValue.data) {
-              return okAsync(undefined);
-            }
-
-            const timestamp = this.timeUtils.getUnixNow();
-            this.fieldHistory.set(key, timestamp);
-
-            return this.storageUtils
-              .write<SerializedObject>(key, newValue)
-              .andThen(() => {
-                return this.fieldRenderers
-                  .get(key)!
-                  .update(new FieldDataUpdate(key, newValue, timestamp));
-              });
+          .write<SerializedObject>(key, value)
+          .andThen(() => {
+            return this.fieldRenderers
+              .get(key)!
+              .update(new FieldDataUpdate(key, value, timestamp));
           });
       })
       .map((backup) => {

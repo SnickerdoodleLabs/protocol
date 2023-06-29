@@ -2,6 +2,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
   ITimeUtils,
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
@@ -59,6 +61,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     @inject(IBackupUtilsType) protected backupUtils: IBackupUtils,
     @inject(IChunkRendererFactoryType)
     protected chunkRendererFactory: IChunkRendererFactory,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -94,6 +97,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.backupUtils,
         this.chunkRendererFactory,
         this.recordSchemaProvider,
+        this.logUtils,
       );
     });
 

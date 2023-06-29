@@ -13,7 +13,6 @@ import {
   DataWalletBackup,
   PersistenceError,
   DataWalletBackupID,
-  DataWalletBackupHeader,
   EBackupPriority,
   BackupFileName,
   StorageKey,
@@ -191,7 +190,7 @@ export class GoogleCloudStorage implements ICloudStorage {
           )
           .mapErr((e) => {
             return new PersistenceError(
-              `Unable to retrieve a signed URL to post a backup from the insight platform. Backup named ${fileName}`,
+              `Unable to retrieve a signed URL to post a backup from the insight platform. Backup named ${backup.header.name}`,
               e,
             );
           })

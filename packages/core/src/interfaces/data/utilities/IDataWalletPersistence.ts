@@ -37,43 +37,43 @@ export interface IDataWalletPersistence {
 
   // write methods
   updateRecord<T extends VersionedObject>(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError>;
   deleteRecord(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError>;
   updateField(
-    key: EFieldKey,
+    fieldKey: EFieldKey,
     value: object,
   ): ResultAsync<void, PersistenceError>;
 
   // read methods
-  getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError>;
+  getField<T>(fieldKey: EFieldKey): ResultAsync<T | null, PersistenceError>;
   getObject<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
   ): ResultAsync<T[], PersistenceError>;
   getAllByIndex<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName: string,
     query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
   getAllKeys<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,

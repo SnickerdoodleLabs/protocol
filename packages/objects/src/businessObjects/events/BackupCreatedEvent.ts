@@ -4,13 +4,11 @@ import {
   DataWalletBackupID,
 } from "@objects/primitives/index.js";
 
-export class BackupRestoreEvent {
+export class BackupCreatedEvent {
   public constructor(
     public storageType: EDataStorageType,
     public dataType: StorageKey,
     public backupId: DataWalletBackupID,
     public name: BackupFileName,
-    public totalRestored: number,
-    public remainingToRestore: number,
   ) {}
 }

@@ -1,6 +1,7 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {
@@ -32,37 +33,42 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return this.configProvider.getConfig().map((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).map(([config, context]) => {
+      // Set up polling for backups
       setInterval(() => {
         this.monitoringService.pollBackups().mapErr((e) => {
           this.logUtils.error(e);
         });
       }, config.dataWalletBackupIntervalMS);
 
-      this.persistence.waitForFullRestore().map(() => {
-        this.contextProvider.getContext().map((ctx) => {
-          ctx.publicEvents.onAccountAdded.subscribe(() => {
-            this.monitoringService.pollTransactions().mapErr((e) => {
-              this.logUtils.error(e);
-            });
-          });
-        });
-
-        setInterval(() => {
-          this.monitoringService.pollTransactions().mapErr((e) => {
-            this.logUtils.error(e);
-          });
-        }, config.accountIndexingPollingIntervalMS);
-        // poll once
+      // Set up polling for transactions
+      setInterval(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {
           this.logUtils.error(e);
         });
+      }, config.accountIndexingPollingIntervalMS);
 
-        setInterval(() => {
-          this.monitoringService.postBackups().mapErr((e) => {
-            this.logUtils.error(e);
-          });
-        }, config.backupHeartbeatIntervalMS);
+      // Post backups periodically
+      setInterval(() => {
+        this.monitoringService.postBackups().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      }, config.backupHeartbeatIntervalMS);
+
+      // Poll transactions after an account is added.
+      context.publicEvents.onAccountAdded.subscribe(() => {
+        this.monitoringService.pollTransactions().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      });
+
+      // poll once
+      this.logUtils.debug("Doing initial poll for transactions");
+      this.monitoringService.pollTransactions().mapErr((e) => {
+        this.logUtils.error(e);
       });
     });
   }
