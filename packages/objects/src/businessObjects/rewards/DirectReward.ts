@@ -1,5 +1,5 @@
-import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward";
-import { ERewardType } from "@objects/enum";
+import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward.js";
+import { ERewardType } from "@objects/enum/index.js";
 import {
   ChainId,
   EVMAccountAddress,
@@ -7,7 +7,7 @@ import {
   IpfsCID,
   TransactionReceipt,
   URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class DirectReward extends EarnedReward {
   constructor(

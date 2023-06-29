@@ -4,14 +4,18 @@ import {
   ChainTransaction,
   TokenBalance,
   WalletNFT,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/index.js";
 import {
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
   PersistenceError,
-} from "@objects/errors";
-import { AccountAddress, ChainId, UnixTimestamp } from "@objects/primitives";
+} from "@objects/errors/index.js";
+import {
+  AccountAddress,
+  ChainId,
+  UnixTimestamp,
+} from "@objects/primitives/index.js";
 
 export interface IMasterIndexer {
   initialize(): ResultAsync<void, AjaxError>;

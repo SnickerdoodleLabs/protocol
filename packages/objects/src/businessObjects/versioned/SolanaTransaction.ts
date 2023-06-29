@@ -3,7 +3,7 @@ import {
   ChainId,
   SolanaTransactionSignature,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class SolanaTransaction extends ChainTransaction {
   public constructor(

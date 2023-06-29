@@ -1,4 +1,9 @@
-import { EChain, EDataProvider } from "@objects/enum";
+import {
+  EChain,
+  EComponentStatus,
+  EDataProvider,
+} from "@objects/enum/index.js";
+
 export class ComponentStatus {
   public constructor(
     public primaryProvider: EComponentStatus,
@@ -18,15 +23,6 @@ export class ChainComponentStatus {
     public nftIndexer: EDataProvider | null,
     public balanceIndexer: EDataProvider | null,
   ) {}
-}
-export enum EComponentStatus {
-  Available = "Available",
-  Error = "Error",
-  Disabled = "Disabled",
-  InUse = "In Use",
-  TemporarilyDisabled = "Temporarily Disabled",
-
-  NoKeyProvided = "NoKeyProvided",
 }
 
 export class EProviderFunctions {

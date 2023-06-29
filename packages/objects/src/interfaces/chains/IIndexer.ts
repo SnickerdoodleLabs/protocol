@@ -1,11 +1,8 @@
 import { ResultAsync } from "neverthrow";
 
-import {
-  EComponentStatus,
-  IndexerSupportSummary,
-} from "@objects/businessObjects";
-import { EChain } from "@objects/enum";
-import { AjaxError } from "@objects/errors";
+import { IndexerSupportSummary } from "@objects/businessObjects/index.js";
+import { EChain, EComponentStatus } from "@objects/enum/index.js";
+import { AjaxError } from "@objects/errors/index.js";
 
 export interface IIndexer {
   name(): string;

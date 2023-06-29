@@ -6,14 +6,19 @@ import {
   LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
-import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
-import { AccountIndexingError } from "@objects/errors";
+import {
+  EChain,
+  EChainTechnology,
+  EIndexer,
+  EChainType,
+} from "@objects/enum/index.js";
+import { AccountIndexingError } from "@objects/errors/index.js";
 import {
   ChainId,
   CoinGeckoAssetPlatformID,
   EVMContractAddress,
   URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 const getExplorerUrl = function (this: ChainInformation, txHash: string) {
   return this.explorerURL + txHash;

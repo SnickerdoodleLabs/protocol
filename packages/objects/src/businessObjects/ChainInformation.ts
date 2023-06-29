@@ -1,10 +1,15 @@
-import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
+import {
+  EChain,
+  EChainTechnology,
+  EIndexer,
+  EChainType,
+} from "@objects/enum/index.js";
 import {
   ChainId,
   EVMContractAddress,
   URLString,
   CoinGeckoAssetPlatformID,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class NativeCurrencyInformation {
   public constructor(

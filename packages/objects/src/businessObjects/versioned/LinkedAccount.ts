@@ -1,9 +1,12 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { EChain } from "@objects/enum";
-import { AccountAddress, EVMAccountAddress } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { EChain } from "@objects/enum/index.js";
+import {
+  AccountAddress,
+  EVMAccountAddress,
+} from "@objects/primitives/index.js";
 
 export class LinkedAccountMigrator extends VersionedObjectMigrator<LinkedAccount> {
   public getCurrentVersion(): number {

@@ -1,5 +1,5 @@
-import errorCodes from "@objects/errors/errorCodes";
-import { IpfsCID } from "@objects/primitives/IpfsCID";
+import errorCodes from "@objects/errors/errorCodes.js";
+import { IpfsCID } from "@objects/primitives/index.js";
 
 export class QueryExpiredError extends Error {
   protected errorCode: string = errorCodes[QueryExpiredError.name];

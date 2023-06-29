@@ -1,11 +1,9 @@
-import {
-  VersionedObject,
-} from "@objects/businessObjects/versioned/VersionedObject";
+import { VersionedObject } from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   ChainId,
   TransactionHash,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export abstract class ChainTransaction extends VersionedObject {
   public static CURRENT_VERSION = 1;

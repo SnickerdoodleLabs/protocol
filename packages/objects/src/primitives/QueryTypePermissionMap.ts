@@ -1,5 +1,5 @@
-import { EWalletDataType } from "@objects/enum/EWalletDataType";
-import { QueryTypes } from "@objects/primitives/QueryTypes";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { QueryTypes } from "@objects/primitives/QueryTypes.js";
 
 export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   // web2

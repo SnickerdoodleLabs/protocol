@@ -1,4 +1,4 @@
-import { UnixTimestamp } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/primitives/index.js";
 
 export class EVMTimestampRange {
   constructor(readonly start: UnixTimestamp, readonly end: UnixTimestamp) {}

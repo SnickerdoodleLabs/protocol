@@ -1,6 +1,10 @@
-import { EligibleReward, LinkedAccount } from "@objects/businessObjects";
-import { SDQLQuery } from "@objects/businessObjects/SDQLQuery";
-import { DataWalletAddress, EVMContractAddress } from "@objects/primitives";
+import { EligibleReward } from "@objects/businessObjects/rewards/index.js";
+import { SDQLQuery } from "@objects/businessObjects/SDQLQuery.js";
+import { LinkedAccount } from "@objects/businessObjects/versioned/index.js";
+import {
+  DataWalletAddress,
+  EVMContractAddress,
+} from "@objects/primitives/index.js";
 
 export class SDQLQueryRequest {
   constructor(

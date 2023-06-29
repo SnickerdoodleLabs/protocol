@@ -1,11 +1,11 @@
 import { Interface } from "ethers/lib/utils";
 
-import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction";
 import { EVMEvent } from "@objects/businessObjects/EVMEvent";
 import {
   EVMFunctionParameter,
   EVMFunctionSignature,
-} from "@objects/businessObjects/EVMFunctionSignature";
+} from "@objects/businessObjects/EVMFunctionSignature.js";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
 import {
   ChainId,
   EVMAccountAddress,
@@ -14,7 +14,7 @@ import {
   EVMAccountAddressRegex,
   EVMTransactionHash,
   EVMContractAddress,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to

@@ -27,6 +27,7 @@ import {
   TokenId,
   URLString,
   UUID,
+  OAuth1Config,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -34,12 +35,11 @@ import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import OAuth from "oauth-1.0a";
 import nacl from "tweetnacl";
 import { v4 } from "uuid";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
-import { OAuth1Config } from "@snickerdoodlelabs/objects/src/businessObjects/oauth/OAuth1Config.js";
-import OAuth from "oauth-1.0a";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
@@ -111,6 +111,22 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(AESKey(keyBuffer.toString("base64")));
   }
 
+  public deriveAESKeyFromString(
+    source: string,
+    salt: HexString,
+  ): ResultAsync<AESKey, never> {
+    const saltBuffer = this.hexStringToBuffer(salt);
+    const keyBuffer = Crypto.pbkdf2Sync(
+      source,
+      saltBuffer,
+      100000,
+      32,
+      "sha256",
+    );
+
+    return okAsync(AESKey(keyBuffer.toString("base64")));
+  }
+
   public deriveEVMPrivateKeyFromSignature(
     signature: Signature,
     salt: HexString,
@@ -120,6 +136,22 @@ export class CryptoUtils implements ICryptoUtils {
     const saltBuffer = this.hexStringToBuffer(salt);
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
+      saltBuffer,
+      100000,
+      32,
+      "sha256",
+    );
+
+    return okAsync(EVMPrivateKey(keyBuffer.toString("hex")));
+  }
+
+  public deriveEVMPrivateKeyFromString(
+    source: string,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never> {
+    const saltBuffer = this.hexStringToBuffer(salt);
+    const keyBuffer = Crypto.pbkdf2Sync(
+      source,
       saltBuffer,
       100000,
       32,

@@ -1,8 +1,12 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { URLString, DomainName, UnixTimestamp } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import {
+  URLString,
+  DomainName,
+  UnixTimestamp,
+} from "@objects/primitives/index.js";
 
 /**
  * Represents a visit to a particular Url

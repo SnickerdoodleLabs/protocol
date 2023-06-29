@@ -4,7 +4,7 @@ import {
   IpfsCID,
   MarketplaceTag,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class MarketplaceListing {
   public constructor(

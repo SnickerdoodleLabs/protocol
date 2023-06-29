@@ -1,13 +1,12 @@
-import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward";
-import { ERewardType } from "@objects/enum";
+import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward.js";
+import { ERewardType } from "@objects/enum/index.js";
 import {
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
   RewardFunctionParam,
-  URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class LazyReward extends EarnedReward {
   constructor(

@@ -1,5 +1,5 @@
-import errorCodes from "@objects/errors/errorCodes";
-import { OAuthError } from "@objects/errors/OAuthError";
+import errorCodes from "@objects/errors/errorCodes.js";
+import { OAuthError } from "@objects/errors/OAuthError.js";
 
 export class DiscordError extends OAuthError {
   protected errorCode: string = errorCodes[DiscordError.name];
