@@ -16,6 +16,7 @@ export * from "@objects/enum/ESolidityAbiParameterType.js";
 export * from "@objects/enum/EIndexer.js";
 export * from "@objects/enum/EInvitationStatus.js";
 export * from "@objects/enum/EDataProvider.js";
+export * from "@objects/enum/EDataRequestType.js";
 export * from "@objects/enum/EQueryProcessingStatus.js";
 export * from "@objects/enum/ERewardType.js";
 export * from "@objects/enum/EScamFilterStatus.js";

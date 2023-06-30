@@ -27,6 +27,9 @@
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
+
+    "compile-tests": "cd ../.. && yarn compile && cd packages/indexers",
+
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
     "test": "yarn test:ci",

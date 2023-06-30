@@ -36,6 +36,7 @@ import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { EDataRequestType, getChainInfoByChain } from "packages/objects/src";
 
 import {
   IIndexerContextProvider,
@@ -140,6 +141,31 @@ export class MasterIndexer implements IMasterIndexer {
     );
   }
 
+  public getAvailableProvider(
+    chain: EChain,
+    dataType: EDataRequestType,
+  ): IEVMIndexer | [] {
+    const providers = this.preferredIndexers.get(chain)!;
+    const provider = providers.find(
+      (element) =>
+        element.getSupportedChains().get(chain)?.balances &&
+        element.healthStatus().get(getChainInfoByChain(chain)) ==
+          EComponentStatus.Available,
+    );
+
+    if (provider == undefined) {
+      this.logUtils.warning(
+        "error fetching " +
+          dataType +
+          ": no healthy provider found for " +
+          getChainInfoByChain(chain).name +
+          " protocol",
+      );
+      return okAsync([]);
+    }
+    return provider;
+  }
+
   public getLatestBalances(
     chainId: ChainId,
     accountAddress: AccountAddress,
@@ -173,21 +199,12 @@ export class MasterIndexer implements IMasterIndexer {
         });
     }
 
-    const providers = this.preferredIndexers.get(chain)!;
-    const provider = providers.find(
-      (element) =>
-        element.getSupportedChains().get(chain)?.balances &&
-        element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
-          EComponentStatus.Available,
+    const provider = this.getAvailableProvider(
+      getChainInfoByChainId(chainId).chain,
+      EDataRequestType.Balances,
     );
-
-    if (provider == undefined) {
-      this.logUtils.warning(
-        "error fetching balances: no healthy provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
-      );
-      return okAsync([]);
+    if (provider == []) {
+      return provider;
     }
 
     return provider

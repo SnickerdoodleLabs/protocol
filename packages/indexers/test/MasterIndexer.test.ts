@@ -36,7 +36,6 @@ class MasterIndexerMocks {
   public ankr: IEVMIndexer;
   public covalent: IEVMIndexer;
   public etherscan: IEVMIndexer;
-  public etherscanNative: IEVMIndexer;
   public moralis: IEVMIndexer;
   public nftscan: IEVMIndexer;
   public oklink: IEVMIndexer;
@@ -55,7 +54,6 @@ class MasterIndexerMocks {
     this.ankr = td.object<IEVMIndexer>();
     this.covalent = td.object<IEVMIndexer>();
     this.etherscan = td.object<IEVMIndexer>();
-    this.etherscanNative = td.object<IEVMIndexer>();
     this.moralis = td.object<IEVMIndexer>();
     this.nftscan = td.object<IEVMIndexer>();
     this.oklink = td.object<IEVMIndexer>();
@@ -70,6 +68,7 @@ class MasterIndexerMocks {
     this.logUtils = td.object<ILogUtils>();
 
     // IEVM Repositories ---------------------------------------------------------
+    // td.when(this.context.getContext()).thenReturn();
     // td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
     //   okAsync(sdqlQuery),
     // );
@@ -94,25 +93,49 @@ class MasterIndexerMocks {
 }
 
 describe("MasterIndexer.initialize() tests", () => {
-  test("initialize() works", async () => {
+  // test("initialize() works", async () => {
+  //   // Arrange
+  //   const mocks = new MasterIndexerMocks();
+  //   const queryService = mocks.factory();
+
+  //   td.when(queryService.initialize()).thenReturn(okAsync(undefined));
+
+  //   const result = await queryService.initialize();
+
+  //   expect(result).toBeUndefined();
+
+  //   // expect(result).toBeUndefined();
+  //   // expect(result).toBeDefined();
+
+  //   // // Act
+  //   // const result = await queryService.getLatestBalances(
+  //   //   td.matchers.anything,
+  //   //   td.matchers.anything,
+  //   // );
+
+  //   // // Assert
+  //   // expect(result).toBeDefined();
+  //   // expect(result.isErr()).toBeFalsy();
+  //   // mocks.configProvider.getConfig().assertEventCounts({});
+  // });
+
+  test("getLatestBalances() works", async () => {
     // Arrange
     const mocks = new MasterIndexerMocks();
     const queryService = mocks.factory();
 
-    // expect(
-    //   queryService.getLatestBalances(ChainId(1), EVMAccountAddress("x")),
-    // ).toBeDefined();
+    td.when(
+      queryService.getLatestBalances(
+        ChainId(1),
+        EVMAccountAddress("AccountAddress"),
+      ),
+    ).thenReturn(okAsync([]));
 
-    // expect(1).toBeTruthy();
+    const result = await queryService.getLatestBalances(
+      ChainId(1),
+      EVMAccountAddress("AccountAddress"),
+    );
 
-    // td.when(queryService.getLatestBalances(td.any)  mocks.alchemy)
-
-    // // Act
-    // const result = await queryService.getLatestBalances();
-
-    // // Assert
-    // expect(result).toBeDefined();
-    // expect(result.isErr()).toBeFalsy();
-    // mocks.contextProvider.assertEventCounts({});
+    expect(result).toBe([]);
   });
 });
