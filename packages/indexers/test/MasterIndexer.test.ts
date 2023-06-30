@@ -1,26 +1,14 @@
 import "reflect-metadata";
+import { IAxiosAjaxUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  IAxiosAjaxUtils,
-  ILogUtils,
-  ObjectUtils,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  UninitializedError,
-  DataPermissions,
-  IPFSError,
-  SDQLQueryRequest,
-  QueryStatus,
-  EQueryProcessingStatus,
-  BlockNumber,
-  PersistenceError,
   IEVMIndexer,
   ITokenPriceRepository,
   ISolanaIndexer,
   ChainId,
   EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
+import { UnixTimestamp } from "packages/objects/src";
 import * as td from "testdouble";
 
 import {
@@ -28,7 +16,6 @@ import {
   IIndexerContextProvider,
 } from "@indexers/interfaces";
 import { MasterIndexer } from "@indexers/MasterIndexer";
-import { UnixTimestamp } from "packages/objects/src";
 
 // @mock
 class MasterIndexerMocks {
@@ -94,31 +81,17 @@ class MasterIndexerMocks {
 }
 
 describe("MasterIndexer.initialize() tests", () => {
-  // test("initialize() works", async () => {
-  //   // Arrange
-  //   const mocks = new MasterIndexerMocks();
-  //   const queryService = mocks.factory();
+  test("initialize() works", async () => {
+    // Arrange
+    const mocks = new MasterIndexerMocks();
+    const queryService = mocks.factory();
 
-  //   td.when(queryService.initialize()).thenReturn(okAsync(undefined));
+    td.when(queryService.initialize()).thenReturn(okAsync(undefined));
 
-  //   const result = await queryService.initialize();
+    const result = await queryService.initialize();
 
-  //   expect(result).toBeUndefined();
-
-  //   // expect(result).toBeUndefined();
-  //   // expect(result).toBeDefined();
-
-  //   // // Act
-  //   // const result = await queryService.getLatestBalances(
-  //   //   td.matchers.anything,
-  //   //   td.matchers.anything,
-  //   // );
-
-  //   // // Assert
-  //   // expect(result).toBeDefined();
-  //   // expect(result.isErr()).toBeFalsy();
-  //   // mocks.configProvider.getConfig().assertEventCounts({});
-  // });
+    expect(result).toBeUndefined();
+  });
 
   test("getLatestBalances() works", async () => {
     // Arrange
@@ -167,16 +140,16 @@ describe("MasterIndexer.initialize() tests", () => {
 
     td.when(
       queryService.getLatestTransactions(
-        ChainId(1),
-        UnixTimestamp(0),
         EVMAccountAddress("AccountAddress"),
+        UnixTimestamp(0),
+        ChainId(1),
       ),
     ).thenReturn(okAsync([]));
 
     const result = await queryService.getLatestTransactions(
-      ChainId(1),
-      UnixTimestamp(0),
       EVMAccountAddress("AccountAddress"),
+      UnixTimestamp(0),
+      ChainId(1),
     );
 
     expect(result).toBe([]);
