@@ -28,6 +28,7 @@ import {
   IIndexerContextProvider,
 } from "@indexers/interfaces";
 import { MasterIndexer } from "@indexers/MasterIndexer";
+import { UnixTimestamp } from "packages/objects/src";
 
 // @mock
 class MasterIndexerMocks {
@@ -133,6 +134,48 @@ describe("MasterIndexer.initialize() tests", () => {
 
     const result = await queryService.getLatestBalances(
       ChainId(1),
+      EVMAccountAddress("AccountAddress"),
+    );
+
+    expect(result).toBe([]);
+  });
+
+  test("getLatestNfts() works", async () => {
+    // Arrange
+    const mocks = new MasterIndexerMocks();
+    const queryService = mocks.factory();
+
+    td.when(
+      queryService.getLatestNFTs(
+        ChainId(1),
+        EVMAccountAddress("AccountAddress"),
+      ),
+    ).thenReturn(okAsync([]));
+
+    const result = await queryService.getLatestNFTs(
+      ChainId(1),
+      EVMAccountAddress("AccountAddress"),
+    );
+
+    expect(result).toBe([]);
+  });
+
+  test("getLatestTransactions() works", async () => {
+    // Arrange
+    const mocks = new MasterIndexerMocks();
+    const queryService = mocks.factory();
+
+    td.when(
+      queryService.getLatestTransactions(
+        ChainId(1),
+        UnixTimestamp(0),
+        EVMAccountAddress("AccountAddress"),
+      ),
+    ).thenReturn(okAsync([]));
+
+    const result = await queryService.getLatestTransactions(
+      ChainId(1),
+      UnixTimestamp(0),
       EVMAccountAddress("AccountAddress"),
     );
 
