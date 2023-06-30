@@ -7,13 +7,10 @@ import { DataWalletBackupID } from "@objects/primitives/index.js";
 export class DataWalletBackup {
   public constructor(
     public header: DataWalletBackupHeader,
-    public blob: BackupBlob | EncryptedBackupBlob,
+    public blob: VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
   ) {}
 
   public get id(): DataWalletBackupID {
     return this.header.hash;
   }
 }
-
-export type BackupBlob = VolatileDataUpdate[] | FieldDataUpdate;
-export type EncryptedBackupBlob = AESEncryptedString;

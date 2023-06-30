@@ -183,11 +183,6 @@ class ChunkRendererMocks {
         privateKey,
       ),
     ).thenReturn(okAsync(dataWalletBackupSignature));
-
-    // CryptoUtils -----------------------------------------------------------
-    // td.when(
-    //   this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
-    // ).thenReturn(dataWalletAddress as never);
   }
 
   public factory(): IChunkRenderer {

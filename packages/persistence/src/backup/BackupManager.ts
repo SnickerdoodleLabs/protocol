@@ -22,7 +22,6 @@ import {
   FieldDataUpdate,
   UnixTimestamp,
   AESEncryptedString,
-  BackupBlob,
   EVMAccountAddress,
   ERecordKey,
   EFieldKey,
@@ -404,14 +403,14 @@ export class BackupManager implements IBackupManager {
   }
 
   private _unpackBlob(
-    blob: AESEncryptedString | BackupBlob,
-  ): ResultAsync<BackupBlob, PersistenceError> {
+    blob: VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
+  ): ResultAsync<VolatileDataUpdate[] | FieldDataUpdate, PersistenceError> {
     // Check the blob. If it does not include the encryption fields, then it is not encrypted
     if (
       (blob as AESEncryptedString).data == undefined ||
       (blob as AESEncryptedString).initializationVector == undefined
     ) {
-      return okAsync(blob as BackupBlob);
+      return okAsync(blob as VolatileDataUpdate[] | FieldDataUpdate);
     }
 
     return this.cryptoUtils
@@ -423,7 +422,9 @@ export class BackupManager implements IBackupManager {
         );
       })
       .map((unencrypted) => {
-        return ObjectUtils.deserialize<BackupBlob>(JSONString(unencrypted));
+        return ObjectUtils.deserialize<VolatileDataUpdate[] | FieldDataUpdate>(
+          JSONString(unencrypted),
+        );
       });
   }
 
