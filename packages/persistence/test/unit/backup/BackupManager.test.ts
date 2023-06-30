@@ -42,6 +42,10 @@ import {
   IVolatileStorageSchemaProvider,
   VolatileTableIndex,
 } from "@persistence/volatile/index.js";
+import {
+  TestMigrator,
+  TestVersionedObject,
+} from "@persistence-test/mocks/index.js";
 
 const privateKey = EVMPrivateKey("Private Key");
 const dataWalletAddress = EVMAccountAddress("Data Wallet Address");
@@ -57,38 +61,6 @@ const newFieldValue = Serializer.serialize("New Field Value")._unsafeUnwrap();
 const oldFieldValue = "Old Field Value";
 const recordBackupId = DataWalletBackupID("Data Wallet Backup ID-Record");
 const versionNumber = 1;
-
-class TestVersionedObject extends VersionedObject {
-  public static CURRENT_VERSION = 1;
-
-  public constructor(public keyVal: string, public otherVal: number) {
-    super();
-  }
-
-  public getVersion(): number {
-    return TestVersionedObject.CURRENT_VERSION;
-  }
-}
-
-class TestMigrator extends VersionedObjectMigrator<TestVersionedObject> {
-  public getCurrentVersion(): number {
-    return TestVersionedObject.CURRENT_VERSION;
-  }
-
-  protected factory(data: Record<string, unknown>): TestVersionedObject {
-    return new TestVersionedObject(
-      data["keyVal"] as string,
-      data["otherVal"] as number,
-    );
-  }
-
-  protected getUpgradeFunctions(): Map<
-    number,
-    (data: Record<string, unknown>, version: number) => Record<string, unknown>
-  > {
-    return new Map();
-  }
-}
 
 const testVolatileTableIndex = new VolatileTableIndex<VersionedObject>(
   recordKey,
@@ -301,7 +273,7 @@ class BackupManagerMocks {
     td.when(
       this.storageUtils.write<SerializedObject>(
         fieldKey,
-        td.matchers.contains({ type: "string", data: newFieldValue }),
+        td.matchers.contains(newFieldValue),
       ),
     ).thenReturn(okAsync(undefined));
     td.when(this.storageUtils.read<SerializedObject>(fieldKey)).thenReturn(
@@ -638,7 +610,6 @@ describe("BackupManager Tests", () => {
       mocks.volatileStorage.getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS),
     ).thenReturn(
       okAsync([
-        // Multiples to makes sure the set works
         new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE),
         new VolatileStorageMetadata(restoredBackup, now, EBoolean.FALSE),
       ]),
@@ -653,7 +624,7 @@ describe("BackupManager Tests", () => {
     expect(result).toBeDefined();
     expect(result.isErr()).toBeFalsy();
     const restored = result._unsafeUnwrap();
-    expect(restored.length).toBe(1);
-    expect(Array.from(restored.values())[0]).toBe(recordBackupId);
+    expect(restored.length).toBe(2);
+    expect(Array.from(restored.values())[0].id).toBe(recordBackupId);
   });
 });

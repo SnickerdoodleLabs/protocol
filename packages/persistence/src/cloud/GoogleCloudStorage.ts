@@ -118,12 +118,8 @@ export class GoogleCloudStorage implements ICloudStorage {
             return 0;
           }
 
-          if (parsedA.timestamp > parsedB.timestamp) {
-            return 1;
-          } else if (parsedA.timestamp < parsedB.timestamp) {
-            return -1;
-          }
-          return 0;
+          // We want to sort in descending order
+          return parsedB.timestamp - parsedA.timestamp;
         });
 
       if (sorted.length == 0) {

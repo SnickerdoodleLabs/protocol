@@ -94,7 +94,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.SITE_VISITS,
           new VolatileTableIndex(
             ERecordKey.SITE_VISITS,
-            VolatileTableIndex.DEFAULT_KEY,
+            "TODO",
             true,
             new SiteVisitMigrator(),
             EBackupPriority.NORMAL,
@@ -111,7 +111,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.CLICKS,
           new VolatileTableIndex(
             ERecordKey.CLICKS,
-            VolatileTableIndex.DEFAULT_KEY,
+            "TODO",
             true,
             new ClickDataMigrator(),
             EBackupPriority.NORMAL,
@@ -192,7 +192,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.RESTORED_BACKUPS,
           new VolatileTableIndex(
             ERecordKey.RESTORED_BACKUPS,
-            VolatileTableIndex.DEFAULT_KEY,
+            "id",
             false,
             new RestoredBackupMigrator(),
             EBackupPriority.DISABLED,

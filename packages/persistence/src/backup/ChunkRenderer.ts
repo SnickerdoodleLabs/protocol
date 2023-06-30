@@ -1,11 +1,8 @@
-import {
-  ICryptoUtils,
-  ITimeUtils,
-  ObjectUtils,
-} from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletBackup,
   DataWalletBackupHeader,
+  EDataStorageType,
   EVMPrivateKey,
   FieldDataUpdate,
   PersistenceError,
@@ -17,24 +14,28 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IBackupUtils } from "@persistence/backup/IBackupUtils.js";
 import { IChunkRenderer } from "@persistence/backup/IChunkRenderer.js";
-import { IStorageIndex } from "@persistence/IStorageIndex.js";
 import { FieldIndex } from "@persistence/local/index.js";
 import { VolatileTableIndex } from "@persistence/volatile/index.js";
 
 export class ChunkRenderer implements IChunkRenderer {
-  private updates: VolatileDataUpdate[] | FieldDataUpdate | null;
-  private lastRender: UnixTimestamp;
+  protected lastRender: UnixTimestamp;
+  protected volatileDataUpdates: VolatileDataUpdate[] = [];
+  protected fieldUpdate: FieldDataUpdate | null = null;
+  protected mode: EDataStorageType;
 
   public constructor(
-    public schema: IStorageIndex,
-    public enableEncryption: boolean,
-    public cryptoUtils: ICryptoUtils,
-    public backupUtils: IBackupUtils,
+    protected schema: FieldIndex | VolatileTableIndex<VersionedObject>,
+    protected enableEncryption: boolean,
     protected privateKey: EVMPrivateKey,
+    protected backupUtils: IBackupUtils,
     protected timeUtils: ITimeUtils,
   ) {
     this.lastRender = UnixTimestamp(-1);
-    this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
+    if (schema instanceof FieldIndex) {
+      this.mode = EDataStorageType.Field;
+    } else {
+      this.mode = EDataStorageType.Record;
+    }
   }
 
   public checkInterval(): ResultAsync<
@@ -46,6 +47,7 @@ export class ChunkRenderer implements IChunkRenderer {
       this.lastRender = now;
     }
 
+    // If we haven't done a backup in our backupInterval, push out a backup
     if (now - this.lastRender >= this.schema.backupInterval) {
       return this.clear();
     }
@@ -53,11 +55,27 @@ export class ChunkRenderer implements IChunkRenderer {
   }
 
   public clear(): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    const deepcopy = ObjectUtils.toGenericObject(this.updates) as unknown as
-      | VolatileDataUpdate[]
-      | (FieldDataUpdate | null);
-    this.updates = this.schema instanceof VolatileTableIndex ? [] : null;
     this.lastRender = this.timeUtils.getUnixNow();
+    if (this.mode == EDataStorageType.Field) {
+      if (this.fieldUpdate == null) {
+        return okAsync(null);
+      }
+
+      const deepcopy = ObjectUtils.toGenericObject(
+        this.fieldUpdate,
+      ) as unknown as FieldDataUpdate;
+      this.fieldUpdate = null;
+      return this._dump(deepcopy);
+    }
+
+    if (this.volatileDataUpdates.length == 0) {
+      return okAsync(null);
+    }
+
+    const deepcopy = ObjectUtils.toGenericObject(
+      this.volatileDataUpdates,
+    ) as unknown as VolatileDataUpdate[];
+    this.volatileDataUpdates = [];
     return this._dump(deepcopy);
   }
 
@@ -65,9 +83,9 @@ export class ChunkRenderer implements IChunkRenderer {
     update: FieldDataUpdate | VolatileDataUpdate,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
     if (
-      (this.schema instanceof VolatileTableIndex &&
+      (this.mode == EDataStorageType.Record &&
         update instanceof FieldDataUpdate) ||
-      (this.schema instanceof FieldIndex &&
+      (this.mode == EDataStorageType.Field &&
         update instanceof VolatileDataUpdate)
     ) {
       return errAsync(
@@ -76,34 +94,32 @@ export class ChunkRenderer implements IChunkRenderer {
     }
 
     if (update instanceof FieldDataUpdate) {
-      const existing = this.updates as FieldDataUpdate | null;
-      if (existing == null || update.timestamp > existing.timestamp) {
-        this.updates = update;
+      if (
+        this.fieldUpdate == null ||
+        update.timestamp > this.fieldUpdate.timestamp
+      ) {
+        this.fieldUpdate = update;
         return this.checkInterval();
       }
-
       return okAsync(null);
     }
 
-    const recordUpdates = this.updates as VolatileDataUpdate[];
-    recordUpdates.push(update);
-    if (
-      recordUpdates.length >=
-      (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize
-    ) {
-      return this.clear();
-    } else {
+    if (update instanceof VolatileDataUpdate) {
+      this.volatileDataUpdates.push(update);
+      if (
+        this.volatileDataUpdates.length >=
+        (this.schema as VolatileTableIndex<VersionedObject>).maxChunkSize
+      ) {
+        return this.clear();
+      }
       return this.checkInterval();
     }
+    return okAsync(null);
   }
 
   private _dump(
-    updates: VolatileDataUpdate[] | (FieldDataUpdate | null),
-  ): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    if (updates == null || (Array.isArray(updates) && updates.length == 0)) {
-      return okAsync(null);
-    }
-
+    updates: VolatileDataUpdate[] | FieldDataUpdate,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
     return this.backupUtils
       .encryptBlob(updates, this.enableEncryption ? this.privateKey : null)
       .andThen((encryptedBlob) => {
@@ -118,7 +134,7 @@ export class ChunkRenderer implements IChunkRenderer {
                 signature,
                 this.schema.priority,
                 this.schema.name,
-                this.schema instanceof FieldIndex,
+                this.mode == EDataStorageType.Field,
               );
 
               return new DataWalletBackup(header, encryptedBlob);
