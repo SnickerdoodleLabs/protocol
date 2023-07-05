@@ -15,7 +15,6 @@ import {
   BrowserTabListener,
   CoreListener,
   ErrorListener,
-  ExtensionListener,
   PortConnectionListener,
   RpcCallHandler,
 } from "@synamint-extension-sdk/core/implementations/api/index.js";
@@ -55,8 +54,6 @@ import {
   ICoreListenerType,
   IErrorListener,
   IErrorListenerType,
-  IExtensionListener,
-  IExtensionListenerType,
   IPortConnectionListener,
   IPortConnectionListenerType,
   IRpcCallHandler,
@@ -131,9 +128,6 @@ export const extensionCoreModule = new ContainerModule(
     bind<ICoreListener>(ICoreListenerType).to(CoreListener).inSingletonScope();
     bind<IErrorListener>(IErrorListenerType)
       .to(ErrorListener)
-      .inSingletonScope();
-    bind<IExtensionListener>(IExtensionListenerType)
-      .to(ExtensionListener)
       .inSingletonScope();
     bind<IPortConnectionListener>(IPortConnectionListenerType)
       .to(PortConnectionListener)

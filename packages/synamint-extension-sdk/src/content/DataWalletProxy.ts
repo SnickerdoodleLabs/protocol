@@ -37,6 +37,7 @@ import {
   URLString,
   TwitterID,
   OAuthVerifier,
+  TNotification,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -51,7 +52,6 @@ import {
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   PORT_NOTIFICATION,
-  TNotification,
   AddAccountParams,
   UnlockParams,
   UnlinkAccountParams,

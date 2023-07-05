@@ -5,11 +5,18 @@ import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { PoapNFTItem } from "@extension-onboarding/components/NFTItem";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 
 export default () => {
   const classes = useStyles();
 
   const { isNFTsLoading, poapNFTs } = useDashboardContext();
+  const { appMode } = useAppContext();
+
+  if (appMode != EAppModes.AUTH_USER) {
+    return <UnauthScreen />;
+  }
 
   return (
     <Box>

@@ -19,6 +19,7 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
       open={true}
       fullWidth
       PaperProps={{
+        style: { zIndex: 9999999999 },
         square: true,
       }}
       disablePortal

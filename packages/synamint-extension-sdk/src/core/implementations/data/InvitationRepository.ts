@@ -140,6 +140,7 @@ export class InvitationRepository implements IInvitationRepository {
     return this.core.invitation
       .getInvitationsByDomain(domain)
       .mapErr((error) => {
+        console.log(error);
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       });

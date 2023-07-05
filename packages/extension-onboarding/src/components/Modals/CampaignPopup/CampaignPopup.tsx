@@ -3,13 +3,12 @@ import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-
 import {
   AccountAddress,
   BigNumberString,
@@ -21,7 +20,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { Button } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
-import React, { useEffect, useState, FC, useCallback } from "react";
+import React, { useEffect, useState, FC, useCallback, useRef } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 const CampaignPopup: FC = () => {
@@ -35,8 +34,10 @@ const CampaignPopup: FC = () => {
     updateOptedInContracts,
     setInvitationInfo,
     isProductTourCompleted,
+    appMode,
   } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
+  const isStatusCheckRequiredRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
@@ -50,16 +51,89 @@ const CampaignPopup: FC = () => {
     }
   }, [JSON.stringify(invitationMeta)]);
 
-  const getInvitationData = () => {
+  const handleInvalidInvitation = (status: EInvitationStatus) => {
+    setInvitationInfo({
+      consentAddress: undefined,
+      tokenId: undefined,
+      signature: undefined,
+      rewardImage: undefined,
+    });
+    setInvitationMeta(undefined);
+    try {
+      if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+        localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+      }
+    } catch (e) {}
+    setModal({
+      modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+      onPrimaryButtonClick: () => {},
+      customProps: {
+        title: "Thank you for your interest!",
+        message: (() => {
+          switch (status) {
+            case EInvitationStatus.Accepted: {
+              updateOptedInContracts();
+              return "Looks like you have claimed this reward already. You can see your reward in your portfolio.";
+            }
+            case EInvitationStatus.Occupied:
+              return "Looks like this reward link has been reserved for another data wallet user.";
+            case EInvitationStatus.OutOfCapacity:
+              return "Looks like this reward was sold out.";
+            default:
+              return "";
+          }
+        })(),
+        primaryButtonText: "Got it",
+        secondaryButtonText: "",
+        primaryClicked: () => {},
+        secondaryClicked: () => {},
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (
+      isStatusCheckRequiredRef.current &&
+      appMode === EAppModes.AUTH_USER &&
+      invitationInfo.consentAddress &&
+      invitationMeta
+    ) {
+      isStatusCheckRequiredRef.current = false;
+      window.sdlDataWallet
+        .checkInvitationStatus(
+          invitationInfo.consentAddress,
+          invitationInfo.signature,
+          invitationInfo.tokenId,
+        )
+        .map((invitationStatus) => {
+          if (invitationStatus != EInvitationStatus.New) {
+            handleInvalidInvitation(invitationStatus);
+          }
+        });
+    }
+  }, [
+    JSON.stringify(invitationMeta),
+    JSON.stringify(invitationMeta),
+    appMode,
+    open,
+  ]);
+
+  const getInvitationData = useCallback(() => {
     if (!invitationInfo.consentAddress) {
       return null;
     }
-    return window.sdlDataWallet
-      .checkInvitationStatus(
-        invitationInfo.consentAddress,
-        invitationInfo.signature,
-        invitationInfo.tokenId,
-      )
+    if (appMode === EAppModes.UNAUTH_USER) {
+      isStatusCheckRequiredRef.current = true;
+    }
+    return (
+      appMode === EAppModes.AUTH_USER
+        ? window.sdlDataWallet.checkInvitationStatus(
+            invitationInfo.consentAddress,
+            invitationInfo.signature,
+            invitationInfo.tokenId,
+          )
+        : okAsync(EInvitationStatus.New)
+    )
       .andThen((invitationStatus) => {
         if (invitationStatus === EInvitationStatus.New) {
           return window.sdlDataWallet
@@ -78,42 +152,7 @@ const CampaignPopup: FC = () => {
             EInvitationStatus.Occupied,
           ].includes(invitationStatus)
         ) {
-          setInvitationInfo({
-            consentAddress: undefined,
-            tokenId: undefined,
-            signature: undefined,
-            rewardImage: undefined,
-          });
-          try {
-            if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
-              localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
-            }
-          } catch (e) {}
-          setModal({
-            modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
-            onPrimaryButtonClick: () => {},
-            customProps: {
-              title: "Thank you for your interest!",
-              message: (() => {
-                switch (invitationStatus) {
-                  case EInvitationStatus.Accepted: {
-                    updateOptedInContracts();
-                    return "Looks like you have claimed this reward already. You can see your reward in your portfolio.";
-                  }
-                  case EInvitationStatus.Occupied:
-                    return "Looks like this reward link has been reserved for another data wallet user.";
-                  case EInvitationStatus.OutOfCapacity:
-                    return "Looks like this reward was sold out.";
-                  default:
-                    return "";
-                }
-              })(),
-              primaryButtonText: "Got it",
-              secondaryButtonText: "",
-              primaryClicked: () => {},
-              secondaryClicked: () => {},
-            },
-          });
+          handleInvalidInvitation(invitationStatus);
         }
         return okAsync(undefined);
       })
@@ -121,7 +160,7 @@ const CampaignPopup: FC = () => {
         setLoading(false);
         return okAsync(undefined);
       });
-  };
+  }, [appMode]);
 
   const acceptInvitation = (
     dataTypes: EWalletDataType[] | null,

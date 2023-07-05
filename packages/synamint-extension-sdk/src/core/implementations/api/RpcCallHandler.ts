@@ -130,7 +130,6 @@ import {
   GetConfigParams,
 } from "@synamint-extension-sdk/shared";
 
-
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -405,23 +404,16 @@ export class RpcCallHandler implements IRpcCallHandler {
               return incomingUrl.replace(/\/$/, "") === params.path;
             });
             if (pageInvitation) {
-              return this.invitationService
-                .checkInvitationStatus(pageInvitation.invitation)
-                .map((invitationStatus) => {
-                  console.log("invitationStatus", invitationStatus);
-                  if (invitationStatus === EInvitationStatus.New) {
-                    const invitationUUID = this.contextProvider.addInvitation(
-                      pageInvitation.invitation,
-                    );
-                    return Object.assign(pageInvitation.domainDetails, {
-                      id: invitationUUID,
-                      consentAddress:
-                        pageInvitation.invitation.consentContractAddress,
-                    });
-                  } else {
-                    return null;
-                  }
-                });
+              const invitationUUID = this.contextProvider.addInvitation(
+                pageInvitation.invitation,
+              );
+              return okAsync(
+                Object.assign(pageInvitation.domainDetails, {
+                  id: invitationUUID,
+                  consentAddress:
+                    pageInvitation.invitation.consentContractAddress,
+                }),
+              );
             } else {
               return okAsync(null);
             }

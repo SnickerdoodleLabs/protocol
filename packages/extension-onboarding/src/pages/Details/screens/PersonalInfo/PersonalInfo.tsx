@@ -1,5 +1,7 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import Typography from "@extension-onboarding/components/Typography";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import InfoCard from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/InfoCard";
 import UpdateForm from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm";
@@ -17,10 +19,14 @@ const PersonalInfo: FC = () => {
   const [mode, setMode] = useState<EMode>(EMode.DISPLAY);
   const classes = useStyles();
   const { setAlert } = useNotificationContext();
+  const { appMode } = useAppContext();
 
   const component = useMemo(() => {
-    switch (mode) {
-      case EMode.DISPLAY:
+    switch (true) {
+      case appMode != EAppModes.AUTH_USER: {
+        return <UnauthScreen />;
+      }
+      case mode === EMode.DISPLAY:
         return (
           <InfoCard
             onEditClick={() => {
@@ -28,7 +34,7 @@ const PersonalInfo: FC = () => {
             }}
           />
         );
-      case EMode.EDIT:
+      case mode === EMode.EDIT:
         return (
           <UpdateForm
             onCancelClicked={() => {
@@ -43,8 +49,10 @@ const PersonalInfo: FC = () => {
             }}
           />
         );
+      default:
+        return null;
     }
-  }, [mode]);
+  }, [mode, appMode]);
 
   return (
     <>

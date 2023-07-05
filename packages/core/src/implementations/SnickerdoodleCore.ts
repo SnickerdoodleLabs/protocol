@@ -216,6 +216,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
+    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+      IBlockchainProviderType,
+    );
+    // allows initializing providers before unlock
+    blockchainProvider.initialize();
+
     // Invitation Methods ----------------------------------------------------------------------------
     this.invitation = {
       checkInvitationStatus: (

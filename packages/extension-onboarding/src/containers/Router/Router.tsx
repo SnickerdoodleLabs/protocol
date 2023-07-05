@@ -15,12 +15,11 @@ const Router: FC = () => {
     if (!appMode) {
       return null;
     }
-    if (appMode === EAppModes.ONBOARDING_FLOW) {
-      return OnboardingRoutes;
-    }
+    // if (appMode === EAppModes.ONBOARDING_FLOW) {
+    //   return OnboardingRoutes;
+    // }
     return AuthFlowRoutes;
   }, [appMode]);
-
   return (
     <>
       {!appMode ? (
@@ -32,16 +31,7 @@ const Router: FC = () => {
               {routes}
               <Route
                 path="*"
-                element={
-                  <Navigate
-                    replace
-                    to={
-                      appMode === EAppModes.ONBOARDING_FLOW
-                        ? EPaths.ONBOARDING_LINK_ACCOUNT
-                        : EPaths.MARKETPLACE
-                    }
-                  />
-                }
+                element={<Navigate replace to={EPaths.MARKETPLACE} />}
               />
             </Route>
           </Routes>

@@ -4,4 +4,7 @@ export enum ENotificationTypes {
   ACCOUNT_ADDED = "onAccountAdded",
   ACCOUNT_REMOVED = "onAccountRemoved",
   EARNED_REWARDS_ADDED = "onEarnedRewardsAdded",
+  SOCIAL_PROFILE_LINKED = "onSocialProfileLinked",
+  COHORT_JOINED = "onCohortJoined",
+  PROFILE_FIELD_CHANGED = "onProfileFieldChanged",
 }

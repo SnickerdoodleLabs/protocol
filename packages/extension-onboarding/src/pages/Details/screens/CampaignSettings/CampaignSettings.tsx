@@ -3,8 +3,9 @@ import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignIt
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import Typography from "@extension-onboarding/components/Typography";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
@@ -20,7 +21,7 @@ const RewardsInfo: FC = () => {
   const navigate = useNavigate();
   const { setAlert } = useNotificationContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { earnedRewards, updateOptedInContracts } = useAppContext();
+  const { earnedRewards, updateOptedInContracts, appMode } = useAppContext();
   const [
     campaignContractAddressesWithCID,
     setCampaignContractAddressesWithCID,
@@ -28,8 +29,10 @@ const RewardsInfo: FC = () => {
   const { setModal, setLoadingStatus } = useLayoutContext();
 
   useEffect(() => {
-    getInvitations();
-  }, []);
+    if (appMode === EAppModes.AUTH_USER) {
+      getInvitations();
+    }
+  }, [appMode]);
 
   useEffect(() => {
     if (campaignContractAddressesWithCID && earnedRewards) {
@@ -81,6 +84,8 @@ const RewardsInfo: FC = () => {
   };
 
   const classes = useStyles();
+
+  if (appMode !== EAppModes.AUTH_USER) return <UnauthScreen />;
 
   return (
     <Box>

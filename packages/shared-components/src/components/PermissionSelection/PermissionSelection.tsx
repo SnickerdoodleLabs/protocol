@@ -10,6 +10,7 @@ import { isSameReward } from "@shared-components/utils";
 import {
   CountryCode,
   EarnedReward,
+  ESocialType,
   EVMContractAddress,
   EWalletDataType,
   Gender,
@@ -28,7 +29,6 @@ interface IPermissionSelectionProps {
   setGender(gender: Gender): ResultAsync<void, unknown>;
   isSafe: (dataType: EWalletDataType) => boolean;
   generateAllPermissions: () => ResultAsync<EWalletDataType[], unknown>;
-  updateProfileValues: () => void;
   campaignInfo: IOpenSeaMetadata;
   possibleRewards: PossibleReward[];
   earnedRewards: EarnedReward[];
@@ -40,12 +40,14 @@ interface IPermissionSelectionProps {
     dataTypes: EWalletDataType[],
   ): void;
   ipfsBaseUrl: string;
+  isUnlocked: boolean;
+  onPermissionClickWhenLocked(): void;
+  onSocialConnect(socialType: ESocialType): void;
 }
 
 export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   isSafe,
   generateAllPermissions,
-  updateProfileValues,
   possibleRewards,
   earnedRewards,
   consentContractAddress,
@@ -55,6 +57,9 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   onCancelClick,
   onAcceptClick,
   ipfsBaseUrl,
+  isUnlocked,
+  onPermissionClickWhenLocked,
+  onSocialConnect,
 }) => {
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
   const classes = useStyles();
@@ -106,8 +111,10 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   }, [possibleRewards, earnedRewards]);
 
   useEffect(() => {
-    generateAllPermissions().map((perms) => setPermissions(perms));
-  }, []);
+    if (isUnlocked) {
+      generateAllPermissions().map((perms) => setPermissions(perms));
+    }
+  }, [isUnlocked]);
 
   return (
     <>
@@ -140,12 +147,14 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
             setLocation={setLocation}
             setGender={setGender}
             isSafe={isSafe}
-            updateProfileValues={updateProfileValues}
             permissions={permissions}
             onClick={handlePermissionSelect}
             handleSelectAllClick={() => {
               setPermissions(UI_SUPPORTED_PERMISSIONS);
             }}
+            isUnlocked={isUnlocked}
+            onClickWhenLocked={onPermissionClickWhenLocked}
+            onSocialClick={onSocialConnect}
           />
         </Grid>
         <Grid item xs={9}>
@@ -172,6 +181,9 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
         <Button
           buttonType="primary"
           onClick={() => {
+            if (!isUnlocked) {
+              return onPermissionClickWhenLocked();
+            }
             const { eligibleRewards, unEligibleRewards } =
               programRewards.reduce(
                 (acc, item) => {
