@@ -30,7 +30,7 @@ export class CrumbsContract
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    super(providerOrSigner, contractAddress, ContractsAbis.SiftAbi.abi);
+    super(providerOrSigner, contractAddress, ContractsAbis.CrumbsAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
