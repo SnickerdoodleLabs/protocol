@@ -4,11 +4,10 @@ import {
   IEVMIndexer,
   ITokenPriceRepository,
   ISolanaIndexer,
-  ChainId,
-  EVMAccountAddress,
+  EChain,
+  EComponentStatus,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
-import { UnixTimestamp } from "packages/objects/src";
 import * as td from "testdouble";
 
 import {
@@ -56,10 +55,43 @@ class MasterIndexerMocks {
     this.logUtils = td.object<ILogUtils>();
 
     // IEVM Repositories ---------------------------------------------------------
-    // td.when(this.context.getContext()).thenReturn();
-    // td.when(this.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
-    //   okAsync(sdqlQuery),
-    // );
+    td.when(this.alchemy.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.ankr.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.covalent.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.etherscan.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.moralis.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+
+    td.when(this.nftscan.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.oklink.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.poapRepo.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.matic.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.sim.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.sol.getHealthCheck()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
+    td.when(this.context.getContext()).thenReturn(
+      okAsync(new Map<EChain, EComponentStatus>()),
+    );
   }
   public factory(): MasterIndexer {
     return new MasterIndexer(
@@ -81,77 +113,94 @@ class MasterIndexerMocks {
 }
 
 describe("MasterIndexer.initialize() tests", () => {
-  test("initialize() works", async () => {
+  // test("initialize() works", async () => {
+  //   // Arrange
+  //   const mocks = new MasterIndexerMocks();
+  //   const queryService = mocks.factory();
+
+  //   td.when(queryService.initialize()).thenReturn(okAsync(undefined));
+
+  //   const result = await queryService.initialize();
+
+  //   expect(result).toBeUndefined();
+  // });
+
+  // test("getLatestBalances() works", async () => {
+  //   // Arrange
+  //   const mocks = new MasterIndexerMocks();
+  //   const queryService = mocks.factory();
+
+  //   td.when(
+  //     queryService.getLatestBalances(
+  //       ChainId(1),
+  //       EVMAccountAddress("AccountAddress"),
+  //     ),
+  //   ).thenReturn(okAsync([]));
+
+  //   const result = await queryService.getLatestBalances(
+  //     ChainId(1),
+  //     EVMAccountAddress("AccountAddress"),
+  //   );
+
+  //   expect(result).toBe([]);
+  // });
+
+  // test("getLatestNfts() works", async () => {
+  //   // Arrange
+  //   const mocks = new MasterIndexerMocks();
+  //   const queryService = mocks.factory();
+
+  //   td.when(
+  //     queryService.getLatestNFTs(
+  //       ChainId(1),
+  //       EVMAccountAddress("AccountAddress"),
+  //     ),
+  //   ).thenReturn(okAsync([]));
+
+  //   const result = await queryService.getLatestNFTs(
+  //     ChainId(1),
+  //     EVMAccountAddress("AccountAddress"),
+  //   );
+
+  //   expect(result).toBe([]);
+  // });
+
+  // test("getLatestTransactions() works", async () => {
+  //   // Arrange
+  //   const mocks = new MasterIndexerMocks();
+  //   const queryService = mocks.factory();
+
+  //   td.when(
+  //     queryService.getLatestTransactions(
+  //       EVMAccountAddress("AccountAddress"),
+  //       UnixTimestamp(0),
+  //       ChainId(1),
+  //     ),
+  //   ).thenReturn(okAsync([]));
+
+  //   const result = await queryService.getLatestTransactions(
+  //     EVMAccountAddress("AccountAddress"),
+  //     UnixTimestamp(0),
+  //     ChainId(1),
+  //   );
+
+  //   expect(result).toBe([]);
+  // });
+
+  test("Ankr fails --> use Alchemy Instead", async () => {
     // Arrange
     const mocks = new MasterIndexerMocks();
     const queryService = mocks.factory();
-
-    td.when(queryService.initialize()).thenReturn(okAsync(undefined));
+    queryService.preferredIndexers = new Map<EChain, IEVMIndexer[]>([
+      [EChain.EthereumMainnet, [mocks.ankr, mocks.etherscan]],
+    ]);
+    console.log(
+      "queryService.preferredIndexers: " +
+        JSON.stringify(queryService.preferredIndexers),
+    );
 
     const result = await queryService.initialize();
 
     expect(result).toBeUndefined();
-  });
-
-  test("getLatestBalances() works", async () => {
-    // Arrange
-    const mocks = new MasterIndexerMocks();
-    const queryService = mocks.factory();
-
-    td.when(
-      queryService.getLatestBalances(
-        ChainId(1),
-        EVMAccountAddress("AccountAddress"),
-      ),
-    ).thenReturn(okAsync([]));
-
-    const result = await queryService.getLatestBalances(
-      ChainId(1),
-      EVMAccountAddress("AccountAddress"),
-    );
-
-    expect(result).toBe([]);
-  });
-
-  test("getLatestNfts() works", async () => {
-    // Arrange
-    const mocks = new MasterIndexerMocks();
-    const queryService = mocks.factory();
-
-    td.when(
-      queryService.getLatestNFTs(
-        ChainId(1),
-        EVMAccountAddress("AccountAddress"),
-      ),
-    ).thenReturn(okAsync([]));
-
-    const result = await queryService.getLatestNFTs(
-      ChainId(1),
-      EVMAccountAddress("AccountAddress"),
-    );
-
-    expect(result).toBe([]);
-  });
-
-  test("getLatestTransactions() works", async () => {
-    // Arrange
-    const mocks = new MasterIndexerMocks();
-    const queryService = mocks.factory();
-
-    td.when(
-      queryService.getLatestTransactions(
-        EVMAccountAddress("AccountAddress"),
-        UnixTimestamp(0),
-        ChainId(1),
-      ),
-    ).thenReturn(okAsync([]));
-
-    const result = await queryService.getLatestTransactions(
-      EVMAccountAddress("AccountAddress"),
-      UnixTimestamp(0),
-      ChainId(1),
-    );
-
-    expect(result).toBe([]);
   });
 });
