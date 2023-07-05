@@ -27,7 +27,7 @@ export class SiftContract
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
   ) {
-    super(providerOrSigner, contractAddress, ContractsAbis.ConsentAbi.abi);
+    super(providerOrSigner, contractAddress, ContractsAbis.SiftAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
