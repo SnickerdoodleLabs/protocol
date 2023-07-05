@@ -71,7 +71,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(png|svg|jpg|jpeg|gif|eot|woff|woff2)$/i,
         type: "asset/resource",
       },
       {
@@ -113,6 +113,9 @@ module.exports = {
       __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
       __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
       __GA_TRACKING_ID__: JSON.stringify(process.env.__GA_TRACKING_ID__),
+      __IPFS_FETCH_BASE_URL__: JSON.stringify(
+        process.env.__IPFS_FETCH_BASE_URL__,
+      ),
       __HOTJAR_ID__: JSON.stringify(process.env.__HOTJAR_ID__),
       __HOTJAR_SNIPPET_VERSION__: JSON.stringify(
         process.env.__HOTJAR_SNIPPET_VERSION__,

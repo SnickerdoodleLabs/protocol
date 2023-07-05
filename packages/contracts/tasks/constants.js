@@ -97,6 +97,18 @@ const consentBeacon = function () {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
     return "";
+  } else if (hre.hardhatArguments.network == "gnosis") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
   } else {
     return "";
   }
@@ -106,13 +118,13 @@ const consentBeacon = function () {
 const consentFactory = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "rinkeby") {
     return "";
   } else if (hre.hardhatArguments.network == "mumbai") {
@@ -120,12 +132,24 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0xC44C9B4375ab43D7974252c37bccb41F99910fA5";
+    return "0x5540122e78241679Da8d07A04A74D3a7f52aED97";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else if (hre.hardhatArguments.network == "gnosis") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
     return "";
   } else {
     return "";
@@ -136,24 +160,36 @@ const consentFactory = function () {
 const crumbsContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x97464F3547510fb430448F5216eC7D8e71D7C4eF";
+    return "0x49a04d6545b1511742033b0ddF6a2Ba880A69287";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else if (hre.hardhatArguments.network == "gnosis") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
     return "";
   } else {
     return "";
@@ -165,13 +201,13 @@ const crumbsContract = function () {
 const siftContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {
@@ -183,6 +219,18 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "fantom") {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else if (hre.hardhatArguments.network == "gnosis") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
     return "";
   } else {
     return "";

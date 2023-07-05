@@ -1,5 +1,10 @@
 import {
   BlockchainProviderError,
+  BlockNumber,
+  ConsentContractError,
+  ConsentFactoryContractError,
+  EVMContractAddress,
+  IpfsCID,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";

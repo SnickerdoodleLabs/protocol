@@ -1,5 +1,4 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -8,9 +7,6 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
-  EVMContractAddress,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   IPFSError,
   PersistenceError,
   UninitializedError,
@@ -19,7 +15,7 @@ import {
   EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBlockchainListener } from "@core/interfaces/api/index.js";
@@ -32,6 +28,12 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {
@@ -55,10 +57,12 @@ export class BlockchainListener implements IBlockchainListener {
     protected monitoringService: IMonitoringService,
     @inject(IQueryServiceType)
     protected queryService: IQueryService,
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
+    @inject(ISDQLQueryRepositoryType)
+    protected sdqlQueryRepository: ISDQLQueryRepository,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType)
@@ -67,12 +71,9 @@ export class BlockchainListener implements IBlockchainListener {
     protected contextProvider: IContextProvider,
     @inject(ILogUtilsType)
     protected logUtils: ILogUtils,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
   ) {}
-
-  protected queryHorizonCache = new Map<
-    EVMContractAddress,
-    BlockNumber | null
-  >();
 
   public initialize(): ResultAsync<
     void,
@@ -150,7 +151,7 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.dataWalletPersistence
+    return this.invitationRepo
       .getAcceptedInvitations()
       .andThen((optIns) => {
         return this.consentContractRepository.getConsentContracts(
@@ -163,75 +164,60 @@ export class BlockchainListener implements IBlockchainListener {
             // Only consent owners can request data
             return ResultUtils.combine([
               consentContract.getConsentOwner(),
-              this.getQueryHorizon(consentContract),
-              this.dataWalletPersistence.getLatestBlockNumber(
+              this.consentContractRepository.getQueryHorizon(
                 consentContract.getContractAddress(),
               ),
             ])
-              .andThen(([consentOwner, queryHorizon, latestBlockNumber]) => {
-                // Start at the queryHorizon or the firstBlockNumber, whichever is later
-                const startBlock =
-                  queryHorizon > latestBlockNumber
-                    ? queryHorizon
-                    : latestBlockNumber;
+              .andThen(([consentOwner, queryHorizon]) => {
+                return ResultUtils.combine([
+                  consentContract.getRequestForDataListByRequesterAddress(
+                    consentOwner,
+                    queryHorizon,
+                    currentBlockNumber,
+                  ),
+                  this.sdqlQueryRepository.getQueryStatusByConsentContract(
+                    consentContract.getContractAddress(),
+                    queryHorizon,
+                  ),
+                ]);
+              })
+              .andThen(([requestForDataObjects, queryStatus]) => {
+                // We need to filter out the requestForDataObjects- remove any that we
+                // already have a QueryStatus for
+                const newRequests = requestForDataObjects.filter((r4d) => {
+                  // Check if there's a query status already
+                  const existingQueryStatus = queryStatus.find((qs) => {
+                    return qs.queryCID == r4d.requestedCID;
+                  });
+                  // If there's no existing query status, it's a new query
+                  return existingQueryStatus == null;
+                });
 
-                // Only need to do the query if the calculated start block is less than
-                // the current block on the chain
-                if (startBlock >= currentBlockNumber) {
-                  return okAsync([]);
+                if (newRequests.length > 0) {
+                  this.logUtils.info("Received requests for data", newRequests);
                 }
 
-                return consentContract
-                  .getRequestForDataListByRequesterAddress(
-                    consentOwner,
-                    startBlock,
-                    currentBlockNumber,
-                  )
-                  .andThen((requestForDataObjects) => {
-                    return this.dataWalletPersistence
-                      .setLatestBlockNumber(
-                        consentContract.getContractAddress(),
-                        currentBlockNumber,
-                      )
-                      .map(() => {
-                        return requestForDataObjects;
-                      });
-                  });
-              })
-              .andThen((requestForDataObjects) => {
-                return ResultUtils.combine(
-                  requestForDataObjects.map((requestForDataObject) => {
-                    return this.queryService.onQueryPosted(
-                      requestForDataObject.consentContractAddress,
-                      requestForDataObject.requestedCID,
-                    );
+                // In the odd case that multiple events for the same CID was found, we need
+                // to ditch the repeats
+                // If we create a map by the IpfsCIDs, any repeats will be overwritten
+                const filteredMap = new Map(
+                  newRequests.map((r4d) => {
+                    return [r4d.requestedCID, r4d];
                   }),
+                );
+
+                return ResultUtils.combine(
+                  Array.from(filteredMap.values()).map(
+                    (requestForDataObject) => {
+                      return this.queryService.onQueryPosted(
+                        requestForDataObject,
+                      );
+                    },
+                  ),
                 );
               });
           }),
         ).map((result) => {});
       });
-  }
-
-  protected getQueryHorizon(
-    consentContract: IConsentContract,
-  ): ResultAsync<BlockNumber, ConsentContractError> {
-    // Check if the query horizon is in the cache
-    const cachedQueryHorizon = this.queryHorizonCache.get(
-      consentContract.getContractAddress(),
-    );
-
-    if (cachedQueryHorizon != null) {
-      return okAsync(cachedQueryHorizon);
-    }
-
-    return consentContract.getQueryHorizon().map((queryHorizon) => {
-      this.queryHorizonCache.set(
-        consentContract.getContractAddress(),
-        queryHorizon,
-      );
-
-      return queryHorizon;
-    });
   }
 }

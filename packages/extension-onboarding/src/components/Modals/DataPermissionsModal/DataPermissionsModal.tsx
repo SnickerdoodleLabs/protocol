@@ -1,4 +1,4 @@
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@extension-onboarding/components/Modals/DataPermissionsModal/DataPermissionsModal.style";
 import Switch from "@extension-onboarding/components/Switch";
 import {
@@ -22,9 +22,9 @@ declare const window: IWindowWithSdlDataWallet;
 
 const DataPermissionsModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
-  const { onPrimaryButtonClick } = modalState;
-
+  const { onPrimaryButtonClick, customProps } = modalState;
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
+  const onCloseClicked: () => void = customProps.onCloseClicked;
 
   useEffect(() => {
     window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
@@ -58,7 +58,10 @@ const DataPermissionsModal: FC = () => {
           disableRipple
           disableTouchRipple
           aria-label="close"
-          onClick={closeModal}
+          onClick={() => {
+            onCloseClicked();
+            closeModal();
+          }}
         >
           <CloseIcon />
         </IconButton>
@@ -81,7 +84,7 @@ const DataPermissionsModal: FC = () => {
                 </Box>
                 {item.dataTypes.map((dataType, index) => {
                   return (
-                    <Box key={index}>
+                    <Box key={index} mb={2}>
                       <FormControlLabel
                         className={classes.switchLabel}
                         control={
@@ -122,7 +125,9 @@ const DataPermissionsModal: FC = () => {
                 closeModal();
               }}
             >
-              Save & Claim Reward
+              {customProps.primaryButtonText
+                ? customProps.primaryButtonText
+                : "Save & Claim Reward"}
             </Button>
           </Box>
         </Box>

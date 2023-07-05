@@ -1,6 +1,7 @@
 import {
   IpfsCID,
   QueryFormatError,
+  SDQLQuery,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -28,7 +29,9 @@ export class SDQLParserFactory implements ISDQLParserFactory {
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError> {
     try {
-      const schema = this.queryWrapperFactory.makeWrapper(schemaString);
+      const schema = this.queryWrapperFactory.makeWrapper(
+        new SDQLQuery(cid, schemaString),
+      );
       return okAsync(new SDQLParser(cid, schema, this.queryObjectFactory));
     } catch (e) {
       return errAsync(new QueryFormatError((e as Error).message));

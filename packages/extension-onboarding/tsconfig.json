@@ -33,6 +33,9 @@
     },
     {
       "path": "../signatureVerification"
+    },
+    {
+      "path": "../shared-components"
     }
   ],
   "include": [

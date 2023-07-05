@@ -1,10 +1,12 @@
 import { Brand, make } from "ts-brand";
 
-import { IChainTransaction } from "../interfaces/chains";
-
-import { IEVMBalance, ITokenBalance } from "@objects/interfaces";
-import { ChainId } from "@objects/primitives/ChainId";
-import { URLString } from "@objects/primitives/URLString";
+import {
+  TokenBalance,
+  ChainTransaction,
+  NftHolding,
+} from "@objects/businessObjects";
+import { ChainId } from "@objects/primitives/ChainId.js";
+import { URLString } from "@objects/primitives/URLString.js";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;
@@ -17,9 +19,9 @@ export type SDQL_Return = Brand<
   | Array<any>
   | Map<URLString, number>
   | Map<ChainId, number>
-  | IEVMBalance[]
-  | ITokenBalance[]
-  | IChainTransaction[]
+  | TokenBalance[]
+  | ChainTransaction[]
+  | NftHolding[]
   | Object
   | null,
   "SDQL_Return"

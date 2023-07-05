@@ -31,8 +31,17 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
 
   public get<T>(url: URL, config?: IRequestConfig): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.get(url.toString(), config),
-      (e) => new AjaxError(`Unable to get ${url}`, e),
+      this.instance.get(this.stripTrailingSlash(url.toString()), config),
+      (e) => {
+        const err = e as IAxiosError;
+        if (err.response != null) {
+          return new AjaxError(
+            `Error returned from GET ${url}, ${err.message}`,
+            err.response.status,
+          );
+        }
+        return new AjaxError(`Unable to GET ${url}, ${err.message}`, 500);
+      },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
     });
@@ -40,7 +49,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
 
   public post<T>(
     url: URL,
-    data:
+    data?:
       | string
       | Record<string, unknown>
       | ArrayBuffer
@@ -50,8 +59,17 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.post(url.toString(), data, config),
-      (e) => new AjaxError(`Unable to post ${url}`, e),
+      this.instance.post(this.stripTrailingSlash(url.toString()), data, config),
+      (e) => {
+        const err = e as IAxiosError;
+        if (err.response != null) {
+          return new AjaxError(
+            `Error returned from POST ${url}, ${err.message}`,
+            err.response.status,
+          );
+        }
+        return new AjaxError(`Unable to POST ${url}, ${err.message}`, 500);
+      },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
     });
@@ -69,8 +87,17 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.put(url.toString(), data, config),
-      (e) => new AjaxError(`Unable to put ${url}`, e),
+      this.instance.put(this.stripTrailingSlash(url.toString()), data, config),
+      (e) => {
+        const err = e as IAxiosError;
+        if (err.response != null) {
+          return new AjaxError(
+            `Error returned from PUT ${url}, ${err.message}`,
+            err.response.status,
+          );
+        }
+        return new AjaxError(`Unable to PUT ${url}, ${err.message}`, 500);
+      },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
     });
@@ -81,8 +108,17 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.delete(url.toString(), config),
-      (e) => new AjaxError(`Unable to delete ${url}`, e),
+      this.instance.delete(this.stripTrailingSlash(url.toString()), config),
+      (e) => {
+        const err = e as IAxiosError;
+        if (err.response != null) {
+          return new AjaxError(
+            `Error returned from DELETE ${url}, ${err.message}`,
+            err.response.status,
+          );
+        }
+        return new AjaxError(`Unable to DELETE ${url}, ${err.message}`, 500);
+      },
     ).map((response: AxiosResponse<T>) => {
       return response.data;
     });
@@ -93,4 +129,18 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       authorization: `Bearer ${token}`,
     };
   }
+
+  private stripTrailingSlash(url: string) {
+    return url.endsWith("/") ? url.slice(0, -1) : url;
+  }
+}
+
+interface IAxiosError {
+  request?: XMLHttpRequest;
+  response?: {
+    data: unknown;
+    status: number;
+    headers: unknown;
+  };
+  message?: string;
 }

@@ -30,7 +30,7 @@ export class ApproveQuery extends Prompt {
           return okAsync(undefined);
         }
 
-        return this.core.processQuery(
+        return this.core.approveQuery(
           this.queryRequest.consentContractAddress,
           this.queryRequest.query,
           [],

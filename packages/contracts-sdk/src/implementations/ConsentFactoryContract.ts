@@ -1,18 +1,27 @@
 import {
   BaseURI,
+  BigNumberString,
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
   IBlockchainError,
+  IpfsCID,
+  MarketplaceListing,
+  MarketplaceTag,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import {
+  ConsentRoles,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -22,17 +31,17 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentFactoryAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
-      consentFactoryAddress,
+      contractAddress,
       ContractsAbis.ConsentFactoryAbi.abi,
       providerOrSigner,
     );
   }
 
   public getContractAddress(): EVMContractAddress {
-    return EVMContractAddress(this.contract?.address || "");
+    return this.contractAddress;
   }
 
   // Function to help user create consent
@@ -65,7 +74,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           );
         });
       })
-      .andThen((receipt) => {
+      .map((receipt) => {
         // Get the hash of the event
         const event = "ConsentDeployed(address,address)";
         const eventHash = ethers.utils.keccak256(
@@ -97,7 +106,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
         const deployedConsentAddress = decodedLog.consentAddress;
 
-        return okAsync(deployedConsentAddress as EVMContractAddress);
+        return deployedConsentAddress as EVMContractAddress;
       });
   }
 
@@ -226,7 +235,266 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       return consents;
     });
   }
+
+  // Marketplace functions
+  public getMaxTagsPerListing(): ResultAsync<
+    number,
+    ConsentFactoryContractError
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.maxTagsPerListing() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getMaxTagsPerListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
+
+  public getListingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getListingDuration() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListingDuration()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((num) => {
+      return num.toNumber();
+    });
+  }
+
+  public setListingDuration(
+    listingDuration: number,
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setListingDuration(
+        listingDuration,
+      ) as Promise<WrappedTransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call setListingDuration()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public setMaxTagsPerListing(
+    maxTagsPerListing: number,
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setMaxTagsPerListing(
+        maxTagsPerListing,
+      ) as Promise<WrappedTransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call setListingDuration()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public adminRemoveListing(
+    tag: MarketplaceTag,
+    removedSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.adminRemoveListing(
+        tag,
+        removedSlot,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call adminRemoveListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((tx) => {
+      return new WrappedTransactionResponse(tx);
+    });
+  }
+
+  public getListingDetail(
+    tag: MarketplaceTag,
+    slot: BigNumberString,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getListing(tag, slot) as Promise<IListingStruct>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListing()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listing) => {
+      return new MarketplaceListing(
+        BigNumberString(listing.previous.toString()),
+        BigNumberString(listing.next.toString()),
+        listing.consentContract,
+        UnixTimestamp(listing.timeExpiring?.toNumber()),
+        IpfsCID(""), // TODO: Update contract to also return its CID for getListing (only does this with getListingsForward/backward atm)
+        slot,
+        tag,
+      );
+    });
+  }
+
+  public getListingsForward(
+    tag: MarketplaceTag,
+    startingSlot: BigNumberString,
+    numberOfSlots: number,
+    removeExpired: boolean,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getListingsForward(
+        tag,
+        startingSlot,
+        numberOfSlots,
+        removeExpired,
+      ) as Promise<[string[], IListingStruct[]]>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListingsForward()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(([cids, listings]) => {
+      return listings
+        .map((listing, index) => {
+          return new MarketplaceListing(
+            BigNumberString(listing.previous.toString()),
+            BigNumberString(listing.next.toString()),
+            listing.consentContract,
+            UnixTimestamp(listing.timeExpiring.toNumber()),
+            IpfsCID(cids[index]),
+            listings[index + 1] != null && listing.next.isZero() === false
+              ? BigNumberString(listings[index + 1].previous.toString())
+              : listings[index - 1] != null
+              ? BigNumberString(listings[index - 1].next.toString())
+              : startingSlot,
+            tag,
+          );
+        })
+        .filter((listing) => {
+          // Filter out slots with previous and next zeros
+          return listing.previous != "0" || listing.next != "0";
+        });
+    });
+  }
+
+  public getListingsBackward(
+    tag: MarketplaceTag,
+    startingSlot: BigNumberString,
+    numberOfSlots: number,
+    removeExpired: boolean,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getListingsForward(
+        tag,
+        startingSlot,
+        numberOfSlots,
+        removeExpired,
+      ) as Promise<[string[], IListingStruct[]]>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getListingsForward()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(([cids, listings]) => {
+      return listings
+        .map((listing, index) => {
+          return new MarketplaceListing(
+            BigNumberString(listing.previous.toString()),
+            BigNumberString(listing.next.toString()),
+            listing.consentContract,
+            UnixTimestamp(listing.timeExpiring?.toNumber()),
+            IpfsCID(cids[index]),
+            listings[index + 1] != null &&
+            listing.previous.eq(ethers.constants.MaxUint256) === false
+              ? BigNumberString(listings[index + 1].next.toString())
+              : listings[index - 1] != null
+              ? BigNumberString(listings[index - 1].previous.toString())
+              : startingSlot,
+            tag,
+          );
+        })
+        .filter((listing) => {
+          // Filter out slots with previous and next zeros
+          return listing.previous != "0" || listing.next != "0";
+        });
+    });
+  }
+
+  public getTagTotal(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.getTagTotal(tag) as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call getTagTotal()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((count) => {
+      return count.toNumber();
+    });
+  }
+
+  public getListingsByTag(
+    tag: MarketplaceTag,
+    removeExpired: boolean,
+  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    // We get the total number of slots by calling getTagTotal()
+    // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
+    return ResultUtils.combine([
+      this.getTagTotal(tag),
+      this.getListingDetail(
+        tag,
+        BigNumberString(ethers.constants.MaxUint256.toString()),
+      ),
+    ]).andThen(([tagTotal, listingDetail]) => {
+      // The max slot's next points to the highest slot
+      const highestRankListingSlot = listingDetail.next;
+
+      // Fetch from the highest to lowest listings
+      return this.getListingsForward(
+        tag,
+        highestRankListingSlot,
+        tagTotal,
+        removeExpired,
+      );
+    });
+  }
 }
+interface IListingStruct {
+  previous: BigNumber;
+  next: BigNumber;
+  consentContract: EVMContractAddress;
+  timeExpiring: BigNumber;
+}
+
+// I listingStruct { at the place where we're using it, and don't have to export here
+
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
 
 /* // TODO: Replace Promise<any> with correct types returned from ConsentDeployed() and queryFilter()

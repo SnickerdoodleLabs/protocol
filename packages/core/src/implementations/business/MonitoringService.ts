@@ -1,48 +1,65 @@
-import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
-  SiteVisit,
-  IAccountIndexing,
-  IAccountIndexingType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-  EVMAccountAddress,
-  ChainId,
   AccountIndexingError,
-  EVMTransaction,
-  EIndexer,
-  UnixTimestamp,
   AjaxError,
+  DataWalletBackupID,
+  DiscordError,
+  IMasterIndexer,
+  IMasterIndexerType,
+  isAccountValidForChain,
   PersistenceError,
-  IAccountBalancesType,
-  IAccountBalances,
-  IAccountNFTsType,
-  IAccountNFTs,
-  getChainInfoByChain,
-  EChainTechnology,
+  SiteVisit,
+  TwitterError,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { injectable, inject } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IMonitoringService } from "@core/interfaces/business/index.js";
 import {
-  IContextProvider,
+  IDiscordService,
+  IDiscordServiceType,
+  IMonitoringService,
+  ITwitterService,
+  ITwitterServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IBrowsingDataRepository,
+  IBrowsingDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ILinkedAccountRepository,
+  ILinkedAccountRepositoryType,
+  ITransactionHistoryRepository,
+  ITransactionHistoryRepositoryType,
+} from "@core/interfaces/data/index.js";
+import {
   IConfigProvider,
   IConfigProviderType,
+  IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MonitoringService implements IMonitoringService {
   public constructor(
-    @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
-    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
-    @inject(IAccountNFTsType) protected accountNFTs: IAccountNFTs,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
+    @inject(IMasterIndexerType)
+    protected masterIndexer: IMasterIndexer,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
+    @inject(ILinkedAccountRepositoryType)
+    protected accountRepo: ILinkedAccountRepository,
+    @inject(ITransactionHistoryRepositoryType)
+    protected transactionRepo: ITransactionHistoryRepository,
+    @inject(IBrowsingDataRepositoryType)
+    protected browsingDataRepo: IBrowsingDataRepository,
+    @inject(IDiscordServiceType)
+    protected discordService: IDiscordService,
+    @inject(ITwitterServiceType)
+    protected twitterService: ITwitterService,
   ) {}
 
   public pollTransactions(): ResultAsync<
@@ -51,27 +68,24 @@ export class MonitoringService implements IMonitoringService {
   > {
     // Grab the linked accounts and the config
     return ResultUtils.combine([
-      this.persistence.getAccounts(),
+      this.accountRepo.getAccounts(),
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
-
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
-                return this.persistence
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
+                return this.transactionRepo
                   .getLatestTransactionForAccount(
                     chainId,
-                    linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                    linkedAccount.sourceAccountAddress,
                   )
                   .andThen((tx) => {
                     // TODO: Determine cold start timestamp
@@ -80,11 +94,21 @@ export class MonitoringService implements IMonitoringService {
                       startTime = tx.timestamp;
                     }
 
-                    return this.getLatestTransactions(
-                      linkedAccount.sourceAccountAddress as EVMAccountAddress,
-                      startTime,
-                      chainId,
-                    );
+                    return this.masterIndexer
+                      .getLatestTransactions(
+                        linkedAccount.sourceAccountAddress,
+                        startTime,
+                        chainId,
+                      )
+                      .orElse((e) => {
+                        this.logUtils.error(
+                          "error fetching transactions",
+                          chainId,
+                          linkedAccount.sourceAccountAddress,
+                          e,
+                        );
+                        return okAsync([]);
+                      });
                   });
               }),
             );
@@ -93,57 +117,29 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.persistence.addEVMTransactions(transactions); // let's not call if empty?
+        return this.transactionRepo.addTransactions(transactions);
       });
   }
 
   public siteVisited(
     siteVisit: SiteVisit,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistence.addSiteVisits([siteVisit]);
-  }
-
-  protected getLatestTransactions(
-    accountAddress: EVMAccountAddress,
-    timestamp: UnixTimestamp,
-    chainId: ChainId,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.accountIndexing.getEVMTransactionRepository(),
-      this.accountIndexing.getSimulatorEVMTransactionRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
-      // Get the chain info for the transaction
-      const chainInfo = config.chainInformation.get(chainId);
-
-      if (chainInfo == null) {
-        this.logUtils.error(`No available chain info for chain ${chainId}`);
-        return okAsync([]);
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getEVMTransactions(
-            chainId,
-            accountAddress,
-            new Date(timestamp * 1000),
-          );
-        case EIndexer.Simulator:
-          return simulatorRepo.getEVMTransactions(
-            chainId,
-            accountAddress,
-            new Date(timestamp * 1000),
-          );
-        default:
-          this.logUtils.error(
-            `No available indexer repository for chain ${chainId}`,
-          );
-          return okAsync([]);
-      }
-    });
+    return this.browsingDataRepo.addSiteVisits([siteVisit]);
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.persistence.pollBackups();
+  }
+
+  public pollDiscord(): ResultAsync<void, PersistenceError | DiscordError> {
+    return this.discordService.poll();
+  }
+
+  public pollTwitter(): ResultAsync<void, PersistenceError | TwitterError> {
+    return this.twitterService.poll();
+  }
+
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.persistence.postBackups();
   }
 }

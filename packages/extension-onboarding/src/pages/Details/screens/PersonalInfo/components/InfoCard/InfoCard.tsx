@@ -31,7 +31,7 @@ const InfoCard: FC<IInfoCardProps> = ({ onEditClick }) => {
             <Typography className={classes.itemLabel}>{label}</Typography>
           </Grid>
           <Grid item sm={6}>
-            <Typography className={classes.itemLabel}>{value}</Typography>
+            <Typography className={classes.itemValue}>{value}</Typography>
           </Grid>
         </Grid>
         <Box mt={3}>
@@ -52,7 +52,7 @@ const InfoCard: FC<IInfoCardProps> = ({ onEditClick }) => {
       <Box display="flex">
         <Box display="flex" marginLeft="auto">
           <Button onClick={onEditClick} className={classes.actionButton}>
-            <EditIcon />
+            <EditIcon fontSize="small" />
             Edit
           </Button>
         </Box>

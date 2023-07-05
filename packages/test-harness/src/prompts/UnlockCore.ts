@@ -43,15 +43,6 @@ export class UnlockCore extends DataWalletPrompt {
       .andThen((answers) => {
         const wallet = answers.unlockAccountSelector as TestWallet;
         return this.profile.unlock(wallet);
-        // Need to get the unlock message first
-        // return this.env.dataWalletProfile.getSignatureForAccount(wallet).andThen((signature) => {
-        //     return this.core.unlock(
-        //         wallet.accountAddress,
-        //         signature,
-        //         this.env.mocks.languageCode,
-        //         wallet.chain,
-        //     );
-        // });
       })
       .mapErr((e) => {
         console.error(e);

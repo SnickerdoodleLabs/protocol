@@ -14,6 +14,7 @@ import { useStyles } from "@extension-onboarding/components/CustomizedAlert/Cust
 import {
   EAlertSeverity,
   SEVERITY_COLORS,
+  SEVERITY_TEXT_COLORS,
 } from "@extension-onboarding/components/CustomizedAlert/CustomizedAlert.constants";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
@@ -52,7 +53,12 @@ const CustomizedAlert: FC<ICustomizedAlertProps> = ({
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >
       <Box px={5} py={2} bgcolor={SEVERITY_COLORS[severity]} zIndex={9999}>
-        <Typography className={classes.message}>{message}</Typography>
+        <Typography
+          className={classes.message}
+          style={{ color: SEVERITY_TEXT_COLORS[severity] }}
+        >
+          {message}
+        </Typography>
       </Box>
     </Snackbar>
   );

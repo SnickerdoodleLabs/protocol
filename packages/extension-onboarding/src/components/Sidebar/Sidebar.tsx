@@ -1,12 +1,16 @@
-import campaignIcon from "@extension-onboarding/assets/icons/campaign.svg";
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
+  FAQ_URL,
+  HOTJAR_DISCLAIMER_URL,
   PRIVACY_POLICY_URL,
+  SURVEY_URL,
+  TERMS_OF_SERVICE_URL,
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -29,25 +33,29 @@ export interface IRoute {
 }
 
 export const routes: IRoute[] = [
+  // {
+  //   icon: rewardsIcon,
+  //   title: "Rewards Marketplace",
+  //   path: EPaths.MY_REWARDS,
+  //   subroutes: null,
+  // },
   {
-    icon: portfolioIcon,
-    title: "My Portfolio",
-    path: EPaths.HOME,
+    icon: rewardsIcon,
+    title: "Rewards Marketplace",
+    path: EPaths.MARKETPLACE,
     subroutes: null,
   },
   {
-    icon: rewardsIcon,
-    title: "Rewards",
-    path: null,
-    subroutes: [{ title: "My Rewards", path: EPaths.MY_REWARDS }],
-  },
-  {
-    icon: campaignIcon,
-    title: "Campaigns",
+    icon: portfolioIcon,
+    title: "My Data Dashboard",
     path: null,
     subroutes: [
-      { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
-      { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
+      { path: EPaths.TOKENS, title: "Tokens" },
+      { path: EPaths.NFTS, title: "NFTs" },
+      { path: EPaths.POAP_NFTS, title: "POAPs" },
+      { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
+      { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
+      { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
   },
   {
@@ -55,9 +63,10 @@ export const routes: IRoute[] = [
     title: "Settings",
     path: null,
     subroutes: [
-      { title: "Web 3 Info", path: EPaths.WEB3_SETTINGS },
-      { title: "Web 2 Info", path: EPaths.WEB2_SETTINGS },
-      { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
+      { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
+      { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Rewards Subscriptions", path: EPaths.REWARDS_SUBSCRIPTIONS },
+      // { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
   },
@@ -81,7 +90,7 @@ const Sidebar = () => {
       )}
       <Box display="flex" flexDirection="column" className={classes.container}>
         <Box mt={4.5}>
-          <img src={snickerDoodleLogo} />
+          <img src={sdlLogoSafe} />
         </Box>
         <Box
           onClick={() => {
@@ -89,6 +98,7 @@ const Sidebar = () => {
           }}
           className={classes.button}
           mt={6}
+          minHeight={48}
           height={48}
           borderRadius={8}
           display="flex"
@@ -97,12 +107,13 @@ const Sidebar = () => {
           color="#F2F4F7"
           alignItems="center"
           justifyContent="center"
+          id="sb-link-account"
         >
           <Box display="flex" mr={1}>
             <AddIcon className={classes.linkAccountButtonIcon} />
           </Box>
           <Typography className={classes.linkAccountButtonText}>
-            Link account
+            Link Account
           </Typography>
         </Box>
         <Box mt={6} display="flex" flexDirection="column" width="100%">
@@ -113,6 +124,8 @@ const Sidebar = () => {
               (route.subroutes ? route.subroutes : []).findIndex(
                 (subroute) => subroute.path === location.pathname,
               ) > -1;
+            const isHighlighted =
+              route.path && location.pathname.includes(route.path);
             return (
               <Box
                 key={index}
@@ -122,9 +135,14 @@ const Sidebar = () => {
                 flexDirection="column"
               >
                 <Box
+                  id={`sb-${index}`}
                   onClick={() => {
                     if (route.path) {
                       navigate(route.path);
+                    } else {
+                      if (route.subroutes) {
+                        navigate(route.subroutes[0].path);
+                      }
                     }
                     setLastClickedIndex(index);
                   }}
@@ -133,17 +151,13 @@ const Sidebar = () => {
                   px={1.5}
                   display="flex"
                   alignItems="center"
-                  {...(isActive && { bgcolor: "#DAD8E9" })}
+                  {...((isActive || isHighlighted) && { bgcolor: "#DAD8E9" })}
                   className={classes.routeWrapper}
                 >
-                  <Box display="flex" mr={1.5}>
+                  {/* <Box display="flex" mr={1.5}>
                     <img className={classes.mainRouteIcon} src={route.icon} />
-                  </Box>
-                  <Typography
-                    className={clsx(classes.mainRouteText, {
-                      [classes.textActive]: isActive,
-                    })}
-                  >
+                  </Box> */}
+                  <Typography className={clsx(classes.routeText)}>
                     {route.title}
                   </Typography>
                   {subroutes?.length && (
@@ -164,18 +178,19 @@ const Sidebar = () => {
                       display="flex"
                       flexDirection="column"
                     >
-                      {subroutes.map((subroute, index) => {
+                      {subroutes.map((subroute, subrouteIndex) => {
                         return (
                           <Box
                             className={classes.routeWrapper}
-                            key={index}
+                            key={`${index}-${subrouteIndex}`}
                             onClick={() => {
                               navigate(subroute.path);
+                              setLastClickedIndex(index);
                             }}
-                            mb={index === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 2}
                           >
                             <Typography
-                              className={clsx(classes.subrouteText, {
+                              className={clsx(classes.routeText, {
                                 [classes.textActive]:
                                   subroute.path === location.pathname,
                               })}
@@ -192,17 +207,37 @@ const Sidebar = () => {
             );
           })}
         </Box>
-        <Box alignSelf="flex-start" marginTop="auto" mb={3.5} display="flex">
+        <Box alignSelf="flex-start" marginTop="auto" mb={1.5} display="flex">
           <Typography
             onClick={() => {
-              window.open(ZENDEKS_URL, "_blank");
+              window.open(SURVEY_URL, "_blank");
             }}
             className={classes.link}
           >
-            Contact with Us
+            Survey
           </Typography>
         </Box>
-        <Box pb={2.5} width="100%" justifyContent="flex-start">
+        <Box mb={1.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(ZENDEKS_URL, "_blank");
+            }}
+          >
+            Contact Us
+          </Typography>
+        </Box>
+        <Box mb={1.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(FAQ_URL, "_blank");
+            }}
+          >
+            FAQ
+          </Typography>
+        </Box>
+        <Box pb={1.5} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {
@@ -210,6 +245,16 @@ const Sidebar = () => {
             }}
           >
             Privacy Policy
+          </Typography>
+        </Box>
+        <Box pb={1.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(HOTJAR_DISCLAIMER_URL, "_blank");
+            }}
+          >
+            Hotjar Disclaimer
           </Typography>
         </Box>
       </Box>

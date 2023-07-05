@@ -1,12 +1,12 @@
-import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks";
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
-import {  ConditionGE } from "@snickerdoodlelabs/query-parser";
 import "reflect-metadata";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
+import { ConditionGE } from "@snickerdoodlelabs/query-parser";
+
+import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks.js";
 
 describe("test balance query parsing", () => {
-  
   test("q5 should have networkId 1 and and one ge (10) condition ", () => {
-    const mocks = new QueryObjectFactoryMocks()
+    const mocks = new QueryObjectFactoryMocks();
     const factory = mocks.factory();
     const schema = mocks.schema;
 
@@ -22,6 +22,4 @@ describe("test balance query parsing", () => {
     expect(cond.constructor).toBe(ConditionGE);
     expect((cond as ConditionGE).rval).toBe(10);
   });
-
- 
 });

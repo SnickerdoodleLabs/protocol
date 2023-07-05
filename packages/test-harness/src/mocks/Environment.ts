@@ -1,4 +1,9 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import {
+  AdSignature,
+  EligibleAd,
+  SHA256Hash,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
@@ -14,12 +19,15 @@ const walletFolder = "data/profiles/dataWallet";
 export class Environment {
   protected fioUtils: FileInputUtils;
   public dataWalletProfile: DataWalletProfile | null = null;
+  public adSignatureContentHashMap: Map<string, SHA256Hash>;
+
   public constructor(
     public businessProfile: BusinessProfile,
     public mocks: TestHarnessMocks,
   ) {
     this.fioUtils = new FileInputUtils();
     this.loadDefaultProfile();
+    this.adSignatureContentHashMap = new Map<string, SHA256Hash>();
   }
 
   public get insightPlatform(): InsightPlatformSimulator {

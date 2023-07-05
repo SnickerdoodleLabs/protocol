@@ -1,17 +1,3 @@
-import { Box, Button, Dialog, IconButton, Typography } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import {
-  BigNumberString,
-  EInvitationStatus,
-  EVMContractAddress,
-  EWalletDataType,
-  IOpenSeaMetadata,
-  Signature,
-  TokenId,
-} from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
-import React, { useEffect, useState, FC, useCallback } from "react";
-
 import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
@@ -19,8 +5,23 @@ import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+
+import {
+  AccountAddress,
+  BigNumberString,
+  EInvitationStatus,
+  EVMContractAddress,
+  EWalletDataType,
+  IOpenSeaMetadata,
+  Signature,
+} from "@snickerdoodlelabs/objects";
+import { Button } from "@snickerdoodlelabs/shared-components";
+import { okAsync } from "neverthrow";
+import React, { useEffect, useState, FC, useCallback } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 const CampaignPopup: FC = () => {
@@ -29,22 +30,30 @@ const CampaignPopup: FC = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
-  const { invitationInfo } = useAppContext();
+  const {
+    invitationInfo,
+    updateOptedInContracts,
+    setInvitationInfo,
+    isProductTourCompleted,
+  } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
 
   useEffect(() => {
-    getInvitationData();
+    if (invitationInfo.consentAddress) {
+      getInvitationData();
+    }
   }, [JSON.stringify(invitationInfo)]);
 
-  const getInvitationData = useCallback(() => {
+  useEffect(() => {
+    if (invitationMeta) {
+      setOpen(true);
+    }
+  }, [JSON.stringify(invitationMeta)]);
+
+  const getInvitationData = () => {
     if (!invitationInfo.consentAddress) {
       return null;
     }
-    try {
-      if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
-        localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
-      }
-    } catch (e) {}
     return window.sdlDataWallet
       .checkInvitationStatus(
         invitationInfo.consentAddress,
@@ -69,6 +78,17 @@ const CampaignPopup: FC = () => {
             EInvitationStatus.Occupied,
           ].includes(invitationStatus)
         ) {
+          setInvitationInfo({
+            consentAddress: undefined,
+            tokenId: undefined,
+            signature: undefined,
+            rewardImage: undefined,
+          });
+          try {
+            if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+              localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+            }
+          } catch (e) {}
           setModal({
             modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
             onPrimaryButtonClick: () => {},
@@ -76,8 +96,10 @@ const CampaignPopup: FC = () => {
               title: "Thank you for your interest!",
               message: (() => {
                 switch (invitationStatus) {
-                  case EInvitationStatus.Accepted:
+                  case EInvitationStatus.Accepted: {
+                    updateOptedInContracts();
                     return "Looks like you have claimed this reward already. You can see your reward in your portfolio.";
+                  }
                   case EInvitationStatus.Occupied:
                     return "Looks like this reward link has been reserved for another data wallet user.";
                   case EInvitationStatus.OutOfCapacity:
@@ -99,7 +121,7 @@ const CampaignPopup: FC = () => {
         setLoading(false);
         return okAsync(undefined);
       });
-  }, [invitationInfo]);
+  };
 
   const acceptInvitation = (
     dataTypes: EWalletDataType[] | null,
@@ -111,7 +133,7 @@ const CampaignPopup: FC = () => {
     return window.sdlDataWallet
       .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
       .mapErr((e) => {
-        console.log("ERRORRR", e);
+        handleClose();
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},
@@ -127,8 +149,10 @@ const CampaignPopup: FC = () => {
         setLoadingStatus(false);
       })
       .map(() => {
+        updateOptedInContracts();
         setLoadingStatus(false);
         setVisualAlert(true);
+        handleClose();
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},
@@ -146,55 +170,69 @@ const CampaignPopup: FC = () => {
 
   const onClaimClick = () => {
     setOpen(false);
-    return window.sdlDataWallet
-      .getApplyDefaultPermissionsOption()
-      .map((option) => {
-        if (option) {
-          acceptInvitation(
-            null,
-            invitationInfo.consentAddress!,
-            invitationInfo.tokenId,
-            invitationInfo.signature,
-          );
-          return;
-        }
+    return setModal({
+      modalSelector: EModalSelectors.PERMISSION_SELECTION,
+      onPrimaryButtonClick: ({
+        eligibleRewards,
+        missingRewards,
+        dataTypes,
+      }) => {
         setModal({
-          modalSelector: EModalSelectors.PERMISSION_SELECTION,
-          onPrimaryButtonClick: () => {
-            acceptInvitation(
-              null,
-              invitationInfo.consentAddress!,
-              invitationInfo.tokenId,
-              invitationInfo.signature,
-            );
-            closeModal();
+          modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
+          onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
+            setLoadingStatus(true);
+            window.sdlDataWallet
+              .setReceivingAddress(
+                invitationInfo.consentAddress!,
+                receivingAccount,
+              )
+              .map(() => {
+                acceptInvitation(
+                  dataTypes,
+                  invitationInfo.consentAddress!,
+                  invitationInfo.tokenId,
+                  invitationInfo.signature,
+                );
+              });
           },
           customProps: {
-            onManageClicked: () => {
-              setModal({
-                modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-                onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
-                  acceptInvitation(
-                    dataTypes,
-                    invitationInfo.consentAddress!,
-                    invitationInfo.tokenId,
-                    invitationInfo.signature,
-                  );
-                },
-              });
-            },
+            eligibleRewards,
+            missingRewards,
+            dataTypes,
+            campaignName: invitationMeta?.rewardName,
+            campaignImage: invitationMeta?.image,
+            consentAddress: invitationInfo.consentAddress!,
           },
         });
-      });
+      },
+      customProps: {
+        consentContractAddress: invitationInfo.consentAddress!,
+        campaignInfo: invitationMeta,
+        onCloseClicked: () => {
+          handleClose();
+        },
+      },
+    });
   };
 
   if (loading) {
   }
-  if (!invitationMeta || !open) {
+  if (!invitationMeta || !open || !isProductTourCompleted) {
     return null;
   }
 
   const handleClose = () => {
+    setInvitationInfo({
+      consentAddress: undefined,
+      tokenId: undefined,
+      signature: undefined,
+      rewardImage: undefined,
+    });
+    try {
+      if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+        localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+      }
+    } catch (e) {}
     setInvitationMeta(undefined);
     setOpen(false);
   };
@@ -202,23 +240,15 @@ const CampaignPopup: FC = () => {
   return (
     <>
       <Dialog onClose={handleClose} open={true}>
-        <Box width={548} height={497}>
-          <Box height={270} style={{ backgroundImage: `url(${RewardBG})` }}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="baseline"
-            >
-              <Box pt={3} pl={4}>
-                <img width="auto" height={18} src={SDLogo} />
-              </Box>
-              <Box>
+        <Box width={548} minHeight={497}>
+          <Box height={240} style={{ backgroundImage: `url(${RewardBG})` }}>
+            <Box display="flex" justifyContent="space-between">
+              <Box ml="auto">
                 <IconButton
                   disableFocusRipple
                   disableRipple
                   disableTouchRipple
                   aria-label="close"
-                  //   className={modalClasses.closeButton}
                   onClick={handleClose}
                 >
                   <CloseIcon />
@@ -229,7 +259,7 @@ const CampaignPopup: FC = () => {
               display="flex"
               alignItems="center"
               justifyContent="center"
-              mt={2}
+              mt={0.25}
             >
               <Box>
                 <img width="auto" height={145} src={invitationMeta.image} />
@@ -240,24 +270,15 @@ const CampaignPopup: FC = () => {
               alignItems="center"
               justifyContent="center"
               pt={1}
+              pb={2}
             >
               <Box
-                style={{
-                  background: "rgba(128, 121, 180, 0.5)",
-                  borderRadius: "4px",
-                  gap: "10px",
-                }}
+                bgcolor="rgba(128, 121, 180, 0.5)"
+                borderRadius={4}
+                px={1.5}
+                py={0.3}
               >
-                <Typography
-                  style={{
-                    fontFamily: "Space Grotestk",
-                    fontWeight: 500,
-                    fontSize: "10px",
-                    textAlign: "center",
-                    color: "#222137",
-                    padding: "3px 12px",
-                  }}
-                >
+                <Typography className={classes.rewardName}>
                   {invitationMeta.rewardName}
                 </Typography>
               </Box>
@@ -265,67 +286,29 @@ const CampaignPopup: FC = () => {
           </Box>
           <Box mx={11} textAlign="center">
             <Box mt={3} mb={2}>
-              <Typography
-                style={{
-                  fontFamily: "Shrikhand",
-                  fontWeight: 400,
-                  fontSize: 20,
-                  fontStyle: "italic",
-                  color: "#222137",
-                }}
-              >
-                Join to Cohort!
+              <Typography className={classes.rewardTitle}>
+                {invitationMeta.title || "Join the Cohort!"}
               </Typography>
             </Box>
             <Box mb={2}>
               <Typography className={classes.subtitle}>
-                Connect your wallet with the Snickerdoodle Data Wallet to claim
-                NFTs and other rewards!
+                {invitationMeta.description}
               </Typography>
             </Box>
-            <Box
-              display="flex"
-              justifyContent="space-evenly"
-              alignItems="center"
-            >
-              <Box>
-                <Button onClick={handleClose} className={classes.buttonText}>
-                  Not Interested
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <Box mr={2}>
+                <Button onClick={handleClose} buttonType="secondary">
+                  Cancel
                 </Button>
               </Box>
               <Box>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={onClaimClick}
-                  className={classes.primaryButton}
-                >
+                <Button buttonType="primary" onClick={onClaimClick}>
                   Join
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 17 16"
-                    fill="none"
-                    fillRule="evenodd"
-                    strokeLinecap="square"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    aria-hidden="true"
-                    className={classes.primaryButtonIcon}
-                  >
-                    <path
-                      d="M1.808 14.535 14.535 1.806"
-                      className="arrow-body"
-                    />
-                    <path
-                      d="M3.379 1.1h11M15.241 12.963v-11"
-                      className="arrow-head"
-                    />
-                  </svg>
                 </Button>
               </Box>
             </Box>
           </Box>
-          <Box px={7} my={3} textAlign="center">
+          <Box px={3} mb={1} mt={3}>
             <Typography className={classes.footerText}>
               By accepting this Reward you are giving permission for the use of
               your profile and wallet activity to generate market trends. All

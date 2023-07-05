@@ -95,6 +95,33 @@ task(
   });
 
 task(
+  "getMarketplaceListings",
+  "Get CIDs containing marketplace listing content",
+)
+  .addParam("howmany", "how many listings to return")
+  .setAction(async (taskArgs) => {
+    const howmany = taskArgs.howmany;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    await consentContractFactorHandle
+      .listingsHead()
+      .then((listingsHead) => {
+        return consentContractFactorHandle.getListings(listingsHead, howmany);
+      })
+      .then((output) => {
+        console.log("CIDs", output[0]);
+        console.log("Next Active Listing:", output[1].toNumber());
+      });
+  });
+
+task(
   "setQueryHorizon",
   "Set the blocknumber of the consent contracts query horizon",
 )
@@ -304,23 +331,20 @@ task("optOut", "Opt in to a Consent Contract")
 task(
   "getTrustedForwarder",
   "returns the trusted forwarder address of a consent contract",
-)
-  .addParam("contractaddress", "address of the consent contract")
-  .setAction(async (taskArgs) => {
-    const contractaddress = taskArgs.contractaddress;
-    const provider = await hre.ethers.provider;
+).setAction(async (taskArgs) => {
+  const provider = await hre.ethers.provider;
 
-    // attach the first signer account to the consent contract handle
-    const consentContractHandle = new hre.ethers.Contract(
-      contractaddress,
-      CC().abi,
-      provider,
-    );
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    consentFactory(),
+    CCFactory().abi,
+    provider,
+  );
 
-    await consentContractHandle.trustedForwarder().then((tfAddress) => {
-      console.log("Trusted Forwarder Address:", tfAddress);
-    });
+  await consentContractHandle.trustedForwarder().then((tfAddress) => {
+    console.log("Trusted Forwarder Address:", tfAddress);
   });
+});
 
 task(
   "setTrustedForwarder",
@@ -427,6 +451,224 @@ task("addConsentContractDomain", "Add a new URL to a Consent Contract.")
 
     await consentContractHandle
       .addDomain(url)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task(
+  "stakeNewGlobalTag",
+  "Initialize a new global tag and stake a marketplace listing under it",
+)
+  .addParam("consentcontract", "address of the target consent contract")
+  .addParam("newtag", "Human-readable string for the new tag.")
+  .addParam("newslot", "Integer number for the new marketplace stake amount.")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const consentcontract = taskArgs.consentcontract;
+    const newslot = taskArgs.newslot;
+    const newtag = taskArgs.newtag;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      consentcontract,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle
+      .newGlobalTag(newtag, newslot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task(
+  "stakeNewLocalTagUpstream",
+  "Initialize a new local tag and stake a marketplace listing above an existing listing",
+)
+  .addParam("consentcontract", "address of the target consent contract")
+  .addParam("tag", "Human-readable string for the tag.")
+  .addParam("newslot", "Integer number for the new marketplace stake amount.")
+  .addParam(
+    "existingslot",
+    "Integer number for the new marketplace stake amount.",
+  )
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const consentcontract = taskArgs.consentcontract;
+    const newslot = taskArgs.newslot;
+    const existingslot = taskArgs.existingslot;
+    const tag = taskArgs.tag;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      consentcontract,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle
+      .newLocalTagUpstream(tag, newslot, existingslot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+  task("removeMarketplaceTailListing", "Removes a non-head listing from the marketplace")
+  .addParam("upstreamslot", "Integer number for the slot which points to the listing to be removed.")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const upstreamslot = taskArgs.upstreamslot;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentFactoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await consentFactoryContractHandle
+      .removeListingTail(upstreamslot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task(
+  "stakeNewLocalTagDownstream",
+  "Initialize a new local tag and stake a marketplace listing below an existing listing",
+)
+  .addParam("consentcontract", "address of the target consent contract")
+  .addParam("tag", "Human-readable string for the tag.")
+  .addParam("newslot", "Integer number for the new marketplace stake amount.")
+  .addParam(
+    "existingslot",
+    "Integer number for the new marketplace stake amount.",
+  )
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const consentcontract = taskArgs.consentcontract;
+    const newslot = taskArgs.newslot;
+    const existingslot = taskArgs.existingslot;
+    const tag = taskArgs.tag;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      consentcontract,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle
+      .newLocalTagDownstream(tag, existingslot, newslot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task(
+  "replaceExpiredListing",
+  "Replace an expired listing at a given stake value",
+)
+  .addParam("consentcontract", "address of the target consent contract")
+  .addParam("tag", "Human-readable string for the existing tag.")
+  .addParam("slot", "Integer number for the expired marketplace stake amount.")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const consentcontract = taskArgs.consentcontract;
+    const slot = taskArgs.slot;
+    const tag = taskArgs.tag;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      consentcontract,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle
+      .replaceExpiredListing(tag, slot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task("removeListing", "Remove a listing under the given tag")
+  .addParam("consentcontract", "address of the target consent contract")
+  .addParam(
+    "tag",
+    "Human-readable string representing tag to remove from the target contract.",
+  )
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const consentcontract = taskArgs.consentcontract;
+    const slot = taskArgs.slot;
+    const tag = taskArgs.tag;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      consentcontract,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle
+      .removeListing(tag)
       .then((txResponse) => {
         return txResponse.wait();
       })
@@ -727,6 +969,7 @@ task("grantRole", "Grant specific role on the consent contract.")
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
+    console.log(roleBytes);
     const grantee = taskArgs.grantee;
     const consentaddress = taskArgs.consentaddress;
 
@@ -744,7 +987,7 @@ task("grantRole", "Grant specific role on the consent contract.")
       })
       .then((txrct) => {
         logTXDetails(txrct);
-      });
+      }); 
   });
 
 // Task to revoke roles on consent contract

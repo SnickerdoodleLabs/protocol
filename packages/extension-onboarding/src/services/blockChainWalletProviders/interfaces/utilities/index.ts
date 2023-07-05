@@ -1,1 +1,1 @@
-export * from "@extension-onboarding/services/blockChainWalletProviders/interfaces/utilities/IConfigProvider";
+export * from "@extension-onboarding/services/blockChainWalletProviders/interfaces/utilities/IConfigProvider.js";

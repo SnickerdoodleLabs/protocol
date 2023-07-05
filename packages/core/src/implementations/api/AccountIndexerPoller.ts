@@ -8,8 +8,14 @@ import {
   IMonitoringService,
 } from "@core/interfaces/business/index.js";
 import {
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
+} from "@core/interfaces/data/index.js";
+import {
   IConfigProvider,
   IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
@@ -19,33 +25,45 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
     protected monitoringService: IMonitoringService,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
     return this.configProvider.getConfig().map((config) => {
-      setInterval(() => {
-        this.monitoringService.pollTransactions().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.accountIndexingPollingIntervalMS);
-
       setInterval(() => {
         this.monitoringService.pollBackups().mapErr((e) => {
           this.logUtils.error(e);
         });
       }, config.dataWalletBackupIntervalMS);
 
-      // setInterval(() => {
-      //   this.monitoringService.pollBalances().mapErr((e) => {
-      //     this.logUtils.error(e);
-      //   });
-      // }, config.accountBalancePollingIntervalMS);
+      this.persistence.waitForFullRestore().map(() => {
+        this.contextProvider.getContext().map((ctx) => {
+          ctx.publicEvents.onAccountAdded.subscribe(() => {
+            this.monitoringService.pollTransactions().mapErr((e) => {
+              this.logUtils.error(e);
+            });
+          });
+        });
 
-      // setInterval(() => {
-      //   this.monitoringService.pollNFTs().mapErr((e) => {
-      //     this.logUtils.error(e);
-      //   });
-      // }, config.accountNFTPollingIntervalMS);
+        setInterval(() => {
+          this.monitoringService.pollTransactions().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.accountIndexingPollingIntervalMS);
+        // poll once
+        this.monitoringService.pollTransactions().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+
+        setInterval(() => {
+          this.monitoringService.postBackups().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.backupHeartbeatIntervalMS);
+      });
     });
   }
 }

@@ -2,11 +2,9 @@ import dot1Faded from "@extension-onboarding/assets/icons/dot-1-faded.svg";
 import dot1 from "@extension-onboarding/assets/icons/dot-1.svg";
 import dot2Faded from "@extension-onboarding/assets/icons/dot-2-faded.svg";
 import dot2 from "@extension-onboarding/assets/icons/dot-2.svg";
-import dot3Faded from "@extension-onboarding/assets/icons/dot-3-faded.svg";
-import dot3 from "@extension-onboarding/assets/icons/dot-3.svg";
 import { useStyles } from "@extension-onboarding/components/ProgressBar/ProgressBar.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { Box,  Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -55,7 +53,7 @@ const ProgressBar: FC = () => {
         </Typography>
       </Box>
       <Box className={classes.lineData} mt={3.25} />
-      <Box className={classes.columnContainer}>
+      {/* <Box className={classes.columnContainer}>
         <img
           width={50}
           src={
@@ -71,7 +69,7 @@ const ProgressBar: FC = () => {
         >
           View your Data
         </Typography>
-      </Box>
+      </Box> */}
     </Box>
   );
 };

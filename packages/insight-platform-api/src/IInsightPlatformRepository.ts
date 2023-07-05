@@ -1,25 +1,34 @@
 import {
   AjaxError,
   BigNumberString,
-  DataWalletAddress,
+  EarnedReward,
   EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
-  InsightString,
+  IDynamicRewardParameter,
+  IInsights,
   IpfsCID,
+  QueryIdentifier,
   Signature,
   TokenId,
   URLString,
-  EarnedReward,
-  ExpectedReward,
-  QueryIdentifier,
-  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
+  clearAllBackups(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    walletAddress: EVMAccountAddress,
+  ): ResultAsync<void, AjaxError>;
+  getSignedUrl(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<URLString, AjaxError>;
+
   receivePreviews(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
@@ -33,7 +42,7 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    returns: InsightString[],
+    insights: IInsights,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,

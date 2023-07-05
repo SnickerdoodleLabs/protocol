@@ -1,58 +1,72 @@
 import { SDQLParser } from "@query-parser/implementations";
-import { ResultAsync } from "neverthrow";
-import { 
-    CompensationId, 
-    DuplicateIdInSchema, 
-    MissingTokenConstructorError, 
-    ParserError, 
-    QueryExpiredError, 
-    QueryFormatError, 
-    SDQLString, 
-    DataPermissions,
-    ISDQLCompensations
+import {
+  CompensationId,
+  DuplicateIdInSchema,
+  MissingTokenConstructorError,
+  ParserError,
+  QueryExpiredError,
+  QueryFormatError,
+  SDQLString,
+  DataPermissions,
+  QueryFilteredByPermissions,
+  QueryIdentifier,
+  QueryTypes,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface ISDQLQueryUtils {
-    
-    getEligibleCompensations(schemaString: SDQLString, queryIds: string[]): 
-    ResultAsync<CompensationId[], 
-    | ParserError 
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    >;
-
-    getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
+  getEligibleCompensations(
+    schemaString: SDQLString,
+    queryIds: QueryIdentifier[],
+  ): ResultAsync<
+    CompensationId[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
-    >;
+  >;
 
-    getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<string[], 
+  getPermittedQueryIdsFromSchemaString(
+    schemaString: SDQLString,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<
+    QueryIdentifier[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
-    >;
+  >;
 
-    extractPermittedQueryIdsAndExpectedCompensationBlocks(
-        schemaString: SDQLString, dataPermissions: DataPermissions
-    ): ResultAsync<
-        [string[], Map<string, ISDQLCompensations>], 
-        QueryFormatError 
-        | ParserError 
-        | DuplicateIdInSchema 
-        | MissingTokenConstructorError 
-        | QueryExpiredError
-    >;
+  getPermittedQueryIds(
+    parser: SDQLParser,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<
+    QueryIdentifier[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  >;
+
+  filterQueryByPermissions(
+    schemaString: SDQLString,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<
+    QueryFilteredByPermissions,
+    | QueryFormatError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  >;
+
+  getQueryTypeDependencies(
+    parser: SDQLParser,
+    compId: CompensationId,
+  ): QueryTypes[];
 }
 
-
-export const ISDQLQueryUtilsType = Symbol.for(
-    "ISDQLQueryUtils",
-);
-  
+export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");

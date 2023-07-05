@@ -12,9 +12,6 @@ import Lottie from "react-lottie";
 const LoadingSpinner: React.FC = () => {
   const { loading, loaderInfo } = useLayoutContext();
   const classes = useStyles();
-
-  console.log({ loaderInfo });
-
   const getLoadingComponent = () => {
     switch (loaderInfo?.type) {
       case ELoadingIndicatorType.DEFAULT: {

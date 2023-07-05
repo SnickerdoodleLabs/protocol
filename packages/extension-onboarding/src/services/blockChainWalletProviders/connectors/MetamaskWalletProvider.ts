@@ -58,8 +58,8 @@ export class MetamaskWalletProvider implements IWalletProvider {
       return errAsync("Should call connect() first.");
     }
     const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) =>
-      console.log(e),
-    ).map((signature) => Signature(signature));
+    return ResultAsync.fromPromise(signer.signMessage(message), (e) => {}).map(
+      (signature) => Signature(signature),
+    );
   }
 }

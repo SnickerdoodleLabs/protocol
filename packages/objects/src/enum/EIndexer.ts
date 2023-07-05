@@ -1,6 +1,14 @@
 export enum EIndexer {
-  EVM = 0,
-  Solana = 1,
-  Monero = 2,
-  Simulator = 3,
+  EVM = "Avalanche/Fuji",
+  Solana = "Solana",
+  Monero = "Monero",
+  Simulator = "Simulator",
+  Ethereum = "Ethereum Mainnet",
+  Polygon = "Polygon",
+  Gnosis = "Gnosis",
+  Binance = "Binance",
+  Moonbeam = "Moonbean",
+  Arbitrum = "Arbitrum",
+  Optimism = "Optimism",
+  Astar = "Astar",
 }

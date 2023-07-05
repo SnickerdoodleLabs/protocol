@@ -8,48 +8,21 @@
     "outDir": "./dist",
     "module": "ES2022",
     "paths": {
-      "@interfaces/*": [
-        "./extensionCore/interfaces/*"
+      "@browser-extension/*": [
+        "./*"
       ],
-      "@implementations/*": [
-        "./extensionCore/implementations/*"
+      "@popup/*": [
+        "./popup/*"
       ],
-      "@constants/*": [
-        "./constants/*"
-      ],
-      "@shared/*": [
-        "./shared/*"
-      ],
-      "@enviroment/*": [
-        "./enviroment/*"
-      ],
-      "@app/*": [
-        "./app/*"
-      ],
-      "@rpcGateways": [
-        "./pages/rpcGateways"
-      ],
-      "@rpcGateways/*": [
-        "./pages/rpcGateways/*"
-      ],
-      "@utils": [
-        "./pages/utils"
-      ],
-      "@utils/*": [
-        "./pages/utils/*"
-      ]
     }
   },
   "references": [
     {
-      "path": "../core"
+      "path": "../synamint-extension-sdk"
     },
     {
       "path": "../objects"
     },
-    {
-      "path": "../persistence"
-    }
   ],
   "include": [
     "src"

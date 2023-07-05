@@ -18,4 +18,12 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     fontSize: 20,
   },
+  accountCardTitle: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "12px",
+    lineHeight: "18px",
+    color: "#616161",
+  },
 }));

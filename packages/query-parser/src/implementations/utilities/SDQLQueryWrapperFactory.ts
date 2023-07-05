@@ -1,5 +1,5 @@
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { ISDQLQueryObject, SDQLString } from "@snickerdoodlelabs/objects";
+import { ISDQLQueryObject, SDQLQuery } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 
 import { SDQLQueryWrapper } from "@query-parser/interfaces/objects/SDQLQueryWrapper.js";
@@ -12,9 +12,10 @@ export class SDQLQueryWrapperFactory implements ISDQLQueryWrapperFactory {
     readonly timeUtils: ITimeUtils,
   ) {}
 
-  public makeWrapper(schemaStr: SDQLString): SDQLQueryWrapper {
+  public makeWrapper(sdqlQuery: SDQLQuery): SDQLQueryWrapper {
     return new SDQLQueryWrapper(
-      JSON.parse(schemaStr) as ISDQLQueryObject,
+      sdqlQuery,
+      JSON.parse(sdqlQuery.query) as ISDQLQueryObject,
       this.timeUtils,
     );
   }

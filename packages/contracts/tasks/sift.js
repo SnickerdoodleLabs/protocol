@@ -81,25 +81,36 @@ task("checkURL", "Checks a url on the Sift Contract")
     });
   });
 
-task("grantRoleSift", "Grants a role to an address")
-  .addParam("role", "Role to be granted in keccak256")
-  .addParam("address", "Address to grant role to")
+task("grantSiftVerifierRole", "Grants a role to an address")
+  .addParam("grantee", "Address to grant role to")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
   .setAction(async (taskArgs) => {
-    const provider = await hre.ethers.provider;
-
+    const grantee = taskArgs.grantee;
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    const VERIFIER_ROLE = hre.ethers.utils.keccak256(
+      hre.ethers.utils.toUtf8Bytes("VERIFIER_ROLE"),
+    );
 
     // attach the first signer account to the consent contract handle
     const siftContractHandle = new hre.ethers.Contract(
       siftContract(),
       SIFT().abi,
-      provider,
+      account,
     );
 
     await siftContractHandle
       .connect(accounts[0])
-      .grantRole(taskArgs.role, taskArgs.address)
-      .then((result) => {
-        console.log("Role " + taskArgs.role + "granted to" + taskArgs.address);
+      .grantRole(VERIFIER_ROLE, grantee)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
       });
   });

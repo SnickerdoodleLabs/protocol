@@ -1,32 +1,33 @@
 import {
-  IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
-  ICryptoUtilsType,
+  IAxiosAjaxUtilsType,
   ICryptoUtils,
+  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
-  IpfsCID,
-  EVMContractAddress,
-  Signature,
-  DataWalletAddress,
-  EVMAccountAddress,
-  HexString,
-  EVMPrivateKey,
   BigNumberString,
-  InsightString,
-  URLString,
-  TokenId,
-  EligibleReward,
   EarnedReward,
-  QueryIdentifier,
+  EligibleReward,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  HexString,
   IDynamicRewardParameter,
+  IInsights,
+  IpfsCID,
+  QueryIdentifier,
+  Signature,
+  TokenId,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
-  snickerdoodleSigningDomain,
+  clearCloudBackupsTypes,
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  signedUrlTypes,
+  snickerdoodleSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -34,9 +35,11 @@ import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
 import {
+  IClearCloudBackupsParams,
   IDeliverInsightsParams,
   IExecuteMetatransactionParams,
   IReceivePreviewsParams,
+  ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
 
 @injectable()
@@ -46,6 +49,65 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public clearAllBackups(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    walletAddress: EVMAccountAddress,
+  ): ResultAsync<void, AjaxError> {
+    const signableData = {
+      walletAddress: walletAddress,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        clearCloudBackupsTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
+        );
+        const postBody = {
+          walletAddress: walletAddress,
+          signature: signature,
+        } as IClearCloudBackupsParams;
+        return this.ajaxUtils.post<void>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
+      });
+  }
+
+  public getSignedUrl(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<URLString, AjaxError> {
+    const signableData = {
+      fileName: fileName,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        signedUrlTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
+        const postBody = {
+          fileName: fileName,
+          signature: signature,
+        } as ISignedUrlParams;
+        return this.ajaxUtils.post<URLString>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
+      });
+  }
   //
   public receivePreviews(
     consentContractAddress: EVMContractAddress,
@@ -90,23 +152,21 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    returns: InsightString[],
+    insights: IInsights,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<EarnedReward[], AjaxError> {
-    console.log("rewardParameters: ", rewardParameters);
-    const returnsString = JSON.stringify(returns);
-    const parameters = JSON.stringify([]);
+    let parameters = JSON.stringify([]);
     if (rewardParameters !== undefined) {
-      const parameters = JSON.stringify(rewardParameters);
+      parameters = JSON.stringify(rewardParameters);
     }
 
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
-      returns: JSON.stringify(returns),
+      insights: JSON.stringify(insights),
       rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
@@ -126,7 +186,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           tokenId: tokenId.toString(),
           queryCID: queryCID,
-          returns: returns,
+          insights: insights,
           rewardParameters: rewardParameters,
           signature: signature,
         } as IDeliverInsightsParams as unknown as Record<string, unknown>);

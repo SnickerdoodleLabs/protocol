@@ -7,7 +7,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { urlJoinP } from "url-join-ts";
 
-import { IDNSRepository } from "@core/interfaces/data/IDNSRepository";
+import { IDNSRepository } from "@core/interfaces/data/IDNSRepository.js";
 import {
   IConfigProviderType,
   IConfigProvider,

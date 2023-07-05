@@ -11,6 +11,6 @@ export const useStyles = makeStyles((theme) => ({
     margin: "0 auto",
     maxWidth: 1440,
     minHeight: "100vh",
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
   },
 }));

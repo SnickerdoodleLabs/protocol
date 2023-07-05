@@ -5,38 +5,50 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import {
-  EVMAccountAddress,
-  Signature,
   AESEncryptedString,
   AESKey,
-  Argon2Hash,
-  EncryptedString,
-  EVMPrivateKey,
-  InitializationVector,
-  SHA256Hash,
-  HexString,
-  TokenId,
   Base64String,
+  EncryptedString,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  HexString,
+  InitializationVector,
+  InvalidParametersError,
+  KeyGenerationError,
+  PEMEncodedRSAPrivateKey,
+  PEMEncodedRSAPublicKey,
+  RSAKeyPair,
+  SHA256Hash,
+  Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
-  InvalidParametersError,
-  EVMContractAddress,
+  TokenAndSecret,
+  TokenId,
+  URLString,
+  UUID,
 } from "@snickerdoodlelabs/objects";
-import argon2 from "argon2";
+// import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import nacl from "tweetnacl";
+import { v4 } from "uuid";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
+import { OAuth1Config } from "@snickerdoodlelabs/objects/src/businessObjects/oauth/OAuth1Config.js";
+import OAuth from "oauth-1.0a";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
-
   constructor() {}
+
+  public getUUID(): UUID {
+    return UUID(v4());
+  }
 
   public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
     const baseString = Base64String(
@@ -154,6 +166,41 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
+  public createRSAKeyPair(): ResultAsync<RSAKeyPair, KeyGenerationError> {
+    return ResultAsync.fromPromise(
+      new Promise((resolve, reject) => {
+        Crypto.generateKeyPair(
+          "rsa",
+          {
+            modulusLength: 4096,
+            publicKeyEncoding: {
+              type: "spki",
+              format: "pem",
+            },
+            privateKeyEncoding: {
+              type: "pkcs8",
+              format: "pem",
+            },
+          } as Crypto.RSAKeyPairOptions<"pem", "pem">,
+          (err, publicKey, privateKey) => {
+            if (err != null) {
+              reject(err);
+            }
+            resolve(
+              new RSAKeyPair(
+                PEMEncodedRSAPrivateKey(privateKey),
+                PEMEncodedRSAPublicKey(publicKey),
+              ),
+            );
+          },
+        );
+      }),
+      (e) => {
+        return new KeyGenerationError("Unable to generate a new RSA Key", e);
+      },
+    );
+  }
+
   public createAESKey(): ResultAsync<AESKey, never> {
     return okAsync(AESKey(Crypto.randomBytes(32).toString("base64")));
   }
@@ -166,7 +213,6 @@ export class CryptoUtils implements ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress {
     const wallet = new ethers.Wallet(privateKey);
-
     return EVMAccountAddress(wallet.address);
   }
 
@@ -177,7 +223,6 @@ export class CryptoUtils implements ICryptoUtils {
     const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
-
     return okAsync(address);
   }
 
@@ -246,7 +291,6 @@ export class CryptoUtils implements ICryptoUtils {
         Buffer.from(encryptionKey, "base64"),
         encrypted.initializationVector,
       );
-
       // decrypt the message
       let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
       decryptedData += decipher.final("utf8");
@@ -259,17 +303,6 @@ export class CryptoUtils implements ICryptoUtils {
       return okAsync("THIS IS AN ERROR");
     }
   }
-
-  // public generateKeyPair(): ResultAsync<void, never> {
-  // 	const { publicKey, privateKey } = Crypto.generateKeyPairSync("rsa", {
-  // 		// The standard secure default length for RSA keys is 2048 bits
-  // 		modulusLength: 2048,
-  // 	});
-
-  // 	console.log(publicKey);
-
-  // 	return okAsync(undefined);
-  // }
 
   public getSignature(
     owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
@@ -344,22 +377,22 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(SHA256Hash(hash));
   }
 
-  public hashStringArgon2(message: string): ResultAsync<Argon2Hash, never> {
-    return ResultAsync.fromSafePromise<string, never>(argon2.hash(message)).map(
-      (hash) => {
-        return Argon2Hash(hash);
-      },
-    );
-  }
+  // public hashStringArgon2(message: string): ResultAsync<Argon2Hash, never> {
+  //   return ResultAsync.fromSafePromise<string, never>(argon2.hash(message)).map(
+  //     (hash) => {
+  //       return Argon2Hash(hash);
+  //     },
+  //   );
+  // }
 
-  public verifyHashArgon2(
-    hash: Argon2Hash,
-    message: string,
-  ): ResultAsync<boolean, never> {
-    return ResultAsync.fromSafePromise<boolean, never>(
-      argon2.verify(hash, message),
-    );
-  }
+  // public verifyHashArgon2(
+  //   hash: Argon2Hash,
+  //   message: string,
+  // ): ResultAsync<boolean, never> {
+  //   return ResultAsync.fromSafePromise<boolean, never>(
+  //     argon2.verify(hash, message),
+  //   );
+  // }
 
   public xmur3(str: string): () => number {
     let h = 1779033703 ^ str.length;
@@ -412,6 +445,46 @@ export class CryptoUtils implements ICryptoUtils {
       out[i] = this.randomInt(randFunc, 0, 256);
     }
     return out;
+  }
+
+  public packOAuth1Credentials(
+    config: OAuth1Config,
+    url: URLString,
+    method: string,
+    pathAndBodyParams?: object,
+    accessTokenAndSecret?: TokenAndSecret,
+  ): string {
+    const oAuth = new OAuth({
+      consumer: {
+        key: config.apiKey,
+        secret: config.apiSecretKey,
+      },
+      signature_method:
+        config.signingAlgorithm.toUpperCase() +
+        "-" +
+        config.hashingAlgorithm.toUpperCase(),
+      hash_function: (baseString, secretKey) =>
+        Base64String(
+          Crypto.createHmac(config.hashingAlgorithm.toLowerCase(), secretKey)
+            .update(baseString)
+            .digest("base64"),
+        ),
+    });
+    return oAuth.toHeader(
+      oAuth.authorize(
+        {
+          url: url,
+          method: method,
+          ...(pathAndBodyParams ? { data: pathAndBodyParams } : {}),
+        } as OAuth.RequestOptions,
+        accessTokenAndSecret
+          ? {
+              key: accessTokenAndSecret.token,
+              secret: accessTokenAndSecret.secret,
+            }
+          : undefined,
+      ),
+    ).Authorization;
   }
 
   protected hexStringToBuffer(

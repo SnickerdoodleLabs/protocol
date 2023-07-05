@@ -1,7 +1,7 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IStorageUtils } from "@utils/IStorageUtils";
+import { IStorageUtils } from "@utils/IStorageUtils.js";
 
 export class ChromeStorageUtils implements IStorageUtils {
   public remove<T = any>(

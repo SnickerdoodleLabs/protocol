@@ -1,4 +1,4 @@
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@extension-onboarding/components/Modals/CustomizableModal/CustomizableModal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, Typography, IconButton } from "@material-ui/core";

@@ -1,9 +1,9 @@
 import { ERewardType } from "@objects/enum";
-import { ChainId, IpfsCID, URLString } from "@objects/primitives";
+import { ChainId, CompensationId, IpfsCID } from "@objects/primitives";
 
 export class EligibleReward {
   public constructor(
-    public compensationKey: string, // c3
+    public compensationKey: CompensationId, // c3
     public name: string,
     public image: IpfsCID | null,
     public description: string,

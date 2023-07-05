@@ -1,0 +1,28 @@
+{
+  "scripts": {
+    "configure": "node shim.js"
+  },
+  "files": [
+    "build",
+    "shim.js",
+    "!dist",
+    "!test",
+    "!src",
+    "!tsconfig.json",
+    "!package.base.json",
+    "!package.dev.json",
+    "!package.umd.json"
+  ],
+  "dependencies": {},
+  "main": "build/lib/core.bundle.js",
+  "types": "build/types/core.d.ts",
+  "exports": {
+    ".": "./build/lib/core.bundle.js",
+    "./contentjs": "./build/lib/contentjs.bundle.js"
+  },
+  "typesVersions": {
+    "*": {
+      "contentjs": ["./build/types/contentjs.d.ts"]
+    }
+  }
+}

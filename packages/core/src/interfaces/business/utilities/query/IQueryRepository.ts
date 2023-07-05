@@ -1,11 +1,10 @@
 import {
   IpfsCID,
   PersistenceError,
-  SDQL_Return
+  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-
 import { AST_Query } from "@snickerdoodlelabs/query-parser";
+import { ResultAsync } from "neverthrow";
 
 export interface IQueryRepository {
   get(cid: IpfsCID, q: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;

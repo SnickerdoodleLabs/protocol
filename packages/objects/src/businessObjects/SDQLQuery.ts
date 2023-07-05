@@ -9,5 +9,4 @@ export class SDQLQuery extends NewSDQLQuery {
   public constructor(public cid: IpfsCID, public query: SDQLString) {
     super(query);
   }
-
 }

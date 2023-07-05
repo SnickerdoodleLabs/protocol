@@ -1,10 +1,23 @@
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   ChainInformation,
   ControlChainInformation,
+  LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
+import { AccountIndexingError } from "@objects/errors";
+import {
+  ChainId,
+  CoinGeckoAssetPlatformID,
+  EVMContractAddress,
+  URLString,
+} from "@objects/primitives";
+
+const getExplorerUrl = function (this: ChainInformation, txHash: string) {
+  return this.explorerURL + txHash;
+};
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [
@@ -15,34 +28,16 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.DevDoodle,
       EChainTechnology.EVM,
       true,
-      [ProviderUrl("https://doodlechain.dev.snickerdoodle.dev")],
+      "doodlechain",
       4000,
       EIndexer.Simulator,
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
-      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
-      EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Crumbs Contract
-      EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"), // Sift Contract
-    ),
-  ],
-  [
-    ChainId(EChain.LocalDoodle),
-    new ControlChainInformation(
-      "Local Doodle Chain",
-      ChainId(EChain.LocalDoodle),
-      EChain.LocalDoodle,
-      EChainTechnology.EVM,
-      true,
-      [ProviderUrl("http://127.0.0.1:8545")],
-      4000,
-      EIndexer.Simulator,
-      new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
-      EChainType.Hardhat,
-      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
-      EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Crumbs Contract
-      EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"), // Sift Contract
+      "",
+      EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
+      EVMContractAddress("0x610178dA211FEF7D417bC0e6FeD39F05609AD788"), // Crumbs Contract
+      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Sift Contract
     ),
   ],
   [
@@ -53,60 +48,67 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.EthereumMainnet,
       EChainTechnology.EVM,
       true,
-      [],
+      "mainnet",
       10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("ETH", 18, "ETH"),
+      EIndexer.Ethereum,
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
+      "https://etherscan.io/tx/",
+      getExplorerUrl,
+      URLString("https://api.etherscan.io/"),
     ),
   ],
   [
-    ChainId(EChain.Goerli),
+    ChainId(EChain.Sepolia),
     new ChainInformation(
-      "Goerli",
-      ChainId(EChain.Goerli),
-      EChain.Goerli,
+      "Sepolia",
+      ChainId(EChain.Sepolia),
+      EChain.Sepolia,
       EChainTechnology.EVM,
       true,
-      [],
+      "sepolia",
       10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("ETH", 18, "ETH"),
+      EIndexer.Ethereum,
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Testnet,
+      "https://sepolia.etherscan.io/tx/",
+      getExplorerUrl,
+      URLString("https://api-sepolia.etherscan.io/"),
     ),
   ],
-  [
-    ChainId(EChain.Kovan),
-    new ChainInformation(
-      "Kovan",
-      ChainId(EChain.Kovan),
-      EChain.Kovan,
-      EChainTechnology.EVM,
-      true,
-      [],
-      10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("ETH", 18, "ETH"),
-      EChainType.Testnet,
-    ),
-  ],
+  // [
+  //   ChainId(EChain.Kovan),
+  //   new ChainInformation(
+  //     "Kovan",
+  //     ChainId(EChain.Kovan),
+  //     EChain.Kovan,
+  //     EChainTechnology.EVM,
+  //     true,
+  //     [],
+  //     10000,
+  //     EIndexer.EVM,
+  //     new NativeCurrencyInformation("ETH", 18, "ETH"),
+  //     EChainType.Testnet,
+  //     "https://kovan.etherscan.io/tx/",
+  //     getExplorerUrl,
+  //   ),
+  // ],
   [
     ChainId(EChain.Mumbai),
     new ChainInformation(
-      "Mumbai Testnet",
+      "Mumbai",
       ChainId(EChain.Mumbai),
       EChain.Mumbai,
       EChainTechnology.EVM,
       true,
-      [
-        ProviderUrl(
-          "https://polygon-mumbai.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
-        ),
-      ],
+      "polygon-mumbai",
       10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("MATIC", 18, "MATIC"),
+      EIndexer.Polygon,
+      new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Testnet,
+      "https://mumbai.polygonscan.com/tx/",
+      getExplorerUrl,
+      URLString("https://api-testnet.polygonscan.com/"),
     ),
   ],
   [
@@ -117,18 +119,16 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Polygon,
       EChainTechnology.EVM,
       true,
-      [
-        ProviderUrl(
-          "https://polygon-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
-        ),
-      ],
+      "polygon-mainnet",
       10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("MATIC", 18, "MATIC"),
+      EIndexer.Polygon,
+      new NativeCurrencyInformation("MATIC", 18, "MATIC", "matic-network"),
       EChainType.Mainnet,
+      "https=//polygonscan.com/tx/",
+      getExplorerUrl,
+      URLString("https://api.polygonscan.com/"),
     ),
   ],
-
   [
     ChainId(EChain.Avalanche),
     new ChainInformation(
@@ -137,18 +137,16 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Avalanche,
       EChainTechnology.EVM,
       true,
-      [
-        ProviderUrl(
-          "https://avalanche-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
-        ),
-      ],
+      "avalanche-mainnet",
       4000,
       EIndexer.EVM,
-      new NativeCurrencyInformation("AVAX", 18, "AVAX"),
+      new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Mainnet,
+      "https=//snowtrace.io/block/",
+      getExplorerUrl,
+      URLString("https://api.snowtrace.io/"),
     ),
   ],
-
   [
     ChainId(EChain.Fuji),
     new ControlChainInformation(
@@ -157,15 +155,17 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Fuji,
       EChainTechnology.EVM,
       true,
-      [ProviderUrl("https://fuji.snickerdoodle.dev/rpc")],
+      "avalanche-fuji",
       4000,
       EIndexer.EVM,
-      new NativeCurrencyInformation("AVAX", 18, "AVAX"),
+      new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Testnet,
-      EVMContractAddress("0xC44C9B4375ab43D7974252c37bccb41F99910fA5"), // Consent Contract Factory
-      EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
-      EVMContractAddress("0xF7c6dC708550D89558110cAecD20a8A6a184427E"), // Metatransaction Forwarder Contract
+      "https://testnet.snowtrace.io/block/",
+      EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
+      EVMContractAddress("0x49a04d6545b1511742033b0ddF6a2Ba880A69287"), // Crumbs Contract
+      EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
+      URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],
   [
@@ -176,11 +176,141 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Solana,
       EChainTechnology.Solana,
       true,
-      [],
-      10000,
+      "solana",
+      400,
       EIndexer.Solana,
-      new NativeCurrencyInformation("Sol", 9, "SOL"),
+      new NativeCurrencyInformation("Sol", 9, "SOL", "solana"),
       EChainType.Mainnet,
+      "https://explorer.solana.com/tx/",
+      getExplorerUrl,
+      undefined,
+      CoinGeckoAssetPlatformID("solana"), // coing gecko chain slug
+    ),
+  ],
+  [
+    ChainId(EChain.Gnosis),
+    new ChainInformation(
+      "Gnosis",
+      ChainId(EChain.Gnosis),
+      EChain.Gnosis,
+      EChainTechnology.EVM,
+      true,
+      "Gnosis",
+      10000, // average block mining time
+      EIndexer.Gnosis,
+      new NativeCurrencyInformation("xDAI", 18, "xDAI", "xdai"),
+      EChainType.Mainnet,
+      "https://gnosisscan.io/",
+      getExplorerUrl,
+      URLString("https://api.gnosisscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Binance),
+    new ChainInformation(
+      "Binance",
+      ChainId(EChain.Binance),
+      EChain.Binance,
+      EChainTechnology.EVM,
+      true,
+      "binance",
+      10000, // average block mining time
+      EIndexer.Binance,
+      new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
+      EChainType.Mainnet,
+      "https://api.bscscan.com/api",
+      getExplorerUrl,
+      URLString("https://api.bscscan.com/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Moonbeam),
+    new ChainInformation(
+      "Moonbeam",
+      ChainId(EChain.Moonbeam),
+      EChain.Moonbeam,
+      EChainTechnology.EVM,
+      true,
+      "moonbeam",
+      10000, // average block mining time
+      EIndexer.Moonbeam,
+      new NativeCurrencyInformation("GLMR", 18, "GLMR", "moonbeam"),
+      EChainType.Mainnet,
+      "https://api-moonbeam.moonscan.io/api",
+      getExplorerUrl,
+      URLString("https://api-moonbeam.moonscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Arbitrum),
+    new ChainInformation(
+      "Arbitrum",
+      ChainId(EChain.Arbitrum),
+      EChain.Arbitrum,
+      EChainTechnology.EVM,
+      true,
+      "arbitrum",
+      10000, // average block mining time
+      EIndexer.Arbitrum,
+      new NativeCurrencyInformation("ARB", 18, "ARB", "arbitrum"),
+      EChainType.Mainnet,
+      "https://api.arbiscan.io/api",
+      getExplorerUrl,
+      URLString("https://api.arbiscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Optimism),
+    new ChainInformation(
+      "Optimism",
+      ChainId(EChain.Optimism),
+      EChain.Optimism,
+      EChainTechnology.EVM,
+      true,
+      "optimism",
+      10000, // average block mining time
+      EIndexer.Optimism,
+      new NativeCurrencyInformation("OP", 18, "OP", "optimism"),
+      EChainType.Mainnet,
+      "https://api-optimistic.etherscan.io/api",
+      getExplorerUrl,
+      URLString("https://api-optimistic.etherscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Astar),
+    new ChainInformation(
+      "Astar",
+      ChainId(EChain.Astar),
+      EChain.Astar,
+      EChainTechnology.EVM,
+      true,
+      "astar",
+      10000, // average block mining time
+      EIndexer.Astar,
+      new NativeCurrencyInformation("ASTR", 18, "ASTR", "astar"),
+      EChainType.Mainnet,
+      "https://astar.subscan.io/api",
+      getExplorerUrl,
+      URLString("https://astar.subscan.io/"),
+    ),
+  ],
+  [
+    ChainId(EChain.Shibuya),
+    new ChainInformation(
+      "Shibuya",
+      ChainId(EChain.Shibuya),
+      EChain.Astar,
+      EChainTechnology.EVM,
+      true,
+      "shibuya",
+      10000, // average block mining time
+      EIndexer.Astar,
+      new NativeCurrencyInformation("SBY", 18, "SBY", "shibuya"),
+      EChainType.Testnet,
+      "https://shibuya.subscan.io/api",
+      getExplorerUrl,
+      URLString("https://shibya.subscan.io/"),
     ),
   ],
 ]);
@@ -201,4 +331,31 @@ export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   }
 
   return chainInfo;
+}
+
+export function isAccountValidForChain(
+  chainId: ChainId,
+  account: LinkedAccount,
+): boolean {
+  const targetChainInfo = getChainInfoByChainId(chainId);
+  const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
+}
+
+export function getEtherscanBaseURLForChain(
+  chain: EChain,
+): ResultAsync<string, AccountIndexingError> {
+  try {
+    const chainInfo = getChainInfoByChain(chain);
+    if (chainInfo.etherscanEndpointURL == undefined) {
+      return errAsync(
+        new AccountIndexingError("no etherscan endpoint for chainID", chain),
+      );
+    }
+    return okAsync(chainInfo.etherscanEndpointURL);
+  } catch (e) {
+    return errAsync(
+      new AccountIndexingError("error fetching chain information", e),
+    );
+  }
 }

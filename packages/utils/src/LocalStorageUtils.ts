@@ -1,8 +1,9 @@
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IStorageUtils } from "@utils/IStorageUtils";
+import { IStorageUtils } from "@utils/IStorageUtils.js";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 interface Dictionary<T> {
@@ -30,7 +31,7 @@ export class LocalStorageUtils implements IStorageUtils {
   public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
     return okAsync(
       LocalStorageUtils.localStorage.getItem(key) &&
-        JSON.parse(LocalStorageUtils.localStorage.getItem(key)),
+        ObjectUtils.deserialize(LocalStorageUtils.localStorage.getItem(key)),
     );
   }
 

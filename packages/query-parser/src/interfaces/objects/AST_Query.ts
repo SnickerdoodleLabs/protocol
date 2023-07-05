@@ -1,20 +1,16 @@
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
+import {
+  EWalletDataType,
+  ESDQLQueryReturn,
+  SDQL_Name,
+  MissingWalletDataTypeError,
+} from "@snickerdoodlelabs/objects";
+import { Result } from "neverthrow";
 
 export abstract class AST_Query {
-  constructor(
-    readonly name: SDQL_Name,
-    readonly returnType:
-      | "string"
-      | "boolean"
-      | "integer"
-      | "number"
-      | "list"
-      | "array"
-      | "object"
-      | "enum",
-  ) {
+  constructor(readonly name: SDQL_Name, readonly returnType: ESDQLQueryReturn) {
     // super(name);
   }
 
+  abstract getPermission(): Result<EWalletDataType, MissingWalletDataTypeError>;
   // abstract serialize (): JSON;
 }

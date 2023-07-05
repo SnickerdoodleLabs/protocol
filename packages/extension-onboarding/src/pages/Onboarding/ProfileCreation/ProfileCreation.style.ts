@@ -27,6 +27,9 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 14,
     fontWeight: 500,
     color: "#929292",
+    "& .MuiSvgIcon-root": {
+      color: "#8079B4",
+    },
   },
   errorMessage: {
     margin: 0,
@@ -77,5 +80,22 @@ export const useStyles = makeStyles((theme) => ({
     "& .MuiSelect-select:focus": {
       backgroundColor: "#fff !important",
     },
+  },
+  itemName: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "24px",
+    lineHeight: "30px",
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  infoText: {
+    textAlign: "center",
+    fontFamily: "'Helvetica'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    color: "#5A5292",
   },
 }));

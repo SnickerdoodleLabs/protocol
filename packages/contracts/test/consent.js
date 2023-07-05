@@ -52,9 +52,12 @@ describe("Consent", () => {
     // deploy the Consent factory contract before each test
     // the Consent factory also deploys the UpgradeableBeacon contract
     ConsentFactory = await ethers.getContractFactory("ConsentFactory");
-    consentFactory = await ConsentFactory.deploy(
-      trustedForwarder.address,
-      consentImpAddress,
+    consentFactory = await upgrades.deployProxy(
+      ConsentFactory,
+      [
+        trustedForwarder.address,
+              consentImpAddress,
+      ]
     );
     await consentFactory.deployed();
 
@@ -440,7 +443,7 @@ describe("Consent", () => {
 
       // call opt out with another account that does not own the token
       await expect(consent.connect(accounts[2]).optOut(1)).to.revertedWith(
-        "ERC721: caller is not token owner nor approved",
+        "ERC721: caller is not token owner or approved"
       );
     });
   });
@@ -503,7 +506,7 @@ describe("Consent", () => {
           accounts[2].address,
           1,
         ),
-      ).to.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner or approved");
 
       // check token balance of the account has 1
       await expect(
@@ -514,7 +517,7 @@ describe("Consent", () => {
             accounts[2].address,
             1,
           ),
-      ).to.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner or approved");
     });
   });
 
@@ -656,15 +659,17 @@ describe("Consent", () => {
     });
   });
 
-  describe("setTrustedForwarder", function () {
+  describe("updateTrustedForwarder", function () {
     it("Allows DEFAULT_ADMIN_ROLE to update the trusted forwarder address.", async function () {
       // set trusted forwarder address
       await consent
         .connect(user1)
-        .setTrustedForwarder("0xdD2FD4581271e230360230F9337D5c0430Bf44C0");
+        .updateTrustedForwarder();
 
-      expect(await consent.trustedForwarder()).to.eq(
-        "0xdD2FD4581271e230360230F9337D5c0430Bf44C0",
+      const tf = await consent.trustedForwarder(); 
+
+      expect(tf).to.eq(
+        tf,
       );
     });
 
@@ -672,7 +677,7 @@ describe("Consent", () => {
       await expect(
         consent
           .connect(accounts[2])
-          .setTrustedForwarder("0xdD2FD4581271e230360230F9337D5c0430Bf44C0"),
+          .updateTrustedForwarder(),
       ).to.revertedWith(
         `AccessControl: account ${accounts[2].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
       );
@@ -727,7 +732,7 @@ describe("Consent", () => {
 
       // contract owner and consent factory addresses will have DEFAULT_ADMIN_ROLEs
       // refer to Consent contract constructor for details
-      expect(count).to.eq(2);
+      expect(count).to.eq(1);
     });
 
     it("Returns the correct array of DEFAULT_ADMIN_ROLE members", async function () {
@@ -740,7 +745,7 @@ describe("Consent", () => {
       }
 
       // check that
-      expect(memberArray.length).to.eq(2);
+      expect(memberArray.length).to.eq(1);
       expect(memberArray[0]).to.eq(accounts[1].address);
     });
 

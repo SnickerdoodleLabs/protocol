@@ -1,7 +1,8 @@
+import { ResultAsync } from "neverthrow";
+
 import { IDataWalletProfileService } from "@extension-onboarding/services/interfaces/business/IDataWalletProfileService";
 import { IDataWalletProfileRepository } from "@extension-onboarding/services/interfaces/data/IDataWalletProfileRepository";
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import { ResultAsync } from "neverthrow";
 
 export class DataWalleProfileService implements IDataWalletProfileService {
   constructor(

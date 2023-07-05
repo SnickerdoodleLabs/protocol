@@ -14,18 +14,20 @@ import {
   EVMContractAddress,
   HexString32,
   InvalidParametersError,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ConsentRoles,
   ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
-export interface IConsentContract {
-  getContractAddress(): EVMContractAddress;
-
+export interface IConsentContract extends IBaseContract {
   /**
    * Create a consent token owned by the signer
    * @param tokenId randomly generated token id
@@ -93,6 +95,7 @@ export interface IConsentContract {
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
+  encodeOptOut(tokenId: TokenId): HexString;
 
   /**
    * Returns the agreementFlagsArray value for the token ID
@@ -107,7 +110,14 @@ export interface IConsentContract {
     maxCapacity: number,
   ): ResultAsync<void, ConsentContractError>;
 
-  encodeOptOut(tokenId: TokenId): HexString;
+  updateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+  ): ResultAsync<void, ConsentContractError>;
+  encodeUpdateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+  ): HexString;
 
   /**
    * Submit for blockchain requestForData event
@@ -232,6 +242,15 @@ export interface IConsentContract {
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
   /**
+   * Returns the tokenId of latest opt-in contract the user has
+   * for given derived opt-in address.
+   * @param optInAddress Opt-in contract address
+   */
+  getLatestTokenIdByOptInAddress(
+    optInAddress: EVMAccountAddress,
+  ): ResultAsync<TokenId | null, ConsentContractError>;
+
+  /**
    * Disables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
    */
@@ -327,6 +346,41 @@ export interface IConsentContract {
   ): ResultAsync<Signature, InvalidParametersError>;
 
   filters: IConsentContractFilters;
+
+  /**
+   * Marketplace functions
+   */
+  getMaxTags(): ResultAsync<number, ConsentContractError>;
+
+  getNumberOfStakedTags(): ResultAsync<number, ConsentContractError>;
+
+  getTagArray(): ResultAsync<Tag[], ConsentContractError>;
+
+  newGlobalTag(
+    tag: string,
+    newSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  newLocalTagUpstream(
+    tag: string,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  newLocalTagDownstream(
+    tag: string,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  replaceExpiredListing(
+    tag: string,
+    slot: BigNumberString,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  removeListing(
+    tag: string,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 }
 
 export interface IConsentContractFilters {

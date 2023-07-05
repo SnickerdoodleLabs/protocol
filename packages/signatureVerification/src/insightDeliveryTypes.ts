@@ -5,7 +5,7 @@ export const insightDeliveryTypes: Record<string, TypedDataField[]> = {
     { name: "consentContractId", type: "address" },
     { name: "queryCID", type: "string" },
     { name: "tokenId", type: "uint256" },
-    { name: "returns", type: "string" },
+    { name: "insights", type: "string" },
     { name: "rewardParameters", type: "string" },
   ],
 };
