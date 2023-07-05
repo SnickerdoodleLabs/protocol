@@ -1,4 +1,5 @@
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import browser, { Tabs, Windows } from "webextension-polyfill";
 
 export class ExtensionUtils {
@@ -99,40 +100,81 @@ export class ExtensionUtils {
     );
   };
 
-  public static openUrlOrSwitchToUrlTab = (
+  public static switchToUrlTab = (
     url: string,
+    openIfNotExist = false,
+    closeCurrenTab = false,
   ): ResultAsync<void, Error> => {
-    return ExtensionUtils.getCurrentWindow().andThen((currentWindow) => {
+    let constructedUrl: URL;
+    try {
+      constructedUrl = new URL(url);
+    } catch (e) {
+      return errAsync(new Error("Invalid URL"));
+    }
+    return ResultUtils.combine([
+      ExtensionUtils.getCurrentWindow(),
+      ExtensionUtils.getCurrentTab(),
+    ]).andThen(([currentWindow, currentTab]) => {
       const windowId = currentWindow?.id;
       if (windowId) {
         return ExtensionUtils.getAllTabsOnWindow(windowId).andThen((tabs) => {
-          const onboardingTab = tabs.find(
-            (tab) => new URL(tab.url || "").origin === new URL(url).origin,
-          );
-          if (onboardingTab) {
-            return ExtensionUtils.switchToTab(onboardingTab.id).map(() => {});
+          const tab = tabs.find((tab) => {
+            let tabUrl: URL | undefined;
+            try {
+              tabUrl = new URL(tab.url || "");
+            } catch (e) {
+              // URL could not constructed
+            }
+            if (tabUrl) {
+              return tabUrl.origin === constructedUrl.origin;
+            }
+            return false;
+          });
+          if (tab) {
+            if (tab.id === currentTab?.id) {
+              return okAsync(undefined);
+            }
+            return (
+              closeCurrenTab
+                ? ExtensionUtils.closeCurrenTab()
+                : okAsync(undefined)
+            ).andThen(() => {
+              return ExtensionUtils.switchToTab(tab.id).map(() => {});
+            });
           }
-          return ExtensionUtils.openTab({ url }).map(() => {});
+          return openIfNotExist
+            ? (closeCurrenTab
+                ? ExtensionUtils.closeCurrenTab()
+                : okAsync(undefined)
+              ).andThen(() => {
+                return ExtensionUtils.openTab({ url }).map(() => {});
+              })
+            : okAsync(undefined);
         });
       } else {
-        return ExtensionUtils.openTab({ url }).map(() => {});
+        return openIfNotExist
+          ? (closeCurrenTab
+              ? ExtensionUtils.closeCurrenTab()
+              : okAsync(undefined)
+            ).andThen(() => {
+              return ExtensionUtils.openTab({ url }).map(() => {});
+            })
+          : okAsync(undefined);
       }
     });
   };
 
   public static closeCurrenTab = () => {
-    return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
-      (windowDetails) => {
-        if (windowDetails.id) {
-          browser.tabs.remove(windowDetails.id);
-        }
-        const error = ExtensionUtils.checkForError();
-        if (error) {
-          return errAsync(error);
-        }
-        return okAsync(undefined);
-      },
-    );
+    return ExtensionUtils.getCurrentTab().andThen((tab) => {
+      if (tab?.id) {
+        browser.tabs.remove(tab.id);
+      }
+      const error = ExtensionUtils.checkForError();
+      if (error) {
+        return errAsync(error);
+      }
+      return okAsync(undefined);
+    });
   };
 
   public static closeWindow = (windowId) => {
@@ -183,7 +225,10 @@ export class ExtensionUtils {
     });
   }
 
-  public static getCurrentTab = (): ResultAsync<browser.Tabs.Tab, unknown> => {
+  public static getCurrentTab = (): ResultAsync<
+    browser.Tabs.Tab | undefined,
+    Error
+  > => {
     return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
       (tab) => {
         const err = ExtensionUtils.checkForError();
@@ -213,13 +258,11 @@ export class ExtensionUtils {
     });
   };
 
-  public static openOnboarding;
-
   public static switchToTab(
     tabId: number | undefined,
   ): ResultAsync<browser.Tabs.Tab, Error> {
     return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
-      browser.tabs.update(tabId, { highlighted: true }),
+      browser.tabs.update(tabId, { active: true }),
     ).andThen((tab) => {
       const err = ExtensionUtils.checkForError();
       if (err) {
