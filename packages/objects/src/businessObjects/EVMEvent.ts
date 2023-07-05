@@ -1,4 +1,4 @@
-import { ChainId, EVMAccountAddress } from "@objects/primitives";
+import { ChainId, EVMAccountAddress } from "@objects/primitives/index.js";
 
 export class EVMEvent {
   public constructor(

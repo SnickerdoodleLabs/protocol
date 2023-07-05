@@ -9,6 +9,7 @@ import {
   EHashAlgorithm,
   ESignatureAlgorithm,
   IConfigOverrides,
+  LanguageCode,
   ProviderUrl,
   TokenSecret,
   TwitterConfig,
@@ -129,9 +130,8 @@ export class ConfigProvider
         oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: "", // ankrApiKey
         primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
-        secondaryInfuraKey: "",
+        secondaryInfuraKey: "", // secondaryInfuraKey
       },
-
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       ECurrencyCode.USD, // quoteCurrency
       100, // etherscan tx batch size
@@ -168,6 +168,7 @@ export class ConfigProvider
       ),
       ProviderUrl("http://127.0.0.1:8545"), // devChainProviderURL
       60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
+      LanguageCode("en"), // passwordLanguageCode
     );
   }
 

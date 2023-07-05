@@ -1,8 +1,8 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { DataWalletBackupID } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { DataWalletBackupID } from "@objects/primitives/index.js";
 
 export class RestoredBackup extends VersionedObject {
   public static CURRENT_VERSION = 1;

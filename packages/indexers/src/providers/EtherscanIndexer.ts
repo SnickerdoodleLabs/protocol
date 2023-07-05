@@ -54,6 +54,29 @@ export class EtherscanIndexer implements IEVMIndexer {
       EChain.EthereumMainnet,
       new IndexerSupportSummary(EChain.EthereumMainnet, true, true, true),
     ],
+    [
+      EChain.Binance,
+      new IndexerSupportSummary(EChain.Binance, true, true, true),
+    ],
+    [
+      EChain.Avalanche,
+      new IndexerSupportSummary(EChain.Avalanche, true, true, true),
+    ],
+    [
+      EChain.Moonbeam,
+      new IndexerSupportSummary(EChain.Moonbeam, true, true, true),
+    ],
+    [EChain.Gnosis, new IndexerSupportSummary(EChain.Gnosis, true, true, true)],
+    [EChain.Fuji, new IndexerSupportSummary(EChain.Fuji, true, true, true)],
+  ]);
+
+  protected nonNativeSupportCheck = new Map<EChain, boolean>([
+    [EChain.EthereumMainnet, true],
+    [EChain.Binance, false],
+    [EChain.Avalanche, false],
+    [EChain.Moonbeam, false],
+    [EChain.Gnosis, false],
+    [EChain.Fuji, false],
   ]);
 
   public constructor(
@@ -79,6 +102,9 @@ export class EtherscanIndexer implements IEVMIndexer {
       this.getNonNativeBalance(chain, accountAddress),
       this.getNativeBalance(chain, accountAddress),
     ]).map(([nonNativeBalance, nativeBalance]) => {
+      if (nonNativeBalance.length == 0) {
+        return [nativeBalance];
+      }
       return [nativeBalance, ...nonNativeBalance];
     });
   }
@@ -203,6 +229,10 @@ export class EtherscanIndexer implements IEVMIndexer {
     chain: EChain,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    if (this.nonNativeSupportCheck.get(chain) == false) {
+      return okAsync([]);
+    }
+
     return ResultUtils.combine([
       this._getEtherscanApiKey(chain),
       getEtherscanBaseURLForChain(chain),

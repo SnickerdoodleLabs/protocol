@@ -86,6 +86,8 @@ import {
   URLString,
   WalletNFT,
   IMasterIndexer,
+  IAccountMethods,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -157,6 +159,7 @@ import {
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
+  public account: IAccountMethods;
   public invitation: IInvitationMethods;
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
@@ -215,6 +218,247 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+
+    // Account Methods -------------------------------------------------------------------------------
+    this.account = {
+      getUnlockMessage: (
+        languageCode: LanguageCode,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.getUnlockMessage(languageCode);
+      },
+
+      /**
+       * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
+       * The core doesn't do any query processing until it has been unlocked.
+       * @param accountAddress
+       * @param signature
+       * @param languageCode
+       * @returns
+       */
+      unlock: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        // Get all of our indexers and initialize them
+        // TODO
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountIndexerPoller =
+          this.iocContainer.get<IAccountIndexerPoller>(
+            IAccountIndexerPollerType,
+          );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        const queryService =
+          this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+          IBlockchainListenerType,
+        );
+
+        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+          ISocialMediaPollerType,
+        );
+
+        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+          IHeartbeatGeneratorType,
+        );
+
+        const indexers =
+          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+        ])
+          .andThen(() => {
+            return accountService.unlock(
+              accountAddress,
+              signature,
+              languageCode,
+              chain,
+            );
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
+      },
+
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccount(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
+      },
+
+      unlinkAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.unlinkAccount(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
+      },
+
+      getDataWalletForAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return blockchainProvider.initialize().andThen(() => {
+          return accountService.getDataWalletForAccount(
+            accountAddress,
+            signature,
+            languageCode,
+            chain,
+          );
+        });
+      },
+      unlockWithPassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        // Get all of our indexers and initialize them
+        // TODO
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountIndexerPoller =
+          this.iocContainer.get<IAccountIndexerPoller>(
+            IAccountIndexerPollerType,
+          );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        const queryService =
+          this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+          IBlockchainListenerType,
+        );
+
+        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+          ISocialMediaPollerType,
+        );
+
+        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+          IHeartbeatGeneratorType,
+        );
+
+        const indexers =
+          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+        ])
+          .andThen(() => {
+            return accountService.unlockWithPassword(password);
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
+      },
+
+      addPassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addPassword(password);
+      },
+
+      removePassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.removePassword(password);
+      },
+    };
 
     // Invitation Methods ----------------------------------------------------------------------------
     this.invitation = {
@@ -539,196 +783,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     return contextProvider.getContext().map((context) => {
       return context.publicEvents;
-    });
-  }
-
-  public getUnlockMessage(
-    languageCode: LanguageCode,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<string, UnsupportedLanguageError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.getUnlockMessage(languageCode);
-  }
-
-  /**
-   * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
-   * The core doesn't do any query processing until it has been unlocked.
-   * @param accountAddress
-   * @param signature
-   * @param languageCode
-   * @returns
-   */
-  public unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-  > {
-    // Get all of our indexers and initialize them
-    // TODO
-    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-      IBlockchainProviderType,
-    );
-
-    const accountIndexerPoller = this.iocContainer.get<IAccountIndexerPoller>(
-      IAccountIndexerPollerType,
-    );
-
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    const queryService =
-      this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-    const metricsService =
-      this.iocContainer.get<IMetricsService>(IMetricsServiceType);
-
-    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-      IBlockchainListenerType,
-    );
-
-    const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
-      ISocialMediaPollerType,
-    );
-
-    const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
-      IHeartbeatGeneratorType,
-    );
-
-    const indexers = this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
-
-    // BlockchainProvider needs to be ready to go in order to do the unlock
-    return ResultUtils.combine([
-      blockchainProvider.initialize(),
-      indexers.initialize(),
-    ])
-      .andThen(() => {
-        return accountService.unlock(
-          accountAddress,
-          signature,
-          languageCode,
-          chain,
-        );
-      })
-      .andThen(() => {
-        // Service Layer
-        return ResultUtils.combine([
-          queryService.initialize(),
-          metricsService.initialize(),
-        ]);
-      })
-      .andThen(() => {
-        // API Layer
-        return ResultUtils.combine([
-          accountIndexerPoller.initialize(),
-          blockchainListener.initialize(),
-          socialPoller.initialize(),
-          heartbeatGenerator.initialize(),
-        ]);
-      })
-      .map(() => {});
-  }
-
-  public addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
-  > {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.addAccount(
-      accountAddress,
-      signature,
-      languageCode,
-      chain,
-    );
-  }
-
-  public unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
-    | UninitializedError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-  > {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.unlinkAccount(
-      accountAddress,
-      signature,
-      languageCode,
-      chain,
-    );
-  }
-
-  public getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    DataWalletAddress | null,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-  > {
-    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-      IBlockchainProviderType,
-    );
-
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    // BlockchainProvider needs to be ready to go in order to do the unlock
-    return blockchainProvider.initialize().andThen(() => {
-      return accountService.getDataWalletForAccount(
-        accountAddress,
-        signature,
-        languageCode,
-        chain,
-      );
     });
   }
 

@@ -1,13 +1,13 @@
 import { BigNumber, utils } from "ethers";
 
-import { TokenAddress } from "@objects/businessObjects";
-import { EChainTechnology } from "@objects/enum";
+import { TokenAddress } from "@objects/businessObjects/TokenAddress.js";
+import { EChainTechnology } from "@objects/enum/index.js";
 import {
   AccountAddress,
   BigNumberString,
   ChainId,
   TickerSymbol,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class TokenBalance {
   public constructor(

@@ -1,9 +1,9 @@
-import { EBackupPriority, StorageKey } from "@objects/enum";
+import { EBackupPriority, StorageKey } from "@objects/enum/index.js";
 import {
   DataWalletBackupID,
   Signature,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class DataWalletBackupHeader {
   public constructor(

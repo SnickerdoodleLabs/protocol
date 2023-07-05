@@ -1,4 +1,4 @@
-// import { SDQL_Name } from "@objects/primitives";
+// import { SDQL_Name } from "@objects/primitives/index.js";
 // import { AST_Expr } from "./AST_Expr";
 // import { Command_IF } from "./Command_IF";
 

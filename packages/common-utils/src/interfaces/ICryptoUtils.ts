@@ -42,9 +42,17 @@ export interface ICryptoUtils {
     signature: Signature,
     salt: HexString,
   ): ResultAsync<AESKey, never>;
+  deriveAESKeyFromString(
+    source: string,
+    salt: HexString,
+  ): ResultAsync<AESKey, never>;
 
   deriveEVMPrivateKeyFromSignature(
     signature: Signature,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never>;
+  deriveEVMPrivateKeyFromString(
+    source: string,
     salt: HexString,
   ): ResultAsync<EVMPrivateKey, never>;
 

@@ -16,17 +16,24 @@ import {
   SolanaAccountAddress,
   EVMAccountAddress,
   EVMContractAddress,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DataWalletUtils implements IDataWalletUtils {
   public constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
 
@@ -46,6 +53,30 @@ export class DataWalletUtils implements IDataWalletUtils {
     );
   }
 
+  public deriveEncryptionKeyFromPassword(
+    password: PasswordString,
+  ): ResultAsync<AESKey, never> {
+    // The hard thing here is the salt.
+    return ResultUtils.combine([
+      this.cryptoUtils.hashStringSHA256(password),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([hashedPassword, config]) => {
+        // SHA256 is Base64 encoded. We'll combine that with the contract factory address,
+        // hash it again, convert to a hexstring, and use that as the salt.
+        return this.cryptoUtils.hashStringSHA256(
+          hashedPassword +
+            config.controlChainInformation.consentFactoryContractAddress,
+        );
+      })
+      .andThen((hashedPassword2) => {
+        const buffer = Buffer.from(hashedPassword2, "base64");
+        const salt = HexString(buffer.toString("hex"));
+        console.log(salt);
+        return this.cryptoUtils.deriveAESKeyFromString(password, salt);
+      });
+  }
+
   public getDerivedEVMAccountFromSignature(
     accountAddress: AccountAddress,
     signature: Signature,
@@ -55,6 +86,40 @@ export class DataWalletUtils implements IDataWalletUtils {
         signature,
         this.accountAddressToHex(accountAddress),
       )
+      .map((derivedEVMKey) => {
+        const derivedEVMAccountAddress =
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            derivedEVMKey,
+          );
+        return new ExternallyOwnedAccount(
+          derivedEVMAccountAddress,
+          derivedEVMKey,
+        );
+      });
+  }
+
+  public getDerivedEVMAccountFromPassword(
+    password: PasswordString,
+  ): ResultAsync<ExternallyOwnedAccount, never> {
+    // The hard thing here is the salt.
+    return ResultUtils.combine([
+      this.cryptoUtils.hashStringSHA256(password),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([hashedPassword, config]) => {
+        // SHA256 is Base64 encoded. We'll combine that with the contract factory address,
+        // hash it again, convert to a hexstring, and use that as the salt.
+        return this.cryptoUtils.hashStringSHA256(
+          hashedPassword +
+            config.controlChainInformation.consentFactoryContractAddress,
+        );
+      })
+      .andThen((hashedPassword2) => {
+        const buffer = Buffer.from(hashedPassword2, "base64");
+        const salt = HexString(buffer.toString("hex"));
+        console.log(salt);
+        return this.cryptoUtils.deriveEVMPrivateKeyFromString(password, salt);
+      })
       .map((derivedEVMKey) => {
         const derivedEVMAccountAddress =
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(

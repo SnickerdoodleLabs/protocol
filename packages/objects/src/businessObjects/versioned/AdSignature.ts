@@ -1,14 +1,14 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   IpfsCID,
   AdKey,
   Signature,
   EVMContractAddress,
   JsonWebToken,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class AdSignature extends VersionedObject {
   public static CURRENT_VERSION = 1;

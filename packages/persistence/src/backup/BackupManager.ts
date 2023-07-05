@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ICryptoUtils, ITimeUtils, ObjectUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ICryptoUtils,
+  ITimeUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   DataWalletAddress,
   VersionedObjectMigrator,
@@ -394,7 +398,11 @@ export class BackupManager implements IBackupManager {
   private _unpackBlob(
     blob: AESEncryptedString | BackupBlob,
   ): ResultAsync<BackupBlob, PersistenceError> {
-    if (!this.enableEncryption) {
+    // Check the blob. If it does not include the encryption fields, then it is not encrypted
+    if (
+      (blob as AESEncryptedString).data == undefined ||
+      (blob as AESEncryptedString).initializationVector == undefined
+    ) {
       return okAsync(blob as BackupBlob);
     }
 

@@ -1,11 +1,11 @@
-import { ERewardType } from "@objects/enum";
+import { ERewardType } from "@objects/enum/index.js";
 import {
   ChainId,
   CompensationId,
   IpfsCID,
   QueryTypes,
   URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class PossibleReward {
   constructor(

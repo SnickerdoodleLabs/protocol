@@ -1,4 +1,4 @@
-import { SocialProfile } from "@objects/businessObjects/index.js";
+import { SocialProfile } from "@objects/businessObjects/versioned/SocialProfile.js";
 import { ESocialType } from "@objects/enum/index.js";
 
 export class SocialProfileLinkedEvent {

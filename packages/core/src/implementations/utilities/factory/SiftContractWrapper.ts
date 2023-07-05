@@ -1,5 +1,10 @@
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
-import { ISiftContract } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  ISiftContract,
+  WrappedTransactionResponse,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   EVMContractAddress,
   SiftContractError,
@@ -8,9 +13,6 @@ import {
   TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -32,7 +34,9 @@ export class SiftContractWrapper
     return this.primary.getContractAddress();
   }
 
-  public verifyURL(domain: DomainName): ResultAsync<void, SiftContractError> {
+  public verifyURL(
+    domain: DomainName,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return this.fallback(
       () => this.primary.verifyURL(domain),
       () => this.secondary?.verifyURL(domain),
@@ -41,7 +45,7 @@ export class SiftContractWrapper
 
   public maliciousURL(
     domain: DomainName,
-  ): ResultAsync<void, SiftContractError> {
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return this.fallback(
       () => this.primary.maliciousURL(domain),
       () => this.secondary?.maliciousURL(domain),
@@ -57,7 +61,9 @@ export class SiftContractWrapper
     );
   }
 
-  public setBaseURI(baseUri: BaseURI): ResultAsync<void, SiftContractError> {
+  public setBaseURI(
+    baseUri: BaseURI,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
     return this.fallback(
       () => this.primary.setBaseURI(baseUri),
       () => this.secondary?.setBaseURI(baseUri),

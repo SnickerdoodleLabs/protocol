@@ -77,7 +77,7 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
     return this.persistence.getAll<ClickData>(ERecordKey.CLICKS);
   }
 
-  timestampBetweenDates(
+  protected timestampBetweenDates(
     startTime: UnixTimestamp,
     endTime: UnixTimestamp,
     timestampRange: ISDQLTimestampRange,

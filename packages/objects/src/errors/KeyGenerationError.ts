@@ -1,4 +1,4 @@
-import errorCodes from "@objects/errors/errorCodes";
+import errorCodes from "@objects/errors/errorCodes.js";
 
 export class KeyGenerationError extends Error {
   protected errorCode: string = errorCodes[KeyGenerationError.name];

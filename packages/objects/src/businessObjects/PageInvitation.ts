@@ -1,6 +1,6 @@
-import { Invitation } from "@objects/businessObjects/Invitation";
-import { InvitationDomain } from "@objects/businessObjects/InvitationDomain";
-import { URLString } from "@objects/primitives";
+import { Invitation } from "@objects/businessObjects/Invitation.js";
+import { InvitationDomain } from "@objects/businessObjects/InvitationDomain.js";
+import { URLString } from "@objects/primitives/index.js";
 
 export class PageInvitation {
   public constructor(

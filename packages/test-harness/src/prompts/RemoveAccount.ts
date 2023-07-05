@@ -62,7 +62,7 @@ export class RemoveAccount extends Prompt {
         return this.dataWalletProfile
           .getSignatureForAccount(wallet)
           .andThen((signature) => {
-            return this.core.unlinkAccount(
+            return this.core.account.unlinkAccount(
               wallet.accountAddress,
               signature,
               this.mocks.languageCode,

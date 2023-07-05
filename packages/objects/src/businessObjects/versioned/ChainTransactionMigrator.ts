@@ -13,7 +13,7 @@ import {
   EVMTransactionHash,
   SolanaTransactionSignature,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class ChainTransactionMigrator extends VersionedObjectMigrator<ChainTransaction> {
   public getCurrentVersion(): number {

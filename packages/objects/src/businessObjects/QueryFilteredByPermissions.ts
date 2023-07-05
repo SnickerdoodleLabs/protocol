@@ -1,5 +1,9 @@
-import { ISDQLCompensations, ISDQLAd } from "@objects/interfaces";
-import { AdKey, CompensationId, QueryIdentifier } from "@objects/primitives";
+import { ISDQLCompensations, ISDQLAd } from "@objects/interfaces/index.js";
+import {
+  AdKey,
+  CompensationId,
+  QueryIdentifier,
+} from "@objects/primitives/index.js";
 
 export class QueryFilteredByPermissions {
   public constructor(

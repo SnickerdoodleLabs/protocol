@@ -1,4 +1,4 @@
-import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction";
+import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction.js";
 import {
   BigNumberString,
   ChainId,
@@ -6,7 +6,7 @@ import {
   EVMContractAddress,
   EVMTransactionHash,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export enum EPolygonTransactionType {
   ERC20 = 0,

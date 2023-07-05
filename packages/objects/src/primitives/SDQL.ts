@@ -4,7 +4,7 @@ import {
   TokenBalance,
   ChainTransaction,
   NftHolding,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/index.js";
 import { ChainId } from "@objects/primitives/ChainId.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
@@ -12,6 +12,7 @@ import { URLString } from "@objects/primitives/URLString.js";
 export type SDQL_Name = Brand<string, "SDQL_Name">;
 export const SDQL_Name = make<SDQL_Name>();
 
+// TODO: This will probably be a circular import issue. It's a mess.
 export type SDQL_Return = Brand<
   | string
   | boolean

@@ -8,7 +8,7 @@ import {
   PEMEncodedRSAPrivateKey,
   PEMEncodedRSAPublicKey,
   UUID,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class DomainCredential extends VersionedObject {
   public static CURRENT_VERSION = 1;

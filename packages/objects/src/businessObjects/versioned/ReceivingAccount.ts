@@ -1,9 +1,11 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { AccountAddress } from "@objects/primitives/AccountAddress";
-import { EVMContractAddress } from "@objects/primitives/EVMContractAddress";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import {
+  AccountAddress,
+  EVMContractAddress,
+} from "@objects/primitives/index.js";
 
 export class ReceivingAccount extends VersionedObject {
   public static CURRENT_VERSION = 1;

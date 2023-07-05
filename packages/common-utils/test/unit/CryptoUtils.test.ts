@@ -110,6 +110,29 @@ describe("CryptoUtils tests", () => {
     expect(key.length).toBe(44);
   });
 
+  test("deriveAESKeyFromString returns 32 bytes as 44 characters of base64", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const password = "ThisIsAnOKPassword!";
+
+    // Act
+    const result = await utils.deriveAESKeyFromString(
+      password,
+      HexString("0x00123456789abcdf"),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const key = result._unsafeUnwrap();
+    expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
+    expect(Buffer.from(key, "base64").byteLength).toBe(32);
+    expect(key.length).toBe(44);
+    expect(key).toBe("naXUBGgZVRgBUlsSXaZ9+t59Y71O2V609Xjvp+o4gx0=");
+  });
+
   test("deriveEVMPrivateKeyFromSignature returns 32 bytes as 64 characters of hex", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
@@ -217,6 +240,35 @@ describe("CryptoUtils tests", () => {
       "275c2fe82846ef0d3bef46c8cbee9d71a635f9344ae7e766c4e6fb971fde4614",
     );
     expect(key1 == key2).toBeFalsy();
+  });
+
+  test("deriveEVMPrivateKeyFromString returns 32 bytes as 64 characters of hex", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const testPhrase = "Phoebe is cute!";
+
+    // Act
+    const result1 = await utils.deriveEVMPrivateKeyFromString(
+      testPhrase,
+      HexString("0x00123456789abcdf"),
+    );
+    const result2 = await utils.deriveEVMPrivateKeyFromString(
+      testPhrase,
+      HexString("00123456789abcdf"),
+    );
+
+    // Assert
+    expect(result1).toBeDefined();
+    expect(result2).toBeDefined();
+    expect(result1.isErr()).toBeFalsy();
+    expect(result2.isErr()).toBeFalsy();
+    const key1 = result1._unsafeUnwrap();
+    const key2 = result2._unsafeUnwrap();
+    expect(key1).toBe(key2);
+    expect(key1.length).toBe(64);
+    expect(key1).toBe("d56dd3dbdb48797b0668ae3a9ab3c8044bd2061193779a5e70938e7b27c043b8");
   });
 
   test("createRSAKeyPair returns 2 PEM encoded keys", async () => {
@@ -346,33 +398,6 @@ describe("CryptoUtils tests", () => {
     expect(encryption.initializationVector.length).toBe(16);
   });
 
-  test("deriveEVMPrivateKeyFromSignature returns 32 bytes as 64 characters of hex", async () => {
-    // Arrange
-    const mocks = new CryptoUtilsMocks();
-    const utils = mocks.factoryCryptoUtils();
-
-    const messageToSign = "Phoebe is cute!";
-
-    // Act
-    const privateKeyResult = await utils.createEthereumPrivateKey();
-    const privateKey = privateKeyResult._unsafeUnwrap();
-    const signatureResult = await utils.signMessage(messageToSign, privateKey);
-    const signature = signatureResult._unsafeUnwrap();
-
-    const result = await utils.deriveEVMPrivateKeyFromSignature(
-      signature,
-      HexString("0x00123456789abcdf"),
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    const key = result._unsafeUnwrap();
-    expect(Buffer.from(key, "hex").toString("hex")).toBe(key);
-    expect(Buffer.from(key, "hex").byteLength).toBe(32);
-    expect(key.length).toBe(64);
-  });
-
   test("hashStringSHA256 Test", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
@@ -394,6 +419,7 @@ describe("CryptoUtils tests", () => {
     expect(retHash1.length).toBe(44);
     expect(retHash2.length).toBe(44);
     expect(retHash2).toBe(retHash1);
+    expect(retHash1).toBe("g79Vva7gDafnYCFQPSx8pSaVgmsPqFPs2YzrbqqHwkY=");
   });
 
   // test("hashStringArgon2 Test", async () => {

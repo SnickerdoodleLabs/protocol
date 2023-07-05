@@ -2,7 +2,6 @@ export * from "@indexers/providers/AnkrIndexer.js";
 export * from "@indexers/providers/AlchemyIndexer.js";
 export * from "@indexers/providers/CovalentIndexer.js";
 export * from "@indexers/providers/EtherscanIndexer.js";
-export * from "@indexers/providers/EtherscanNativeBalanceIndexer.js";
 export * from "@indexers/MasterIndexer.js";
 export * from "@indexers/providers/MoralisIndexer.js";
 export * from "@indexers/providers/NftscanIndexer.js";

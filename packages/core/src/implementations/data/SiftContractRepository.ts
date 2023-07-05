@@ -1,4 +1,12 @@
-import { ISiftContract } from "@snickerdoodlelabs/contracts-sdk";
+import { ISiftContractRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  ISiftContract,
+  WrappedTransactionResponse,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   UninitializedError,
@@ -8,12 +16,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-
-import { ISiftContractRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class SiftContractRepository implements ISiftContractRepository {
@@ -30,7 +32,7 @@ export class SiftContractRepository implements ISiftContractRepository {
   verifyURL(
     domain: DomainName,
   ): ResultAsync<
-    void,
+    WrappedTransactionResponse,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
@@ -41,7 +43,7 @@ export class SiftContractRepository implements ISiftContractRepository {
   maliciousURL(
     domain: DomainName,
   ): ResultAsync<
-    void,
+    WrappedTransactionResponse,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {

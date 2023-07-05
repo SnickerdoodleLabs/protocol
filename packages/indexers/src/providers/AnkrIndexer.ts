@@ -178,6 +178,7 @@ export class AnkrIndexer implements IEVMIndexer {
         "https://rpc.ankr.com/multichain/" +
         config.apiKeys.ankrApiKey +
         "/?ankr_getNFTsByOwner";
+
       const nftSupportChain = this.nftSupport.get(chainId);
       if (nftSupportChain == undefined) {
         return okAsync([]);

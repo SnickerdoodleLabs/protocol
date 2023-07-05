@@ -1,8 +1,8 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { URLString, UnixTimestamp } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import { URLString, UnixTimestamp } from "@objects/primitives/index.js";
 
 /**
  * I honestly don't know what we need to collect for clicks. I'm not a data guy. Presumeably,

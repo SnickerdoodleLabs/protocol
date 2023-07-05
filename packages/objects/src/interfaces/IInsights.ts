@@ -1,4 +1,4 @@
-import { InsightString, QueryIdentifier } from "@objects/primitives";
+import { InsightString, QueryIdentifier } from "@objects/primitives/index.js";
 
 export interface IInsightsQueries {
   [queryId: QueryIdentifier]: InsightString | null;

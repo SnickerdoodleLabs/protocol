@@ -1,13 +1,17 @@
 import { ResultAsync } from "neverthrow";
 
-import { EVMNFT, EVMTransaction, TokenBalance } from "@objects/businessObjects";
+import {
+  EVMNFT,
+  EVMTransaction,
+  TokenBalance,
+} from "@objects/businessObjects/index.js";
 import {
   AccountIndexingError,
   AjaxError,
   MethodSupportError,
-} from "@objects/errors";
+} from "@objects/errors/index.js";
 import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
-import { ChainId, EVMAccountAddress } from "@objects/primitives";
+import { ChainId, EVMAccountAddress } from "@objects/primitives/index.js";
 
 export interface IEVMIndexer extends IIndexer {
   getBalancesForAccount(
@@ -46,10 +50,6 @@ export const ICovalentEVMTransactionRepositoryType = Symbol.for(
 export const IDummySolanaIndexerType = Symbol.for("IDummySolanaIndexer");
 
 export const IEtherscanIndexerType = Symbol.for("IEtherscanIndexer");
-
-export const IEtherscanNativeBalanceRepositoryType = Symbol.for(
-  "IEtherscanNativeBalanceRepository",
-);
 
 export const IMoralisEVMPortfolioRepositoryType = Symbol.for(
   "IMoralisEVMPortfolioRepository",

@@ -28,6 +28,7 @@ import {
   LanguageCode,
   LinkedAccount,
   MinimalForwarderContractError,
+  PasswordString,
   PersistenceError,
   Signature,
   SolanaAccountAddress,
@@ -65,6 +66,7 @@ import {
   dataWalletAddress,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
+  testCoreConfig,
 } from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
@@ -75,8 +77,10 @@ const metatransactionValue = BigNumberString("0");
 const metatransactionGas = BigNumberString("10000000");
 const tokenId1 = TokenId(BigInt(13));
 const tokenId2 = TokenId(BigInt(69));
+const tokenId3 = TokenId(BigInt(42));
 const evmDerivedNonce = BigNumberString("27");
 const solanaDerivedNonce = BigNumberString("28");
+const passwordDerivedNonce = BigNumberString("29");
 
 const evmAccountAddress = EVMAccountAddress("evmAccountAddress");
 const solanaAccountAddress = SolanaAccountAddress("solanaAccountAddress");
@@ -85,6 +89,7 @@ const solanaSignature = Signature("solanaSignature");
 
 const evmDerivedPrivateKey = EVMPrivateKey("evmDerivedPrivateKey");
 const solanaDerivedPrivateKey = EVMPrivateKey("solanaDerivedPrivateKey");
+const passwordDerivedPrivateKey = EVMPrivateKey("passwordDerivedPrivateKey");
 
 const evmDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress1"),
@@ -93,6 +98,10 @@ const evmDerivedEVMAccount = new ExternallyOwnedAccount(
 const solanaDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress2"),
   solanaDerivedPrivateKey,
+);
+const passwordDerivedEVMAccount = new ExternallyOwnedAccount(
+  EVMAccountAddress("derivedEVMAccountAddress3"),
+  passwordDerivedPrivateKey,
 );
 const evmChain = EChain.DevDoodle;
 const solanaChain = EChain.Solana;
@@ -106,16 +115,28 @@ const solanaEncryptedDataWallet = new AESEncryptedString(
   EncryptedString("solanaEncryptedDataWalletData"),
   InitializationVector("solanaEncryptedDataWalletIV"),
 );
+const passwordEncryptedDataWallet = new AESEncryptedString(
+  EncryptedString("passwordEncryptedDataWalletData"),
+  InitializationVector("passwordEncryptedDataWalletIV"),
+);
+
 const evmDerivedEncryptionKey = AESKey("evmDerivedEncryptionKey");
 const solanaDerivedEncryptionKey = AESKey("solanaDerivedEncryptionKey");
+const passwordDerivedEncryptionKey = AESKey("passwordDerivedEncryptionKey");
 
 const evmEncodedCreateCrumbContent = HexString("evmEncodedCreateCrumbContent");
 const solanaEncodedCreateCrumbContent = HexString(
   "solanaEncodedCreateCrumbContent",
 );
+const passwordEncodedCreateCrumbContent = HexString(
+  "passwordEncodedCreateCrumbContent",
+);
 const evmEncodedBurnCrumbContent = HexString("evmEncodedBurnCrumbContent");
 const solanaEncodedBurnCrumbContent = HexString(
   "solanaEncodedBurnCrumbContent",
+);
+const passwordEncodedBurnCrumbContent = HexString(
+  "passwordEncodedBurnCrumbContent",
 );
 
 const evmAddCrumbMetatransactionSignature = Signature(
@@ -124,14 +145,22 @@ const evmAddCrumbMetatransactionSignature = Signature(
 const solanaAddCrumbMetatransactionSignature = Signature(
   "solanaAddCrumbMetatransactionSignature",
 );
+const passwordAddCrumbMetatransactionSignature = Signature(
+  "passwordAddCrumbMetatransactionSignature",
+);
 const evmBurnCrumbMetatransactionSignature = Signature(
   "evmBurnCrumbMetatransactionSignature",
 );
 const solanaBurnCrumbMetatransactionSignature = Signature(
   "solanaBurnCrumbMetatransactionSignature",
 );
+const passwordBurnCrumbMetatransactionSignature = Signature(
+  "passwordBurnCrumbMetatransactionSignature",
+);
 
 const dataWalletBackupID = DataWalletBackupID("dataWalletBackup");
+
+const testPassword = PasswordString("BatteryHorseStaple");
 
 class AccountServiceMocks {
   public permissionsUtils: IPermissionUtils;
@@ -224,6 +253,19 @@ class AccountServiceMocks {
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
+        passwordDerivedEVMAccount.accountAddress,
+        controlChainInformation.crumbsContractAddress,
+        passwordDerivedNonce,
+        metatransactionValue,
+        metatransactionGas,
+        passwordEncodedCreateCrumbContent,
+        passwordAddCrumbMetatransactionSignature,
+        passwordDerivedPrivateKey,
+        defaultInsightPlatformBaseUrl,
+      ),
+    ).thenReturn(okAsync(undefined));
+    td.when(
+      this.insightPlatformRepo.executeMetatransaction(
         evmDerivedEVMAccount.accountAddress,
         controlChainInformation.crumbsContractAddress,
         evmDerivedNonce,
@@ -245,6 +287,19 @@ class AccountServiceMocks {
         solanaEncodedBurnCrumbContent,
         solanaBurnCrumbMetatransactionSignature,
         solanaDerivedPrivateKey,
+        defaultInsightPlatformBaseUrl,
+      ),
+    ).thenReturn(okAsync(undefined));
+    td.when(
+      this.insightPlatformRepo.executeMetatransaction(
+        passwordDerivedEVMAccount.accountAddress,
+        controlChainInformation.crumbsContractAddress,
+        passwordDerivedNonce,
+        metatransactionValue,
+        metatransactionGas,
+        passwordEncodedBurnCrumbContent,
+        passwordBurnCrumbMetatransactionSignature,
+        passwordDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
@@ -282,6 +337,9 @@ class AccountServiceMocks {
       ),
     ).thenReturn(okAsync(solanaDerivedEVMAccount));
     td.when(
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(testPassword),
+    ).thenReturn(okAsync(passwordDerivedEVMAccount));
+    td.when(
       this.dataWalletUtils.deriveEncryptionKeyFromSignature(
         evmAccountAddress,
         evmSignature,
@@ -293,6 +351,9 @@ class AccountServiceMocks {
         solanaSignature,
       ),
     ).thenReturn(okAsync(solanaDerivedEncryptionKey));
+    td.when(
+      this.dataWalletUtils.deriveEncryptionKeyFromPassword(testPassword),
+    ).thenReturn(okAsync(passwordDerivedEncryptionKey));
     td.when(this.dataWalletUtils.createDataWalletKey()).thenReturn(
       okAsync(dataWalletKey),
     );
@@ -312,11 +373,22 @@ class AccountServiceMocks {
       ),
     ).thenReturn(okAsync(solanaEncryptedDataWallet));
     td.when(
+      this.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(passwordEncryptedDataWallet));
+
+    td.when(
       this.crumbsRepo.getCrumbTokenId(evmDerivedEVMAccount.accountAddress),
     ).thenReturn(okAsync(tokenId1));
     td.when(
       this.crumbsRepo.getCrumbTokenId(solanaDerivedEVMAccount.accountAddress),
     ).thenReturn(okAsync(tokenId2));
+    td.when(
+      this.crumbsRepo.getCrumbTokenId(passwordDerivedEVMAccount.accountAddress),
+    ).thenReturn(okAsync(tokenId3));
+
     td.when(
       this.crumbsRepo.encodeCreateCrumb(languageCode, evmEncryptedDataWallet),
     ).thenReturn(
@@ -330,12 +402,25 @@ class AccountServiceMocks {
     ).thenReturn(
       okAsync(new CrumbCallData(solanaEncodedCreateCrumbContent, tokenId1)),
     );
+    td.when(
+      this.crumbsRepo.encodeCreateCrumb(
+        testCoreConfig.passwordLanguageCode,
+        passwordEncryptedDataWallet,
+      ),
+    ).thenReturn(
+      okAsync(new CrumbCallData(passwordEncodedCreateCrumbContent, tokenId3)),
+    );
+
     td.when(this.crumbsRepo.encodeBurnCrumb(tokenId1)).thenReturn(
       okAsync(evmEncodedBurnCrumbContent),
     );
     td.when(this.crumbsRepo.encodeBurnCrumb(tokenId2)).thenReturn(
       okAsync(solanaEncodedBurnCrumbContent),
     );
+    td.when(this.crumbsRepo.encodeBurnCrumb(tokenId3)).thenReturn(
+      okAsync(passwordEncodedBurnCrumbContent),
+    );
+
     td.when(this.crumbsRepo.getURI(tokenId1)).thenReturn(
       okAsync(
         TokenUri(
@@ -360,6 +445,18 @@ class AccountServiceMocks {
         ),
       ),
     );
+    td.when(this.crumbsRepo.getURI(tokenId3)).thenReturn(
+      okAsync(
+        TokenUri(
+          JSON.stringify({
+            [testCoreConfig.passwordLanguageCode]: {
+              d: passwordEncryptedDataWallet.data,
+              iv: passwordEncryptedDataWallet.initializationVector,
+            },
+          } as ICrumbContent),
+        ),
+      ),
+    );
 
     // CryptoUtils --------------------------------------------------
     td.when(
@@ -372,6 +469,12 @@ class AccountServiceMocks {
       this.cryptoUtils.decryptAESEncryptedString(
         solanaEncryptedDataWallet,
         solanaDerivedEncryptionKey,
+      ),
+    ).thenReturn(okAsync(dataWalletKey));
+    td.when(
+      this.cryptoUtils.decryptAESEncryptedString(
+        passwordEncryptedDataWallet,
+        passwordDerivedEncryptionKey,
       ),
     ).thenReturn(okAsync(dataWalletKey));
     td.when(
@@ -388,15 +491,29 @@ class AccountServiceMocks {
       ),
     ).thenReturn(solanaDerivedEVMAccount.accountAddress as never);
     td.when(
+      this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+        passwordDerivedEVMAccount.privateKey,
+      ),
+    ).thenReturn(passwordDerivedEVMAccount.accountAddress as never);
+
+    td.when(
       this.cryptoUtils.encryptString(dataWalletKey, evmDerivedEncryptionKey),
     ).thenReturn(okAsync(evmEncryptedDataWallet));
     td.when(
       this.cryptoUtils.encryptString(dataWalletKey, solanaDerivedEncryptionKey),
     ).thenReturn(okAsync(solanaEncryptedDataWallet));
+    td.when(
+      this.cryptoUtils.encryptString(
+        dataWalletKey,
+        passwordDerivedEncryptionKey,
+      ),
+    ).thenReturn(okAsync(passwordEncryptedDataWallet));
+
     // Will return different nonces each time, just in case
     td.when(this.cryptoUtils.getTokenId()).thenReturn(
       okAsync(tokenId1),
       okAsync(tokenId2),
+      okAsync(tokenId3),
     );
 
     // Data Wallet Persistence --------------------------------------------------
@@ -456,6 +573,11 @@ class AccountServiceMocks {
         solanaDerivedEVMAccount.accountAddress,
       ),
     ).thenReturn(okAsync(solanaDerivedNonce));
+    td.when(
+      this.metatransactionForwarderRepo.getNonce(
+        passwordDerivedEVMAccount.accountAddress,
+      ),
+    ).thenReturn(okAsync(passwordDerivedNonce));
 
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
@@ -467,7 +589,6 @@ class AccountServiceMocks {
         evmDerivedEVMAccount.privateKey,
       ),
     ).thenReturn(okAsync(evmAddCrumbMetatransactionSignature));
-
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
         td.matchers.contains({
@@ -478,6 +599,16 @@ class AccountServiceMocks {
         solanaDerivedEVMAccount.privateKey,
       ),
     ).thenReturn(okAsync(solanaAddCrumbMetatransactionSignature));
+    td.when(
+      this.metatransactionForwarderRepo.signMetatransactionRequest(
+        td.matchers.contains({
+          to: controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
+          from: passwordDerivedEVMAccount.accountAddress, // EOA to run the transaction as
+          data: passwordEncodedCreateCrumbContent, // The actual bytes of the request, encoded as a hex string
+        }),
+        passwordDerivedEVMAccount.privateKey,
+      ),
+    ).thenReturn(okAsync(passwordAddCrumbMetatransactionSignature));
 
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
@@ -489,7 +620,6 @@ class AccountServiceMocks {
         evmDerivedPrivateKey,
       ),
     ).thenReturn(okAsync(evmBurnCrumbMetatransactionSignature));
-
     td.when(
       this.metatransactionForwarderRepo.signMetatransactionRequest(
         td.matchers.contains({
@@ -500,6 +630,16 @@ class AccountServiceMocks {
         solanaDerivedEVMAccount.privateKey,
       ),
     ).thenReturn(okAsync(solanaBurnCrumbMetatransactionSignature));
+    td.when(
+      this.metatransactionForwarderRepo.signMetatransactionRequest(
+        td.matchers.contains({
+          to: controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
+          from: passwordDerivedEVMAccount.accountAddress, // EOA to run the transaction as
+          data: passwordEncodedBurnCrumbContent, // The actual bytes of the request, encoded as a hex string
+        }),
+        passwordDerivedEVMAccount.privateKey,
+      ),
+    ).thenReturn(okAsync(passwordBurnCrumbMetatransactionSignature));
   }
 
   public factory(): IAccountService {
@@ -1514,5 +1654,587 @@ describe("AccountService getDataWalletForAccount() tests", () => {
 
     const dataWalletAddress = result._unsafeUnwrap();
     expect(dataWalletAddress).toBe(dataWalletAddress);
+  });
+});
+
+describe("AccountService unlockWithPassword() tests", () => {
+  test("unlockWithPassword() works with no existing crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        languageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onInitialized: 1,
+      onAccountAdded: 0,
+    });
+    expect(mocks.contextProvider.setContextValues.length).toBe(2);
+    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(
+      dataWalletKey,
+    );
+    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
+      dataWalletAddress,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      true,
+    );
+    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() works with existing crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onInitialized: 1,
+      onAccountAdded: 0,
+    });
+    expect(mocks.contextProvider.setContextValues.length).toBe(2);
+    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(
+      dataWalletKey,
+    );
+    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
+      dataWalletAddress,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      true,
+    );
+    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails if we can't check for the crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(BlockchainProviderError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(1);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails if we are already doing an unlock", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(true);
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(InvalidSignatureError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(1);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails if we are already unlocked", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(InvalidSignatureError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(1);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails when we can't unlock the data persistence", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    td.when(mocks.dataWalletPersistence.unlock(dataWalletKey)).thenReturn(
+      errAsync(new PersistenceError()),
+    );
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(PersistenceError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(3);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      true,
+    );
+
+    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(
+      dataWalletKey,
+    );
+    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
+      dataWalletAddress,
+    );
+    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
+      false,
+    );
+
+    expect(mocks.contextProvider.setContextValues[2].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[2].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[2].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails when we can't encode the crumb data", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.crumbsRepo.encodeCreateCrumb(
+        testCoreConfig.passwordLanguageCode,
+        passwordEncryptedDataWallet,
+      ),
+    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(BlockchainProviderError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(2);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      true,
+    );
+
+    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails when we can't get a nonce from the minimal forwarder", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.metatransactionForwarderRepo.getNonce(
+        passwordDerivedEVMAccount.accountAddress,
+      ),
+    ).thenReturn(errAsync(new MinimalForwarderContractError()));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(MinimalForwarderContractError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(2);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      true,
+    );
+
+    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
+      false,
+    );
+  });
+
+  test("unlockWithPassword() fails when we can't execute the metatransaction on the insight platform", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.insightPlatformRepo.executeMetatransaction(
+        passwordDerivedEVMAccount.accountAddress,
+        controlChainInformation.crumbsContractAddress,
+        passwordDerivedNonce,
+        metatransactionValue,
+        metatransactionGas,
+        passwordEncodedCreateCrumbContent,
+        passwordAddCrumbMetatransactionSignature,
+        passwordDerivedPrivateKey,
+        defaultInsightPlatformBaseUrl,
+      ),
+    ).thenReturn(errAsync(new AjaxError("Error", 500)));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.unlockWithPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(AjaxError);
+
+    mocks.contextProvider.assertEventCounts({ onInitialized: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(2);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[0].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[0].unlockInProgress).toBe(
+      true,
+    );
+
+    expect(mocks.contextProvider.setContextValues[1].dataWalletKey).toBe(null);
+    expect(mocks.contextProvider.setContextValues[1].dataWalletAddress).toBe(
+      null,
+    );
+    expect(mocks.contextProvider.setContextValues[1].unlockInProgress).toBe(
+      false,
+    );
+  });
+});
+
+describe("AccountService addPassword() tests", () => {
+  test("addPassword() works with no existing crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onPasswordAdded: 1,
+    });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addPassword() works with an existing crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onPasswordAdded: 1,
+    });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addPassword() fails if the wallet is not already unlocked", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, false);
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(UninitializedError);
+
+    mocks.contextProvider.assertEventCounts({ onPasswordAdded: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addPassword() fails if we can't check for the crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(BlockchainProviderError);
+
+    mocks.contextProvider.assertEventCounts({ onPasswordAdded: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addPassword() fails when we can't encode the crumbs data", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.crumbsRepo.encodeCreateCrumb(
+        testCoreConfig.passwordLanguageCode,
+        passwordEncryptedDataWallet,
+      ),
+    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(BlockchainProviderError);
+
+    mocks.contextProvider.assertEventCounts({ onPasswordAdded: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addPassword() fails when we can't get a nonce from the minimal forwarder", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.metatransactionForwarderRepo.getNonce(
+        passwordDerivedEVMAccount.accountAddress,
+      ),
+    ).thenReturn(errAsync(new MinimalForwarderContractError()));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(MinimalForwarderContractError);
+
+    mocks.contextProvider.assertEventCounts({ onPasswordAdded: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+
+  test("addPassword() fails when we can't execute the metatransaction on the insight platform", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        passwordDerivedEVMAccount.accountAddress,
+        testCoreConfig.passwordLanguageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    td.when(
+      mocks.insightPlatformRepo.executeMetatransaction(
+        passwordDerivedEVMAccount.accountAddress,
+        controlChainInformation.crumbsContractAddress,
+        passwordDerivedNonce,
+        metatransactionValue,
+        metatransactionGas,
+        passwordEncodedCreateCrumbContent,
+        passwordAddCrumbMetatransactionSignature,
+        passwordDerivedPrivateKey,
+        defaultInsightPlatformBaseUrl,
+      ),
+    ).thenReturn(errAsync(new AjaxError("Error", 500)));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.addPassword(
+      testPassword,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeTruthy();
+    const err = result._unsafeUnwrapErr();
+    expect(err).toBeInstanceOf(AjaxError);
+
+    mocks.contextProvider.assertEventCounts({ onPasswordAdded: 0 });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+});
+
+describe("AccountService removePassword() tests", () => {
+  test("removePassword() works", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks(false, true);
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.removePassword(testPassword);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onPasswordRemoved: 1,
+    });
+    expect(mocks.contextProvider.setContextValues.length).toBe(0);
   });
 });

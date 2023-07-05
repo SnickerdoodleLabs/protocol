@@ -9,6 +9,7 @@ import {
   URLString,
   EChain,
   ProviderUrl,
+  LanguageCode,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -72,6 +73,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public gasAmounts: MetatransactionGasAmounts,
     public devChainProviderURL: ProviderUrl,
     public maxStatsRetentionSeconds: number,
+    public passwordLanguageCode: LanguageCode,
   ) {}
 }
 

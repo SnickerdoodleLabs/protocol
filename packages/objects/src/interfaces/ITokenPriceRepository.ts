@@ -4,13 +4,13 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/index.js";
 import {
   AccountIndexingError,
   AjaxError,
   PersistenceError,
 } from "@objects/errors";
-import { ChainId, UnixTimestamp } from "@objects/primitives";
+import { ChainId, UnixTimestamp } from "@objects/primitives/index.js";
 
 export interface ITokenPriceRepository {
   getTokenInfo(
