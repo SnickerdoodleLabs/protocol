@@ -65,7 +65,9 @@ const OnChainInfo: FC = () => {
                 </Typography>
               </Box>
             }
-            accounts={linkedAccounts.map((account) => account.accountAddress)}
+            accounts={linkedAccounts.map(
+              (account) => account.sourceAccountAddress,
+            )}
             receivingAddress={receivingAccount}
             onSelect={setDefaultReceivingAccount}
           />

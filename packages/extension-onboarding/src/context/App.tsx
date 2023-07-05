@@ -45,12 +45,6 @@ import {
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
 
-export interface ILinkedAccount {
-  providerKey: EWalletProviderKeys;
-  accountAddress: AccountAddress;
-  chain: EChain;
-}
-
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
   tokenId: BigNumberString | undefined;
@@ -67,7 +61,7 @@ export enum EAppModes {
 export interface IAppContext {
   apiGateway: ApiGateway;
   dataWalletGateway: DataWalletGateway;
-  linkedAccounts: ILinkedAccount[];
+  linkedAccounts: LinkedAccount[];
   isSDLDataWalletDetected: boolean;
   providerList: IProvider[];
   earnedRewards: EarnedReward[];
@@ -75,7 +69,7 @@ export interface IAppContext {
   optedInContracts: EVMContractAddress[];
   socialMediaProviderList: ISocialMediaWrapper[];
   getUserAccounts(): ResultAsync<void, unknown>;
-  addAccount(account: ILinkedAccount): void;
+  addAccount(account: LinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
   setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
@@ -99,7 +93,7 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 
 export const AppContextProvider: FC = ({ children }) => {
   const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
-  const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
+  const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<EAppModes>();
@@ -263,14 +257,7 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const onAccountAdded = (notification: AccountAddedNotification) => {
-    addAccount({
-      accountAddress: notification.data.linkedAccount.sourceAccountAddress,
-      providerKey:
-        localStorage.getItem(
-          `${notification.data.linkedAccount.sourceAccountAddress}`,
-        ) ?? null,
-      chain: notification.data.linkedAccount.sourceChain,
-    } as ILinkedAccount);
+    addAccount(notification.data.linkedAccount);
     setVisualAlert(true);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
@@ -299,17 +286,8 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getUserAccounts = () => {
     return window?.sdlDataWallet?.getAccounts().map((accounts) => {
-      const _accounts = accounts.map(
-        (account) =>
-          ({
-            accountAddress: account.sourceAccountAddress,
-            providerKey:
-              localStorage.getItem(`${account.sourceAccountAddress}`) ?? null,
-            chain: account.sourceChain,
-          } as ILinkedAccount),
-      );
       setLinkedAccounts((prev) =>
-        [...new Set(_accounts.map((o) => JSON.stringify(o)))].map((s) =>
+        [...new Set(accounts.map((o) => JSON.stringify(o)))].map((s) =>
           JSON.parse(s),
         ),
       );
@@ -322,7 +300,7 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const addAccount = (account: ILinkedAccount) => {
+  const addAccount = (account: LinkedAccount) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
