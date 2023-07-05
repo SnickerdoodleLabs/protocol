@@ -1,13 +1,14 @@
-import earnedBadge from "@extension-onboarding/assets/images/badge-earned.svg";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/RewardItems/DirectReward/DirectReward.style";
-import { useRewardItemsStyles } from "@extension-onboarding/components/RewardItems/RewardItems.style";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Typography } from "@material-ui/core";
 import {
   DirectReward,
   EVMContractAddress,
   EWalletDataType,
 } from "@snickerdoodlelabs/objects";
+import { useRewardItemsStyles, Permissions } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { useNavigate } from "react-router";
 import { useLocation } from "react-router-dom";
@@ -27,6 +28,7 @@ export default ({
   const rewardItemsClasses = useRewardItemsStyles();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { setModal } = useLayoutContext();
 
   const image = (
     <img
@@ -40,32 +42,44 @@ export default ({
       display="flex"
       flexDirection="column"
       justifyContent="center"
-      border="2px solid #F0F0F0"
-      borderRadius={4}
+      border="0.847302px solid rgba(22, 22, 26, 0.08)"
+      p={1}
+      borderRadius={14}
       onClick={() => {
-        navigate(`${pathname}/reward-detail`, {
-          state: {
-            consentContractAddress,
-            reward,
+        setModal({
+          modalSelector: EModalSelectors.REWARD_DETAIL_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: {
             permissions,
+            reward,
           },
         });
       }}
     >
       <Box width="100%" position="relative">
         {image}
-        <img className={rewardItemsClasses.badge} src={earnedBadge} />
       </Box>
 
-      <Box p={1.5} display="flex" flexDirection="column">
+      <Box mb={0.75} display="flex" flexDirection="column">
+        <Typography className={rewardItemsClasses.title}>
+          {reward.name}
+        </Typography>
+      </Box>
+      <Box
+        py={0.75}
+        px={1.5}
+        bgcolor="rgba(22, 22, 26, 0.04)"
+        borderRadius={10}
+      >
         <Box mb={0.5}>
-          <Typography className={rewardItemsClasses.title}>
-            {reward.name}
+          <Typography className={rewardItemsClasses.priceTitle}>
+            Price:
           </Typography>
         </Box>
-        <Typography className={rewardItemsClasses.description}>
-          {reward.description}
-        </Typography>
+        <Permissions
+          rowItemProps={{ width: 20, mr: 0.75 }}
+          permissions={permissions}
+        />
       </Box>
     </Box>
   );

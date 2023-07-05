@@ -1,10 +1,4 @@
 import {
-  ConsentRoles,
-  ContractOverrides,
-  Tag,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import {
   ConsentContractError,
   EVMAccountAddress,
   IpfsCID,
@@ -25,20 +19,26 @@ import {
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-export interface IConsentContract {
-  getContractAddress(): EVMContractAddress;
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ConsentRoles,
+  ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
+export interface IConsentContract extends IBaseContract {
   /**
    * Create a consent token owned by the signer
    * @param tokenId randomly generated token id
    * @param agreementURI token uri data
-   * @param contractOverrides for overriding transaction gas object
+   * @param overrides for overriding transaction gas object
    */
   optIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
 
@@ -50,14 +50,14 @@ export interface IConsentContract {
    * @param tokenId randomly generated token id
    * @param agreementFlags token uri data
    * @param signature business or consent contract owner signature
-   * @param contractOverrides for overriding transaction gas object
+   * @param overrides for overriding transaction gas object
    */
   restrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
     signature: Signature,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeRestrictedOptIn(
     tokenId: TokenId,
@@ -72,14 +72,14 @@ export interface IConsentContract {
    * @param tokenId randomly generated token id
    * @param agreementFlags token uri data
    * @param signature business or consent contract owner signature
-   * @param contractOverrides for overriding transaction gas object
+   * @param overrides for overriding transaction gas object
    */
   anonymousRestrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
     signature: Signature,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   encodeAnonymousRestrictedOptIn(
     tokenId: TokenId,
@@ -93,8 +93,9 @@ export interface IConsentContract {
    */
   optOut(
     tokenId: TokenId,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  encodeOptOut(tokenId: TokenId): HexString;
 
   /**
    * Returns the agreementFlagsArray value for the token ID
@@ -105,17 +106,31 @@ export interface IConsentContract {
   ): ResultAsync<HexString32, ConsentContractError>;
 
   getMaxCapacity(): ResultAsync<number, ConsentContractError>;
+
   updateMaxCapacity(
     maxCapacity: number,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
-  encodeOptOut(tokenId: TokenId): HexString;
+  updateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+
+  encodeUpdateAgreementFlags(
+    tokenId: TokenId,
+    newAgreementFlags: HexString32,
+  ): HexString;
 
   /**
    * Submit for blockchain requestForData event
    * @param ipfsCID ipfs conent id of a query
    */
-  requestForData(ipfsCID: IpfsCID): ResultAsync<void, ConsentContractError>;
+  requestForData(
+    ipfsCID: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
@@ -206,7 +221,10 @@ export interface IConsentContract {
    * If domain already exists, reverts with error message "Consent : Domain already added"
    * @param domain Domain name
    */
-  addDomain(domain: string): ResultAsync<void, ConsentContractError>;
+  addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Removes a domain to the contract storage
@@ -214,7 +232,10 @@ export interface IConsentContract {
    * If domain does not exist, reverts with error message "Consent : Domain is not in the list"
    * @param domain Domain name
    */
-  removeDomain(domain: string): ResultAsync<void, ConsentContractError>;
+  removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns an array of domains added to the contract
@@ -234,7 +255,7 @@ export interface IConsentContract {
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
   /**
-   * Returns the tokenId of latest opt-in contract the user has 
+   * Returns the tokenId of latest opt-in contract the user has
    * for given derived opt-in address.
    * @param optInAddress Opt-in contract address
    */
@@ -246,13 +267,17 @@ export interface IConsentContract {
    * Disables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
    */
-  disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+  disableOpenOptIn(
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Enables open opt ins on the contract
    * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
    */
-  enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+  enableOpenOptIn(
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns the baseURI of the Consent contract
@@ -263,7 +288,10 @@ export interface IConsentContract {
    * Sets a new baseURI for the Consent contract
    * Only callable by addresses that have the DEFAULT_ADMIN_ROLE on the Consent contract
    */
-  setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError>;
+  setBaseURI(
+    baseUri: BaseURI,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Checks if an address has a specific role in the Consent contract
@@ -283,7 +311,8 @@ export interface IConsentContract {
   grantRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Revokes a role of an address
@@ -293,7 +322,8 @@ export interface IConsentContract {
   revokeRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Allows an address to renounce its role
@@ -303,7 +333,8 @@ export interface IConsentContract {
   renounceRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Returns the earliest block that should be looked at for requestForData events
@@ -319,7 +350,8 @@ export interface IConsentContract {
    */
   setQueryHorizon(
     blockNumber: BlockNumber,
-  ): ResultAsync<void, ConsentContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   /**
    * Get the number of opted in addresses
@@ -351,27 +383,32 @@ export interface IConsentContract {
   newGlobalTag(
     tag: string,
     newSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   newLocalTagUpstream(
     tag: string,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   newLocalTagDownstream(
     tag: string,
     existingSlot: BigNumberString,
     newSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   replaceExpiredListing(
     tag: string,
     slot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 
   removeListing(
     tag: string,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
 }
 

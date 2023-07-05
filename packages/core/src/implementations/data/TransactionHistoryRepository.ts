@@ -5,13 +5,11 @@ import {
   AccountAddress,
   ChainTransaction,
   chainConfig,
-  EBackupPriority,
   EVMTransaction,
   getChainInfoByChainId,
   TransactionFilter,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
-  VolatileStorageMetadata,
   ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -81,6 +79,74 @@ export class TransactionHistoryRepository
       ).andThen((transactionsArray) => {
         return this.compoundTransaction(transactionsArray.flat(1));
       });
+    });
+  }
+
+  public addTransactions(
+    transactions: ChainTransaction[],
+  ): ResultAsync<void, PersistenceError> {
+    if (transactions.length == 0) {
+      return okAsync(undefined);
+    }
+
+    return ResultUtils.combine(
+      transactions.map((tx) => {
+        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
+      }),
+    ).andThen(() => okAsync(undefined));
+  }
+
+  public getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
+    return this.persistence
+      .getAll<ChainTransaction>(ERecordKey.TRANSACTIONS)
+      .andThen((transactions) => {
+        if (filter == undefined) {
+          return okAsync(transactions);
+        }
+        return okAsync(transactions.filter((value) => filter.matches(value)));
+      });
+  }
+
+  public getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: AccountAddress,
+  ): ResultAsync<ChainTransaction | null, PersistenceError> {
+    // TODO: add multikey support to cursor function
+    return this.persistence
+      .getCursor<ChainTransaction>(
+        ERecordKey.TRANSACTIONS,
+        "timestamp",
+        undefined,
+        "prev",
+      )
+      .andThen((cursor) => {
+        const filter = new TransactionFilter([chainId], [address]);
+        return this._getNextMatchingTx(cursor, filter);
+      });
+  }
+
+  public getTransactionsMap(): ResultAsync<
+    Map<ChainId, number>,
+    PersistenceError
+  > {
+    const chains = Array.from(chainConfig.keys());
+    return ResultUtils.combine(
+      chains.map((chain) => {
+        return this.persistence
+          .getAllKeys(ERecordKey.TRANSACTIONS, "chainId", chain)
+          .andThen((keys) => {
+            return okAsync([chain, keys.length]);
+          });
+      }),
+    ).andThen((result) => {
+      const returnVal = new Map<ChainId, number>();
+      result.forEach((elem) => {
+        const [chain, num] = elem;
+        returnVal[chain] = num;
+      });
+      return okAsync(returnVal);
     });
   }
 
@@ -168,51 +234,6 @@ export class TransactionHistoryRepository
       .mapErr((e) => new PersistenceError("error compounding transactions", e));
   }
 
-  public addTransactions(
-    transactions: ChainTransaction[],
-  ): ResultAsync<void, PersistenceError> {
-    if (transactions.length == 0) {
-      return okAsync(undefined);
-    }
-
-    return ResultUtils.combine(
-      transactions.map((tx) => {
-        return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, tx);
-      }),
-    ).andThen(() => okAsync(undefined));
-  }
-
-  public getTransactions(
-    filter?: TransactionFilter,
-  ): ResultAsync<ChainTransaction[], PersistenceError> {
-    return this.persistence
-      .getAll<ChainTransaction>(ERecordKey.TRANSACTIONS)
-      .andThen((transactions) => {
-        if (filter == undefined) {
-          return okAsync(transactions);
-        }
-        return okAsync(transactions.filter((value) => filter.matches(value)));
-      });
-  }
-
-  public getLatestTransactionForAccount(
-    chainId: ChainId,
-    address: AccountAddress,
-  ): ResultAsync<ChainTransaction | null, PersistenceError> {
-    // TODO: add multikey support to cursor function
-    return this.persistence
-      .getCursor<ChainTransaction>(
-        ERecordKey.TRANSACTIONS,
-        "timestamp",
-        undefined,
-        "prev",
-      )
-      .andThen((cursor) => {
-        const filter = new TransactionFilter([chainId], [address]);
-        return this._getNextMatchingTx(cursor, filter);
-      });
-  }
-
   private _getNextMatchingTx(
     cursor: IVolatileCursor<ChainTransaction>,
     filter: TransactionFilter,
@@ -222,29 +243,6 @@ export class TransactionHistoryRepository
         return okAsync(val);
       }
       return this._getNextMatchingTx(cursor, filter);
-    });
-  }
-
-  public getTransactionsMap(): ResultAsync<
-    Map<ChainId, number>,
-    PersistenceError
-  > {
-    const chains = Array.from(chainConfig.keys());
-    return ResultUtils.combine(
-      chains.map((chain) => {
-        return this.persistence
-          .getAllKeys(ERecordKey.TRANSACTIONS, "chainId", chain)
-          .andThen((keys) => {
-            return okAsync([chain, keys.length]);
-          });
-      }),
-    ).andThen((result) => {
-      const returnVal = new Map<ChainId, number>();
-      result.forEach((elem) => {
-        const [chain, num] = elem;
-        returnVal[chain] = num;
-      });
-      return okAsync(returnVal);
     });
   }
 }

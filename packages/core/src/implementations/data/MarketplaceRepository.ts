@@ -1,12 +1,3 @@
-import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IConsentContract,
@@ -30,6 +21,16 @@ import {
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MarketplaceRepository implements IMarketplaceRepository {
@@ -63,7 +64,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     PagedResponse<MarketplaceListing>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
-    return this.getMarketplaceTagListingsCached(tag).map((listings) => {
+    return this.getMarketplaceTagListingsCached(tag, true).map((listings) => {
       const page = pagingReq.page;
       const pageSize = pagingReq.pageSize;
       // slice the array based on pages response
@@ -113,6 +114,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
 
   protected getMarketplaceTagListingsCached(
     tag: MarketplaceTag,
+    toUpdate: boolean,
   ): ResultAsync<
     MarketplaceListing[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
@@ -120,6 +122,10 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     return this.configProvider.getConfig().andThen((config) => {
       const cache = this.tagCache.get(tag);
 
+      // If listings exists and to update flag is true, it needs a new list
+      if (toUpdate === true) {
+        return this.buildCacheForTag(tag);
+      }
       // If it exists
       if (cache != null) {
         // Check the cache time
@@ -143,7 +149,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
   > {
     return this.getConsentFactoryContract()
       .andThen((consentFactoryContract) => {
-        return consentFactoryContract.getListingsByTag(tag);
+        return consentFactoryContract.getListingsByTag(tag, true);
       })
       .map((listings) => {
         const cache = new MarketplaceTagCache(

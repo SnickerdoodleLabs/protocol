@@ -1,3 +1,11 @@
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import {
+  ContractOverrides,
+  IMinimalForwarderContract,
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -10,27 +18,27 @@ import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import {
-  IMinimalForwarderContract,
-  IMinimalForwarderRequest,
-} from "@contracts-sdk/interfaces";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-
 @injectable()
-export class MinimalForwarderContract implements IMinimalForwarderContract {
-  protected contract: ethers.Contract;
+export class MinimalForwarderContract
+  extends BaseContract<MinimalForwarderContractError>
+  implements IMinimalForwarderContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
+    super(
+      providerOrSigner,
       contractAddress,
       ContractsAbis.MinimalForwarderAbi.abi,
-      providerOrSigner,
     );
+  }
+
+  public getContractAddress(): EVMContractAddress {
+    return this.contractAddress;
   }
 
   public getNonce(
@@ -69,26 +77,16 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<
-    ethers.providers.TransactionResponse,
-    MinimalForwarderContractError
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.execute(
-        request,
-        signature,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new MinimalForwarderContractError(
-          `Unable to call execute()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    );
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+    return this.writeToContract("execute", [request, signature], overrides);
   }
 
-  public getContract(): ethers.Contract {
-    return this.contract;
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): MinimalForwarderContractError {
+    return new MinimalForwarderContractError(msg, reason, e);
   }
 }

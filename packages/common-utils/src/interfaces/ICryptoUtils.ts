@@ -5,24 +5,26 @@ import {
 import {
   AESEncryptedString,
   AESKey,
-  Argon2Hash,
-  EVMPrivateKey,
-  SHA256Hash,
-  EVMAccountAddress,
-  Signature,
-  HexString,
-  TokenId,
   Base64String,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  HexString,
+  InvalidParametersError,
+  KeyGenerationError,
+  RSAKeyPair,
+  SHA256Hash,
+  Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
-  EVMContractAddress,
-  InvalidParametersError,
-  RSAKeyPair,
-  KeyGenerationError,
+  TokenAndSecret,
+  TokenId,
+  URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config";
 
 export interface ICryptoUtils {
   getUUID(): UUID;
@@ -40,9 +42,17 @@ export interface ICryptoUtils {
     signature: Signature,
     salt: HexString,
   ): ResultAsync<AESKey, never>;
+  deriveAESKeyFromString(
+    source: string,
+    salt: HexString,
+  ): ResultAsync<AESKey, never>;
 
   deriveEVMPrivateKeyFromSignature(
     signature: Signature,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never>;
+  deriveEVMPrivateKeyFromString(
+    source: string,
     salt: HexString,
   ): ResultAsync<EVMPrivateKey, never>;
 
@@ -122,6 +132,14 @@ export interface ICryptoUtils {
       BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
+
+  packOAuth1Credentials(
+    config: OAuth1Config,
+    url: URLString,
+    method: string,
+    pathAndBodyParams?: object,
+    accessTokenAndSecret?: TokenAndSecret,
+  ): string;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");

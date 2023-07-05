@@ -5,7 +5,6 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
@@ -25,7 +24,6 @@ import {
   EVMPrivateKey,
   TransactionFilter,
   ExternallyOwnedAccount,
-  ICrumbContent,
   TokenBalance,
   WalletNFT,
   InvalidParametersError,
@@ -37,7 +35,6 @@ import {
   Signature,
   SiteVisit,
   TokenId,
-  TokenUri,
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
@@ -52,12 +49,8 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
-  EVMContractAddress,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
-import {
-  forwardRequestTypes,
-  getMinimalForwarderSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -77,15 +70,14 @@ import {
   IDataWalletPersistenceType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -103,11 +95,12 @@ export class AccountService implements IAccountService {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(ICrumbsRepositoryType)
     protected crumbsRepo: ICrumbsRepository,
+    @inject(IMetatransactionForwarderRepositoryType)
+    protected metatransactionForwarderRepo: IMetatransactionForwarderRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
@@ -556,6 +549,211 @@ export class AccountService implements IAccountService {
       });
   }
 
+  public unlockWithPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | MinimalForwarderContractError
+  > {
+    // Next step is to convert the signature into a derived account
+    return ResultUtils.combine([
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(password),
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+    ]).andThen(([derivedEOA, context, config]) => {
+      return this.crumbsRepo
+        .getCrumb(derivedEOA.accountAddress, config.passwordLanguageCode)
+        .andThen((encryptedDataWalletKey) => {
+          // If we're already in the process of unlocking
+          if (context.unlockInProgress) {
+            return errAsync(
+              new InvalidSignatureError(
+                "Unlock already in progress, please wait for it to complete.",
+              ),
+            );
+          }
+
+          // You can't unlock if we're already unlocked!
+          if (context.dataWalletAddress != null) {
+            return errAsync(
+              new InvalidSignatureError(
+                `Data wallet ${context.dataWalletAddress} is already unlocked!`,
+              ),
+            );
+          }
+
+          // Need to update the context
+          context.unlockInProgress = true;
+          return this.contextProvider
+            .setContext(context)
+            .andThen(() => {
+              if (encryptedDataWalletKey == null) {
+                // We're trying to unlock for the first time!
+                this.logUtils.info(
+                  `Creating a new data wallet linked to password`,
+                );
+                return this.createDataWalletFromPassword(password, derivedEOA);
+              }
+              this.logUtils.info(`Existing crumb found for password`);
+              return this.getDataWalletAccountFromPassword(
+                encryptedDataWalletKey,
+                password,
+              );
+            })
+            .andThen((dataWalletAccount) => {
+              // The account address in account is just a generic EVMAccountAddress,
+              // we need to cast it to a DataWalletAddress, since in this case, that's
+              // what it is.
+              context.dataWalletAddress = DataWalletAddress(
+                dataWalletAccount.accountAddress,
+              );
+              context.dataWalletKey = dataWalletAccount.privateKey;
+              context.unlockInProgress = false;
+
+              // We can update the context and provide the key to the persistence in one step
+              return ResultUtils.combine([
+                this.dataWalletPersistence.unlock(dataWalletAccount.privateKey),
+                this.contextProvider.setContext(context),
+              ]);
+            })
+            .andThen(() => {
+              // Need to emit some events
+              context.publicEvents.onInitialized.next(
+                context.dataWalletAddress!,
+              );
+
+              // If the account was newly added, event out
+              if (encryptedDataWalletKey == null) {
+                context.publicEvents.onPasswordAdded.next(undefined);
+              }
+              // No need to add the account to persistence
+              return okAsync(undefined);
+            });
+        })
+        .orElse((e) => {
+          // Any error in this process will cause me to revert the context
+          return this.contextProvider
+            .getContext()
+            .andThen((context) => {
+              context.dataWalletAddress = null;
+              context.dataWalletKey = null;
+              context.unlockInProgress = false;
+
+              return this.contextProvider.setContext(context);
+            })
+            .andThen(() => {
+              return errAsync(e);
+            });
+        });
+    });
+  }
+
+  public addPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | MinimalForwarderContractError
+  > {
+    // First, let's do some validation and make sure that the signature is actually for the account
+    return ResultUtils.combine([
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(password),
+      this.dataWalletUtils.deriveEncryptionKeyFromPassword(password),
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+    ]).andThen(([derivedEOA, encryptionKey, context, config]) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError(
+            "Core must be unlocked first before you can add an additional account",
+          ),
+        );
+      }
+
+      return this.crumbsRepo
+        .getCrumb(derivedEOA.accountAddress, config.passwordLanguageCode)
+        .andThen((existingCrumb) => {
+          if (existingCrumb != null) {
+            // There is already a crumb on chain for this account; odds are the
+            // account is already connected. If we want to be cool,
+            // we'd double check. For right now, we'll just return, and figure
+            // the job is done
+            return okAsync(undefined);
+          }
+
+          // Encrypt the data wallet key with this new encryption key
+          return this.cryptoUtils
+            .encryptString(context.dataWalletKey!, encryptionKey)
+            .andThen((encryptedDataWalletKey) => {
+              return this.addCrumb(
+                config.passwordLanguageCode,
+                encryptedDataWalletKey,
+                derivedEOA.privateKey,
+              );
+            });
+        })
+        .andThen(() => {
+          // We need to post a backup immediately upon adding an account, so that we don't lose access
+          return this.dataWalletPersistence.postBackups();
+        })
+        .map(() => {
+          // Notify the outside world of what we did
+          context.publicEvents.onPasswordAdded.next(undefined);
+        });
+    });
+  }
+
+  public removePassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(password),
+    ]).andThen(([context, derivedEVMAccount]) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError(
+            "Core must be unlocked first before you can remove a password",
+          ),
+        );
+      }
+
+      return this.crumbsRepo
+        .getCrumbTokenId(derivedEVMAccount.accountAddress)
+        .andThen((crumbTokenId) => {
+          if (crumbTokenId == null) {
+            // We can't unlink an account with no crumb
+            return errAsync(new UninitializedError());
+          }
+
+          // Remove the crumb
+          return this.removeCrumb(derivedEVMAccount, crumbTokenId);
+        })
+        .map(() => {
+          // Notify the outside world of what we did
+          context.publicEvents.onPasswordRemoved.next(undefined);
+        });
+    });
+  }
+
   public getAccounts(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
@@ -650,82 +848,58 @@ export class AccountService implements IAccountService {
 
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
-      this.contractFactory.factoryMinimalForwarderContract(),
-      this.contractFactory.factoryCrumbsContract(),
-      this.cryptoUtils.getTokenId(),
+      this.metatransactionForwarderRepo.getNonce(derivedEVMAccountAddress),
+      this.crumbsRepo.encodeCreateCrumb(languageCode, encryptedDataWalletKey),
       this.configProvider.getConfig(),
-    ]).andThen(([minimalForwarder, crumbsContract, crumbId, config]) => {
-      return minimalForwarder
-        .getNonce(derivedEVMAccountAddress)
-        .andThen((nonce) => {
-          this.logUtils.info(
-            `Creating new crumb token for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
-          );
-          // Create the crumb content
-          const crumbContent = TokenUri(
-            JSON.stringify({
-              [languageCode]: {
-                d: encryptedDataWalletKey.data,
-                iv: encryptedDataWalletKey.initializationVector,
-              },
-            } as ICrumbContent),
-          );
-          const callData = crumbsContract.encodeCreateCrumb(
-            crumbId,
-            crumbContent,
-          );
+    ]).andThen(([nonce, { callData, crumbId }, config]) => {
+      this.logUtils.info(
+        `Creating new crumb token for derived account ${derivedEVMAccountAddress} with crumbId ${crumbId}`,
+      );
 
-          // Create a metatransaction request
-          const value = {
-            to: crumbsContract.contractAddress, // Contract address for the metatransaction
-            from: derivedEVMAccountAddress, // EOA to run the transaction as
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(10000000), // gas
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: callData, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
-
-          // Sign the metatransaction request with the derived EVM key
-          return this.cryptoUtils
-            .signTypedData(
-              getMinimalForwarderSigningDomain(
-                config.controlChainInformation.chainId,
-                config.controlChainInformation.metatransactionForwarderAddress,
-              ),
-              forwardRequestTypes,
-              value,
-              derivedEVMKey,
-            )
-            .andThen((metatransactionSignature) => {
-              return this.insightPlatformRepo.executeMetatransaction(
-                derivedEVMAccountAddress,
-                crumbsContract.contractAddress,
-                nonce,
-                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                BigNumberString(BigNumber.from(10000000).toString()), // gas
-                callData,
-                metatransactionSignature,
-                derivedEVMKey,
-                config.defaultInsightPlatformBaseUrl,
+      // Create a metatransaction request to get a signature
+      return this.metatransactionForwarderRepo
+        .signMetatransactionRequest(
+          new MetatransactionRequest(
+            config.controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
+            derivedEVMAccountAddress, // EOA to run the transaction as
+            BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            BigNumber.from(config.gasAmounts.createCrumbGas), // gas
+            BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            callData, // The actual bytes of the request, encoded as a hex string
+          ),
+          derivedEVMKey,
+        )
+        .andThen((metatransactionSignature) => {
+          return this.insightPlatformRepo.executeMetatransaction(
+            derivedEVMAccountAddress,
+            config.controlChainInformation.crumbsContractAddress,
+            nonce,
+            BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+            BigNumberString(
+              BigNumber.from(config.gasAmounts.createCrumbGas).toString(),
+            ), // gas
+            callData,
+            metatransactionSignature,
+            derivedEVMKey,
+            config.defaultInsightPlatformBaseUrl,
+          );
+        })
+        .map(() => {
+          // This is just a double check to make sure the crumb was actually created.
+          this.logUtils.debug(
+            `Delivered metatransaction to Insight Platform, checking to make sure token was created`,
+          );
+          this.crumbsRepo
+            .getURI(crumbId)
+            .map(() => {
+              this.logUtils.info(
+                `Created crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
               );
             })
-            .map(() => {
-              // This is just a double check to make sure the crumb was actually created.
-              this.logUtils.debug(
-                `Delivered metatransaction to Insight Platform, checking to make sure token was created`,
+            .mapErr((e) => {
+              this.logUtils.error(
+                `Could not get crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
               );
-              crumbsContract
-                .tokenURI(crumbId)
-                .map(() => {
-                  this.logUtils.info(
-                    `Created crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
-                  );
-                })
-                .mapErr((e) => {
-                  this.logUtils.error(
-                    `Could not get crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
-                  );
-                });
             });
         });
     });
@@ -743,49 +917,38 @@ export class AccountService implements IAccountService {
   > {
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
-      this.contractFactory.factoryMinimalForwarderContract(),
-      this.contractFactory.factoryCrumbsContract(),
+      this.metatransactionForwarderRepo.getNonce(
+        derivedEVMAccount.accountAddress,
+      ),
+      this.crumbsRepo.encodeBurnCrumb(crumbId),
       this.configProvider.getConfig(),
-    ]).andThen(([minimalForwarder, crumbsContract, config]) => {
-      return minimalForwarder
-        .getNonce(derivedEVMAccount.accountAddress)
-        .andThen((nonce) => {
-          const callData = crumbsContract.encodeBurnCrumb(crumbId);
-
-          // Create a metatransaction request
-          const value = {
-            to: crumbsContract.contractAddress, // Contract address for the metatransaction
-            from: derivedEVMAccount.accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(10000000), // gas
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: callData, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
-
-          // Sign the metatransaction request with the derived EVM key
-          return this.cryptoUtils
-            .signTypedData(
-              getMinimalForwarderSigningDomain(
-                config.controlChainInformation.chainId,
-                config.controlChainInformation.metatransactionForwarderAddress,
-              ),
-              forwardRequestTypes,
-              value,
-              derivedEVMAccount.privateKey,
-            )
-            .andThen((metatransactionSignature) => {
-              return this.insightPlatformRepo.executeMetatransaction(
-                derivedEVMAccount.accountAddress,
-                crumbsContract.contractAddress,
-                nonce,
-                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                BigNumberString(BigNumber.from(10000000).toString()), // gas
-                callData,
-                metatransactionSignature,
-                derivedEVMAccount.privateKey,
-                config.defaultInsightPlatformBaseUrl,
-              );
-            });
+    ]).andThen(([nonce, callData, config]) => {
+      return this.metatransactionForwarderRepo
+        .signMetatransactionRequest(
+          new MetatransactionRequest(
+            config.controlChainInformation.crumbsContractAddress, // Contract address for the metatransaction
+            derivedEVMAccount.accountAddress, // EOA to run the transaction as
+            BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            BigNumber.from(config.gasAmounts.removeCrumbGas), // gas
+            BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            callData, // The actual bytes of the request, encoded as a hex string
+          ),
+          derivedEVMAccount.privateKey,
+        )
+        .andThen((metatransactionSignature) => {
+          return this.insightPlatformRepo.executeMetatransaction(
+            derivedEVMAccount.accountAddress,
+            config.controlChainInformation.crumbsContractAddress,
+            nonce,
+            BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+            BigNumberString(
+              BigNumber.from(config.gasAmounts.removeCrumbGas).toString(),
+            ), // gas
+            callData,
+            metatransactionSignature,
+            derivedEVMAccount.privateKey,
+            config.defaultInsightPlatformBaseUrl,
+          );
         });
     });
   }
@@ -872,6 +1035,46 @@ export class AccountService implements IAccountService {
     });
   }
 
+  protected createDataWalletFromPassword(
+    password: PasswordString,
+    derivedEVMAccount: ExternallyOwnedAccount,
+  ): ResultAsync<
+    ExternallyOwnedAccount,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
+    return ResultUtils.combine([
+      this.dataWalletUtils.createDataWalletKey(),
+      this.dataWalletUtils.deriveEncryptionKeyFromPassword(password),
+      this.configProvider.getConfig(),
+    ]).andThen(([dataWalletKey, encryptionKey, config]) => {
+      // Encrypt the data wallet key
+      return this.cryptoUtils
+        .encryptString(dataWalletKey, encryptionKey)
+        .andThen((encryptedDataWallet) => {
+          const dataWalletAddress = DataWalletAddress(
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              dataWalletKey,
+            ),
+          );
+
+          // We can add the crumb directly
+          return this.addCrumb(
+            config.passwordLanguageCode,
+            encryptedDataWallet,
+            derivedEVMAccount.privateKey,
+          ).map(() => {
+            return new ExternallyOwnedAccount(
+              EVMAccountAddress(dataWalletAddress),
+              dataWalletKey,
+            );
+          });
+        });
+    });
+  }
+
   protected getDataWalletAccount(
     encryptedDataWalletKey: AESEncryptedString,
     accountAddress: AccountAddress,
@@ -882,6 +1085,30 @@ export class AccountService implements IAccountService {
   > {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(accountAddress, signature)
+      .andThen((encryptionKey) => {
+        return this.cryptoUtils.decryptAESEncryptedString(
+          encryptedDataWalletKey,
+          encryptionKey,
+        );
+      })
+      .map((dataWalletKey) => {
+        const key = EVMPrivateKey(dataWalletKey);
+        return new ExternallyOwnedAccount(
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
+          key,
+        );
+      });
+  }
+
+  protected getDataWalletAccountFromPassword(
+    encryptedDataWalletKey: AESEncryptedString,
+    password: PasswordString,
+  ): ResultAsync<
+    ExternallyOwnedAccount,
+    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+  > {
+    return this.dataWalletUtils
+      .deriveEncryptionKeyFromPassword(password)
       .andThen((encryptionKey) => {
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,

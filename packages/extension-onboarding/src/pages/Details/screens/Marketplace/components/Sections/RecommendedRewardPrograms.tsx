@@ -27,13 +27,13 @@ const RecommendedRewardPrograms: FC<IRecommendedRewardProgramsProps> = ({
       </Box>
       <Box className={sectionClasses.carouselWrapper}>
         <Grid container spacing={2}>
-          {listings.map((item) => (
+          {Array.from(
+            new Set([...listings.map((item) => item.consentContract)]),
+          ).map((item) => (
             <Grid key={JSON.stringify(item)} xs={4} item>
               <RecommendedCampaignItem
                 tag={tag}
-                consentContractAddress={
-                  item.consentContract as EVMContractAddress
-                }
+                consentContractAddress={item as EVMContractAddress}
               />
             </Grid>
           ))}

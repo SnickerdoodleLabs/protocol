@@ -1,7 +1,5 @@
 import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
-import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
-import AccountsCard from "@extension-onboarding/components/AccountsCard";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
@@ -9,16 +7,9 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import {
-  Box,
-  Button,
-  Collapse,
-  Dialog,
-  IconButton,
-  Typography,
-} from "@material-ui/core";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
+import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+
 import {
   AccountAddress,
   BigNumberString,
@@ -28,6 +19,7 @@ import {
   IOpenSeaMetadata,
   Signature,
 } from "@snickerdoodlelabs/objects";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import React, { useEffect, useState, FC, useCallback } from "react";
 
@@ -38,30 +30,17 @@ const CampaignPopup: FC = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
-  const { invitationInfo, setInvitationInfo } = useAppContext();
+  const {
+    invitationInfo,
+    updateOptedInContracts,
+    setInvitationInfo,
+    isProductTourCompleted,
+  } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
-  const [receivingAccount, setReceivingAccount] = useState<AccountAddress>();
-  const [expandAccounts, setExpandAccounts] = useState<boolean>(false);
-
-  const getRecievingAccount = (contractAddress: EVMContractAddress) => {
-    window.sdlDataWallet
-      .getReceivingAddress(contractAddress)
-      .map(setReceivingAccount);
-  };
-
-  const setReceivingAccountForConsent = (accountAddress) => {
-    setExpandAccounts(false);
-    window.sdlDataWallet
-      .setReceivingAddress(invitationInfo.consentAddress!, accountAddress)
-      .map(() => {
-        getRecievingAccount(invitationInfo.consentAddress!);
-      });
-  };
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
       getInvitationData();
-      getRecievingAccount(invitationInfo.consentAddress);
     }
   }, [JSON.stringify(invitationInfo)]);
 
@@ -117,8 +96,10 @@ const CampaignPopup: FC = () => {
               title: "Thank you for your interest!",
               message: (() => {
                 switch (invitationStatus) {
-                  case EInvitationStatus.Accepted:
+                  case EInvitationStatus.Accepted: {
+                    updateOptedInContracts();
                     return "Looks like you have claimed this reward already. You can see your reward in your portfolio.";
+                  }
                   case EInvitationStatus.Occupied:
                     return "Looks like this reward link has been reserved for another data wallet user.";
                   case EInvitationStatus.OutOfCapacity:
@@ -168,6 +149,7 @@ const CampaignPopup: FC = () => {
         setLoadingStatus(false);
       })
       .map(() => {
+        updateOptedInContracts();
         setLoadingStatus(false);
         setVisualAlert(true);
         handleClose();
@@ -188,62 +170,54 @@ const CampaignPopup: FC = () => {
 
   const onClaimClick = () => {
     setOpen(false);
-    return window.sdlDataWallet
-      .getApplyDefaultPermissionsOption()
-      .map((option) => {
-        if (option) {
-          window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
-            acceptInvitation(
-              permissions,
-              invitationInfo.consentAddress!,
-              invitationInfo.tokenId,
-              invitationInfo.signature,
-            );
-          });
-
-          return;
-        }
+    return setModal({
+      modalSelector: EModalSelectors.PERMISSION_SELECTION,
+      onPrimaryButtonClick: ({
+        eligibleRewards,
+        missingRewards,
+        dataTypes,
+      }) => {
         setModal({
-          modalSelector: EModalSelectors.PERMISSION_SELECTION,
-          onPrimaryButtonClick: () => {
-            acceptInvitation(
-              null,
-              invitationInfo.consentAddress!,
-              invitationInfo.tokenId,
-              invitationInfo.signature,
-            );
-            closeModal();
+          modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
+          onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
+            setLoadingStatus(true);
+            window.sdlDataWallet
+              .setReceivingAddress(
+                invitationInfo.consentAddress!,
+                receivingAccount,
+              )
+              .map(() => {
+                acceptInvitation(
+                  dataTypes,
+                  invitationInfo.consentAddress!,
+                  invitationInfo.tokenId,
+                  invitationInfo.signature,
+                );
+              });
           },
           customProps: {
-            onCloseClicked: () => {
-              handleClose();
-            },
-            onManageClicked: () => {
-              setModal({
-                modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-                onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
-                  acceptInvitation(
-                    dataTypes,
-                    invitationInfo.consentAddress!,
-                    invitationInfo.tokenId,
-                    invitationInfo.signature,
-                  );
-                },
-                customProps: {
-                  onCloseClicked: () => {
-                    handleClose();
-                  },
-                },
-              });
-            },
+            eligibleRewards,
+            missingRewards,
+            dataTypes,
+            campaignName: invitationMeta?.rewardName,
+            campaignImage: invitationMeta?.image,
+            consentAddress: invitationInfo.consentAddress!,
           },
         });
-      });
+      },
+      customProps: {
+        consentContractAddress: invitationInfo.consentAddress!,
+        campaignInfo: invitationMeta,
+        onCloseClicked: () => {
+          handleClose();
+        },
+      },
+    });
   };
 
   if (loading) {
   }
-  if (!invitationMeta || !open) {
+  if (!invitationMeta || !open || !isProductTourCompleted) {
     return null;
   }
 
@@ -267,16 +241,9 @@ const CampaignPopup: FC = () => {
     <>
       <Dialog onClose={handleClose} open={true}>
         <Box width={548} minHeight={497}>
-          <Box height={270} style={{ backgroundImage: `url(${RewardBG})` }}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="baseline"
-            >
-              <Box pt={3} pl={4}>
-                <img width="auto" height={26.66} src={SDLogo} />
-              </Box>
-              <Box>
+          <Box height={240} style={{ backgroundImage: `url(${RewardBG})` }}>
+            <Box display="flex" justifyContent="space-between">
+              <Box ml="auto">
                 <IconButton
                   disableFocusRipple
                   disableRipple
@@ -306,22 +273,12 @@ const CampaignPopup: FC = () => {
               pb={2}
             >
               <Box
-                style={{
-                  background: "rgba(128, 121, 180, 0.5)",
-                  borderRadius: "4px",
-                  gap: "10px",
-                }}
+                bgcolor="rgba(128, 121, 180, 0.5)"
+                borderRadius={4}
+                px={1.5}
+                py={0.3}
               >
-                <Typography
-                  style={{
-                    fontFamily: "Space Grotestk",
-                    fontWeight: 500,
-                    fontSize: "10px",
-                    textAlign: "center",
-                    color: "#222137",
-                    padding: "3px 12px",
-                  }}
-                >
+                <Typography className={classes.rewardName}>
                   {invitationMeta.rewardName}
                 </Typography>
               </Box>
@@ -329,15 +286,7 @@ const CampaignPopup: FC = () => {
           </Box>
           <Box mx={11} textAlign="center">
             <Box mt={3} mb={2}>
-              <Typography
-                style={{
-                  fontFamily: "Shrikhand",
-                  fontWeight: 400,
-                  fontSize: 20,
-                  fontStyle: "italic",
-                  color: "#222137",
-                }}
-              >
+              <Typography className={classes.rewardTitle}>
                 {invitationMeta.title || "Join the Cohort!"}
               </Typography>
             </Box>
@@ -346,115 +295,25 @@ const CampaignPopup: FC = () => {
                 {invitationMeta.description}
               </Typography>
             </Box>
-            <Box
-              display="flex"
-              justifyContent="space-evenly"
-              alignItems="center"
-            >
-              <Box>
-                <Button onClick={handleClose} className={classes.buttonText}>
-                  Not Interested
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <Box mr={2}>
+                <Button onClick={handleClose} buttonType="secondary">
+                  Cancel
                 </Button>
               </Box>
               <Box>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={onClaimClick}
-                  className={classes.primaryButton}
-                >
+                <Button buttonType="primary" onClick={onClaimClick}>
                   Join
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 17 16"
-                    fill="none"
-                    fillRule="evenodd"
-                    strokeLinecap="square"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    aria-hidden="true"
-                    className={classes.primaryButtonIcon}
-                  >
-                    <path
-                      d="M1.808 14.535 14.535 1.806"
-                      className="arrow-body"
-                    />
-                    <path
-                      d="M3.379 1.1h11M15.241 12.963v-11"
-                      className="arrow-head"
-                    />
-                  </svg>
                 </Button>
               </Box>
             </Box>
           </Box>
-          <Box px={7} mt={3} mb={15}>
+          <Box px={3} mb={1} mt={3}>
             <Typography className={classes.footerText}>
               By accepting this Reward you are giving permission for the use of
               your profile and wallet activity to generate market trends. All
               information is anonymous and no insights are linked back to you.
             </Typography>
-          </Box>
-          <Box
-            className={classes.accountSectionContainer}
-            {...(expandAccounts && {
-              boxShadow: "0px -12px 49px -8px rgba(0,0,0,0.32)",
-            })}
-          >
-            <Box
-              onClick={() => {
-                setExpandAccounts(!expandAccounts);
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <Box
-                bgcolor="#FEF6E7"
-                py={1}
-                px={5}
-                display="flex"
-                alignItems="center"
-              >
-                <Typography className={classes.accountInfoText}>
-                  Your current receiving account
-                </Typography>
-                {receivingAccount && (
-                  <>
-                    <AccountIdentIcon
-                      accountAddress={receivingAccount}
-                      size={17}
-                    />
-                    <Typography className={classes.account}>
-                      {receivingAccount.slice(0, 5)} ................
-                      {receivingAccount.slice(-4)}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-              <Box py={1} px={5} display="flex" flexDirection="column">
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="flex-end"
-                >
-                  <Typography className={classes.changeRecievingAccountText}>
-                    Change Receiving Account
-                  </Typography>
-                  {expandAccounts ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                </Box>
-                <Typography className={classes.changeAccountDescription}>
-                  Select the account where you would like to receive your
-                  reward.
-                </Typography>
-              </Box>
-            </Box>
-            <Box>
-              <Collapse in={expandAccounts}>
-                <AccountsCard
-                  receivingAddress={receivingAccount}
-                  onSelect={setReceivingAccountForConsent}
-                />
-              </Collapse>
-            </Box>
           </Box>
         </Box>
       </Dialog>

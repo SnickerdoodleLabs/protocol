@@ -1,4 +1,4 @@
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@extension-onboarding/components/CampaignItems/DefaultCampaignItem/DefaultCampaignItem.style";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -89,6 +89,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
                           width={32}
                           height={32}
                           style={{
+                            objectFit: "cover",
                             borderRadius: 4,
                             border: "1px solid #FFFFFF",
                             marginLeft: index === 0 ? 0 : -8,
@@ -164,6 +165,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
             )}
             <Box display="inline" ml={!onLeaveClick && isSubscribed ? 0 : 2}>
               <Button
+                disabled={!possibleRewards || !campaignInfo}
                 onClick={() => {
                   navigate(navigationPath, {
                     state: {
@@ -174,7 +176,7 @@ const CampaignItem: FC<ICampaignItemProps> = ({
                     },
                   });
                 }}
-                buttonType="v2"
+                buttonType="v2Primary"
               >
                 Details
               </Button>

@@ -52,7 +52,7 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
@@ -89,7 +89,7 @@ export class AccountRepository implements IAccountRepository {
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .addAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
@@ -116,7 +116,7 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
     calledWithCookie: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .unlock(account, signature, languageCode, chain)
       .mapErr((error) => {
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -140,7 +140,7 @@ export class AccountRepository implements IAccountRepository {
   public getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.getUnlockMessage(languageCode).mapErr((error) => {
+    return this.core.account.getUnlockMessage(languageCode).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -159,7 +159,7 @@ export class AccountRepository implements IAccountRepository {
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
+    return this.core.account
       .unlinkAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);

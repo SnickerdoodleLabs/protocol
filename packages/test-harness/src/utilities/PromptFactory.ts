@@ -12,6 +12,10 @@ export class PromptFactory {
 
     const env = new Environment(new BusinessProfile(), mocks);
 
-    return new MainPrompt(env, new CorePrompt(env), new SimulatorPrompt(env));
+    return new MainPrompt(
+      env,
+      new CorePrompt(env, mocks.timeUtils),
+      new SimulatorPrompt(env),
+    );
   }
 }

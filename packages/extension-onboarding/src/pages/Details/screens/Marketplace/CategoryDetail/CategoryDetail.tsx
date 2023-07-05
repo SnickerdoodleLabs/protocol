@@ -25,6 +25,7 @@ import {
   generatePath,
 } from "react-router-dom";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import emptyTag from "@extension-onboarding/assets/images/empty-tag.png";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -125,6 +126,20 @@ const CategoryDetail = () => {
           </Select>
         </Box>
       </Box>
+      {!isLoading && isEmpty && (
+        <Box
+          mt={7}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="column"
+        >
+          <img width={337} height="auto" src={emptyTag} />
+          <Typography className={classes.emptyText}>
+            There are no available rewards programs in this category.
+          </Typography>
+        </Box>
+      )}
       {featured && featured.length > 0 && (
         <Box mt={6}>
           <FeaturedRewardsPrograms

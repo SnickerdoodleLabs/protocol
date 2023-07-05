@@ -1,6 +1,3 @@
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
   BigNumberString,
@@ -8,18 +5,20 @@ import {
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
+  TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IConsentFactoryContract {
-  /**
-   * Return contract address
-   */
-  getContractAddress(): EVMContractAddress;
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
+export interface IConsentFactoryContract extends IBaseContract {
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
@@ -32,7 +31,7 @@ export interface IConsentFactoryContract {
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
+  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   /**
    *  Return the number Consent addresses that user has deployed
@@ -103,15 +102,18 @@ export interface IConsentFactoryContract {
 
   setListingDuration(
     listingDuration: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   setMaxTagsPerListing(
     maxTagsPerListing: number,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
 
   getListingDetail(
@@ -143,5 +145,10 @@ export interface IConsentFactoryContract {
    */
   getListingsByTag(
     tag: MarketplaceTag,
+    removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+
+  getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError>;
 }

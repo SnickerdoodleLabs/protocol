@@ -4,12 +4,10 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   EligibleAd,
-  EligibleReward,
   ERewardType,
   EvaluationError,
   EVMContractAddress,
   ExpectedReward,
-  IDynamicRewardParameter,
   IInsights,
   IInsightsQueries,
   IInsightsReturns,
@@ -41,9 +39,11 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAST_Evaluator,
+  IQueryFactories,
+  IQueryFactoriesType,
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/query/index.js";
@@ -53,10 +53,6 @@ import {
   IAdDataRepositoryType,
   IAdRepositoryType,
 } from "@core/interfaces/data/index.js";
-import {
-  IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -119,21 +115,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
-    [IInsights, EligibleReward[]],
+    IInsights,
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
-    const schemaString = query.query;
-    const cid: IpfsCID = query.cid;
-
     return this.queryFactories
-      .makeParserAsync(cid, schemaString)
+      .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => {
-        return this.gatherInsights(sdqlParser, cid, dataPermissions);
-      })
-      .map((insights) => {
-        return [insights, []] as [IInsights, EligibleReward[]];
+        return this.gatherInsights(sdqlParser, query.cid, dataPermissions);
       });
   }
 
@@ -290,7 +279,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     sdqlParser: SDQLParser,
     cid: IpfsCID,
   ): ResultAsync<
-    [AST, AST_Evaluator],
+    [AST, IAST_Evaluator],
     QueryFormatError | QueryExpiredError | ParserError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
@@ -364,7 +353,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   protected getAndEvalPermittedReturns(
     ast: AST,
-    astEvaluator: AST_Evaluator,
+    astEvaluator: IAST_Evaluator,
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IInsightsReturns,
@@ -427,7 +416,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   private evalReturns(
     ast: AST,
-    astEvaluator: AST_Evaluator,
+    astEvaluator: IAST_Evaluator,
     returnExpressions: string[],
   ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
     return returnExpressions.map((returnExpr) =>

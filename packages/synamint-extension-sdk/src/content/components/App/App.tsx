@@ -1,10 +1,31 @@
-import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
+import {
+  AccountAddress,
+  DomainName,
+  EWalletDataType,
+  PossibleReward,
+  UUID,
+} from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+import { parse } from "tldts";
+import Browser, { urlbar } from "webextension-polyfill";
+
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@synamint-extension-sdk/content/components/ScamFilterComponent";
-import ManagePermissions from "@synamint-extension-sdk/content/components/Screens/ManagePermissions";
-import PermissionSelection from "@synamint-extension-sdk/content/components/Screens/PermissionSelection";
+import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
+import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
 import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
+import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
+import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
 import {
   EAPP_STATE,
   IRewardItem,
@@ -20,26 +41,20 @@ import {
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
-  configProvider,
+  GetInvitationWithDomainParams,
+  AcceptInvitationByUUIDParams,
+  RejectInvitationParams,
+  CheckURLParams,
+  SetReceivingAddressParams,
+  IExtensionConfig,
 } from "@synamint-extension-sdk/shared";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import React, { useEffect, useMemo, useState } from "react";
-import { parse } from "tldts";
-import Browser, { urlbar } from "webextension-polyfill";
 
 interface ISafeURLHistory {
   url: string;
 }
 
 let coreGateway: ExternalCoreGateway;
+let extensionConfig: IExtensionConfig;
 
 const connect = () => {
   const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
@@ -56,43 +71,52 @@ const connect = () => {
   const rpcEngine = new JsonRpcEngine();
   rpcEngine.push(streamMiddleware.middleware);
 
-  if (
-    new URL(configProvider.getConfig().onboardingUrl).origin ===
-    window.location.origin
-  ) {
-    const postMessageStream = new LocalMessageStream({
-      name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-      target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-    });
-    const pageMux = new ObjectMultiplex();
-    pump(pageMux, postMessageStream, pageMux);
-    const pageStreamChannel = pageMux.createStream(
-      ONBOARDING_PROVIDER_SUBSTREAM,
-    );
-    const extensionStreamChannel = extensionMux.createStream(
-      ONBOARDING_PROVIDER_SUBSTREAM,
-    );
-    pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
-    extensionMux.on("finish", () => {
-      document.dispatchEvent(
-        new CustomEvent("extension-stream-channel-closed"),
-      );
-      pageMux.destroy();
-    });
-  }
-
   if (!coreGateway) {
     coreGateway = new ExternalCoreGateway(rpcEngine);
-    if (
-      new URL(configProvider.getConfig().onboardingUrl).origin ===
-      window.location.origin
-    ) {
-      DataWalletProxyInjectionUtils.inject();
-    }
+    (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
+      (config) => {
+        if (!extensionConfig) {
+          extensionConfig = config;
+        }
+        if (new URL(config.onboardingUrl).origin === window.location.origin) {
+          DataWalletProxyInjectionUtils.inject();
+        }
+      },
+    );
   } else {
     coreGateway.updateRpcEngine(rpcEngine);
   }
 
+  (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
+    (config) => {
+      if (!extensionConfig) {
+        extensionConfig = config;
+      }
+      if (new URL(config.onboardingUrl).origin === window.location.origin) {
+        {
+          const postMessageStream = new LocalMessageStream({
+            name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+            target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+          });
+          const pageMux = new ObjectMultiplex();
+          pump(pageMux, postMessageStream, pageMux);
+          const pageStreamChannel = pageMux.createStream(
+            ONBOARDING_PROVIDER_SUBSTREAM,
+          );
+          const extensionStreamChannel = extensionMux.createStream(
+            ONBOARDING_PROVIDER_SUBSTREAM,
+          );
+          pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
+          extensionMux.on("finish", () => {
+            document.dispatchEvent(
+              new CustomEvent("extension-stream-channel-closed"),
+            );
+            pageMux.destroy();
+          });
+        }
+      }
+    },
+  );
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
@@ -112,6 +136,11 @@ const App = () => {
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
   const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
+  const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
+    eligibleRewards: PossibleReward[];
+    missingRewards: PossibleReward[];
+    dataTypes: EWalletDataType[];
+  }>();
   const _path = usePath();
 
   useEffect(() => {
@@ -123,7 +152,7 @@ const App = () => {
 
     ResultUtils.combine([
       coreGateway.getScamFilterSettings(),
-      coreGateway.checkURL(url as DomainName),
+      coreGateway.checkURL(new CheckURLParams(url as DomainName)),
     ]).andThen(([scamSettings, scamStatus]) => {
       if (scamSettings.isScamFilterActive) {
         if (scamSettings.showMessageEveryTime) {
@@ -179,12 +208,16 @@ const App = () => {
           const domain = urlInfo.domain;
           const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
           const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
-          coreGateway.getInvitationsByDomain(domainName, url).map((result) => {
-            if (result) {
-              setInvitationDomain(result);
-              initiateRewardPopup(result);
-            }
-          });
+          coreGateway
+            .getInvitationsByDomain(
+              new GetInvitationWithDomainParams(domainName, url),
+            )
+            .map((result) => {
+              if (result) {
+                setInvitationDomain(result);
+                initiateRewardPopup(result);
+              }
+            });
         }
       });
   };
@@ -202,71 +235,113 @@ const App = () => {
     });
   };
 
-  const changeAppState = (state: EAPP_STATE) => {
-    setAppState(state);
-  };
-
   const emptyReward = () => {
+    setSubscriptionPreviewData(undefined);
     setRewardToDisplay(undefined);
     setAppState(EAPP_STATE.INIT);
   };
 
-  const acceptInvitation = () => {
-    coreGateway
-      .acceptInvitationByUUID(null, invitationDomain?.id as UUID)
-      .map(() => emptyReward());
-  };
-
   const rejectInvitation = () => {
     coreGateway
-      .rejectInvitation(invitationDomain?.id as UUID)
+      .rejectInvitation(
+        new RejectInvitationParams(invitationDomain?.id as UUID),
+      )
       .map(() => emptyReward());
   };
 
-  const acceptInvitationWithDataTypes = (dataTypes: EWalletDataType[]) => {
+  const acceptInvitation = (receivingAccount: AccountAddress | undefined) => {
+    setAppState(EAPP_STATE.LOADING);
     coreGateway
-      .acceptInvitationByUUID(dataTypes, invitationDomain?.id as UUID)
-      .map(() => emptyReward());
+      .setReceivingAddress(
+        new SetReceivingAddressParams(
+          invitationDomain!.consentAddress,
+          receivingAccount ?? null,
+        ),
+      )
+      .map(() => {
+        coreGateway
+          .acceptInvitationByUUID(
+            new AcceptInvitationByUUIDParams(
+              subscriptionPreviewData!.dataTypes,
+              invitationDomain?.id as UUID,
+            ),
+          )
+          .map(() => {
+            setAppState(EAPP_STATE.SUBSCRIPTION_SUCCESS);
+          });
+      })
+      .mapErr(() => {
+        emptyReward();
+      });
   };
 
   const renderComponent = useMemo(() => {
     switch (true) {
-      case !rewardToDisplay || appState === EAPP_STATE.DISMISSED:
+      case !rewardToDisplay:
         return null;
       case appState === EAPP_STATE.INIT:
         return (
           <RewardCard
-            emptyReward={emptyReward}
-            acceptInvitation={acceptInvitation}
-            changeAppState={changeAppState}
-            rejectInvitation={rejectInvitation}
+            onJoinClick={() => {
+              setAppState(EAPP_STATE.PERMISSION_SELECTION);
+            }}
+            onCancelClick={rejectInvitation}
+            onCloseClick={emptyReward}
             rewardItem={rewardToDisplay!}
-            invitationDomain={invitationDomain}
-            coreGateway={coreGateway}
           />
         );
       case appState === EAPP_STATE.PERMISSION_SELECTION:
         return (
-          <PermissionSelection
-            emptyReward={emptyReward}
-            acceptInvitation={acceptInvitation}
-            changeAppState={changeAppState}
-          />
-        );
-      case appState === EAPP_STATE.MANAGE_PERMISSIONS:
-        return (
-          <ManagePermissions
-            emptyReward={emptyReward}
+          <Permissions
+            config={extensionConfig}
+            domainDetails={invitationDomain!}
+            onCancelClick={emptyReward}
             coreGateway={coreGateway}
-            onSaveClick={(dataTypes) => {
-              acceptInvitationWithDataTypes(dataTypes);
+            onNextClick={(
+              eligibleRewards: PossibleReward[],
+              missingRewards: PossibleReward[],
+              dataTypes: EWalletDataType[],
+            ) => {
+              setSubscriptionPreviewData({
+                eligibleRewards,
+                missingRewards,
+                dataTypes,
+              });
+              setAppState(EAPP_STATE.SUBSCRIPTION_CONFIRMATION);
             }}
           />
         );
+      case subscriptionPreviewData &&
+        appState === EAPP_STATE.SUBSCRIPTION_CONFIRMATION:
+        return (
+          <SubscriptionConfirmation
+            {...subscriptionPreviewData!}
+            config={extensionConfig}
+            coreGateway={coreGateway}
+            domainDetails={invitationDomain!}
+            onCancelClick={emptyReward}
+            onConfirmClick={(receivingAccount) => {
+              acceptInvitation(receivingAccount);
+            }}
+          />
+        );
+      case appState === EAPP_STATE.SUBSCRIPTION_SUCCESS:
+        return (
+          <SubscriptionSuccess
+            domainDetails={invitationDomain!}
+            onCancelClick={emptyReward}
+          />
+        );
+      case appState === EAPP_STATE.LOADING:
+        return <Loading />;
       default:
         return null;
     }
-  }, [rewardToDisplay, appState]);
+  }, [
+    JSON.stringify(rewardToDisplay),
+    appState,
+    JSON.stringify(subscriptionPreviewData),
+  ]);
 
   return (
     <>

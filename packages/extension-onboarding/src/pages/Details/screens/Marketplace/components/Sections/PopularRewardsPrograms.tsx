@@ -1,5 +1,5 @@
 import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
-import Carousel from "@extension-onboarding/components/Carousel";
+import { Carousel } from "@snickerdoodlelabs/shared-components";
 import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Typography } from "@material-ui/core";
 import {
@@ -46,13 +46,13 @@ const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({
       </Box>
       <Box className={sectionClasses.carouselWrapper}>
         <Carousel responsive={responsive}>
-          {listings.map((item) => (
+          {Array.from(
+            new Set([...listings.map((item) => item.consentContract)]),
+          ).map((item) => (
             <Box key={JSON.stringify(item)} mr={3}>
               <DefaultCampaignItem
                 tag={tag}
-                consentContractAddress={
-                  item.consentContract as EVMContractAddress
-                }
+                consentContractAddress={item as EVMContractAddress}
               />
             </Box>
           ))}

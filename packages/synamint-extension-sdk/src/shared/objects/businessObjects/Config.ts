@@ -2,6 +2,7 @@ import {
   ChainId,
   DiscordConfig,
   ProviderUrl,
+  TwitterConfig,
   URLString,
 } from "@snickerdoodlelabs/objects";
 
@@ -20,12 +21,34 @@ export class ExtensionConfig {
     public supportedChains: ChainId[],
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
-    public ceramicNodeUrl: URLString,
-    public controlChainProviderUrl?: ProviderUrl,
-    public covalentApiKey?: string,
-    public moralisApiKey?: string,
-    public nftScanApiKey?: string,
-    public poapApiKey?: string,
+    public apiKeys: {
+      alchemyApiKeys?: {
+        Arbitrum: string;
+        Astar: string;
+        Mumbai: string;
+        Optimism: string;
+        Polygon: string;
+        Solana: string;
+        SolanaTestnet: string;
+      };
+      etherscanApiKeys?: {
+        Ethereum: string;
+        Polygon: string;
+        Avalanche: string;
+        Binance: string;
+        Moonbeam: string;
+        Optimism: string;
+        Arbitrum: string;
+        Gnosis: string;
+        Fuji: string;
+      };
+      covalentApiKey?: string;
+      moralisApiKey?: string;
+      nftScanApiKey?: string;
+      poapApiKey?: string;
+      oklinkApiKey?: string;
+      ankrApiKey?: string;
+    },
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
@@ -35,5 +58,9 @@ export class ExtensionConfig {
     public backupPollingIntervalMS?: number,
     public enableBackupEncryption?: boolean,
     public discordOverrides?: Partial<DiscordConfig>,
+    public twitterOverrides?: Partial<TwitterConfig>,
+    public primaryInfuraKey?: string,
+    public secondaryInfuraKey?: string,
+    public devChainProviderURL?: ProviderUrl,
   ) {}
 }

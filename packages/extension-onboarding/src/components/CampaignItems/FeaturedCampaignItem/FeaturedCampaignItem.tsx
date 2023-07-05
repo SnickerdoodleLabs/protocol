@@ -1,4 +1,4 @@
-import Button from "@extension-onboarding/components/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@extension-onboarding/components/CampaignItems/FeaturedCampaignItem/FeaturedCampaignItem.style";
 import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -115,6 +115,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                           width={56}
                           height={56}
                           style={{
+                            objectFit: "cover",
                             borderRadius: 4,
                             border: "1px solid #FFFFFF",
                             marginLeft: index === 0 ? 0 : -8,
@@ -184,6 +185,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
           <Box marginLeft="auto">
             <Box display="inline">
               <Button
+                disabled={!possibleRewards || !campaignInfo}
                 onClick={() => {
                   navigate(navigationPath, {
                     state: {
@@ -194,7 +196,7 @@ const FeaturedCampaignItem: FC<IFeaturedCampaignItemProps> = ({
                     },
                   });
                 }}
-                buttonType="v2"
+                buttonType="v2Primary"
               >
                 Details
               </Button>

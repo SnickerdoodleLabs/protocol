@@ -1,11 +1,11 @@
-import { WalletNFT } from "@objects/businessObjects/WalletNFT";
-import { EChainTechnology } from "@objects/enum";
+import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
+import { EChainTechnology } from "@objects/enum/index.js";
 import {
   ChainId,
   SolanaAccountAddress,
   SolanaTokenAddress,
   TickerSymbol,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class SolanaCollection {
   public constructor(

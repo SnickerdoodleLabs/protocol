@@ -1,15 +1,18 @@
 import {
-  DiscordAccessToken,
   DiscordConfig,
   DiscordError,
   DiscordGuildProfile,
+  DiscordID,
   DiscordProfile,
-  DiscordRefreshToken,
+  ESocialType,
+  OAuth2AccessToken,
+  OAuth2RefreshToken,
   OAuth2Tokens,
   OAuthAuthorizationCode,
   OAuthError,
   PersistenceError,
-  SnowflakeID,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -25,10 +28,15 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/IConfigProvider.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DiscordService implements IDiscordService {
   public constructor(
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IDiscordRepositoryType) public discordRepo: IDiscordRepository,
   ) {}
@@ -50,19 +58,26 @@ export class DiscordService implements IDiscordService {
   }
 
   public unlink(
-    userProfileId: SnowflakeID,
+    userProfileId: DiscordID,
   ): ResultAsync<void, DiscordError | PersistenceError> {
-    return this.discordRepo.deleteProfile(userProfileId);
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.discordRepo.deleteProfile(userProfileId),
+    ]).map(([context]) => {
+      context.publicEvents.onSocialProfileUnlinked.next(
+        new SocialProfileUnlinkedEvent(ESocialType.DISCORD, userProfileId),
+      );
+    });
   }
 
   public isAuthTokenValid(
-    authToken: DiscordAccessToken,
+    authToken: OAuth2AccessToken,
   ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }
 
   public refreshAuthToken(
-    refreshToken: DiscordRefreshToken,
+    refreshToken: OAuth2RefreshToken,
   ): ResultAsync<void, DiscordError> {
     throw new Error("Method not implemented.");
   }
@@ -134,18 +149,25 @@ export class DiscordService implements IDiscordService {
       })
       .andThen(([userProfile, guildProfiles]) => {
         return ResultUtils.combine([
+          this.contextProvider.getContext(),
           this.discordRepo.upsertUserProfile(userProfile),
           this.discordRepo.upsertGuildProfiles(
-            this.addDiscordProfileIdToGuildProfiles(guildProfiles, userProfile.id),
+            this.addDiscordProfileIdToGuildProfiles(
+              guildProfiles,
+              userProfile.id,
+            ),
           ),
-        ]);
-      })
-      .map(() => {});
+        ]).map(([context]) => {
+          context.publicEvents.onSocialProfileLinked.next(
+            new SocialProfileLinkedEvent(ESocialType.DISCORD, userProfile),
+          );
+        });
+      });
   }
 
   protected addDiscordProfileIdToGuildProfiles(
     discordGuildProfiles: DiscordGuildProfile[],
-    discordProfileId: SnowflakeID,
+    discordProfileId: DiscordID,
   ): DiscordGuildProfile[] {
     return discordGuildProfiles.map((profile) => {
       profile.discordUserProfileId = discordProfileId;

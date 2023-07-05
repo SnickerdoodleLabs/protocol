@@ -1,13 +1,21 @@
 import {
+  EVMAccountAddress,
+  EVMContractAddress,
   IBlockchainError,
-  TransactionReceipt,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export class WrappedTransactionResponse {
-  public constructor(public txResponse: ethers.providers.TransactionResponse) {}
+  public constructor(
+    public txResponse: ethers.providers.TransactionResponse,
+    public contractAddress?: EVMContractAddress,
+    public signerAddress?: EVMAccountAddress,
+    public functionName?: string,
+    public functionParams?: string,
+    public abi?: string,
+  ) {}
 
   wait(): ResultAsync<
     ethers.providers.TransactionReceipt,

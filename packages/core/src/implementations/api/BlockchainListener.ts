@@ -1,5 +1,4 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -8,7 +7,6 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
-  EVMContractAddress,
   IPFSError,
   PersistenceError,
   UninitializedError,
@@ -17,7 +15,7 @@ import {
   EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBlockchainListener } from "@core/interfaces/api/index.js";
@@ -30,6 +28,8 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
   ILinkedAccountRepository,
   ILinkedAccountRepositoryType,
   ISDQLQueryRepository,
@@ -61,6 +61,8 @@ export class BlockchainListener implements IBlockchainListener {
     protected consentContractRepository: IConsentContractRepository,
     @inject(ISDQLQueryRepositoryType)
     protected sdqlQueryRepository: ISDQLQueryRepository,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType)
@@ -72,11 +74,6 @@ export class BlockchainListener implements IBlockchainListener {
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
   ) {}
-
-  protected queryHorizonCache = new Map<
-    EVMContractAddress,
-    BlockNumber | null
-  >();
 
   public initialize(): ResultAsync<
     void,
@@ -154,7 +151,7 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.accountRepo
+    return this.invitationRepo
       .getAcceptedInvitations()
       .andThen((optIns) => {
         return this.consentContractRepository.getConsentContracts(
@@ -167,7 +164,9 @@ export class BlockchainListener implements IBlockchainListener {
             // Only consent owners can request data
             return ResultUtils.combine([
               consentContract.getConsentOwner(),
-              this.getQueryHorizon(consentContract),
+              this.consentContractRepository.getQueryHorizon(
+                consentContract.getContractAddress(),
+              ),
             ])
               .andThen(([consentOwner, queryHorizon]) => {
                 return ResultUtils.combine([
@@ -220,27 +219,5 @@ export class BlockchainListener implements IBlockchainListener {
           }),
         ).map((result) => {});
       });
-  }
-
-  protected getQueryHorizon(
-    consentContract: IConsentContract,
-  ): ResultAsync<BlockNumber, ConsentContractError> {
-    // Check if the query horizon is in the cache
-    const cachedQueryHorizon = this.queryHorizonCache.get(
-      consentContract.getContractAddress(),
-    );
-
-    if (cachedQueryHorizon != null) {
-      return okAsync(cachedQueryHorizon);
-    }
-
-    return consentContract.getQueryHorizon().map((queryHorizon) => {
-      this.queryHorizonCache.set(
-        consentContract.getContractAddress(),
-        queryHorizon,
-      );
-
-      return queryHorizon;
-    });
   }
 }

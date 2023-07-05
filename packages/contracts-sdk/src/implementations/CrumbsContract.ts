@@ -1,3 +1,10 @@
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract.js";
+import {
+  ContractsAbis,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects/index.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -9,27 +16,25 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
-
-import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { okAsync, errAsync, ResultAsync } from "neverthrow";
 
 @injectable()
-export class CrumbsContract implements ICrumbsContract {
-  protected contract: ethers.Contract;
+export class CrumbsContract
+  extends BaseContract<CrumbsContractError>
+  implements ICrumbsContract
+{
   constructor(
     protected providerOrSigner:
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.CrumbsAbi.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.SiftAbi.abi);
+  }
+
+  public getContractAddress(): EVMContractAddress {
+    return this.contractAddress;
   }
 
   public addressToCrumbId(
@@ -69,41 +74,18 @@ export class CrumbsContract implements ICrumbsContract {
     ).orElse((error) => {
       // The contract reverts with this message if tokenId does not exist
       if (error.reason === "ERC721: operator query for nonexistent token") {
-        return ok(null);
+        return okAsync(null);
       }
-      return err(error);
+      return errAsync(error);
     });
   }
 
   public createCrumb(
     crumbId: TokenId,
     tokenUri: TokenUri,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, CrumbsContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.createCrumb(
-        crumbId,
-        tokenUri,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new CrumbsContractError(
-          "Unable to call createCrumb()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new CrumbsContractError(
-            "Wait for createCrumb() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+    return this.writeToContract("createCrumb", [crumbId, tokenUri], overrides);
   }
 
   public encodeCreateCrumb(
@@ -120,32 +102,9 @@ export class CrumbsContract implements ICrumbsContract {
 
   public burnCrumb(
     crumbId: TokenId,
-    contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void, CrumbsContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.burnCrumb(
-        crumbId,
-        contractOverrides,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new CrumbsContractError(
-          "Unable to call burnCrumb()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new CrumbsContractError(
-            "Wait for burnCrumb() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+    return this.writeToContract("createCrumb", [crumbId], overrides);
   }
 
   public encodeBurnCrumb(crumbId: TokenId): HexString {
@@ -157,34 +116,20 @@ export class CrumbsContract implements ICrumbsContract {
   public updateTokenURI(
     crumbId: TokenId,
     tokenURI: TokenUri,
-  ): ResultAsync<void, CrumbsContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.updateCrumb(
-        crumbId,
-        tokenURI,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        // No error handling needed, any reverts from function call should return the reason
-        return new CrumbsContractError(
-          "Unable to call updateCrumbId()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new CrumbsContractError(
-            "Wait for updateCrumbId() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+    return this.writeToContract(
+      "updateTokenURI",
+      [crumbId, tokenURI],
+      overrides,
+    );
   }
 
-  public getContract(): ethers.Contract {
-    return this.contract;
+  protected generateError(
+    msg: string,
+    reason: string | undefined,
+    e: unknown,
+  ): CrumbsContractError {
+    return new CrumbsContractError(msg, reason, e);
   }
 }

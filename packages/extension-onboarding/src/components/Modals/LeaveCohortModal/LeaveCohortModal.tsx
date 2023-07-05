@@ -77,10 +77,8 @@ const LeaveCohortModal: FC = () => {
           my={4}
         >
           <Typography>
-            We want to make sure you're aware that clicking the unsubscribe link
-            means you'll miss out on all the awesome updates.
-            <br />
-            Are you sure you want to unsubscribe?
+            Clicking “unsubscribe” means you'll miss out on awesome updates.{" "}
+            <br /> Are you sure you want to unsubscribe?
           </Typography>
         </Box>
         <Box display="flex" justifyContent="flex-end">

@@ -44,7 +44,7 @@ export class CheckAccount extends Prompt {
           .getSignatureForAccount(wallet)
           .andThen((signature) => {
             console.log(wallet.accountAddress, signature, wallet.chain);
-            return this.core.getDataWalletForAccount(
+            return this.core.account.getDataWalletForAccount(
               wallet.accountAddress,
               signature,
               this.mocks.languageCode,

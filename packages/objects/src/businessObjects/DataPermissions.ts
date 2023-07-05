@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 
-import { EWalletDataType } from "@objects/enum/EWalletDataType";
-import { HexString32 } from "@objects/primitives";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { HexString32 } from "@objects/primitives/index.js";
 
 /**
  * DataPermissions represent the rules to follow when processing queries for a particular
@@ -79,6 +79,9 @@ export class DataPermissions {
   }
   public get Discord(): boolean {
     return this.getFlag(EWalletDataType.Discord);
+  }
+  public get Twitter(): boolean {
+    return this.getFlag(EWalletDataType.Twitter);
   }
 
   public getFlag(flagNumber: number): boolean {

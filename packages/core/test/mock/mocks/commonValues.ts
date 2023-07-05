@@ -1,19 +1,28 @@
 import {
-  URLString,
-  ChainId,
   chainConfig,
+  ChainId,
+  ControlChainInformation,
   DataWalletAddress,
+  EChain,
+  ECurrencyCode,
+  EHashAlgorithm,
+  ESignatureAlgorithm,
+  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  LanguageCode,
+  ProviderUrl,
   SDQLQuery,
   SDQLString,
-  EVMAccountAddress,
-  ControlChainInformation,
-  ECurrencyCode,
+  TokenSecret,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
-import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  CoreConfig,
+  MetatransactionGasAmounts,
+} from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
   "ExternalAccountAddress1",
@@ -50,16 +59,31 @@ export const defaultInsightPlatformBaseUrl = URLString(
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
-const discordConfig = {
+const testDiscordConfig = {
   clientId: "1089994449830027344",
-  clientSecret: "uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ",
+  clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
   oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
-  oauthRedirectUrl: URLString("https://localhost:9005/data-dashboard/social-media-data"),
+  oauthRedirectUrl: URLString(
+    "https://localhost:9005/data-dashboard/social-media-data",
+  ),
   accessTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   refreshTokenUrl: URLString("https://discord.com/api/oauth2/authorize"),
   dataAPIUrl: URLString("https://discord.com/api"),
   iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
   pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
+};
+
+const testTwitterConfig = {
+  apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
+  apiSecretKey: TokenSecret(
+    "y4FOFgQnuRo7vvnRuKqFhBbM3sYWuSZyg5RqHlRIc3DZ4N7Hnx",
+  ),
+  signingAlgorithm: ESignatureAlgorithm.HMAC,
+  hashingAlgorithm: EHashAlgorithm.SHA1,
+  oAuthBaseUrl: URLString("https://api.twitter.com/oauth"),
+  oAuthCallbackUrl: URLString("oob"),
+  dataAPIUrl: URLString("https://api.twitter.com/2"),
+  pollInterval: 1 * 24 * 3600 * 1000,
 };
 
 export const testCoreConfig = new CoreConfig(
@@ -75,23 +99,68 @@ export const testCoreConfig = new CoreConfig(
   5000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
-  "covalent api key",
-  "moralis api key",
-  "nftScan api key",
-  "poap api key",
+  {
+    alchemyApiKeys: {
+      Arbitrum: "",
+      Astar: "",
+      Mumbai: "",
+      Optimism: "",
+      Polygon: "",
+      Solana: "",
+      SolanaTestnet: "",
+    },
+    etherscanApiKeys: {
+      Ethereum: "",
+      Polygon: "",
+      Avalanche: "",
+      Binance: "",
+      Moonbeam: "",
+      Optimism: "",
+      Arbitrum: "",
+      Gnosis: "",
+      Fuji: "",
+    },
+    covalentApiKey: "covalent api key",
+    moralisApiKey: "moralis api key",
+    nftScanApiKey: "nftScan api key",
+    poapApiKey: "poap api key",
+    oklinkApiKey: "oklink api key",
+    primaryInfuraKey: "",
+    ankrApiKey: "ankr api key",
+    secondaryInfuraKey: "",
+  },
   URLString("http://dnsServerAddress"),
-  URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
-  new Map(),
   100, // etherscan tx batch size
   5000,
-  { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
+  new Map<EChain, URLString>([
+    // alchemy endpoints
+    [EChain.Solana, URLString("")],
+    [EChain.SolanaTestnet, URLString("")],
+    [EChain.Polygon, URLString("")],
+    [EChain.Mumbai, URLString("")],
+    [EChain.Arbitrum, URLString("")],
+    [EChain.Optimism, URLString("")],
+    [EChain.Astar, URLString("")],
+  ]),
   10000,
-  "(localhost|chrome:\/\/)",
+  "(localhost|chrome://)",
   false,
   300000,
   1000,
-  discordConfig,
+  testDiscordConfig,
+  testTwitterConfig,
+  60000, // heartbeatIntervalMS
+  new MetatransactionGasAmounts(
+    10000000, // createCrumbGas
+    10000000, // removeCrumbGas,
+    10000000, // optInGas
+    10000000, // optOutGas
+    10000000, // updateAgreementFlagsGas
+  ), // metatransactionGasAmounts
+  ProviderUrl(""), // devChainProviderUrl
+  60, // maxStatsRetentionSeconds
+  LanguageCode("en-pw"), // passwordLanguageCode
 );
 
 // #endregion

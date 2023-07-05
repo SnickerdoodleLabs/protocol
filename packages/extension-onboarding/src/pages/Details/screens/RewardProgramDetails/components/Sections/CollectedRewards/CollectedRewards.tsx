@@ -3,9 +3,12 @@ import {
   LazyReward as LazyRewardComponent,
   Web2Reward as Web2RewardComponent,
 } from "@extension-onboarding/components/RewardItems";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { EBadgeType } from "@extension-onboarding/objects";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
+import { isSameReward } from "@extension-onboarding/utils";
 import { Box, Grid, Typography } from "@material-ui/core";
 import {
   DirectReward,
@@ -18,6 +21,7 @@ import {
   QueryTypePermissionMap,
   Web2Reward,
 } from "@snickerdoodlelabs/objects";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useState } from "react";
 
 interface ICollectedRewardsProps {
@@ -25,13 +29,16 @@ interface ICollectedRewardsProps {
   // temporary to read permissions
   possibleRewards: PossibleReward[];
   consentContractAddress: EVMContractAddress;
+  waitingRewards: PossibleReward[];
 }
 const CollectedRewards: FC<ICollectedRewardsProps> = ({
   rewards,
   possibleRewards,
   consentContractAddress,
+  waitingRewards,
 }) => {
   const sectionClasses = useSectionStyles();
+  const { apiGateway } = useAppContext();
   const getRewardComponent = (
     reward: EarnedReward,
     permissions: EWalletDataType[],
@@ -68,33 +75,51 @@ const CollectedRewards: FC<ICollectedRewardsProps> = ({
     <Section>
       <Box mb={4}>
         <Typography className={sectionClasses.sectionTitle}>
-          Collected Rewards
+          Earned Rewards
         </Typography>
 
         <Box mt={1}>
           <Typography className={sectionClasses.sectionDescription}>
-            You were eligible to claim these rewards because you are sharing
-            required permissions.
+            You've earned these rewards because you rented, required
+            permissions.
           </Typography>
         </Box>
       </Box>
-      <Grid spacing={2} container>
-        {rewards.map((reward) => {
+      <Box display="flex" flexWrap="wrap" gridColumnGap={10} gridRowGap={24}>
+        {rewards.map((reward, index) => {
           return (
-            <Grid xs={2} item key={reward.queryCID}>
+            <Box
+              flexBasis="calc(20% - 8px)"
+              key={`${JSON.stringify(reward)}--${index}`}
+            >
               {getRewardComponent(
                 reward,
                 // temporary to read required permissions
                 (possibleRewards
-                  .find((item) => item.queryCID === reward.queryCID)
+                  .find((item) => isSameReward(item, reward))
                   ?.queryDependencies.map(
                     (dependency) => QueryTypePermissionMap.get(dependency)!,
                   ) ?? []) as EWalletDataType[],
               )}
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+        {waitingRewards.map((reward, index) => {
+          return (
+            <Box
+              flexBasis="calc(20% - 8px)"
+              key={`${JSON.stringify(reward)}--${index}`}
+            >
+              <PossibleRewardComponent
+                ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
+                reward={reward}
+                consentContractAddress={consentContractAddress}
+                badgeType={EBadgeType.Waiting}
+              />
+            </Box>
+          );
+        })}
+      </Box>
     </Section>
   );
 };

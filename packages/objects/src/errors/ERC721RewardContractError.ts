@@ -1,5 +1,5 @@
-import errorCodes from "@objects/errors/errorCodes";
-import { ProviderRpcError } from "@objects/errors/ProviderRpcError";
+import errorCodes from "@objects/errors/errorCodes.js";
+import { ProviderRpcError } from "@objects/errors/ProviderRpcError.js";
 
 export class ERC721RewardContractError extends Error {
   protected errorCode: string = errorCodes[ERC721RewardContractError.name];

@@ -3,33 +3,40 @@ import { EventEmitter } from "events";
 import { ResultAsync } from "neverthrow";
 
 import {
+  DiscordGuildProfile,
+  DiscordProfile,
   EarnedReward,
+  TokenAndSecret,
   LinkedAccount,
+  MarketplaceListing,
+  PagedResponse,
+  PagingRequest,
+  PossibleReward,
+  SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
+  TwitterProfile,
   WalletNFT,
-  SiteVisit,
-  MarketplaceListing,
-  PossibleReward,
-  PagingRequest,
-  PagedResponse,
-  DiscordProfile,
-  DiscordGuildProfile,
-} from "@objects/businessObjects";
-import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
-import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
-import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
+} from "@objects/businessObjects/index.js";
+import {
+  EChain,
+  EInvitationStatus,
+  EWalletDataType,
+} from "@objects/enum/index.js";
+import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
 import {
   AccountAddress,
   Age,
-  BearerAuthToken,
+  OAuth1RequstToken,
   BigNumberString,
   ChainId,
   CountryCode,
   DataWalletAddress,
+  DiscordID,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
@@ -39,11 +46,12 @@ import {
   LanguageCode,
   MarketplaceTag,
   OAuthAuthorizationCode,
+  OAuthVerifier,
   Signature,
-  SnowflakeID,
+  TwitterID,
   UnixTimestamp,
   URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
@@ -110,7 +118,7 @@ export interface ISdlDataWallet extends EventEmitter {
   getApplyDefaultPermissionsOption(): ResultAsync<boolean, JsonRpcError>;
   setApplyDefaultPermissionsOption(
     option: boolean,
-  ): ResultAsync<boolean, JsonRpcError>;
+  ): ResultAsync<void, JsonRpcError>;
   getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
@@ -151,7 +159,7 @@ export interface ISdlDataWallet extends EventEmitter {
 
   getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
 
-  getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
 
   getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
@@ -182,7 +190,9 @@ export interface ISdlDataWallet extends EventEmitter {
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
+
   discord: ISdlDiscordMethods;
+  twitter: ISdlTwitterMethods;
 }
 
 export interface ISdlDiscordMethods {
@@ -209,5 +219,15 @@ export interface ISdlDiscordMethods {
    * discord guild data given their profile id
    * @param discordProfileId
    */
-  unlink(discordProfileId: SnowflakeID): ResultAsync<void, JsonRpcError>;
+  unlink(discordProfileId: DiscordID): ResultAsync<void, JsonRpcError>;
+}
+
+export interface ISdlTwitterMethods {
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, JsonRpcError>;
+  initTwitterProfile(
+    requestToken: OAuth1RequstToken,
+    oAuthVerifier: OAuthVerifier,
+  ): ResultAsync<TwitterProfile, JsonRpcError>;
+  unlinkProfile(id: TwitterID): ResultAsync<void, JsonRpcError>;
+  getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;
 }

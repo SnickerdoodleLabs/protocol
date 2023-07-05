@@ -1,3 +1,4 @@
+import { WrappedTransactionResponse } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   SiftContractError,
@@ -11,14 +12,14 @@ export interface ISiftContractRepository {
   verifyURL(
     domain: DomainName,
   ): ResultAsync<
-    void,
+    WrappedTransactionResponse,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
   maliciousURL(
     domain: DomainName,
   ): ResultAsync<
-    void,
+    WrappedTransactionResponse,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 

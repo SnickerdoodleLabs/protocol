@@ -1,9 +1,9 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/VersionedObject";
-import { ERewardType } from "@objects/enum/ERewardType";
-import { IpfsCID } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/index.js";
+import { ERewardType } from "@objects/enum/index.js";
+import { IpfsCID } from "@objects/primitives/index.js";
 
 export class EarnedReward extends VersionedObject {
   public static CURRENT_VERSION = 1;

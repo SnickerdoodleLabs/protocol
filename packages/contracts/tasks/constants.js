@@ -103,6 +103,12 @@ const consentBeacon = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
   } else {
     return "";
   }
@@ -126,7 +132,7 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77";
+    return "0x5540122e78241679Da8d07A04A74D3a7f52aED97";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -138,6 +144,12 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "binance") {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
     return "";
   } else {
     return "";
@@ -173,6 +185,12 @@ const crumbsContract = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
   } else {
     return "";
   }
@@ -207,6 +225,12 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "binance") {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
     return "";
   } else {
     return "";

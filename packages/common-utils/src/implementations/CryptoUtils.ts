@@ -5,26 +5,29 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import {
-  EVMAccountAddress,
-  Signature,
   AESEncryptedString,
   AESKey,
-  EncryptedString,
-  EVMPrivateKey,
-  InitializationVector,
-  SHA256Hash,
-  HexString,
-  TokenId,
   Base64String,
-  SolanaAccountAddress,
-  SolanaPrivateKey,
-  InvalidParametersError,
+  EncryptedString,
+  EVMAccountAddress,
   EVMContractAddress,
-  RSAKeyPair,
+  EVMPrivateKey,
+  HexString,
+  InitializationVector,
+  InvalidParametersError,
+  KeyGenerationError,
   PEMEncodedRSAPrivateKey,
   PEMEncodedRSAPublicKey,
-  KeyGenerationError,
+  RSAKeyPair,
+  SHA256Hash,
+  Signature,
+  SolanaAccountAddress,
+  SolanaPrivateKey,
+  TokenAndSecret,
+  TokenId,
+  URLString,
   UUID,
+  OAuth1Config,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
@@ -32,6 +35,7 @@ import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import OAuth from "oauth-1.0a";
 import nacl from "tweetnacl";
 import { v4 } from "uuid";
 
@@ -107,6 +111,22 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(AESKey(keyBuffer.toString("base64")));
   }
 
+  public deriveAESKeyFromString(
+    source: string,
+    salt: HexString,
+  ): ResultAsync<AESKey, never> {
+    const saltBuffer = this.hexStringToBuffer(salt);
+    const keyBuffer = Crypto.pbkdf2Sync(
+      source,
+      saltBuffer,
+      100000,
+      32,
+      "sha256",
+    );
+
+    return okAsync(AESKey(keyBuffer.toString("base64")));
+  }
+
   public deriveEVMPrivateKeyFromSignature(
     signature: Signature,
     salt: HexString,
@@ -116,6 +136,22 @@ export class CryptoUtils implements ICryptoUtils {
     const saltBuffer = this.hexStringToBuffer(salt);
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
+      saltBuffer,
+      100000,
+      32,
+      "sha256",
+    );
+
+    return okAsync(EVMPrivateKey(keyBuffer.toString("hex")));
+  }
+
+  public deriveEVMPrivateKeyFromString(
+    source: string,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never> {
+    const saltBuffer = this.hexStringToBuffer(salt);
+    const keyBuffer = Crypto.pbkdf2Sync(
+      source,
       saltBuffer,
       100000,
       32,
@@ -441,6 +477,46 @@ export class CryptoUtils implements ICryptoUtils {
       out[i] = this.randomInt(randFunc, 0, 256);
     }
     return out;
+  }
+
+  public packOAuth1Credentials(
+    config: OAuth1Config,
+    url: URLString,
+    method: string,
+    pathAndBodyParams?: object,
+    accessTokenAndSecret?: TokenAndSecret,
+  ): string {
+    const oAuth = new OAuth({
+      consumer: {
+        key: config.apiKey,
+        secret: config.apiSecretKey,
+      },
+      signature_method:
+        config.signingAlgorithm.toUpperCase() +
+        "-" +
+        config.hashingAlgorithm.toUpperCase(),
+      hash_function: (baseString, secretKey) =>
+        Base64String(
+          Crypto.createHmac(config.hashingAlgorithm.toLowerCase(), secretKey)
+            .update(baseString)
+            .digest("base64"),
+        ),
+    });
+    return oAuth.toHeader(
+      oAuth.authorize(
+        {
+          url: url,
+          method: method,
+          ...(pathAndBodyParams ? { data: pathAndBodyParams } : {}),
+        } as OAuth.RequestOptions,
+        accessTokenAndSecret
+          ? {
+              key: accessTokenAndSecret.token,
+              secret: accessTokenAndSecret.secret,
+            }
+          : undefined,
+      ),
+    ).Authorization;
   }
 
   protected hexStringToBuffer(

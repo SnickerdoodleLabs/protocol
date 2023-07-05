@@ -4,21 +4,18 @@ import path from "path";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  AESEncryptedString,
   BigNumberString,
   ChainId,
   DirectReward,
   EarnedReward,
   EChain,
   ECredentialType,
-  EncryptedString,
   ERewardType,
   EVMAccountAddress,
   EVMPrivateKey,
   EVMTransaction,
   IConfigOverrides,
   DataWalletBackup,
-  InitializationVector,
   IpfsCID,
   LazyReward,
   MetatransactionSignatureRequest,
@@ -27,7 +24,6 @@ import {
   SDQLQueryRequest,
   Signature,
   SiteVisit,
-  TransactionReceipt,
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
@@ -41,18 +37,18 @@ import {
   PersistenceError,
   UninitializedError,
   EVMContractAddress,
-  EBackupPriority,
-  AESKey,
+  TokenSecret,
+  UnauthorizedError,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
-// import fs from "fs";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 
-import { Environment, TestHarnessMocks } from "@test-harness/mocks";
-import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
+import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
+import { ApproveQuery } from "@test-harness/prompts/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
 @injectable()
@@ -159,7 +155,7 @@ export class DataWalletProfile {
   > {
     return this.getSignatureForAccount(wallet)
       .andThen((signature) => {
-        return this.core.unlock(
+        return this.core.account.unlock(
           wallet.accountAddress,
           signature,
           this.mocks.languageCode,
@@ -175,6 +171,29 @@ export class DataWalletProfile {
       });
   }
 
+  public unlockWithPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
+    | Error
+  > {
+    return this.core.account.unlockWithPassword(password).andThen(() => {
+      this._unlocked = true;
+      console.log(`Unlocked account with password ${password}!`);
+      return this.loadFromPathAfterUnlocked().map(() => {
+        console.log(`Loaded complete profile for password`);
+      });
+    });
+  }
+
   protected destroyCore(): void {
     this.coreSubscriptions.map((subscription) => subscription.unsubscribe());
     this.coreSubscriptions = new Array<Subscription>();
@@ -183,7 +202,7 @@ export class DataWalletProfile {
   protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
     const discordConfig = {
       clientId: "1093307083102887996",
-      clientSecret: "w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK",
+      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString(
         "https://localhost:9005/data-dashboard/social-media-data",
@@ -200,6 +219,7 @@ export class DataWalletProfile {
         defaultInsightPlatformBaseUrl: "http://localhost:3006",
         dnsServerAddress: "http://localhost:3006/dns",
         discordOverrides: discordConfig,
+        heartbeatIntervalMS: 5000, // Set the heartbeat to 5 seconds
       } as IConfigOverrides,
       undefined,
       mocks.fakeDBVolatileStorage,
@@ -490,8 +510,8 @@ export class DataWalletProfile {
 
   public getSignatureForAccount(
     wallet: TestWallet,
-  ): ResultAsync<Signature, UnsupportedLanguageError> {
-    return this.core
+  ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
+    return this.core.account
       .getUnlockMessage(this.mocks.languageCode)
       .andThen((message) => {
         return wallet.signMessage(message);

@@ -392,3 +392,109 @@ This query determines if a US-based user has received an ERC-721 token on the Et
   }
 }
 ```
+
+## Query that asks for users' Discord server memberships
+
+```
+{
+  "version": 0.1,
+  "timestamp": "2021-11-13T20:20:39",
+  "expiry": "2034-11-13T20:20:39",
+  "description": "",
+  "business": "Free Democratic Party",
+  "queries": {
+    "q1": {
+        "name": "social_discord",
+        "return": "array",
+        "array_items": {
+            "type": "object",
+            "object_schema": {
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "joined_at": {
+                        "type": "string",
+                        "pattern": "^[0-9]{2}-[0-9]{2}-[0-9]{4}$"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "icon",
+                    "joined_at",
+                ]
+            }
+        }
+    },
+  },
+  "returns": {
+    "r1": {
+        "name": "query_response",
+        "query": "q1"
+    },
+    "url": "fanatik.com.tr"
+  },
+  "logic": {
+    "returns": ["$r1"]
+  }
+}
+```
+
+## Query that asks for users' Twitter data
+
+```
+{
+  "version": 0.1,
+  "timestamp": "2021-11-13T20:20:39",
+  "expiry": "2034-11-13T20:20:39",
+  "description": "",
+  "business": "Chapman Donuts",
+  "queries": {
+    "q1": {
+      "name": "social_twitter",
+      "return": "array",
+      "array_items": {
+        "type": "object",
+        "object_schema": {
+          "properties": {
+            "following": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": "string",
+                  "username": "string",
+                  "name": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "following"
+          ]
+        }
+      }
+    }
+  },
+  "returns": {
+    "r1": {
+      "name": "query_response",
+      "query": "q1"
+    },
+    "url": "fanatik.com.tr"
+  },
+  "logic": {
+    "returns": [
+      "$r1"
+    ]
+  }
+}
+
+```

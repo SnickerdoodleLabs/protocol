@@ -30,7 +30,6 @@ class DiscordRepositoryMock {
   public ajaxUtil: AjaxUtilsMock;
   public configProvider: IConfigProvider;
   public persistence: IDataWalletPersistence;
-  protected repository: IDiscordRepository;
   protected socialRepository: ISocialRepository;
   public socialDataMocks: SocialDataMock;
   public timeUtils = new TimeUtils();
@@ -41,13 +40,6 @@ class DiscordRepositoryMock {
     this.configProvider = new ConfigProviderMock();
     this.persistence = td.object<IDataWalletPersistence>();
     this.socialRepository = td.object<ISocialRepository>();
-    this.repository = new DiscordRepository(
-      this.ajaxUtil,
-      this.configProvider,
-      this.persistence,
-      this.socialRepository,
-      this.timeUtils,
-    );
 
     // --- ajaxUtil td --------------------------------
     this.ajaxUtil.addGetReturn("@me", discordProfileAPIResponse);
@@ -59,7 +51,7 @@ class DiscordRepositoryMock {
     ).thenReturn(okAsync(undefined));
 
     td.when(this.socialRepository.getProfiles(ESocialType.DISCORD)).thenReturn(
-      this.socialDataMocks.getDiscordProfiles(),
+      okAsync(this.socialDataMocks.getDiscordProfiles()),
     );
 
     td.when(
@@ -68,7 +60,7 @@ class DiscordRepositoryMock {
 
     td.when(
       this.socialRepository.getGroupProfiles(ESocialType.DISCORD),
-    ).thenReturn(this.socialDataMocks.getDiscordGuildProfiles(null));
+    ).thenReturn(okAsync(this.socialDataMocks.getDiscordGuildProfiles()));
 
     td.when(
       this.socialRepository.getProfileByPK<DiscordProfile>(
@@ -81,7 +73,9 @@ class DiscordRepositoryMock {
         td.matchers.anything(),
       ),
     ).thenReturn(
-      this.socialDataMocks.getDiscordGuildProfiles(discordProfiles[0].id),
+      okAsync(
+        this.socialDataMocks.getDiscordGuildProfiles(discordProfiles[0].id),
+      ),
     );
 
     td.when(
@@ -94,7 +88,12 @@ class DiscordRepositoryMock {
   }
 
   public factory(): IDiscordRepository {
-    return this.repository;
+    return new DiscordRepository(
+      this.ajaxUtil,
+      this.configProvider,
+      this.socialRepository,
+      this.timeUtils,
+    );
   }
 }
 
@@ -103,9 +102,7 @@ describe("DiscordRepository discord API fetch tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const discordProfiles = (
-      await mocks.socialDataMocks.getDiscordProfiles()
-    )._unsafeUnwrap();
+    const discordProfiles = mocks.socialDataMocks.getDiscordProfiles();
     const expectedProfile = discordProfiles[0];
 
     // Act
@@ -124,9 +121,8 @@ describe("DiscordRepository discord API fetch tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const expectedProfiles = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles(null)
-    )._unsafeUnwrap();
+    const expectedProfiles =
+      mocks.socialDataMocks.getDiscordGuildProfiles();
 
     // Act
     const result = await repository.fetchGuildProfiles(
@@ -136,8 +132,7 @@ describe("DiscordRepository discord API fetch tests", () => {
     // Assert
     expect(result).toBeDefined();
     expect(result.isOk()).toBeTruthy();
-    const guildProfiles = result._unsafeUnwrap();
-    expect(guildProfiles).toEqual(expectedProfiles);
+    expect(result._unsafeUnwrap()).toEqual(expectedProfiles);
   });
 });
 
@@ -146,23 +141,20 @@ describe("DiscordRepository persistence tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const discordProfiles = (
-      await mocks.socialDataMocks.getDiscordProfiles()
-    )._unsafeUnwrap();
+    const discordProfiles = mocks.socialDataMocks.getDiscordProfiles();
 
     // Action
     const result = await repository.upsertUserProfile(discordProfiles[0]);
 
     // Assert
+    expect(result).toBeDefined();
     expect(result.isOk()).toBeTruthy();
   });
 
   test("get saved user profiles", async () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const discordProfiles = (
-      await mocks.socialDataMocks.getDiscordProfiles()
-    )._unsafeUnwrap();
+    const discordProfiles = mocks.socialDataMocks.getDiscordProfiles();
 
     // Act
     const result = await repository.getUserProfiles();
@@ -177,9 +169,7 @@ describe("DiscordRepository persistence tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const guildProfiles = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles(null)
-    )._unsafeUnwrap();
+    const guildProfiles = mocks.socialDataMocks.getDiscordGuildProfiles();
 
     // Action
     const result = await repository.upsertGuildProfiles(guildProfiles);
@@ -191,9 +181,7 @@ describe("DiscordRepository persistence tests", () => {
   test("get saved guild profiles", async () => {
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const expectedData = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles(null)
-    )._unsafeUnwrap();
+    const expectedData = mocks.socialDataMocks.getDiscordGuildProfiles();
 
     // Act
     const result = await repository.getGuildProfiles();
@@ -208,13 +196,11 @@ describe("DiscordRepository persistence tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const discordProfiles = (
-      await mocks.socialDataMocks.getDiscordProfiles()
-    )._unsafeUnwrap();
+    const discordProfiles = mocks.socialDataMocks.getDiscordProfiles();
     const uProfile = discordProfiles[0];
-    const guildProfiles = (
-      await mocks.socialDataMocks.getDiscordGuildProfiles(uProfile.id)
-    )._unsafeUnwrap();
+    const guildProfiles = mocks.socialDataMocks.getDiscordGuildProfiles(
+      uProfile.id,
+    );
 
     // Action
     const resultU = await repository.upsertUserProfile(uProfile);

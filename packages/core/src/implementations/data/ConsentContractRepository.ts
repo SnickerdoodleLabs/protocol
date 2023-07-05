@@ -1,16 +1,3 @@
-import { IConsentContractRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
-import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -32,22 +19,38 @@ import {
   IConsentCapacity,
   UninitializedError,
   URLString,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IConsentContractRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
+
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
   public constructor(
-    @inject(IBlockchainProviderType)
-    protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IContractFactoryType)
     protected consentContractFactory: IContractFactory,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  protected queryHorizonCache = new Map<
+    EVMContractAddress,
+    BlockNumber | null
+  >();
 
   public getInvitationUrls(
     consentContractAddress: EVMContractAddress,
@@ -279,6 +282,21 @@ export class ConsentContractRepository implements IConsentContractRepository {
     });
   }
 
+  public encodeUpdateAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeUpdateAgreementFlags(
+        tokenId,
+        dataPermissions != null
+          ? dataPermissions.getFlags()
+          : DataPermissions.allPermissionsHexString,
+      );
+    });
+  }
+
   public getDeployedConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
@@ -291,12 +309,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public isOpenOptInDisabled(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     boolean,
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.openOptInDisabled();
       },
@@ -304,12 +322,12 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getSignerRoleMembers(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
     BlockchainProviderError | UninitializedError | ConsentContractError
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.getSignerRoleMembers();
       },
@@ -317,17 +335,44 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getTokenURI(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
     ConsentContractError | UninitializedError | BlockchainProviderError
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.tokenURI(tokenId);
       },
     );
+  }
+
+  public getQueryHorizon(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    BlockNumber,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    // Check if the query horizon is in the cache
+    const cachedQueryHorizon = this.queryHorizonCache.get(
+      consentContractAddress,
+    );
+
+    if (cachedQueryHorizon != null) {
+      return okAsync(cachedQueryHorizon);
+    }
+
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.getQueryHorizon();
+      })
+      .map((queryHorizon) => {
+        // Set the cache entry
+        this.queryHorizonCache.set(consentContractAddress, queryHorizon);
+
+        return queryHorizon;
+      });
   }
 
   protected getConsentContract(

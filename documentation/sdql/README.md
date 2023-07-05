@@ -36,6 +36,8 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `location`: access to location data of the DW user in ISO 3166-2 format
 - `browsing_history`: access to the browsing history of the DW user
 - `gender`: access to the gender of the DW user
+- `social_discord`: access to information related to discord servers of the DW user
+- `social_discord`: access to information related to twitter accounts of the DW user
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
 - `url_visited_count`: access to the browsing history of the DW user
@@ -76,6 +78,12 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `100`: Gnosis
 - `56`: Binance Mainnet
 - `1284`: Moonbeam Mainnet
+- `10`: Optimism Mainnet
+- `42161`: Arbitrum Mainnet
+- `592`: Astar Mainnet
+- `81`: Astar Testnet (Shibuya)
+
+
 - `*`: all supported networks
 
 #### chain (required for blockchain transaction queries)

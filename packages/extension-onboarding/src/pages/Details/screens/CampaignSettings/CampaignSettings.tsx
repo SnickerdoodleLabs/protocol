@@ -131,8 +131,7 @@ const RewardsInfo: FC = () => {
                   src={emptySubscriptions}
                 />
                 <Typography className={classes.emptyText}>
-                  You don’t have any rewards
-                  <br /> program subscriptions yet.
+                  You don’t have any rewards program subscriptions yet.
                 </Typography>
                 <Box
                   mt={0.5}
@@ -148,7 +147,7 @@ const RewardsInfo: FC = () => {
                   style={{ cursor: "pointer" }}
                 >
                   <Typography className={classes.btnText}>
-                    Rewards Marketlace
+                    Rewards Marketplace
                   </Typography>
                 </Box>
               </Box>

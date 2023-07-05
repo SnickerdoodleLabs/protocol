@@ -7,8 +7,10 @@ import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccoun
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
   FAQ_URL,
+  HOTJAR_DISCLAIMER_URL,
   PRIVACY_POLICY_URL,
   SURVEY_URL,
+  TERMS_OF_SERVICE_URL,
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
@@ -64,7 +66,7 @@ export const routes: IRoute[] = [
       { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
       { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
       { title: "Rewards Subscriptions", path: EPaths.REWARDS_SUBSCRIPTIONS },
-      { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
+      // { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
   },
@@ -137,6 +139,10 @@ const Sidebar = () => {
                   onClick={() => {
                     if (route.path) {
                       navigate(route.path);
+                    } else {
+                      if (route.subroutes) {
+                        navigate(route.subroutes[0].path);
+                      }
                     }
                     setLastClickedIndex(index);
                   }}
@@ -239,6 +245,16 @@ const Sidebar = () => {
             }}
           >
             Privacy Policy
+          </Typography>
+        </Box>
+        <Box pb={1.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(HOTJAR_DISCLAIMER_URL, "_blank");
+            }}
+          >
+            Hotjar Disclaimer
           </Typography>
         </Box>
       </Box>

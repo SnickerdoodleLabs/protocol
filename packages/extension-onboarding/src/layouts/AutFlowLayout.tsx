@@ -10,7 +10,7 @@ const AutFlowLayout = () => {
   // TODO remove below code when extension navigations fixed
   const SCREENS_OBJ = {
     portfolio: EPaths.HOME,
-    rewards: EPaths.MY_REWARDS,
+    rewards: EPaths.MARKETPLACE,
     settings: EPaths.WEB3_SETTINGS,
   };
   const { search, pathname, state } = useLocation();

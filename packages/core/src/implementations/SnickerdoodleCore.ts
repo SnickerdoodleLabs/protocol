@@ -3,34 +3,143 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
+import {
+  AccountAddress,
+  AccountIndexingError,
+  AdKey,
+  AdSignature,
+  AdSurfaceId,
+  Age,
+  AjaxError,
+  BackupFileName,
+  BlockchainProviderError,
+  ChainId,
+  ChainTransaction,
+  ConsentContractError,
+  ConsentError,
+  CountryCode,
+  CrumbsContractError,
+  DataPermissions,
+  DataWalletAddress,
+  DataWalletBackup,
+  DataWalletBackupID,
+  DiscordID,
+  DomainName,
+  EarnedReward,
+  EChain,
+  EDataWalletPermission,
+  EligibleAd,
+  EmailAddressString,
+  EScamFilterStatus,
+  EvaluationError,
+  EVMContractAddress,
+  FamilyName,
+  Gender,
+  GivenName,
+  IAdMethods,
+  IConfigOverrides,
+  IConsentCapacity,
+  ICoreDiscordMethods,
+  ICoreIntegrationMethods,
+  ICoreMarketplaceMethods,
+  ICoreTwitterMethods,
+  IDynamicRewardParameter,
+  IInvitationMethods,
+  IMasterIndexerType,
+  IMetricsMethods,
+  InvalidParametersError,
+  InvalidSignatureError,
+  Invitation,
+  IpfsCID,
+  IPFSError,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreEvents,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+  LanguageCode,
+  LinkedAccount,
+  MarketplaceListing,
+  MarketplaceTag,
+  MinimalForwarderContractError,
+  OAuth1RequstToken,
+  OAuthAuthorizationCode,
+  OAuthVerifier,
+  PagingRequest,
+  PersistenceError,
+  QueryFormatError,
+  SDQLQuery,
+  SHA256Hash,
+  SiftContractError,
+  Signature,
+  SiteVisit,
+  TokenAddress,
+  TokenBalance,
+  TokenInfo,
+  TokenMarketData,
+  TransactionFilter,
+  TransactionPaymentCounter,
+  TwitterID,
+  UnauthorizedError,
+  UninitializedError,
+  UnixTimestamp,
+  UnsupportedLanguageError,
+  URLString,
+  WalletNFT,
+  IMasterIndexer,
+  IAccountMethods,
+  PasswordString,
+} from "@snickerdoodlelabs/objects";
+import {
+  GoogleCloudStorage,
+  ICloudStorage,
+  ICloudStorageType,
+  IndexedDBVolatileStorage,
+  IVolatileStorage,
+  IVolatileStorageType,
+} from "@snickerdoodlelabs/persistence";
+import {
+  IStorageUtils,
+  IStorageUtilsType,
+  LocalStorageUtils,
+} from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-  IDiscordPoller,
-  IDiscordPollerType,
+  ISocialMediaPoller,
+  ISocialMediaPollerType,
+  IHeartbeatGenerator,
+  IHeartbeatGeneratorType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  IDiscordService,
+  IDiscordServiceType,
   IIntegrationService,
   IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
   ISiftContractService,
   ISiftContractServiceType,
-  IDiscordService,
-  IDiscordServiceType,
+  ITwitterService,
+  ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IAdDataRepository,
@@ -46,121 +155,18 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import {
-  DefaultAccountIndexers,
-  DefaultAccountBalances,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
-import {
-  AccountAddress,
-  AccountIndexingError,
-  AdKey,
-  AdSignature,
-  AdSurfaceId,
-  Age,
-  AjaxError,
-  BackupFileName,
-  BlockchainProviderError,
-  ChainId,
-  ChainTransaction,
-  ConsentContractError,
-  ConsentContractRepositoryError,
-  ConsentError,
-  ConsentFactoryContractError,
-  CountryCode,
-  CrumbsContractError,
-  DataPermissions,
-  DataWalletAddress,
-  DataWalletBackup,
-  DataWalletBackupID,
-  DomainName,
-  EarnedReward,
-  EChain,
-  EDataWalletPermission,
-  EInvitationStatus,
-  EligibleAd,
-  EmailAddressString,
-  EScamFilterStatus,
-  EvaluationError,
-  EVMContractAddress,
-  FamilyName,
-  Gender,
-  GivenName,
-  HexString32,
-  IAccountBalancesType,
-  IAccountIndexingType,
-  IAccountNFTsType,
-  IAdMethods,
-  IConfigOverrides,
-  ICoreDiscordMethods,
-  ICoreIntegrationMethods,
-  ICoreMarketplaceMethods,
-  IDynamicRewardParameter,
-  InvalidParametersError,
-  InvalidSignatureError,
-  Invitation,
-  IOpenSeaMetadata,
-  IpfsCID,
-  IPFSError,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreEvents,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-  LanguageCode,
-  LinkedAccount,
-  MinimalForwarderContractError,
-  OAuthAuthorizationCode,
-  PageInvitation,
-  PersistenceError,
-  QueryFormatError,
-  SDQLQuery,
-  SHA256Hash,
-  SiftContractError,
-  Signature,
-  SiteVisit,
-  SnowflakeID,
-  TokenAddress,
-  TokenBalance,
-  TokenInfo,
-  TokenMarketData,
-  TransactionFilter,
-  TransactionPaymentCounter,
-  UnauthorizedError,
-  PossibleReward,
-  PagingRequest,
-  MarketplaceTag,
-  MarketplaceListing,
-  UninitializedError,
-  UnixTimestamp,
-  UnsupportedLanguageError,
-  URLString,
-  WalletNFT,
-  IConsentCapacity,
-} from "@snickerdoodlelabs/objects";
-import {
-  IVolatileStorage,
-  ICloudStorage,
-  ICloudStorageType,
-  GoogleCloudStorage,
-  IVolatileStorageType,
-  IndexedDBVolatileStorage,
-} from "@snickerdoodlelabs/persistence";
-import {
-  IStorageUtils,
-  IStorageUtilsType,
-  LocalStorageUtils,
-} from "@snickerdoodlelabs/utils";
-import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
+  public account: IAccountMethods;
+  public invitation: IInvitationMethods;
   public marketplace: ICoreMarketplaceMethods;
   public integration: ICoreIntegrationMethods;
   public discord: ICoreDiscordMethods;
+  public twitter: ICoreTwitterMethods;
   public ads: IAdMethods;
+  public metrics: IMetricsMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -205,21 +211,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    this.iocContainer
-      .bind(IAccountIndexingType)
-      .to(DefaultAccountIndexers)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountBalancesType)
-      .to(DefaultAccountBalances)
-      .inSingletonScope();
-
-    this.iocContainer
-      .bind(IAccountNFTsType)
-      .to(DefaultAccountNFTs)
-      .inSingletonScope();
-
     // Setup the config
     if (configOverrides != null) {
       const configProvider =
@@ -227,6 +218,361 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+
+    // Account Methods -------------------------------------------------------------------------------
+    this.account = {
+      getUnlockMessage: (
+        languageCode: LanguageCode,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.getUnlockMessage(languageCode);
+      },
+
+      /**
+       * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
+       * The core doesn't do any query processing until it has been unlocked.
+       * @param accountAddress
+       * @param signature
+       * @param languageCode
+       * @returns
+       */
+      unlock: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        // Get all of our indexers and initialize them
+        // TODO
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountIndexerPoller =
+          this.iocContainer.get<IAccountIndexerPoller>(
+            IAccountIndexerPollerType,
+          );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        const queryService =
+          this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+          IBlockchainListenerType,
+        );
+
+        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+          ISocialMediaPollerType,
+        );
+
+        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+          IHeartbeatGeneratorType,
+        );
+
+        const indexers =
+          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+        ])
+          .andThen(() => {
+            return accountService.unlock(
+              accountAddress,
+              signature,
+              languageCode,
+              chain,
+            );
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
+      },
+
+      addAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addAccount(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
+      },
+
+      unlinkAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.unlinkAccount(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
+      },
+
+      getDataWalletForAccount: (
+        accountAddress: AccountAddress,
+        signature: Signature,
+        languageCode: LanguageCode,
+        chain: EChain,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return blockchainProvider.initialize().andThen(() => {
+          return accountService.getDataWalletForAccount(
+            accountAddress,
+            signature,
+            languageCode,
+            chain,
+          );
+        });
+      },
+      unlockWithPassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        // Get all of our indexers and initialize them
+        // TODO
+        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+          IBlockchainProviderType,
+        );
+
+        const accountIndexerPoller =
+          this.iocContainer.get<IAccountIndexerPoller>(
+            IAccountIndexerPollerType,
+          );
+
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        const queryService =
+          this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+          IBlockchainListenerType,
+        );
+
+        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
+          ISocialMediaPollerType,
+        );
+
+        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
+          IHeartbeatGeneratorType,
+        );
+
+        const indexers =
+          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
+
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+        ])
+          .andThen(() => {
+            return accountService.unlockWithPassword(password);
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
+      },
+
+      addPassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.addPassword(password);
+      },
+
+      removePassword: (
+        password: PasswordString,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const accountService =
+          this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+        return accountService.removePassword(password);
+      },
+    };
+
+    // Invitation Methods ----------------------------------------------------------------------------
+    this.invitation = {
+      checkInvitationStatus: (
+        invitation: Invitation,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.checkInvitationStatus(invitation);
+      },
+      acceptInvitation: (
+        invitation: Invitation,
+        dataPermissions: DataPermissions | null,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.acceptInvitation(invitation, dataPermissions);
+      },
+      rejectInvitation: (
+        invitation: Invitation,
+        rejectUntil: UnixTimestamp | undefined = undefined,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.rejectInvitation(invitation, rejectUntil);
+      },
+      leaveCohort: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.leaveCohort(consentContractAddress);
+      },
+      getAcceptedInvitations: (
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAcceptedInvitations();
+      },
+      getInvitationsByDomain: (
+        domain: DomainName,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getInvitationsByDomain(domain);
+      },
+      getAgreementFlags: (
+        consentContractAddress: EVMContractAddress,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAgreementFlags(consentContractAddress);
+      },
+      getAvailableInvitationsCID: (
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAvailableInvitationsCID();
+      },
+      getAcceptedInvitationsCID: (
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getAcceptedInvitationsCID();
+      },
+      getInvitationMetadataByCID: (ipfsCID: IpfsCID) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.getInvitationMetadataByCID(ipfsCID);
+      },
+      updateDataPermissions: (
+        consentContractAddress: EVMContractAddress,
+        dataPermissions: DataPermissions,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const invitationService = this.iocContainer.get<IInvitationService>(
+          IInvitationServiceType,
+        );
+
+        return invitationService.updateDataPermissions(
+          consentContractAddress,
+          dataPermissions,
+        );
+      },
+    };
 
     // Integration Methods ---------------------------------------------------------------------------
     this.integration = {
@@ -321,6 +667,42 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
     };
 
+    // Metrics Methods ---------------------------------------------------------------
+    this.metrics = {
+      getMetrics: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getMetrics();
+      },
+    };
+
+    // Social Media Methods ----------------------------------------------------------
+    this.twitter = {
+      getOAuth1aRequestToken: () => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .getOAuth1aRequestToken();
+      },
+      initTwitterProfile: (
+        requestToken: OAuth1RequstToken,
+        oAuthVerifier: OAuthVerifier,
+      ) => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .initTwitterProfile(requestToken, oAuthVerifier);
+      },
+      unlinkProfile: (id: TwitterID) => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .unlinkProfile(id);
+      },
+      getUserProfiles: () => {
+        return this.iocContainer
+          .get<ITwitterService>(ITwitterServiceType)
+          .getUserProfiles();
+      },
+    };
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         const discordService =
@@ -345,7 +727,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.getGuildProfiles();
       },
-      unlink: (discordProfileId: SnowflakeID) => {
+      unlink: (discordProfileId: DiscordID) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
         return discordService.unlink(discordProfileId);
@@ -404,341 +786,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     });
   }
 
-  public getUnlockMessage(
-    languageCode: LanguageCode,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<string, UnsupportedLanguageError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.getUnlockMessage(languageCode);
-  }
-
-  /**
-   * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
-   * The core doesn't do any query processing until it has been unlocked.
-   * @param accountAddress
-   * @param signature
-   * @param languageCode
-   * @returns
-   */
-  public unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-  > {
-    // Get all of our indexers and initialize them
-    // TODO
-    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-      IBlockchainProviderType,
-    );
-
-    const accountIndexerPoller = this.iocContainer.get<IAccountIndexerPoller>(
-      IAccountIndexerPollerType,
-    );
-
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-      IBlockchainListenerType,
-    );
-
-    const discordPoller =
-      this.iocContainer.get<IDiscordPoller>(IDiscordPollerType);
-
-    // BlockchainProvider needs to be ready to go in order to do the unlock
-    return ResultUtils.combine([blockchainProvider.initialize()])
-      .andThen(() => {
-        return accountService.unlock(
-          accountAddress,
-          signature,
-          languageCode,
-          chain,
-        );
-      })
-      .andThen(() => {
-        return ResultUtils.combine([
-          accountIndexerPoller.initialize(),
-          blockchainListener.initialize(),
-          discordPoller.initialize(),
-        ]);
-      })
-      .map(() => {});
-  }
-
-  public addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
-  > {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.addAccount(
-      accountAddress,
-      signature,
-      languageCode,
-      chain,
-    );
-  }
-
-  public unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
-    | UninitializedError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-  > {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.unlinkAccount(
-      accountAddress,
-      signature,
-      languageCode,
-      chain,
-    );
-  }
-
-  public getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    DataWalletAddress | null,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-  > {
-    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-      IBlockchainProviderType,
-    );
-
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    // BlockchainProvider needs to be ready to go in order to do the unlock
-    return blockchainProvider.initialize().andThen(() => {
-      return accountService.getDataWalletForAccount(
-        accountAddress,
-        signature,
-        languageCode,
-        chain,
-      );
-    });
-  }
-
-  public checkInvitationStatus(
-    invitation: Invitation,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    EInvitationStatus,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.checkInvitationStatus(invitation);
-  }
-
-  public acceptInvitation(
-    invitation: Invitation,
-    dataPermissions: DataPermissions | null,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | ConsentError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.acceptInvitation(invitation, dataPermissions);
-  }
-
-  public rejectInvitation(
-    invitation: Invitation,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.rejectInvitation(invitation);
-  }
-
-  public leaveCohort(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | AjaxError
-    | PersistenceError
-    | MinimalForwarderContractError
-    | ConsentError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.leaveCohort(consentContractAddress);
-  }
-
-  public getAcceptedInvitations(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<Invitation[], PersistenceError> {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAcceptedInvitations();
-  }
-
-  public getInvitationsByDomain(
-    domain: DomainName,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    PageInvitation[],
-    | ConsentContractError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | IPFSError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getInvitationsByDomain(domain);
-  }
-
-  public getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    HexString32,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | ConsentError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAgreementFlags(consentContractAddress);
-  }
-
-  public getAvailableInvitationsCID(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | PersistenceError
-    | ConsentContractError
-    | ConsentFactoryContractError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAvailableInvitationsCID();
-  }
-
-  public getAcceptedInvitationsCID(
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<
-    Map<EVMContractAddress, IpfsCID>,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-  > {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getAcceptedInvitationsCID();
-  }
-  public getInvitationMetadataByCID(
-    ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
-    const invitationService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return invitationService.getInvitationMetadataByCID(ipfsCID);
-  }
-
-  public processQuery(
+  public approveQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     parameters: IDynamicRewardParameter[],
@@ -755,7 +803,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, query, parameters);
+    return queryService.approveQuery(consentContractAddress, query, parameters);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

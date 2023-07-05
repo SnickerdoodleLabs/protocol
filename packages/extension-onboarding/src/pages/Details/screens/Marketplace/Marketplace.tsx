@@ -1,3 +1,4 @@
+import emptyTag from "@extension-onboarding/assets/images/empty-tag.png";
 import marketplaceImage from "@extension-onboarding/assets/images/marketplace.svg";
 import { LOCAL_STORAGE_REWARDS_MARKETPLACE_INTRODUCTION } from "@extension-onboarding/constants";
 import { tags } from "@extension-onboarding/constants/tags";
@@ -96,8 +97,20 @@ const Marketplace = () => {
         recommended: [] as MarketplaceListing[],
       },
     );
+
     return {
-      ...listingObj,
+      featured: listingObj.featured.sort(
+        (current, next) =>
+          Number(next.stakeAmount) - Number(current.stakeAmount),
+      ),
+      popular: listingObj.popular.sort(
+        (current, next) =>
+          Number(next.stakeAmount) - Number(current.stakeAmount),
+      ),
+      recommended: listingObj.recommended.sort(
+        (current, next) =>
+          Number(next.stakeAmount) - Number(current.stakeAmount),
+      ),
       isLoading: false,
       isEmpty: !(Object.values(listingObj).flat().length > 0),
     };
@@ -136,7 +149,7 @@ const Marketplace = () => {
           justifyContent="space-between"
         >
           <Typography className={classes.categoryTitle}>
-            Explore Top Categories
+            Top Categories
           </Typography>
           <Select
             className={classes.select}
@@ -188,7 +201,20 @@ const Marketplace = () => {
           })}
         </Box>
       </Box>
-
+      {!isLoading && isEmpty && (
+        <Box
+          mt={7}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="column"
+        >
+          <img width={337} height="auto" src={emptyTag} />
+          <Typography className={classes.emptyText}>
+            There are no available rewards programs yet.
+          </Typography>
+        </Box>
+      )}
       {featured && featured.length > 0 && (
         <Box mt={6}>
           <FeaturedRewardsPrograms listings={featured} />

@@ -91,7 +91,7 @@ export class NftMetadataParseUtils {
   }
 
   private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? null;
+    return metadataObj.attributes ?? metadataObj.traits ?? null;
   }
 
   private static getName(metadataObj) {
@@ -128,6 +128,9 @@ export class NftMetadataParseUtils {
     } else {
       res = res.replace("ipfs://", "https://ipfs.io/ipfs/");
     }
+
+    // added for location base issues
+    res = res.replace("https://ipfs.io/ipfs/", "https://cf-ipfs.com/ipfs/");
     return res;
   }
 }

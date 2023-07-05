@@ -22,7 +22,7 @@ const Breadcrumb = ({ currentPathName }: IBreadcrumbProps) => {
   const navigate = useNavigate();
   const crumbs: {
     path: string;
-    matches: PathMatch<"tag" | "brand">;
+    matches;
   }[] = useMemo(() => {
     let current = "";
     return pathname

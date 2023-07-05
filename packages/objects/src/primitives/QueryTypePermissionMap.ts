@@ -1,5 +1,5 @@
-import { EWalletDataType } from "@objects/enum/EWalletDataType";
-import { QueryTypes } from "@objects/primitives/QueryTypes";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { QueryTypes } from "@objects/primitives/QueryTypes.js";
 
 export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   // web2
@@ -12,6 +12,9 @@ export const QueryTypePermissionMap = new Map<QueryTypes, EWalletDataType>([
   ["givenName", EWalletDataType.GivenName],
   ["location", EWalletDataType.Location],
   ["url_visited_count", EWalletDataType.SiteVisits],
+  ["social_discord", EWalletDataType.Discord],
+  ["social_twitter", EWalletDataType.Twitter],
   // web3
   ["nft", EWalletDataType.AccountNFTs],
+  ["network", EWalletDataType.EVMTransactions],
 ]);

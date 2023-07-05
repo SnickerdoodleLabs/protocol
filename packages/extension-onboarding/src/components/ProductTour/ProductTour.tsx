@@ -1,9 +1,10 @@
 import pdTour from "@extension-onboarding/assets/images/pd-tour.svg";
-import Button from "@extension-onboarding/components/Button/Button";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import ProductTourInitial from "@extension-onboarding/components/Modals/ProductTourInitial";
 import ProductTourStart from "@extension-onboarding/components/Modals/ProductTourStart";
 import { useStyles } from "@extension-onboarding/components/ProductTour/ProductTour.style";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC, useCallback, useMemo, useState } from "react";
 import Joyride, {
@@ -133,10 +134,8 @@ const steps: Step[] = [
 const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const [isActive, setIsActive] = useState<boolean>(
-    localStorage.getItem("SDL_UserCompletedIntro") !==
-      ETourCompleteState.COMPLETED,
-  );
+  const {isProductTourCompleted, completeProductTour} = useAppContext();
+  
   const [tourState, setTourState] = useState<ETourState>(
     ETourState.INITIAL_MODAL,
   );
@@ -154,8 +153,8 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
       "SDL_UserCompletedIntro",
       ETourCompleteState.COMPLETED,
     );
-    setIsActive(false);
-    navigate(EPaths.MY_REWARDS);
+    completeProductTour();
+    navigate(EPaths.MARKETPLACE);
   };
 
   const handleCallBack = (data: CallBackProps) => {
@@ -174,7 +173,7 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
   };
 
   const component = useMemo(() => {
-    if (!isActive) {
+    if (isProductTourCompleted) {
       return null;
     }
     switch (tourState) {
@@ -200,7 +199,7 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
       default:
         return null;
     }
-  }, [tourState, isActive]);
+  }, [tourState, isProductTourCompleted]);
 
   return <>{component}</>;
 };

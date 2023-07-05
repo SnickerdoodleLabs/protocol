@@ -7,6 +7,8 @@ import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPe
 import LeaveCohortModal from "@extension-onboarding/components/Modals/LeaveCohortModal";
 import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
+import RewardDetailModal from "@extension-onboarding/components/Modals/RewardDetailModal";
+import SubscriptionConfirmationModal from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal";
 import SubscriptionSuccessModal from "@extension-onboarding/components/Modals/SubscriptionSuccessModal";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
 import React, {
@@ -67,8 +69,6 @@ export const LayoutProvider: FC = ({ children }) => {
         return <ViewDetailsModal />;
       case modalState.modalSelector === EModalSelectors.MANAGE_PERMISSIONS:
         return <DataPermissionsModal />;
-      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
-        return <PermissionSelectionModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
       case modalState.modalSelector === EModalSelectors.LEAVE_COHORT_MODAL:
@@ -76,6 +76,11 @@ export const LayoutProvider: FC = ({ children }) => {
       case modalState.modalSelector ===
         EModalSelectors.SUBSCRIPTION_SUCCESS_MODAL:
         return <SubscriptionSuccessModal />;
+      case modalState.modalSelector ===
+        EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL:
+        return <SubscriptionConfirmationModal />;
+      case modalState.modalSelector === EModalSelectors.REWARD_DETAIL_MODAL:
+        return <RewardDetailModal />;
       case modalState.modalSelector === EModalSelectors.CUSTOMIZABLE_MODAL:
         return (
           <CustomizableModal
@@ -85,6 +90,8 @@ export const LayoutProvider: FC = ({ children }) => {
             secondaryButtonText={modalState?.customProps?.secondaryButtonText}
           />
         );
+      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
+        return <PermissionSelectionModal />;
       default:
         return null;
     }

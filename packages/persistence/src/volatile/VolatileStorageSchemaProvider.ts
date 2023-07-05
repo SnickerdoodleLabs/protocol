@@ -5,7 +5,6 @@ import {
   EarnedRewardMigrator,
   EBackupPriority,
   EligibleAdMigrator,
-  LatestBlockMigrator,
   LinkedAccountMigrator,
   ReceivingAccountMigrator,
   RestoredBackupMigrator,
@@ -18,6 +17,7 @@ import {
   PersistenceError,
   SocialProfileMigrator,
   SocialGroupProfileMigrator,
+  RejectedInvitationMigrator,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -78,7 +78,7 @@ export class VolatileStorageSchemaProvider
             "hash",
             false,
             new ChainTransactionMigrator(),
-            EBackupPriority.NORMAL,
+            EBackupPriority.DISABLED,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
             [
@@ -125,12 +125,12 @@ export class VolatileStorageSchemaProvider
           ),
         ],
         [
-          ERecordKey.LATEST_BLOCK,
+          ERecordKey.REJECTED_INVITATIONS,
           new VolatileTableIndex(
-            ERecordKey.LATEST_BLOCK,
-            "contract",
+            ERecordKey.REJECTED_INVITATIONS,
+            "consentContractAddress",
             false,
-            new LatestBlockMigrator(),
+            new RejectedInvitationMigrator(),
             EBackupPriority.NORMAL,
             config.dataWalletBackupIntervalMS,
             config.backupChunkSizeTarget,
@@ -245,7 +245,7 @@ export class VolatileStorageSchemaProvider
             false,
             new SocialProfileMigrator(),
             EBackupPriority.NORMAL,
-            config.dataWalletBackupIntervalMS,
+            0,
             config.backupChunkSizeTarget,
             [["type", false]],
           ),
