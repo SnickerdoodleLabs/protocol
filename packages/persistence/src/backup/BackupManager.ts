@@ -351,16 +351,18 @@ export class BackupManager implements IBackupManager {
 
   public popRendered(
     id: DataWalletBackupID,
-  ): ResultAsync<DataWalletBackupID, PersistenceError> {
+  ): ResultAsync<void, PersistenceError> {
     if (!this.renderedChunks.has(id)) {
       return errAsync(
-        new PersistenceError("no backup with that id in map", id),
+        new PersistenceError(
+          `There is no backup with ID ${id} that was rendered, cannot pop it.`,
+          id,
+        ),
       );
     }
 
     return this._addRestored(this.renderedChunks.get(id)!).map(() => {
       this.renderedChunks.delete(id);
-      return id;
     });
   }
 

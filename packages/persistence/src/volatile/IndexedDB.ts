@@ -421,7 +421,6 @@ export class IndexedDB {
             const indexObj: IDBIndex = store.index("deleted");
             request = indexObj.getAllKeys(EBoolean.FALSE, count);
           } else {
-            // TODO: fix when we go to SQLite
             throw new PersistenceError(
               "getting keys by index query no longer supported",
             );

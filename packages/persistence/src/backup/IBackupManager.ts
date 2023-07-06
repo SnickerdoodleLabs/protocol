@@ -32,9 +32,7 @@ export interface IBackupManager {
   getRendered(
     force?: boolean,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
-  popRendered(
-    id: DataWalletBackupID,
-  ): ResultAsync<DataWalletBackupID, PersistenceError>;
+  popRendered(id: DataWalletBackupID): ResultAsync<void, PersistenceError>;
 
   unpackBackupChunk(
     backup: DataWalletBackup,

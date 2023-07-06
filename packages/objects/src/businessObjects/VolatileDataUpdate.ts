@@ -1,6 +1,5 @@
-import { SerializedObject } from "@objects/businessObjects/SerializedObject.js";
 import { VersionedObject } from "@objects/businessObjects/versioned/index.js";
-import { EDataUpdateOpCode, EFieldKey } from "@objects/enum/index.js";
+import { EDataUpdateOpCode } from "@objects/enum/index.js";
 import {
   UnixTimestamp,
   VolatileStorageKey,
@@ -9,7 +8,7 @@ import {
 export class VolatileDataUpdate {
   public constructor(
     public operation: EDataUpdateOpCode,
-    public key: VolatileStorageKey | null,
+    public key: VolatileStorageKey,
     public timestamp: UnixTimestamp,
     public value: VersionedObject,
     public version: number,

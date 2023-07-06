@@ -21,6 +21,7 @@ import {
   StorageKey,
   BackupRestoreEvent,
   EDataStorageType,
+  BackupCreatedEvent,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -122,9 +123,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError> {
     return this.waitForRecordRestore(recordKey).andThen(() => {
-      return this.volatileStorage
-        .getObject<T>(recordKey, key)
-        .map((x) => (x == null ? null : x.data));
+      return this.volatileStorage.getObject<T>(recordKey, key).map((x) => {
+        return x == null ? null : x.data;
+      });
     });
   }
 
@@ -174,6 +175,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  // TODO: Fix this- it should return keys, not T!
   public getAllKeys<T>(
     recordKey: ERecordKey,
     indexName?: string | undefined,
@@ -240,14 +242,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public deleteRecord(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this.backupManagerProvider.getBackupManager(),
     ]).andThen(([_key, backupManager]) => {
-      return backupManager.deleteRecord(tableName, key);
+      return backupManager.deleteRecord(recordKey, key);
     });
   }
   // #endregion
@@ -270,17 +272,30 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   // #region Backup Management Methods
-  public restoreBackup(backup: DataWalletBackup): ResultAsync<void, never> {
+  public restoreBackup(
+    backup: DataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.restore(backup).orElse((err) => {
-          this.logUtils.warning(
-            `Error restoring backup ${backup.header.name}, Data wallet will likely have incomplete data!`,
-            err,
-          );
-          return okAsync(undefined);
-        });
+        return backupManager.restore(backup);
+      })
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .map((context) => {
+        context.publicEvents.onBackupRestored.next(
+          new BackupRestoreEvent(
+            backup.header.isField
+              ? EDataStorageType.Field
+              : EDataStorageType.Record,
+            backup.header.dataType,
+            backup.id,
+            backup.header.name,
+            1,
+            0,
+          ),
+        );
       });
   }
 
@@ -334,20 +349,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 return ResultUtils.executeSerially(
                   sortedBackups.map((backup) => {
                     return () => {
-                      return this.restoreBackup(backup).map(() => {
-                        context.publicEvents.onBackupRestored.next(
-                          new BackupRestoreEvent(
-                            backup.header.isField
-                              ? EDataStorageType.Field
-                              : EDataStorageType.Record,
-                            backup.header.dataType,
-                            backup.id,
-                            backup.header.name,
-                            ++totalRestored,
-                            --backupsToRestoreCount,
-                          ),
-                        );
-                      });
+                      return this.restoreBackupInternal(backup).map(
+                        (success) => {
+                          if (success) {
+                            context.publicEvents.onBackupRestored.next(
+                              new BackupRestoreEvent(
+                                backup.header.isField
+                                  ? EDataStorageType.Field
+                                  : EDataStorageType.Record,
+                                backup.header.dataType,
+                                backup.id,
+                                backup.header.name,
+                                ++totalRestored,
+                                --backupsToRestoreCount,
+                              ),
+                            );
+                          }
+                        },
+                      );
                     };
                   }),
                 );
@@ -388,27 +407,49 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.getRendered(force).andThen((chunks) => {
+        return backupManager.getRendered(force).andThen((backups) => {
+          const postedBackupIds = new Array<DataWalletBackupID>();
+          let backupsToCreateCount = backups.length;
+          let totalBackupsCreated = 0;
+
           return ResultUtils.combine(
-            chunks.map((chunk) => {
+            backups.map((backup) => {
               return this.cloudStorage
-                .putBackup(chunk)
+                .putBackup(backup)
                 .andThen((id) => {
                   return backupManager.popRendered(id);
                 })
+                .andThen(() => {
+                  return this.contextProvider.getContext();
+                })
+                .map((context) => {
+                  context.publicEvents.onBackupCreated.next(
+                    new BackupCreatedEvent(
+                      backup.header.isField
+                        ? EDataStorageType.Field
+                        : EDataStorageType.Record,
+                      backup.header.dataType,
+                      backup.id,
+                      backup.header.name,
+                      --backupsToCreateCount,
+                      ++totalBackupsCreated,
+                    ),
+                  );
+                  postedBackupIds.push(backup.id);
+                })
                 .orElse((e) => {
-                  this.logUtils.debug("error placing backup in cloud store", e);
-                  return okAsync(DataWalletBackupID(""));
+                  this.logUtils.warning(
+                    `Error placing backup ${backup.header.name} in cloud store`,
+                    e,
+                  );
+                  return okAsync(undefined);
                 });
             }),
-          ).map((ids) => {
-            return ids.filter((id) => {
-              return id != "";
-            });
+          ).map(() => {
+            return postedBackupIds;
           });
         });
-      })
-      .mapErr((e) => new PersistenceError("error posting backups", e));
+      });
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -476,17 +517,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             return ResultUtils.executeSerially(
               sortedBackups.map((backup) => {
                 return () => {
-                  return this.restoreBackup(backup).map(() => {
-                    context.publicEvents.onBackupRestored.next(
-                      new BackupRestoreEvent(
-                        EDataStorageType.Record,
-                        recordKey,
-                        backup.id,
-                        backup.header.name,
-                        ++totalRestored,
-                        --backupsToRestoreCount,
-                      ),
-                    );
+                  return this.restoreBackupInternal(backup).map((success) => {
+                    if (success) {
+                      context.publicEvents.onBackupRestored.next(
+                        new BackupRestoreEvent(
+                          EDataStorageType.Record,
+                          recordKey,
+                          backup.id,
+                          backup.header.name,
+                          ++totalRestored,
+                          --backupsToRestoreCount,
+                        ),
+                      );
+                    }
                   });
                 };
               }),
@@ -523,13 +566,50 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         this.logUtils.debug(
           `Latest backup for field ${fieldKey} is ${backup.header.name}, restoring now`,
         );
-        return this.restoreBackup(backup);
-      })
-      .map(() => {});
+        return this.restoreBackupInternal(backup).andThen((success) => {
+          // If the backup was not restored, we don't need to emit an event
+          if (!success) {
+            return okAsync(undefined);
+          }
+          return this.contextProvider.getContext().map((context) => {
+            context.publicEvents.onBackupRestored.next(
+              new BackupRestoreEvent(
+                EDataStorageType.Field,
+                fieldKey,
+                backup.id,
+                backup.header.name,
+                1,
+                0,
+              ),
+            );
+          });
+        });
+      });
 
     // Add the restore to the ongoing restores
     this.ongoingRestores.set(fieldKey, restore);
 
     return restore;
+  }
+
+  protected restoreBackupInternal(
+    backup: DataWalletBackup,
+  ): ResultAsync<boolean, never> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager
+          .restore(backup)
+          .map(() => {
+            return true;
+          })
+          .orElse((err) => {
+            this.logUtils.warning(
+              `Error restoring backup ${backup.header.name}, Data wallet will likely have incomplete data!`,
+              err,
+            );
+            return okAsync(false);
+          });
+      });
   }
 }

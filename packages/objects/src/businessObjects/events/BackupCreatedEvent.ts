@@ -10,5 +10,7 @@ export class BackupCreatedEvent {
     public dataType: StorageKey,
     public backupId: DataWalletBackupID,
     public name: BackupFileName,
+    public remainingBackupsToCreate: number,
+    public backupsCreated: number,
   ) {}
 }

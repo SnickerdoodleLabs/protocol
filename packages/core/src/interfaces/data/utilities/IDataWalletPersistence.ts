@@ -30,9 +30,9 @@ export interface IDataWalletPersistence {
    * indefinately. Once unlock() is complete, the outstanding call to addAccount() can continue.
    * This is trivially implemented internally by maintaining a consistent unlocked ResultAsync,
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
-   * @param derivedKey
+   * @param dataWalletKey
    */
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
+  unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
 
   // write methods
@@ -80,7 +80,12 @@ export interface IDataWalletPersistence {
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods
-  restoreBackup(backup: DataWalletBackup): ResultAsync<void, never>;
+  /**
+   * Restores a backup directly to the data wallet. This should only be called for test purposes.
+   * Normally, you should use pollBackups().
+   * @param backup
+   */
+  restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(
     force?: boolean,
