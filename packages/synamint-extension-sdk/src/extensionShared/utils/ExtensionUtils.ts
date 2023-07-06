@@ -134,13 +134,9 @@ export class ExtensionUtils {
             if (tab.id === currentTab?.id) {
               return okAsync(undefined);
             }
-            return (
-              closeCurrenTab
-                ? ExtensionUtils.closeCurrenTab()
-                : okAsync(undefined)
-            ).andThen(() => {
-              return ExtensionUtils.switchToTab(tab.id).map(() => {});
-            });
+            return ExtensionUtils.switchToTab(tab.id, closeCurrenTab).map(
+              () => {},
+            );
           }
           return openIfNotExist
             ? (closeCurrenTab
@@ -258,18 +254,20 @@ export class ExtensionUtils {
     });
   };
 
-  public static switchToTab(
-    tabId: number | undefined,
-  ): ResultAsync<browser.Tabs.Tab, Error> {
-    return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
-      browser.tabs.update(tabId, { active: true }),
-    ).andThen((tab) => {
-      const err = ExtensionUtils.checkForError();
-      if (err) {
-        return errAsync(err);
-      } else {
-        return okAsync(tab);
-      }
+  public static switchToTab(tabId: number | undefined, closeCurrenTab = false) {
+    return (
+      closeCurrenTab ? ExtensionUtils.closeCurrenTab() : okAsync(undefined)
+    ).andThen(() => {
+      return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
+        browser.tabs.update(tabId, { active: true }),
+      ).andThen((tab) => {
+        const err = ExtensionUtils.checkForError();
+        if (err) {
+          return errAsync(err);
+        } else {
+          return okAsync(tab);
+        }
+      });
     });
   }
 

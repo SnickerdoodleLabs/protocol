@@ -360,11 +360,26 @@ const App = () => {
         return (
           <RewardCard
             onJoinClick={() => {
+              if (walletState != EWalletState.UNLOCKED) {
+                const deeplinkURL = new URL(extensionConfig.onboardingUrl);
+                deeplinkURL.searchParams.append(
+                  "consentAddress",
+                  invitationDomain!.consentAddress,
+                );
+                window.open(deeplinkURL, "blank");
+                return emptyReward();
+              }
               setAppState(EAPP_STATE.PERMISSION_SELECTION);
             }}
-            onCancelClick={rejectInvitation}
+            onCancelClick={() => {
+              if (walletState != EWalletState.UNLOCKED) {
+                return emptyReward();
+              }
+              rejectInvitation();
+            }}
             onCloseClick={emptyReward}
             rewardItem={rewardToDisplay!}
+            isUnlocked={walletState === EWalletState.UNLOCKED}
           />
         );
       case appState === EAPP_STATE.PERMISSION_SELECTION:

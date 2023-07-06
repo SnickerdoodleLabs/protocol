@@ -78,6 +78,8 @@ export interface IAppContext {
   setLinkerModalOpen: () => void;
   setLinkerModalClose: () => void;
   isLinkerModalOpen: boolean;
+  disablePopups: () => void;
+  popupsDisabled: boolean;
 }
 
 const INITIAL_INVITATION_INFO: IInvitationInfo = {
@@ -110,6 +112,7 @@ export const AppContextProvider: FC = ({ children }) => {
   );
   const [isLinkerModalOpen, setIsLinkerModalOpen] =
     React.useState<boolean>(false);
+  const [popupsDisabled, setPopupsDisabled] = useState<boolean>(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -330,6 +333,8 @@ export const AppContextProvider: FC = ({ children }) => {
         setLinkerModalOpen: () => setIsLinkerModalOpen(true),
         setLinkerModalClose: () => setIsLinkerModalOpen(false),
         isLinkerModalOpen,
+        popupsDisabled,
+        disablePopups: () => setPopupsDisabled(true),
       }}
     >
       {children}

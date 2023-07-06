@@ -71,7 +71,7 @@ const PermissionSelectionModalV2: FC = () => {
           });
       }
       case ESocialType.DISCORD: {
-        return discordProvider.installationUrl().map((url) => {
+        return discordProvider.installationUrl(true).map((url) => {
           window.open(url, `_blank`);
         });
       }

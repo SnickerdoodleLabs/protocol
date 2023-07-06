@@ -202,7 +202,7 @@ const Permissions: FC<IPermissionsProps> = ({
   const onSocialClick = (socialType: ESocialType) => {
     switch (socialType) {
       case ESocialType.DISCORD: {
-        return coreGateway.discord.installationUrl().map((url) => {
+        return coreGateway.discord.installationUrl(true).map((url) => {
           window.open(url, "_blank");
         });
       }

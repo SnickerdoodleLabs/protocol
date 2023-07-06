@@ -35,6 +35,7 @@ const CampaignPopup: FC = () => {
     setInvitationInfo,
     isProductTourCompleted,
     appMode,
+    popupsDisabled,
   } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
   const isStatusCheckRequiredRef = useRef<boolean>(false);
@@ -46,10 +47,10 @@ const CampaignPopup: FC = () => {
   }, [JSON.stringify(invitationInfo)]);
 
   useEffect(() => {
-    if (invitationMeta) {
+    if (!popupsDisabled && invitationMeta) {
       setOpen(true);
     }
-  }, [JSON.stringify(invitationMeta)]);
+  }, [JSON.stringify(invitationMeta), popupsDisabled]);
 
   const handleInvalidInvitation = (status: EInvitationStatus) => {
     setInvitationInfo({

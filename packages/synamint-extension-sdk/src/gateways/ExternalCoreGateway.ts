@@ -116,6 +116,7 @@ import {
   TwitterGetRequestTokenParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
+  SwitchToTabParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -132,8 +133,13 @@ export class ExternalCoreGateway {
       ): ResultAsync<void, JsonRpcError> => {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
-      installationUrl: (): ResultAsync<URLString, JsonRpcError> => {
-        return this._handler.call(new GetDiscordInstallationUrlParams());
+      installationUrl: (
+        attachRedirectTabId?: boolean,
+      ): ResultAsync<URLString, JsonRpcError> => {
+        console.log("attachRedirectTabId", attachRedirectTabId, "gateway")
+        return this._handler.call(
+          new GetDiscordInstallationUrlParams(attachRedirectTabId),
+        );
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], JsonRpcError> => {
         return this._handler.call(new GetDiscordUserProfilesParams());
@@ -447,5 +453,10 @@ export class ExternalCoreGateway {
   }
   public getConfig(): ResultAsync<IExtensionConfig, JsonRpcError> {
     return this._handler.call(new GetConfigParams());
+  }
+  public switchToTab(
+    params: SwitchToTabParams,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(params);
   }
 }

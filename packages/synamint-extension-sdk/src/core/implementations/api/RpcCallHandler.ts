@@ -12,6 +12,7 @@ import {
   EInvitationStatus,
   TokenId,
   BigNumberString,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -128,6 +129,7 @@ import {
   TwitterUnlinkProfileParams,
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
+  SwitchToTabParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -571,8 +573,29 @@ export class RpcCallHandler implements IRpcCallHandler {
     ),
     new CoreActionHandler<GetDiscordInstallationUrlParams>(
       GetDiscordInstallationUrlParams.getCoreAction(),
-      (_params) => {
-        return this.discordService.installationUrl();
+      (params, sender) => {
+        return this.discordService.installationUrl().map((url) => {
+          if (params.attachRedirectTabId && sender?.tab?.id) {
+            return URLString(
+              `${url}&state=${encodeURI(
+                JSON.stringify({ redirect_tab_id: sender.tab.id }),
+              )}`,
+            );
+          }
+          return url;
+        });
+      },
+    ),
+    new CoreActionHandler<SwitchToTabParams>(
+      SwitchToTabParams.getCoreAction(),
+      (params, sender) => {
+        return (
+          sender?.tab?.id
+            ? ExtensionUtils.closeTab(sender.tab.id)
+            : okAsync(undefined)
+        ).andThen(() => {
+          return ExtensionUtils.switchToTab(params.tabId, true).map(() => {});
+        });
       },
     ),
     new CoreActionHandler<GetDiscordGuildProfilesParams>(

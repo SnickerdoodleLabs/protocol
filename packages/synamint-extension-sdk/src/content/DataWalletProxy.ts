@@ -81,6 +81,8 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
+  GetDiscordInstallationUrlParams,
+  SwitchToTabParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -142,8 +144,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: () => {
-        return coreGateway.discord.installationUrl();
+      installationUrl: (attachRedirectTabId?: boolean) => {
+        return coreGateway.discord.installationUrl(attachRedirectTabId);
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();
@@ -178,6 +180,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+
+  public switchToTab(tabId: number): ResultAsync<void, unknown> {
+    return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
 
   public setDefaultReceivingAddress(

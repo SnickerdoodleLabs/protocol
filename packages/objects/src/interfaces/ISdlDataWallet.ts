@@ -187,6 +187,8 @@ export interface ISdlDataWallet extends EventEmitter {
     timeoutMs?: number,
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
 
+  switchToTab(tabId: number): ResultAsync<void, JsonRpcError>;
+
   discord: ISdlDiscordMethods;
   twitter: ISdlTwitterMethods;
 }
@@ -206,7 +208,9 @@ export interface ISdlDiscordMethods {
    * call to be made. If user gives consent token can be used
    * to initialize the user
    */
-  installationUrl(): ResultAsync<URLString, JsonRpcError>;
+  installationUrl(
+    attachRedirectTabId?: boolean,
+  ): ResultAsync<URLString, JsonRpcError>;
 
   getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], JsonRpcError>;
