@@ -6,7 +6,7 @@ import Browser, { Runtime } from "webextension-polyfill";
 //#region first installation
 Browser.runtime.onInstalled.addListener((details) => {
   details.reason === "install" &&
-    ExtensionUtils.switchToUrlTab(configs.onboardingUrl ?? "", false, true);
+    ExtensionUtils.switchToUrlTab(configs.onboardingUrl ?? "", true, true);
 });
 // #endregion
 
