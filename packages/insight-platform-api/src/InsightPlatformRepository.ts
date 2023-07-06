@@ -119,13 +119,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    possibleInsightsAndAds: (InsightKey | AdKey)[],
+    queryDeliveryItems: IQueryDeliveryItems,
   ): ResultAsync<PossibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
-      possibleInsightsAndAds: JSON.stringify(possibleInsightsAndAds),
+      queryDeliveryItems: JSON.stringify(queryDeliveryItems),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -146,7 +146,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
           tokenId: tokenId.toString(),
-          possibleInsightsAndAds: possibleInsightsAndAds,
+          queryDeliveryItems: queryDeliveryItems,
           signature: signature,
         } as IReceivePreviewsParams as unknown as Record<string, unknown>);
       });
