@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#000000",
   },
   selected: {
-    fontWeight: 400,
+    fontWeight: 700,
   },
   linkWrapper: {
     cursor: "pointer",

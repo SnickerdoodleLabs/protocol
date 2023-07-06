@@ -1,13 +1,26 @@
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
+const useStyles = makeStyles((theme) => ({
+  title: {
+    color: "rgba(35, 32, 57, 0.80)",
+    fontFamily: "Roboto",
+    fontSize: 14,
+    fontStyle: "normal",
+    fontWeight: 200,
+    lineHeight: "20px",
+  },
+}));
+
 const UnauthScreen = () => {
   const { pathname } = useLocation();
   const { setLinkerModalOpen } = useAppContext();
+  const classes = useStyles();
 
   const { title, image } = useMemo(() => {
     console.log(pathname, EPaths);
@@ -51,7 +64,7 @@ const UnauthScreen = () => {
         <img width={350} height="auto" src={image} />
       </Box>
       <Box mb={2} textAlign="center">
-        <Typography>{title}</Typography>
+        <Typography className={classes.title}>{title}</Typography>
       </Box>
 
       <Button buttonType="primary" onClick={setLinkerModalOpen}>

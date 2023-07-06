@@ -39,12 +39,11 @@ const OnChainInfo: FC = () => {
           </Typography>
         </Box>
       </Box>
-      <Grid container spacing={2}>
-        <Grid item sm={12}>
-          <WalletProviders />
-        </Grid>
-        <Grid item sm={12}>
-          <Box mb={2}>
+      <Box>
+        <WalletProviders />
+
+        <Box mt={5}>
+          <Box pl={2.5} py={1.5} bgcolor="#fff">
             <Typography className={classes.itemTitle}>
               Your Linked Accounts
             </Typography>
@@ -71,8 +70,8 @@ const OnChainInfo: FC = () => {
             receivingAddress={receivingAccount}
             onSelect={setDefaultReceivingAccount}
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

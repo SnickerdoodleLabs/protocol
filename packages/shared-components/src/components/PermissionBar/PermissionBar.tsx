@@ -446,7 +446,7 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                 onSocialClick(ESocialType.DISCORD);
               }}
             >
-              Connect Discord
+              Connect
             </SaveButton>
           </Box>
         );
@@ -469,7 +469,7 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                 onSocialClick(ESocialType.TWITTER);
               }}
             >
-              Connect Twitter
+              Connect
             </SaveButton>
           </Box>
         );
