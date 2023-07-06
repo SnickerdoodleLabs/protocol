@@ -94,7 +94,7 @@ export class VolatileStorageSchemaProvider
           ERecordKey.SITE_VISITS,
           new VolatileTableIndex(
             ERecordKey.SITE_VISITS,
-            "TODO",
+            "id", // This was previously the "DEFAULT_KEY" (which was "id"), but that's not a valid key.
             true,
             new SiteVisitMigrator(),
             EBackupPriority.NORMAL,
