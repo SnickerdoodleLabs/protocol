@@ -61,6 +61,8 @@ declare const __TWITTER_CONSUMER_SECRET__: string;
 declare const __TWITTER_POLL_INTERVAL__: string;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
+declare const __CLOUD_STORAGE_KEY__: string;
+
 const ONE_MINUTE_MS = 60000;
 
 const supportedChains = (
@@ -185,6 +187,11 @@ export const configs: IExtensionConfigOverrides = {
       : URLString("https://insight-api.snickerdoodle.com/v0/"),
 
   /* API KEYS */
+  cloudStorageKey:
+    typeof __CLOUD_STORAGE_KEY__ !== "undefined" && !!__CLOUD_STORAGE_KEY__
+      ? __CLOUD_STORAGE_KEY__
+      : "",
+
   apiKeys: {
     alchemyApiKeys: {
       Arbitrum:

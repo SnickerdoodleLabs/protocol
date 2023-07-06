@@ -6,6 +6,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 export interface IIndexerConfig {
+  cloudStorageKey: string;
   apiKeys: {
     alchemyApiKeys: {
       Arbitrum: string;

@@ -9,13 +9,13 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
+  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError>;
   pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
 
   pollByPriority(
     restored: Set<DataWalletBackupID>,

@@ -8,6 +8,9 @@ const envVars = {
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "http://localhost:3001/v0/",
   __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",
 
+  /* Cloud Storage Key */
+  __CLOUD_STORAGE_KEY__: "",
+
   __ALCHEMY_ARBITRUM_API_KEY__: "",
   __ALCHEMY_ASTAR_API_KEY__: "",
   __ALCHEMY_MUMBAI_API_KEY__: "",

@@ -99,6 +99,7 @@ export const testCoreConfig = new CoreConfig(
   5000, // polling interval NFT
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
+  "", // cloud storage key
   {
     alchemyApiKeys: {
       Arbitrum: "",

@@ -151,6 +151,9 @@ var options = {
       __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
         process.env.__REQUEST_FOR_DATA_EVENT_FREQ__,
       ),
+      /* CLOUD STORAGE SELECTION */
+      __CLOUD_STORAGE_KEY__: JSON.stringify(process.env.__CLOUD_STORAGE_KEY__),
+
       /* ALCHEMY API KEYS to PASS IN */
       __ALCHEMY_ARBITRUM_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_ARBITRUM_API_KEY__,

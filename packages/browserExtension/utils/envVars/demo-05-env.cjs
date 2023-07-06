@@ -8,6 +8,10 @@ const envVars = {
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.demo-05.snickerdoodle.dev/v0/",
   __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",
+
+  /* Cloud Storage Key */
+  __CLOUD_STORAGE_KEY__: "",
+
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
   __ALCHEMY_ASTAR_API_KEY__: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",

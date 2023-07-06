@@ -100,6 +100,7 @@ export class ConfigProvider
       5000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
+      "", // cloudStorageKey
       {
         alchemyApiKeys: {
           Arbitrum: "",
@@ -245,6 +246,9 @@ export class ConfigProvider
       overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
     this.config.apiKeys.secondaryInfuraKey =
       overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+
+    this.config.cloudStorageKey =
+      overrides.cloudStorageKey ?? this.config.cloudStorageKey;
 
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;

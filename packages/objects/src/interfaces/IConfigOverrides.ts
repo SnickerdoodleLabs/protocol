@@ -12,6 +12,7 @@ export interface IConfigOverrides {
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
+  cloudStorageKey?: string;
   alchemyApiKeys?: {
     Arbitrum: string;
     Astar: string;

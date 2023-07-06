@@ -27,6 +27,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
+    public cloudStorageKey: string,
     public apiKeys: {
       alchemyApiKeys: {
         Arbitrum: string;

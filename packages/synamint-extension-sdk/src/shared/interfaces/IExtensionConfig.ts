@@ -70,6 +70,7 @@ export interface IExtensionConfigOverrides {
   portfolioPollingIntervalMS?: number;
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
+  cloudStorageKey?: string;
   apiKeys: {
     alchemyApiKeys?: {
       Arbitrum: string;
