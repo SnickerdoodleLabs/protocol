@@ -1,9 +1,9 @@
+import { AESEncryptedString } from "@objects/businessObjects/AESEncryptedString.js";
 import {
-  AESEncryptedString,
-  DataWalletBackupHeader,
   FieldDataUpdate,
   VolatileDataUpdate,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/DataUpdate.js";
+import { DataWalletBackupHeader } from "@objects/businessObjects/DataWalletBackupHeader.js";
 
 export class DataWalletBackup {
   public constructor(

@@ -1,3 +1,9 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import {
   EVMAccountAddress,
   MinimalForwarderContractError,
@@ -6,9 +12,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import { IMinimalForwarderRequest } from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface IMinimalForwarderContract extends IBaseContract {
   getNonce(
@@ -23,10 +26,8 @@ export interface IMinimalForwarderContract extends IBaseContract {
   execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<
-    ethers.providers.TransactionResponse,
-    MinimalForwarderContractError
-  >;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError>;
 }
 
 export const IMinimalForwarderContractType = Symbol.for(

@@ -2,6 +2,7 @@ import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ContractOverrides,
   ICrumbsContract,
+  WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   EVMContractAddress,
@@ -60,7 +61,7 @@ export class CrumbsContractWrapper
     crumbId: TokenId,
     tokenUri: TokenUri,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void, CrumbsContractError> {
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return this.fallback(
       () => this.primary.createCrumb(crumbId, tokenUri, contractOverrides),
       () => this.secondary?.createCrumb(crumbId, tokenUri, contractOverrides),
@@ -77,7 +78,7 @@ export class CrumbsContractWrapper
   public burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void, CrumbsContractError> {
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
     return this.fallback(
       () => this.primary.burnCrumb(crumbId, contractOverrides),
       () => this.secondary?.burnCrumb(crumbId, contractOverrides),

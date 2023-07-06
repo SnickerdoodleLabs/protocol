@@ -1,6 +1,6 @@
-import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward";
-import { ECredentialType, ERewardType } from "@objects/enum";
-import { IpfsCID, URLString, Web2Credential } from "@objects/primitives";
+import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward.js";
+import { ECredentialType, ERewardType } from "@objects/enum/index.js";
+import { IpfsCID, URLString, Web2Credential } from "@objects/primitives/index.js";
 
 export class Web2Reward extends EarnedReward {
   constructor(

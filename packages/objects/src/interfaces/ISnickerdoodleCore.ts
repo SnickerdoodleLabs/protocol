@@ -29,13 +29,13 @@ import {
   TwitterProfile,
   WalletNFT,
   RuntimeMetrics,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/index.js";
 import {
   EChain,
   EDataWalletPermission,
   EInvitationStatus,
   EScamFilterStatus,
-} from "@objects/enum";
+} from "@objects/enum/index.js";
 import {
   AccountIndexingError,
   AjaxError,
@@ -60,10 +60,10 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
-} from "@objects/errors";
-import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
-import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
+} from "@objects/errors/index.js";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
+import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
   AccountAddress,
   AdKey,
@@ -95,7 +95,8 @@ import {
   TwitterID,
   UnixTimestamp,
   URLString,
-} from "@objects/primitives";
+  PasswordString,
+} from "@objects/primitives/index.js";
 
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
@@ -104,6 +105,179 @@ import {
  clones this interface, with some methods removed or added, but all of them updated to remove
  sourceDomain (which is managed by the integration package)
  */
+
+export interface IAccountMethods {
+  /** getUnlockMessage() returns a localized string for the requested LanguageCode.
+   * The Form Factor must have this string signed by the user's key (via Metamask,
+   * wallet connect, etc), in order to call unlock() or addAccount();
+   */
+  getUnlockMessage(
+    languageCode: LanguageCode,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
+
+  /**
+   * unlock() serves a very important task as it both initializes the Query Engine
+   * and establishes the actual address of the data wallet. After getUnlockMessage(),
+   * this should be the second method you call on the Snickerdoodle Core. If this is the first
+   * time using this account + unlock message, the Data Wallet will be created.
+   * If this is a subsequent time, you will regain access to the existing wallet.
+   * For an existing wallet with multiple connected accounts, you can unlock with a
+   * signature from any of the accounts (form factor can decide), but you cannot
+   * add a new account via unlock, use addAccount() to link a new account once you
+   * have already logged in. It will return an error if you call it twice.
+   * unlockWithSolana() is identical to unlock() but uses a Solana account address instead of an
+   * EVM based account. Internally, it will map the Solana account to an EVM account using the signature
+   * to generate an EVM private key. This key will generate the EVM account address, but will also be
+   * stored in memory and used to sign the metatransaction for the crumb. The Solana wallet will never
+   * have to sign the metatransaction request itself, unlike unlock(); so this method will never generate
+   * a MetatransactionSignatureRequestedEvent.
+   * @param signature
+   * @param countryCode
+   */
+  unlock(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
+    | UnauthorizedError
+  >;
+
+  /**
+   * addAccount() adds an additional account to the data wallet. It is almost
+   * identical to logging in, but the Snickerdoodle Core must be initialized first (with an
+   * existing account). A connected account will be monitored for activity, and
+   * can be used for subsequent logins. This can prevent you from being locked out
+   * of your data wallet, as long as you have at least 2 accounts connected.
+   * addSolanaAccount() is identical to addAccount, but adds a Solana (non-EVM) account.
+   * Like unlock, an EVM private key will be derived from the signature and used for the account
+   * the crumb is assigned to on the doodlechain.
+   * @param accountAddress
+   * @param signature
+   * @param countryCode
+   */
+  addAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
+    | MinimalForwarderContractError
+    | UnauthorizedError
+  >;
+
+  /**
+   * unlinkAccount() will un-link a Solana account from the data wallet, but works differently
+   * from getUnlinkAccountRequest(). It requires a signature from the account to derive the EVM key,
+   * but it can then sign the metatransaction to burn the crumb directly.
+   * @param accountAddress
+   */
+  unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | InvalidParametersError
+    | BlockchainProviderError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | CrumbsContractError
+    | AjaxError
+    | MinimalForwarderContractError
+    | UnauthorizedError
+  >;
+
+  /**
+   * Checks if the account address has already been linked to a data wallet, and returns the
+   * address of the data wallet. You can only do this if you control the account address, since
+   * it requires you to decrypt the crumb. If there is no crumb, it returns null.
+   * @param accountAddress
+   * @param signature
+   * @param languageCode
+   * @param chain
+   */
+  getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | UnauthorizedError
+  >;
+
+  unlockWithPassword(
+    password: PasswordString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | MinimalForwarderContractError
+  >;
+
+  addPassword(
+    password: PasswordString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | MinimalForwarderContractError
+  >;
+
+  removePassword(
+    password: PasswordString,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | AjaxError
+    | MinimalForwarderContractError
+  >;
+}
 
 export interface ICoreMarketplaceMethods {
   getMarketplaceListingsByTag(
@@ -486,137 +660,6 @@ export interface IMetricsMethods {
 }
 
 export interface ISnickerdoodleCore {
-  /** getUnlockMessage() returns a localized string for the requested LanguageCode.
-   * The Form Factor must have this string signed by the user's key (via Metamask,
-   * wallet connect, etc), in order to call unlock() or addAccount();
-   */
-  getUnlockMessage(
-    languageCode: LanguageCode,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
-
-  /**
-   * unlock() serves a very important task as it both initializes the Query Engine
-   * and establishes the actual address of the data wallet. After getUnlockMessage(),
-   * this should be the second method you call on the Snickerdoodle Core. If this is the first
-   * time using this account + unlock message, the Data Wallet will be created.
-   * If this is a subsequent time, you will regain access to the existing wallet.
-   * For an existing wallet with multiple connected accounts, you can unlock with a
-   * signature from any of the accounts (form factor can decide), but you cannot
-   * add a new account via unlock, use addAccount() to link a new account once you
-   * have already logged in. It will return an error if you call it twice.
-   * unlockWithSolana() is identical to unlock() but uses a Solana account address instead of an
-   * EVM based account. Internally, it will map the Solana account to an EVM account using the signature
-   * to generate an EVM private key. This key will generate the EVM account address, but will also be
-   * stored in memory and used to sign the metatransaction for the crumb. The Solana wallet will never
-   * have to sign the metatransaction request itself, unlike unlock(); so this method will never generate
-   * a MetatransactionSignatureRequestedEvent.
-   * @param signature
-   * @param countryCode
-   */
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | UnauthorizedError
-  >;
-
-  /**
-   * addAccount() adds an additional account to the data wallet. It is almost
-   * identical to logging in, but the Snickerdoodle Core must be initialized first (with an
-   * existing account). A connected account will be monitored for activity, and
-   * can be used for subsequent logins. This can prevent you from being locked out
-   * of your data wallet, as long as you have at least 2 accounts connected.
-   * addSolanaAccount() is identical to addAccount, but adds a Solana (non-EVM) account.
-   * Like unlock, an EVM private key will be derived from the signature and used for the account
-   * the crumb is assigned to on the doodlechain.
-   * @param accountAddress
-   * @param signature
-   * @param countryCode
-   */
-  addAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
-    | UnauthorizedError
-  >;
-
-  /**
-   * unlinkAccount() will un-link a Solana account from the data wallet, but works differently
-   * from getUnlinkAccountRequest(). It requires a signature from the account to derive the EVM key,
-   * but it can then sign the metatransaction to burn the crumb directly.
-   * @param accountAddress
-   */
-  unlinkAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
-    | UninitializedError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
-    | UnauthorizedError
-  >;
-
-  /**
-   * Checks if the account address has already been linked to a data wallet, and returns the
-   * address of the data wallet. You can only do this if you control the account address, since
-   * it requires you to decrypt the crumb. If there is no crumb, it returns null.
-   * @param accountAddress
-   * @param signature
-   * @param languageCode
-   * @param chain
-   */
-  getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    DataWalletAddress | null,
-    | PersistenceError
-    | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | UnauthorizedError
-  >;
-
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -831,6 +874,7 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
+  account: IAccountMethods;
   invitation: IInvitationMethods;
   marketplace: ICoreMarketplaceMethods;
   integration: ICoreIntegrationMethods;

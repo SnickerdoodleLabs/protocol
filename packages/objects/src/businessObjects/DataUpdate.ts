@@ -1,6 +1,10 @@
-import { SerializedObject, VersionedObject } from "@objects/businessObjects";
-import { EDataUpdateOpCode, EFieldKey } from "@objects/enum";
-import { UnixTimestamp, VolatileStorageKey } from "@objects/primitives";
+import { SerializedObject } from "@objects/businessObjects/SerializedObject.js";
+import { VersionedObject } from "@objects/businessObjects/versioned/index.js";
+import { EDataUpdateOpCode, EFieldKey } from "@objects/enum/index.js";
+import {
+  UnixTimestamp,
+  VolatileStorageKey,
+} from "@objects/primitives/index.js";
 
 export type DataUpdate = VolatileDataUpdate | FieldDataUpdate;
 

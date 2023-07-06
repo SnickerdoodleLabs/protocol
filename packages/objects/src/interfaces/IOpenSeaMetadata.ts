@@ -1,4 +1,4 @@
-import { URLString } from "@objects/primitives";
+import { URLString } from "@objects/primitives/index.js";
 
 export interface IOpenSeaMetadata {
   title: string;

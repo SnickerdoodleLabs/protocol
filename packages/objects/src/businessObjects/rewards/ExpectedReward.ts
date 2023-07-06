@@ -1,5 +1,5 @@
-import { ERewardType } from "@objects/enum";
-import { ChainId } from "@objects/primitives";
+import { ERewardType } from "@objects/enum/index.js";
+import { ChainId } from "@objects/primitives/index.js";
 
 /* Must match returning EligibleReward exactly */
 export class ExpectedReward {

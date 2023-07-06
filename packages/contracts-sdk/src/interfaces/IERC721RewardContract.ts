@@ -1,3 +1,9 @@
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import {
   ERC721RewardContractError,
   EVMAccountAddress,
@@ -7,9 +13,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 
 export interface IERC721RewardContract extends IBaseContract {
   getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;
@@ -57,7 +60,10 @@ export interface IERC721RewardContract extends IBaseContract {
    * Sets a new baseURI for the Reward contract
    * Only callable by addresses that have the DEFAULT_ADMIN_ROLE on the Reward contract
    */
-  setBaseURI(baseUri: BaseURI): ResultAsync<void, ERC721RewardContractError>;
+  setBaseURI(
+    baseUri: BaseURI,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   /**
    * Checks if an address has a specific role in the Reward contract
@@ -77,7 +83,8 @@ export interface IERC721RewardContract extends IBaseContract {
   grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   /**
    * Revokes a role of an address
@@ -87,7 +94,8 @@ export interface IERC721RewardContract extends IBaseContract {
   revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   /**
    * Allows an address to renounce its role
@@ -97,7 +105,8 @@ export interface IERC721RewardContract extends IBaseContract {
   renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
 
   filters: IERC721Filters;
 }

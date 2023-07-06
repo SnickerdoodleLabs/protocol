@@ -26,7 +26,9 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onQueryPosted: Subject<SDQLQueryRequest>;
   public onQueryParametersRequired: Subject<IpfsCID>;
   public onAccountAdded: Subject<LinkedAccount>;
+  public onPasswordAdded: Subject<void>;
   public onAccountRemoved: Subject<LinkedAccount>;
+  public onPasswordRemoved: Subject<void>;
   public onCohortJoined: Subject<EVMContractAddress>;
   public onCohortLeft: Subject<EVMContractAddress>;
   public onDataPermissionsUpdated: Subject<DataPermissionsUpdatedEvent>;
@@ -47,7 +49,9 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onQueryPosted = new Subject();
     this.onQueryParametersRequired = new Subject();
     this.onAccountAdded = new Subject();
+    this.onPasswordAdded = new Subject();
     this.onAccountRemoved = new Subject();
+    this.onPasswordRemoved = new Subject();
     this.onCohortJoined = new Subject();
     this.onCohortLeft = new Subject();
     this.onDataPermissionsUpdated = new Subject();

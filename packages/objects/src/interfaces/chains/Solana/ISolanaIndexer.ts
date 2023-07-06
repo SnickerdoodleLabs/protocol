@@ -4,10 +4,10 @@ import {
   SolanaNFT,
   SolanaTransaction,
   TokenBalance,
-} from "@objects/businessObjects";
-import { AccountIndexingError, AjaxError } from "@objects/errors";
-import { IIndexer } from "@objects/interfaces/chains/IIndexer";
-import { ChainId, SolanaAccountAddress } from "@objects/primitives";
+} from "@objects/businessObjects/index.js";
+import { AccountIndexingError, AjaxError } from "@objects/errors/index.js";
+import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
+import { ChainId, SolanaAccountAddress } from "@objects/primitives/index.js";
 
 export interface ISolanaIndexer extends IIndexer {
   getBalancesForAccount(
