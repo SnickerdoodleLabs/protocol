@@ -4,6 +4,7 @@ import {
   DuplicateIdInSchema,
   InsightKey,
   IpfsCID,
+  IQueryDeliveryItems,
   MissingTokenConstructorError,
   ParserError,
   PossibleReward,
@@ -14,10 +15,9 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ISDQLQueryUtils {
-  getEligibleCompensations(
+  getCompensationsToDispense(
     schemaString: SDQLString,
-    ads: AdKey[],
-    insights: InsightKey[],
+    queryDeliveryItems: IQueryDeliveryItems,
   ): ResultAsync<
     CompensationKey[],
     | ParserError
@@ -25,7 +25,7 @@ export interface ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
-  >;
+  > 
 
   filterCompensationsForPreviews(
     schemaString: SDQLString,

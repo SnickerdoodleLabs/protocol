@@ -45,6 +45,7 @@ import {
   ISDQLCompensations,
   ERewardType,
   CompensationKey,
+  IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -488,15 +489,15 @@ export class QueryService implements IQueryService {
     query: SDQLQuery,
     config: CoreConfig,
   ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
-    return this.getPossibleInisightAndAdKeys(query).andThen(
-      (possibleInsightsAndAds) => {
+    return this.getPossibleInsightAndAdKeys(query).andThen(
+      (queryDeliveryItems) => {
         return this.getPossibleRewardsFromIP(
           consentToken,
           optInKey,
           consentContractAddress,
           query.cid,
           config,
-          possibleInsightsAndAds,
+          queryDeliveryItems,
         );
       },
     );
@@ -592,7 +593,7 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     queryCID: IpfsCID,
     config: CoreConfig,
-    possibleInsightsAndAds: (InsightKey | AdKey)[],
+    queryDeliveryItems: IQueryDeliveryItems
   ): ResultAsync<PossibleReward[], AjaxError> {
     return this.insightPlatformRepo.receivePreviews(
       consentContractAddress,
@@ -600,35 +601,17 @@ export class QueryService implements IQueryService {
       queryCID,
       optInKey,
       config.defaultInsightPlatformBaseUrl,
-      possibleInsightsAndAds,
+      queryDeliveryItems,
     );
   }
 
-  protected getPossibleInisightAndAdKeys(
+  protected getPossibleInsightAndAdKeys(
     query: SDQLQuery,
-  ): ResultAsync<(InsightKey | AdKey)[], EvaluationError> {
-    const possibleInisightAndAdKeys: (InsightKey | AdKey)[] = [];
-    return this.queryParsingEngine
-      .handleQuery(query, DataPermissions.createWithAllPermissions())
-      .map(({ ads, insights }) => {
-        if (ads) {
-          Object.entries(ads).forEach(([adKey, adValue]) => {
-            if (adValue !== null) {
-              possibleInisightAndAdKeys.push(AdKey(adKey));
-            }
-          }, []);
-
-          if (insights) {
-            Object.entries(insights).forEach(([insightKey, insightValue]) => {
-              if (insightValue !== null) {
-                possibleInisightAndAdKeys.push(InsightKey(insightKey));
-              }
-            });
-          }
-        }
-
-        return possibleInisightAndAdKeys;
-      });
+  ): ResultAsync<IQueryDeliveryItems, EvaluationError> {
+    return this.queryParsingEngine.handleQuery(
+      query,
+      DataPermissions.createWithAllPermissions(),
+    );
   }
 
   public createQueryStatusWithNoConsent(

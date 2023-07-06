@@ -102,14 +102,14 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const tokenId = TokenId(BigInt(req.body.tokenId));
       const queryCID = IpfsCID(req.body.queryCID);
-      const possibleInsightsAndAds = JSON.stringify(req.body.possibleInsightsAndAds);
+      const queryDeliveryItems = JSON.stringify(req.body.queryDeliveryItems);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
         queryCID,
         tokenId,
-        possibleInsightsAndAds,
+        queryDeliveryItems,
       };
 
       const possibleRewards: PossibleReward[] = [];

@@ -39,7 +39,7 @@ export interface IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    possibleInsightsAndAds: (InsightKey | AdKey)[],
+    queryDeliveryItems: IQueryDeliveryItems,
   ): ResultAsync<PossibleReward[], AjaxError>;
 
   deliverInsights(
