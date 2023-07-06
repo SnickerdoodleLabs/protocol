@@ -321,7 +321,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           })
           .andThen(([restored, context]) => {
             this.logUtils.debug(
-              `There are already ${restored.length} backups of all types`,
+              `There are already ${restored.length} restored backups of all types`,
             );
             // Convert to a list of DataBackupID
             const restoredIds = new Set(restored.map((x) => x.id));
