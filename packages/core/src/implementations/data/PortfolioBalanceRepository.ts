@@ -1,4 +1,8 @@
-import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtilsType,
+  ILogUtils,
+  ObjectUtils,
+} from "@snickerdoodlelabs/common-utils";
 import {
   ChainId,
   LinkedAccount,
@@ -17,16 +21,22 @@ import {
   IMasterIndexerType,
   IMasterIndexer,
   MethodSupportError,
+  EChain,
+  ERewardType,
+  DirectReward,
+  EVMNFT,
+  BigNumberString,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { urlJoin } from "url-join-ts";
 
 import {
   IDataWalletPersistence,
@@ -117,6 +127,38 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
   }
 
+  public getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], PersistenceError> {
+    return ResultUtils.combine([
+      this.accountRepo.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([linkedAccounts, config]) => {
+        return ResultUtils.combine(
+          (accounts ?? linkedAccounts).map((linkedAccount) => {
+            return ResultUtils.combine(
+              (chains ?? config.supportedChains).map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
+                return this.getCachedNFTs(
+                  chainId,
+                  linkedAccount.sourceAccountAddress,
+                );
+              }),
+            );
+          }),
+        );
+      })
+      .map((nftArr) => {
+        return nftArr.flat(2);
+      })
+      .mapErr((e) => new PersistenceError("error aggregating nfts", e));
+  }
+
   private getCachedBalances(
     chainId: ChainId,
     accountAddress: AccountAddress,
@@ -152,38 +194,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     });
   }
 
-  public getAccountNFTs(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<WalletNFT[], PersistenceError> {
-    return ResultUtils.combine([
-      this.accountRepo.getAccounts(),
-      this.configProvider.getConfig(),
-    ])
-      .andThen(([linkedAccounts, config]) => {
-        return ResultUtils.combine(
-          (accounts ?? linkedAccounts).map((linkedAccount) => {
-            return ResultUtils.combine(
-              (chains ?? config.supportedChains).map((chainId) => {
-                if (!isAccountValidForChain(chainId, linkedAccount)) {
-                  return okAsync([]);
-                }
-
-                return this.getCachedNFTs(
-                  chainId,
-                  linkedAccount.sourceAccountAddress,
-                );
-              }),
-            );
-          }),
-        );
-      })
-      .map((nftArr) => {
-        return nftArr.flat(2);
-      })
-      .mapErr((e) => new PersistenceError("error aggregating nfts", e));
-  }
-
   private getCachedNFTs(
     chainId: ChainId,
     accountAddress: AccountAddress,
@@ -194,11 +204,48 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     return ResultUtils.combine([
       this._getNftCache(),
       this.contextProvider.getContext(),
-    ]).andThen(([cache, context]) => {
+      this.configProvider.getConfig(),
+    ]).andThen(([cache, context, config]) => {
       return cache.get(chainId, accountAddress).andThen((cacheResult) => {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
+
+        if (chainId == EChain.Astar || chainId == EChain.Shibuya) {
+          return this.accountRepo.getEarnedRewards().map((rewards) => {
+            return (
+              rewards.filter((reward) => {
+                return (
+                  reward.type == ERewardType.Direct &&
+                  (reward as DirectReward).chainId == chainId
+                );
+              }) as DirectReward[]
+            ).map((reward) => {
+              return new EVMNFT(
+                reward.contractAddress,
+                BigNumberString("1"),
+                reward.type,
+                reward.recipientAddress,
+                undefined,
+                {
+                  // Add image URL to the raw data
+                  raw: ObjectUtils.serialize({
+                    ...reward,
+                    image: URLString(
+                      urlJoin(config.ipfsFetchBaseUrl, reward.image),
+                    ),
+                  }),
+                }, // metadata
+                BigNumberString("1"),
+                reward.name,
+                chainId,
+                undefined,
+                undefined,
+              );
+            });
+          });
+        }
+
         const fetch = this.masterIndexer
           .getLatestNFTs(chainId, accountAddress)
           .map((result) => {

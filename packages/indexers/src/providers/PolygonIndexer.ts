@@ -3,7 +3,6 @@ import {
   IAxiosAjaxUtils,
   ILogUtilsType,
   ILogUtils,
-  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -15,11 +14,8 @@ import {
   ITokenPriceRepositoryType,
   TokenBalance,
   EChain,
-  EChainTechnology,
   BigNumberString,
-  TickerSymbol,
   EVMContractAddress,
-  getChainInfoByChainId,
   EVMTransactionHash,
   UnixTimestamp,
   getEtherscanBaseURLForChain,
@@ -32,8 +28,8 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -42,8 +38,9 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
-import { IIndexerHealthCheck } from "@indexers/interfaces/IIndexerHealthCheck.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class PolygonIndexer implements IEVMIndexer {
@@ -61,6 +58,8 @@ export class PolygonIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
@@ -341,7 +340,8 @@ export class PolygonIndexer implements IEVMIndexer {
     return ResultUtils.combine([
       getEtherscanBaseURLForChain(chain),
       this._getEtherscanApiKey(chain),
-    ]).andThen(([baseUrl, apiKey]) => {
+      this.contextProvider.getContext(),
+    ]).andThen(([baseUrl, apiKey, context]) => {
       const url = new URL(
         urlJoinP(baseUrl, ["api"], {
           module: "block",
@@ -352,6 +352,7 @@ export class PolygonIndexer implements IEVMIndexer {
         }),
       );
 
+      context.privateEvents.onApiAccessed.next(EExternalApi.Polygon);
       return this.ajaxUtils
         .get<IPolygonscanBlockNumberResponse>(url)
         .andThen((resp) => {

@@ -1,5 +1,8 @@
-import { DiscordConfig, TwitterConfig } from "@objects/businessObjects";
-import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
+import {
+  DiscordConfig,
+  TwitterConfig,
+} from "@objects/businessObjects/index.js";
+import { ChainId, ProviderUrl, URLString } from "@objects/primitives/index.js";
 
 export interface IConfigOverrides {
   controlChainId?: ChainId;
@@ -38,7 +41,6 @@ export interface IConfigOverrides {
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
-  ceramicNodeURL?: URLString;
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
   defaultGoogleCloudBucket?: string;
@@ -47,6 +49,6 @@ export interface IConfigOverrides {
   twitterOverrides?: Partial<TwitterConfig>;
   heartbeatIntervalMS?: number;
   primaryInfuraKey: string;
-  secondaryInfuraKey: string;
+  secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
 }

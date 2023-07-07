@@ -78,7 +78,6 @@ export class ExtensionCore {
       ankrApiKey: config.ankrApiKey,
 
       dnsServerAddress: config.dnsServerAddress,
-      ceramicNodeUrl: config.ceramicNodeUrl,
       accountBalancePollingIntervalMS: config.portfolioPollingIntervalMS,
       accountIndexingPollingIntervalMS: config.transactionPollingIntervalMS,
       accountNFTPollingIntervalMS: config.portfolioPollingIntervalMS,

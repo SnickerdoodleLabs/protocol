@@ -19,7 +19,9 @@ import {
   AST_Insight,
   AST_PropertyQuery,
   AST_SubQuery,
+  ConditionAnd,
   ConditionG,
+  ConditionOr,
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
@@ -127,7 +129,7 @@ describe("SDQLParser on avalanche", () => {
       expect(a3.name).toBe(SDQL_Name("a3"));
 
       expect(a1.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(typeof a1.target.source == "boolean").toBeTruthy();
+      expect(a1.target.source instanceof AST_BlockchainTransactionQuery ).toBeTruthy();
 
       expect(a2.target instanceof AST_ConditionExpr).toBeTruthy();
       expect(a2.target.source instanceof AST_SubQuery).toBeTruthy();
@@ -203,19 +205,27 @@ describe("SDQLParser on avalanche", () => {
       const c2 = parser.context.get("c2") as AST_Compensation;
       const c3 = parser.context.get("c3") as AST_Compensation;
 
-      expect(c1.requires instanceof AST_Expr).toBeTruthy();
-      expect(c1.requires.source instanceof AST_Insight).toBeTruthy();
-      expect(c1.requires.source).toEqual(parser.context.get("i1"));
+      expect(c1.requires instanceof AST_ConditionExpr).toBeTruthy();
+      expect(c1.requires.source instanceof ConditionOr).toBeTruthy();
+      expect((c1.requires.source as ConditionOr).lval! instanceof AST_Insight).toBeTruthy();
+      expect((c1.requires.source as ConditionOr).lval!).toEqual(parser.context.get("i1"));
+      expect((c1.requires.source as ConditionOr).rval! instanceof AST_Ad).toBeTruthy();
+      expect((c1.requires.source as ConditionOr).rval!).toEqual(parser.context.get("a2"));
 
       expect(c2.requires instanceof AST_ConditionExpr).toBeTruthy();
-      expect(c2.requires.source instanceof ConditionG).toBeTruthy();
-      expect((c2.requires.source as ConditionG).lval! instanceof AST_Insight).toBeTruthy();
-      expect((c2.requires.source as ConditionG).lval!).toEqual(parser.context.get("i2"));
-      expect((c2.requires.source as ConditionG).rval).toBe(10);
+      expect(c2.requires.source instanceof ConditionAnd).toBeTruthy();
+      expect((c2.requires.source as ConditionAnd).lval! instanceof AST_Insight).toBeTruthy();
+      expect((c2.requires.source as ConditionAnd).lval!).toEqual(parser.context.get("i1"));
+      expect((c2.requires.source as ConditionAnd).rval! instanceof AST_Insight).toBeTruthy();
+      expect((c2.requires.source as ConditionAnd).rval!).toEqual(parser.context.get("i2"));
 
-      expect(c3.requires instanceof AST_Expr).toBeTruthy();
-      expect(c3.requires.source instanceof AST_Insight).toBeTruthy();
-      expect(c3.requires.source).toEqual(parser.context.get("i3"));
+
+
+      expect(c3.requires instanceof AST_ConditionExpr).toBeTruthy();
+      expect((c3.requires.source as ConditionOr).lval! instanceof AST_Insight).toBeTruthy();
+      expect((c3.requires.source as ConditionOr).lval!).toEqual(parser.context.get("i3"));
+      expect((c3.requires.source as ConditionOr).rval! instanceof AST_Ad).toBeTruthy();
+      expect((c3.requires.source as ConditionOr).rval!).toEqual(parser.context.get("a1"));
     });
   });
 });

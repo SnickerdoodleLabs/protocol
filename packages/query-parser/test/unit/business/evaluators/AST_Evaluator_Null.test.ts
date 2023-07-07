@@ -5,8 +5,10 @@ import {
   AST_BoolExpr,
   ConditionAnd,
   ConditionOr,
-} from "@query-parser/interfaces/index.js";
+} from "@snickerdoodlelabs/query-parser";
 import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
+
+
 
 describe("Conditions", () => {
   test("boolean null is false", async () => {

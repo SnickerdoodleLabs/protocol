@@ -3,11 +3,13 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  DiscordConfig,
   EChain,
   ECurrencyCode,
   EHashAlgorithm,
   ESignatureAlgorithm,
   IConfigOverrides,
+  LanguageCode,
   ProviderUrl,
   TokenSecret,
   TwitterConfig,
@@ -69,7 +71,7 @@ export class ConfigProvider
       dataAPIUrl: URLString("https://discord.com/api"),
       iconBaseUrl: URLString("https://cdn.discordapp.com/icons"),
       pollInterval: 1 * 24 * 3600 * 1000, // days * hours * seconds * milliseconds
-    };
+    } as DiscordConfig;
 
     const twitterConfig = {
       apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
@@ -82,14 +84,14 @@ export class ConfigProvider
       oAuthCallbackUrl: URLString("spa-url"),
       dataAPIUrl: URLString("https://api.twitter.com/2"),
       pollInterval: 1 * 24 * 3600 * 1000,
-    };
+    } as TwitterConfig;
 
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
-      controlChainId,
-      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
-      chainConfig,
-      controlChainInformation,
+      controlChainId, // controlChainId
+      [ChainId(EChain.DevDoodle)], // supportedChains (local hardhat only for the test harness, we can index other chains here though)
+      chainConfig, // chainInformation
+      controlChainInformation, // controlChainInformation
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
       "ceramic-replacement-bucket",
@@ -128,11 +130,9 @@ export class ConfigProvider
         oklinkApiKey: "", // "700c2f71-a4e2-4a85-b87f-58c8a341d1bf", // oklinkApiKeys
         ankrApiKey: "", // ankrApiKey
         primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc", // primary Infura Key
-        secondaryInfuraKey: "",
+        secondaryInfuraKey: "", // secondaryInfuraKey
       },
-
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
-      URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
@@ -166,7 +166,9 @@ export class ConfigProvider
         10000000, // optOutGas
         10000000, // updateAgreementFlagsGas
       ),
-      ProviderUrl("http://127.0.0.1:8545"),
+      ProviderUrl("http://127.0.0.1:8545"), // devChainProviderURL
+      60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
+      LanguageCode("en"), // passwordLanguageCode
     );
   }
 
@@ -251,8 +253,6 @@ export class ConfigProvider
       this.config.dataWalletBackupIntervalMS;
     this.config.backupChunkSizeTarget =
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
-    this.config.ceramicNodeURL =
-      overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
     this.config.requestForDataCheckingFrequency =
       overrides.requestForDataCheckingFrequency ??
       this.config.requestForDataCheckingFrequency;

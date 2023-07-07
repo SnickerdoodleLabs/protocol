@@ -1,34 +1,35 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   SiftContractError,
-  EVMAccountAddress,
-  IpfsCID,
   TokenUri,
-  Signature,
-  ConsentToken,
-  RequestForData,
-  BlockNumber,
   DomainName,
   BaseURI,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
 
-export interface ISiftContract {
+export interface ISiftContract extends IBaseContract {
   /**
    * Verifies a URL
    * Marks the domain tokenURI value as VERIFIED
    * @param domain Domain name to verify
    */
-  verifyURL(domain: DomainName): ResultAsync<void, SiftContractError>;
+  verifyURL(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 
   /**
    * Sets a URL as malicious
    * Marks the domain tokenURI value as MALICIOUS
    * @param domain Domain name to set as malicious
    */
-  maliciousURL(domain: DomainName): ResultAsync<void, SiftContractError>;
+  maliciousURL(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 
   /**
    * Checks a URL
@@ -42,7 +43,10 @@ export interface ISiftContract {
    * Sets a new base uri for the contract
    * @param baseUri New base uri
    */
-  setBaseURI(baseUri: BaseURI): ResultAsync<void, SiftContractError>;
+  setBaseURI(
+    baseUri: BaseURI,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
 }
 
 export const ISiftContractType = Symbol.for("ISiftContract");

@@ -1,46 +1,30 @@
-import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   AccountIndexingError,
   AjaxError,
   BigNumberString,
-  ChainComponentStatus,
-  chainConfig,
   ChainId,
   ChainTransaction,
   ComponentStatus,
   EChain,
-  EChainType,
   EComponentStatus,
-  EIndexer,
-  EDataProvider,
   EVMAccountAddress,
   getChainInfoByChainId,
   IAlchemyIndexerType,
   IAnkrIndexerType,
   ICovalentEVMTransactionRepositoryType,
-  IDummySolanaIndexerType,
   IEtherscanIndexerType,
-  IEtherscanNativeBalanceRepositoryType,
   IEVMIndexer,
   IMasterIndexer,
   IMoralisEVMPortfolioRepositoryType,
-  IndexerSupportSummary,
   INftScanEVMPortfolioRepositoryType,
   IOklinkIndexerType,
   IPoapRepositoryType,
   IPolygonIndexerType,
   ISimulatorEVMTransactionRepositoryType,
-  ISolanaBalanceRepository,
   ISolanaIndexer,
   ISolanaIndexerType,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
@@ -50,13 +34,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
 import {
   IIndexerContextProvider,
   IIndexerContextProviderType,
@@ -68,20 +48,20 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.EthereumMainnet, [this.ankr, this.etherscan]],
     [EChain.Polygon, [this.ankr, this.alchemy]],
     [EChain.Optimism, [this.ankr, this.alchemy, this.nftscan]],
-    [EChain.Binance, [this.ankr, this.etherscanNative, this.nftscan]],
+    [EChain.Binance, [this.ankr, this.etherscan, this.nftscan]],
     [EChain.Arbitrum, [this.ankr, this.alchemy, this.nftscan]],
-    [EChain.Avalanche, [this.ankr, this.etherscanNative, this.nftscan]],
+    [EChain.Avalanche, [this.ankr, this.etherscan, this.nftscan]],
     //Placeholder for now
     [EChain.DevDoodle , [this.etherscan , this.alchemy] ],
+    /* Etherscan Balance Preferred */
+    [EChain.Moonbeam, [this.etherscan, this.nftscan]],
+    [EChain.Gnosis, [this.etherscan, this.poapRepo]],
+    [EChain.Fuji, [this.etherscan, this.nftscan]],
 
     /* Alchemy Preferred */
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
-
-    /* Etherscan Native Balance Preferred */
-    [EChain.Moonbeam, [this.etherscanNative, this.nftscan]],
-    [EChain.Gnosis, [this.etherscanNative, this.poapRepo]],
-    [EChain.Fuji, [this.etherscanNative, this.nftscan]],
+    [EChain.Shibuya, [this.alchemy]],
   ]);
 
   protected componentStatus: ComponentStatus = new ComponentStatus(
@@ -103,8 +83,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ICovalentEVMTransactionRepositoryType)
     protected covalent: IEVMIndexer,
     @inject(IEtherscanIndexerType) protected etherscan: IEVMIndexer,
-    @inject(IEtherscanNativeBalanceRepositoryType)
-    protected etherscanNative: IEVMIndexer,
     @inject(IMoralisEVMPortfolioRepositoryType) protected moralis: IEVMIndexer,
     @inject(INftScanEVMPortfolioRepositoryType) protected nftscan: IEVMIndexer,
     @inject(IOklinkIndexerType) protected oklink: IEVMIndexer,
@@ -112,7 +90,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(IPolygonIndexerType) protected matic: IEVMIndexer,
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
-
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -125,14 +102,12 @@ export class MasterIndexer implements IMasterIndexer {
 
   /* Sets the health statuses of each provider */
   private getHealthStatuses(): ResultAsync<void, AjaxError> {
-    this.indexerContext.getContext();
     return ResultUtils.combine([
       this.indexerContext.getContext(),
       this.alchemy.getHealthCheck(),
       this.ankr.getHealthCheck(),
       this.covalent.getHealthCheck(),
       this.etherscan.getHealthCheck(),
-      this.etherscanNative.getHealthCheck(),
       this.matic.getHealthCheck(),
       this.moralis.getHealthCheck(),
       this.nftscan.getHealthCheck(),
@@ -147,7 +122,6 @@ export class MasterIndexer implements IMasterIndexer {
         ankrHealth,
         covalentHealth,
         etherscanHealth,
-        etherscanNativeHealth,
         maticHealth,
         moralisHealth,
         nftscanHealth,
@@ -322,7 +296,11 @@ export class MasterIndexer implements IMasterIndexer {
         new Date(timestamp * 1000),
       );
     }
-    const providers = this.preferredIndexers.get(chain)!;
+    let providers = this.preferredIndexers.get(chain);
+    if (providers == null) {
+      this.logUtils.warning(`No preferred indexers for chain ${chain}`);
+      providers = [];
+    }
     const provider = providers.find(
       (element) =>
         element.getSupportedChains().get(chain)?.transactions &&

@@ -91,7 +91,7 @@ export class NftMetadataParseUtils {
   }
 
   private static getAttributes(metadataObj) {
-    return metadataObj.attributes ?? null;
+    return metadataObj.attributes ?? metadataObj.traits ?? null;
   }
 
   private static getName(metadataObj) {

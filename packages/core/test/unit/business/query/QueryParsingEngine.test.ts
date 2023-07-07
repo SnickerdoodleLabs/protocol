@@ -87,7 +87,6 @@ class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public demoDataRepo = td.object<IDemographicDataRepository>();
-  public profileService = td.object<IProfileService>();
   public browsingDataRepo = td.object<IBrowsingDataRepository>();
   public adDataRepo = td.object<AdDataRepository>();
   public socialRepo = td.object<ISocialRepository>();
@@ -134,7 +133,6 @@ class QueryParsingMocks {
     td.when(this.demoDataRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
     );
-    td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoDataRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.demoDataRepo.getLocation()).thenReturn(okAsync(country));
     td.when(
@@ -153,7 +151,6 @@ class QueryParsingMocks {
       this.balanceQueryEvaluator,
       this.blockchainTransactionQueryEvaluator,
       this.nftQueryEvaluator,
-      this.profileService,
       this.demoDataRepo,
       this.browsingDataRepo,
       this.transactionRepo,

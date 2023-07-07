@@ -1,4 +1,4 @@
-import { TickerSymbol, URLString } from "@objects/primitives";
+import { TickerSymbol, URLString } from "@objects/primitives/index.js";
 
 export class TokenMarketData {
   public constructor(

@@ -4,6 +4,7 @@ import {
   ConsentFactoryContract,
   CrumbsContract,
   MinimalForwarderContract,
+  WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AccountAddress,
@@ -17,12 +18,12 @@ import {
   DomainName,
   EVMContractAddress,
   IpfsCID,
+  TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
-
 import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
+import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
@@ -105,7 +106,9 @@ export class BlockchainStuff {
     metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
-    ConsentFactoryContractError | ConsentContractError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | TransactionResponseError
   > {
     return this.consentFactoryContract
       .createConsent(
@@ -113,24 +116,28 @@ export class BlockchainStuff {
         BaseURI(metadataCID),
         name,
       )
-      .map((contractAddress) => {
-        // Got the new consent contract address
-        // Create the contract wrapper
-        const consentContract = new ConsentContract(
-          this.serverSigner,
-          contractAddress,
-          this.cryptoUtils,
-        );
-        this.consentContracts.set(contractAddress, consentContract);
+      .andThen((txRes) => {
+        return this.consentFactoryContract
+          .getAddressOfConsentCreated(txRes)
+          .map((deployedConsentAddress) => {
+            // Got the new consent contract address
+            // Create the contract wrapper
+            const consentContract = new ConsentContract(
+              this.serverSigner,
+              deployedConsentAddress,
+              this.cryptoUtils,
+            );
+            this.consentContracts.set(deployedConsentAddress, consentContract);
 
-        return contractAddress;
+            return deployedConsentAddress;
+          });
       });
   }
 
   public setConsentContractMaxCapacity(
     contractAddress: EVMContractAddress,
     maxCapacity: number,
-  ): ResultAsync<void, ConsentContractError> {
+  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
     const contract = this.getConsentContract(contractAddress);
 
     return contract.updateMaxCapacity(maxCapacity);

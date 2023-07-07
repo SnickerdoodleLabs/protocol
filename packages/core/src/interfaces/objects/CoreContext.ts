@@ -5,10 +5,12 @@ import {
   ComponentStatus,
   DataWalletAddress,
   EVMPrivateKey,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
-import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
+import { PrivateEvents } from "@core/interfaces/objects/PrivateEvents.js";
+import { PublicEvents } from "@core/interfaces/objects/PublicEvents.js";
 
 /**
  * Some people may object to some of the values in here- like private keys.
@@ -25,17 +27,14 @@ import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
  * of the key in this context is unproductive. KISS!
  */
 export class CoreContext implements IIndexerContext {
-  public heartbeat: Subject<void>;
-  // public components: ComponentStatus;
-
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
     public dataWalletKey: EVMPrivateKey | null,
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
+    public privateEvents: PrivateEvents,
     public restoreInProgress: boolean,
+    public startTime: UnixTimestamp,
     public components: ComponentStatus,
-  ) {
-    this.heartbeat = new Subject();
-  }
+  ) {}
 }

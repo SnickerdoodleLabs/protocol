@@ -17,7 +17,6 @@ import {
   AlchemyIndexer,
   CovalentEVMTransactionRepository,
   EtherscanIndexer,
-  EtherscanNativeBalanceRepository,
   MoralisEVMPortfolioRepository,
   NftScanEVMPortfolioRepository,
   OklinkIndexer,
@@ -41,7 +40,6 @@ import {
   IAnkrIndexerType,
   ICovalentEVMTransactionRepositoryType,
   IEtherscanIndexerType,
-  IEtherscanNativeBalanceRepositoryType,
   IEVMIndexer,
   IMasterIndexer,
   IMasterIndexerType,
@@ -76,8 +74,6 @@ import {
   VolatileStorageSchemaProvider,
 } from "@snickerdoodlelabs/persistence";
 import {
-  IQueryFactories,
-  IQueryFactoriesType,
   IQueryObjectFactory,
   IQueryObjectFactoryType,
   IQueryRepository,
@@ -88,10 +84,12 @@ import {
   ISDQLQueryUtilsType,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
-  QueryFactories,
   QueryObjectFactory,
   SDQLParserFactory,
   SDQLQueryUtils,
+  IQueryFactories,
+  IQueryFactoriesType,
+  QueryFactories,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
@@ -110,9 +108,10 @@ import {
   IntegrationService,
   InvitationService,
   MarketplaceService,
+  QueryParsingEngine,
+  MetricsService,
   MonitoringService,
   ProfileService,
-  QueryParsingEngine,
   QueryService,
   SiftContractService,
   TwitterService,
@@ -141,6 +140,7 @@ import {
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  MetricsRepository,
   OauthUtils,
   PermissionRepository,
   PortfolioBalanceRepository,
@@ -150,9 +150,7 @@ import {
   TransactionHistoryRepository,
   TwitterRepository,
 } from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-} from "@core/implementations/utilities/factory/index.js";
+import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
@@ -182,6 +180,8 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -254,6 +254,8 @@ import {
   ITransactionHistoryRepositoryType,
   ITwitterRepository,
   ITwitterRepositoryType,
+  IMetricsRepository,
+  IMetricsRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -308,6 +310,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
+      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
@@ -361,6 +366,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+    bind<IMetricsRepository>(IMetricsRepositoryType)
+      .to(MetricsRepository)
       .inSingletonScope();
 
     // Data Persistence and Indexing
@@ -512,10 +520,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IEVMIndexer>(IEtherscanIndexerType)
       .to(EtherscanIndexer)
-      .inSingletonScope();
-
-    bind<IEVMIndexer>(IEtherscanNativeBalanceRepositoryType)
-      .to(EtherscanNativeBalanceRepository)
       .inSingletonScope();
 
     bind<IEVMIndexer>(IMoralisEVMPortfolioRepositoryType)

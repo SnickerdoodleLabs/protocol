@@ -26,6 +26,7 @@ import {
 import {
   AccountAddress,
   EarnedReward,
+  EInvitationStatus,
   ETag,
   EVMContractAddress,
   EWalletDataType,
@@ -215,7 +216,19 @@ const RewardProgramDetails: FC = () => {
 
   const isSubscribed = useMemo(() => {
     return optedInContracts.includes(consentContractAddress);
-  }, [optedInContracts, consentContractAddress]);
+  }, [JSON.stringify(optedInContracts), consentContractAddress]);
+
+
+  useEffect(() => {
+    if(!isSubscribed){
+    window.sdlDataWallet
+      .checkInvitationStatus(consentContractAddress)
+      .map((invitationStatus) => {
+        if (invitationStatus === EInvitationStatus.Accepted)
+          updateOptedInContracts();
+      });
+    }
+  }, [consentContractAddress, isSubscribed]);
 
   useEffect(() => {
     getCapacityInfo();

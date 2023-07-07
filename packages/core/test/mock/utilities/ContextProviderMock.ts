@@ -4,13 +4,20 @@ import {
   DataWalletAddress,
   EChain,
   EComponentStatus,
+  EExternalApi,
   IpfsCID,
   LinkedAccount,
   SDQLQueryRequest,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { Subject } from "rxjs";
 
-import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+import {
+  CoreContext,
+  PrivateEvents,
+  PublicEvents,
+} from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import {
   dataWalletAddress,
@@ -21,26 +28,32 @@ export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
 
   public publicEvents: PublicEvents;
+  public privateEvents: PrivateEvents;
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
   public onQueryParametersRequiredActivations: IpfsCID[] = [];
   public onAccountAddedActivations: LinkedAccount[] = [];
+  public onPasswordAddedActivations: void[] = [];
   public onAccountRemovedActivations: LinkedAccount[] = [];
+  public onPasswordRemovedActivations: void[] = [];
   public onDataPermissionsUpdatedActivations: DataPermissionsUpdatedEvent[] =
     [];
   public heartbeatActivations: void[] = [];
+  public onApiAccessedActivations: EExternalApi[] = [];
 
   constructor(context: CoreContext | null = null) {
     if (context != null) {
       this.context = context;
     } else {
       this.context = new CoreContext(
-        dataWalletAddress,
-        dataWalletKey,
-        false,
-        new PublicEvents(),
-        false,
+        dataWalletAddress, // dataWalletAddress
+        dataWalletKey, // dataWalletKey
+        false, // unlockInProgress
+        new PublicEvents(), //publicEvents
+        new PrivateEvents(), // privateEvents
+        false, // restoreInProgress
+        UnixTimestamp(0), // startTime,
         new ComponentStatus(
           EComponentStatus.TemporarilyDisabled,
           EComponentStatus.TemporarilyDisabled,
@@ -50,11 +63,12 @@ export class ContextProviderMock implements IContextProvider {
           new Map<EChain, EComponentStatus>(),
           new Map<EChain, EComponentStatus>(),
           [],
-        ),
+        ), // components
       );
     }
 
     this.publicEvents = this.context.publicEvents;
+    this.privateEvents = this.context.privateEvents;
 
     this.publicEvents.onInitialized.subscribe((val) => {
       this.onInitializedActivations.push(val);
@@ -72,16 +86,28 @@ export class ContextProviderMock implements IContextProvider {
       this.onAccountAddedActivations.push(val);
     });
 
+    this.publicEvents.onPasswordAdded.subscribe((val) => {
+      this.onPasswordAddedActivations.push(val);
+    });
+
     this.publicEvents.onAccountRemoved.subscribe((val) => {
       this.onAccountRemovedActivations.push(val);
+    });
+
+    this.publicEvents.onPasswordRemoved.subscribe((val) => {
+      this.onPasswordRemovedActivations.push(val);
     });
 
     this.publicEvents.onDataPermissionsUpdated.subscribe((val) => {
       this.onDataPermissionsUpdatedActivations.push(val);
     });
 
-    this.context.heartbeat.subscribe((val) => {
+    this.privateEvents.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
+    });
+
+    this.privateEvents.onApiAccessed.subscribe((val) => {
+      this.onApiAccessedActivations.push(val);
     });
   }
 
@@ -101,9 +127,12 @@ export class ContextProviderMock implements IContextProvider {
       onQueryPosted: 0,
       onQueryParametersRequired: 0,
       onAccountAdded: 0,
+      onPasswordAdded: 0,
       onAccountRemoved: 0,
+      onPasswordRemoved: 0,
       onDataPermissionsUpdated: 0,
       heartbeat: 0,
+      onApiAccessed: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -115,13 +144,18 @@ export class ContextProviderMock implements IContextProvider {
       counts.onQueryParametersRequired,
     );
     expect(this.onAccountAddedActivations.length).toBe(counts.onAccountAdded);
+    expect(this.onPasswordAddedActivations.length).toBe(counts.onPasswordAdded);
     expect(this.onAccountRemovedActivations.length).toBe(
       counts.onAccountRemoved,
+    );
+    expect(this.onPasswordRemovedActivations.length).toBe(
+      counts.onPasswordRemoved,
     );
     expect(this.onDataPermissionsUpdatedActivations.length).toBe(
       counts.onDataPermissionsUpdated,
     );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
+    expect(this.onApiAccessedActivations.length).toBe(counts.onApiAccessed);
   }
 }
 
@@ -130,7 +164,10 @@ export interface IExpectedEventCounts {
   onQueryPosted?: number;
   onQueryParametersRequired?: number;
   onAccountAdded?: number;
+  onPasswordAdded?: number;
   onAccountRemoved?: number;
+  onPasswordRemoved?: number;
   onDataPermissionsUpdated?: number;
   heartbeat?: number;
+  onApiAccessed?: number;
 }

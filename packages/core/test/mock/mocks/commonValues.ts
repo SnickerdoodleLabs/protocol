@@ -11,6 +11,7 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  LanguageCode,
   ProviderUrl,
   SDQLQuery,
   SDQLString,
@@ -156,7 +157,6 @@ export const testCoreConfig = new CoreConfig(
     secondaryInfuraKey: "",
   },
   URLString("http://dnsServerAddress"),
-  URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
   100, // etherscan tx batch size
   5000,
@@ -185,7 +185,9 @@ export const testCoreConfig = new CoreConfig(
     10000000, // optOutGas
     10000000, // updateAgreementFlagsGas
   ), // metatransactionGasAmounts
-  ProviderUrl(""),
+  ProviderUrl(""), // devChainProviderUrl
+  60, // maxStatsRetentionSeconds
+  LanguageCode("en-pw"), // passwordLanguageCode
 );
 
 

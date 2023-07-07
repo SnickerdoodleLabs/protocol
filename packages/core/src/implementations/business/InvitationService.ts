@@ -825,12 +825,9 @@ export class InvitationService implements IInvitationService {
                 callData, // The actual bytes of the request, encoded as a hex string
               );
 
-              console.log("CHARLIE got encoded stuff and nonce", request);
-
               return this.forwarderRepo
                 .signMetatransactionRequest(request, optInPrivateKey)
                 .andThen((metatransactionSignature) => {
-                  console.log("CHARLIE signed metatransaction");
                   // Got the signature for the metatransaction, now we can execute it.
                   // .executeMetatransaction will sign everything and have the server run
                   // the metatransaction.

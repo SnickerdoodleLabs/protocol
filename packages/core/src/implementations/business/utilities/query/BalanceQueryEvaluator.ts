@@ -19,7 +19,7 @@ import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,

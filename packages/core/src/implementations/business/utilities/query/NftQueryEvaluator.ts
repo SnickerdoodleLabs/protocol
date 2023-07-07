@@ -14,7 +14,7 @@ import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { INftQueryEvaluator } from "@core/interfaces/business/utilities/query/INftQueryEvaluator";
+import { INftQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,

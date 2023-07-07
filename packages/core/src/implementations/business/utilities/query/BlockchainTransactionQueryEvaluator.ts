@@ -8,7 +8,7 @@ import { AST_BlockchainTransactionQuery } from "@snickerdoodlelabs/query-parser"
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/query/IBlockchainTransactionQueryEvaluator";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,

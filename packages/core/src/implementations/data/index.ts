@@ -12,6 +12,7 @@ export * from "@core/implementations/data/InvitationRepository.js";
 export * from "@core/implementations/data/LinkedAccountRepository.js";
 export * from "@core/implementations/data/MarketplaceRepository.js";
 export * from "@core/implementations/data/MetatransactionForwarderRepository.js";
+export * from "@core/implementations/data/MetricsRepository.js";
 export * from "@core/implementations/data/PermissionRepository.js";
 export * from "@core/implementations/data/PortfolioBalanceRepository.js";
 export * from "@core/implementations/data/SDQLQueryRepository.js";

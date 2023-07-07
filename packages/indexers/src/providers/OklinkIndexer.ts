@@ -1,4 +1,3 @@
-import { Metaplex } from "@metaplex-foundation/js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -26,6 +25,7 @@ import {
   EComponentStatus,
   IndexerSupportSummary,
   EDataProvider,
+  EExternalApi,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,7 +36,9 @@ import Web3 from "web3";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/interfaces/IIndexerConfigProvider.js";
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
+} from "@indexers/interfaces/index.js";
 
 @injectable()
 export class OklinkIndexer implements IEVMIndexer {
@@ -66,6 +68,8 @@ export class OklinkIndexer implements IEVMIndexer {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
+    @inject(IIndexerContextProviderType)
+    protected contextProvider: IIndexerContextProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
@@ -83,8 +87,9 @@ export class OklinkIndexer implements IEVMIndexer {
     return ResultUtils.combine([
       this._getOKXConfig(chainId),
       this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
     ])
-      .andThen(([okxSettings, config]) => {
+      .andThen(([okxSettings, config, context,]) => {
         const chainInfo = this.getChainShortName(chainId);
         const url = urlJoinP(
           "https://www.oklink.com/api/v5/explorer/address/",
@@ -96,6 +101,7 @@ export class OklinkIndexer implements IEVMIndexer {
           },
         );
 
+        context.privateEvents.onApiAccessed.next(EExternalApi.Oklink);
         return this.ajaxUtils.get<IOKXNativeBalanceResponse>(new URL(url), {
           headers: {
             "Ok-Access-Key": config.apiKeys.oklinkApiKey,

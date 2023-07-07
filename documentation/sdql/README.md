@@ -81,6 +81,8 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `10`: Optimism Mainnet
 - `42161`: Arbitrum Mainnet
 - `592`: Astar Mainnet
+- `81`: Astar Testnet (Shibuya)
+
 
 - `*`: all supported networks
 

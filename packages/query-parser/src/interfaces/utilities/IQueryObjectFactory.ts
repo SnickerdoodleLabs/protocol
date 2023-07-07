@@ -11,7 +11,7 @@ import {
   AST_NftQuery,
   AST_PropertyQuery,
 } from "@query-parser/interfaces/objects";
-import { Condition } from "@query-parser/interfaces/objects/condition";
+import { Condition } from "@query-parser/interfaces/objects/condition/index.js";
 
 export interface IQueryObjectFactory {
   parseConditions(queryConditions: ISDQLQueryConditions): Array<Condition>;

@@ -1,4 +1,4 @@
-import { EVMAccountAddress, EVMPrivateKey } from "@objects/primitives";
+import { EVMAccountAddress, EVMPrivateKey } from "@objects/primitives/index.js";
 
 export class ExternallyOwnedAccount {
   public constructor(

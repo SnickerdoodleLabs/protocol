@@ -163,10 +163,6 @@ export const configs: IExtensionConfigOverrides = {
     typeof __DOMAIN_FILTER__ !== "undefined" && !!__DOMAIN_FILTER__
       ? __DOMAIN_FILTER__
       : "(localhost|chrome://)",
-  ceramicNodeUrl:
-    typeof __CERAMIC_NODE_URL__ !== "undefined" && !!__CERAMIC_NODE_URL__
-      ? __CERAMIC_NODE_URL__
-      : URLString(""),
   portfolioPollingIntervalMS:
     typeof __PORTFOLIO_POLLING_INTERVAL__ !== "undefined" &&
     !!__PORTFOLIO_POLLING_INTERVAL__

@@ -1,5 +1,5 @@
-import { ERewardType } from "@objects/enum";
-import { ChainId, CompensationKey, IpfsCID } from "@objects/primitives";
+import { ERewardType } from "@objects/enum/index.js";
+import { ChainId, CompensationKey, IpfsCID } from "@objects/primitives/index.js";
 
 export class EligibleReward {
   public constructor(

@@ -10,7 +10,12 @@ export interface IBlockchainProvider {
   // derived DataWallet Key.
   getPrimarySigner(): ResultAsync<Wallet, BlockchainProviderError>;
 
+  // The primary provider is required. A secondary provider is optional
   getPrimaryProvider(): ResultAsync<JsonRpcProvider, BlockchainProviderError>;
+  getSecondaryProvider(): ResultAsync<
+    JsonRpcProvider | null,
+    BlockchainProviderError
+  >;
 
   getLatestBlock(
     chainId?: ChainId,

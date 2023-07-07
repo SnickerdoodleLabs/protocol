@@ -1,4 +1,7 @@
-import { EncryptedString, InitializationVector } from "@objects/primitives";
+import {
+  EncryptedString,
+  InitializationVector,
+} from "@objects/primitives/index.js";
 
 export class AESEncryptedString {
   public constructor(

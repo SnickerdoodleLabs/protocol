@@ -1,8 +1,6 @@
-import {
-  DataPermissions,
-  EWalletDataType,
-  HexString32,
-} from "@snickerdoodlelabs/objects";
+import { DataPermissions } from "@objects/businessObjects/index.js";
+import { EWalletDataType } from "@objects/enum/index.js";
+import { HexString32 } from "@objects/primitives/index.js";
 
 describe("DataPermissions bitwise operation tests", () => {
   test("0x0000000b contains b, a, 8, 1, 0", () => {

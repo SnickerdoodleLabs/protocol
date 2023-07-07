@@ -6,6 +6,7 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   ExternallyOwnedAccount,
+  PasswordString,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -16,10 +17,17 @@ export interface IDataWalletUtils {
     accountAddress: AccountAddress,
     signature: Signature,
   ): ResultAsync<AESKey, never>;
+  deriveEncryptionKeyFromPassword(
+    password: PasswordString,
+  ): ResultAsync<AESKey, never>;
 
   getDerivedEVMAccountFromSignature(
     accountAddress: AccountAddress,
     signature: Signature,
+  ): ResultAsync<ExternallyOwnedAccount, never>;
+
+  getDerivedEVMAccountFromPassword(
+    password: PasswordString,
   ): ResultAsync<ExternallyOwnedAccount, never>;
 
   /**

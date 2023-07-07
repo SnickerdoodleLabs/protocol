@@ -1,10 +1,10 @@
-import { ChainTransaction } from "@objects/businessObjects";
+import { ChainTransaction } from "@objects/businessObjects/versioned/index.js";
 import {
   ChainId,
   AccountAddress,
   TransactionHash,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class TransactionFilter {
   public chainIDs?: Set<ChainId>;

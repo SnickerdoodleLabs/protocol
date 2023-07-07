@@ -3,9 +3,7 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  IHeartbeatGenerator,
-} from "@core/interfaces/api/index.js";
+import { IHeartbeatGenerator } from "@core/interfaces/api/index.js";
 import {
   IConfigProviderType,
   IConfigProvider,
@@ -22,7 +20,7 @@ export class HeartbeatGenerator implements IHeartbeatGenerator {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  initialize(): ResultAsync<void, never> {
+  public initialize(): ResultAsync<void, never> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -32,12 +30,12 @@ export class HeartbeatGenerator implements IHeartbeatGenerator {
       );
       setInterval(() => {
         this.contextProvider.getContext().map((context) => {
-          context.heartbeat.next(undefined);
+          context.privateEvents.heartbeat.next(undefined);
         });
       }, config.heartbeatIntervalMS);
 
       // Hit the first heartbeat right after startup
-      context.heartbeat.next(undefined);
+      context.privateEvents.heartbeat.next(undefined);
     });
   }
 }

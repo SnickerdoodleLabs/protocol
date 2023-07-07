@@ -11,8 +11,11 @@ import {
   ConditionIn,
   ConditionL,
   ConditionOr,
-} from "@query-parser/interfaces/index.js";
+} from "@snickerdoodlelabs/query-parser";
 import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
+
+
+
 // const ast = new AST(
 //     Version("0.1"),
 //     "Interactions with the Avalanche blockchain for 15-year and older individuals",

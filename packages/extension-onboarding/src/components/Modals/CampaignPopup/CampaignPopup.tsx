@@ -96,8 +96,10 @@ const CampaignPopup: FC = () => {
               title: "Thank you for your interest!",
               message: (() => {
                 switch (invitationStatus) {
-                  case EInvitationStatus.Accepted:
+                  case EInvitationStatus.Accepted: {
+                    updateOptedInContracts();
                     return "Looks like you have claimed this reward already. You can see your reward in your portfolio.";
+                  }
                   case EInvitationStatus.Occupied:
                     return "Looks like this reward link has been reserved for another data wallet user.";
                   case EInvitationStatus.OutOfCapacity:

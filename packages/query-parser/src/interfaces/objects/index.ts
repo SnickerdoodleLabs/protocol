@@ -18,4 +18,5 @@ export * from "@query-parser/interfaces/objects/Command_IF.js";
 export * from "@query-parser/interfaces/objects/Operator.js";
 export * from "@query-parser/interfaces/objects/SDQLQueryWrapper.js";
 export * from "@query-parser/interfaces/objects/TypeChecker.js";
+
 export * from "@query-parser/interfaces/objects/condition/index.js";

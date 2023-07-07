@@ -6,7 +6,7 @@ import {
   EVMContractAddress,
   HexString,
   Signature,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class MetatransactionSignatureRequest<TErr = unknown> {
   public constructor(
