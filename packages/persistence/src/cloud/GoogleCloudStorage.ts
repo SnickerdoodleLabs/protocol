@@ -19,6 +19,7 @@ import {
   EBackupPriority,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Err, ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -118,6 +119,7 @@ export class GoogleCloudStorage implements ICloudStorage {
         return this.insightPlatformRepo.clearAllBackups(
           privateKey,
           config.defaultInsightPlatformBaseUrl,
+          ECloudStorageType.Snickerdoodle,
           addr,
         );
       })

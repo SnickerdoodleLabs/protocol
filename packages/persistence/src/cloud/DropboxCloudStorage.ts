@@ -19,6 +19,7 @@ import {
   EBackupPriority,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Err, ok, okAsync, Result, ResultAsync, errAsync } from "neverthrow";
@@ -35,7 +36,7 @@ import {
 } from "@persistence/IPersistenceConfigProvider.js";
 
 @injectable()
-export class DropBoxStorage implements ICloudStorage {
+export class DropboxCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
   private _unlockPromise: Promise<EVMPrivateKey>;
@@ -61,6 +62,8 @@ export class DropBoxStorage implements ICloudStorage {
   ): ResultAsync<void, PersistenceError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
+    // username/password or an auth token from the FF
     this._resolveUnlock!(derivedKey);
     return okAsync(undefined);
   }
@@ -70,23 +73,24 @@ export class DropBoxStorage implements ICloudStorage {
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
-    return errAsync(
-      new PersistenceError("Error: DropBox clear() is not implemented yet"),
-    );
-    // return ResultUtils.combine([
-    //   this.waitForUnlock(),
-    //   this._configProvider.getConfig(),
-    // ])
-    //   .andThen(([privateKey, config]) => {
-    //     const addr =
-    //       this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-    //     return this.insightPlatformRepo.clearAllBackups(
-    //       privateKey,
-    //       config.defaultInsightPlatformBaseUrl,
-    //       addr,
-    //     );
-    //   })
-    //   .mapErr((e) => new PersistenceError("error clearing gcp", e));
+    // return errAsync(
+    //   new PersistenceError("Error: DropBox clear() is not implemented yet"),
+    // );
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ])
+      .andThen(([privateKey, config]) => {
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        return this.insightPlatformRepo.clearAllBackups(
+          privateKey,
+          config.defaultInsightPlatformBaseUrl,
+          ECloudStorageType.Dropbox,
+          addr,
+        );
+      })
+      .mapErr((e) => new PersistenceError("error clearing gcp", e));
   }
 
   public pollByPriority(
@@ -103,40 +107,40 @@ export class DropBoxStorage implements ICloudStorage {
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
-    return errAsync(
-      new PersistenceError("Error: DropBox putBackup() is not implemented yet"),
-    );
-    // return ResultUtils.combine([
-    //   this.waitForUnlock(),
-    //   this._configProvider.getConfig(),
-    // ])
-    //   .andThen(([privateKey, config]) => {
-    //     const defaultInsightPlatformBaseUrl =
-    //       config.defaultInsightPlatformBaseUrl;
-    //     const addr =
-    //       this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+    // return errAsync(
+    //   new PersistenceError("Error: DropBox putBackup() is not implemented yet"),
+    // );
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ])
+      .andThen(([privateKey, config]) => {
+        const defaultInsightPlatformBaseUrl =
+          config.defaultInsightPlatformBaseUrl;
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-    //     const fileName = ParsedBackupFileName.fromHeader(
-    //       backup.header,
-    //     ).render();
-    //     return this.insightPlatformRepo.getSignedUrl(
-    //       privateKey,
-    //       defaultInsightPlatformBaseUrl,
-    //       addr + "/" + fileName,
-    //     );
-    //   })
-    //   .andThen((signedUrl) => {
-    //     // if (signedUrl === typeof URLString) {
-    //     return this.ajaxUtils
-    //       .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
-    //         headers: {
-    //           "Content-Type": `multipart/form-data;`,
-    //         },
-    //       })
-    //       .map(() => DataWalletBackupID(backup.header.hash));
-    //     // }
-    //   })
-    //   .mapErr((e) => new PersistenceError("error putting backup", e));
+        const fileName = ParsedBackupFileName.fromHeader(
+          backup.header,
+        ).render();
+        return this.insightPlatformRepo.getSignedUrl(
+          privateKey,
+          defaultInsightPlatformBaseUrl,
+          addr + "/" + fileName,
+        );
+      })
+      .andThen((signedUrl) => {
+        // if (signedUrl === typeof URLString) {
+        return this.ajaxUtils
+          .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
+            headers: {
+              "Content-Type": `multipart/form-data;`,
+            },
+          })
+          .map(() => DataWalletBackupID(backup.header.hash));
+        // }
+      })
+      .mapErr((e) => new PersistenceError("error putting backup", e));
   }
 
   public pollBackups(
@@ -241,7 +245,6 @@ export class DropBoxStorage implements ICloudStorage {
     IGoogleWalletBackupDirectory,
     PersistenceError | AjaxError
   > {
-    
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),

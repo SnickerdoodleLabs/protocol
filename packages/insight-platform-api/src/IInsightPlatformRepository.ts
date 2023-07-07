@@ -1,3 +1,4 @@
+import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BigNumberString,
@@ -21,6 +22,7 @@ export interface IInsightPlatformRepository {
   clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
+    storageType: ECloudStorageType,
     walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError>;
   getSignedUrl(

@@ -41,6 +41,7 @@ import {
   IReceivePreviewsParams,
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
+import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -52,10 +53,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
+    storageType: ECloudStorageType,
     walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError> {
     const signableData = {
       walletAddress: walletAddress,
+      storageType: storageType,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
