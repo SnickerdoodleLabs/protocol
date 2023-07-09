@@ -104,7 +104,7 @@ const rewardParameter = {
     type: ESolidityAbiParameterType.address,
     value: "Phoebe",
   },
-  CompensationKey: {
+  compensationKey: {
     type: ESolidityAbiParameterType.string,
     value: "c1",
   },
@@ -186,10 +186,10 @@ class QueryServiceMocks {
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
             val.length == 1 &&
-            val[0].CompensationKey.type ==
-              rewardParameter.CompensationKey.type &&
-            val[0].CompensationKey.value ==
-              rewardParameter.CompensationKey.value &&
+            val[0].compensationKey.type ==
+              rewardParameter.compensationKey.type &&
+            val[0].compensationKey.value ==
+              rewardParameter.compensationKey.value &&
             val[0].recipientAddress.type ==
               rewardParameter.recipientAddress.type &&
             val[0].recipientAddress.value ==

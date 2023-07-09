@@ -172,29 +172,6 @@ export class QueryService implements IQueryService {
               config,
             );
           });
-        // return ResultUtils.combine([
-        //   this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-        //     queryWrapper.sdqlQuery,
-        //     consentToken.dataPermissions,
-        //     requestForData.consentContractAddress,
-        //   ),
-        //   this.dataWalletUtils.deriveOptInPrivateKey(
-        //     requestForData.consentContractAddress,
-        //     context.dataWalletKey!,
-        //   ),
-        // ]).andThen(([[permittedQueryIds, expectedRewards], optInKey]) => {
-        //   return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-        //     consentToken,
-        //     optInKey,
-        //     requestForData.consentContractAddress,
-        //     queryWrapper.sdqlQuery,
-        //     accounts,
-        //     context,
-        //     config,
-        //     permittedQueryIds,
-        //     expectedRewards,
-        //   );
-        // });
       });
     });
   }
@@ -434,67 +411,6 @@ export class QueryService implements IQueryService {
       .map(() => {});
   }
 
-  protected validateContextConfig(
-    context: CoreContext,
-    consentToken: ConsentToken | null,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
-    if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-      return errAsync(
-        new UninitializedError("Data wallet has not been unlocked yet!"),
-      );
-    }
-
-    if (consentToken == null) {
-      return errAsync(
-        new ConsentError(`Data wallet is not opted in to the contract!`),
-      );
-    }
-    return okAsync(undefined);
-  }
-
-  // /**
-  //  * @deprecated
-  //  */
-  // protected publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-  //   consentToken: ConsentToken,
-  //   optInKey: EVMPrivateKey,
-  //   consentContractAddress: EVMContractAddress,
-  //   query: SDQLQuery,
-  //   accounts: LinkedAccount[],
-  //   context: CoreContext,
-  //   config: CoreConfig,
-  //   permittedQueryIds: SubQueryKey[],
-  //   expectedRewards: ExpectedReward[],
-  // ): ResultAsync<void, EvaluationError | ServerRewardError> {
-  //   return this.getPossibleRewardsFromIP(
-  //     consentToken,
-  //     optInKey,
-  //     consentContractAddress,
-  //     query.cid,
-  //     config,
-  //     permittedQueryIds,
-  //   ).andThen((eligibleRewards) => {
-  //     if (
-  //       !this.areExpectedAndEligibleRewardsEqual(
-  //         eligibleRewards,
-  //         expectedRewards,
-  //       )
-  //     )
-  //       return errAsync(
-  //         new ServerRewardError(
-  //           "Insight Platform Rewards do not match Expected Rewards!",
-  //         ),
-  //       );
-
-  //     return this.publishSDQLQueryRequest(
-  //       consentContractAddress,
-  //       query,
-  //       eligibleRewards,
-  //       accounts,
-  //       context,
-  //     );
-  //   });
-  // }
   public getPossibleRewards(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
@@ -514,6 +430,26 @@ export class QueryService implements IQueryService {
         );
       },
     );
+  }
+
+  public createQueryStatusWithNoConsent(
+    requestForData: RequestForData,
+    queryWrapper: SDQLQueryWrapper,
+  ): ResultAsync<void, EvaluationError> {
+    return this.sdqlQueryRepo
+      .upsertQueryStatus([
+        new QueryStatus(
+          requestForData.consentContractAddress,
+          requestForData.requestedCID,
+          requestForData.blockNumber,
+          EQueryProcessingStatus.NoConsentToken,
+          queryWrapper.expiry,
+          null,
+        ),
+      ])
+      .andThen(() => {
+        return errAsync(new EvaluationError(`Consent token not found!`));
+      });
   }
 
   protected constructAndPublishSDQLQueryRequest(
@@ -541,7 +477,6 @@ export class QueryService implements IQueryService {
       );
     });
   }
-
   // eslint-disable-next-line @typescript-eslint/adjacent-overload-signatures
   protected publishSDQLQueryRequest(
     consentContractAddress: EVMContractAddress,
@@ -564,6 +499,24 @@ export class QueryService implements IQueryService {
     return okAsync(undefined);
   }
 
+  protected getPossibleRewardsFromIP(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    queryCID: IpfsCID,
+    config: CoreConfig,
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): ResultAsync<PossibleReward[], AjaxError> {
+    return this.insightPlatformRepo.receivePreviews(
+      consentContractAddress,
+      consentToken.tokenId,
+      queryCID,
+      optInKey,
+      config.defaultInsightPlatformBaseUrl,
+      queryDeliveryItems,
+    );
+  }
+
   protected getQueryByCID(
     queryId: IpfsCID,
   ): ResultAsync<SDQLQueryWrapper, AjaxError | IPFSError> {
@@ -582,40 +535,22 @@ export class QueryService implements IQueryService {
     });
   }
 
-  // Will need refactoring when we include lazy rewards
-  // private areExpectedAndEligibleRewardsEqual(
-  //   eligibleRewards: EligibleReward[],
-  //   expectedRewards: ExpectedReward[],
-  // ): boolean {
-  //   const expectedRewardKeysSet: Set<string> = new Set(
-  //     expectedRewards.map((expectedReward) => expectedReward.compensationKey),
-  //   );
+  protected validateContextConfig(
+    context: CoreContext,
+    consentToken: ConsentToken | null,
+  ): ResultAsync<void, UninitializedError | ConsentError> {
+    if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+      return errAsync(
+        new UninitializedError("Data wallet has not been unlocked yet!"),
+      );
+    }
 
-  //   return (
-  //     // Only comparing the keys is enough.
-  //     eligibleRewards.length == expectedRewards.length &&
-  //     eligibleRewards.every((elem) =>
-  //       expectedRewardKeysSet.has(elem.compensationKey),
-  //     )
-  //   );
-  // }
-
-  protected getPossibleRewardsFromIP(
-    consentToken: ConsentToken,
-    optInKey: EVMPrivateKey,
-    consentContractAddress: EVMContractAddress,
-    queryCID: IpfsCID,
-    config: CoreConfig,
-    queryDeliveryItems: IQueryDeliveryItems
-  ): ResultAsync<PossibleReward[], AjaxError> {
-    return this.insightPlatformRepo.receivePreviews(
-      consentContractAddress,
-      consentToken.tokenId,
-      queryCID,
-      optInKey,
-      config.defaultInsightPlatformBaseUrl,
-      queryDeliveryItems,
-    );
+    if (consentToken == null) {
+      return errAsync(
+        new ConsentError(`Data wallet is not opted in to the contract!`),
+      );
+    }
+    return okAsync(undefined);
   }
 
   protected getPossibleInsightAndAdKeys(
@@ -625,25 +560,5 @@ export class QueryService implements IQueryService {
       query,
       DataPermissions.createWithAllPermissions(),
     );
-  }
-
-  public createQueryStatusWithNoConsent(
-    requestForData: RequestForData,
-    queryWrapper: SDQLQueryWrapper,
-  ): ResultAsync<void, EvaluationError> {
-    return this.sdqlQueryRepo
-      .upsertQueryStatus([
-        new QueryStatus(
-          requestForData.consentContractAddress,
-          requestForData.requestedCID,
-          requestForData.blockNumber,
-          EQueryProcessingStatus.NoConsentToken,
-          queryWrapper.expiry,
-          null,
-        ),
-      ])
-      .andThen(() => {
-        return errAsync(new EvaluationError(`Consent token not found!`));
-      });
   }
 }

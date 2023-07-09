@@ -6,7 +6,7 @@ export interface ITypeAndValue {
 }
 
 export interface IDynamicRewardParameter {
-  CompensationKey: ITypeAndValue;
+  compensationKey: ITypeAndValue;
   recipientAddress: ITypeAndValue;
   [index: string]: ITypeAndValue;
 }
