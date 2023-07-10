@@ -1,0 +1,47 @@
+{
+  "name": "@snickerdoodlelabs/iframe",
+  "version": "0.0.1",
+  "description": "Account indexer implementations compatible with Snickerdoodle Core",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/iframe#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle Labs",
+    "SDQL"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn compile && yarn postCompile",
+    "dockerize": "docker build --build-arg NATS_URL=wss://dev-nats.hypernet.foundation:4221 -t hypernetlabs/hypernet-protocol-core-iframe:local -f Dockerfile --progress=plain ../..",
+    "docker-push": "docker push hypernetlabs/hypernet-protocol-core-iframe:local",
+    "dev": "webpack watch --config webpack.config.js --mode development",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "alias": "tsc-alias",
+    "postCompile": "webpack",
+    "prepare": "yarn build",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/core": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "postmate": "^1.5.2"
+  }
+}

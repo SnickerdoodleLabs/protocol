@@ -1,0 +1,26 @@
+{
+	"extends": "../../tsconfig.build.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"module": "ES2022",
+		"paths": {
+			"@web-integration/*": [
+			  "./packages/web-integration/src/*"
+			],
+		  },
+	},
+	"references": [
+		{
+			"path": "../common-utils"
+		},
+		{
+			"path": "../objects"
+		},
+    {
+			"path": "../utils"
+		}
+	],
+	"include": ["./src/**/*.ts", "../persistence/src/volatile/IndexedDBUtils.ts"],
+	"exclude": ["node_modules"]
+}

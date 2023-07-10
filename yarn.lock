@@ -7830,6 +7830,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/iframe@workspace:packages/iframe":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/iframe@workspace:packages/iframe"
+  dependencies:
+    "@snickerdoodlelabs/core": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/utils": "workspace:^"
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    postmate: ^1.5.2
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/indexers@workspace:^, @snickerdoodlelabs/indexers@workspace:packages/indexers":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/indexers@workspace:packages/indexers"
@@ -8145,6 +8158,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     inversify: ^5.1.1
     neverthrow: ^5.1.0
+    postmate: ^1.5.2
   languageName: unknown
   linkType: soft
 
@@ -32996,6 +33010,13 @@ __metadata:
   version: 2.1.0
   resolution: "postinstall-postinstall@npm:2.1.0"
   checksum: e1d34252cf8d2c5641c7d2db7426ec96e3d7a975f01c174c68f09ef5b8327bc8d5a9aa2001a45e693db2cdbf69577094d3fe6597b564ad2d2202b65fba76134b
+  languageName: node
+  linkType: hard
+
+"postmate@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "postmate@npm:1.5.2"
+  checksum: 098eb5ea9d90469fbeff0a43e2eb4047157132e61985dfe6eefcb65b612a87ec764b463238373eb76e66ba644ab64d581f40dcf3c0b23877cddc741927968e76
   languageName: node
   linkType: hard
 

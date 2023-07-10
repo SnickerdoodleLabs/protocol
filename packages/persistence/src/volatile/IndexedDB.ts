@@ -400,7 +400,7 @@ export class IndexedDB {
           return result.filter((x) => {
             return x.deleted == EBoolean.FALSE;
           });
-        }); 
+        });
       });
     });
   }

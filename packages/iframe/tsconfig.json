@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@core-iframe/*": [
+        "./packages/iframe/src/*"
+      ],
+    },
+  },
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../utils"
+    }
+  ],
+  "include": ["./src/**/*.ts"],
+  "exclude": ["node_modules"],
+}

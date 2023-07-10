@@ -99,7 +99,7 @@ export class ConfigProvider
       5000, // polling interval balance
       5000, // polling interval nfts
       60000, // backup interval
-      5, // backup chunk size target
+      5, // backupChunkSizeTarget
       {
         alchemyApiKeys: {
           Arbitrum: "",

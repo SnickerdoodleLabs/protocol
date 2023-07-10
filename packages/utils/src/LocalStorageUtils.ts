@@ -22,17 +22,15 @@ export class LocalStorageUtils implements IStorageUtils {
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
     const keys = typeof key === "object" ? key : { [key]: value };
-    Object.entries(keys).map(([k, val]) =>
-      LocalStorageUtils.localStorage.setItem(k, JSON.stringify(val)),
-    );
+    Object.entries(keys).map(([k, val]) => {
+      return LocalStorageUtils.localStorage.setItem(k, JSON.stringify(val));
+    });
     return okAsync(undefined);
   }
 
   public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
-    return okAsync(
-      LocalStorageUtils.localStorage.getItem(key) &&
-        ObjectUtils.deserialize(LocalStorageUtils.localStorage.getItem(key)),
-    );
+    const item = LocalStorageUtils.localStorage.getItem(key);
+    return okAsync(ObjectUtils.deserialize(item));
   }
 
   public clear(): ResultAsync<void, PersistenceError> {

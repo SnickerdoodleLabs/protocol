@@ -1,6 +1,6 @@
 {
-  "name": "@snickerdoodlelabs/utils",
-  "version": "0.0.2",
+  "name": "@snickerdoodlelabs/web-integration",
+  "version": "0.0.1",
   "description": "Utilities for general consumption within the Snickerdoodle Protocol",
   "license": "ISC",
   "repository": {
@@ -10,12 +10,12 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/utils#readme",
-  "author": "Fatih Toker <fatih@snickerdoodlelabs.io>",
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/web-integration#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
   "keywords": [
     "Snickerdoodle",
     "Core",
-    "Utils"
+    "Web"
   ],
   "main": "dist/index.js",
   "files": [
@@ -38,10 +38,16 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/common-utils": "workspace:^",
-    "@snickerdoodlelabs/objects": "workspace:^",
-    "inversify": "^5.1.1",
+    "@snickerdoodlelabs/common-utils": "^workspace:^",
+    "@snickerdoodlelabs/objects": "^workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
+    "ethers": "^5.6.6",
     "neverthrow": "^5.1.0",
-    "postmate": "^1.5.2"
+    "postmate": "^1.5.2",
+    "rxjs": "^7.5.5"
+  },
+  "peerDependencies": {
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
   }
 }
