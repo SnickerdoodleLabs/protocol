@@ -61,6 +61,15 @@ export class ExtensionUtils {
     });
   };
 
+  public static reloadTab = (tabId: number | undefined) => {
+    if (!tabId) {
+      return okAsync(undefined);
+    }
+    return ResultAsync.fromSafePromise(
+      browser.tabs.reload(tabId, { bypassCache: true }),
+    );
+  };
+
   public static updateWindowPosition = (
     windowId: number,
     left: number,
@@ -103,7 +112,6 @@ export class ExtensionUtils {
   public static switchToUrlTab = (
     url: string,
     openIfNotExist = false,
-    closeCurrenTab = false,
   ): ResultAsync<void, Error> => {
     let constructedUrl: URL;
     try {
@@ -134,27 +142,19 @@ export class ExtensionUtils {
             if (tab.id === currentTab?.id) {
               return okAsync(undefined);
             }
-            return ExtensionUtils.switchToTab(tab.id, closeCurrenTab).map(
-              () => {},
-            );
+            return ExtensionUtils.switchToTab(tab.id)
+              .andThen(() => {
+                return ExtensionUtils.reloadTab(tab.id);
+              })
+              .map(() => {});
           }
           return openIfNotExist
-            ? (closeCurrenTab
-                ? ExtensionUtils.closeCurrenTab()
-                : okAsync(undefined)
-              ).andThen(() => {
-                return ExtensionUtils.openTab({ url }).map(() => {});
-              })
+            ? ExtensionUtils.openTab({ url }).map(() => {})
             : okAsync(undefined);
         });
       } else {
         return openIfNotExist
-          ? (closeCurrenTab
-              ? ExtensionUtils.closeCurrenTab()
-              : okAsync(undefined)
-            ).andThen(() => {
-              return ExtensionUtils.openTab({ url }).map(() => {});
-            })
+          ? ExtensionUtils.openTab({ url }).map(() => {})
           : okAsync(undefined);
       }
     });
@@ -254,20 +254,16 @@ export class ExtensionUtils {
     });
   };
 
-  public static switchToTab(tabId: number | undefined, closeCurrenTab = false) {
-    return (
-      closeCurrenTab ? ExtensionUtils.closeCurrenTab() : okAsync(undefined)
-    ).andThen(() => {
-      return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
-        browser.tabs.update(tabId, { active: true }),
-      ).andThen((tab) => {
-        const err = ExtensionUtils.checkForError();
-        if (err) {
-          return errAsync(err);
-        } else {
-          return okAsync(tab);
-        }
-      });
+  public static switchToTab(tabId: number | undefined) {
+    return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
+      browser.tabs.update(tabId, { active: true }),
+    ).andThen((tab) => {
+      const err = ExtensionUtils.checkForError();
+      if (err) {
+        return errAsync(err);
+      } else {
+        return okAsync(tab);
+      }
     });
   }
 

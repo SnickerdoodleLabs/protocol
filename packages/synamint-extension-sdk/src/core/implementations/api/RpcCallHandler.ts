@@ -594,7 +594,7 @@ export class RpcCallHandler implements IRpcCallHandler {
             ? ExtensionUtils.closeTab(sender.tab.id)
             : okAsync(undefined)
         ).andThen(() => {
-          return ExtensionUtils.switchToTab(params.tabId, true).map(() => {});
+          return ExtensionUtils.switchToTab(params.tabId).map(() => {});
         });
       },
     ),
