@@ -100,19 +100,15 @@ export class IndexedDB {
       }
     });
 
-    this._initialized = ResultAsync.fromPromise(
-      promise,
-      (e) => new PersistenceError("error initializing object store", e),
-    )
-      .andThen((db) => {
-        this._db = db;
-        return this.persist();
-      })
-      .andThen((persisted) => {
-        console.log("Local storage persisted: " + persisted);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return okAsync(this._db!);
+    this._initialized = ResultAsync.fromPromise(promise, (e) => {
+      return new PersistenceError("error initializing object store", e);
+    }).andThen((db) => {
+      this._db = db;
+      return this.persist().andThen((persisted) => {
+        console.log("IndexDB Persist success: " + persisted);
+        return okAsync(db);
       });
+    });
 
     return this._initialized;
   }
@@ -122,13 +118,16 @@ export class IndexedDB {
       typeof navigator === "undefined" ||
       !(navigator.storage && navigator.storage.persist)
     ) {
+      console.warn("navigator.storage does not exist not supported");
       return okAsync(false);
     }
 
-    return ResultAsync.fromPromise(
-      navigator.storage.persist(),
-      (e) => new PersistenceError(JSON.stringify(e)),
-    );
+    return ResultAsync.fromPromise(navigator.storage.persist(), (e) => {
+      return new PersistenceError(
+        "Unable to call navigator.storage.persist",
+        e,
+      );
+    });
   }
 
   private getTransaction(

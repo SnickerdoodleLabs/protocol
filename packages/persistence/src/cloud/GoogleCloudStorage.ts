@@ -3,6 +3,8 @@ import {
   IAxiosAjaxUtilsType,
   CryptoUtils,
   ICryptoUtilsType,
+  ILogUtilsType,
+  ILogUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -22,7 +24,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
-import { IGoogleWalletBackupDirectory } from "@persistence/cloud/IGoogleBackup.js";
+import { IGoogleFileBackup, IGoogleWalletBackupDirectory } from "@persistence/cloud/IGoogleBackup.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -44,6 +46,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -54,11 +57,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     restored: Set<DataWalletBackupID>,
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return this.getWalletListing().andThen((backupsDirectory) => {
-      const files = backupsDirectory.items;
-      if (files == undefined) {
-        return okAsync([]);
-      }
+    return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
         return okAsync([]);
       }
@@ -92,11 +91,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   public getLatestBackup(
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
-    return this.getWalletListing().andThen((backupsDirectory) => {
-      const files = backupsDirectory.items;
-      if (files == undefined) {
-        return okAsync(null);
-      }
+    return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
         return okAsync(null);
       }
@@ -213,11 +208,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return this.getWalletListing()
-      .andThen((backupsDirectory) => {
-        const files = backupsDirectory.items;
-        if (files == undefined) {
-          return okAsync([]);
-        }
+      .andThen((files) => {
         if (files.length == 0) {
           return okAsync([]);
         }
@@ -243,11 +234,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
-    return this.getWalletListing().map((backupsDirectory) => {
-      const files = backupsDirectory.items;
-      if (files == undefined) {
-        return [];
-      }
+    return this.getWalletListing().map((files) => {
       if (files.length == 0) {
         return [];
       }
@@ -262,8 +249,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   public fetchBackup(
     backupHeader: BackupFileName,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return this.getWalletListing().andThen((backupsDirectory) => {
-      const files = backupsDirectory.items;
+    return this.getWalletListing().andThen((files) => {
       if (files == undefined) {
         return okAsync([]);
       }
@@ -287,7 +273,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   protected getWalletListing(): ResultAsync<
-    IGoogleWalletBackupDirectory,
+    IGoogleFileBackup[],
     PersistenceError
   > {
     return ResultUtils.combine([
@@ -296,18 +282,27 @@ export class GoogleCloudStorage implements ICloudStorage {
     ])
       .andThen(([privateKey, config]) => {
         const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
-        const addr =
+
+        // Unlock provides the data wallet private key, we need the actual account
+        const dataWalletAddress =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        const dataWalletFolder =
-          "https://storage.googleapis.com/storage/v1/b/" +
-          defaultGoogleCloudBucket +
-          "/o?prefix=" +
-          addr;
+
+        const dataWalletFolder = `https://storage.googleapis.com/storage/v1/b/${defaultGoogleCloudBucket}/o?prefix=${dataWalletAddress}`;
+
         return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
           new URL(dataWalletFolder),
         );
       })
-      .mapErr((e) => new PersistenceError("Error getting wallet listing", e));
+      .map((backupDirectory) => {
+        if (backupDirectory.items == undefined) {
+          return [];
+        }
+        return backupDirectory.items;
+      })
+      .orElse((e) => {
+        this.logUtils.error("Error getting wallet listing from Google", e);
+        return okAsync([]);
+      });
   }
 }
 

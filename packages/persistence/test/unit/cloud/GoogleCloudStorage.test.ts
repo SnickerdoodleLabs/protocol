@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { Storage } from "@google-cloud/storage";
-import { AxiosAjaxUtils, CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { AxiosAjaxUtils, CryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import * as td from "testdouble";
 
@@ -13,12 +13,14 @@ class GoogleCloudMocks {
   public _cryptoUtils: CryptoUtils;
   public insightPlatformRepo: IInsightPlatformRepository;
   public ajaxAxiosUtils: AxiosAjaxUtils;
+  public logUtils: ILogUtils;
 
   public constructor() {
     this._configProvider = td.object<IPersistenceConfigProvider>();
     this._cryptoUtils = td.object<CryptoUtils>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.ajaxAxiosUtils = td.object<AxiosAjaxUtils>();
+    this.logUtils = td.object<ILogUtils>();
   }
   public factory(): GoogleCloudStorage {
     return new GoogleCloudStorage(
@@ -26,6 +28,7 @@ class GoogleCloudMocks {
       this._cryptoUtils,
       this.insightPlatformRepo,
       this.ajaxAxiosUtils,
+      this.logUtils,
     );
   }
 }
