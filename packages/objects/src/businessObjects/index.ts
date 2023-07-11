@@ -1,5 +1,6 @@
 export * from "@objects/businessObjects/AdContent.js";
 export * from "@objects/businessObjects/AESEncryptedString.js";
+export * from "@objects/businessObjects/BackupStat.js";
 export * from "@objects/businessObjects/ChainInformation.js";
 export * from "@objects/businessObjects/ClickFilter.js";
 export * from "@objects/businessObjects/ComponentStatus.js";
