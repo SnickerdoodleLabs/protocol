@@ -18,13 +18,17 @@ import {
   EBackupPriority,
   BackupFileName,
   StorageKey,
+  DataWalletBackupHeader,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
-import { IGoogleFileBackup, IGoogleWalletBackupDirectory } from "@persistence/cloud/IGoogleBackup.js";
+import {
+  IGoogleFileBackup,
+  IGoogleWalletBackupDirectory,
+} from "@persistence/cloud/IGoogleBackup.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -77,12 +81,7 @@ export class GoogleCloudStorage implements ICloudStorage {
             );
           })
           .map((file) => {
-            return this.ajaxUtils
-              .get<DataWalletBackup>(new URL(file.mediaLink))
-              .mapErr(
-                (e) =>
-                  new PersistenceError(`Error fetching backup ${file.name}`, e),
-              );
+            return this.getBackupFile(file);
           }),
       );
     });
@@ -121,12 +120,7 @@ export class GoogleCloudStorage implements ICloudStorage {
         return okAsync(null);
       }
 
-      return this.ajaxUtils
-        .get<DataWalletBackup>(new URL(sorted[0].mediaLink))
-        .mapErr(
-          (e) =>
-            new PersistenceError(`Error fetching backup ${sorted[0].name}`, e),
-        );
+      return this.getBackupFile(sorted[0]);
     });
   }
 
@@ -224,9 +218,7 @@ export class GoogleCloudStorage implements ICloudStorage {
               return !restored.has(DataWalletBackupID(parsed.hash));
             })
             .map((file) => {
-              return this.ajaxUtils.get<DataWalletBackup>(
-                new URL(file.mediaLink),
-              );
+              return this.getBackupFile(file);
             }),
         );
       })
@@ -247,7 +239,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public fetchBackup(
-    backupHeader: BackupFileName,
+    backupFileName: BackupFileName,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return this.getWalletListing().andThen((files) => {
       if (files == undefined) {
@@ -261,15 +253,41 @@ export class GoogleCloudStorage implements ICloudStorage {
       return ResultUtils.combine(
         files
           .filter((file) => {
-            return file.name.includes(backupHeader);
+            return file.name.includes(backupFileName);
           })
           .map((file) => {
-            return this.ajaxUtils
-              .get<DataWalletBackup>(new URL(file.mediaLink))
-              .mapErr((e) => new PersistenceError("error fetching backup", e));
+            return this.getBackupFile(file);
           }),
       );
     });
+  }
+
+  protected getBackupFile(
+    googleFile: IGoogleFileBackup,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
+    return this.ajaxUtils
+      .get<DataWalletBackup>(new URL(googleFile.mediaLink))
+      .map((untyped) => {
+        // The data retrieved from Google is untyped, so we need to convert it to the real thing
+        // so that the getters work
+        return new DataWalletBackup(
+          new DataWalletBackupHeader(
+            untyped.header.hash,
+            untyped.header.timestamp,
+            untyped.header.signature,
+            untyped.header.priority,
+            untyped.header.dataType,
+            untyped.header.isField,
+          ),
+          untyped.blob, // The blob doesn't need to be typed
+        );
+      })
+      .mapErr((e) => {
+        return new PersistenceError(
+          `Error fetching backup ${googleFile.name}`,
+          e,
+        );
+      });
   }
 
   protected getWalletListing(): ResultAsync<

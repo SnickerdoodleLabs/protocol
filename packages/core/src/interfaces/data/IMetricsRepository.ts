@@ -13,17 +13,16 @@ export interface IMetricsRepository {
   recordApiCall(api: EExternalApi): ResultAsync<void, never>;
   recordQueryPosted(): ResultAsync<void, never>;
   getApiStatSummaries(): ResultAsync<StatSummary[], never>;
-  
+
   getCreatedBackupsSummary(): ResultAsync<StatSummary, never>;
   getCreatedBackupsByTypeSummary(): ResultAsync<StatSummary[], never>;
   getCreatedBackups(): ResultAsync<BackupStat[], never>;
-  
+
   getRestoredBackupsSummary(): ResultAsync<StatSummary, never>;
   getRestoredBackupsByTypeSummary(): ResultAsync<StatSummary[], never>;
   getRestoredBackups(): ResultAsync<BackupStat[], never>;
-  
-  getQueriesPostedSummary(): ResultAsync<StatSummary, never>;
 
+  getQueriesPostedSummary(): ResultAsync<StatSummary, never>;
 
   recordBackupCreated(
     storageType: EDataStorageType,
