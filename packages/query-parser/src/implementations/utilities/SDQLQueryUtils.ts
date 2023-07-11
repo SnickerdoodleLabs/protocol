@@ -375,6 +375,7 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
    * @returns
    */
   public filterCompensationsForPreviews(
+    queryCID : IpfsCID,
     schemaString: SDQLString,
     activeCompensationKeys: CompensationKey[],
     possibleInsightsAndAds: (InsightKey | AdKey)[],
@@ -387,7 +388,7 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
     | QueryExpiredError
   > {
     return this.parserFactory
-      .makeParser(IpfsCID(""), schemaString)
+      .makeParser(queryCID, schemaString)
       .andThen((parser) => {
         return parser.buildAST().andThen((ast) => {
           const compensationQueryDependeciesAsync = activeCompensationKeys.map(
