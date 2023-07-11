@@ -565,7 +565,7 @@ describe("BackupManager Tests", () => {
     expect(result.isErr()).toBeFalsy();
   });
 
-  test("popRendered() works", async () => {
+  test("markRenderedChunkAsRestored() works", async () => {
     // Arrange
     const mocks = new BackupManagerMocks();
 
@@ -587,7 +587,7 @@ describe("BackupManager Tests", () => {
     const result = await backupManager
       .addRecord(recordKey, new VolatileStorageMetadata(testRecord, now)) // Have to provide the timestamp manually, otherwise it defaults to Date.now(), which is very hard to mock correctly
       .andThen(() => {
-        return backupManager.popRendered(recordBackupId);
+        return backupManager.markRenderedChunkAsRestored(recordBackupId);
       })
       .andThen(() => {
         return backupManager.getRendered();

@@ -32,7 +32,14 @@ export interface IBackupManager {
   getRendered(
     force?: boolean,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
-  popRendered(id: DataWalletBackupID): ResultAsync<void, PersistenceError>;
+
+  /**
+   * Marks a backup from getRendered() as having been restored.
+   * @param id
+   */
+  markRenderedChunkAsRestored(
+    id: DataWalletBackupID,
+  ): ResultAsync<void, PersistenceError>;
 
   unpackBackupChunk(
     backup: DataWalletBackup,

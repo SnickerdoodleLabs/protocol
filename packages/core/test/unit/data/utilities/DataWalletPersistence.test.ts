@@ -188,10 +188,10 @@ class DataWalletPersistenceMocks {
       okAsync([fieldBackup, recordBackup]),
     );
 
-    td.when(this.backupManager.popRendered(fieldBackupId)).thenReturn(
+    td.when(this.backupManager.markRenderedChunkAsRestored(fieldBackupId)).thenReturn(
       okAsync(undefined),
     );
-    td.when(this.backupManager.popRendered(recordBackupId)).thenReturn(
+    td.when(this.backupManager.markRenderedChunkAsRestored(recordBackupId)).thenReturn(
       okAsync(undefined),
     );
 

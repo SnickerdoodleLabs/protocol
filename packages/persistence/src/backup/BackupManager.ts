@@ -349,13 +349,13 @@ export class BackupManager implements IBackupManager {
     });
   }
 
-  public popRendered(
+  public markRenderedChunkAsRestored(
     id: DataWalletBackupID,
   ): ResultAsync<void, PersistenceError> {
     if (!this.renderedChunks.has(id)) {
       return errAsync(
         new PersistenceError(
-          `There is no backup with ID ${id} that was rendered, cannot pop it.`,
+          `There is no backup with ID ${id} that was rendered, cannot mark it as restored.`,
           id,
         ),
       );

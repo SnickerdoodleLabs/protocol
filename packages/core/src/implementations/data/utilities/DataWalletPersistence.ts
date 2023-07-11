@@ -41,7 +41,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
@@ -417,7 +417,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               return this.cloudStorage
                 .putBackup(backup)
                 .andThen((id) => {
-                  return backupManager.popRendered(id);
+                  return backupManager.markRenderedChunkAsRestored(id);
                 })
                 .andThen(() => {
                   return this.contextProvider.getContext();
