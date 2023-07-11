@@ -85,6 +85,40 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  /* 
+    TODO: Reading and Writing Before Unlock() - passed from the cloud storage techniques
+  */
+  public readBeforeUnlock<T extends VersionedObject>(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.cloudStorage.readBeforeUnlock();
+  }
+
+  public writeBeforeUnlock<T extends VersionedObject>(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.cloudStorage.writeBeforeUnlock();
+  }
+
+  public getObject<T extends VersionedObject>(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.volatileSchemaProvider
+      .getVolatileStorageSchema()
+      .andThen((schema) => {
+        const priority = schema.get(name)?.priority;
+        return this.waitForPriority(priority);
+      })
+      .andThen(() => {
+        return this.volatileStorage
+          .getObject<T>(name, key)
+          .map((x) => (x == null ? null : x.data));
+      });
+  }
+
   public getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError> {
     return this.fieldSchemaProvider
       .getLocalStorageSchema()

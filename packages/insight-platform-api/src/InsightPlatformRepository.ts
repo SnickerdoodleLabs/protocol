@@ -20,6 +20,7 @@ import {
   Signature,
   TokenId,
   URLString,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -41,7 +42,6 @@ import {
   IReceivePreviewsParams,
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
-import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {

@@ -7,6 +7,8 @@ import {
   AjaxError,
   EBackupPriority,
   BackupFileName,
+  ERecordKey,
+  VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -17,6 +19,25 @@ import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
+
+  constructor(
+    @inject(IStorageUtilsType)
+    protected storageUtils: IStorageUtils,
+  ) {}
+
+  public readBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.storageUtils.read(key);
+  }
+
+  public writeBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<void, PersistenceError> {
+    return this.storageUtils.write(key);
+  }
 
   public pollByPriority(
     restored: Set<DataWalletBackupID>,

@@ -72,6 +72,8 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
+  ICloudStorage,
+  GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -271,6 +273,8 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+import { IGoogleCloudStorageType } from "@snickerdoodlelabs/persistence";
+import { IDropboxCloudStorageType } from "@snickerdoodlelabs/persistence";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -507,6 +511,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    bind<ICloudStorage>(IGoogleCloudStorageType)
+      .to(GoogleCloudStorage)
+      .inSingletonScope();
+
+    bind<ICloudStorage>(IDropboxCloudStorageType)
+      .to(DropboxCloudStorage)
+      .inSingletonScope();
 
     /* EVM compatible Indexers */
     bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();

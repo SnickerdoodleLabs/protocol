@@ -1,3 +1,5 @@
+import { ERecordKey } from "@snickerdoodlelabs/objects";
+import { VolatileStorageKey } from "@snickerdoodlelabs/objects";
 import {
   PersistenceError,
   DataWalletBackup,
@@ -9,6 +11,17 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
+
+  readBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError>;
+
+  writeBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError>;
+
   unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   putBackup(
     backup: DataWalletBackup,
@@ -31,4 +44,6 @@ export interface ICloudStorage {
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
 }
 
+export const IGoogleCloudStorageType = Symbol.for("IGoogleCloudStorage");
+export const IDropboxCloudStorageType = Symbol.for("IDropboxCloudStorage");
 export const ICloudStorageType = Symbol.for("ICloudStorage");

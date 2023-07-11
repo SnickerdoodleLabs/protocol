@@ -20,6 +20,8 @@ import {
   BackupFileName,
   StorageKey,
   ECloudStorageType,
+  ERecordKey,
+  VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Err, ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -55,6 +57,22 @@ export class GoogleCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+  }
+
+  // TODO
+  public readBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.storageUtils.read(key);
+  }
+
+  // TODO
+  public writeBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
   }
 
   public pollByPriority(

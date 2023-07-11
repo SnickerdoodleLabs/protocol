@@ -190,8 +190,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
+    // Passing in: username/password
     if (cloudStorage != null) {
-      this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
+      // this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
+      this.iocContainer.bind(ICloudStorageType).to
     } else {
       this.iocContainer
         .bind(ICloudStorageType)

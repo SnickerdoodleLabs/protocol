@@ -20,6 +20,8 @@ import {
   BackupFileName,
   StorageKey,
   ECloudStorageType,
+  ERecordKey,
+  VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Err, ok, okAsync, Result, ResultAsync, errAsync } from "neverthrow";
@@ -55,6 +57,27 @@ export class DropboxCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+  }
+
+  // TODO
+  public readBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    const ACCESS_TOKEN = "";
+    const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+    const file = dbx.;
+    return okAsync(file);
+  }
+
+  // TODO
+  public writeBeforeUnlock(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<void, PersistenceError> {
+    const ACCESS_TOKEN = "";
+    const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+    return okAsync(undefined);
   }
 
   public unlock(
