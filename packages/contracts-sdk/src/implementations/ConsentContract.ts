@@ -834,6 +834,7 @@ export class ConsentContract
     );
   }
 
+  // TODOSEAN: no longer needed
   protected generateError(
     msg: string,
     reason: string | undefined,

@@ -7,6 +7,8 @@ import {
   EVMContractAddress,
   IBlockchainError,
   EVMAccountAddress,
+  InsufficientFundsError,
+  blockchainErrorMapping,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -39,39 +41,49 @@ export abstract class BaseContract<TError> implements IBaseContract {
 
   //generateError, generates a T, Error
 
-  protected abstract generateError(
+  //TODOSEAN: no longer needed
+  /*  protected abstract generateError(
     msg: string,
     reason: string | undefined,
     e: unknown,
-  ): TError;
+  ): TError; */
 
   // Takes the contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
   protected writeToContract(
     functionName: string,
     functionParams: any[],
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, TError> {
+  ): ResultAsync<WrappedTransactionResponse, InsufficientFundsError> {
     return ResultAsync.fromPromise(
       this.contract[functionName](...functionParams, {
         ...overrides,
       }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
-        return this.generateError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return e;
       },
-    ).map((transactionResponse) => {
-      return BaseContract.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        this.contractAbi,
-      );
-    });
+    )
+      .map((transactionResponse) => {
+        return BaseContract.buildWrappedTransactionResponse(
+          transactionResponse,
+          EVMContractAddress(this.contract.address),
+          EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+          functionName,
+          functionParams,
+          this.contractAbi,
+        );
+      })
+      .mapErr((e) => {
+        return this.getBlockchainErrorType(e.reason);
+      });
+  }
+
+  // Function to return the correct error type based on mapping of error message
+  protected getBlockchainErrorType(
+    reason: string | undefined,
+  ): InsufficientFundsError {
+    const errorType: Error | undefined = blockchainErrorMapping.get(reason ? reason : "");
+
+    return new errorType(reason);
   }
 
   static buildWrappedTransactionResponse(

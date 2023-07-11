@@ -32,6 +32,7 @@ const errorCodes = {
   UninitializedError: "ERR_UNINITIALIZED",
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   GasPriceError: "ERR_GAS_PRICE",
+  InsufficientFundsError: "ERR_INSUFFICIENT_FUNDS",
 };
 
 export default errorCodes;

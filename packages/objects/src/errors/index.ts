@@ -35,3 +35,5 @@ export * from "@objects/errors/TwitterError.js";
 export * from "@objects/errors/UnauthorizedError.js";
 export * from "@objects/errors/UninitializedError.js";
 export * from "@objects/errors/UnsupportedLanguageError.js";
+export * from "@objects/errors/InsufficientFundsError.js";
+export * from "@objects/errors/BlockchainErrorMapping.js";
