@@ -53,7 +53,13 @@ export class BlockchainProvider implements IBlockchainProvider {
         // The secondary is optional, and depends on the config. We only have backups for non-devchains
 
         if (config.controlChainId != EChain.DevDoodle) {
-          if (config.apiKeys.secondaryInfuraKey != null) {
+          if (
+            config.apiKeys.secondaryInfuraKey != null &&
+            config.apiKeys.secondaryInfuraKey != ""
+          ) {
+            this.logUtils.log(
+              `Configuring secondary provider with secondaryInfuraKey for network ${config.controlChainInformation.networkName}`,
+            );
             this.secondaryProvider = new ethers.providers.JsonRpcProvider(
               `https://${config.controlChainInformation.networkName}.infura.io/v3/${config.apiKeys.secondaryInfuraKey}`,
             );
