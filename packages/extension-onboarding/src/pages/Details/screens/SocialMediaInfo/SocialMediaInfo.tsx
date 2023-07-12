@@ -28,8 +28,8 @@ export default () => {
     switch (key) {
       case ESocialType.DISCORD:
         return <DiscordInfo name={name} icon={icon} />;
-      case ESocialType.TWITTER:
-        return <TwitterInfo name={name} icon={icon} />;
+      // case ESocialType.TWITTER:
+      //   return <TwitterInfo name={name} icon={icon} />;
 
       default:
         return null;

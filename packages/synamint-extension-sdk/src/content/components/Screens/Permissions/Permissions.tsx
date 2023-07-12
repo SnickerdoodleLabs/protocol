@@ -66,8 +66,8 @@ const Permissions: FC<IPermissionsProps> = ({
   }>();
   const [socialProfileValues, setSocialProfileValues] = useState<{
     discordProfiles: DiscordProfile[];
-    twitterProfiles: TwitterProfile[];
-  }>({ discordProfiles: [], twitterProfiles: [] });
+    // twitterProfiles: TwitterProfile[];
+  }>({ discordProfiles: [] });
   const [rewards, setRewards] = useState<{
     earnedRewards: EarnedReward[];
     possibleRewards: PossibleReward[];
@@ -117,9 +117,10 @@ const Permissions: FC<IPermissionsProps> = ({
   const getSocialProfileValues = () => {
     return ResultUtils.combine([
       coreGateway.discord.getUserProfiles(),
-      coreGateway.twitter.getUserProfiles(),
-    ]).map(([discordProfiles, twitterProfiles]) => {
-      const values = { discordProfiles, twitterProfiles };
+      // coreGateway.twitter.getUserProfiles(),
+    ]).map(([discordProfiles]) => {
+      const values = { discordProfiles };
+      // , twitterProfiles };
       setSocialProfileValues(values);
       return values;
     });
@@ -170,11 +171,11 @@ const Permissions: FC<IPermissionsProps> = ({
           (item) => item != EWalletDataType.Discord,
         );
       }
-      if (!sValues.twitterProfiles.length) {
-        permissions = permissions.filter(
-          (item) => item != EWalletDataType.Twitter,
-        );
-      }
+      // if (!sValues.twitterProfiles.length) {
+      //   permissions = permissions.filter(
+      //     (item) => item != EWalletDataType.Twitter,
+      //   );
+      // }
       return permissions;
     });
   }, [JSON.stringify(profileValues), JSON.stringify(socialProfileValues)]);
@@ -190,8 +191,8 @@ const Permissions: FC<IPermissionsProps> = ({
           return !!profileValues?.gender;
         case EWalletDataType.Discord:
           return !!socialProfileValues?.discordProfiles.length;
-        case EWalletDataType.Twitter:
-          return !!socialProfileValues?.twitterProfiles.length;
+        // case EWalletDataType.Twitter:
+        //   return !!socialProfileValues?.twitterProfiles.length;
         default:
           return true;
       }
@@ -206,17 +207,17 @@ const Permissions: FC<IPermissionsProps> = ({
           window.open(url, "_blank");
         });
       }
-      case ESocialType.TWITTER: {
-        // @TODO: implement installation url for twitter
-        return coreGateway.twitter
-          .getOAuth1aRequestToken()
-          .map((tokenAndSecret) => {
-            window.open(
-              `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}&oauth_token_secret=${tokenAndSecret.secret}&oauth_callback_confirmed=true`,
-              "_blank",
-            );
-          });
-      }
+      // case ESocialType.TWITTER: {
+      //   // @TODO: implement installation url for twitter
+      //   return coreGateway.twitter
+      //     .getOAuth1aRequestToken()
+      //     .map((tokenAndSecret) => {
+      //       window.open(
+      //         `https://api.twitter.com/oauth/authorize?oauth_token=${tokenAndSecret.token}&oauth_token_secret=${tokenAndSecret.secret}&oauth_callback_confirmed=true`,
+      //         "_blank",
+      //       );
+      //     });
+      // }
       default:
         return;
     }

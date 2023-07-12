@@ -450,29 +450,29 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
             </SaveButton>
           </Box>
         );
-      case EWalletDataType.Twitter:
-        return (
-          <Box mt={1} display="flex" justifyContent="flex-end">
-            <Box mr={0.5}>
-              <CancelButton
-                onClick={() => {
-                  setExpandeds((expandeds) =>
-                    expandeds.filter((item) => item != EWalletDataType.Twitter),
-                  );
-                }}
-              >
-                Cancel
-              </CancelButton>
-            </Box>
-            <SaveButton
-              onClick={() => {
-                onSocialClick(ESocialType.TWITTER);
-              }}
-            >
-              Connect
-            </SaveButton>
-          </Box>
-        );
+      // case EWalletDataType.Twitter:
+      //   return (
+      //     <Box mt={1} display="flex" justifyContent="flex-end">
+      //       <Box mr={0.5}>
+      //         <CancelButton
+      //           onClick={() => {
+      //             setExpandeds((expandeds) =>
+      //               expandeds.filter((item) => item != EWalletDataType.Twitter),
+      //             );
+      //           }}
+      //         >
+      //           Cancel
+      //         </CancelButton>
+      //       </Box>
+      //       <SaveButton
+      //         onClick={() => {
+      //           onSocialClick(ESocialType.TWITTER);
+      //         }}
+      //       >
+      //         Connect
+      //       </SaveButton>
+      //     </Box>
+      //   );
       default:
         return null;
     }
