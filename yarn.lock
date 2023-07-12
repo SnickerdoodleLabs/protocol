@@ -8162,6 +8162,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/web-integration@workspace:packages/web-integration":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/web-integration@workspace:packages/web-integration"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/utils": "workspace:^"
+    ethers: ^5.6.6
+    neverthrow: ^5.1.0
+    postmate: ^1.5.2
+    rxjs: ^7.5.5
+  peerDependencies:
+    react: 17.0.1
+    react-dom: 17.0.1
+  languageName: unknown
+  linkType: soft
+
 "@solana/buffer-layout-utils@npm:^0.2.0":
   version: 0.2.0
   resolution: "@solana/buffer-layout-utils@npm:0.2.0"

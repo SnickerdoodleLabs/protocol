@@ -25,7 +25,7 @@
   ],
   "module": "./dist/index.js",
   "scripts": {
-    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
@@ -38,8 +38,8 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/common-utils": "^workspace:^",
-    "@snickerdoodlelabs/objects": "^workspace:^",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "ethers": "^5.6.6",
     "neverthrow": "^5.1.0",

@@ -16,7 +16,7 @@
     "Snickerdoodle Labs",
     "SDQL"
   ],
-  "main": "dist/index.js",
+  "browser": "dist/index.js",
   "files": [
     "dist",
     "!dist/test",
@@ -24,17 +24,15 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn compile && yarn postCompile",
-    "dockerize": "docker build --build-arg NATS_URL=wss://dev-nats.hypernet.foundation:4221 -t hypernetlabs/hypernet-protocol-core-iframe:local -f Dockerfile --progress=plain ../..",
-    "docker-push": "docker push hypernetlabs/hypernet-protocol-core-iframe:local",
+    "dockerize": "docker build -t snickerdoodlelabs/core-iframe:local -f Dockerfile --progress=plain ../..",
     "dev": "webpack watch --config webpack.config.js --mode development",
-    "clean": "rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build && cd ../.. && yarn alias",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
     "alias": "tsc-alias",
-    "postCompile": "webpack",
+    "postCompile": "npx webpack",
     "prepare": "yarn build",
     "test": "echo \"No tests specified yet\" && exit 0"
   },
-  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/core": "workspace:^",

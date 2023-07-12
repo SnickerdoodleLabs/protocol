@@ -1,28 +1,35 @@
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
-
 const configFilePath = require.resolve("./tsconfig.json");
+const fileSystem = require("fs-extra");
 
 /** @type import('webpack').Configuration */
 module.exports = {
   context: __dirname,
-  mode: process.env.__BUILD_ENV__ === "PROD" ? "production" : "development",
+  mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.ts"),
   output: {
     filename: "index.js",
     path: path.join(__dirname, "/dist/bundle"),
+    publicPath: "/",
   },
   devServer: {
-    contentBase: path.join(__dirname, "src"),
+    https: true,
+    static: {
+      directory: path.join(__dirname, "./"),
+    },
+    historyApiFallback: true,
     liveReload: true,
     compress: true,
-    publicPath: "/",
-    port: 5020,
-    writeToDisk: true,
+    port: 9005,
+    devMiddleware: {
+      writeToDisk: true,
+    },
   },
   module: {
     rules: [
@@ -34,7 +41,6 @@ module.exports = {
           projectReferences: true,
           configFile: configFilePath,
           compilerOptions: {
-            // build still catches these. avoid them during bunding time for a nicer dev experience.
             noUnusedLocals: false,
             noUnusedParameters: false,
           },
@@ -45,11 +51,6 @@ module.exports = {
         test: /\.html$/,
         loader: "html-loader",
       },
-      // {
-      //   enforce: "pre",
-      //   test: /\.js$/,
-      //   loader: "source-map-loader"
-      // },
       {
         test: /\.(s[ac]ss|css)$/i,
         use: [
@@ -66,23 +67,8 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|jpe?g|gif)$/i,
-        loader: "file-loader",
-        options: {
-          name: "[path][name].[ext]",
-        },
-      },
-      {
-        test: /\.(gif|png|jpe?g|svg)/,
-        use: [
-          "url-loader",
-          {
-            loader: "image-webpack-loader",
-            options: {
-              disable: false,
-            },
-          },
-        ],
+        test: /\.(png|svg|jpg|jpeg|gif|eot|woff|woff2)$/i,
+        type: "asset/resource",
       },
       {
         test: /\.ttf$/,
@@ -101,46 +87,35 @@ module.exports = {
       https: require.resolve("https-browserify"),
       os: require.resolve("os-browserify/browser"),
       zlib: require.resolve("browserify-zlib"),
+      assert: false,
       net: false,
       tls: false,
       fs: false,
-      assert: false,
-    },
-    alias: {
-      "@web-integration": path.resolve(__dirname, "../web-integration/src"),
-      "@web-ui": path.resolve(__dirname, "../web-ui/src"),
-      "@objects": path.resolve(__dirname, "../objects/src"),
-      "@utils": path.resolve(__dirname, "../utils/src"),
-      "@interfaces": path.resolve(__dirname, "../hypernet-core/src/interfaces"),
-      "@implementations": path.resolve(
-        __dirname,
-        "../hypernet-core/src/implementations",
-      ),
     },
   },
   devtool:
-    process.env.__BUILD_ENV__ === "PROD" ? "source-map" : "eval-source-map",
+    process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
+      favicon: "src/favicon/favicon.ico",
     }),
-    //new CleanWebpackPlugin({ dangerouslyAllowCleanPatternsOutsideProject: false }),
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],
-      process: "process/browser",
+      process: "process/browser.js",
     }),
     new webpack.DefinePlugin({
-      __IFRAME_SOURCE__: JSON.stringify(process.env.__IFRAME_SOURCE__),
-      __NATS_URL__: JSON.stringify(process.env.__NATS_URL__),
-      __AUTH_URL__: JSON.stringify(process.env.__AUTH_URL__),
-      __VALIDATOR_IFRAME_URL__: JSON.stringify(
-        process.env.__VALIDATOR_IFRAME_URL__,
-      ),
-      __CERAMIC_NODE_URL__: JSON.stringify(process.env.__CERAMIC_NODE_URL__),
-      __IPFS_API_URL__: JSON.stringify(process.env.__IPFS_API_URL__),
-      __IPFS_GATEWAY_URL__: JSON.stringify(process.env.__IPFS_GATEWAY_URL__),
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
-      __DEBUG__: JSON.stringify(process.env.__DEBUG__),
+      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
+      __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
+      __GA_TRACKING_ID__: JSON.stringify(process.env.__GA_TRACKING_ID__),
+      __IPFS_FETCH_BASE_URL__: JSON.stringify(
+        process.env.__IPFS_FETCH_BASE_URL__,
+      ),
+      __HOTJAR_ID__: JSON.stringify(process.env.__HOTJAR_ID__),
+      __HOTJAR_SNIPPET_VERSION__: JSON.stringify(
+        process.env.__HOTJAR_SNIPPET_VERSION__,
+      ),
     }),
   ],
 };

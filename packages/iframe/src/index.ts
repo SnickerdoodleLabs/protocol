@@ -1,10 +1,10 @@
-import { JsonUtils, LogUtils } from "@snickerdoodlelabs/common-utils";
+import "reflect-metadata";
+import { LogUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { ChainId, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
-import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
+import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 
-import { CoreListener } from "@core-iframe/implementations/api/index.js";
-import { CoreUIService } from "@core-iframe/implementations/business/index.js";
+import { CoreListener } from "./implementations/api/index";
+import { CoreUIService } from "./implementations/business/index";
 // Instantiate the Snickerdoodle core.
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -13,14 +13,8 @@ const debug = urlParams.get("debug");
 
 const coreUIService = new CoreUIService();
 const logUtils = new LogUtils();
-const jsonUtils = new JsonUtils();
-const localStorageUtils = new LocalStorageUtils();
 
-const governanceChainId = localStorageUtils.getItem("governanceChainId");
-
-const debugParsed = jsonUtils.safelyParseJSON<boolean>(debug as string);
-
-const chainId = governanceChainId || defaultGovernanceChainId;
+const sourceDomain = DomainName("snickerdoodlelabs.github.io");
 
 const core: ISnickerdoodleCore = new SnickerdoodleCore();
 
@@ -28,6 +22,7 @@ const coreListener = new CoreListener(
   core,
   coreUIService,
   logUtils,
-  ChainId(Number(chainId)),
+  sourceDomain,
 );
+
 coreListener.activateModel();

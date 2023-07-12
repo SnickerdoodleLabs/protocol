@@ -12,11 +12,11 @@ import { IIFrameCallData, ChildProxy } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
 import Postmate from "postmate";
 
-import { ICoreListener } from "@core-iframe/interfaces/api/index.js";
+import { ICoreListener } from "../../interfaces/api/index";
 import {
   ICoreUIService,
   ICoreUIServiceType,
-} from "@core-iframe/interfaces/business/index.js";
+} from "../../interfaces/business/index";
 
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
@@ -32,7 +32,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
   protected getModel(): Postmate.Model {
     // Fire up the Postmate model, and wrap up the core as the model
     return new Postmate.Model({
-      initialize: (
+      unlock: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
           signature: Signature;
@@ -59,8 +59,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       events.onAccountAdded.subscribe((val) => {
         parent.emit("onAccountAdded", val);
       });
-
-      
     });
   }
 }

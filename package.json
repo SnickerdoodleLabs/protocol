@@ -39,7 +39,7 @@
     "copy-ipfs": "copyfiles -u 1 '.ipfs.template/**/*' .ipfs",
     "docker-pull": "docker-compose pull",
     "docker-push": "yarn workspaces foreach -p run docker-push",
-    "dockerize": "yarn workspaces foreach -p run dockerize",
+    "dockerize": "cd packages/iframe && yarn dockerize",
     "format": "eslint --fix \"packages/**/*.ts\" && yarn format:pkg",
     "format:pkg": "format-package -w",
     "initCeramic": "npx run scripts/ceramic_init.mjs",
