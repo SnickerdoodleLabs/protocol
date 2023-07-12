@@ -45,10 +45,24 @@ export class InvitationService implements IInvitationService {
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
 
+  public updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.dataPermissionsUtils
+      .generateDataPermissionsClassWithDataTypes(dataTypes)
+      .andThen((dataPermissions) => {
+        return this.invitationRepository.updateDataPermissions(
+          consentContractAddress,
+          dataPermissions,
+        );
+      });
+  }
+
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
-    filterActive: boolean = true,
+    filterActive = true,
   ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.invitationRepository.getMarketplaceListingsByTag(
       pagingReq,

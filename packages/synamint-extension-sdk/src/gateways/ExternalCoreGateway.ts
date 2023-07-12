@@ -117,6 +117,8 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  UpdateDataPermissionsParams,
+  GetQueryStatusByQueryCIDParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -456,6 +458,13 @@ export class ExternalCoreGateway {
   public switchToTab(
     params: SwitchToTabParams,
   ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(params);
+  }
+  public updateDataPermissions(params: UpdateDataPermissionsParams) {
+    return this._handler.call(params);
+  }
+
+  public getQueryStatusByQueryCID(params: GetQueryStatusByQueryCIDParams) {
     return this._handler.call(params);
   }
 }

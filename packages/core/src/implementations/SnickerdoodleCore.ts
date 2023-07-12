@@ -88,6 +88,7 @@ import {
   IMasterIndexer,
   IAccountMethods,
   PasswordString,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -146,6 +147,8 @@ import {
   IAdDataRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
@@ -816,6 +819,16 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.approveQuery(consentContractAddress, query, parameters);
+  }
+
+  public getQueryStatusByQueryCID(
+    cid: IpfsCID,
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    const sdqlQueryRepository = this.iocContainer.get<ISDQLQueryRepository>(
+      ISDQLQueryRepositoryType,
+    );
+    return sdqlQueryRepository.getQueryStatusByQueryCID(cid);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

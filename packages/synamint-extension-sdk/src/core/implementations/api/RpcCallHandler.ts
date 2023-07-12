@@ -13,6 +13,8 @@ import {
   TokenId,
   BigNumberString,
   URLString,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -130,6 +132,8 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  UpdateDataPermissionsParams,
+  GetQueryStatusByQueryCIDParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -681,6 +685,21 @@ export class RpcCallHandler implements IRpcCallHandler {
         return okAsync(this.configProvider.getConfig());
       },
     ),
+    new CoreActionHandler<UpdateDataPermissionsParams>(
+      UpdateDataPermissionsParams.getCoreAction(),
+      (params) => {
+        return this.invitationService.updateDataPermissions(
+          params.consentContractAddress,
+          params.dataTypes,
+        );
+      },
+    ),
+    new CoreActionHandler<GetQueryStatusByQueryCIDParams>(
+      GetQueryStatusByQueryCIDParams.getCoreAction(),
+      (params) => {
+        return this.core.getQueryStatusByQueryCID(params.queryCID);
+      },
+    ),
   ];
 
   constructor(
@@ -706,6 +725,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected twitterService: ITwitterService,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
 
   public async handleRpcCall(

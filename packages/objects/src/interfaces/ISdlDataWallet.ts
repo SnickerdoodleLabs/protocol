@@ -19,6 +19,7 @@ import {
   TokenMarketData,
   TwitterProfile,
   WalletNFT,
+  QueryStatus,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -192,6 +193,15 @@ export interface ISdlDataWallet extends EventEmitter {
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
 
   switchToTab(tabId: number): ResultAsync<void, JsonRpcError>;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, JsonRpcError>;
+
+  updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, JsonRpcError>;
 
   discord: ISdlDiscordMethods;
   twitter: ISdlTwitterMethods;

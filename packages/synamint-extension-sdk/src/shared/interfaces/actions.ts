@@ -44,6 +44,7 @@ import {
   TwitterID,
   TwitterProfile,
   TokenAndSecret,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 
 import {
@@ -750,5 +751,25 @@ export class SwitchToTabParams extends CoreActionParams<void> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.SWITCH_TO_TAB;
+  }
+}
+export class UpdateDataPermissionsParams extends CoreActionParams<void> {
+  public constructor(
+    public consentContractAddress: EVMContractAddress,
+    public dataTypes: EWalletDataType[],
+  ) {
+    super(UpdateDataPermissionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.UPDATE_DATA_PERMISSIONS;
+  }
+}
+
+export class GetQueryStatusByQueryCIDParams extends CoreActionParams<QueryStatus | null> {
+  public constructor(public queryCID: IpfsCID) {
+    super(GetQueryStatusByQueryCIDParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUS_BY_QUERY_CID;
   }
 }

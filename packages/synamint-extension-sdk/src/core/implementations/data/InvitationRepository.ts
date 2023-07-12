@@ -29,6 +29,7 @@ import {
   IErrorUtilsType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
+import { permissions } from "webextension-polyfill";
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {
@@ -36,6 +37,18 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
+  public updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.invitation
+      .updateDataPermissions(consentContractAddress, dataPermissions)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
 
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,

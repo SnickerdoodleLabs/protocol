@@ -29,6 +29,7 @@ import {
   TwitterProfile,
   WalletNFT,
   RuntimeMetrics,
+  QueryStatus,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -706,6 +707,11 @@ export interface ISnickerdoodleCore {
     | EvaluationError
     | UnauthorizedError
   >;
+
+  getQueryStatusByQueryCID(
+    cid: IpfsCID,
+    sourceDomain?: DomainName,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
 
   /**
    * Restores a backup directly. Should only be called for testing purposes.

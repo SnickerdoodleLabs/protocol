@@ -38,6 +38,7 @@ import {
   TwitterID,
   OAuthVerifier,
   BaseNotification,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -83,6 +84,8 @@ import {
   GetPossibleRewardsParams,
   GetDiscordInstallationUrlParams,
   SwitchToTabParams,
+  GetQueryStatusByQueryCIDParams,
+  UpdateDataPermissionsParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -180,6 +183,22 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, unknown> {
+    return coreGateway.getQueryStatusByQueryCID(
+      new GetQueryStatusByQueryCIDParams(queryCID),
+    );
+  }
+
+  public updateDataPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, unknown> {
+    return coreGateway.updateDataPermissions(
+      new UpdateDataPermissionsParams(consentContractAddress, dataTypes),
+    );
   }
 
   public switchToTab(tabId: number): ResultAsync<void, unknown> {
