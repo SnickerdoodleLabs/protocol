@@ -27,6 +27,7 @@ import {
   ConsentToken,
   DataPermissions,
   BigNumberString,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -801,7 +802,10 @@ export class ConsentContract
   public removeListing(
     tag: string,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("removeListing", [tag], overrides);
   }
 
@@ -834,8 +838,7 @@ export class ConsentContract
     );
   }
 
-  // TODOSEAN: no longer needed
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

@@ -15,6 +15,7 @@ import {
   HexString32,
   InvalidParametersError,
   BigNumberString,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -409,7 +410,10 @@ export interface IConsentContract extends IBaseContract {
   removeListing(
     tag: string,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 }
 
 export interface IConsentContractFilters {
