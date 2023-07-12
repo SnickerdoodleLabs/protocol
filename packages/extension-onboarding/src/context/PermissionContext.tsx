@@ -37,7 +37,7 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
   const { dataWalletGateway, appMode, linkedAccounts } = useAppContext();
   const [socialProfileValues, setSocialProfileValues] = useState<{
     discordProfiles: DiscordProfile[];
-    twitterProfiles: TwitterProfile[];
+    // twitterProfiles: TwitterProfile[];
   }>();
   const [profileValues, setProfileValues] = useState<PII>();
   const isInitialized = useRef<boolean>();
@@ -78,9 +78,10 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
   const updateSocialProfileValues = () => {
     return ResultUtils.combine([
       window?.sdlDataWallet.discord.getUserProfiles(),
-      window?.sdlDataWallet.twitter.getUserProfiles(),
-    ]).map(([discordProfiles, twitterProfiles]) => {
-      const values = { discordProfiles, twitterProfiles };
+      // window?.sdlDataWallet.twitter.getUserProfiles(),
+    ]).map(([discordProfiles]) => {
+      const values = { discordProfiles };
+      // twitterProfiles };
       setSocialProfileValues(values);
       return values;
     });
@@ -115,11 +116,11 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
           (item) => item != EWalletDataType.Discord,
         );
       }
-      if (!socialValues.twitterProfiles.length) {
-        permissions = permissions.filter(
-          (item) => item != EWalletDataType.Twitter,
-        );
-      }
+      // if (!socialValues.twitterProfiles.length) {
+      //   permissions = permissions.filter(
+      //     (item) => item != EWalletDataType.Twitter,
+      //   );
+      // }
       return permissions;
     });
   }, [[JSON.stringify(profileValues), JSON.stringify(socialProfileValues)]]);
@@ -135,8 +136,8 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
           return !!profileValues?.gender;
         case EWalletDataType.Discord:
           return !!socialProfileValues?.discordProfiles.length;
-        case EWalletDataType.Twitter:
-          return !!socialProfileValues?.twitterProfiles.length;
+        // case EWalletDataType.Twitter:
+        //   return !!socialProfileValues?.twitterProfiles.length;
         default:
           return true;
       }

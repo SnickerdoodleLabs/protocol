@@ -9,7 +9,7 @@ export const UI_SUPPORTED_PERMISSIONS = [
   EWalletDataType.AccountBalances,
   EWalletDataType.AccountNFTs,
   EWalletDataType.Discord,
-  EWalletDataType.Twitter
+  // EWalletDataType.Twitter
 ];
 
 export const PERMISSION_NAMES = {
@@ -21,7 +21,7 @@ export const PERMISSION_NAMES = {
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
   [EWalletDataType.Discord]: "Discord",
-  [EWalletDataType.Twitter]: "Twitter",
+  // [EWalletDataType.Twitter]: "Twitter",
   // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
@@ -71,11 +71,11 @@ export const PERMISSIONS_WITH_ICONS: Partial<
     icon: "https://storage.googleapis.com/dw-assets/shared/icons/discord.png",
     dataType: EWalletDataType.Discord,
   },
-  [EWalletDataType.Twitter]: {
-    name: PERMISSION_NAMES[EWalletDataType.Twitter],
-    icon: "https://storage.googleapis.com/dw-assets/shared/icons/twitter.svg",
-    dataType: EWalletDataType.Twitter,
-  }
+  // [EWalletDataType.Twitter]: {
+  //   name: PERMISSION_NAMES[EWalletDataType.Twitter],
+  //   icon: "https://storage.googleapis.com/dw-assets/shared/icons/twitter.svg",
+  //   dataType: EWalletDataType.Twitter,
+  // }
 };
 export const PERMISSION_TEXT_NAMES = {
   [EWalletDataType.Gender]: "gender",
@@ -109,7 +109,7 @@ export const PERMISSIONS = [
   },
   {
     title: "Social Data",
-    dataTypes: [EWalletDataType.Discord , EWalletDataType.Twitter],
+    dataTypes: [EWalletDataType.Discord, EWalletDataType.Twitter],
   },
 ];
 
