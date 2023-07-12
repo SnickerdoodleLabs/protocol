@@ -649,7 +649,7 @@ export class InitializeDiscordUserParams extends CoreActionParams<void> {
 }
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor() {
+  public constructor(public attachRedirectTabId?: boolean) {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -740,5 +740,15 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CONFIG;
+  }
+}
+
+export class SwitchToTabParams extends CoreActionParams<void> {
+  public constructor(public tabId: number) {
+    super(SwitchToTabParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.SWITCH_TO_TAB;
   }
 }

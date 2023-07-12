@@ -6,7 +6,7 @@ export const useStyles = makeStyles((theme) => ({
     height: 80,
   },
   description: {
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: "Roboto",
     fontWeight: 400,
     fontSize: 18,
     color: "#232039",

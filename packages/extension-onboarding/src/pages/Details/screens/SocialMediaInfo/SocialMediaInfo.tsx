@@ -1,13 +1,14 @@
 import { Box } from "@material-ui/core";
 import React from "react";
 
-import { useAppContext } from "@extension-onboarding/context/App";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import {
   DiscordInfo,
   TwitterInfo,
 } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/SocialMediaInfo.style";
 import { ESocialType } from "@snickerdoodlelabs/objects";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 
 interface ISocialMediaInfoProps {
   name: string;
@@ -17,7 +18,7 @@ interface ISocialMediaInfoProps {
 
 export default () => {
   const classes = useStyles();
-  const { socialMediaProviderList } = useAppContext();
+  const { socialMediaProviderList, appMode } = useAppContext();
 
   const getSocialMediaComponentGivenProps = ({
     name,
@@ -34,6 +35,10 @@ export default () => {
         return null;
     }
   };
+
+  if (appMode != EAppModes.AUTH_USER) {
+    return <UnauthScreen />;
+  }
 
   return (
     <Box>

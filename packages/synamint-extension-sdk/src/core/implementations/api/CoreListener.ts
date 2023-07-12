@@ -143,7 +143,6 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountRemoved(account: LinkedAccount): void {
-    console.log(`Extension: account ${account.sourceAccountAddress} removed`);
     this.accountCookieUtils.removeAccountInfoFromCookie(
       account.sourceAccountAddress,
     );
@@ -154,6 +153,8 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 
-  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {}
+  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
+    this.contextProvider.onSocialProfileLinked(event);
+  }
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
 }

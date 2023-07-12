@@ -681,21 +681,23 @@ export class InvitationService implements IInvitationService {
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
       this.getConsentCapacity(consentContractAddress),
-      this.invitationRepo.getRejectedInvitations(),
+      // @TODO - check later
+      // this.invitationRepo.getRejectedInvitations(),
     ]).andThen(
-      ([invitationUrls, ipfsCID, consentCapacity, rejectedInvitations]) => {
+      ([invitationUrls, ipfsCID, consentCapacity]) => {
         // If there's no slots, there's no invites
         if (consentCapacity.availableOptInCount == 0) {
           return okAsync([]);
         }
 
-        const rejected = rejectedInvitations.find((rejectedInvitation) => {
-          return rejectedInvitation == consentContractAddress;
-        });
+        // @TODO - blocks the promise to be resolved
+        // const rejected = rejectedInvitations.find((rejectedInvitation) => {
+        //   return rejectedInvitation == consentContractAddress;
+        // });
 
-        if (rejected != null) {
-          return okAsync([]);
-        }
+        // if (rejected != null) {
+        //   return okAsync([]);
+        // }
 
         // The baseUri is an IPFS CID
         return this.invitationRepo
