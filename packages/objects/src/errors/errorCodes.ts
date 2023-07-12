@@ -33,6 +33,24 @@ const errorCodes = {
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   GasPriceError: "ERR_GAS_PRICE",
   ProofError: "ERR_PROOF",
+  //SDQL errors
+  OperandTypeError: "ER_SDQL_OPERAND_TYPE",
+  ConditionOperandTypeError: "ERR_SDQL_CONDITION_OPERAND_TYPE",
+  BooleanExpectedError: "ERR_SDQL_BOOLEAN_EXPECTED",
+  NumberExpectedError: "ERR_SDQL_NUMBER_EXPECTED",
+  StringExpectedError: "ERR_SDQL_STRING_EXPECTED",
+  ListExpectedError: "ERR_SDQL_LIST_EXPECTED",
+  URLExpectedError: "ERR_SDQL_URL_EXPECTED",
+  EvaluationError: "ERR_SDQL_EVALUATION",
+  SimulationError: "ERR_SDQL_SIMULATION",
+  ParserError: "ERR_SDQL_PARSER",
+  MissingTokenConstructorError: "ERR_SDQL_MISSING_TOKEN_CONSTRUCTOR",
+  MissingRequiredFieldError: "ERR_SDQL_MISSING_REQUIRED_FIELD",
+  DuplicateIdInSchema: "ERR_SDQL_DUPLICATE_ID_IN_SCHEMA",
+  EvalNotImplementedError: "ERR_SDQL_EVAL_NOT_IMPLEMENTED",
+  ReturnNotImplementedError: "ERR_SDQL_RETURN_NOT_IMPLEMENTED",
+  ParsingError: "ERR_SDQL_PARSING",
+  InvalidRegularExpression: "ERR_SDQL_INVALID_REGULAR_EXPRESSION",
 };
 
 export default errorCodes;

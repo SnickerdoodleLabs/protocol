@@ -1,3 +1,4 @@
+export * from "@objects/errors/sdqlErrors";
 export * from "@objects/errors/AccountIndexingError.js";
 export * from "@objects/errors/AjaxError.js";
 export * from "@objects/errors/BlockchainProviderError.js";
@@ -28,7 +29,6 @@ export * from "@objects/errors/ProviderRpcError.js";
 export * from "@objects/errors/QueryExpiredError.js";
 export * from "@objects/errors/QueryFormatError.js";
 export * from "@objects/errors/RewardsFactoryError.js";
-export * from "@objects/errors/sdqlExceptions.js";
 export * from "@objects/errors/ServerRewardError.js";
 export * from "@objects/errors/SiftContractError.js";
 export * from "@objects/errors/TransactionResponseError";
