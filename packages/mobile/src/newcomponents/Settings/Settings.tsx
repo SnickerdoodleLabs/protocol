@@ -1,5 +1,8 @@
 import {
+  Button,
+  Clipboard,
   Image,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -8,7 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
+import "@walletconnect/react-native-compat";
 
 import Icon from "react-native-vector-icons/Ionicons";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
@@ -17,10 +21,40 @@ import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import Svg, { Path } from "react-native-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useWalletConnectModal } from "@walletconnect/modal-react-native";
+import { BlockchainActions } from "./BlockchainActions";
+
+const conector = useWalletConnectModal();
 
 export default function Settings() {
+  const [clientId, setClientId] = React.useState<string>();
   const navigation = useNavigation();
   const theme = useTheme();
+  const { isConnected, provider, open } = useWalletConnectModal();
+
+  const onCopy = (value: string) => {
+    Clipboard.setString(value);
+  };
+
+  const handleButtonPress = async () => {
+    if (isConnected) {
+      return provider?.disconnect();
+    }
+    return open();
+  };
+
+  useEffect(() => {
+    async function getClientId() {
+      if (provider && isConnected) {
+        const _clientId = await provider?.client?.core.crypto.getClientId();
+        setClientId(_clientId);
+      } else {
+        setClientId(undefined);
+      }
+    }
+
+    getClientId();
+  }, [isConnected, provider]);
 
   return (
     <SafeAreaView
@@ -135,7 +169,7 @@ export default function Settings() {
             </View>
           </TouchableOpacity>
 
-      {/*     <TouchableOpacity
+          {/*     <TouchableOpacity
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -302,6 +336,23 @@ export default function Settings() {
               />
             </View>
           </TouchableOpacity>
+          <Button title="Logout" onPress={handleButtonPress} />
+          {clientId && (
+            <TouchableOpacity onPress={() => onCopy(clientId)}>
+              <Text>
+                {"Client ID:"} <Text>{clientId}</Text>
+              </Text>
+            </TouchableOpacity>
+          )}
+          {isConnected ? (
+            <BlockchainActions onDisconnect={handleButtonPress} />
+          ) : (
+            <View>
+              <TouchableOpacity onPress={handleButtonPress}>
+                <Text>{isConnected ? "Disconnect" : "Connect Wallet"}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </SafeAreaView>
       </ScrollView>
     </SafeAreaView>

@@ -8,6 +8,7 @@
  * @format
  */
 // Import the crypto getRandomValues shim (**BEFORE** the shims)
+import "@walletconnect/react-native-compat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
@@ -18,9 +19,8 @@ import {
   useColorScheme,
   LogBox,
   Linking,
+  Clipboard,
 } from "react-native";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import AccountLinkingContextProvider, {
@@ -37,6 +37,14 @@ import BottomTabNavigator from "./navigators/BottomTabNavigator";
 import { AuthNavigator } from "./navigators/AuthNavigator";
 import Orientation from "react-native-orientation-locker";
 import { ThemeContextProvider } from "./context/ThemeContext";
+import {
+  useWalletConnectModal,
+  WalletConnectModal,
+} from "@walletconnect/modal-react-native";
+import { providerMetadata, sessionParams } from "./constants/WCConfig";
+import setGlobalVars from "indexeddbshim/dist/indexeddbshim-noninvasive";
+import SQLite from "react-native-sqlite-2";
+
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -58,10 +66,21 @@ const App = () => {
   const linking = {
     prefixes: ["sdmobile://"],
   };
-
+  useEffect(() => {
+    setGlobalVars(global, {
+      checkOrigin: false,
+      win: SQLite,
+      // deleteDatabaseFiles: false,
+      // useSQLiteIndexes: true,
+    });
+    console.log('global',global);
+  }, []);
   useEffect(() => {
     Orientation.lockToPortrait(); // lock to portrait mode
   }, []);
+  const onCopy = (value: string) => {
+    Clipboard.setString(value);
+  };
 
   return (
     <AppContextProvider>
@@ -86,6 +105,10 @@ const App = () => {
                   asyncStorage: AsyncStorage as any,
                 }}
               >
+                <WalletConnectModal
+                  projectId={"7b43f10fd3404bb16a3c0947b0ff3436"}
+                  providerMetadata={providerMetadata}
+                />
                 <AccountLinkingContextProvider>
                   <BottomTabNavigator />
                 </AccountLinkingContextProvider>
