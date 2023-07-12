@@ -1,5 +1,6 @@
 import { Box, CircularProgress, Dialog } from "@material-ui/core";
 import {
+  BaseNotification,
   CountryCode,
   DiscordProfile,
   EarnedReward,
@@ -8,7 +9,6 @@ import {
   EWalletDataType,
   Gender,
   PossibleReward,
-  TNotification,
   TwitterProfile,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -89,7 +89,7 @@ const Permissions: FC<IPermissionsProps> = ({
     };
   }, [isUnlocked]);
 
-  const handleNotification = (notificaton: TNotification) => {
+  const handleNotification = (notificaton: BaseNotification) => {
     switch (notificaton.type) {
       case ENotificationTypes.SOCIAL_PROFILE_LINKED: {
         return getSocialProfileValues();

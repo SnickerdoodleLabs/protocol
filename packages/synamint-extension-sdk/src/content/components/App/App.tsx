@@ -1,11 +1,11 @@
 import {
   AccountAddress,
+  BaseNotification,
   DomainName,
   EInvitationStatus,
   ENotificationTypes,
   EWalletDataType,
   PossibleReward,
-  TNotification,
   UUID,
 } from "@snickerdoodlelabs/objects";
 import ScamFilterComponent, {
@@ -185,7 +185,7 @@ const App = () => {
     };
   }, [walletState]);
 
-  const handleNotification = (notification: TNotification) => {
+  const handleNotification = (notification: BaseNotification) => {
     if (notification.type === ENotificationTypes.ACCOUNT_INITIALIZED) {
       setWalletState(EWalletState.UNLOCKED);
     }

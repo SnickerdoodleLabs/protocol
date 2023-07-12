@@ -37,7 +37,7 @@ import {
   URLString,
   TwitterID,
   OAuthVerifier,
-  TNotification,
+  BaseNotification,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -177,7 +177,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.twitter.getUserProfiles();
       },
     };
-    eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
+    eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
   }

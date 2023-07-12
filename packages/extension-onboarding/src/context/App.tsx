@@ -260,7 +260,7 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const onAccountAdded = (notification: AccountAddedNotification) => {
-    addAccount(notification.data.linkedAccount);
+    addAccount(notification.data);
     setVisualAlert(true);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,

@@ -87,19 +87,19 @@ export class ContextProvider implements IContextProvider {
 
   public onAccountAdded(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
-      new AccountAddedNotification({ linkedAccount }),
+      new AccountAddedNotification(linkedAccount),
     );
   }
 
   public onAccountRemoved(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
-      new AccountRemovedNotification({ linkedAccount }),
+      new AccountRemovedNotification(linkedAccount),
     );
   }
 
   public onEarnedRewardsAdded(rewards: EarnedReward[]): void {
     this.appContext.notifyAllConnections(
-      new EarnedRewardsAddedNotification({ rewards }),
+      new EarnedRewardsAddedNotification(rewards),
     );
   }
 
@@ -111,7 +111,7 @@ export class ContextProvider implements IContextProvider {
 
   public onProfileFieldChanged(profileFieldType: EProfileFieldType): void {
     this.appContext.notifyAllConnections(
-      new ProfileFieldChangedNotification({ profileFieldType }),
+      new ProfileFieldChangedNotification(profileFieldType),
     );
   }
 
@@ -119,7 +119,7 @@ export class ContextProvider implements IContextProvider {
     dataWalletAddress: DataWalletAddress,
   ): void {
     this.appContext.notifyAllConnections(
-      new AccountInitializedNotification({ dataWalletAddress }),
+      new AccountInitializedNotification(dataWalletAddress),
     );
   }
 }

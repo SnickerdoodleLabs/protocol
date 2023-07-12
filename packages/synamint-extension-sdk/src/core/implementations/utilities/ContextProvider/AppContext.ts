@@ -3,7 +3,7 @@ import {
   MetatransactionSignatureRequest,
   URLString,
   UUID,
-  TNotification,
+  BaseNotification,
 } from "@snickerdoodlelabs/objects";
 import {
   IPortConnection,
@@ -126,12 +126,12 @@ export class AppContext {
 
   public notifyConnectionPort(
     rpcEngine: JsonRpcEngine,
-    notification: TNotification,
+    notification: BaseNotification,
   ) {
     rpcEngine.emit(PORT_NOTIFICATION, notification);
   }
 
-  public notifyAllConnections(notification: TNotification) {
+  public notifyAllConnections(notification: BaseNotification) {
     Object.values(this.connections).forEach((conns) => {
       Object.keys(conns).forEach((connId) => {
         conns[connId] &&

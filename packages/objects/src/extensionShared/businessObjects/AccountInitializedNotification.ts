@@ -2,12 +2,8 @@ import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseN
 import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
 import { DataWalletAddress } from "@objects/primitives/DataWalletAddress";
 
-export class AccountInitializedNotification extends BaseNotification {
-  constructor(
-    public data: {
-      dataWalletAddress: DataWalletAddress;
-    },
-  ) {
-    super(ENotificationTypes.ACCOUNT_INITIALIZED);
+export class AccountInitializedNotification extends BaseNotification<DataWalletAddress> {
+  constructor(protected dataWalletAddress: DataWalletAddress) {
+    super(ENotificationTypes.ACCOUNT_INITIALIZED, dataWalletAddress);
   }
 }
