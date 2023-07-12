@@ -63,7 +63,7 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
         ))}
         <Box mt={4}>
           <Typography className={classes.description}>
-            By linking crypto account you are giving permission for the use of
+            By linking a crypto account you are giving permission for the use of
             your Web3 activity to generate market trends. All information is
             anonymous and no insights are linked back to you.
           </Typography>

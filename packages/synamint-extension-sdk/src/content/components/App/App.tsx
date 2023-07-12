@@ -278,13 +278,14 @@ const App = () => {
         .getInvitationsByDomain(
           new GetInvitationWithDomainParams(domainName, url),
         )
-        .map((result) => {
+        .andThen((result) => {
           if (result) {
-            (isInitialized
-              ? coreGateway.checkInvitationStatus(
-                  new CheckInvitationStatusParams(result.consentAddress),
-                )
-              : okAsync(EInvitationStatus.New)
+            return (
+              isInitialized
+                ? coreGateway.checkInvitationStatus(
+                    new CheckInvitationStatusParams(result.consentAddress),
+                  )
+                : okAsync(EInvitationStatus.New)
             ).map((status) => {
               if (status === EInvitationStatus.New) {
                 setInvitationDomain(result);
@@ -295,6 +296,10 @@ const App = () => {
               }
             });
           }
+          return okAsync(undefined);
+        })
+        .mapErr((err) => {
+          console.error("Unable to get invitation by domain", err);
         });
     });
   }, [walletState]);

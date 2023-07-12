@@ -23,7 +23,6 @@ const UnauthScreen = () => {
   const classes = useStyles();
 
   const { title, image } = useMemo(() => {
-    console.log(pathname, EPaths);
     switch (pathname) {
       case EPaths.TOKENS: {
         return {

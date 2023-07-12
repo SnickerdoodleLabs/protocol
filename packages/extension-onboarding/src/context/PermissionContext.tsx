@@ -120,7 +120,6 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
           (item) => item != EWalletDataType.Twitter,
         );
       }
-      console.log({ permissions });
       return permissions;
     });
   }, [[JSON.stringify(profileValues), JSON.stringify(socialProfileValues)]]);

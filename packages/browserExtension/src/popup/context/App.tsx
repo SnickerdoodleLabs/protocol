@@ -2,10 +2,7 @@ import { ExtensionUtils } from "@snickerdoodlelabs/synamint-extension-sdk/extens
 import { InternalCoreGateway } from "@snickerdoodlelabs/synamint-extension-sdk/gateways";
 import { BackgroundConnector } from "@snickerdoodlelabs/synamint-extension-sdk/port";
 import {
-  PORT_NOTIFICATION,
   EPortNames,
-  // AccountInitializedNotification,
-  // ENotificationTypes,
   IInternalState,
 } from "@snickerdoodlelabs/synamint-extension-sdk/shared";
 import React, { FC, useContext, useState, useEffect } from "react";
@@ -35,8 +32,6 @@ export const AppContextProvider: FC = ({ children }) => {
   const [appState, setAppState] = useState<IInternalState | null>();
   useEffect(() => {
     getInitialState();
-    // subscribeNotifications();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -50,23 +45,6 @@ export const AppContextProvider: FC = ({ children }) => {
       setAppState(state);
     });
   };
-
-  // const subscribeNotifications = () => {
-  //   notificationEmitter.on(PORT_NOTIFICATION, handleNotification);
-  // };
-
-  // const handleNotification = (notification: AccountInitializedNotification) => {
-  //   switch (notification.type) {
-  //     case ENotificationTypes.ACCOUNT_INITIALIZED:
-  //       setAppState((prev) => ({
-  //         ...prev,
-  //         dataWalletAddress: notification.data.dataWalletAddress,
-  //       }));
-  //       break;
-  //     default:
-  //       console.log("notification", notification.data);
-  //   }
-  // };
 
   return (
     <AppContext.Provider

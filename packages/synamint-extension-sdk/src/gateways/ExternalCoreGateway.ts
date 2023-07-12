@@ -136,7 +136,6 @@ export class ExternalCoreGateway {
       installationUrl: (
         attachRedirectTabId?: boolean,
       ): ResultAsync<URLString, JsonRpcError> => {
-        console.log("attachRedirectTabId", attachRedirectTabId, "gateway")
         return this._handler.call(
           new GetDiscordInstallationUrlParams(attachRedirectTabId),
         );
