@@ -1,5 +1,5 @@
 import { DataPermissions } from "@objects/businessObjects/DataPermissions.js";
-import { EVMContractAddress } from "@objects/primitives/EVMContractAddress.js";
+import { EVMContractAddress } from "@objects/primitives/index.js";
 
 export class DataPermissionsUpdatedEvent {
   public constructor(

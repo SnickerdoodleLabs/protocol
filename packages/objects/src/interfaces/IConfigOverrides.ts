@@ -1,5 +1,8 @@
-import { DiscordConfig, TwitterConfig } from "@objects/businessObjects";
-import { ChainId, ProviderUrl, URLString } from "@objects/primitives";
+import {
+  DiscordConfig,
+  TwitterConfig,
+} from "@objects/businessObjects/index.js";
+import { ChainId, ProviderUrl, URLString } from "@objects/primitives/index.js";
 
 export interface IConfigOverrides {
   controlChainId?: ChainId;

@@ -2,7 +2,7 @@ import {
   EncryptedString,
   InitializationVector,
   LanguageCode,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export interface ICrumbContent {
   [languageCode: string]: {

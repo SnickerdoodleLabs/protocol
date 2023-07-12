@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ICryptoUtils,
+  ILogUtils,
   ITimeUtils,
   ObjectUtils,
 } from "@snickerdoodlelabs/common-utils";
@@ -21,7 +22,6 @@ import {
   FieldDataUpdate,
   UnixTimestamp,
   AESEncryptedString,
-  BackupBlob,
   EVMAccountAddress,
   ERecordKey,
   EFieldKey,
@@ -68,6 +68,7 @@ export class BackupManager implements IBackupManager {
     protected backupUtils: IBackupUtils,
     protected chunkRendererFactory: IChunkRendererFactory,
     protected schemaProvider: IVolatileStorageSchemaProvider,
+    protected logUtils: ILogUtils,
   ) {
     tables.forEach((schema) => {
       if (schema.priority != EBackupPriority.DISABLED) {
@@ -122,8 +123,7 @@ export class BackupManager implements IBackupManager {
             .getCurrentVersionForTable(recordKey)
             .andThen((version) => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.tableRenderers
-                .get(recordKey)!
+              return tableRenderer
                 .update(
                   new VolatileDataUpdate(
                     EDataUpdateOpCode.UPDATE,
@@ -197,7 +197,7 @@ export class BackupManager implements IBackupManager {
 
   public updateField(
     key: EFieldKey,
-    value: unknown,
+    value: SerializedObject,
   ): ResultAsync<void, PersistenceError> {
     if (!this.fieldRenderers.has(key)) {
       return errAsync(
@@ -205,25 +205,22 @@ export class BackupManager implements IBackupManager {
       );
     }
 
-    return Serializer.serialize(value)
-      .asyncAndThen((newValue) => {
+    return this.storageUtils
+      .read<SerializedObject>(key)
+      .andThen((current) => {
+        if (current?.data == value.data) {
+          return okAsync(undefined);
+        }
+
+        const timestamp = this.timeUtils.getUnixNow();
+        this.fieldHistory.set(key, timestamp);
+
         return this.storageUtils
-          .read<SerializedObject>(key)
-          .andThen((current) => {
-            if (current?.data == newValue.data) {
-              return okAsync(undefined);
-            }
-
-            const timestamp = this.timeUtils.getUnixNow();
-            this.fieldHistory.set(key, timestamp);
-
-            return this.storageUtils
-              .write<SerializedObject>(key, newValue)
-              .andThen(() => {
-                return this.fieldRenderers
-                  .get(key)!
-                  .update(new FieldDataUpdate(key, newValue, timestamp));
-              });
+          .write<SerializedObject>(key, value)
+          .andThen(() => {
+            return this.fieldRenderers
+              .get(key)!
+              .update(new FieldDataUpdate(key, value, timestamp));
           });
       })
       .map((backup) => {
@@ -239,9 +236,15 @@ export class BackupManager implements IBackupManager {
   ): ResultAsync<void, PersistenceError> {
     return this._wasRestored(backup.header.hash).andThen((restored) => {
       if (restored) {
+        this.logUtils.warning(
+          `Attempted to restore already restored backup ${backup.header.name} for data type ${backup.header.dataType}, skipping.`,
+        );
         return okAsync(undefined);
       }
 
+      this.logUtils.debug(
+        `Restoring backup ${backup.header.name} for data type ${backup.header.dataType}.`,
+      );
       return this.backupUtils
         .verifyBackupSignature(backup, EVMAccountAddress(this.accountAddr))
         .andThen((valid) => {
@@ -256,13 +259,17 @@ export class BackupManager implements IBackupManager {
           return this._unpackBlob(backup.blob);
         })
         .andThen((unpacked) => {
-          if (Array.isArray(unpacked)) {
-            return this._restoreRecords(
+          // The backup is either a field or a set of records
+          if (backup.header.isField) {
+            return this._restoreField(
               backup.header,
-              unpacked as VolatileDataUpdate[],
+              unpacked as FieldDataUpdate,
             );
           }
-          return this._restoreField(backup.header, unpacked as FieldDataUpdate);
+          return this._restoreRecords(
+            backup.header,
+            unpacked as VolatileDataUpdate[],
+          );
         })
         .andThen(() => {
           return this._addRestored(backup);
@@ -342,26 +349,28 @@ export class BackupManager implements IBackupManager {
     });
   }
 
-  public popRendered(
+  public markRenderedChunkAsRestored(
     id: DataWalletBackupID,
-  ): ResultAsync<DataWalletBackupID, PersistenceError> {
+  ): ResultAsync<void, PersistenceError> {
     if (!this.renderedChunks.has(id)) {
       return errAsync(
-        new PersistenceError("no backup with that id in map", id),
+        new PersistenceError(
+          `There is no backup with ID ${id} that was rendered, cannot mark it as restored.`,
+          id,
+        ),
       );
     }
 
     return this._addRestored(this.renderedChunks.get(id)!).map(() => {
       this.renderedChunks.delete(id);
-      return id;
     });
   }
 
-  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+  public getRestored(): ResultAsync<RestoredBackup[], PersistenceError> {
     return this.volatileStorage
       .getAll<RestoredBackup>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
-        return new Set(restored.map((x) => x.data.id));
+        return restored.map((vsm) => vsm.data);
       });
   }
 
@@ -396,14 +405,14 @@ export class BackupManager implements IBackupManager {
   }
 
   private _unpackBlob(
-    blob: AESEncryptedString | BackupBlob,
-  ): ResultAsync<BackupBlob, PersistenceError> {
+    blob: VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
+  ): ResultAsync<VolatileDataUpdate[] | FieldDataUpdate, PersistenceError> {
     // Check the blob. If it does not include the encryption fields, then it is not encrypted
     if (
       (blob as AESEncryptedString).data == undefined ||
       (blob as AESEncryptedString).initializationVector == undefined
     ) {
-      return okAsync(blob as BackupBlob);
+      return okAsync(blob as VolatileDataUpdate[] | FieldDataUpdate);
     }
 
     return this.cryptoUtils
@@ -415,7 +424,9 @@ export class BackupManager implements IBackupManager {
         );
       })
       .map((unencrypted) => {
-        return ObjectUtils.deserialize<BackupBlob>(JSONString(unencrypted));
+        return ObjectUtils.deserialize<VolatileDataUpdate[] | FieldDataUpdate>(
+          JSONString(unencrypted),
+        );
       });
   }
 
@@ -425,7 +436,10 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage.putObject(
       ERecordKey.RESTORED_BACKUPS,
       new VolatileStorageMetadata(
-        new RestoredBackup(DataWalletBackupID(backup.header.hash)),
+        new RestoredBackup(
+          DataWalletBackupID(backup.header.hash),
+          backup.header.dataType,
+        ),
         this.timeUtils.getUnixNow(),
       ),
     );

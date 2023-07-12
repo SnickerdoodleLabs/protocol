@@ -1,4 +1,4 @@
-import { DomainName, URLString } from "@objects/primitives";
+import { DomainName, URLString } from "@objects/primitives/index.js";
 
 export class InvitationDomain {
   public constructor(

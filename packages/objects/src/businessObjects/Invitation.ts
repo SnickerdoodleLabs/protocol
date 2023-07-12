@@ -4,7 +4,7 @@ import {
   EVMContractAddress,
   Signature,
   TokenId,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class Invitation extends OptInInfo {
   public constructor(

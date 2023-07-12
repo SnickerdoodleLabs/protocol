@@ -49,6 +49,7 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
+  PasswordString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -548,6 +549,211 @@ export class AccountService implements IAccountService {
       });
   }
 
+  public unlockWithPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | MinimalForwarderContractError
+  > {
+    // Next step is to convert the signature into a derived account
+    return ResultUtils.combine([
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(password),
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+    ]).andThen(([derivedEOA, context, config]) => {
+      return this.crumbsRepo
+        .getCrumb(derivedEOA.accountAddress, config.passwordLanguageCode)
+        .andThen((encryptedDataWalletKey) => {
+          // If we're already in the process of unlocking
+          if (context.unlockInProgress) {
+            return errAsync(
+              new InvalidSignatureError(
+                "Unlock already in progress, please wait for it to complete.",
+              ),
+            );
+          }
+
+          // You can't unlock if we're already unlocked!
+          if (context.dataWalletAddress != null) {
+            return errAsync(
+              new InvalidSignatureError(
+                `Data wallet ${context.dataWalletAddress} is already unlocked!`,
+              ),
+            );
+          }
+
+          // Need to update the context
+          context.unlockInProgress = true;
+          return this.contextProvider
+            .setContext(context)
+            .andThen(() => {
+              if (encryptedDataWalletKey == null) {
+                // We're trying to unlock for the first time!
+                this.logUtils.info(
+                  `Creating a new data wallet linked to password`,
+                );
+                return this.createDataWalletFromPassword(password, derivedEOA);
+              }
+              this.logUtils.info(`Existing crumb found for password`);
+              return this.getDataWalletAccountFromPassword(
+                encryptedDataWalletKey,
+                password,
+              );
+            })
+            .andThen((dataWalletAccount) => {
+              // The account address in account is just a generic EVMAccountAddress,
+              // we need to cast it to a DataWalletAddress, since in this case, that's
+              // what it is.
+              context.dataWalletAddress = DataWalletAddress(
+                dataWalletAccount.accountAddress,
+              );
+              context.dataWalletKey = dataWalletAccount.privateKey;
+              context.unlockInProgress = false;
+
+              // We can update the context and provide the key to the persistence in one step
+              return ResultUtils.combine([
+                this.dataWalletPersistence.unlock(dataWalletAccount.privateKey),
+                this.contextProvider.setContext(context),
+              ]);
+            })
+            .andThen(() => {
+              // Need to emit some events
+              context.publicEvents.onInitialized.next(
+                context.dataWalletAddress!,
+              );
+
+              // If the account was newly added, event out
+              if (encryptedDataWalletKey == null) {
+                context.publicEvents.onPasswordAdded.next(undefined);
+              }
+              // No need to add the account to persistence
+              return okAsync(undefined);
+            });
+        })
+        .orElse((e) => {
+          // Any error in this process will cause me to revert the context
+          return this.contextProvider
+            .getContext()
+            .andThen((context) => {
+              context.dataWalletAddress = null;
+              context.dataWalletKey = null;
+              context.unlockInProgress = false;
+
+              return this.contextProvider.setContext(context);
+            })
+            .andThen(() => {
+              return errAsync(e);
+            });
+        });
+    });
+  }
+
+  public addPassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | MinimalForwarderContractError
+  > {
+    // First, let's do some validation and make sure that the signature is actually for the account
+    return ResultUtils.combine([
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(password),
+      this.dataWalletUtils.deriveEncryptionKeyFromPassword(password),
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+    ]).andThen(([derivedEOA, encryptionKey, context, config]) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError(
+            "Core must be unlocked first before you can add an additional account",
+          ),
+        );
+      }
+
+      return this.crumbsRepo
+        .getCrumb(derivedEOA.accountAddress, config.passwordLanguageCode)
+        .andThen((existingCrumb) => {
+          if (existingCrumb != null) {
+            // There is already a crumb on chain for this account; odds are the
+            // account is already connected. If we want to be cool,
+            // we'd double check. For right now, we'll just return, and figure
+            // the job is done
+            return okAsync(undefined);
+          }
+
+          // Encrypt the data wallet key with this new encryption key
+          return this.cryptoUtils
+            .encryptString(context.dataWalletKey!, encryptionKey)
+            .andThen((encryptedDataWalletKey) => {
+              return this.addCrumb(
+                config.passwordLanguageCode,
+                encryptedDataWalletKey,
+                derivedEOA.privateKey,
+              );
+            });
+        })
+        .andThen(() => {
+          // We need to post a backup immediately upon adding an account, so that we don't lose access
+          return this.dataWalletPersistence.postBackups();
+        })
+        .map(() => {
+          // Notify the outside world of what we did
+          context.publicEvents.onPasswordAdded.next(undefined);
+        });
+    });
+  }
+
+  public removePassword(
+    password: PasswordString,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.dataWalletUtils.getDerivedEVMAccountFromPassword(password),
+    ]).andThen(([context, derivedEVMAccount]) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError(
+            "Core must be unlocked first before you can remove a password",
+          ),
+        );
+      }
+
+      return this.crumbsRepo
+        .getCrumbTokenId(derivedEVMAccount.accountAddress)
+        .andThen((crumbTokenId) => {
+          if (crumbTokenId == null) {
+            // We can't unlink an account with no crumb
+            return errAsync(new UninitializedError());
+          }
+
+          // Remove the crumb
+          return this.removeCrumb(derivedEVMAccount, crumbTokenId);
+        })
+        .map(() => {
+          // Notify the outside world of what we did
+          context.publicEvents.onPasswordRemoved.next(undefined);
+        });
+    });
+  }
+
   public getAccounts(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
@@ -829,6 +1035,46 @@ export class AccountService implements IAccountService {
     });
   }
 
+  protected createDataWalletFromPassword(
+    password: PasswordString,
+    derivedEVMAccount: ExternallyOwnedAccount,
+  ): ResultAsync<
+    ExternallyOwnedAccount,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
+    return ResultUtils.combine([
+      this.dataWalletUtils.createDataWalletKey(),
+      this.dataWalletUtils.deriveEncryptionKeyFromPassword(password),
+      this.configProvider.getConfig(),
+    ]).andThen(([dataWalletKey, encryptionKey, config]) => {
+      // Encrypt the data wallet key
+      return this.cryptoUtils
+        .encryptString(dataWalletKey, encryptionKey)
+        .andThen((encryptedDataWallet) => {
+          const dataWalletAddress = DataWalletAddress(
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              dataWalletKey,
+            ),
+          );
+
+          // We can add the crumb directly
+          return this.addCrumb(
+            config.passwordLanguageCode,
+            encryptedDataWallet,
+            derivedEVMAccount.privateKey,
+          ).map(() => {
+            return new ExternallyOwnedAccount(
+              EVMAccountAddress(dataWalletAddress),
+              dataWalletKey,
+            );
+          });
+        });
+    });
+  }
+
   protected getDataWalletAccount(
     encryptedDataWalletKey: AESEncryptedString,
     accountAddress: AccountAddress,
@@ -839,6 +1085,30 @@ export class AccountService implements IAccountService {
   > {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(accountAddress, signature)
+      .andThen((encryptionKey) => {
+        return this.cryptoUtils.decryptAESEncryptedString(
+          encryptedDataWalletKey,
+          encryptionKey,
+        );
+      })
+      .map((dataWalletKey) => {
+        const key = EVMPrivateKey(dataWalletKey);
+        return new ExternallyOwnedAccount(
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
+          key,
+        );
+      });
+  }
+
+  protected getDataWalletAccountFromPassword(
+    encryptedDataWalletKey: AESEncryptedString,
+    password: PasswordString,
+  ): ResultAsync<
+    ExternallyOwnedAccount,
+    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+  > {
+    return this.dataWalletUtils
+      .deriveEncryptionKeyFromPassword(password)
       .andThen((encryptionKey) => {
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,

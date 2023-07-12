@@ -81,7 +81,6 @@ class MasterIndexerMocks {
       this.ankr,
       this.covalent,
       this.etherscan,
-      this.etherscanNative,
       this.moralis,
       this.nftscan,
       this.oklink,

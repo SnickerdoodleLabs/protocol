@@ -1,4 +1,4 @@
-import { EVMContractAddress, TokenId } from "@objects/primitives";
+import { EVMContractAddress, TokenId } from "@objects/primitives/index.js";
 
 export class OptInInfo {
   public constructor(

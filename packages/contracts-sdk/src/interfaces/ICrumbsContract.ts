@@ -1,3 +1,8 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import {
   EVMAccountAddress,
   CrumbsContractError,
@@ -7,9 +12,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface ICrumbsContract extends IBaseContract {
   /**
@@ -26,7 +28,7 @@ export interface ICrumbsContract extends IBaseContract {
    * Gets the token URI value for the crumb owned by a particular account address
    * transaction reverts with error 'ERC721Metadata: URI query for nonexistent token' if token id does not exist
    * @param tokenId the token id to query
-   * @param contractOverrides for overriding transaction gas object
+   * @param overrides for overriding transaction gas object
    */
   tokenURI(
     tokenId: TokenId,
@@ -41,8 +43,8 @@ export interface ICrumbsContract extends IBaseContract {
   createCrumb(
     crumbId: TokenId,
     tokenUri: TokenUri,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, CrumbsContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
 
   /**
    * Returns an encoded call to createCrumb. Useful for metatransactions
@@ -57,8 +59,8 @@ export interface ICrumbsContract extends IBaseContract {
    */
   burnCrumb(
     crumbId: TokenId,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, CrumbsContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
 }
