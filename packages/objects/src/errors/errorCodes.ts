@@ -33,6 +33,7 @@ const errorCodes = {
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   GasPriceError: "ERR_GAS_PRICE",
   InsufficientFundsError: "ERR_INSUFFICIENT_FUNDS",
+  NetworkUnreachableError: "ERR_NETWORK_UNREACHABLE",
 };
 
 export default errorCodes;

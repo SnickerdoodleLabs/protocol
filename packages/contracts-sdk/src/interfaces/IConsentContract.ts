@@ -1,3 +1,10 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ConsentRoles,
+  ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -20,14 +27,6 @@ import {
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ConsentRoles,
-  ContractOverrides,
-  Tag,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-
 export interface IConsentContract extends IBaseContract {
   /**
    * Create a consent token owned by the signer
@@ -39,7 +38,10 @@ export interface IConsentContract extends IBaseContract {
     tokenId: TokenId,
     agreementFlags: HexString32,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
 
@@ -58,7 +60,10 @@ export interface IConsentContract extends IBaseContract {
     agreementFlags: HexString32,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   encodeRestrictedOptIn(
     tokenId: TokenId,
@@ -80,7 +85,10 @@ export interface IConsentContract extends IBaseContract {
     agreementFlags: HexString32,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   encodeAnonymousRestrictedOptIn(
     tokenId: TokenId,
@@ -95,7 +103,10 @@ export interface IConsentContract extends IBaseContract {
   optOut(
     tokenId: TokenId,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
   encodeOptOut(tokenId: TokenId): HexString;
 
   /**
@@ -111,13 +122,19 @@ export interface IConsentContract extends IBaseContract {
   updateMaxCapacity(
     maxCapacity: number,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   updateAgreementFlags(
     tokenId: TokenId,
     newAgreementFlags: HexString32,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   encodeUpdateAgreementFlags(
     tokenId: TokenId,
@@ -131,7 +148,10 @@ export interface IConsentContract extends IBaseContract {
   requestForData(
     ipfsCID: IpfsCID,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
@@ -225,7 +245,10 @@ export interface IConsentContract extends IBaseContract {
   addDomain(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Removes a domain to the contract storage
@@ -236,7 +259,10 @@ export interface IConsentContract extends IBaseContract {
   removeDomain(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Returns an array of domains added to the contract
@@ -270,7 +296,10 @@ export interface IConsentContract extends IBaseContract {
    */
   disableOpenOptIn(
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Enables open opt ins on the contract
@@ -278,7 +307,10 @@ export interface IConsentContract extends IBaseContract {
    */
   enableOpenOptIn(
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Returns the baseURI of the Consent contract
@@ -292,7 +324,10 @@ export interface IConsentContract extends IBaseContract {
   setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Checks if an address has a specific role in the Consent contract

@@ -1,11 +1,19 @@
+import {
+  NetworkUnreachableError,
+  InsufficientFundsError,
+} from "@objects/errors/index.js";
 import { BlockchainErrorMessage } from "@objects/primitives/BlockchainErrorMessage.js";
-import { InsufficientFundsError } from "@objects/errors/InsufficientFundsError.js";
 
 export class BlockchainErrorMapper {
-  protected static blockchainErrorMapping: Map<
+  protected static blockchainErrorMapping = new Map<
     BlockchainErrorMessage,
     (error: unknown | null) => TBlockchainCommonErrors
-  > = new Map([
+  >([
+    [
+      BlockchainErrorMessage("could not detect network"),
+      (error: unknown | null) =>
+        new NetworkUnreachableError(BlockchainErrorMessage("debug"), error),
+    ],
     [
       BlockchainErrorMessage(
         "insufficient funds for intrinsic transaction cost",
@@ -41,4 +49,6 @@ export class BlockchainErrorMapper {
   }
 }
 
-export type TBlockchainCommonErrors = InsufficientFundsError;
+export type TBlockchainCommonErrors =
+  | NetworkUnreachableError
+  | InsufficientFundsError;
