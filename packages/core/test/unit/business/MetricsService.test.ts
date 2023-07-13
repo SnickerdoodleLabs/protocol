@@ -4,6 +4,11 @@ import {
   StatSummary,
   EExternalApi,
   UnixTimestamp,
+  BackupStat,
+  EDataStorageType,
+  EFieldKey,
+  DataWalletBackupID,
+  BackupFileName,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
@@ -18,6 +23,8 @@ import {
 } from "@core-tests/mock/utilities/index.js";
 
 const now = UnixTimestamp(1);
+const backupId = DataWalletBackupID("backupId");
+const backupName = BackupFileName("backupName");
 const primaryStats = new StatSummary(
   EExternalApi.PrimaryControl,
   1,
@@ -28,6 +35,21 @@ const primaryStats = new StatSummary(
   1,
 );
 const backupStats = new StatSummary("Backups Restored", 1, 1, 1, 1, 1, 1);
+const backupsByTypeStats = new StatSummary(
+  "Backups Restored: SD_ACCOUNTS",
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+);
+const restoredBackupStats = new BackupStat(
+  EDataStorageType.Record,
+  EFieldKey.LAST_NAME,
+  backupId,
+  backupName,
+);
 const queryStats = new StatSummary("Queries Posted", 1, 1, 1, 1, 1, 1);
 
 class MetricsServiceMocks {
@@ -56,8 +78,28 @@ class MetricsServiceMocks {
       okAsync(queryStats),
     );
 
-    td.when(this.metricsRepo.getRestoredBackupSummary()).thenReturn(
+    td.when(this.metricsRepo.getCreatedBackupsSummary()).thenReturn(
       okAsync(backupStats),
+    );
+
+    td.when(this.metricsRepo.getCreatedBackupsByTypeSummary()).thenReturn(
+      okAsync([backupsByTypeStats]),
+    );
+
+    td.when(this.metricsRepo.getCreatedBackups()).thenReturn(
+      okAsync([restoredBackupStats]),
+    );
+
+    td.when(this.metricsRepo.getRestoredBackupsSummary()).thenReturn(
+      okAsync(backupStats),
+    );
+
+    td.when(this.metricsRepo.getRestoredBackupsByTypeSummary()).thenReturn(
+      okAsync([backupsByTypeStats]),
+    );
+
+    td.when(this.metricsRepo.getRestoredBackups()).thenReturn(
+      okAsync([restoredBackupStats]),
     );
   }
 
@@ -118,7 +160,7 @@ describe("MetricsService tests", () => {
     expect(primaryControlMetrics?.fifteenMinuteRate).toBe(1);
 
     expect(metrics.queriesPosted).toBe(queryStats);
-    expect(metrics.backupsRestored).toBe(backupStats);
+    expect(metrics.restoredBackups).toContain(restoredBackupStats);
 
     mocks.contextProvider.assertEventCounts({});
   });

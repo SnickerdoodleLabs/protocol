@@ -18,6 +18,10 @@ import {
   ERecordKey,
   SerializedObject,
   UnixTimestamp,
+  StorageKey,
+  BackupRestoreEvent,
+  EDataStorageType,
+  BackupCreatedEvent,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -37,7 +41,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
@@ -48,14 +52,14 @@ import {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
-  private unlockPromise: Promise<EVMPrivateKey>;
-  private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
+  protected unlockPromise: Promise<EVMPrivateKey>;
+  protected resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
+    null;
 
-  private initRestorePromise: Promise<void>;
-  private resolveInitRestore: (() => void) | null = null;
-
-  private fullRestorePromise: Promise<void>;
-  private resolveFullRestore: (() => void) | null = null;
+  protected ongoingRestores: Map<
+    StorageKey,
+    ResultAsync<void, PersistenceError>
+  > = new Map();
 
   public constructor(
     @inject(IBackupManagerProviderType)
@@ -77,12 +81,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
     });
-    this.initRestorePromise = new Promise<void>((resolve) => {
-      this.resolveInitRestore = resolve;
-    });
-    this.fullRestorePromise = new Promise<void>((resolve) => {
-      this.resolveFullRestore = resolve;
-    });
   }
 
   /* 
@@ -102,15 +100,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorage.writeBeforeUnlock();
   }
 
-  public getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError> {
-    return this.fieldSchemaProvider
-      .getLocalStorageSchema()
-      .andThen((schema) => {
-        const priority = schema.get(key)?.priority;
-        return this.waitForPriority(priority);
-      })
-      .andThen(() => {
-        return this.storageUtils.read<SerializedObject>(key).andThen((raw) => {
+  // #region Field Methods
+  public getField<T>(
+    fieldKey: EFieldKey,
+  ): ResultAsync<T | null, PersistenceError> {
+    return this.waitForFieldRestore(fieldKey).andThen(() => {
+      return this.storageUtils
+        .read<SerializedObject>(fieldKey)
+        .andThen((raw) => {
           if (raw == null) {
             return okAsync(null);
           }
@@ -118,132 +115,127 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             return result as T;
           });
         });
-      });
+    });
   }
 
+  public updateField(
+    fieldKey: EFieldKey,
+    value: object,
+  ): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine([
+      this.waitForFieldRestore(fieldKey),
+      this.backupManagerProvider.getBackupManager(),
+      Serializer.serialize(value).asyncAndThen((val) => {
+        return okAsync(val);
+      }),
+    ]).andThen(([_key, backupManager, serializedValue]) => {
+      return backupManager.updateField(fieldKey, serializedValue);
+    });
+  }
+  // #endregion
+
+  // #region Record Methods
   public getObject<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.volatileSchemaProvider
-      .getVolatileStorageSchema()
-      .andThen((schema) => {
-        const priority = schema.get(name)?.priority;
-        return this.waitForPriority(priority);
-      })
-      .andThen(() => {
-        return this.volatileStorage
-          .getObject<T>(name, key)
-          .map((x) => (x == null ? null : x.data));
+    return this.waitForRecordRestore(recordKey).andThen(() => {
+      return this.volatileStorage.getObject<T>(recordKey, key).map((x) => {
+        return x == null ? null : x.data;
       });
+    });
   }
 
   public getCursor<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode | undefined,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    return this.volatileSchemaProvider
-      .getVolatileStorageSchema()
-      .andThen((schema) => {
-        const priority = schema.get(name)?.priority;
-        return this.waitForPriority(priority);
-      })
-      .andThen(() => {
-        return this.volatileStorage.getCursor<T>(
-          name,
-          indexName,
-          query,
-          direction,
-          mode,
-        );
-      });
+    return this.waitForRecordRestore(recordKey).andThen(() => {
+      return this.volatileStorage.getCursor<T>(
+        recordKey,
+        indexName,
+        query,
+        direction,
+        mode,
+      );
+    });
   }
 
   public getAll<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string | undefined,
   ): ResultAsync<T[], PersistenceError> {
-    return this.volatileSchemaProvider
-      .getVolatileStorageSchema()
-      .andThen((schema) => {
-        const priority = schema.get(name)?.priority;
-        return this.waitForPriority(priority);
-      })
-      .andThen(() => {
-        return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
-          return values.map((x) => x.data);
-        });
-      });
-  }
-
-  public getAllByIndex<T extends VersionedObject>(
-    name: string,
-    indexName: string,
-    query: IDBValidKey | IDBKeyRange,
-    priority?: EBackupPriority,
-  ): ResultAsync<T[], PersistenceError> {
-    return this.waitForPriority(priority).andThen(() => {
+    return this.waitForRecordRestore(recordKey).andThen(() => {
       return this.volatileStorage
-        .getAllByIndex<T>(name, indexName, query)
+        .getAll<T>(recordKey, indexName)
         .map((values) => {
           return values.map((x) => x.data);
         });
     });
   }
 
+  public getAllByIndex<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    indexName: string,
+    query: IDBValidKey | IDBKeyRange,
+    priority?: EBackupPriority,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.waitForRecordRestore(recordKey).andThen(() => {
+      return this.volatileStorage
+        .getAllByIndex<T>(recordKey, indexName, query)
+        .map((values) => {
+          return values.map((x) => x.data);
+        });
+    });
+  }
+
+  // TODO: Fix this- it should return keys, not T!
   public getAllKeys<T>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
     count?: number | undefined,
-    priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
-    return this.volatileSchemaProvider
-      .getVolatileStorageSchema()
-      .andThen((schema) => {
-        const priority = schema.get(name)?.priority;
-        return this.waitForPriority(priority);
-      })
-      .andThen(() => {
-        return this.volatileStorage.getAllKeys<T>(
-          name,
-          indexName,
-          query,
-          count,
-        );
-      });
+    return this.waitForRecordRestore(recordKey).andThen(() => {
+      return this.volatileStorage.getAllKeys<T>(
+        recordKey,
+        indexName,
+        query,
+        count,
+      );
+    });
   }
 
   public updateRecord<T extends VersionedObject>(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
       this.waitForUnlock(),
     ]).andThen(([backupManager]) => {
-      if (tableName == ERecordKey.ACCOUNT) {
+      // There is special handling for Account records, since they are
+      // added (for unfortunate reasons) before the unlock is complete.
+      if (recordKey == ERecordKey.ACCOUNT) {
         return this.volatileStorage
           .putObject(
-            tableName,
+            recordKey,
             new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
           )
-          .map(() => {
-            this.waitForInitialRestore().andThen(() => {
+          .andThen(() => {
+            return this.waitForRecordRestore(recordKey).andThen(() => {
               return this.volatileStorage
-                .getKey(tableName, value)
+                .getKey(recordKey, value)
                 .andThen((key) => {
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  return this.volatileStorage.getObject(tableName, key!);
+                  return this.volatileStorage.getObject(recordKey, key);
                 })
                 .andThen((found) => {
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   if (found!.lastUpdate == 0) {
                     return backupManager.addRecord(
-                      tableName,
+                      recordKey,
                       new VolatileStorageMetadata<T>(
                         value,
                         this.timeUtils.getUnixNow(),
@@ -256,141 +248,154 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
       }
 
-      return backupManager.addRecord(
-        tableName,
-        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
-      );
+      // For all other record types, we just add the record to the backup manager
+      return this.waitForRecordRestore(recordKey).andThen(() => {
+        return backupManager.addRecord(
+          recordKey,
+          new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
+        );
+      });
     });
   }
 
   public deleteRecord(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this.backupManagerProvider.getBackupManager(),
     ]).andThen(([_key, backupManager]) => {
-      return backupManager.deleteRecord(tableName, key);
+      return backupManager.deleteRecord(recordKey, key);
     });
   }
-
-  public updateField(
-    key: EFieldKey,
-    value: object,
-  ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this.backupManagerProvider.getBackupManager(),
-    ]).andThen(([_key, backupManager]) => {
-      return backupManager.updateField(key, value);
-    });
-  }
-
-  public waitForInitialRestore(): ResultAsync<EVMPrivateKey, never> {
-    return ResultUtils.combine<EVMPrivateKey, void, never, never>([
-      ResultAsync.fromSafePromise(this.unlockPromise),
-      ResultAsync.fromSafePromise(this.initRestorePromise),
-    ]).map(([key]) => key);
-  }
-
-  public waitForFullRestore(): ResultAsync<EVMPrivateKey, never> {
-    return ResultUtils.combine<EVMPrivateKey, void, never, never>([
-      this.waitForInitialRestore(),
-      ResultAsync.fromSafePromise(this.fullRestorePromise),
-    ]).map(([key]) => key);
-  }
+  // #endregion
 
   public waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
     return ResultAsync.fromSafePromise(this.unlockPromise);
   }
 
-  private waitForPriority(
-    priority = EBackupPriority.NORMAL,
-  ): ResultAsync<void, never> {
-    switch (priority) {
-      case EBackupPriority.HIGH:
-        return this.waitForInitialRestore().map(() => undefined);
-      case EBackupPriority.NORMAL:
-      default:
-        return this.waitForFullRestore().map(() => undefined);
-    }
-  }
-
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.resolveUnlock!(derivedKey);
     return ResultUtils.combine([
       this.cloudStorage.unlock(derivedKey),
       this.backupManagerProvider.unlock(derivedKey),
-    ])
-      .map(() => {
-        this.configProvider.getConfig().map((config) => {
-          // set the backup restore to timeout as to not block unlocks
-          const timeout = setTimeout(() => {
-            this.logUtils.error("Backup restore timed out");
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.resolveInitRestore!();
-          }, config.restoreTimeoutMS);
-
-          this._pollHighPriorityBackups()
-            .map(() => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              this.resolveInitRestore!();
-              clearTimeout(timeout);
-              this.pollBackups().map(() => {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.resolveFullRestore!();
-              });
-            })
-            .mapErr((e) => {
-              this.logUtils.debug("Unable to poll high priority backups", e);
-              clearTimeout(timeout);
-              return e;
-            });
-        });
-      })
-      .mapErr((e) => new PersistenceError("error unlocking data wallet", e));
+    ]).map(() => {
+      // The derived key is stored in this result
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.resolveUnlock!(derivedKey);
+    });
   }
 
+  // #region Backup Management Methods
   public restoreBackup(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.restore(backup).orElse((err) => {
-          this.logUtils.warning(
-            "Error restoring backups! Data wallet will likely have incomplete data!",
-            err,
-          );
-          return okAsync(undefined);
-        });
+        return backupManager.restore(backup);
+      })
+      .andThen(() => {
+        return this.contextProvider.getContext();
+      })
+      .map((context) => {
+        context.publicEvents.onBackupRestored.next(
+          new BackupRestoreEvent(
+            backup.header.isField
+              ? EDataStorageType.Field
+              : EDataStorageType.Record,
+            backup.header.dataType,
+            backup.id,
+            backup.header.name,
+            1,
+            0,
+          ),
+        );
       });
   }
 
+  protected currentPoll: ResultAsync<void, PersistenceError> | null = null;
   public pollBackups(): ResultAsync<void, PersistenceError> {
-    return this.postBackups(true).andThen(() => {
-      return this.backupManagerProvider
-        .getBackupManager()
-        .andThen((backupManager) => {
-          return backupManager.getRestored();
-        })
-        .andThen((restored) => {
-          return this.cloudStorage.pollBackups(restored);
-        })
-        .andThen((backups) => {
-          return ResultUtils.combine(
-            backups.map((backup) => {
-              return this.restoreBackup(backup);
-            }),
-          );
-        })
-        .map(() => undefined);
-    });
+    // We should only be polling for backups once at a time; if we try to poll
+    // multiple times in parallel notify the user and return the current poll
+    if (this.currentPoll != null) {
+      this.logUtils.warning(`Already polling for backups and restoring`);
+      return this.currentPoll;
+    }
+
+    this.currentPoll = this.postBackups(true)
+      .andThen(() => {
+        this.logUtils.debug(`Polling for new backups for all types`);
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine([
+              backupManager.getRestored(),
+              this.contextProvider.getContext(),
+            ]);
+          })
+          .andThen(([restored, context]) => {
+            this.logUtils.debug(
+              `There are already ${restored.length} restored backups of all types`,
+            );
+            // Convert to a list of DataBackupID
+            const restoredIds = new Set(restored.map((x) => x.id));
+
+            return this.cloudStorage
+              .pollBackups(restoredIds)
+              .andThen((newBackups) => {
+                if (newBackups.length == 0) {
+                  this.logUtils.debug(`No new backups found`);
+                  return okAsync(undefined);
+                }
+
+                this.logUtils.debug(
+                  `Found ${newBackups.length} backups to restore of all types`,
+                );
+                // We need to sort the backups, so that we restore them in the correct order.
+                const sortedBackups = newBackups.sort((a, b) => {
+                  return a.header.timestamp - b.header.timestamp;
+                });
+
+                let totalRestored = restoredIds.size;
+                let backupsToRestoreCount = sortedBackups.length;
+
+                // Backups are restored in order, so that the updates are applied in the right order
+                return ResultUtils.executeSerially(
+                  sortedBackups.map((backup) => {
+                    return () => {
+                      return this.restoreBackupInternal(backup).map(
+                        (success) => {
+                          if (success) {
+                            context.publicEvents.onBackupRestored.next(
+                              new BackupRestoreEvent(
+                                backup.header.isField
+                                  ? EDataStorageType.Field
+                                  : EDataStorageType.Record,
+                                backup.header.dataType,
+                                backup.id,
+                                backup.header.name,
+                                ++totalRestored,
+                                --backupsToRestoreCount,
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    };
+                  }),
+                );
+              });
+          });
+      })
+      .map(() => {
+        // Reset the current poll.
+        this.currentPoll = null;
+      });
+
+    return this.currentPoll;
   }
 
   public unpackBackupChunk(
@@ -419,27 +424,49 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
-        return backupManager.getRendered(force).andThen((chunks) => {
+        return backupManager.getRendered(force).andThen((backups) => {
+          const postedBackupIds = new Array<DataWalletBackupID>();
+          let backupsToCreateCount = backups.length;
+          let totalBackupsCreated = 0;
+
           return ResultUtils.combine(
-            chunks.map((chunk) => {
+            backups.map((backup) => {
               return this.cloudStorage
-                .putBackup(chunk)
+                .putBackup(backup)
                 .andThen((id) => {
-                  return backupManager.popRendered(id);
+                  return backupManager.markRenderedChunkAsRestored(id);
+                })
+                .andThen(() => {
+                  return this.contextProvider.getContext();
+                })
+                .map((context) => {
+                  context.publicEvents.onBackupCreated.next(
+                    new BackupCreatedEvent(
+                      backup.header.isField
+                        ? EDataStorageType.Field
+                        : EDataStorageType.Record,
+                      backup.header.dataType,
+                      backup.id,
+                      backup.header.name,
+                      --backupsToCreateCount,
+                      ++totalBackupsCreated,
+                    ),
+                  );
+                  postedBackupIds.push(backup.id);
                 })
                 .orElse((e) => {
-                  this.logUtils.debug("error placing backup in cloud store", e);
-                  return okAsync(DataWalletBackupID(""));
+                  this.logUtils.warning(
+                    `Error placing backup ${backup.header.name} in cloud store`,
+                    e,
+                  );
+                  return okAsync(undefined);
                 });
             }),
-          ).map((ids) => {
-            return ids.filter((id) => {
-              return id != "";
-            });
+          ).map(() => {
+            return postedBackupIds;
           });
         });
-      })
-      .mapErr((e) => new PersistenceError("error posting backups", e));
+      });
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -447,24 +474,159 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return new PersistenceError((error as Error).message, error);
     });
   }
+  // #endregion
 
-  private _pollHighPriorityBackups(): ResultAsync<void, PersistenceError> {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.getRestored();
+  protected waitForRecordRestore(
+    recordKey: ERecordKey,
+  ): ResultAsync<void, PersistenceError> {
+    let restore = this.ongoingRestores.get(recordKey);
+
+    if (restore != null) {
+      return restore;
+    }
+
+    this.logUtils.debug(
+      `Beginning restoration of record backups for ${recordKey}`,
+    );
+
+    restore = ResultUtils.combine([
+      this.backupManagerProvider.getBackupManager(),
+      this.waitForUnlock(),
+    ])
+      .andThen(([backupManager]) => {
+        return ResultUtils.combine([
+          backupManager.getRestored(),
+          this.contextProvider.getContext(),
+        ]);
       })
-      .andThen((restored) => {
+      .andThen(([restored, context]) => {
+        // Sort the list of restored backups to only this type
+        const restoredOfType = restored.filter((x) => {
+          return x.storageKey == recordKey;
+        });
+
+        this.logUtils.debug(
+          `There are already ${restoredOfType.length} backups restored for ${recordKey}`,
+        );
+
+        // Convert to a list of DataBackupID
+        const restoredIds = new Set(restored.map((x) => x.id));
+
         return this.cloudStorage
-          .pollByPriority(restored, EBackupPriority.HIGH)
-          .andThen((backups) => {
-            return ResultUtils.combine(
-              backups.map((backup) => {
-                return this.restoreBackup(backup);
+          .pollByStorageType(restoredIds, recordKey)
+          .andThen((backupsToRestore) => {
+            this.logUtils.debug(
+              `Found ${backupsToRestore.length} backups to restore for ${recordKey}`,
+            );
+
+            // We need to sort the backups, so that we restore them in the correct order.
+            const sortedBackups = backupsToRestore.sort((a, b) => {
+              return a.header.timestamp - b.header.timestamp;
+            });
+
+            let totalRestored = restoredIds.size;
+            let backupsToRestoreCount = sortedBackups.length;
+
+            // executeSerially has wierd semantics; it takes a list of functions that return
+            // resultAsync rather than the results themselves;
+            // This actually makes a lot of sense since it has to control the start of the
+            // execution
+            return ResultUtils.executeSerially(
+              sortedBackups.map((backup) => {
+                return () => {
+                  return this.restoreBackupInternal(backup).map((success) => {
+                    if (success) {
+                      context.publicEvents.onBackupRestored.next(
+                        new BackupRestoreEvent(
+                          EDataStorageType.Record,
+                          recordKey,
+                          backup.id,
+                          backup.header.name,
+                          ++totalRestored,
+                          --backupsToRestoreCount,
+                        ),
+                      );
+                    }
+                  });
+                };
               }),
             );
           });
       })
-      .map(() => undefined);
+      .map(() => {});
+
+    // Add the restore to the ongoing restores
+    this.ongoingRestores.set(recordKey, restore);
+
+    return restore;
+  }
+
+  protected waitForFieldRestore(
+    fieldKey: EFieldKey,
+  ): ResultAsync<void, PersistenceError> {
+    let restore = this.ongoingRestores.get(fieldKey);
+
+    if (restore != null) {
+      return restore;
+    }
+
+    this.logUtils.log(`Beginning restoration of field backup for ${fieldKey}`);
+    restore = this.waitForUnlock()
+      .andThen(() => {
+        return this.cloudStorage.getLatestBackup(fieldKey);
+      })
+      .andThen((backup) => {
+        if (backup == null) {
+          this.logUtils.log(`No backup found for field ${fieldKey}`);
+          return okAsync(undefined);
+        }
+        this.logUtils.debug(
+          `Latest backup for field ${fieldKey} is ${backup.header.name}, restoring now`,
+        );
+        return this.restoreBackupInternal(backup).andThen((success) => {
+          // If the backup was not restored, we don't need to emit an event
+          if (!success) {
+            return okAsync(undefined);
+          }
+          return this.contextProvider.getContext().map((context) => {
+            context.publicEvents.onBackupRestored.next(
+              new BackupRestoreEvent(
+                EDataStorageType.Field,
+                fieldKey,
+                backup.id,
+                backup.header.name,
+                1,
+                0,
+              ),
+            );
+          });
+        });
+      });
+
+    // Add the restore to the ongoing restores
+    this.ongoingRestores.set(fieldKey, restore);
+
+    return restore;
+  }
+
+  protected restoreBackupInternal(
+    backup: DataWalletBackup,
+  ): ResultAsync<boolean, never> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager
+          .restore(backup)
+          .map(() => {
+            return true;
+          })
+          .orElse((err) => {
+            this.logUtils.warning(
+              `Error restoring backup ${backup.header.name}, Data wallet will likely have incomplete data!`,
+              err,
+            );
+            return okAsync(false);
+          });
+      });
   }
 }

@@ -45,9 +45,11 @@ export class DiscordProvider implements IDiscordProvider {
     return errAsync(new Error("No discord code exists!"));
   }
 
-  public installationUrl(): ResultAsync<URLString, unknown> {
+  public installationUrl(
+    attachRedirectTabId?: boolean,
+  ): ResultAsync<URLString, unknown> {
     return window.sdlDataWallet.discord
-      .installationUrl()
+      .installationUrl(attachRedirectTabId)
       .mapErr(
         () => new Error("Discord installation url can not be generated!"),
       );

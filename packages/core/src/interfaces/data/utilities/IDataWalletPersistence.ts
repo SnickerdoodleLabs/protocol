@@ -30,7 +30,7 @@ export interface IDataWalletPersistence {
    * indefinately. Once unlock() is complete, the outstanding call to addAccount() can continue.
    * This is trivially implemented internally by maintaining a consistent unlocked ResultAsync,
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
-   * @param derivedKey
+   * @param dataWalletKey
    */
 
   readBeforeUnlock<T extends VersionedObject>(
@@ -43,62 +43,66 @@ export interface IDataWalletPersistence {
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError>;
 
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
+  unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
 
   // write methods
   updateRecord<T extends VersionedObject>(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     value: T,
   ): ResultAsync<void, PersistenceError>;
   deleteRecord(
-    tableName: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError>;
   updateField(
-    key: EFieldKey,
+    fieldKey: EFieldKey,
     value: object,
   ): ResultAsync<void, PersistenceError>;
 
   // read methods
-  getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError>;
+  getField<T>(fieldKey: EFieldKey): ResultAsync<T | null, PersistenceError>;
   getObject<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
   ): ResultAsync<T[], PersistenceError>;
   getAllByIndex<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName: string,
     query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
   getAllKeys<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
 
   // backup methods
+  /**
+   * Restores a backup directly to the data wallet. This should only be called for test purposes.
+   * Normally, you should use pollBackups().
+   * @param backup
+   */
   restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(
     force?: boolean,
   ): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
-  waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
-  waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
+
   unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
