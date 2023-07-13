@@ -35,7 +35,7 @@ import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
 const avalanche1PossibleRewards = [
   new PossibleReward(
-    IpfsCID(""),
+    IpfsCID("1234"),
     CompensationKey("c1"),
     ["location"],
     "c1",
@@ -45,7 +45,7 @@ const avalanche1PossibleRewards = [
     ERewardType.Direct,
   ),
   new PossibleReward(
-    IpfsCID(""),
+    IpfsCID("1234"),
     CompensationKey("c2"),
     ["location", "age"],
     "c2",
@@ -55,7 +55,7 @@ const avalanche1PossibleRewards = [
     ERewardType.Direct,
   ),
   new PossibleReward(
-    IpfsCID(""),
+    IpfsCID("1234"),
     CompensationKey("c3"),
     ["location"],
     "c3",
@@ -249,6 +249,7 @@ describe("SDQLQueryUtils filterCompensationsForPreviews tests", () => {
     await mocks
       .factory()
       .filterCompensationsForPreviews(
+        IpfsCID("1234"),
         avalanche1SchemaStr,
         avalanche1RewardKeys,
         avalanche1AnsweredInsights,
@@ -269,6 +270,7 @@ describe("SDQLQueryUtils filterCompensationsForPreviews tests", () => {
     await mocks
       .factory()
       .filterCompensationsForPreviews(
+        IpfsCID("1234"),
         avalanche1SchemaStr,
         [avalanche1RewardKeys[0]],
         avalanche1AnsweredInsights.slice(0, 2),
@@ -294,6 +296,7 @@ describe("SDQLQueryUtils filterCompensationsForPreviews tests", () => {
     await mocks
       .factory()
       .filterCompensationsForPreviews(
+        IpfsCID("1234"),
         avalanche1SchemaStr,
         [avalanche1RewardKeys[0], avalanche1RewardKeys[2]],
         avalanche1AnsweredAds,
@@ -321,6 +324,7 @@ describe("SDQLQueryUtils filterCompensationsForPreviews tests", () => {
     await mocks
       .factory()
       .filterCompensationsForPreviews(
+        IpfsCID("1234"),
         avalanche1SchemaStr,
         avalanche1RewardKeys,
         [...avalanche1AnsweredAds, ...avalanche1AnsweredInsights],
