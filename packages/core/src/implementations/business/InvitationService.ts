@@ -183,6 +183,7 @@ export class InvitationService implements IInvitationService {
 
           // If invitation has bussiness signature verify signature
           if (invitation.businessSignature) {
+            console.log('debuggg private campaign is here, invitation', invitation);
             // If business signature exist then open optIn should be disabled
             if (!openOptInDisabled) {
               return okAsync(EInvitationStatus.Invalid);
@@ -193,6 +194,7 @@ export class InvitationService implements IInvitationService {
             return this.consentRepo
               .getConsentToken(invitation)
               .andThen((existingConsentToken) => {
+                console.log('debuggg existingConsentToken: ', existingConsentToken);
                 // If the existing consent token exists, it must NOT be owned by us- we'd have found
                 // the token via isAddressOptedIn() above. So somebody else has gotten this invitation.
                 if (existingConsentToken != null) {
@@ -203,6 +205,7 @@ export class InvitationService implements IInvitationService {
                   invitation.tokenId,
                   invitation.businessSignature!,
                 ).map((validSignature) => {
+                  console.log('debuggg validSignature: ', validSignature);
                   return validSignature
                     ? EInvitationStatus.New
                     : EInvitationStatus.Invalid;
