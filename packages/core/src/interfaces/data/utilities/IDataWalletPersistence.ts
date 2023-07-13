@@ -32,6 +32,17 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
+
+  readBeforeUnlock<T extends VersionedObject>(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError>;
+
+  writeBeforeUnlock<T extends VersionedObject>(
+    name: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<T | null, PersistenceError>;
+
   unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
 

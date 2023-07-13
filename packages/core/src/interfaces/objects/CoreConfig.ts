@@ -22,6 +22,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public defaultGoogleCloudBucket: string,
+    public defaultDropboxCloudBucket: string,
+
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,

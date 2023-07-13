@@ -324,6 +324,10 @@ export const configs: IExtensionConfigOverrides = {
     typeof __GOOGLE_CLOUD_BUCKET__ !== "undefined" && !!__GOOGLE_CLOUD_BUCKET__
       ? __GOOGLE_CLOUD_BUCKET__
       : undefined,
+  defaultDropboxCloudBucket:
+      typeof __DROPBOX_CLOUD_BUCKET__ !== "undefined" && !!__DROPBOX_CLOUD_BUCKET__
+        ? __DROPBOX_CLOUD_BUCKET__
+        : undefined,
   enableBackupEncryption:
     typeof __ENABLE_BACKUP_ENCRYPTION__ !== "undefined" &&
     !!__ENABLE_BACKUP_ENCRYPTION__

@@ -50,6 +50,7 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   ankrApiKey?: string;
   dnsServerAddress?: URLString;
   defaultGoogleCloudBucket?: string;
+  defaultDropboxCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;
@@ -105,6 +106,7 @@ export interface IExtensionConfigOverrides {
   dnsServerAddress?: URLString;
   requestForDataCheckingFrequency?: number;
   defaultGoogleCloudBucket?: string;
+  defaultDropboxCloudBucket?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;

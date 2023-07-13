@@ -184,6 +184,9 @@ export class ConfigProvider
     this.config.defaultGoogleCloudBucket =
       overrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
+    this.config.defaultDropboxCloudBucket =
+      overrides.defaultDropboxCloudBucket ??
+      this.config.defaultDropboxCloudBucket;
 
     const controlChainInformation = chainConfig.get(this.config.controlChainId);
 

@@ -13,6 +13,7 @@ export interface IPersistenceConfig {
   chainInformation: Map<ChainId, ChainInformation>;
   defaultInsightPlatformBaseUrl: URLString;
   defaultGoogleCloudBucket: string;
+  defaultDropboxCloudBucket: string;
   restoreTimeoutMS: number;
   enableBackupEncryption: boolean;
   dataWalletBackupIntervalMS: number;

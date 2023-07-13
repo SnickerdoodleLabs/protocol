@@ -54,6 +54,7 @@ export class ExtensionConfig {
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string,
     public defaultGoogleCloudBucket?: string,
+    public defaultDropboxCloudBucket?: string,
     public portfolioPollingIntervalMS?: number,
     public transactionPollingIntervalMS?: number,
     public backupPollingIntervalMS?: number,

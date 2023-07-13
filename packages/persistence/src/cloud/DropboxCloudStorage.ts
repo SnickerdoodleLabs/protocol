@@ -59,14 +59,20 @@ export class DropboxCloudStorage implements ICloudStorage {
     });
   }
 
-  // TODO
+  private generateAuthToken(): string {
+    const url = "https://api.dropboxapi.com/oauth2/token";
+    return this.ajaxUtils.get<DataWalletBackup>(
+      new URL(file.mediaLink as string),
+    );
+  }
+
   public readBeforeUnlock(
     name: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError> {
     const ACCESS_TOKEN = "";
     const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
-    const file = dbx.;
+    // const file = dbx.;
     return okAsync(file);
   }
 
@@ -174,34 +180,6 @@ export class DropboxCloudStorage implements ICloudStorage {
         "Error: DropBox pollBackups() is not implemented yet",
       ),
     );
-    // return this.getWalletListing()
-    //   .andThen((backupsDirectory) => {
-    //     const files = backupsDirectory.items;
-    //     if (files == undefined) {
-    //       return okAsync([]);
-    //     }
-    //     if (files.length == 0) {
-    //       return okAsync([]);
-    //     }
-
-    //     // Now iterate only through the found hashes
-    //     return ResultUtils.combine(
-    //       files
-    //         .filter((file) => {
-    //           const parsed = ParsedBackupFileName.parse(file.name);
-    //           if (parsed == null) {
-    //             return false;
-    //           }
-    //           return !restored.has(DataWalletBackupID(parsed.hash));
-    //         })
-    //         .map((file) => {
-    //           return this.ajaxUtils.get<DataWalletBackup>(
-    //             new URL(file.mediaLink as string),
-    //           );
-    //         }),
-    //     );
-    //   })
-    //   .mapErr((e) => new PersistenceError("error polling backups", e));
   }
 
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
@@ -210,24 +188,6 @@ export class DropboxCloudStorage implements ICloudStorage {
         "Error: DropBox listFileNames() is not implemented yet",
       ),
     );
-    // return this.getWalletListing()
-    //   .andThen((backupsDirectory) => {
-    //     const files = backupsDirectory.items;
-    //     if (files == undefined) {
-    //       return okAsync([]);
-    //     }
-    //     if (files.length == 0) {
-    //       return okAsync([]);
-    //     }
-
-    //     // Now iterate only through the found hashes
-    //     return okAsync(
-    //       files.map((file) => {
-    //         return BackupFileName(file.name);
-    //       }),
-    //     );
-    //   })
-    //   .mapErr((e) => new PersistenceError("error listing file names", e));
   }
 
   public fetchBackup(
@@ -272,12 +232,12 @@ export class DropboxCloudStorage implements ICloudStorage {
       this.waitForUnlock(),
       this._configProvider.getConfig(),
     ]).andThen(([privateKey, config]) => {
-      const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
+      const defaultDropboxCloudBucket = config.defaultDropboxCloudBucket;
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       const dataWalletFolder =
-        "https://storage.googleapis.com/storage/v1/b/" +
-        defaultGoogleCloudBucket +
+        "https://dropbox.com/storage/v1/b/" +
+        defaultDropboxCloudBucket +
         "/o?prefix=" +
         addr;
       return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(

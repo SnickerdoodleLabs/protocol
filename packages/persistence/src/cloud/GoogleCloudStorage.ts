@@ -59,7 +59,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  // TODO
   public readBeforeUnlock(
     name: ERecordKey,
     key: VolatileStorageKey,
@@ -67,7 +66,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     return this.storageUtils.read(key);
   }
 
-  // TODO
   public writeBeforeUnlock(
     name: ERecordKey,
     key: VolatileStorageKey,

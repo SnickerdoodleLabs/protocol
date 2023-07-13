@@ -1,6 +1,6 @@
-import { ERecordKey } from "@snickerdoodlelabs/objects";
-import { VolatileStorageKey } from "@snickerdoodlelabs/objects";
 import {
+  ERecordKey,
+  VolatileStorageKey,
   PersistenceError,
   DataWalletBackup,
   EVMPrivateKey,
@@ -11,7 +11,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
-
   readBeforeUnlock(
     name: ERecordKey,
     key: VolatileStorageKey,

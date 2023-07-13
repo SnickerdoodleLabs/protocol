@@ -96,6 +96,9 @@ export class ConfigProvider implements IConfigProvider {
     this.config.defaultGoogleCloudBucket =
       configOverrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
+    this.config.defaultDropboxCloudBucket =
+      configOverrides.defaultDropboxCloudBucket ??
+      this.config.defaultDropboxCloudBucket;
     this.config.enableBackupEncryption =
       configOverrides.enableBackupEncryption ??
       this.config.enableBackupEncryption;

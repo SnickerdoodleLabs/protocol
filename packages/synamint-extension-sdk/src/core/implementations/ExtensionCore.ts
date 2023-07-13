@@ -85,6 +85,7 @@ export class ExtensionCore {
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
+      defaultDropboxCloudBucket: config.defaultDropboxCloudBucket,
       enableBackupEncryption: config.enableBackupEncryption,
       discordOverrides: config.discordOverrides,
       twitterOverrides: config.twitterOverrides,

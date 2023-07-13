@@ -74,6 +74,8 @@ import {
   VolatileStorageSchemaProvider,
   ICloudStorage,
   GoogleCloudStorage,
+  IGoogleCloudStorageType,
+  IDropboxCloudStorageType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -273,8 +275,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-import { IGoogleCloudStorageType } from "@snickerdoodlelabs/persistence";
-import { IDropboxCloudStorageType } from "@snickerdoodlelabs/persistence";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
