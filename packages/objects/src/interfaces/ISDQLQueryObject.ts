@@ -15,7 +15,6 @@ import {
   ISO8601DateString,
   ISDQLConditionString,
   ISDQLExpressionString,
-  QueryTypes,
 } from "@objects/primitives/index.js";
 
 export interface ISDQLQueryObject {

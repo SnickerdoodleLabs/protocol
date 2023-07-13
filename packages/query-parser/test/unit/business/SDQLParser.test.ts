@@ -49,7 +49,7 @@ describe("SDQLParser on avalanche", () => {
   describe("Checking subqueries", () => {
     test("q1 is a network query on AVAX", () => {
       const q1 = parser.context.get("q1") as AST_BlockchainTransactionQuery;
-      expect(q1 instanceof AST_BlockchainTransactionQuery).toBeTruthy();
+      expect(q1).toBeInstanceOf(AST_BlockchainTransactionQuery);
       expect(q1.returnType).toBe("boolean");
       expect(q1.chain).toBe("AVAX");
       expect(q1.contract.networkId).toBe(43114);
@@ -65,21 +65,21 @@ describe("SDQLParser on avalanche", () => {
 
     test("q2 is an age query", () => {
       const q2 = parser.context.get("q2") as AST_PropertyQuery;
-      expect(q2 instanceof AST_PropertyQuery).toBeTruthy();
+      expect(q2).toBeInstanceOf(AST_PropertyQuery);
       expect(q2.property).toBe("age");
       expect(q2.returnType).toBe("number");
     });
 
     test("q3 is a location query", () => {
       const q3 = parser.context.get("q3") as AST_PropertyQuery;
-      expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
+      expect(q3).toBeInstanceOf(AST_PropertyQuery);
       expect(q3.property).toBe("location");
       expect(q3.returnType).toBe("string");
     });
 
     test("q4 is a balance query", () => {
       const q4 = parser.context.get("q4");
-      expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
+      expect(q4).toBeInstanceOf(AST_BalanceQuery);
     });
   });
 
@@ -89,28 +89,28 @@ describe("SDQLParser on avalanche", () => {
       const i2 = parser.context.get("i2") as AST_Insight;
       const i3 = parser.context.get("i3") as AST_Insight;
 
-      expect(i1 instanceof AST_Insight).toBeTruthy();
-      expect(i2 instanceof AST_Insight).toBeTruthy();
-      expect(i3 instanceof AST_Insight).toBeTruthy();
+      expect(i1).toBeInstanceOf(AST_Insight);
+      expect(i2).toBeInstanceOf(AST_Insight);
+      expect(i3).toBeInstanceOf(AST_Insight);
 
       expect(i1.name).toBe(SDQL_Name("i1"));
       expect(i2.name).toBe(SDQL_Name("i2"));
       expect(i3.name).toBe(SDQL_Name("i3"));
 
-      expect(i1.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(i1.target.source instanceof ConditionG).toBeTruthy();
-      expect(i1.returns instanceof AST_Expr).toBeTruthy();
+      expect(i1.target).toBeInstanceOf(AST_ConditionExpr);
+      expect(i1.target.source).toBeInstanceOf(ConditionG);
+      expect(i1.returns).toBeInstanceOf(AST_Expr);
       expect(typeof i1.returns.source === "string").toBeTruthy();
 
-      expect(i2.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(i2.target.source instanceof AST_SubQuery).toBeTruthy();
-      expect(i2.returns instanceof AST_Expr).toBeTruthy();
+      expect(i2.target).toBeInstanceOf(AST_ConditionExpr);
+      expect(i2.target.source).toBeInstanceOf(AST_SubQuery);
+      expect(i2.returns).toBeInstanceOf(AST_Expr);
       expect(typeof i2.returns.source === "string").toBeTruthy();
 
-      expect(i3.target instanceof AST_ConditionExpr).toBeTruthy();
+      expect(i3.target).toBeInstanceOf(AST_ConditionExpr);
       expect(typeof i3.target.source == "boolean").toBeTruthy();
-      expect(i3.returns instanceof AST_Expr).toBeTruthy();
-      expect(i3.returns.source instanceof AST_SubQuery).toBeTruthy();
+      expect(i3.returns).toBeInstanceOf(AST_Expr);
+      expect(i3.returns.source).toBeInstanceOf(AST_SubQuery);
     });
   });
 
@@ -120,22 +120,22 @@ describe("SDQLParser on avalanche", () => {
       const a2 = parser.context.get("a2") as AST_Ad;
       const a3 = parser.context.get("a3") as AST_Ad;
 
-      expect(a1 instanceof AST_Ad).toBeTruthy();
-      expect(a2 instanceof AST_Ad).toBeTruthy();
-      expect(a3 instanceof AST_Ad).toBeTruthy();
+      expect(a1).toBeInstanceOf(AST_Ad);
+      expect(a2).toBeInstanceOf(AST_Ad);
+      expect(a3).toBeInstanceOf(AST_Ad);
 
       expect(a1.name).toBe(SDQL_Name("a1"));
       expect(a2.name).toBe(SDQL_Name("a2"));
       expect(a3.name).toBe(SDQL_Name("a3"));
 
-      expect(a1.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(a1.target.source instanceof AST_BlockchainTransactionQuery ).toBeTruthy();
+      expect(a1.target).toBeInstanceOf(AST_ConditionExpr);
+      expect(a1.target.source).toBeInstanceOf(AST_BlockchainTransactionQuery);
 
-      expect(a2.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(a2.target.source instanceof AST_SubQuery).toBeTruthy();
+      expect(a2.target).toBeInstanceOf(AST_ConditionExpr);
+      expect(a2.target.source).toBeInstanceOf(AST_SubQuery);
 
-      expect(a3.target instanceof AST_ConditionExpr).toBeTruthy();
-      expect(a3.target.source instanceof ConditionG).toBeTruthy();
+      expect(a3.target).toBeInstanceOf(AST_ConditionExpr);
+      expect(a3.target.source).toBeInstanceOf(ConditionG);
     });
   });
 
@@ -166,9 +166,9 @@ describe("SDQLParser on avalanche", () => {
       const c1 = parser.context.get("c1") as AST_Compensation;
       const c2 = parser.context.get("c2") as AST_Compensation;
       const c3 = parser.context.get("c3") as AST_Compensation;
-      expect(c1 instanceof AST_Compensation).toBeTruthy();
-      expect(c2 instanceof AST_Compensation).toBeTruthy();
-      expect(c3 instanceof AST_Compensation).toBeTruthy();
+      expect(c1).toBeInstanceOf(AST_Compensation);
+      expect(c2).toBeInstanceOf(AST_Compensation);
+      expect(c3).toBeInstanceOf(AST_Compensation);
 
       expect(c1.name).toBe(SDQL_Name("c1"));
       expect(c2.name).toBe(SDQL_Name("c2"));
@@ -205,27 +205,45 @@ describe("SDQLParser on avalanche", () => {
       const c2 = parser.context.get("c2") as AST_Compensation;
       const c3 = parser.context.get("c3") as AST_Compensation;
 
-      expect(c1.requires instanceof AST_ConditionExpr).toBeTruthy();
-      expect(c1.requires.source instanceof ConditionOr).toBeTruthy();
-      expect((c1.requires.source as ConditionOr).lval! instanceof AST_Insight).toBeTruthy();
-      expect((c1.requires.source as ConditionOr).lval!).toEqual(parser.context.get("i1"));
-      expect((c1.requires.source as ConditionOr).rval! instanceof AST_Ad).toBeTruthy();
-      expect((c1.requires.source as ConditionOr).rval!).toEqual(parser.context.get("a2"));
+      expect(c1.requires).toBeInstanceOf(AST_ConditionExpr);
+      expect(c1.requires.source).toBeInstanceOf(ConditionOr);
+      expect((c1.requires.source as ConditionOr).lval!).toBeInstanceOf(
+        AST_Insight,
+      );
+      expect((c1.requires.source as ConditionOr).lval!).toEqual(
+        parser.context.get("i1"),
+      );
+      expect((c1.requires.source as ConditionOr).rval!).toBeInstanceOf(AST_Ad);
+      expect((c1.requires.source as ConditionOr).rval!).toEqual(
+        parser.context.get("a2"),
+      );
 
-      expect(c2.requires instanceof AST_ConditionExpr).toBeTruthy();
-      expect(c2.requires.source instanceof ConditionAnd).toBeTruthy();
-      expect((c2.requires.source as ConditionAnd).lval! instanceof AST_Insight).toBeTruthy();
-      expect((c2.requires.source as ConditionAnd).lval!).toEqual(parser.context.get("i1"));
-      expect((c2.requires.source as ConditionAnd).rval! instanceof AST_Insight).toBeTruthy();
-      expect((c2.requires.source as ConditionAnd).rval!).toEqual(parser.context.get("i2"));
+      expect(c2.requires).toBeInstanceOf(AST_ConditionExpr);
+      expect(c2.requires.source).toBeInstanceOf(ConditionAnd);
+      expect((c2.requires.source as ConditionAnd).lval!).toBeInstanceOf(
+        AST_Insight,
+      );
+      expect((c2.requires.source as ConditionAnd).lval!).toEqual(
+        parser.context.get("i1"),
+      );
+      expect((c2.requires.source as ConditionAnd).rval!).toBeInstanceOf(
+        AST_Insight,
+      );
+      expect((c2.requires.source as ConditionAnd).rval!).toEqual(
+        parser.context.get("i2"),
+      );
 
-
-
-      expect(c3.requires instanceof AST_ConditionExpr).toBeTruthy();
-      expect((c3.requires.source as ConditionOr).lval! instanceof AST_Insight).toBeTruthy();
-      expect((c3.requires.source as ConditionOr).lval!).toEqual(parser.context.get("i3"));
-      expect((c3.requires.source as ConditionOr).rval! instanceof AST_Ad).toBeTruthy();
-      expect((c3.requires.source as ConditionOr).rval!).toEqual(parser.context.get("a1"));
+      expect(c3.requires).toBeInstanceOf(AST_ConditionExpr);
+      expect((c3.requires.source as ConditionOr).lval!).toBeInstanceOf(
+        AST_Insight,
+      );
+      expect((c3.requires.source as ConditionOr).lval!).toEqual(
+        parser.context.get("i3"),
+      );
+      expect((c3.requires.source as ConditionOr).rval!).toBeInstanceOf(AST_Ad);
+      expect((c3.requires.source as ConditionOr).rval!).toEqual(
+        parser.context.get("a1"),
+      );
     });
   });
 });

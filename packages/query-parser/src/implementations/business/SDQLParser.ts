@@ -71,6 +71,7 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
   > {
     return this.validateSchema(this.schema, this.cid).andThen(() => {
       return this.parse().map(() => {
@@ -191,16 +192,17 @@ export class SDQLParser {
   }
 
   private validateCompensations(): ResultAsync<void, QueryFormatError> {
-    return ResultUtils.combine(
-      this.schema.getCompensationEntries().map(([cKey, compensation]) => {
-        if (cKey == "parameters") {
-          return okAsync(undefined);
+    const compsToValidate: ResultAsync<void, QueryFormatError>[] = [];
+    this.schema
+      .getCompensationEntries()
+      .forEach((compensation, compensationKey) => {
+        if (compensationKey == "parameters") {
+          return compsToValidate.push(okAsync(undefined));
         }
-        return this.validateCompensation(cKey, compensation);
-      }),
-    )
-      .mapErr((e) => e)
-      .map(() => {});
+        return this.validateCompensation(compensationKey, compensation);
+      });
+
+    return ResultUtils.combine(compsToValidate).map(() => {});
   }
 
   private validateCompensation(
@@ -215,7 +217,11 @@ export class SDQLParser {
       c.callback.parameters == null ||
       c.callback.data.trackingId == null
     ) {
-      return errAsync(new QueryFormatError(`Corrupted compensation: ${cKey}`));
+      return errAsync(
+        new QueryFormatError(
+          `Query CID:${this.cid} Corrupted compensation: ${cKey}`,
+        ),
+      );
     }
     return okAsync(undefined);
   }
@@ -227,6 +233,7 @@ export class SDQLParser {
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
+    | MissingASTError
   > {
     return this.parseQueries().andThen(() => {
       return ResultUtils.combine([
@@ -241,7 +248,7 @@ export class SDQLParser {
   // #region non-logic
   private parseQueries(): ResultAsync<
     void,
-    DuplicateIdInSchema | QueryFormatError
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
     try {
       const querySchema = this.schema.getQuerySchema();
@@ -434,7 +441,10 @@ export class SDQLParser {
   // #region Logic
   private parseLogicExpString(
     target: string,
-  ): ResultAsync<AST_ConditionExpr, ParserError | InvalidRegularExpression> {
+  ): ResultAsync<
+    AST_ConditionExpr,
+    ParserError | InvalidRegularExpression | QueryFormatError
+  > {
     return this.exprParser!.parse(target).andThen((ast) => {
       if (ast instanceof AST_ConditionExpr) {
         return okAsync(ast);

@@ -6,11 +6,16 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   ConsentToken,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
   IPFSError,
+  MissingASTError,
+  MissingTokenConstructorError,
+  ParserError,
   PersistenceError,
   PossibleReward,
   QueryExpiredError,
@@ -29,16 +34,27 @@ export interface IQueryService {
     requestForData: RequestForData,
   ): ResultAsync<
     void,
+    | EvaluationError
+    | PersistenceError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
     | QueryFormatError
-    | EvaluationError
     | QueryExpiredError
     | ServerRewardError
+    | ConsentContractError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
     | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
 
   approveQuery(
@@ -73,7 +89,22 @@ export interface IQueryService {
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     config: CoreConfig,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError>
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  >;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

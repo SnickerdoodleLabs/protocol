@@ -205,11 +205,11 @@ describe("Postfix to AST", () => {
   });
 
   test("True to ast", async () => {
-    // Acquire
+    // Arrange
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
-    // // Action
+    // // Act
     const expr = (
       await parser.parse("True")
     )._unsafeUnwrap() as AST_ConditionExpr;
@@ -219,16 +219,13 @@ describe("Postfix to AST", () => {
   });
 
   test("true and true to ast", async () => {
-    // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
-    // // Action
     const expr = (
       await parser.parse("True and True")
     )._unsafeUnwrap() as AST_ConditionExpr;
 
-    // Assert
     expect(expr.source.constructor).toBe(ConditionAnd);
     const mainAnd = expr.source as ConditionAnd;
     expect(mainAnd.lval!).toBe(true);
@@ -236,16 +233,13 @@ describe("Postfix to AST", () => {
   });
 
   test("$q3 == 'US'", async () => {
-    // Acquire
     const mocks = new ExprParserMocks();
     const parser = (await mocks.createExprParser(null))._unsafeUnwrap();
 
-    // // Action
     const expr = (
       await parser.parse("$q3 == 'US'")
     )._unsafeUnwrap() as AST_ConditionExpr;
 
-    // Assert
     expect(expr.source.constructor).toBe(ConditionE);
     const cond = expr.source as ConditionE;
     expect(cond.lval!).toEqual(mocks.context!.get("q3"));

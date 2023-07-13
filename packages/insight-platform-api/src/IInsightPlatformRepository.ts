@@ -2,22 +2,17 @@ import {
   AjaxError,
   BigNumberString,
   EarnedReward,
-  EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
   IDynamicRewardParameter,
-  IInsights,
   IpfsCID,
-  SubQueryKey,
   Signature,
   TokenId,
   URLString,
   IQueryDeliveryItems,
   PossibleReward,
-  AdKey,
-  InsightKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

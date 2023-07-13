@@ -38,6 +38,12 @@ import {
   PossibleReward,
   DataPermissions,
   IQueryDeliveryItems,
+  QueryExpiredError,
+  ParserError,
+  MissingTokenConstructorError,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
+  MissingASTError,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -115,7 +121,30 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     requestForData: RequestForData,
-  ): ResultAsync<void, EvaluationError | PersistenceError> {
+  ): ResultAsync<
+    void,
+    | EvaluationError
+    | PersistenceError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | QueryFormatError
+    | QueryExpiredError
+    | ServerRewardError
+    | ConsentContractError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
     /**
      * TODO
      * This method, for Ads Flow, will no longer process insights immediately. It will process the
@@ -417,8 +446,23 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     config: CoreConfig,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
-    return this.getPossibleInsightAndAdKeys(query).andThen(
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
+    return this.getPossibleQueryDeliveryItems(query).andThen(
       (queryDeliveryItems) => {
         return this.getPossibleRewardsFromIP(
           consentToken,
@@ -435,7 +479,7 @@ export class QueryService implements IQueryService {
   public createQueryStatusWithNoConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
-  ): ResultAsync<void, EvaluationError> {
+  ): ResultAsync<void, EvaluationError | PersistenceError> {
     return this.sdqlQueryRepo
       .upsertQueryStatus([
         new QueryStatus(
@@ -460,7 +504,23 @@ export class QueryService implements IQueryService {
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
-  ): ResultAsync<void, EvaluationError | ServerRewardError> {
+  ): ResultAsync<
+    void,
+    | EvaluationError
+    | ServerRewardError
+    | AjaxError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
     return this.getPossibleRewards(
       consentToken,
       optInKey,
@@ -553,9 +613,23 @@ export class QueryService implements IQueryService {
     return okAsync(undefined);
   }
 
-  protected getPossibleInsightAndAdKeys(
+  protected getPossibleQueryDeliveryItems(
     query: SDQLQuery,
-  ): ResultAsync<IQueryDeliveryItems, EvaluationError> {
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
     return this.queryParsingEngine.handleQuery(
       query,
       DataPermissions.createWithAllPermissions(),

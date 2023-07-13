@@ -12,22 +12,14 @@ import { AdKey, InsightKey, MissingASTError } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 export class DependencyParser {
-  public possibleInsightsAndAds: (InsightKey | AdKey)[] | undefined;
-
-  keyExists(insightOrAdKey: InsightKey | AdKey): boolean {
-    if (this.possibleInsightsAndAds) {
-      return this.possibleInsightsAndAds.includes(insightOrAdKey);
-    }
-    return true;
+  _possibleInsightsAndAds: (InsightKey | AdKey)[] | undefined;
+  get possibleInsightsAndAds(): (InsightKey | AdKey)[] | undefined {
+    return this._possibleInsightsAndAds;
   }
-
-  getSet(queries: AST_SubQuery[]): Set<AST_SubQuery> {
-    return new Set(
-      queries.filter(
-        (value, index, array) =>
-          index === array.findIndex((query) => query.name === value.name),
-      ),
-    );
+  set possibleInsightsAndAds(
+    possibleInsightsAndAds: (InsightKey | AdKey)[] | undefined,
+  ) {
+    this._possibleInsightsAndAds = possibleInsightsAndAds;
   }
 
   public getQueryDependencies(
@@ -75,6 +67,23 @@ export class DependencyParser {
 
     return errAsync(new MissingASTError("Invalid expr"));
   }
+
+  private keyExists(insightOrAdKey: InsightKey | AdKey): boolean {
+    if (this.possibleInsightsAndAds) {
+      return this.possibleInsightsAndAds.includes(insightOrAdKey);
+    }
+    return true;
+  }
+
+  private getSet(queries: AST_SubQuery[]): Set<AST_SubQuery> {
+    return new Set(
+      queries.filter(
+        (value, index, array) =>
+          index === array.findIndex((query) => query.name === value.name),
+      ),
+    );
+  }
+
   private getAstConditionExprDependencies(
     expr: AST_ConditionExpr,
     returns?: AST_Expr,

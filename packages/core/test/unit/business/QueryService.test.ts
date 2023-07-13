@@ -18,7 +18,6 @@ import {
   EligibleReward,
   HexString32,
   IDynamicRewardParameter,
-  IInsights,
   IPFSError,
   InsightString,
   IpfsCID,
@@ -75,28 +74,14 @@ const queryCID2 = IpfsCID("Boop");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID1, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID2, SDQLString(avalanche1SchemaStr));
-const insights = {
-  queries: {},
-  returns: {
-    "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
-    $r3: InsightString("Hello2"),
-  },
-} as IInsights;
 
 const queryDeliveryItems: IQueryDeliveryItems = {
   insights: {},
   ads: {},
 } as IQueryDeliveryItems; // TODO fill out with data
 
-const insightsError = {
-  returns: {},
-} as IInsights;
-const rewards: EligibleReward[] = [];
 const tokenId = TokenId(BigInt(0));
 
-const allPermissions = HexString32(
-  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-);
 const dataPermissions = DataPermissions.createWithAllPermissions();
 
 const rewardParameter = {

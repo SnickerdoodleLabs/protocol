@@ -45,6 +45,15 @@ import {
   ConsentContractError,
   ConsentToken,
   EVMPrivateKey,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
+  MissingTokenConstructorError,
+  ParserError,
+  PersistenceError,
+  QueryExpiredError,
+  QueryFormatError,
+  ConsentError,
+  MissingASTError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -108,7 +117,27 @@ export class MarketplaceService implements IMarketplaceService {
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | ConsentError
+    | ConsentFactoryContractError
+    | MissingASTError
+  > {
     if (!contractAddresses) {
       return okAsync(new Map());
     }
@@ -206,7 +235,26 @@ export class MarketplaceService implements IMarketplaceService {
     contractAddress: EVMContractAddress,
     dataWalletKey: EVMPrivateKey,
     config: CoreConfig,
-  ): ResultAsync<PossibleReward[], EvaluationError | AjaxError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | ConsentError
+    | MissingASTError
+  > {
     if (!queryCids || queryCids.length == 0) {
       return okAsync([]);
     }
@@ -245,7 +293,22 @@ export class MarketplaceService implements IMarketplaceService {
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
     config: CoreConfig,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
     return this.sdqlQueryRepo
       .getSDQLQueryByCID(queryCid, timeoutMs)
       .andThen((sdqlQuery) => {

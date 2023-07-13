@@ -2,11 +2,15 @@ import {
   AdKey,
   CompensationKey,
   DuplicateIdInSchema,
+  EvalNotImplementedError,
+  EvaluationError,
   InsightKey,
   IpfsCID,
   IQueryDeliveryItems,
+  MissingASTError,
   MissingTokenConstructorError,
   ParserError,
+  PersistenceError,
   PossibleReward,
   QueryExpiredError,
   QueryFormatError,
@@ -25,7 +29,11 @@ export interface ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
-  > 
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+    | EvaluationError
+  >;
 
   filterCompensationsForPreviews(
     schemaString: SDQLString,
@@ -38,6 +46,9 @@ export interface ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
 }
 

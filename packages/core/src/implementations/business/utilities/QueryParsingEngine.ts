@@ -1,30 +1,27 @@
 import {
   AdKey,
-  CompensationKey,
   DataPermissions,
-  ERewardType,
   EVMContractAddress,
   EligibleAd,
   EvaluationError,
-  ExpectedReward,
-  IInsights,
   ISDQLAd,
-  ISDQLCompensations,
   InsightString,
   IpfsCID,
   ParserError,
   PersistenceError,
-  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   SDQLQuery,
   SDQL_Return,
-  SubQueryKey,
   IQueryDeliveryItems,
   IQueryDeliveryAds,
   IQueryDeliveryInsights,
   ProofString,
   SDQL_Name,
+  DuplicateIdInSchema,
+  MissingTokenConstructorError,
+  EvalNotImplementedError,
+  MissingASTError,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -37,9 +34,8 @@ import {
   ISDQLQueryUtilsType,
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
-import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -70,14 +66,39 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   > {
     return this.parseQuery(query).andThen((ast) => {
       return this.gatherDeliveryItems(ast, query.cid, dataPermissions);
     });
   }
 
-  public parseQuery(query: SDQLQuery): ResultAsync<AST, ParserError> {
+  public parseQuery(
+    query: SDQLQuery,
+  ): ResultAsync<
+    AST,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+  > {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => sdqlParser.buildAST());
@@ -89,7 +110,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IQueryDeliveryItems,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | PersistenceError
+    | EvalNotImplementedError
   > {
     const astEvaluator = this.queryFactories.makeAstEvaluator(
       cid,
@@ -113,7 +139,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     astEvaluator: AST_Evaluator,
   ): ResultAsync<
     IQueryDeliveryInsights,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | PersistenceError
+    | EvalNotImplementedError
   > {
     const astInsightArray = Array.from(ast.insights);
     const insightMapResult = astInsightArray.map(([_qName, astInsight]) => {
@@ -130,7 +161,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     insightMap: [SDQL_Name, SDQL_Return][],
   ): IQueryDeliveryInsights {
     return insightMap.reduce<IQueryDeliveryInsights>(
-      (deliveryInsights, [insightName, insight], currentIndex) => {
+      (deliveryInsights, [insightName, insight]) => {
         if (insight !== null) {
           deliveryInsights[insightName] = {
             insight: this.SDQLReturnToInsight(insight),
@@ -151,7 +182,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): IQueryDeliveryAds {
     const adSigProm: IQueryDeliveryAds = {};
-    ast.ads.forEach((value, key, map) => {
+    ast.ads.forEach((value) => {
       adSigProm[value.key] = null;
     });
     return adSigProm;
@@ -205,7 +236,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     [AST, AST_Evaluator],
-    QueryFormatError | QueryExpiredError | ParserError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
       return [ast, this.queryFactories.makeAstEvaluator(cid, dataPermissions)];

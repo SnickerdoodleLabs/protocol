@@ -79,13 +79,13 @@ export class SDQLQueryWrapper {
           recipientAddress: {
             type: EVMAccountAddress(""),
             required: false,
-          }
-        }
+          },
+        },
       };
       return;
     }
 
-    this.getCompensationEntries().forEach(([cKey, comp]) => {
+    this.getCompensationEntries().forEach((comp, cKey) => {
       if (cKey == "parameters") {
         return;
       }
@@ -169,9 +169,11 @@ export class SDQLQueryWrapper {
     return this._getEntries<AdKey, ISDQLAd>(ads);
   }
 
-  public getCompensationEntries(): [CompensationKey, ISDQLCompensations][] {
+  public getCompensationEntries(): Map<CompensationKey, ISDQLCompensations> {
     const comps = this.getCompensationSchema();
-    return this._getEntries<CompensationKey, ISDQLCompensations>(comps);
+    return new Map(
+      this._getEntries<CompensationKey, ISDQLCompensations>(comps),
+    );
   }
 
   public getQuerySchema(): {
@@ -193,7 +195,7 @@ export class SDQLQueryWrapper {
   }
 
   private _getEntries<K, V>(o: { [s: string]: any }): [K, V][] {
-    return (Array.from(Object.entries(o))).map(([k, v]) => [
+    return Array.from(Object.entries(o)).map(([k, v]) => [
       k as unknown as K,
       v,
     ]);

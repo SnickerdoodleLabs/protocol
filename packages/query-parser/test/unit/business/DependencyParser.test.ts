@@ -8,7 +8,6 @@ import {
 } from "@query-parser/index.js";
 import { AdKey, InsightKey, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { ExprParserMocks } from "@query-parser-test/mocks";
-import { okAsync } from "neverthrow";
 
 const InsightsAnswered = [
   InsightKey("i1"),
@@ -31,15 +30,18 @@ const getKeys = (queries: Set<AST_SubQuery>): SDQL_Name[] => {
   );
   return keys;
 };
+let dependencyParser: DependencyParser;
 describe("Dependency Parser Test", () => {
-  const dependencyParser = new DependencyParser();
+  beforeEach(() => {
+    dependencyParser = new DependencyParser();
+  });
+
   test("i1, i1 answered, should get q1", async () => {
     const expr = exprParserMocks.createInsightAdRequires("i1");
-    dependencyParser
+    await dependencyParser
       .getQueryDependencies(expr, InsightsAnswered.slice(0, 1))
-      .andThen((result) => {
+      .map((result) => {
         expect(getKeys(result)).toEqual(queries.slice(0, 1));
-        return okAsync(undefined);
       })
       .mapErr((e) => {
         fail(e.message);
@@ -48,11 +50,10 @@ describe("Dependency Parser Test", () => {
 
   test("true, should get empty array", async () => {
     const expr = exprParserMocks.createAstRequireExpr("true", true);
-    dependencyParser
+    await dependencyParser
       .getQueryDependencies(expr, [])
-      .andThen((result) => {
+      .map((result) => {
         expect(getKeys(result)).toEqual([]);
-        return okAsync(undefined);
       })
       .mapErr((e) => {
         fail(e.message);
@@ -63,11 +64,10 @@ describe("Dependency Parser Test", () => {
     const expr = exprParserMocks.createInsightAdRequires("i1", [
       { lvalName: "a1", binaryOperation: ConditionOr, rvalName: "i2" },
     ]);
-    dependencyParser
+    await dependencyParser
       .getQueryDependencies(expr, adsAnswered.slice(0, 1))
-      .andThen((result) => {
+      .map((result) => {
         expect(getKeys(result)).toEqual(queries.slice(0, 1));
-        return okAsync(undefined);
       })
       .mapErr((e) => {
         fail(e.message);
@@ -77,11 +77,10 @@ describe("Dependency Parser Test", () => {
     const expr = exprParserMocks.createInsightAdRequires("i1", [
       { lvalName: "i1", binaryOperation: ConditionOr, rvalName: "i2" },
     ]);
-    dependencyParser
+    await dependencyParser
       .getQueryDependencies(expr, InsightsAnswered.slice(0, 2))
-      .andThen((result) => {
+      .map((result) => {
         expect(getKeys(result)).toEqual(queries.slice(0, 2));
-        return okAsync(undefined);
       })
       .mapErr((e) => {
         fail(e.message);
@@ -93,14 +92,13 @@ describe("Dependency Parser Test", () => {
       { lvalName: "i1", binaryOperation: ConditionOr, rvalName: "i2" },
       { lvalName: "a3", binaryOperation: ConditionAnd },
     ]);
-    dependencyParser
+    await dependencyParser
       .getQueryDependencies(expr, [
         ...InsightsAnswered.slice(0, 2),
         ...adsAnswered.slice(2, 3),
       ])
-      .andThen((result) => {
+      .map((result) => {
         expect(getKeys(result)).toEqual(queries.slice(0, 3));
-        return okAsync(undefined);
       })
       .mapErr((e) => {
         fail(e.message);
@@ -116,11 +114,10 @@ describe("Dependency Parser Test", () => {
       { lvalName: "a2", binaryOperation: ConditionAnd },
       { lvalName: "a3", binaryOperation: ConditionAnd },
     ]);
-    dependencyParser
+    await dependencyParser
       .getQueryDependencies(expr, [...InsightsAnswered, ...adsAnswered])
-      .andThen((result) => {
+      .map((result) => {
         expect(getKeys(result)).toEqual(queries);
-        return okAsync(undefined);
       })
       .mapErr((e) => {
         fail(e.message);

@@ -35,14 +35,14 @@ export class QueryFactories implements IQueryFactories {
     readonly queryRepository: IQueryRepository,
   ) {}
 
-  makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
+  public makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
     const SDQLWrapper = this.queryWrapperFactory.makeWrapper(
       new SDQLQuery(cid, schemaString),
     );
     return new SDQLParser(cid, SDQLWrapper, this.queryObjectFactory);
   }
 
-  makeParserAsync(
+  public makeParserAsync(
     cid: IpfsCID,
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError> {
@@ -53,12 +53,11 @@ export class QueryFactories implements IQueryFactories {
 
       return okAsync(new SDQLParser(cid, SDQLWrapper, this.queryObjectFactory));
     } catch (e) {
-  
       return errAsync(new QueryFormatError((e as Error).message));
     }
   }
 
-  makeAstEvaluator(
+  public makeAstEvaluator(
     cid: IpfsCID,
     dataPermissions: DataPermissions,
   ): AST_Evaluator {

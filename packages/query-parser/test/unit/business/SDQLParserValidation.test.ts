@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IpfsCID,
@@ -7,7 +9,6 @@ import {
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
-import "reflect-metadata";
 
 import {
   QueryObjectFactory,
