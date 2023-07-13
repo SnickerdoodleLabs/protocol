@@ -18,9 +18,9 @@ import {
   SolanaNFTItem,
 } from "@extension-onboarding/components/NFTItem";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 
 declare const window: IWindowWithSdlDataWallet;
 

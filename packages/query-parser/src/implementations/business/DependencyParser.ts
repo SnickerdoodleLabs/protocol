@@ -1,3 +1,6 @@
+import { AdKey, InsightKey, MissingASTError } from "@snickerdoodlelabs/objects";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+
 import {
   AST_RequireExpr,
   AST_SubQuery,
@@ -8,8 +11,6 @@ import {
   AST_Ad,
   AST_Insight,
 } from "@query-parser/interfaces/index.js";
-import { AdKey, InsightKey, MissingASTError } from "@snickerdoodlelabs/objects";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 export class DependencyParser {
   _possibleInsightsAndAds: (InsightKey | AdKey)[] | undefined;

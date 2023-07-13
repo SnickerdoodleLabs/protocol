@@ -1,3 +1,7 @@
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { Action, Tabs } from "webextension-polyfill";
+
 import { IExtensionListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IConfigProvider,
@@ -5,9 +9,6 @@ import {
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { BrowserUtils } from "@synamint-extension-sdk/enviroment/shared/utils";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { Action, Tabs } from "webextension-polyfill";
 
 @injectable()
 export class ExtensionListener implements IExtensionListener {

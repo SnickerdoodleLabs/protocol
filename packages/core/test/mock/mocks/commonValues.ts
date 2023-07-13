@@ -29,8 +29,6 @@ import {
   EVMAccountAddress,
   EVMChainCode,
 } from "@snickerdoodlelabs/objects";
-
-
 import {
   AST_ConditionExpr,
   AST_Ad,
@@ -46,6 +44,7 @@ import {
   AST,
   AST_SubQuery,
 } from "@snickerdoodlelabs/query-parser";
+
 import {
   CoreConfig,
   MetatransactionGasAmounts,
@@ -189,8 +188,6 @@ export const testCoreConfig = new CoreConfig(
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
 );
-
-
 
 const adContent1: AdContent = new AdContent(
   EAdContentType.IMAGE,

@@ -204,7 +204,7 @@ export class ExprParserMocks {
               lval,
               array[0],
             );
-            array[0] = (this.createAstRequireExpr(lvalName, condExpr));
+            array[0] = this.createAstRequireExpr(lvalName, condExpr);
           } else if (rvalName) {
             const rval = this.createInsightOrAdDependentOnQuery(rvalName);
             const condExpr = this.createAstBinaryOp(

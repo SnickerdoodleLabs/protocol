@@ -67,39 +67,37 @@ export const query2 = {
           required: ["networkId", "balance"],
         },
       },
-      
     },
-    q4 : {
+    q4: {
       name: "url_visited_count",
       return: "object",
       timestampRange: {
         start: "*",
         end: "50",
       },
-    }
-    
+    },
   },
   insights: {
     i1: {
       name: "callback",
-      target :"true",
+      target: "true",
       returns: "$q1",
     },
     i2: {
       name: "callback",
-      target :"true",
+      target: "true",
       returns: "$q2",
     },
     i3: {
       name: "callback",
-      target :"true",
+      target: "true",
       returns: "$q3",
     },
     i4: {
       name: "callback",
-      target :"true",
+      target: "true",
       returns: "$q4",
-    }
+    },
   },
   compensations: {
     parameters: {
@@ -121,7 +119,7 @@ export const query2 = {
       name: "Sugar to your coffee",
       image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       description: "10% discount code for Starbucks",
-      requires : "true",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress"],
@@ -134,7 +132,7 @@ export const query2 = {
       name: "The CryptoPunk Draw",
       image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
-      requires : "true",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -148,7 +146,7 @@ export const query2 = {
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
-      requires : "true",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -159,5 +157,4 @@ export const query2 = {
       alternatives: ["c2"],
     },
   },
-  
 };

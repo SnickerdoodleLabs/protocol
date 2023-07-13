@@ -1,3 +1,8 @@
+import { Box, CircularProgress, Grid } from "@material-ui/core";
+import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import emptySubscriptions from "@extension-onboarding/assets/images/empty-subscriptions.svg";
 import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
@@ -9,10 +14,6 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, CircularProgress, Grid } from "@material-ui/core";
-import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 declare const window: IWindowWithSdlDataWallet;
 

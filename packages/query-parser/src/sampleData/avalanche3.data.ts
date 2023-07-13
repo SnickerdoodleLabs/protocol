@@ -63,22 +63,22 @@ export const avalanche3SchemaStr = SDQLString(
     insights: {
       i1: {
         name: "callback",
-        target : "$ßq1 and $q2",
+        target: "$ßq1 and $q2",
         returns: "'qualified'",
       },
       i2: {
         name: "callback",
-        target : "$q2", // not q1 and q2
+        target: "$q2", // not q1 and q2
         message: "'not qualified'",
       },
       i3: {
         name: "query_response",
-        target :"true",
+        target: "true",
         returns: "$q3",
       },
       i4: {
         name: "query_response",
-        target : "true",
+        target: "true",
         returns: "$q4",
       },
       i5: {
@@ -89,8 +89,8 @@ export const avalanche3SchemaStr = SDQLString(
       i6: {
         name: "query_response",
         target: "true",
-        returns : "$q6",
-      }
+        returns: "$q6",
+      },
     },
     compensations: {
       parameters: {
@@ -112,7 +112,7 @@ export const avalanche3SchemaStr = SDQLString(
         name: "Sugar to your coffee",
         image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
         description: "10% discount code for Starbucks",
-        requires : "$i1",
+        requires: "$i1",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress"],
@@ -125,7 +125,7 @@ export const avalanche3SchemaStr = SDQLString(
         name: "The CryptoPunk Draw",
         image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
         description: "participate in the draw to win a CryptoPunk NFT",
-        requires : "$i2 or $i4 or $i5 or $i6",
+        requires: "$i2 or $i4 or $i5 or $i6",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],
@@ -139,7 +139,7 @@ export const avalanche3SchemaStr = SDQLString(
         name: "CrazyApesClub NFT distro",
         image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
         description: "a free CrazyApesClub NFT",
-        requires : "$i3",
+        requires: "$i3",
         chainId: 1,
         callback: {
           parameters: ["recipientAddress", "productId"],
@@ -149,6 +149,6 @@ export const avalanche3SchemaStr = SDQLString(
         },
         alternatives: ["c2"],
       },
-    }
+    },
   }),
 );

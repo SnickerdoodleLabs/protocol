@@ -1,7 +1,8 @@
 import { Box, Tooltip as MUITooltip, withStyles } from "@material-ui/core";
-import { PERMISSIONS_WITH_ICONS } from "@shared-components/constants/permissions";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { FC, Fragment } from "react";
+
+import { PERMISSIONS_WITH_ICONS } from "@shared-components/constants/permissions";
 
 const Tooltip = withStyles((theme) => ({
   tooltip: {
@@ -61,5 +62,3 @@ export const Permissions: FC<IPermissionsProps> = ({
 
   return <>{itemsToRender()}</>;
 };
-
-

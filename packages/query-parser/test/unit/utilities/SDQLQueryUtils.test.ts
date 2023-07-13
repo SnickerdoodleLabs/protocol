@@ -22,6 +22,7 @@ import {
   QueryDeliveryItems,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
 
 import {
   QueryObjectFactory,
@@ -31,7 +32,6 @@ import {
 import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLParserFactory";
 import { ISDQLParserFactory } from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
-import { okAsync } from "neverthrow";
 
 const avalanche1PossibleRewards = [
   new PossibleReward(

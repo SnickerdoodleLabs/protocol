@@ -1,1 +1,1 @@
-export * from './CampaignModal';
+export * from "./CampaignModal";

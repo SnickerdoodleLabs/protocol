@@ -1,10 +1,11 @@
+import { Dialog } from "@material-ui/core";
+import { SubscriptionConfirmation } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
+
 import { useStyles } from "@extension-onboarding/components/Modals/SubscriptionConfirmationModal/SubscriptionConfirmationModal.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Dialog } from "@material-ui/core";
-import { SubscriptionConfirmation } from "@snickerdoodlelabs/shared-components";
-import React, { FC } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 

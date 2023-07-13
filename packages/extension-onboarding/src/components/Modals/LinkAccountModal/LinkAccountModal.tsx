@@ -1,8 +1,9 @@
-import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import { Box, Button, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/LinkAccountModal/LinkAccountModal.style";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 
 interface ILinkAccountModalProps {
   closeModal: () => void;

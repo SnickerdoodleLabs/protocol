@@ -1,6 +1,7 @@
+import { DataWalletAddress, UUID } from "@snickerdoodlelabs/objects";
+
 import { ENotificationTypes } from "@synamint-extension-sdk/shared/enums/notification";
 import { BaseNotification } from "@synamint-extension-sdk/shared/objects/notifications/BaseNotification";
-import { DataWalletAddress, UUID } from "@snickerdoodlelabs/objects";
 
 export class AccountInitializedNotification extends BaseNotification {
   constructor(

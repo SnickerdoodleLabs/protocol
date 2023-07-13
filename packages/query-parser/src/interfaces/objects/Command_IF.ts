@@ -1,7 +1,8 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { Command } from "@query-parser/interfaces/objects/Command.js";
 import { AST_Expr } from "./AST_Expr";
+
+import { Command } from "@query-parser/interfaces/objects/Command.js";
 
 export class Command_IF extends Command {
   constructor(

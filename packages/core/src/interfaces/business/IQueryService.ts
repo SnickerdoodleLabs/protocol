@@ -26,6 +26,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 import { CoreConfig } from "../objects";
 
 export interface IQueryService {

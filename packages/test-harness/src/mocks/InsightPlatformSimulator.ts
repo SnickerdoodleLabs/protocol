@@ -191,9 +191,9 @@ export class InsightPlatformSimulator {
 
     this.app.post("/insights/responses", (req, res) => {
       console.log("Recieved Insight Response");
-      
-      console.log("Insights : ",req.body["insights"]["insights"])
-      console.log("Ads : ",req.body["insights"]["ads"])
+
+      console.log("Insights : ", req.body["insights"]["insights"]);
+      console.log("Ads : ", req.body["insights"]["ads"]);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);

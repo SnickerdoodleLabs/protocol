@@ -11,7 +11,10 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IPIIService } from "@synamint-extension-sdk/core/interfaces/business";
-import { IPIIRepository, IPIIRepositoryType } from "@synamint-extension-sdk/core/interfaces/data";
+import {
+  IPIIRepository,
+  IPIIRepositoryType,
+} from "@synamint-extension-sdk/core/interfaces/data";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
 
 @injectable()

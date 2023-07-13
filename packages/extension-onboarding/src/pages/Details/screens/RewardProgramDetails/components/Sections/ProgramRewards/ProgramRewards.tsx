@@ -1,15 +1,4 @@
 import { Box } from "@material-ui/core";
-import React, {
-  FC,
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import Section, {
-  useSectionStyles,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 import {
   EVMContractAddress,
   EWalletDataType,
@@ -18,15 +7,27 @@ import {
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
-import { EBadgeType } from "@extension-onboarding/objects";
-import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import React, {
+  FC,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
 import DisplayModeToggle, {
   EDISPLAY_MODE,
 } from "@extension-onboarding/components/DisplayModeToggle/DisplayModeToggle";
 import Typography from "@extension-onboarding/components/Typography";
-import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { EBadgeType } from "@extension-onboarding/objects";
+import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
+import Section, {
+  useSectionStyles,
+} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IProgramRewardsProps {

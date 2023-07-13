@@ -7,9 +7,9 @@ import { AST_Ad } from "@query-parser/interfaces/objects/AST_Ad.js";
 import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr.js";
 import { AST_Insight } from "@query-parser/interfaces/objects/AST_Insight.js";
 import { Command } from "@query-parser/interfaces/objects/Command.js";
-import { Operator } from "@query-parser/interfaces/objects/Operator.js";
-import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
 import { Command_IF } from "@query-parser/interfaces/objects/Command_IF.js";
+import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
+import { Operator } from "@query-parser/interfaces/objects/Operator.js";
 
 export type AstAllowedTypes =
   | string

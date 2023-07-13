@@ -299,7 +299,7 @@ export const AppContextProvider: FC = ({ children }) => {
   const completeProductTour = () => {
     setIsProductTourCompleted(true);
   };
-  
+
   return (
     <AppContext.Provider
       value={{

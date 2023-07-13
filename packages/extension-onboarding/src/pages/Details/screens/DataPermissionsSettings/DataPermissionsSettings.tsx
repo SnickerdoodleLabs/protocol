@@ -1,8 +1,9 @@
+import { Box } from "@material-ui/core";
+import React, { FC } from "react";
+
 import PermissionSelection from "@extension-onboarding/components/PermissionSelection";
 import Typography from "@extension-onboarding/components/Typography";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings/DataPermissionsSettings.style";
-import { Box } from "@material-ui/core";
-import React, { FC } from "react";
 
 const DataPermissionsSettings: FC = () => {
   const classes = useStyles();

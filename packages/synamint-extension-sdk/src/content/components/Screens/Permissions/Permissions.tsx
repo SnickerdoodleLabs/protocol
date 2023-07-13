@@ -11,23 +11,27 @@ import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { FC, useCallback, useEffect, useState } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
+import {
+  IInvitationDomainWithUUID,
+  IExtensionConfig,
+} from "@synamint-extension-sdk/shared";
 import {
   GetPossibleRewardsParams,
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
-import { IInvitationDomainWithUUID, IExtensionConfig } from "@synamint-extension-sdk/shared";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import React, { FC, useCallback, useEffect, useState } from "react";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
   domainDetails: IInvitationDomainWithUUID;
-  config: IExtensionConfig
+  config: IExtensionConfig;
   onCancelClick: () => void;
   onNextClick: (
     eligibleRewards: PossibleReward[],

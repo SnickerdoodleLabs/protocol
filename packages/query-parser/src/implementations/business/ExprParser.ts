@@ -8,6 +8,11 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import {
+  Token,
+  Tokenizer,
+  TokenType,
+} from "@query-parser/implementations/index.js";
+import {
   AST_Ad,
   AST_BoolExpr,
   AST_ConditionExpr,
@@ -28,7 +33,6 @@ import {
   IfOperandTypes,
   ParserContextDataTypes,
 } from "@query-parser/interfaces/index.js";
-import { Token, Tokenizer, TokenType } from "@query-parser/implementations/index.js";
 
 export class ExprParser {
   protected precedence: Map<TokenType, Array<TokenType>> = new Map();

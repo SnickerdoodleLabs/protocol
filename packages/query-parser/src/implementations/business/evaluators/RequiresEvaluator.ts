@@ -13,6 +13,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { AST_Evaluator } from "@query-parser/implementations/business/evaluators/AST_Evaluator.js";
 import { CachedQueryRepository } from "@query-parser/implementations/utilities/CachedQueryRepository.js";
+import { TypeChecker } from "@query-parser/implementations/utilities/TypeChecker.js";
 import {
   AST_Ad,
   AST_Expr,
@@ -22,7 +23,6 @@ import {
   Operator,
 } from "@query-parser/interfaces/index.js";
 import { AST_RequireExpr } from "@query-parser/interfaces/objects/AST_RequireExpr.js";
-import { TypeChecker } from "@query-parser/implementations/utilities/TypeChecker.js";
 
 export class RequiresEvaluator extends AST_Evaluator {
   constructor(readonly availableMap: Map<SDQL_Name, unknown>) {

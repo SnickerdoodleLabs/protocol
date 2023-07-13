@@ -1,13 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
-import {
-  ContractOverrides,
-  IRewardsContractFactory,
-} from "@contracts-sdk/interfaces/index.js";
-import {
-  ContractsAbis,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMContractAddress,
   EVMAccountAddress,
@@ -19,6 +9,17 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { GasUtils } from "@contracts-sdk/implementations/GasUtils";
+import {
+  ContractOverrides,
+  IRewardsContractFactory,
+} from "@contracts-sdk/interfaces/index.js";
+import {
+  ContractsAbis,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class RewardsContractFactory

@@ -46,6 +46,8 @@ import {
   TokenAndSecret,
 } from "@snickerdoodlelabs/objects";
 
+import { IExtensionConfig } from "./IExtensionConfig";
+
 import {
   ECoreActions,
   IExternalState,
@@ -53,7 +55,6 @@ import {
   IInvitationDomainWithUUID,
   IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
-import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}

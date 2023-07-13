@@ -30,6 +30,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { RequiresEvaluator } from "@query-parser/implementations/business/evaluators/RequiresEvaluator.js";
+import { SDQLParser } from "@query-parser/implementations/index.js";
 import {
   AST_Ad,
   AST_SubQuery,
@@ -43,7 +44,6 @@ import {
   ISDQLQueryUtils,
   AST,
 } from "@query-parser/interfaces/index.js";
-import { SDQLParser } from "@query-parser/implementations/index.js";
 import {
   ISDQLParserFactory,
   ISDQLParserFactoryType,

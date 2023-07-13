@@ -1,7 +1,5 @@
-import { UI_SUPPORTED_PERMISSIONS } from "@snickerdoodlelabs/shared-components";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { PII } from "@extension-onboarding/services/interfaces/objects";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
+import { UI_SUPPORTED_PERMISSIONS } from "@snickerdoodlelabs/shared-components";
 import { okAsync, ResultAsync } from "neverthrow";
 import React, {
   FC,
@@ -13,6 +11,9 @@ import React, {
   useRef,
   useCallback,
 } from "react";
+
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { PII } from "@extension-onboarding/services/interfaces/objects";
 
 interface IPermissionContext {
   isSafe: (dataType: EWalletDataType) => boolean;

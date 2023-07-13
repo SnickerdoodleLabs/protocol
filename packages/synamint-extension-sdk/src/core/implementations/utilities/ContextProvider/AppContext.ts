@@ -13,9 +13,9 @@ import {
   IPortConnectionObject,
   IPortConnections,
 } from "@synamint-extension-sdk/core/interfaces/objects";
+import { ExtensionDisplayUtils } from "@synamint-extension-sdk/extensionShared";
 import { PORT_NOTIFICATION } from "@synamint-extension-sdk/shared/constants/ports";
 import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
-import { ExtensionDisplayUtils } from "@synamint-extension-sdk/extensionShared";
 import { TNotification } from "@synamint-extension-sdk/shared/types/notification";
 
 export class AppContext {

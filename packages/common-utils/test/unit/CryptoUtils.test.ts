@@ -268,7 +268,9 @@ describe("CryptoUtils tests", () => {
     const key2 = result2._unsafeUnwrap();
     expect(key1).toBe(key2);
     expect(key1.length).toBe(64);
-    expect(key1).toBe("d56dd3dbdb48797b0668ae3a9ab3c8044bd2061193779a5e70938e7b27c043b8");
+    expect(key1).toBe(
+      "d56dd3dbdb48797b0668ae3a9ab3c8044bd2061193779a5e70938e7b27c043b8",
+    );
   });
 
   test("createRSAKeyPair returns 2 PEM encoded keys", async () => {

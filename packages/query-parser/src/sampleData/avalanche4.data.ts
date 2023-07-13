@@ -109,7 +109,7 @@ export const avalanche4SchemaStr = JSON.stringify({
       name: "user age range",
       target: "true",
       returns: "$q8",
-    }
+    },
   },
   compensations: {
     parameters: {
@@ -158,7 +158,7 @@ export const avalanche4SchemaStr = JSON.stringify({
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
-      requires : "true",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -168,5 +168,5 @@ export const avalanche4SchemaStr = JSON.stringify({
       },
       alternatives: ["c2"],
     },
-  }
+  },
 });

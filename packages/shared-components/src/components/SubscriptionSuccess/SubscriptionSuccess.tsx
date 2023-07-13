@@ -1,7 +1,8 @@
 import { Box, Typography, IconButton } from "@material-ui/core";
-import { Button } from "@shared-components/components/Button";
-import React, { FC } from "react";
 import CloseIcon from "@material-ui/icons/Close";
+import React, { FC } from "react";
+
+import { Button } from "@shared-components/components/Button";
 import { useStyles } from "@shared-components/components/SubscriptionSuccess/SubscriptionSuccess.style";
 
 interface ISubscriptionSuccessProps {

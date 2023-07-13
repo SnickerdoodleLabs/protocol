@@ -1,13 +1,14 @@
 import { Box } from "@material-ui/core";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
-import { useStyles } from "@shared-components/components/Carousel/Carousel.style";
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import ReactMultiCarousel, {
   ButtonGroupProps,
   CarouselProps,
 } from "react-multi-carousel";
+
+import { useStyles } from "@shared-components/components/Carousel/Carousel.style";
 import "react-multi-carousel/lib/styles.css";
 
 export const CarouselButtonGroup = ({
@@ -20,12 +21,12 @@ export const CarouselButtonGroup = ({
   useEffect(() => {
     const node = document.getElementById("snickerdoodle-data-wallet");
     const link = document.createElement("link");
-    link.rel = "stylesheet"
+    link.rel = "stylesheet";
     link.href =
       "https://cdn.jsdelivr.net/npm/react-multi-carousel@2.8.3/lib/styles.min.css";
     node?.shadowRoot?.appendChild(link);
   }, []);
-  
+
   return (
     <>
       {carouselState?.currentSlide !== 0 && (

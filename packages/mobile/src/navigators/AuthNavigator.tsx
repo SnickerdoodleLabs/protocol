@@ -1,23 +1,24 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { COLORS, ROUTES } from "../constants";
+import React from "react";
+
 import ImageCarousel from "../components/ImageCarousel";
-import { Wallet } from "../screens";
-import Onboarding from "../screens/Onboarding";
-import Initial from "../screens/Initial";
 import StarterTour from "../components/StarterTour/StarterTour";
 import StarterTour2 from "../components/StarterTour/StarterTour2";
-import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
-import Marketplace from "../newcomponents/Marketplace/Marketplace";
-import CardDetails from "../newcomponents/Marketplace/CardDetails";
+import { COLORS, ROUTES } from "../constants";
 import Dashboard from "../newcomponents/Dashboard/Dashboard";
-import Settings from "../newcomponents/Settings/Settings";
-import CryptoSettings from "../newcomponents/Settings/CryptoSettings";
-import PersonalSettings from "../newcomponents/Settings/PersonalSettings";
-import RewardsSettings from "../newcomponents/Settings/RewardsSettings";
 import Permission from "../newcomponents/Onboarding/Permission";
 import PermissionSettings from "../newcomponents/Settings/PermissionSettings";
 import NFTDetails from "../newcomponents/Dashboard/NFTs/NFTDetails";
+import CardDetails from "../newcomponents/Marketplace/CardDetails";
+import Marketplace from "../newcomponents/Marketplace/Marketplace";
+import OnboardingMain from "../newcomponents/Onboarding/OnboardingMain";
+import CryptoSettings from "../newcomponents/Settings/CryptoSettings";
+import PersonalSettings from "../newcomponents/Settings/PersonalSettings";
+import RewardsSettings from "../newcomponents/Settings/RewardsSettings";
+import Settings from "../newcomponents/Settings/Settings";
+import { Wallet } from "../screens";
+import Initial from "../screens/Initial";
+import Onboarding from "../screens/Onboarding";
 
 const Stack = createStackNavigator();
 
@@ -112,7 +113,7 @@ export function DashboardStack() {
           title: false,
         }}
       />
-        <Stack.Screen
+      <Stack.Screen
         name={ROUTES.ONBOARDING}
         component={OnboardingMain}
         options={{

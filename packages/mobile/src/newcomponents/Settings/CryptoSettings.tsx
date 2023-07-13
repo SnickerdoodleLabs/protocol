@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect } from "react";
 import {
   Image,
   SafeAreaView,
@@ -7,13 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
-import { useNavigation } from "@react-navigation/native";
 
 export default function CryptoSettings() {
   const { mobileCore } = useAppContext();

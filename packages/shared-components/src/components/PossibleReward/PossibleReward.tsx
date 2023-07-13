@@ -1,7 +1,4 @@
 import { Box, Grow, Typography, Zoom } from "@material-ui/core";
-import { Permissions } from "@shared-components/components/Permissions";
-import { EBadgeType } from "@shared-components/objects";
-import { useRewardItemsStyles } from "@shared-components/styles/rewardItem";
 import {
   EVMContractAddress,
   EWalletDataType,
@@ -9,6 +6,10 @@ import {
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import { Permissions } from "@shared-components/components/Permissions";
+import { EBadgeType } from "@shared-components/objects";
+import { useRewardItemsStyles } from "@shared-components/styles/rewardItem";
 
 interface IPossibleRewardProps {
   reward: PossibleReward;

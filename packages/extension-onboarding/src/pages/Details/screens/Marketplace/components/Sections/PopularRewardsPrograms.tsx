@@ -1,13 +1,14 @@
-import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
-import { Carousel } from "@snickerdoodlelabs/shared-components";
-import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Typography } from "@material-ui/core";
 import {
   ETag,
   EVMContractAddress,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
+import { Carousel } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
+
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
+import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 
 interface IPopularRewardsProgramsProps {
   tag?: ETag;

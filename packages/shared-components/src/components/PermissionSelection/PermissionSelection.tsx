@@ -1,12 +1,5 @@
 import { Grid, Box, Typography, IconButton } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { Button } from "@shared-components/components/Button";
-import { PermissionBar } from "@shared-components/components/PermissionBar";
-import { useStyles } from "@shared-components/components/PermissionSelection/PermissionSelection.style";
-import { PossibleRewardComponent } from "@shared-components/components/PossibleReward";
-import { UI_SUPPORTED_PERMISSIONS } from "@shared-components/constants";
-import { EBadgeType } from "@shared-components/objects";
-import { isSameReward } from "@shared-components/utils";
 import {
   CountryCode,
   EarnedReward,
@@ -21,6 +14,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+
+import { Button } from "@shared-components/components/Button";
+import { PermissionBar } from "@shared-components/components/PermissionBar";
+import { useStyles } from "@shared-components/components/PermissionSelection/PermissionSelection.style";
+import { PossibleRewardComponent } from "@shared-components/components/PossibleReward";
+import { UI_SUPPORTED_PERMISSIONS } from "@shared-components/constants";
+import { EBadgeType } from "@shared-components/objects";
+import { isSameReward } from "@shared-components/utils";
 
 interface IPermissionSelectionProps {
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;

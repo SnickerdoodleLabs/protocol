@@ -1,15 +1,5 @@
-import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
-import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-
 import {
   AccountAddress,
   BigNumberString,
@@ -22,6 +12,16 @@ import {
 import { Button } from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import React, { useEffect, useState, FC, useCallback } from "react";
+
+import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
+import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 const CampaignPopup: FC = () => {

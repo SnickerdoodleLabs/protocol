@@ -23,7 +23,6 @@ import {
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { OAuth1Config } from "@snickerdoodlelabs/objects/src/businessObjects/oauth/OAuth1Config.js";
-
 import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 

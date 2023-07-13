@@ -23,8 +23,8 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import { DependencyParser } from "@query-parser/implementations/business/DependencyParser.js";
+import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import {
   AST,
   AST_Ad,

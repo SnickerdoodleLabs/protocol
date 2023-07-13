@@ -89,7 +89,7 @@ export class OklinkIndexer implements IEVMIndexer {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
     ])
-      .andThen(([okxSettings, config, context,]) => {
+      .andThen(([okxSettings, config, context]) => {
         const chainInfo = this.getChainShortName(chainId);
         const url = urlJoinP(
           "https://www.oklink.com/api/v5/explorer/address/",

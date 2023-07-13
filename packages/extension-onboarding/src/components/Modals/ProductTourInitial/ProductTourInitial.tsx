@@ -1,13 +1,14 @@
+import { Box, Grid, Modal } from "@material-ui/core";
+import { Button } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
+
 import divider from "@extension-onboarding/assets/images/divider.svg";
 import earnSection from "@extension-onboarding/assets/images/earn-section.svg";
 import infoSection from "@extension-onboarding/assets/images/info-section.svg";
 import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import videoSection from "@extension-onboarding/assets/images/video-section.svg";
-import { Button } from "@snickerdoodlelabs/shared-components";
 import { useStyles } from "@extension-onboarding/components/Modals/ProductTourInitial/ProductTourInitial.style";
 import { PRODUCT_VIDEO_URL } from "@extension-onboarding/constants";
-import { Box, Grid, Modal } from "@material-ui/core";
-import React, { FC } from "react";
 
 interface IProductTourInitialProps {
   onButtonClick: () => void;

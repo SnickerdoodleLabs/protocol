@@ -1,3 +1,6 @@
+import React, { FC, useMemo } from "react";
+import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
+
 import InitialScreen from "@extension-onboarding/containers/Router/InitialScreen";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import {
@@ -6,8 +9,6 @@ import {
 } from "@extension-onboarding/containers/Router/Router.routes";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import RootRouteLayout from "@extension-onboarding/layouts/RootRouteLayout";
-import React, { FC, useMemo } from "react";
-import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 
 const Router: FC = () => {
   const { appMode } = useAppContext();

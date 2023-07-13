@@ -1,3 +1,15 @@
+import { useNavigation } from "@react-navigation/native";
+import {
+  BigNumberString,
+  DomainName,
+  EInvitationStatus,
+  EVMContractAddress,
+  Invitation,
+  Signature,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import React, { useEffect } from "react";
 import {
   Image,
   Linking,
@@ -8,21 +20,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import { useNavigation } from "@react-navigation/native";
-import { useLayoutContext } from "../../context/LayoutContext";
-import { okAsync } from "neverthrow";
-import {
-  BigNumberString,
-  DomainName,
-  EInvitationStatus,
-  EVMContractAddress,
-  Invitation,
-  Signature,
-  TokenId,
-} from "@snickerdoodlelabs/objects";
+
 import { useAppContext } from "../../context/AppContextProvider";
+import { useLayoutContext } from "../../context/LayoutContext";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface ICardDetailsProps {
   image: any;

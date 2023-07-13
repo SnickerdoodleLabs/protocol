@@ -1,11 +1,12 @@
-import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
+import { Box, Typography } from "@material-ui/core";
+import { EVMContractAddress } from "@snickerdoodlelabs/objects";
 import { Carousel } from "@snickerdoodlelabs/shared-components";
+import React, { FC } from "react";
+
+import { DefaultCampaignItem } from "@extension-onboarding/components/CampaignItems";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { Box, Typography } from "@material-ui/core";
-import { EVMContractAddress } from "@snickerdoodlelabs/objects";
-import React, { FC } from "react";
 
 interface IConsentOwnersOtherProgramsProps {
   consentContract: EVMContractAddress;

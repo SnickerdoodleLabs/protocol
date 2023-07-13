@@ -1,20 +1,3 @@
-import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  PermissionManagerContextProvider,
-  usePermissionContext,
-} from "@extension-onboarding/context/PermissionContext";
-import {
-  CollectedRewards,
-  ProgramRewards,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { isSameReward } from "@extension-onboarding/utils";
 import {
   Box,
   Typography,
@@ -44,6 +27,24 @@ import {
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  PermissionManagerContextProvider,
+  usePermissionContext,
+} from "@extension-onboarding/context/PermissionContext";
+import {
+  CollectedRewards,
+  ProgramRewards,
+} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/RewardProgramDetails.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { isSameReward } from "@extension-onboarding/utils";
 
 const ManageSettingsButton = withStyles({
   root: {
@@ -218,15 +219,14 @@ const RewardProgramDetails: FC = () => {
     return optedInContracts.includes(consentContractAddress);
   }, [JSON.stringify(optedInContracts), consentContractAddress]);
 
-
   useEffect(() => {
-    if(!isSubscribed){
-    window.sdlDataWallet
-      .checkInvitationStatus(consentContractAddress)
-      .map((invitationStatus) => {
-        if (invitationStatus === EInvitationStatus.Accepted)
-          updateOptedInContracts();
-      });
+    if (!isSubscribed) {
+      window.sdlDataWallet
+        .checkInvitationStatus(consentContractAddress)
+        .map((invitationStatus) => {
+          if (invitationStatus === EInvitationStatus.Accepted)
+            updateOptedInContracts();
+        });
     }
   }, [consentContractAddress, isSubscribed]);
 

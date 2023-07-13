@@ -54,6 +54,7 @@ import {
   AdDataRepository,
 } from "@core/implementations/data";
 import { SnickerdoodleCore } from "@core/index";
+import { IProfileService } from "@core/interfaces/business";
 import {
   IBrowsingDataRepository,
   IDataWalletPersistence,
@@ -62,9 +63,8 @@ import {
   ISocialRepository,
   ITransactionHistoryRepository,
 } from "@core/interfaces/data/index.js";
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
-import { IProfileService } from "@core/interfaces/business";
 import { avalanche1AstInstance } from "@core-tests/mock/mocks/commonValues";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -82,7 +82,7 @@ const allPermissions = HexString32(
 const noPermissions = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
-const chainIds = undefined
+const chainIds = undefined;
 class QueryParsingMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceRepo = td.object<IPortfolioBalanceRepository>();
@@ -145,7 +145,7 @@ class QueryParsingMocks {
       okAsync(new Array<TransactionPaymentCounter>()),
     );
     td.when(this.balanceRepo.getAccountBalances()).thenReturn(okAsync([]));
-    td.when(this.balanceRepo.getAccountNFTs( chainIds)).thenReturn(okAsync([]));
+    td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 
     this.queryEvaluator = new QueryEvaluator(
       this.balanceQueryEvaluator,

@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
 import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
-
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -12,9 +11,8 @@ import {
   ConditionL,
   ConditionOr,
 } from "@snickerdoodlelabs/query-parser";
+
 import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
-
-
 
 // const ast = new AST(
 //     Version("0.1"),

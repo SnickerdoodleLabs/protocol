@@ -19,6 +19,6 @@ export class AST_Compensation {
     readonly chainId: ChainId,
     readonly callback: ISDQLCallback,
     readonly alternatives: CompensationKey[],
-    readonly image : IpfsCID | URLString 
+    readonly image: IpfsCID | URLString,
   ) {}
 }

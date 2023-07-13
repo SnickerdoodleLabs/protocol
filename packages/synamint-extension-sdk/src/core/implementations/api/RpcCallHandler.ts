@@ -130,7 +130,6 @@ import {
   GetConfigParams,
 } from "@synamint-extension-sdk/shared";
 
-
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

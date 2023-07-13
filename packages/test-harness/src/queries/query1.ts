@@ -194,5 +194,4 @@ export const query1 = {
       alternatives: ["c2"],
     },
   },
-  
 };

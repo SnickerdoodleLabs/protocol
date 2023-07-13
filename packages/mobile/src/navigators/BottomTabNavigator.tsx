@@ -1,15 +1,17 @@
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
 import { View, Text } from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { COLORS, ROUTES } from "../constants";
 import Icon from "react-native-vector-icons/Ionicons";
+
+import { COLORS, ROUTES } from "../constants";
+import { normalizeWidth } from "../themes/Metrics";
+
 import {
   DashboardStack,
   MarketplaceStack,
   SettingStack,
 } from "./AuthNavigator";
-import { createStackNavigator } from "@react-navigation/stack";
-import { normalizeWidth } from "../themes/Metrics";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -32,7 +34,7 @@ const BottomTabNavigator = () => {
           return <Icon name={iconName} size={22} color={COLORS.primary} />;
         },
         tabBarStyle: {
-         /*  borderTopLeftRadius: normalizeWidth(25),
+          /*  borderTopLeftRadius: normalizeWidth(25),
           borderTopRightRadius: normalizeWidth(25), */
         },
       })}

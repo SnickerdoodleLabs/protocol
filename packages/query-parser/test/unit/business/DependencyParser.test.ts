@@ -1,12 +1,13 @@
 import "reflect-metadata";
 
+import { AdKey, InsightKey, SDQL_Name } from "@snickerdoodlelabs/objects";
+
 import { DependencyParser } from "@query-parser/implementations";
 import {
   AST_SubQuery,
   ConditionAnd,
   ConditionOr,
 } from "@query-parser/index.js";
-import { AdKey, InsightKey, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { ExprParserMocks } from "@query-parser-test/mocks";
 
 const InsightsAnswered = [

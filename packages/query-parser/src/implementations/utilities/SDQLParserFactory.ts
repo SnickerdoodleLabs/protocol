@@ -1,3 +1,12 @@
+import {
+  IpfsCID,
+  QueryFormatError,
+  SDQLQuery,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
 import {
   IQueryObjectFactory,
@@ -8,14 +17,6 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
-import {
-  IpfsCID,
-  QueryFormatError,
-  SDQLQuery,
-  SDQLString,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 @injectable()
 export class SDQLParserFactory implements ISDQLParserFactory {

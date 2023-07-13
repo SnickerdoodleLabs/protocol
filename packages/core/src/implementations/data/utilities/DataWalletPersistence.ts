@@ -239,8 +239,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
       }
 
-      
-
       return backupManager.addRecord(
         tableName,
         new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),

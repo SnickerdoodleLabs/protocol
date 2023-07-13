@@ -9,7 +9,6 @@ import {
 import { ParserContextDataTypes } from "@query-parser/interfaces";
 
 describe("Expressions to Postfix", () => {
-
   test("$q1and$q2 -> $q1$q2and", async () => {
     const tokenizer = new Tokenizer("$q1and$q2");
     const tokens = (await tokenizer.all())._unsafeUnwrap();

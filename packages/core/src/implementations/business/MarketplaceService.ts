@@ -1,31 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  IMarketplaceService,
-  IQueryService,
-  IQueryServiceType,
-} from "@core/interfaces/business/index.js";
-import {
-  IConsentTokenUtilsType,
-  IConsentTokenUtils,
-} from "@core/interfaces/business/utilities/index.js";
 
-import {
-  IMarketplaceRepositoryType,
-  IMarketplaceRepository,
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig } from "@core/interfaces/objects/index.js";
-import {
-  IConfigProviderType,
-  IConfigProvider,
-  IContextProvider,
-  IContextProviderType,
-  IDataWalletUtils,
-  IDataWalletUtilsType,
-} from "@core/interfaces/utilities/index.js";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -58,6 +32,33 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import {
+  IMarketplaceService,
+  IQueryService,
+  IQueryServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IConsentTokenUtilsType,
+  IConsentTokenUtils,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IMarketplaceRepositoryType,
+  IMarketplaceRepository,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  IConfigProviderType,
+  IConfigProvider,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MarketplaceService implements IMarketplaceService {

@@ -3,7 +3,6 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -19,7 +18,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IAST_Evaluator {
-
   evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError>;
   evalExpr(
     expr: AST_Expr | Command_IF | Operator,

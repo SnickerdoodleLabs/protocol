@@ -21,10 +21,10 @@ import Browser, { urlbar } from "webextension-polyfill";
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@synamint-extension-sdk/content/components/ScamFilterComponent";
-import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
-import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
-import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
 import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
+import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
+import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
+import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
 import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
 import {
   EAPP_STATE,

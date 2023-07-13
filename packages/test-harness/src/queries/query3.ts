@@ -16,7 +16,7 @@ export const query3 = {
       weight: 100,
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["muktadir", "charlie", "todd"],
-      target : "$q1"
+      target: "$q1",
     },
     a2: {
       name: "a2",
@@ -29,7 +29,7 @@ export const query3 = {
       weight: 10,
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["messi", "xavi", "iniesta"],
-      target : "true"
+      target: "true",
     },
     a3: {
       name: "a3",
@@ -42,7 +42,7 @@ export const query3 = {
       weight: 11,
       expiry: "2034-11-13T20:20:39Z",
       keywords: ["a", "b", "c"],
-      target : "true"
+      target: "true",
     },
   },
   queries: {
@@ -54,7 +54,7 @@ export const query3 = {
       },
     },
     q2: {
-      name:"network",
+      name: "network",
       return: "boolean",
       chain: "AVAX",
       contract: {
@@ -73,18 +73,18 @@ export const query3 = {
   insights: {
     i1: {
       name: "callback",
-      target :"true",
+      target: "true",
       returns: "'qualified'",
     },
     i2: {
       name: "callback",
-      target :"true",
-      returns: "'not qualified'", 
+      target: "true",
+      returns: "'not qualified'",
     },
     i3: {
       name: "callback",
-      target :"$q2",
-      returns: "'nice'", 
+      target: "$q2",
+      returns: "'nice'",
     },
   },
   compensations: {
@@ -98,7 +98,7 @@ export const query3 = {
       name: "The CryptoPunk Draw",
       image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
-      requires : "$i3",
+      requires: "$i3",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -111,7 +111,7 @@ export const query3 = {
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
-      requires : "$a1",
+      requires: "$a1",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -124,7 +124,7 @@ export const query3 = {
       name: "CrazyApesClub NFT distro 2",
       image: "tq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT8",
       description: "another free CrazyApesClub NFT",
-      requires : "$a1 and $a2",
+      requires: "$a1 and $a2",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -137,7 +137,7 @@ export const query3 = {
       name: "I'm out of compensation names",
       image: "98mbKqxMsKPL8wBMnRxW32RLMicQ333PBEmWNutq4CGsT8",
       description: "some string",
-      requires : "$a3",
+      requires: "$a3",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -147,5 +147,4 @@ export const query3 = {
       },
     },
   },
- 
 };

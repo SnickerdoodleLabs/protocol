@@ -103,7 +103,7 @@ export const query4 = {
       name: "FOURTH REWARD NAME",
       image: "qq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT1",
       description: "FOURTH REWARD DESC",
-      requires : "$a3",
+      requires: "$a3",
       chainId: 31337,
       callback: {
         parameters: ["recipientAddress"],
@@ -112,5 +112,5 @@ export const query4 = {
         },
       },
     },
-  }
+  },
 };

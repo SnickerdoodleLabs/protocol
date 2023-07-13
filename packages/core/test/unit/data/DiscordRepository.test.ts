@@ -8,6 +8,13 @@ import { okAsync } from "neverthrow";
 import "reflect-metadata";
 import * as td from "testdouble";
 
+import { DiscordRepository } from "@core/implementations/data/index.js";
+import {
+  IDataWalletPersistence,
+  IDiscordRepository,
+  ISocialRepository,
+} from "@core/interfaces/data/index.js";
+import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 import {
   discordGuildProfileAPIResponses,
   discordProfileAPIResponse,
@@ -18,13 +25,6 @@ import {
   AjaxUtilsMock,
   ConfigProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { DiscordRepository } from "@core/implementations/data/index.js";
-import {
-  IDataWalletPersistence,
-  IDiscordRepository,
-  ISocialRepository,
-} from "@core/interfaces/data/index.js";
-import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
 class DiscordRepositoryMock {
   public ajaxUtil: AjaxUtilsMock;
@@ -121,8 +121,7 @@ describe("DiscordRepository discord API fetch tests", () => {
     // Arrange
     const mocks = new DiscordRepositoryMock();
     const repository = mocks.factory();
-    const expectedProfiles =
-      mocks.socialDataMocks.getDiscordGuildProfiles();
+    const expectedProfiles = mocks.socialDataMocks.getDiscordGuildProfiles();
 
     // Act
     const result = await repository.fetchGuildProfiles(

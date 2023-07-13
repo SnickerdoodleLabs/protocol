@@ -1,17 +1,18 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
-import CardItem from "../../Marketplace/CardItem";
-import { ROUTES } from "../../../constants";
-import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
 import { useNavigation } from "@react-navigation/native";
-import { ipfsParse } from "./NFTDetails";
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { ROUTES } from "../../../constants";
 import { useAppContext } from "../../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../../themes/Metrics";
+import CardItem from "../../Marketplace/CardItem";
+
+import { ipfsParse } from "./NFTDetails";
 
 export default function NFTs({ data }) {
   const navigation = useNavigation();
   const { mobileCore } = useAppContext();
-  React.useEffect(() => {
-  }, [data]);
+  React.useEffect(() => {}, [data]);
   const NFTs = ({ navigation }: any) => {
     const findNFTData = (image) => {
       const parsed = data?.nfts?.mainObjects?.filter(

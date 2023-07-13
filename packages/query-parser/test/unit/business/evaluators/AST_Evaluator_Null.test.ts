@@ -1,14 +1,12 @@
 import "reflect-metadata";
 import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
-
 import {
   AST_BoolExpr,
   ConditionAnd,
   ConditionOr,
 } from "@snickerdoodlelabs/query-parser";
+
 import { ASTMocks } from "@query-parser-test/mocks/ASTMocks";
-
-
 
 describe("Conditions", () => {
   test("boolean null is false", async () => {
