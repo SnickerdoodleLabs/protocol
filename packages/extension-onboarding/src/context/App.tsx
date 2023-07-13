@@ -25,6 +25,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { Subscription } from "rxjs";
 
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import {
@@ -186,56 +187,45 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
+  let initializedSubscription: Subscription;
+  let accountAddedSubscription: Subscription;
+  let accountRemovedSubscription: Subscription;
+  let earnedRewardsAddedSubscription: Subscription;
+  let cohortJoinedSubscription: Subscription;
+
   // register events
   useEffect(() => {
     if (appMode === EAppModes.UNAUTH_USER) {
-      window?.sdlDataWallet?.on(
-        ENotificationTypes.ACCOUNT_INITIALIZED,
-        onAccountInitialized,
-      );
+      initializedSubscription =
+        window?.sdlDataWallet?.events.onInitialized.subscribe(
+          onAccountInitialized,
+        );
     }
     if (appMode === EAppModes.AUTH_USER) {
       getUserAccounts();
       getOptedInContracts();
       getEarnedRewards();
-      window?.sdlDataWallet?.off(
-        ENotificationTypes.ACCOUNT_INITIALIZED,
-        onAccountInitialized,
-      );
-      window?.sdlDataWallet?.on(
-        ENotificationTypes.ACCOUNT_ADDED,
-        onAccountAdded,
-      );
-      window?.sdlDataWallet?.on(
-        ENotificationTypes.ACCOUNT_REMOVED,
-        onAccountRemoved,
-      );
-      window?.sdlDataWallet?.on(
-        ENotificationTypes.EARNED_REWARDS_ADDED,
-        onEarnedRewardAdded,
-      );
-      window?.sdlDataWallet?.on(
-        ENotificationTypes.COHORT_JOINED,
-        onCohortJoined,
-      );
+
+      initializedSubscription.unsubscribe();
+      accountAddedSubscription =
+        window?.sdlDataWallet?.events.onAccountAdded.subscribe(onAccountAdded);
+      accountRemovedSubscription =
+        window?.sdlDataWallet?.events.onAccountRemoved.subscribe(
+          onAccountRemoved,
+        );
+      earnedRewardsAddedSubscription =
+        window?.sdlDataWallet?.events.onEarnedRewardsAdded.subscribe(
+          onEarnedRewardAdded,
+        );
+      cohortJoinedSubscription =
+        window?.sdlDataWallet?.events.onCohortJoined.subscribe(onCohortJoined);
     }
     return () => {
-      window?.sdlDataWallet?.off(
-        ENotificationTypes.ACCOUNT_INITIALIZED,
-        onAccountInitialized,
-      );
-      window?.sdlDataWallet?.off(
-        ENotificationTypes.ACCOUNT_ADDED,
-        onAccountAdded,
-      );
-      window?.sdlDataWallet?.off(
-        ENotificationTypes.ACCOUNT_REMOVED,
-        onAccountRemoved,
-      );
-      window?.sdlDataWallet?.off(
-        ENotificationTypes.EARNED_REWARDS_ADDED,
-        onEarnedRewardAdded,
-      );
+      initializedSubscription?.unsubscribe();
+      accountAddedSubscription?.unsubscribe();
+      accountRemovedSubscription?.unsubscribe();
+      earnedRewardsAddedSubscription?.unsubscribe();
+      cohortJoinedSubscription?.unsubscribe();
     };
   }, [appMode]);
 
@@ -246,9 +236,7 @@ export const AppContextProvider: FC = ({ children }) => {
     getEarnedRewards();
   };
 
-  const onAccountInitialized = (
-    notification: AccountInitializedNotification,
-  ) => {
+  const onAccountInitialized = (dataWalletAddress: DataWalletAddress) => {
     getUserAccounts().map(() => {
       setVisualAlert(true);
       setAlert({
@@ -259,8 +247,8 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const onAccountAdded = (notification: AccountAddedNotification) => {
-    addAccount(notification.data);
+  const onAccountAdded = (linkedAccount: LinkedAccount) => {
+    addAccount(linkedAccount);
     setVisualAlert(true);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
@@ -268,7 +256,7 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const onAccountRemoved = (notification: AccountRemovedNotification) => {
+  const onAccountRemoved = (linkedAccount: LinkedAccount) => {
     getUserAccounts();
   };
 

@@ -25,9 +25,11 @@ import {
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
+import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
+import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
   AccountAddress,
   Age,
@@ -53,148 +55,147 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 
-type JsonRpcError = unknown;
-export interface ISdlDataWallet extends EventEmitter {
+export interface ISdlDataWallet {
   unlock(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
-  ): ResultAsync<void, JsonRpcError>;
-  addAccount: (
+  ): ResultAsync<void, ProxyError>;
+  addAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
-  ) => ResultAsync<void, JsonRpcError>;
-  getUnlockMessage: (
+  ): ResultAsync<void, ProxyError>;
+  getUnlockMessage(
     languageCode?: LanguageCode,
-  ) => ResultAsync<string, JsonRpcError>;
-  getAge(): ResultAsync<Age | null, JsonRpcError>;
-  setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError>;
-  getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
-  setFamilyName(familyName: FamilyName): ResultAsync<void, JsonRpcError>;
-  getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError>;
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError>;
-  getBirthday(): ResultAsync<UnixTimestamp | null, JsonRpcError>;
-  setGender(gender: Gender): ResultAsync<void, JsonRpcError>;
-  getGender(): ResultAsync<Gender | null, JsonRpcError>;
-  setEmail(email: EmailAddressString): ResultAsync<void, JsonRpcError>;
-  getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError>;
-  setLocation(location: CountryCode): ResultAsync<void, JsonRpcError>;
-  getLocation(): ResultAsync<CountryCode | null, JsonRpcError>;
-  getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError>;
+  ): ResultAsync<string, ProxyError>;
+  getAge(): ResultAsync<Age | null, ProxyError>;
+  setGivenName(givenName: GivenName): ResultAsync<void, ProxyError>;
+  getGivenName(): ResultAsync<GivenName | null, ProxyError>;
+  setFamilyName(familyName: FamilyName): ResultAsync<void, ProxyError>;
+  getFamilyName(): ResultAsync<FamilyName | null, ProxyError>;
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, ProxyError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, ProxyError>;
+  setGender(gender: Gender): ResultAsync<void, ProxyError>;
+  getGender(): ResultAsync<Gender | null, ProxyError>;
+  setEmail(email: EmailAddressString): ResultAsync<void, ProxyError>;
+  getEmail(): ResultAsync<EmailAddressString | null, ProxyError>;
+  setLocation(location: CountryCode): ResultAsync<void, ProxyError>;
+  getLocation(): ResultAsync<CountryCode | null, ProxyError>;
+  getAccounts(): ResultAsync<LinkedAccount[], ProxyError>;
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    timestamp?: UnixTimestamp,
-  ): ResultAsync<number, JsonRpcError>;
-  getTokenMarketData(
-    ids: string[],
-  ): ResultAsync<TokenMarketData[], JsonRpcError>;
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, ProxyError>;
+  getTokenMarketData(ids: string[]): ResultAsync<TokenMarketData[], ProxyError>;
 
   getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
-  ): ResultAsync<TokenInfo | null, JsonRpcError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
-  closeTab(): ResultAsync<void, JsonRpcError>;
-  getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;
+  ): ResultAsync<TokenInfo | null, ProxyError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError>;
+  closeTab(): ResultAsync<void, ProxyError>;
+  getDataWalletAddress(): ResultAsync<DataWalletAddress | null, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Record<EVMContractAddress, IpfsCID>,
-    JsonRpcError
+    ProxyError
   >;
   getAvailableInvitationsCID(): ResultAsync<
     Record<EVMContractAddress, IpfsCID>,
-    JsonRpcError
+    ProxyError
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, JsonRpcError>;
+  ): ResultAsync<IOpenSeaMetadata, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], JsonRpcError>;
-  getApplyDefaultPermissionsOption(): ResultAsync<boolean, JsonRpcError>;
+  ): ResultAsync<EWalletDataType[], ProxyError>;
+  getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError>;
   setApplyDefaultPermissionsOption(
     option: boolean,
-  ): ResultAsync<void, JsonRpcError>;
-  getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
+  getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError>;
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
-  ): ResultAsync<void, JsonRpcError>;
-  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
+  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, ProxyError>;
   setScamFilterSettings(
     isScamFilterActive: boolean,
     showMessageEveryTime: boolean,
-  ): ResultAsync<void, JsonRpcError>;
-  setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
+  setDefaultPermissionsToAll(): ResultAsync<void, ProxyError>;
   acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
     tokenId?: BigNumberString,
     businessSignature?: Signature,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
   unlinkAcccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
     tokenId?: BigNumberString,
-  ): ResultAsync<EInvitationStatus, JsonRpcError>;
+  ): ResultAsync<EInvitationStatus, ProxyError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
-  ): ResultAsync<IpfsCID, JsonRpcError>;
+  ): ResultAsync<IpfsCID, ProxyError>;
 
-  getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], ProxyError>;
 
-  getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError>;
 
   getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
     filterActive?: boolean,
-  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError>;
+  ): ResultAsync<PagedResponse<MarketplaceListing>, ProxyError>;
 
-  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, JsonRpcError>;
+  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, ProxyError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
-  ): ResultAsync<AccountAddress, JsonRpcError>;
+  ): ResultAsync<AccountAddress, ProxyError>;
 
   getConsentCapacity(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, JsonRpcError>;
+  ): ResultAsync<IConsentCapacity, ProxyError>;
 
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
-  switchToTab(tabId: number): ResultAsync<void, JsonRpcError>;
+  switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
   discord: ISdlDiscordMethods;
   twitter: ISdlTwitterMethods;
+
+  events: ISnickerdoodleCoreEvents;
 }
 
 export interface ISdlDiscordMethods {
@@ -205,7 +206,7 @@ export interface ISdlDiscordMethods {
    */
   initializeUserWithAuthorizationCode(
     code: OAuthAuthorizationCode,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   /**
    * This method will return url for the discord api
@@ -214,24 +215,24 @@ export interface ISdlDiscordMethods {
    */
   installationUrl(
     attachRedirectTabId?: boolean,
-  ): ResultAsync<URLString, JsonRpcError>;
+  ): ResultAsync<URLString, ProxyError>;
 
-  getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
-  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], JsonRpcError>;
+  getUserProfiles(): ResultAsync<DiscordProfile[], ProxyError>;
+  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], ProxyError>;
   /**
    * This method will remove a users discord profile and
    * discord guild data given their profile id
    * @param discordProfileId
    */
-  unlink(discordProfileId: DiscordID): ResultAsync<void, JsonRpcError>;
+  unlink(discordProfileId: DiscordID): ResultAsync<void, ProxyError>;
 }
 
 export interface ISdlTwitterMethods {
-  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, JsonRpcError>;
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, ProxyError>;
   initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
-  ): ResultAsync<TwitterProfile, JsonRpcError>;
-  unlinkProfile(id: TwitterID): ResultAsync<void, JsonRpcError>;
-  getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;
+  ): ResultAsync<TwitterProfile, ProxyError>;
+  unlinkProfile(id: TwitterID): ResultAsync<void, ProxyError>;
+  getUserProfiles(): ResultAsync<TwitterProfile[], ProxyError>;
 }

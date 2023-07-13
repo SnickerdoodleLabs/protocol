@@ -766,10 +766,9 @@ export interface ISnickerdoodleCore {
     name: GivenName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
-  getGivenName(): ResultAsync<
-    GivenName | null,
-    PersistenceError | UnauthorizedError
-  >;
+  getGivenName(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<GivenName | null, PersistenceError | UnauthorizedError>;
 
   setFamilyName(
     name: FamilyName,

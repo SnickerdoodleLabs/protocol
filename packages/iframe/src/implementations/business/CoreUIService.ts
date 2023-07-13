@@ -4,9 +4,9 @@ import { ICoreUIService } from "../../interfaces/business/index";
 
 export class CoreUIService implements ICoreUIService {
   protected authenticationContentId =
-    "__hypernet-protocol-iframe-authentication-content__";
+    "__snickerdoodle-protocol-iframe-authentication-content__";
   protected failureContentId =
-    "__hypernet-protocol-iframe-authentication-failuer-content__";
+    "__snickerdoodle-protocol-iframe-authentication-failure-content__";
   constructor() {}
 
   public renderCeramicAuthenticationUI(): ResultAsync<void, never> {

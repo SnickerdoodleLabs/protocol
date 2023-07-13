@@ -9,17 +9,13 @@ import {
   EExternalApi,
   IpfsCID,
   LinkedAccount,
+  PublicEvents,
   SDQLQueryRequest,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
-import { Subject } from "rxjs";
 
-import {
-  CoreContext,
-  PrivateEvents,
-  PublicEvents,
-} from "@core/interfaces/objects/index.js";
+import { CoreContext, PrivateEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import {
   dataWalletAddress,

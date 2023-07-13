@@ -1,4 +1,5 @@
-import { JsonRpcEngine, JsonRpcError, JsonRpcRequest } from "json-rpc-engine";
+import { ProxyError } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import { v4 } from "uuid";
 
@@ -18,13 +19,11 @@ export default class CoreHandler {
     TParams extends CoreActionParams<ReturnType<TParams["returnMethodMarker"]>>,
   >(
     params: TParams,
-  ): ResultAsync<ReturnType<TParams["returnMethodMarker"]>, JsonRpcError> {
+  ): ResultAsync<ReturnType<TParams["returnMethodMarker"]>, ProxyError> {
     return ResultAsync.fromPromise(
       new Promise((resolve, reject) => {
         const requestObject = this._createRequestObject(params);
         this.rpcEngine.handle(requestObject, async (error, result) => {
-          console.log("callRes", result);
-          console.log("callErr", error);
           if (error) {
             return reject(error);
           }
@@ -41,7 +40,7 @@ export default class CoreHandler {
         });
       }),
       (e) => {
-        return e as JsonRpcError;
+        return new ProxyError("Error returned from core", e);
       },
     );
   }

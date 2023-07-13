@@ -1,95 +1,74 @@
 import {
-  Balances,
-  ControlClaim,
-  HypernetLink,
-  PublicIdentifier,
-  PullPayment,
-  PushPayment,
-  Payment,
-  PaymentId,
-  GatewayUrl,
-  Signature,
-  AcceptPaymentError,
-  BlockchainUnavailableError,
-  VectorError,
-  BalancesUnavailableError,
-  InsufficientBalanceError,
-  GatewayValidationError,
-  PersistenceError,
-  GatewayConnectorError,
-  ProxyError,
-  InvalidParametersError,
-  ISnickerdoodleCore,
-  GatewayAuthorizationDeniedError,
+  AccountAddress,
+  Age,
   BigNumberString,
-  ActiveStateChannel,
   ChainId,
-  GatewayTokenInfo,
-  GatewayRegistrationFilter,
-  GatewayRegistrationInfo,
-  Proposal,
-  EProposalVoteSupport,
-  ProposalVoteReceipt,
-  Registry,
-  RegistryEntry,
-  RegistryParams,
-  RegistryPermissionError,
-  ERegistrySortOrder,
-  RegistryFactoryContractError,
-  NonFungibleRegistryContractError,
-  HypernetGovernorContractError,
-  ERC20ContractError,
-  InvalidPaymentError,
-  TransferCreationError,
-  PaymentStakeError,
-  TransferResolutionError,
-  EthereumAccountAddress,
-  EthereumContractAddress,
-  ProviderId,
-  TokenInformation,
-  RegistryModule,
-  BatchModuleContractError,
-  InvalidPaymentIdError,
-  LazyMintModuleContractError,
-  RegistryTokenId,
-  InitializeStatus,
-  IPFSUnavailableError,
-  CoreInitializationErrors,
-  GovernanceSignerUnavailableError,
-  LazyMintingSignature,
-  ChainInformation,
-  chainConfig,
-  IHypernetPayments,
-  IHypernetGovernance,
-  IHypernetRegistries,
-  RegistryName,
+  CountryCode,
+  DataPermissionsUpdatedEvent,
+  DataWalletAddress,
+  DataWalletBackupID,
+  DiscordGuildProfile,
+  DiscordID,
+  DiscordProfile,
+  DomainName,
+  EChain,
+  EInvitationStatus,
+  EVMContractAddress,
+  EVMTransaction,
+  EWalletDataType,
+  EarnedReward,
+  EmailAddressString,
+  FamilyName,
+  Gender,
+  GivenName,
+  IConsentCapacity,
+  IOpenSeaMetadata,
+  IScamFilterPreferences,
+  ISdlDataWallet,
+  ISdlDiscordMethods,
+  ISdlTwitterMethods,
+  ISnickerdoodleCoreEvents,
+  IpfsCID,
+  LanguageCode,
+  LinkedAccount,
+  MarketplaceListing,
+  MarketplaceTag,
+  MetatransactionSignatureRequest,
+  OAuth1RequstToken,
+  OAuthAuthorizationCode,
+  OAuthVerifier,
+  PagedResponse,
+  PagingRequest,
+  PermissionsGrantedEvent,
+  PermissionsRequestedEvent,
+  PortfolioUpdate,
+  PossibleReward,
+  ProxyError,
+  PublicEvents,
+  SDQLQueryRequest,
+  Signature,
+  SiteVisit,
+  SocialProfileLinkedEvent,
+  SocialProfileUnlinkedEvent,
+  TokenAddress,
+  TokenAndSecret,
+  TokenBalance,
+  TokenInfo,
+  TokenMarketData,
+  TwitterID,
+  TwitterProfile,
+  URLString,
+  UnixTimestamp,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { ParentProxy } from "@snickerdoodlelabs/utils";
-import { Result, ResultAsync, ok, okAsync } from "neverthrow";
-import { Subject } from "rxjs";
+import { ResultAsync } from "neverthrow";
 
-export default class SnickerdoodleIFrameProxy
+export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleCore
+  implements ISdlDataWallet
 {
-  protected isInControl = false;
   protected _handshakePromise: Promise<void> | null;
-
-  protected coreInitialized = false;
-  protected waitInitializedPromise: Promise<void>;
-  protected initializePromiseResolve: (() => void) | null;
-
-  protected coreRegistriesInitialized = false;
-  protected waitRegistriesInitializedPromise: Promise<void>;
-  protected registriesInitializePromiseResolve: (() => void) | null;
-
-  protected coreGovernanceInitialized = false;
-  protected waitGovernanceInitializedPromise: Promise<void>;
-  protected governanceInitializePromiseResolve: (() => void) | null;
-
-  protected corePaymentsInitialized = false;
-  protected waitPaymentsInitializedPromise: Promise<void>;
-  protected paymentsInitializePromiseResolve: (() => void) | null;
 
   constructor(
     protected element: HTMLElement | null,
@@ -99,62 +78,7 @@ export default class SnickerdoodleIFrameProxy
     super(element, iframeUrl, iframeName);
 
     this._handshakePromise = null;
-
-    this.onControlClaimed = new Subject();
-    this.onControlYielded = new Subject();
-    this.onPushPaymentSent = new Subject();
-    this.onPullPaymentSent = new Subject();
-    this.onPushPaymentReceived = new Subject();
-    this.onPullPaymentReceived = new Subject();
-    this.onPushPaymentUpdated = new Subject();
-    this.onPullPaymentUpdated = new Subject();
-    this.onPushPaymentDelayed = new Subject();
-    this.onPullPaymentDelayed = new Subject();
-    this.onPushPaymentCanceled = new Subject();
-    this.onPullPaymentCanceled = new Subject();
-    this.onBalancesChanged = new Subject<Balances>();
-    this.onCeramicAuthenticationStarted = new Subject();
-    this.onCeramicAuthenticationSucceeded = new Subject();
-    this.onCeramicFailed = new Subject();
-    this.onGatewayAuthorized = new Subject();
-    this.onGatewayDeauthorizationStarted = new Subject();
-    this.onAuthorizedGatewayUpdated = new Subject();
-    this.onAuthorizedGatewayActivationFailed = new Subject();
-    this.onGatewayIFrameDisplayRequested = new Subject();
-    this.onGatewayIFrameCloseRequested = new Subject();
-    this.onCoreIFrameDisplayRequested = new Subject();
-    this.onCoreIFrameCloseRequested = new Subject();
-    this.onInitializationRequired = new Subject();
-    this.onPrivateCredentialsRequested = new Subject();
-    this.onWalletConnectOptionsDisplayRequested = new Subject();
-    this.onStateChannelCreated = new Subject();
-    this.onChainConnected = new Subject();
-    this.onGovernanceChainConnected = new Subject();
-    this.onChainChanged = new Subject();
-    this.onAccountChanged = new Subject();
-    this.onGovernanceChainChanged = new Subject();
-    this.onGovernanceAccountChanged = new Subject();
-    this.onGovernanceSignerUnavailable = new Subject();
-
-    this.initializePromiseResolve = null;
-    this.waitInitializedPromise = new Promise((resolve) => {
-      this.initializePromiseResolve = resolve;
-    });
-
-    this.registriesInitializePromiseResolve = null;
-    this.waitRegistriesInitializedPromise = new Promise((resolve) => {
-      this.registriesInitializePromiseResolve = resolve;
-    });
-
-    this.governanceInitializePromiseResolve = null;
-    this.waitGovernanceInitializedPromise = new Promise((resolve) => {
-      this.governanceInitializePromiseResolve = resolve;
-    });
-
-    this.paymentsInitializePromiseResolve = null;
-    this.waitPaymentsInitializedPromise = new Promise((resolve) => {
-      this.paymentsInitializePromiseResolve = resolve;
-    });
+    this.events = new PublicEvents();
 
     // Initialize the promise that we'll use to monitor the core
     // initialization status. The iframe will emit an event "initialized"
@@ -162,1172 +86,510 @@ export default class SnickerdoodleIFrameProxy
     this._handshakePromise = this.handshake.then((child) => {
       // Subscribe to the message streams from the iframe,
       // and convert them back to RXJS Subjects.
-      child.on("onControlClaimed", (data: ControlClaim) => {
-        this.isInControl = true;
-        this.onControlClaimed.next(data);
+      child.on("onInitialized", (data: DataWalletAddress) => {
+        this.events.onInitialized.next(data);
       });
 
-      child.on("onControlYielded", (data: ControlClaim) => {
-        this.isInControl = false;
-        this.onControlYielded.next(data);
+      child.on("onQueryPosted", (data: SDQLQueryRequest) => {
+        this.events.onQueryPosted.next(data);
       });
 
-      child.on("onPushPaymentSent", (data: PushPayment) => {
-        this.onPushPaymentSent.next(data);
+      child.on("onQueryParametersRequired", (data: IpfsCID) => {
+        this.events.onQueryParametersRequired.next(data);
       });
 
-      child.on("onPullPaymentSent", (data: PullPayment) => {
-        this.onPullPaymentSent.next(data);
+      child.on("onAccountAdded", (data: LinkedAccount) => {
+        this.events.onAccountAdded.next(data);
       });
 
-      child.on("onPushPaymentReceived", (data: PushPayment) => {
-        this.onPushPaymentReceived.next(data);
+      child.on("onPasswordAdded", (data: void) => {
+        this.events.onPasswordAdded.next(undefined);
       });
 
-      child.on("onPullPaymentReceived", (data: PullPayment) => {
-        this.onPullPaymentReceived.next(data);
+      child.on("onAccountRemoved", (data: LinkedAccount) => {
+        this.events.onAccountRemoved.next(data);
       });
 
-      child.on("onPushPaymentUpdated", (data: PushPayment) => {
-        this.onPushPaymentUpdated.next(data);
+      child.on("onPasswordRemoved", (data: void) => {
+        this.events.onPasswordRemoved.next(data);
       });
 
-      child.on("onPullPaymentUpdated", (data: PullPayment) => {
-        this.onPullPaymentUpdated.next(data);
+      child.on("onCohortJoined", (data: EVMContractAddress) => {
+        this.events.onCohortJoined.next(data);
       });
 
-      child.on("onPushPaymentDelayed", (data: PushPayment) => {
-        this.onPushPaymentDelayed.next(data);
-      });
-
-      child.on("onPullPaymentDelayed", (data: PullPayment) => {
-        this.onPullPaymentDelayed.next(data);
-      });
-
-      child.on("onPushPaymentCanceled", (data: PushPayment) => {
-        this.onPushPaymentCanceled.next(data);
-      });
-
-      child.on("onPullPaymentCanceled", (data: PullPayment) => {
-        this.onPullPaymentCanceled.next(data);
-      });
-
-      child.on("onBalancesChanged", (data: Balances) => {
-        this.onBalancesChanged.next(data);
-      });
-
-      child.on("onCeramicAuthenticationStarted", () => {
-        //this._displayCoreIFrame();
-
-        this.onCeramicAuthenticationStarted.next();
-      });
-
-      child.on("onCeramicAuthenticationSucceeded", () => {
-        //this._closeCoreIFrame();
-
-        this.onCeramicAuthenticationSucceeded.next();
-      });
-
-      child.on("onCeramicFailed", () => {
-        this.onCeramicFailed.next();
-      });
-
-      child.on("onGatewayAuthorized", (data: GatewayUrl) => {
-        this.onGatewayAuthorized.next(data);
-      });
-
-      child.on("onGatewayDeauthorizationStarted", (data: GatewayUrl) => {
-        this.onGatewayDeauthorizationStarted.next(data);
-      });
-
-      child.on("onAuthorizedGatewayUpdated", (data: GatewayUrl) => {
-        this.onAuthorizedGatewayUpdated.next(data);
-      });
-
-      child.on("onAuthorizedGatewayActivationFailed", (data: GatewayUrl) => {
-        this.onAuthorizedGatewayActivationFailed.next(data);
-      });
-
-      child.on("onStateChannelCreated", (data: ActiveStateChannel) => {
-        this.onStateChannelCreated.next(data);
-      });
-
-      child.on("onChainConnected", (data: ChainId) => {
-        this.onChainConnected.next(data);
-      });
-
-      child.on("onGovernanceChainConnected", (data: ChainId) => {
-        this.onGovernanceChainConnected.next(data);
-      });
-
-      child.on("onChainChanged", (data: ChainId) => {
-        this.onChainChanged.next(data);
-      });
-
-      child.on("onAccountChanged", (data: EthereumAccountAddress) => {
-        this.onAccountChanged.next(data);
-      });
-
-      child.on("onGovernanceChainChanged", (data: ChainId) => {
-        this.onGovernanceChainChanged.next(data);
-      });
-
-      child.on("onGovernanceAccountChanged", (data: EthereumAccountAddress) => {
-        this.onGovernanceAccountChanged.next(data);
+      child.on("onCohortLeft", (data: EVMContractAddress) => {
+        this.events.onCohortLeft.next(data);
       });
 
       child.on(
-        "onGovernanceSignerUnavailable",
-        (data: GovernanceSignerUnavailableError) => {
-          this.onGovernanceSignerUnavailable.next(data);
+        "onDataPermissionsUpdated",
+        (data: DataPermissionsUpdatedEvent) => {
+          this.events.onDataPermissionsUpdated.next(data);
         },
       );
 
-      // Setup a listener for the "initialized" event.
-      child.on("initialized", (data: ChainId) => {
-        // Resolve waitInitialized
-        if (this.initializePromiseResolve != null) {
-          this.initializePromiseResolve();
-        }
-
-        // And mark us as initialized
-        this.coreInitialized = true;
+      child.on("onTransaction", (data: EVMTransaction) => {
+        this.events.onTransaction.next(data);
       });
 
-      // Setup a listener for the "registriesInitialized" event.
-      child.on("registriesInitialized", (data: ChainId) => {
-        // Resolve waitRegistriesInitialized
-        if (this.registriesInitializePromiseResolve != null) {
-          this.registriesInitializePromiseResolve();
-        }
+      child.on(
+        "onMetatransactionSignatureRequested",
+        (data: MetatransactionSignatureRequest) => {
+          this.events.onMetatransactionSignatureRequested.next(data);
+        },
+      );
 
-        // And mark us as registries initialized
-        this.coreRegistriesInitialized = true;
+      child.on(
+        "onTokenBalanceUpdate",
+        (data: PortfolioUpdate<TokenBalance[]>) => {
+          this.events.onTokenBalanceUpdate.next(data);
+        },
+      );
+
+      child.on("onNftBalanceUpdated", (data: PortfolioUpdate<WalletNFT[]>) => {
+        this.events.onNftBalanceUpdate.next(data);
       });
 
-      // Setup a listener for the "governanceInitialized" event.
-      child.on("governanceInitialized", (data: ChainId) => {
-        // Resolve waitGovernanceInitialized
-        if (this.governanceInitializePromiseResolve != null) {
-          this.governanceInitializePromiseResolve();
-        }
-
-        // And mark us as governance initialized
-        this.coreGovernanceInitialized = true;
+      child.on("onBackupRestored", (data: DataWalletBackupID) => {
+        this.events.onBackupRestored.next(data);
       });
 
-      // Setup a listener for the "paymentsInitialized" event.
-      child.on("paymentsInitialized", (data: ChainId) => {
-        // Resolve waitGovernanceInitialized
-        if (this.paymentsInitializePromiseResolve != null) {
-          this.paymentsInitializePromiseResolve();
-        }
-
-        // And mark us as payments initialized
-        this.corePaymentsInitialized = true;
+      child.on("onEarnedRewardsAdded", (data: EarnedReward[]) => {
+        this.events.onEarnedRewardsAdded.next(data);
       });
 
-      child.on("onGatewayIFrameDisplayRequested", (data: GatewayUrl) => {
-        this._displayCoreIFrame();
-
-        this.onGatewayIFrameDisplayRequested.next(data);
+      child.on("onPermissionsGranted", (data: PermissionsGrantedEvent) => {
+        this.events.onPermissionsGranted.next(data);
       });
 
-      child.on("onGatewayIFrameCloseRequested", (data: GatewayUrl) => {
-        this._closeCoreIFrame();
-
-        this.onGatewayIFrameCloseRequested.next(data);
+      child.on("onPermissionsRequested", (data: PermissionsRequestedEvent) => {
+        this.events.onPermissionsRequested.next(data);
       });
 
-      child.on("onCoreIFrameDisplayRequested", () => {
-        this._displayCoreIFrame();
-
-        this.onCoreIFrameDisplayRequested.next();
+      child.on("onPermissionsRevoked", (data: DomainName) => {
+        this.events.onPermissionsRevoked.next(data);
       });
 
-      child.on("onCoreIFrameCloseRequested", () => {
-        this._closeCoreIFrame();
-
-        this.onCoreIFrameCloseRequested.next();
+      child.on("onSocialProfileLinked", (data: SocialProfileLinkedEvent) => {
+        this.events.onSocialProfileLinked.next(data);
       });
 
-      child.on("onInitializationRequired", () => {
-        this.onInitializationRequired.next();
-      });
-
-      child.on("onPrivateCredentialsRequested", () => {
-        this.onPrivateCredentialsRequested.next();
-      });
-
-      child.on("onWalletConnectOptionsDisplayRequested", () => {
-        this.onWalletConnectOptionsDisplayRequested.next();
-      });
+      child.on(
+        "onSocialProfileUnlinked",
+        (data: SocialProfileUnlinkedEvent) => {
+          this.events.onSocialProfileUnlinked.next(data);
+        },
+      );
     });
   }
 
-  public finalizePullPayment(
-    _paymentId: PaymentId,
-    _finalAmount: BigNumberString,
-  ): Promise<HypernetLink> {
-    throw new Error("Method not implemented.");
-  }
-
-  public initialized(chainId?: ChainId): ResultAsync<boolean, ProxyError> {
-    // If the child is not initialized, there is no way the core can be.
-    if (this.child == null) {
-      return okAsync(false);
-    }
-
-    // Return the current known status of coreInitialized. We request this
-    // information as soon as the child is up.
-    return this._createCall("initialized", chainId);
-  }
-
-  public waitInitialized(chainId?: ChainId): ResultAsync<void, ProxyError> {
-    if (this.coreInitialized === true) {
-      return this._createCall("waitInitialized", chainId);
-    } else {
-      return ResultAsync.fromSafePromise(this.waitInitializedPromise);
-    }
-  }
-
-  public inControl(): Result<boolean, never> {
-    // If the child is not initialized, there is no way the core can be.
-    if (this.child == null) {
-      return ok(false);
-    }
-
-    // Return the current known status of inControl.
-    return ok(this.isInControl);
-  }
-
-  public getEthereumAccounts(): ResultAsync<
-    EthereumAccountAddress[],
-    BlockchainUnavailableError | ProxyError
-  > {
-    return this._createCall("getEthereumAccounts", null);
-  }
-
-  public initialize(
-    chainId?: ChainId,
-  ): ResultAsync<InitializeStatus, CoreInitializationErrors> {
-    return this._createCall("initialize", chainId);
-  }
-
-  public getInitializationStatus(): ResultAsync<InitializeStatus, ProxyError> {
-    return this._createCall("getInitializationStatus", null);
-  }
-
-  public providePrivateCredentials(
-    privateKey: string | null,
-    mnemonic: string | null,
-  ): ResultAsync<void, InvalidParametersError | ProxyError> {
-    return this._createCall("providePrivateCredentials", {
-      privateKey,
-      mnemonic,
+  public unlock(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode?: LanguageCode,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("unlock", {
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
     });
   }
 
-  public getBlockNumber(): ResultAsync<
-    number,
-    BlockchainUnavailableError | ProxyError
-  > {
-    return this._createCall("getBlockNumber", null);
+  public addAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode?: LanguageCode,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("addAccount", {
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    });
   }
 
-  public provideProviderId(
-    providerId: ProviderId,
-  ): ResultAsync<void, InvalidParametersError | ProxyError> {
-    return this._createCall("provideProviderId", providerId);
+  public getUnlockMessage(
+    languageCode: LanguageCode = LanguageCode("en"),
+  ): ResultAsync<string, ProxyError> {
+    return this._createCall("getUnlockMessage", {
+      languageCode,
+    });
   }
 
-  public rejectProviderIdRequest(): ResultAsync<void, ProxyError> {
-    return this._createCall("rejectProviderIdRequest", null);
+  public getAge(): ResultAsync<Age | null, ProxyError> {
+    return this._createCall("getAge", null);
   }
 
-  public retrieveChainInformationList(): ResultAsync<
-    Map<ChainId, ChainInformation>,
+  public setGivenName(givenName: GivenName): ResultAsync<void, ProxyError> {
+    return this._createCall("setGivenName", {
+      givenName,
+    });
+  }
+
+  public getGivenName(): ResultAsync<GivenName | null, ProxyError> {
+    return this._createCall("getGivenName", null);
+  }
+
+  public setFamilyName(familyName: FamilyName): ResultAsync<void, ProxyError> {
+    return this._createCall("setFamilyName", {
+      familyName,
+    });
+  }
+
+  public getFamilyName(): ResultAsync<FamilyName | null, ProxyError> {
+    return this._createCall("getFamilyName", null);
+  }
+
+  public setBirthday(birthday: UnixTimestamp): ResultAsync<void, ProxyError> {
+    return this._createCall("setBirthday", {
+      birthday,
+    });
+  }
+
+  public getBirthday(): ResultAsync<UnixTimestamp | null, ProxyError> {
+    return this._createCall("getBirthday", null);
+  }
+
+  public setGender(gender: Gender): ResultAsync<void, ProxyError> {
+    return this._createCall("setGender", {
+      gender,
+    });
+  }
+
+  public getGender(): ResultAsync<Gender | null, ProxyError> {
+    return this._createCall("getGender", null);
+  }
+
+  public setEmail(email: EmailAddressString): ResultAsync<void, ProxyError> {
+    return this._createCall("setEmail", {
+      email,
+    });
+  }
+
+  public getEmail(): ResultAsync<EmailAddressString | null, ProxyError> {
+    return this._createCall("getEmail", null);
+  }
+
+  public setLocation(location: CountryCode): ResultAsync<void, ProxyError> {
+    return this._createCall("setLocation", {
+      location,
+    });
+  }
+
+  public getLocation(): ResultAsync<CountryCode | null, ProxyError> {
+    return this._createCall("getLocation", null);
+  }
+
+  public getAccounts(): ResultAsync<LinkedAccount[], ProxyError> {
+    return this._createCall("getAccounts", null);
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, ProxyError> {
+    return this._createCall("getTokenPrice", {
+      chainId,
+      address,
+      timestamp,
+    });
+  }
+
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], ProxyError> {
+    return this._createCall("getTokenMarketData", {
+      ids,
+    });
+  }
+
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, ProxyError> {
+    return this._createCall("getTokenInfo", {
+      chainId,
+      contractAddress,
+    });
+  }
+
+  public getAccountBalances(): ResultAsync<TokenBalance[], ProxyError> {
+    return this._createCall("getAccountBalances", null);
+  }
+
+  public getAccountNFTs(): ResultAsync<WalletNFT[], ProxyError> {
+    return this._createCall("getAccountNFTs", null);
+  }
+
+  public closeTab(): ResultAsync<void, ProxyError> {
+    return this._createCall("closeTab", null);
+  }
+
+  public getDataWalletAddress(): ResultAsync<
+    DataWalletAddress | null,
     ProxyError
   > {
-    return this._createCall("retrieveChainInformationList", null);
+    return this._createCall("getDataWalletAddress", null);
   }
 
-  public retrieveGovernanceChainInformation(): ResultAsync<
-    ChainInformation,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._createCall("retrieveGovernanceChainInformation", null);
+    return this._createCall("getAcceptedInvitationsCID", null);
   }
 
-  public initializeForChainId(
-    chainId: ChainId,
-  ): ResultAsync<void, CoreInitializationErrors> {
-    return this._createCall("initializeForChainId", chainId);
-  }
-
-  public switchProviderNetwork(
-    chainId: ChainId,
-  ): ResultAsync<void, BlockchainUnavailableError | ProxyError> {
-    return this._createCall("switchProviderNetwork", chainId);
-  }
-
-  public getMainProviderChainId(): ResultAsync<
-    ChainId,
-    BlockchainUnavailableError | ProxyError
+  public getAvailableInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
+    ProxyError
   > {
-    return this._createCall("getMainProviderChainId", null);
+    return this._createCall("getAvailableInvitationsCID", null);
   }
 
-  public payments: IHypernetPayments = {
-    paymentsInitialized: (
-      chainId?: ChainId,
-    ): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("paymentsInitialized", chainId);
-    },
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, ProxyError> {
+    return this._createCall("getInvitationMetadataByCID", {
+      ipfsCID,
+    });
+  }
 
-    waitPaymentsInitialized: (
-      chainId?: ChainId,
+  public getAgreementPermissions(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], ProxyError> {
+    return this._createCall("getAgreementPermissions", {
+      consentContractAddres,
+    });
+  }
+
+  public getApplyDefaultPermissionsOption(): ResultAsync<boolean, ProxyError> {
+    return this._createCall("getApplyDefaultPermissionsOption", null);
+  }
+
+  public setApplyDefaultPermissionsOption(
+    option: boolean,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("setApplyDefaultPermissionsOption", {
+      option,
+    });
+  }
+
+  public getDefaultPermissions(): ResultAsync<EWalletDataType[], ProxyError> {
+    return this._createCall("getDefaultPermissions", null);
+  }
+
+  public setDefaultPermissions(
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("setDefaultPermissions", {
+      dataTypes,
+    });
+  }
+
+  public getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    ProxyError
+  > {
+    return this._createCall("getScamFilterSettings", null);
+  }
+
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("setScamFilterSettings", {
+      isScamFilterActive,
+      showMessageEveryTime,
+    });
+  }
+
+  public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
+    return this._createCall("setDefaultPermissionsToAll", null);
+  }
+
+  public acceptInvitation(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("acceptInvitation", {
+      dataTypes,
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+    });
+  }
+
+  public leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("leaveCohort", {
+      consentContractAddress,
+    });
+  }
+
+  public unlinkAcccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode?: LanguageCode,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("unlinkAccount", {
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    });
+  }
+
+  public checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, ProxyError> {
+    return this._createCall("checkInvitationStatus", {
+      consentAddress,
+      signature,
+      tokenId,
+    });
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, ProxyError> {
+    return this._createCall("getConsentContractCID", {
+      consentAddress,
+    });
+  }
+
+  public getEarnedRewards(): ResultAsync<EarnedReward[], ProxyError> {
+    return this._createCall("getEarnedRewards", null);
+  }
+
+  public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {
+    return this._createCall("getSiteVisits", null);
+  }
+
+  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
+    return this._createCall("getSiteVisitsMap", null);
+  }
+
+  public getMarketplaceListingsByTag(
+    pagingReq: PagingRequest,
+    tag: MarketplaceTag,
+    filterActive?: boolean,
+  ): ResultAsync<PagedResponse<MarketplaceListing>, ProxyError> {
+    return this._createCall("getMarketplaceListingsByTag", {
+      pagingReq,
+      tag,
+      filterActive,
+    });
+  }
+
+  public getListingsTotalByTag(
+    tag: MarketplaceTag,
+  ): ResultAsync<number, ProxyError> {
+    return this._createCall("getListingsTotalByTag", {
+      tag,
+    });
+  }
+
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("setDefaultReceivingAddress", {
+      receivingAddress,
+    });
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("setReceivingAddress", {
+      contractAddress,
+      receivingAddress,
+    });
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, ProxyError> {
+    return this._createCall("getReceivingAddress", {
+      contractAddress,
+    });
+  }
+
+  public getConsentCapacity(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<IConsentCapacity, ProxyError> {
+    return this._createCall("getConsentCapacity", {
+      contractAddress,
+    });
+  }
+
+  public getPossibleRewards(
+    contractAddresses: EVMContractAddress[],
+    timeoutMs?: number,
+  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
+    return this._createCall("getPossibleRewards", {
+      contractAddresses,
+      timeoutMs,
+    });
+  }
+
+  public discord: ISdlDiscordMethods = {
+    initializeUserWithAuthorizationCode: (
+      code: OAuthAuthorizationCode,
     ): ResultAsync<void, ProxyError> => {
-      if (this.corePaymentsInitialized === true) {
-        return this._createCall("waitPaymentsInitialized", chainId);
-      } else {
-        return ResultAsync.fromSafePromise(this.waitPaymentsInitializedPromise);
-      }
-    },
-
-    initializePayments: (
-      chainId?: ChainId,
-    ): ResultAsync<InitializeStatus, CoreInitializationErrors> => {
-      return this._createCall("initializePayments", chainId);
-    },
-
-    getPublicIdentifier: (): ResultAsync<PublicIdentifier, ProxyError> => {
-      return this._createCall("getPublicIdentifier", null);
-    },
-
-    getActiveStateChannels: (): ResultAsync<
-      ActiveStateChannel[],
-      VectorError | BlockchainUnavailableError | PersistenceError | ProxyError
-    > => {
-      return this._createCall("getActiveStateChannels", null);
-    },
-
-    createStateChannel: (
-      routerPublicIdentifiers: PublicIdentifier[],
-      chainId: ChainId,
-    ): ResultAsync<
-      ActiveStateChannel,
-      VectorError | BlockchainUnavailableError | PersistenceError | ProxyError
-    > => {
-      return this._createCall("createStateChannel", {
-        routerPublicIdentifiers,
-        chainId,
+      return this._createCall("discord.initializeUserWithAuthorizationCode", {
+        code,
       });
     },
 
-    depositFunds: (
-      channelAddress: EthereumContractAddress,
-      assetAddress: EthereumContractAddress,
-      amount: BigNumberString,
-    ): ResultAsync<
-      Balances,
-      | BalancesUnavailableError
-      | BlockchainUnavailableError
-      | VectorError
-      | Error
-    > => {
-      return this._createCall("depositFunds", {
-        channelAddress,
-        assetAddress,
-        amount: amount,
-      });
+    installationUrl: (): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", null);
     },
 
-    withdrawFunds: (
-      channelAddress: EthereumContractAddress,
-      assetAddress: EthereumContractAddress,
-      amount: BigNumberString,
-      destinationAddress: EthereumAccountAddress,
-    ): ResultAsync<
-      Balances,
-      | BalancesUnavailableError
-      | BlockchainUnavailableError
-      | VectorError
-      | Error
-    > => {
-      return this._createCall("withdrawFunds", {
-        channelAddress,
-        assetAddress,
-        amount: amount,
-        destinationAddress,
-      });
+    getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
+      return this._createCall("discord.getUserProfiles", null);
     },
-
-    getBalances: (): ResultAsync<
-      Balances,
-      BalancesUnavailableError | VectorError | ProxyError
-    > => {
-      return this._createCall("getBalances", null);
+    getGuildProfiles: (): ResultAsync<DiscordGuildProfile[], ProxyError> => {
+      return this._createCall("discord.getGuildProfiles", null);
     },
-
-    getLinks: (): ResultAsync<HypernetLink[], VectorError | Error> => {
-      return this._createCall("getLinks", null);
-    },
-
-    getActiveLinks: (): ResultAsync<HypernetLink[], VectorError | Error> => {
-      return this._createCall("getActiveLinks", null);
-    },
-
-    acceptOffer: (
-      paymentId: PaymentId,
-    ): ResultAsync<
-      Payment,
-      | TransferCreationError
-      | VectorError
-      | BalancesUnavailableError
-      | BlockchainUnavailableError
-      | InvalidPaymentError
-      | InvalidParametersError
-      | PaymentStakeError
-      | TransferResolutionError
-      | AcceptPaymentError
-      | InsufficientBalanceError
-      | ProxyError
-    > => {
-      return this._createCall("acceptFunds", paymentId);
-    },
-
-    pullFunds: (
-      paymentId: PaymentId,
-      amount: BigNumberString,
-    ): ResultAsync<Payment, VectorError | Error> => {
-      return this._createCall("pullFunds", {
-        paymentId,
-        amount: amount,
-      });
-    },
-
-    finalizePullPayment: (
-      _paymentId: PaymentId,
-      _finalAmount: BigNumberString,
-    ): Promise<HypernetLink> => {
-      throw new Error("Method not implemented.");
-    },
-
-    repairPayments: (
-      paymentIds: PaymentId[],
-    ): ResultAsync<
-      void,
-      | VectorError
-      | BlockchainUnavailableError
-      | InvalidPaymentError
-      | InvalidParametersError
-      | TransferResolutionError
-      | InvalidPaymentIdError
-      | ProxyError
-    > => {
-      return this._createCall("repairPayments", paymentIds);
-    },
-
-    mintTestToken: (
-      amount: BigNumberString,
-    ): ResultAsync<void, BlockchainUnavailableError | ProxyError> => {
-      return this._createCall("mintTestToken", amount);
-    },
-
-    authorizeGateway: (
-      gatewayUrl: GatewayUrl,
-    ): ResultAsync<
-      void,
-      GatewayValidationError | PersistenceError | VectorError | ProxyError
-    > => {
-      return this._createCall("authorizeGateway", gatewayUrl);
-    },
-
-    deauthorizeGateway: (
-      gatewayUrl: GatewayUrl,
-    ): ResultAsync<
-      void,
-      PersistenceError | ProxyError | GatewayAuthorizationDeniedError
-    > => {
-      return this._createCall("deauthorizeGateway", gatewayUrl);
-    },
-
-    getAuthorizedGateways: (): ResultAsync<
-      Map<GatewayUrl, Signature>,
-      PersistenceError | VectorError | ProxyError
-    > => {
-      return this._createCall("getAuthorizedGateways", null);
-    },
-
-    getAuthorizedGatewaysConnectorsStatus: (): ResultAsync<
-      Map<GatewayUrl, boolean>,
-      PersistenceError | VectorError | ProxyError
-    > => {
-      return this._createCall("getAuthorizedGatewaysConnectorsStatus", null);
-    },
-
-    getGatewayTokenInfo: (
-      gatewayUrls: GatewayUrl[],
-    ): ResultAsync<
-      Map<GatewayUrl, GatewayTokenInfo[]>,
-      PersistenceError | ProxyError | GatewayAuthorizationDeniedError
-    > => {
-      return this._createCall("getGatewayTokenInfo", gatewayUrls);
-    },
-
-    getGatewayRegistrationInfo: (
-      filter?: GatewayRegistrationFilter,
-    ): ResultAsync<
-      GatewayRegistrationInfo[],
-      PersistenceError | VectorError | ProxyError
-    > => {
-      return this._createCall("getGatewayRegistrationInfo", filter);
-    },
-
-    getGatewayEntryList: (): ResultAsync<
-      Map<GatewayUrl, GatewayRegistrationInfo>,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getGatewayEntryList", null);
-    },
-
-    getTokenInformation: (): ResultAsync<TokenInformation[], ProxyError> => {
-      return this._createCall("getTokenInformation", null);
-    },
-
-    getTokenInformationForChain: (
-      chainId: ChainId,
-    ): ResultAsync<TokenInformation[], ProxyError> => {
-      return this._createCall("getTokenInformationForChain", chainId);
-    },
-
-    getTokenInformationByAddress: (
-      tokenAddress: EthereumContractAddress,
-    ): ResultAsync<TokenInformation | null, ProxyError> => {
-      return this._createCall("getTokenInformationByAddress", tokenAddress);
-    },
-
-    displayGatewayIFrame: (
-      gatewayUrl: GatewayUrl,
-    ): ResultAsync<
-      void,
-      | GatewayConnectorError
-      | PersistenceError
-      | VectorError
-      | BlockchainUnavailableError
-      | ProxyError
-    > => {
-      return this.payments
-        .getAuthorizedGatewaysConnectorsStatus()
-        .andThen((gatewaysMap) => {
-          if (gatewaysMap.get(gatewayUrl) == true) {
-            this._displayCoreIFrame();
-
-            return this._createCall<GatewayUrl, GatewayConnectorError, void>(
-              "displayGatewayIFrame",
-              gatewayUrl,
-            );
-          } else {
-            alert(
-              `Gateway ${gatewayUrl} is not activated at the moment, try again later`,
-            );
-            return okAsync(undefined);
-          }
-        });
-    },
-
-    closeGatewayIFrame: (
-      gatewayUrl: GatewayUrl,
-    ): ResultAsync<
-      void,
-      GatewayConnectorError | PersistenceError | VectorError | ProxyError
-    > => {
-      this._closeCoreIFrame();
-
-      return this._createCall("closeGatewayIFrame", gatewayUrl);
+    unlink: (discordProfileId: DiscordID): ResultAsync<void, ProxyError> => {
+      return this._createCall("discord.unlink", { discordProfileId });
     },
   };
 
-  public governance: IHypernetGovernance = {
-    governanceInitialized: (
-      chainId?: ChainId,
-    ): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("governanceInitialized", chainId);
+  twitter: ISdlTwitterMethods = {
+    getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, ProxyError> => {
+      return this._createCall("twitter.getOAuth1aRequestToken", null);
     },
-
-    waitGovernanceInitialized: (
-      chainId?: ChainId,
-    ): ResultAsync<void, ProxyError> => {
-      if (this.coreGovernanceInitialized === true) {
-        return this._createCall("waitGovernanceInitialized", chainId);
-      } else {
-        return ResultAsync.fromSafePromise(
-          this.waitGovernanceInitializedPromise,
-        );
-      }
-    },
-
-    initializeGovernance: (
-      chainId?: ChainId,
-    ): ResultAsync<
-      InitializeStatus,
-      | GovernanceSignerUnavailableError
-      | BlockchainUnavailableError
-      | InvalidParametersError
-      | ProxyError
-    > => {
-      return this._createCall("initializeGovernance", chainId);
-    },
-
-    getProposals: (
-      pageNumber: number,
-      pageSize: number,
-    ): ResultAsync<Proposal[], HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("getProposals", {
-        pageNumber,
-        pageSize,
+    initTwitterProfile: (
+      requestToken: OAuth1RequstToken,
+      oAuthVerifier: OAuthVerifier,
+    ): ResultAsync<TwitterProfile, ProxyError> => {
+      return this._createCall("twitter.initTwitterProfile", {
+        requestToken,
+        oAuthVerifier,
       });
     },
-
-    createProposal: (
-      name: string,
-      symbol: string,
-      owner: EthereumAccountAddress,
-      enumerable: boolean,
-    ): ResultAsync<Proposal, HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("createProposal", {
-        name,
-        symbol,
-        owner,
-        enumerable,
-      });
+    unlinkProfile: (id: TwitterID): ResultAsync<void, ProxyError> => {
+      return this._createCall("twitter.unlinkProfile", { id });
     },
-
-    delegateVote: (
-      delegateAddress: EthereumAccountAddress,
-      amount: number | null,
-    ): ResultAsync<void, ERC20ContractError | ProxyError> => {
-      return this._createCall("delegateVote", {
-        delegateAddress,
-        amount,
-      });
-    },
-
-    getProposalDetails: (
-      proposalId: string,
-    ): ResultAsync<Proposal, HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("getProposalDetails", proposalId);
-    },
-
-    getProposalDescription: (
-      descriptionHash: string,
-    ): ResultAsync<
-      string,
-      IPFSUnavailableError | HypernetGovernorContractError | ProxyError
-    > => {
-      return this._createCall("getProposalDescription", descriptionHash);
-    },
-
-    castVote: (
-      proposalId: string,
-      support: EProposalVoteSupport,
-    ): ResultAsync<Proposal, HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("castVote", {
-        proposalId,
-        support,
-      });
-    },
-
-    getProposalVotesReceipt: (
-      proposalId: string,
-      voterAddress: EthereumAccountAddress,
-    ): ResultAsync<
-      ProposalVoteReceipt,
-      HypernetGovernorContractError | ProxyError
-    > => {
-      return this._createCall("getProposalVotesReceipt", {
-        proposalId,
-        voterAddress,
-      });
-    },
-
-    getProposalsCount: (): ResultAsync<
-      number,
-      HypernetGovernorContractError | ProxyError
-    > => {
-      return this._createCall("getProposalsCount", null);
-    },
-
-    getProposalThreshold: (): ResultAsync<
-      number,
-      HypernetGovernorContractError | ProxyError
-    > => {
-      return this._createCall("getProposalThreshold", null);
-    },
-
-    getVotingPower: (
-      account: EthereumAccountAddress,
-    ): ResultAsync<
-      number,
-      HypernetGovernorContractError | ERC20ContractError | ProxyError
-    > => {
-      return this._createCall("getVotingPower", account);
-    },
-
-    getHyperTokenBalance: (
-      account: EthereumAccountAddress,
-    ): ResultAsync<number, ERC20ContractError | ProxyError> => {
-      return this._createCall("getHyperTokenBalance", account);
-    },
-
-    queueProposal: (
-      proposalId: string,
-    ): ResultAsync<Proposal, HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("queueProposal", proposalId);
-    },
-
-    cancelProposal: (
-      proposalId: string,
-    ): ResultAsync<Proposal, HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("cancelProposal", proposalId);
-    },
-
-    executeProposal: (
-      proposalId: string,
-    ): ResultAsync<Proposal, HypernetGovernorContractError | ProxyError> => {
-      return this._createCall("executeProposal", proposalId);
+    getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
+      return this._createCall("twitter.getUserProfiles", null);
     },
   };
 
-  public registries: IHypernetRegistries = {
-    registriesInitialized: (
-      chainId?: ChainId,
-    ): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("registriesInitialized", chainId);
-    },
-
-    waitRegistriesInitialized: (
-      chainId?: ChainId,
-    ): ResultAsync<void, ProxyError> => {
-      if (this.coreRegistriesInitialized === true) {
-        return this._createCall("waitRegistriesInitialized", chainId);
-      } else {
-        return ResultAsync.fromSafePromise(
-          this.waitRegistriesInitializedPromise,
-        );
-      }
-    },
-
-    initializeRegistries: (
-      chainId?: ChainId,
-    ): ResultAsync<
-      InitializeStatus,
-      | GovernanceSignerUnavailableError
-      | BlockchainUnavailableError
-      | InvalidParametersError
-      | ProxyError
-    > => {
-      return this._createCall("initializeRegistries", chainId);
-    },
-
-    getRegistries: (
-      pageNumber: number,
-      pageSize: number,
-      sortOrder: ERegistrySortOrder,
-    ): ResultAsync<
-      Registry[],
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistries", {
-        pageNumber,
-        pageSize,
-        sortOrder,
-      });
-    },
-
-    getRegistryByName: (
-      registryNames: RegistryName[],
-    ): ResultAsync<
-      Map<RegistryName, Registry>,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryByName", registryNames);
-    },
-
-    getRegistryByAddress: (
-      registryAddresses: EthereumContractAddress[],
-    ): ResultAsync<
-      Map<EthereumContractAddress, Registry>,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryByAddress", registryAddresses);
-    },
-
-    getRegistryEntriesTotalCount: (
-      registryNames: RegistryName[],
-    ): ResultAsync<
-      Map<RegistryName, number>,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryEntriesTotalCount", registryNames);
-    },
-
-    getRegistryEntries: (
-      registryName: RegistryName,
-      pageNumber: number,
-      pageSize: number,
-      sortOrder: ERegistrySortOrder,
-    ): ResultAsync<
-      RegistryEntry[],
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryEntries", {
-        registryName,
-        pageNumber,
-        pageSize,
-        sortOrder,
-      });
-    },
-
-    getRegistryEntryDetailByTokenId: (
-      registryName: RegistryName,
-      tokenId: RegistryTokenId,
-    ): ResultAsync<
-      RegistryEntry,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryEntryDetailByTokenId", {
-        registryName,
-        tokenId,
-      });
-    },
-
-    updateRegistryEntryTokenURI: (
-      registryName: RegistryName,
-      tokenId: RegistryTokenId,
-      registrationData: string,
-    ): ResultAsync<
-      RegistryEntry,
-      | BlockchainUnavailableError
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("updateRegistryEntryTokenURI", {
-        registryName,
-        tokenId,
-        registrationData,
-      });
-    },
-
-    updateRegistryEntryLabel: (
-      registryName: RegistryName,
-      tokenId: RegistryTokenId,
-      label: string,
-    ): ResultAsync<
-      RegistryEntry,
-      | BlockchainUnavailableError
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("updateRegistryEntryLabel", {
-        registryName,
-        tokenId,
-        label,
-      });
-    },
-
-    getNumberOfRegistries: (): ResultAsync<
-      number,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getNumberOfRegistries", null);
-    },
-
-    updateRegistryParams: (
-      registryParams: RegistryParams,
-    ): ResultAsync<
-      Registry,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("updateRegistryParams", registryParams);
-    },
-
-    createRegistryEntry: (
-      registryName: RegistryName,
-      newRegistryEntry: RegistryEntry,
-    ): ResultAsync<
-      void,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("createRegistryEntry", {
-        registryName,
-        newRegistryEntry,
-      });
-    },
-
-    transferRegistryEntry: (
-      registryName: RegistryName,
-      tokenId: RegistryTokenId,
-      transferToAddress: EthereumAccountAddress,
-    ): ResultAsync<
-      RegistryEntry,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("transferRegistryEntry", {
-        registryName,
-        tokenId,
-        transferToAddress,
-      });
-    },
-
-    burnRegistryEntry: (
-      registryName: RegistryName,
-      tokenId: RegistryTokenId,
-    ): ResultAsync<
-      void,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("burnRegistryEntry", {
-        registryName,
-        tokenId,
-      });
-    },
-
-    createRegistryByToken: (
-      name: string,
-      symbol: string,
-      registrarAddress: EthereumAccountAddress,
-      enumerable: boolean,
-    ): ResultAsync<
-      void,
-      | RegistryFactoryContractError
-      | ERC20ContractError
-      | BlockchainUnavailableError
-      | ProxyError
-    > => {
-      return this._createCall("createRegistryByToken", {
-        name,
-        symbol,
-        registrarAddress,
-        enumerable,
-      });
-    },
-
-    grantRegistrarRole: (
-      registryName: RegistryName,
-      address: EthereumAccountAddress | EthereumContractAddress,
-    ): ResultAsync<
-      void,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("grantRegistrarRole", {
-        registryName,
-        address,
-      });
-    },
-
-    revokeRegistrarRole: (
-      registryName: RegistryName,
-      address: EthereumAccountAddress,
-    ): ResultAsync<
-      void,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("revokeRegistrarRole", {
-        registryName,
-        address,
-      });
-    },
-
-    renounceRegistrarRole: (
-      registryName: RegistryName,
-      address: EthereumAccountAddress,
-    ): ResultAsync<
-      void,
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | ProxyError
-    > => {
-      return this._createCall("renounceRegistrarRole", {
-        registryName,
-        address,
-      });
-    },
-
-    getRegistryEntryByOwnerAddress: (
-      registryName: RegistryName,
-      ownerAddress: EthereumAccountAddress,
-      index: number,
-    ): ResultAsync<
-      RegistryEntry | null,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryEntryByOwnerAddress", {
-        registryName,
-        ownerAddress,
-        index,
-      });
-    },
-
-    getRegistryModules: (): ResultAsync<
-      RegistryModule[],
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryModules", null);
-    },
-
-    createBatchRegistryEntry: (
-      registryName: RegistryName,
-      newRegistryEntries: RegistryEntry[],
-    ): ResultAsync<
-      void,
-      | BatchModuleContractError
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("createBatchRegistryEntry", {
-        registryName,
-        newRegistryEntries,
-      });
-    },
-
-    getRegistryEntryListByOwnerAddress: (
-      registryName: string,
-      ownerAddress: EthereumAccountAddress,
-    ): ResultAsync<
-      RegistryEntry[],
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryEntryListByOwnerAddress", {
-        registryName,
-        ownerAddress,
-      });
-    },
-
-    getRegistryEntryListByUsername: (
-      registryName: string,
-      username: string,
-    ): ResultAsync<
-      RegistryEntry[],
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | ProxyError
-    > => {
-      return this._createCall("getRegistryEntryListByUsername", {
-        registryName,
-        username,
-      });
-    },
-
-    submitLazyMintSignature: (
-      registryName: string,
-      tokenId: RegistryTokenId,
-      ownerAddress: EthereumAccountAddress,
-      registrationData: string,
-    ): ResultAsync<
-      void,
-      | RegistryFactoryContractError
-      | NonFungibleRegistryContractError
-      | BlockchainUnavailableError
-      | RegistryPermissionError
-      | PersistenceError
-      | VectorError
-      | ProxyError
-    > => {
-      return this._createCall("submitLazyMintSignature", {
-        registryName,
-        tokenId,
-        ownerAddress,
-        registrationData,
-      });
-    },
-
-    retrieveLazyMintingSignatures: (): ResultAsync<
-      LazyMintingSignature[],
-      PersistenceError | BlockchainUnavailableError | VectorError | ProxyError
-    > => {
-      return this._createCall("retrieveLazyMintingSignatures", null);
-    },
-
-    executeLazyMint: (
-      lazyMintingSignature: LazyMintingSignature,
-    ): ResultAsync<
-      void,
-      | InvalidParametersError
-      | PersistenceError
-      | VectorError
-      | BlockchainUnavailableError
-      | LazyMintModuleContractError
-      | NonFungibleRegistryContractError
-      | RegistryFactoryContractError
-      | ProxyError
-    > => {
-      return this._createCall("executeLazyMint", lazyMintingSignature);
-    },
-
-    revokeLazyMintSignature: (
-      lazyMintingSignature: LazyMintingSignature,
-    ): ResultAsync<
-      void,
-      PersistenceError | VectorError | BlockchainUnavailableError | ProxyError
-    > => {
-      return this._createCall("revokeLazyMintSignature", lazyMintingSignature);
-    },
-  };
+  public events: PublicEvents;
 
   private _displayCoreIFrame(): void {
     // Show core iframe
@@ -1352,43 +614,4 @@ export default class SnickerdoodleIFrameProxy
       this.element.style.display = "none";
     }
   }
-
-  /**
-   * Observables for seeing what's going on
-   */
-  public onControlClaimed: Subject<ControlClaim>;
-  public onControlYielded: Subject<ControlClaim>;
-  public onPushPaymentSent: Subject<PushPayment>;
-  public onPullPaymentSent: Subject<PullPayment>;
-  public onPushPaymentUpdated: Subject<PushPayment>;
-  public onPullPaymentUpdated: Subject<PullPayment>;
-  public onPushPaymentReceived: Subject<PushPayment>;
-  public onPullPaymentReceived: Subject<PullPayment>;
-  public onPushPaymentDelayed: Subject<PushPayment>;
-  public onPullPaymentDelayed: Subject<PullPayment>;
-  public onPushPaymentCanceled: Subject<PushPayment>;
-  public onPullPaymentCanceled: Subject<PullPayment>;
-  public onBalancesChanged: Subject<Balances>;
-  public onCeramicAuthenticationStarted: Subject<void>;
-  public onCeramicAuthenticationSucceeded: Subject<void>;
-  public onCeramicFailed: Subject<Error>;
-  public onGatewayAuthorized: Subject<GatewayUrl>;
-  public onGatewayDeauthorizationStarted: Subject<GatewayUrl>;
-  public onAuthorizedGatewayUpdated: Subject<GatewayUrl>;
-  public onAuthorizedGatewayActivationFailed: Subject<GatewayUrl>;
-  public onGatewayIFrameDisplayRequested: Subject<GatewayUrl>;
-  public onGatewayIFrameCloseRequested: Subject<GatewayUrl>;
-  public onCoreIFrameDisplayRequested: Subject<void>;
-  public onCoreIFrameCloseRequested: Subject<void>;
-  public onInitializationRequired: Subject<void>;
-  public onPrivateCredentialsRequested: Subject<void>;
-  public onWalletConnectOptionsDisplayRequested: Subject<void>;
-  public onStateChannelCreated: Subject<ActiveStateChannel>;
-  public onChainConnected: Subject<ChainId>;
-  public onGovernanceChainConnected: Subject<ChainId>;
-  public onChainChanged: Subject<ChainId>;
-  public onAccountChanged: Subject<EthereumAccountAddress>;
-  public onGovernanceChainChanged: Subject<ChainId>;
-  public onGovernanceAccountChanged: Subject<EthereumAccountAddress>;
-  public onGovernanceSignerUnavailable: Subject<GovernanceSignerUnavailableError>;
 }

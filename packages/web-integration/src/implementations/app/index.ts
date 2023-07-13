@@ -1,1 +1,1 @@
-export { default } from "./SnickerdoodleWebIntegration";
+export * from "@web-integration/implementations/app/SnickerdoodleWebIntegration.js";

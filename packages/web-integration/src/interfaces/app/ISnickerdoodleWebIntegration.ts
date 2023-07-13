@@ -1,5 +1,5 @@
-import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
 
 export interface ISnickerdoodleWebIntegration {
-  core: ISnickerdoodleCore;
+  core: ISdlDataWallet;
 }

@@ -21,6 +21,6 @@
 			"path": "../utils"
 		}
 	],
-	"include": ["./src/**/*.ts", "../persistence/src/volatile/IndexedDBUtils.ts"],
+	"include": ["./src/**/*.ts" ],
 	"exclude": ["node_modules"]
 }
