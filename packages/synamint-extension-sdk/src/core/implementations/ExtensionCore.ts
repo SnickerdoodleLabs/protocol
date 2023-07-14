@@ -7,9 +7,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import Browser, { Tabs } from "webextension-polyfill";
 
 import { extensionCoreModule } from "@synamint-extension-sdk/core/implementations/ExtensionCore.module";
 import {
@@ -19,8 +18,6 @@ import {
   ICoreListenerType,
   IErrorListener,
   IErrorListenerType,
-  IExtensionListener,
-  IExtensionListenerType,
   IPortConnectionListener,
   IPortConnectionListenerType,
 } from "@synamint-extension-sdk/core/interfaces/api";
@@ -112,9 +109,6 @@ export class ExtensionCore {
     );
     const coreListener =
       this.iocContainer.get<ICoreListener>(ICoreListenerType);
-    const extensionListener = this.iocContainer.get<IExtensionListener>(
-      IExtensionListenerType,
-    );
     const errorListener =
       this.iocContainer.get<IErrorListener>(IErrorListenerType);
     const portConnectionListener =
@@ -124,7 +118,6 @@ export class ExtensionCore {
     return ResultUtils.combine([
       coreListener.initialize(),
       browserTabListener.initialize(),
-      extensionListener.initialize(),
       errorListener.initialize(),
       portConnectionListener.initialize(),
     ]).map(() => {});
@@ -194,20 +187,14 @@ export class ExtensionCore {
             console.log(
               `No account info found on cookie for auto unlock ${dataWalletAddressOnCookie} is removing`,
             );
-            return accountCookieUtils
-              .removeDataWalletAddressFromCookie()
-              .andThen(() => {
-                return ExtensionUtils.openUrlOrSwitchToUrlTab(
-                  config.onboardingUrl,
-                );
-              });
+            return accountCookieUtils.removeDataWalletAddressFromCookie();
           }
-          return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
+          return okAsync(undefined);
         }
       })
       .orElse((e) => {
         errorUtils.emit(e);
-        return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
+        return okAsync(undefined);
       });
   }
 }

@@ -3,6 +3,7 @@ import {
   VersionedObject,
   VolatileStorageMetadata,
   VolatileStorageKey,
+  ERecordKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -13,47 +14,47 @@ export interface IVolatileStorage {
   clearObjectStore(name: string): ResultAsync<void, PersistenceError>;
 
   putObject<T extends VersionedObject>(
-    name: string,
+    recordKey: ERecordKey,
     obj: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError>;
   removeObject<T extends VersionedObject>(
-    name: string,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
 
   getObject<T extends VersionedObject>(
-    name: string,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
     _includeDeleted?: boolean,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
-    name: string,
+    recordKey: ERecordKey,
     index?: VolatileStorageKey,
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
-    name: string,
+    recordKey: ERecordKey,
     index?: VolatileStorageKey,
     query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   getAllByIndex<T extends VersionedObject>(
-    name: string,
+    recordKey: ERecordKey,
     index: VolatileStorageKey,
     query: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   getAllKeys<T>(
-    name: string,
+    recordKey: ERecordKey,
     index?: VolatileStorageKey,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
 
   getKey(
-    tableName: string,
+    recordKey: ERecordKey,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError>;
+  ): ResultAsync<VolatileStorageKey, PersistenceError>;
 }
 
 export const IVolatileStorageType = Symbol.for("IVolatileStorage");

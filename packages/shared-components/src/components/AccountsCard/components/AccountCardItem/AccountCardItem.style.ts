@@ -35,10 +35,10 @@ export const useStyles = makeStyles((theme) => ({
   },
   accountAddressText: {
     paddingLeft: "12px",
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: "Roboto",
     fontWeight: 500,
     fontSize: "16px",
-    color: "#5D5A74",
+    color: "#212121",
   },
   chainText: {
     paddingLeft: "24px",

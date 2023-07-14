@@ -37,6 +37,7 @@ import {
   URLString,
   TwitterID,
   OAuthVerifier,
+  BaseNotification,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -51,7 +52,6 @@ import {
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_SUBSTREAM,
   PORT_NOTIFICATION,
-  TNotification,
   AddAccountParams,
   UnlockParams,
   UnlinkAccountParams,
@@ -81,6 +81,8 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
+  GetDiscordInstallationUrlParams,
+  SwitchToTabParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -142,8 +144,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: () => {
-        return coreGateway.discord.installationUrl();
+      installationUrl: (attachRedirectTabId?: boolean) => {
+        return coreGateway.discord.installationUrl(attachRedirectTabId);
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();
@@ -175,9 +177,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.twitter.getUserProfiles();
       },
     };
-    eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
+    eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+
+  public switchToTab(tabId: number): ResultAsync<void, unknown> {
+    return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
 
   public setDefaultReceivingAddress(

@@ -14,6 +14,8 @@ import {
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Typography, Collapse } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -55,7 +57,7 @@ export const routes: IRoute[] = [
       { path: EPaths.POAP_NFTS, title: "POAPs" },
       { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
       { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
-      { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
+      // { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
   },
   {
@@ -77,25 +79,16 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const classes = useStyles();
   const [lastClickedIndex, setLastClickedIndex] = useState<number>();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { setLinkerModalOpen } = useAppContext();
 
   return (
     <>
-      {isModalOpen && (
-        <LinkAccountModal
-          closeModal={() => {
-            setIsModalOpen(false);
-          }}
-        />
-      )}
       <Box display="flex" flexDirection="column" className={classes.container}>
         <Box mt={4.5}>
           <img src={sdlLogoSafe} />
         </Box>
         <Box
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
+          onClick={setLinkerModalOpen}
           className={classes.button}
           mt={6}
           minHeight={48}
