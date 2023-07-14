@@ -1,3 +1,5 @@
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentRoles,
@@ -30,11 +32,9 @@ import {
   MarketplaceListing,
   MarketplaceTag,
   TransactionResponseError,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -60,7 +60,10 @@ export class ConsentFactoryContractWrapper
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.fallback(
       () => this.primary.createConsent(ownerAddress, baseUri, name, overrides),
       () =>
@@ -164,7 +167,10 @@ export class ConsentFactoryContractWrapper
   }
   public setListingDuration(
     listingDuration: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.fallback(
       () => this.primary.setListingDuration(listingDuration),
       () => this.secondary?.setListingDuration(listingDuration),
@@ -172,7 +178,10 @@ export class ConsentFactoryContractWrapper
   }
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.fallback(
       () => this.primary.setMaxTagsPerListing(maxTagsPerListing),
       () => this.secondary?.setMaxTagsPerListing(maxTagsPerListing),
@@ -181,7 +190,10 @@ export class ConsentFactoryContractWrapper
   public adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.fallback(
       () => this.primary.adminRemoveListing(tag, removedSlot),
       () => this.secondary?.adminRemoveListing(tag, removedSlot),

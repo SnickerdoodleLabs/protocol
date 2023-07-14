@@ -1,3 +1,5 @@
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { TransactionResponse } from "@ethersproject/abstract-provider";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
@@ -11,11 +13,9 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -52,7 +52,10 @@ export class MinimalForwarderContractWrapper
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | MinimalForwarderContractError
+  > {
     return this.fallback(
       () => this.primary.execute(request, signature),
       () => this.secondary?.execute(request, signature),

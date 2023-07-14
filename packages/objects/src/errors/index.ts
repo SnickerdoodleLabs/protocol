@@ -38,3 +38,7 @@ export * from "@objects/errors/UnauthorizedError.js";
 export * from "@objects/errors/UninitializedError.js";
 export * from "@objects/errors/UnsupportedLanguageError.js";
 export * from "@objects/errors/InsufficientFundsError.js";
+export * from "@objects/errors/NetworkUnreachableError.js";
+export * from "@objects/errors/InvalidArgumentError.js";
+export * from "@objects/errors/MissingArgumentError.js";
+export * from "@objects/errors/UnexpectedArgumentError.js";

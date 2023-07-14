@@ -10,6 +10,7 @@ import {
   IBlockchainError,
   BaseURI,
   DomainName,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -55,7 +56,10 @@ export class SiftContract
   public verifyURL(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | SiftContractError
+  > {
     return this.writeToContract("verifyURL", [domain], overrides);
   }
 
@@ -63,18 +67,24 @@ export class SiftContract
   public maliciousURL(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | SiftContractError
+  > {
     return this.writeToContract("maliciousURL", [domain], overrides);
   }
 
   public setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | SiftContractError
+  > {
     return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

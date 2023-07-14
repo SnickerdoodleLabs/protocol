@@ -14,6 +14,7 @@ import {
   IBlockchainError,
   BaseURI,
   ERC721RewardContractError,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
@@ -160,7 +161,10 @@ export class ERC721RewardContract
   public setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  > {
     return this.writeToContract("setBaseURI", [baseUri, overrides]);
   }
 
@@ -237,7 +241,10 @@ export class ERC721RewardContract
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  > {
     return this.writeToContract(
       "grantRole",
       [ERewardRoles[role], address],
@@ -249,7 +256,10 @@ export class ERC721RewardContract
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  > {
     return this.writeToContract(
       "revokeRole",
       [ERewardRoles[role], address],
@@ -261,7 +271,10 @@ export class ERC721RewardContract
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  > {
     return this.writeToContract(
       "renounceRole",
       [ERewardRoles[role], address],
@@ -269,7 +282,7 @@ export class ERC721RewardContract
     );
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

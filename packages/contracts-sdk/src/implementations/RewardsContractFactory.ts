@@ -15,6 +15,8 @@ import {
   BaseURI,
   RewardsFactoryError,
   ECreatedRewardType,
+  BlockchainErrorMapper,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -54,7 +56,10 @@ export class RewardsContractFactory
     symbol: string,
     baseURI: BaseURI,
     overrides: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | RewardsFactoryError
+  > {
     return GasUtils.getGasFee<RewardsFactoryError>(
       this.providerOrSigner,
     ).andThen((gasFee) => {
@@ -93,7 +98,7 @@ export class RewardsContractFactory
     });
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,
@@ -107,7 +112,10 @@ export class RewardsContractFactory
     functionParams: any[],
     overrides?: ContractOverrides,
     isDeployingContract?: boolean,
-  ): ResultAsync<WrappedTransactionResponse, RewardsFactoryError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | RewardsFactoryError
+  > {
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {
         ...overrides,
@@ -119,18 +127,24 @@ export class RewardsContractFactory
           e,
         );
       },
-    ).map((transactionResponse) => {
-      // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
-      return RewardsContractFactory.buildWrappedTransactionResponse(
-        isDeployingContract == true
-          ? (transactionResponse as ethers.Contract).deployTransaction
-          : (transactionResponse as ethers.providers.TransactionResponse),
-        EVMContractAddress(""),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        ContractsAbis.ConsentFactoryAbi.abi,
-      );
-    });
+    )
+      .map((transactionResponse) => {
+        // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
+        return RewardsContractFactory.buildWrappedTransactionResponse(
+          isDeployingContract == true
+            ? (transactionResponse as ethers.Contract).deployTransaction
+            : (transactionResponse as ethers.providers.TransactionResponse),
+          EVMContractAddress(""),
+          EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+          functionName,
+          functionParams,
+          ContractsAbis.ConsentFactoryAbi.abi,
+        );
+      })
+      .mapErr((e) => {
+        return BlockchainErrorMapper.buildBlockchainError(e, (msg, reason, e) =>
+          this.generateContractSpecificError(msg, reason, e),
+        );
+      });
   }
 }
