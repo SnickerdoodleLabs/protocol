@@ -1,6 +1,9 @@
 import {
   NetworkUnreachableError,
   InsufficientFundsError,
+  InvalidArgumentError,
+  MissingArgumentError,
+  UnexpectedArgumentError,
 } from "@objects/errors/index.js";
 import { BlockchainErrorMessage } from "@objects/primitives/BlockchainErrorMessage.js";
 
@@ -35,6 +38,36 @@ export class BlockchainErrorMapper {
           error,
         ),
     ],
+    [
+      BlockchainErrorMessage("resolver or addr is not configured for ENS name"),
+      (error: unknown | null) =>
+        new InvalidArgumentError(
+          BlockchainErrorMessage(
+            "Address argument is invalid (format or type)",
+          ),
+          error,
+        ),
+    ],
+    [
+      BlockchainErrorMessage("missing argument: passed to contract"),
+      (error: unknown | null) =>
+        new MissingArgumentError(
+          BlockchainErrorMessage(
+            "Missing arguments for contract function call",
+          ),
+          error,
+        ),
+    ],
+    [
+      BlockchainErrorMessage("too many arguments: passed to contract"),
+      (error: unknown | null) =>
+        new UnexpectedArgumentError(
+          BlockchainErrorMessage(
+            "Too many arguments for contract function call",
+          ),
+          error,
+        ),
+    ],
   ]);
 
   public static buildBlockchainError<TGenericError>(
@@ -60,4 +93,7 @@ export class BlockchainErrorMapper {
 
 export type TBlockchainCommonErrors =
   | NetworkUnreachableError
-  | InsufficientFundsError;
+  | InsufficientFundsError
+  | InvalidArgumentError
+  | MissingArgumentError
+  | UnexpectedArgumentError;
