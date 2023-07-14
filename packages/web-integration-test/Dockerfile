@@ -35,10 +35,12 @@ ENV __DEBUG__ $DEBUG
 
 # Copy the rest of the stuff and build
 COPY . /build
-RUN cd packages/iframe && yarn build
+RUN cd packages/web-integration-test && yarn build
 
 FROM nginx:latest AS server
 
 # Copy over the dist files
-COPY --from=builder /build/packages/iframe/dist/bundle /usr/share/nginx/html
+COPY --from=builder /build/packages/web-integration-test/dist/bundle /usr/share/nginx/html
+COPY --from=builder /build/packages/web-integration-test/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /build/packages/web-integration-test/default.conf /etc/nginx/conf.d/default.conf
 

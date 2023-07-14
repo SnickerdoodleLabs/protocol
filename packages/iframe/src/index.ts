@@ -7,6 +7,8 @@ import { CoreListener } from "./implementations/api/index";
 import { CoreUIService } from "./implementations/business/index";
 // Instantiate the Snickerdoodle core.
 
+console.log("Snickerdoodle Core IFrame Loaded");
+
 const urlParams = new URLSearchParams(window.location.search);
 const defaultGovernanceChainId = urlParams.get("defaultGovernanceChainId");
 const debug = urlParams.get("debug");
@@ -25,4 +27,6 @@ const coreListener = new CoreListener(
   sourceDomain,
 );
 
-coreListener.activateModel();
+coreListener.activateModel().map(() => {
+  console.log("Snickerdoodle Core CoreListener model activated");
+});

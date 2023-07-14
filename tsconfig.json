@@ -88,6 +88,9 @@
     },
     {
       "path": "packages/web-integration"
+    },
+    {
+      "path": "packages/web-integration-test"
     }
   ]
 }

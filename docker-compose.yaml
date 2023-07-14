@@ -28,6 +28,15 @@ services:
     networks:
       - internal
 
+  web-integration-test:
+    container_name: web-integration-test
+    env_file: docker-compose.env
+    image: snickerdoodlelabs/web-integration-test:local
+    ports:
+      - 9011:80
+    networks:
+      - internal
+
   ipfs:
     image: ipfs/kubo:latest
     ports:

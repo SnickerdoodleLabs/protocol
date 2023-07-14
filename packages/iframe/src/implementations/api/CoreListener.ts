@@ -51,6 +51,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
   }
 
   protected getModel(): Postmate.Model {
+    console.log("getModel");
     // Fire up the Postmate model, and wrap up the core as the model
     return new Postmate.Model({
       unlock: (
@@ -670,6 +671,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
   }
 
   protected onModelActivated(parent: Postmate.ChildAPI): void {
+    console.log("Core IFrame Model Activated");
     // We are going to relay the RXJS events
     this.core.getEvents().map((events) => {
       events.onInitialized.subscribe((val) => {

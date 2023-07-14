@@ -1,6 +1,5 @@
-import { ISdlDataWallet, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
-import { Subject } from "rxjs";
+import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import { SnickerdoodleIFrameProxy } from "@web-integration/implementations/proxy/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
@@ -9,9 +8,10 @@ export class SnickerdoodleWebIntegration
   implements ISnickerdoodleWebIntegration
 {
   protected iframeURL = "http://localhost:9010";
-  public core: ISdlDataWallet;
+  protected _core: SnickerdoodleIFrameProxy;
 
   protected debug = false;
+  protected initializeResult: ResultAsync<ISdlDataWallet, Error> | null = null;
 
   constructor(iframeURL: string | null, debug: boolean | null) {
     const iframeURLWithSearchParams = new URL(iframeURL || this.iframeURL);
@@ -24,15 +24,33 @@ export class SnickerdoodleWebIntegration
 
     if (window.snickerdoodle) {
       // If there's already a proxy injected, we don't need to create a new one
-      this.core = window.snickerdoodle;
+      this._core = window.snickerdoodle;
     } else {
       // Create a proxy connection to the iframe
-      this.core = new SnickerdoodleIFrameProxy(
+      this._core = new SnickerdoodleIFrameProxy(
         this._prepareIFrameContainer(),
         this.iframeURL,
         "snickerdoodle-core-iframe",
       );
     }
+  }
+
+  public get core(): SnickerdoodleIFrameProxy {
+    return this._core;
+  }
+
+  // wait for the core to be intialized
+  public initialize(): ResultAsync<ISdlDataWallet, Error> {
+    if (this.initializeResult == null) {
+      console.log("Activating Snickerdoodle Core web integration");
+      this.initializeResult = this._core.activate().map(() => {
+        console.log("Snickerdoodle Core web integration activated");
+        window.snickerdoodle = this.core;
+        return this.core;
+      });
+    }
+
+    return this.initializeResult;
   }
 
   private _prepareIFrameContainer(): HTMLElement {

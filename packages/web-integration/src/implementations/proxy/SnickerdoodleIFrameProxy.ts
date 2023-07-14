@@ -84,6 +84,7 @@ export class SnickerdoodleIFrameProxy
     // initialization status. The iframe will emit an event "initialized"
     // once the core is initialized, we'll use that to resolve this promise.
     this._handshakePromise = this.handshake.then((child) => {
+      console.log("Handshake with Snickerdoodle Protocol iframe complete");
       // Subscribe to the message streams from the iframe,
       // and convert them back to RXJS Subjects.
       child.on("onInitialized", (data: DataWalletAddress) => {
