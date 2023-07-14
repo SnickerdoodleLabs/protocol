@@ -219,6 +219,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
 
+    // @TODO remove async call from constructor
+    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+      IBlockchainProviderType,
+    );
+    // allows initializing providers before unlock
+    blockchainProvider.initialize().mapErr((err) => {
+      console.error(
+        "Failed to initialize blockchain provider on constructor level",
+        err,
+      );
+    });
+
     // Account Methods -------------------------------------------------------------------------------
     this.account = {
       getUnlockMessage: (

@@ -34,10 +34,11 @@ import { Pie } from "react-chartjs-2";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
 import TokenItem from "@extension-onboarding/components/TokenItem";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
 import { IBalanceItem } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 declare const window: IWindowWithSdlDataWallet;
 
 ChartJS.register(
@@ -120,7 +121,7 @@ const CHART_ITEM_COUNT = 3;
 
 export default () => {
   const classes = useStyles();
-  const { linkedAccounts } = useAppContext();
+  const { linkedAccounts, appMode } = useAppContext();
 
   const [accountSelect, setAccountSelect] = useState<
     AccountAddress | undefined
@@ -139,7 +140,7 @@ export default () => {
       setIsBalancesLoading(true);
       initializeBalances();
     }
-  }, [linkedAccounts.length]);
+  }, [linkedAccounts.length, appMode]);
 
   const initializeBalances = () => {
     window.sdlDataWallet
@@ -328,6 +329,10 @@ export default () => {
       setTokensPagination(getPaginationObject(tokensToRender.length));
     }
   }, [tokensToRender]);
+
+  if (appMode != EAppModes.AUTH_USER) {
+    return <UnauthScreen />;
+  }
 
   return (
     <>
