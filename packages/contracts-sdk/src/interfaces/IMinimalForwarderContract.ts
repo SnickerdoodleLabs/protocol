@@ -9,6 +9,7 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -27,7 +28,10 @@ export interface IMinimalForwarderContract extends IBaseContract {
     request: IMinimalForwarderRequest,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | MinimalForwarderContractError
+  >;
 }
 
 export const IMinimalForwarderContractType = Symbol.for(

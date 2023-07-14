@@ -1,3 +1,9 @@
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  WrappedTransactionResponse,
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   BaseURI,
   BigNumberString,
@@ -7,16 +13,10 @@ import {
   EVMContractAddress,
   MarketplaceListing,
   MarketplaceTag,
+  TBlockchainCommonErrors,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  WrappedTransactionResponse,
-  ConsentRoles,
-  ContractOverrides,
-} from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface IConsentFactoryContract extends IBaseContract {
   /**
@@ -31,7 +31,10 @@ export interface IConsentFactoryContract extends IBaseContract {
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   /**
    *  Return the number Consent addresses that user has deployed
@@ -103,18 +106,27 @@ export interface IConsentFactoryContract extends IBaseContract {
   setListingDuration(
     listingDuration: number,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   setMaxTagsPerListing(
     maxTagsPerListing: number,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   getListingDetail(
     tag: MarketplaceTag,

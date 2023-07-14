@@ -1,7 +1,7 @@
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
+  ContractsAbis,
   ConsentRoles,
   ContractOverrides,
   WrappedTransactionResponse,
@@ -17,6 +17,7 @@ import {
   IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
+  TBlockchainCommonErrors,
   TransactionResponseError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -53,7 +54,10 @@ export class ConsentFactoryContract
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.writeToContract(
       "createConsent",
       [ownerAddress, baseUri, name],
@@ -227,7 +231,10 @@ export class ConsentFactoryContract
   public setListingDuration(
     listingDuration: number,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.writeToContract(
       "setListingDuration",
       [listingDuration],
@@ -238,7 +245,10 @@ export class ConsentFactoryContract
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.writeToContract(
       "setMaxTagsPerListing",
       [maxTagsPerListing],
@@ -250,7 +260,10 @@ export class ConsentFactoryContract
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentFactoryContractError
+  > {
     return this.writeToContract(
       "setMaxTagsPerListing",
       [tag, removedSlot],
@@ -450,7 +463,7 @@ export class ConsentFactoryContract
     });
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

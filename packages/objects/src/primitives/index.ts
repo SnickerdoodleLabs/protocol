@@ -9,6 +9,7 @@ export * from "@objects/primitives/Base64String.js";
 export * from "@objects/primitives/BaseURI.js";
 export * from "@objects/primitives/BearerToken.js";
 export * from "@objects/primitives/BigNumberString.js";
+export * from "@objects/primitives/BlockchainErrorMessage.js";
 export * from "@objects/primitives/BlockNumber.js";
 export * from "@objects/primitives/CeramicStreamID.js";
 export * from "@objects/primitives/ChainId.js";

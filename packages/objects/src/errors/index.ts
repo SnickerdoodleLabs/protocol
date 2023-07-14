@@ -1,5 +1,6 @@
 export * from "@objects/errors/AccountIndexingError.js";
 export * from "@objects/errors/AjaxError.js";
+export * from "@objects/errors/BlockchainErrorMapper.js";
 export * from "@objects/errors/BlockchainProviderError.js";
 export * from "@objects/errors/CloudStorageError.js";
 export * from "@objects/errors/ConsentContractError.js";
@@ -37,4 +38,7 @@ export * from "@objects/errors/UnauthorizedError.js";
 export * from "@objects/errors/UninitializedError.js";
 export * from "@objects/errors/UnsupportedLanguageError.js";
 export * from "@objects/errors/InsufficientFundsError.js";
-export * from "@objects/errors/BlockchainErrorMapping.js";
+export * from "@objects/errors/NetworkUnreachableError.js";
+export * from "@objects/errors/InvalidArgumentError.js";
+export * from "@objects/errors/MissingArgumentError.js";
+export * from "@objects/errors/UnexpectedArgumentError.js";

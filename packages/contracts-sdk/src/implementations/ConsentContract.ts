@@ -27,6 +27,7 @@ import {
   ConsentToken,
   DataPermissions,
   BigNumberString,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -57,7 +58,10 @@ export class ConsentContract
     tokenId: TokenId,
     agreementFlags: HexString32,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("optIn", [tokenId, agreementFlags], overrides);
   }
 
@@ -76,7 +80,10 @@ export class ConsentContract
     agreementFlags: HexString32,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "restrictedOptIn",
       [tokenId, agreementFlags, signature],
@@ -103,7 +110,10 @@ export class ConsentContract
     agreementFlags: HexString32,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "anonymousRestrictedOptIn",
       [tokenId, agreementFlags, signature],
@@ -128,7 +138,10 @@ export class ConsentContract
   public optOut(
     tokenId: TokenId,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("optOut", [tokenId], overrides);
   }
 
@@ -171,7 +184,10 @@ export class ConsentContract
   public updateMaxCapacity(
     maxCapacity: number,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
   }
 
@@ -179,7 +195,10 @@ export class ConsentContract
     tokenId: TokenId,
     newAgreementFlags: HexString32,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "updateAgreementFlags",
       [tokenId, newAgreementFlags],
@@ -202,7 +221,10 @@ export class ConsentContract
   public requestForData(
     ipfsCID: IpfsCID,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("requestForData", [ipfsCID], overrides);
   }
 
@@ -499,14 +521,20 @@ export class ConsentContract
   public addDomain(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("addDomain", [domain], overrides);
   }
 
   public removeDomain(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
@@ -579,13 +607,19 @@ export class ConsentContract
 
   public disableOpenOptIn(
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("disableOpenOptIn", [], overrides);
   }
 
   public enableOpenOptIn(
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("enableOpenOptIn", [], overrides);
   }
 
@@ -605,7 +639,10 @@ export class ConsentContract
   public setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
@@ -629,7 +666,10 @@ export class ConsentContract
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("grantRole", [role, address], overrides);
   }
 
@@ -637,7 +677,10 @@ export class ConsentContract
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("revokeRole", [role, address], overrides);
   }
 
@@ -645,7 +688,10 @@ export class ConsentContract
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("renounceRole", [role, address], overrides);
   }
 
@@ -665,7 +711,10 @@ export class ConsentContract
   public setQueryHorizon(
     blockNumber: BlockNumber,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("setQueryHorizon", [blockNumber], overrides);
   }
 
@@ -752,7 +801,10 @@ export class ConsentContract
     tag: string,
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "newGlobalTag",
       [tag, newStakeAmount],
@@ -765,7 +817,10 @@ export class ConsentContract
     newStakeAmount: BigNumberString,
     existingStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "newLocalTagUpstream",
       [tag, newStakeAmount, existingStakeAmount],
@@ -778,7 +833,10 @@ export class ConsentContract
     existingStakeAmount: BigNumberString,
     newStakeAmount: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "newLocalTagDownstream",
       [tag, existingStakeAmount, newStakeAmount],
@@ -790,7 +848,10 @@ export class ConsentContract
     tag: string,
     stakeAmount: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract(
       "replaceExpiredListing",
       [tag, stakeAmount],
@@ -801,7 +862,10 @@ export class ConsentContract
   public removeListing(
     tag: string,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  > {
     return this.writeToContract("removeListing", [tag], overrides);
   }
 
@@ -834,8 +898,7 @@ export class ConsentContract
     );
   }
 
-  // TODOSEAN: no longer needed
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

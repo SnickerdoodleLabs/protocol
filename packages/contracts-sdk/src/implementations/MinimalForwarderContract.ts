@@ -13,6 +13,7 @@ import {
   IBlockchainError,
   BigNumberString,
   Signature,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
@@ -78,11 +79,14 @@ export class MinimalForwarderContract
     request: IMinimalForwarderRequest,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | MinimalForwarderContractError
+  > {
     return this.writeToContract("execute", [request, signature], overrides);
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,
