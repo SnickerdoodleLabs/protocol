@@ -1,6 +1,7 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Discord.style";
@@ -30,6 +31,7 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [selectedProfile, setSelectedProfile] =
       useState<ILinkedDiscordAccount>({} as ILinkedDiscordAccount);
+    const { disablePopups } = useAppContext();
 
     const getGuildProfiles = (discordProfiles: DiscordProfile[]) => {
       provider.getGuildProfiles().map((guildProfiles) =>
@@ -48,12 +50,11 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
     };
 
     const initializeUser = (code: string) => {
-      provider
+      return provider
         .initializeUserWithAuthorizationCode({
           code: OAuthAuthorizationCode(code),
         })
         .map(() => {
-          window.history.replaceState(null, "", window.location.pathname);
           setAlert({
             severity: EAlertSeverity.SUCCESS,
             message: "Your account has successfully been linked. ",
@@ -67,7 +68,27 @@ export const DiscordInfo: FC<ISocialMediaPlatformProps> = memo(
       if (!code) {
         return;
       }
-      initializeUser(code);
+      const state = new URLSearchParams(window.location.search).get("state");
+      let redirectTabId: number | undefined = undefined;
+      if (state) {
+        try {
+          redirectTabId = JSON.parse(decodeURI(state)).redirect_tab_id;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      if (redirectTabId) {
+        disablePopups();
+      }
+      initializeUser(code).map(() => {
+        if (redirectTabId) {
+          return (
+            window.sdlDataWallet?.switchToTab?.(redirectTabId) ??
+            window.sdlDataWallet.closeTab()
+          );
+        }
+        return window.history.replaceState(null, "", window.location.pathname);
+      });
     }, [JSON.stringify(window.location.search)]);
 
     const getUserProfiles = () => {

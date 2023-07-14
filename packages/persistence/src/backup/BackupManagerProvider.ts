@@ -2,6 +2,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
   ITimeUtils,
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
@@ -41,7 +43,7 @@ import {
 
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
-  private backupManager?: ResultAsync<IBackupManager, PersistenceError>;
+  private backupManager?: ResultAsync<IBackupManager, never>;
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
@@ -59,6 +61,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     @inject(IBackupUtilsType) protected backupUtils: IBackupUtils,
     @inject(IChunkRendererFactoryType)
     protected chunkRendererFactory: IChunkRendererFactory,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -71,7 +74,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     return okAsync(undefined);
   }
 
-  public getBackupManager(): ResultAsync<IBackupManager, PersistenceError> {
+  public getBackupManager(): ResultAsync<IBackupManager, never> {
     if (this.backupManager != undefined) {
       return this.backupManager;
     }
@@ -94,6 +97,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         this.backupUtils,
         this.chunkRendererFactory,
         this.recordSchemaProvider,
+        this.logUtils,
       );
     });
 

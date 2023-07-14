@@ -129,7 +129,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
       })
       .orElse((e) => {
         this.logUtils.warning(
-          `Cannot call ownerOf or agreementFlags for token ID ${optInInfo.tokenId} on consent contract ${optInInfo.consentContractAddress}. Assuming it does not exist!`,
+          `Cannot get consent token for token ID ${optInInfo.tokenId} on consent contract ${optInInfo.consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
           e,
         );
         return okAsync(null);

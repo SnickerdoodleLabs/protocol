@@ -3,20 +3,19 @@ import {
   MetatransactionSignatureRequest,
   URLString,
   UUID,
+  BaseNotification,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { okAsync } from "neverthrow";
-import { v4 } from "uuid";
-
 import {
   IPortConnection,
   IPortConnectionObject,
   IPortConnections,
 } from "@synamint-extension-sdk/core/interfaces/objects";
+import { ExtensionDisplayUtils } from "@synamint-extension-sdk/extensionShared";
 import { PORT_NOTIFICATION } from "@synamint-extension-sdk/shared/constants/ports";
 import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
-import { ExtensionDisplayUtils } from "@synamint-extension-sdk/extensionShared";
-import { TNotification } from "@synamint-extension-sdk/shared/types/notification";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { okAsync } from "neverthrow";
+import { v4 } from "uuid";
 
 export class AppContext {
   constructor(
@@ -127,12 +126,12 @@ export class AppContext {
 
   public notifyConnectionPort(
     rpcEngine: JsonRpcEngine,
-    notification: TNotification,
+    notification: BaseNotification,
   ) {
     rpcEngine.emit(PORT_NOTIFICATION, notification);
   }
 
-  public notifyAllConnections(notification: TNotification) {
+  public notifyAllConnections(notification: BaseNotification) {
     Object.values(this.connections).forEach((conns) => {
       Object.keys(conns).forEach((connId) => {
         conns[connId] &&

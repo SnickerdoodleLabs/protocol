@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#000000",
   },
   selected: {
-    fontWeight: 400,
+    fontWeight: 700,
   },
   linkWrapper: {
     cursor: "pointer",
@@ -35,7 +35,7 @@ const LINKS: ILink[] = [
   { path: EPaths.POAP_NFTS, title: "POAPs" },
   { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
   { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
-  { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
+  // { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
 ];
 
 const DataDashboardLayout = () => {
