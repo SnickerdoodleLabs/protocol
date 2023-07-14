@@ -9,6 +9,7 @@ import {
   TokenId,
   TokenUri,
   HexString,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -44,7 +45,10 @@ export interface ICrumbsContract extends IBaseContract {
     crumbId: TokenId,
     tokenUri: TokenUri,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  >;
 
   /**
    * Returns an encoded call to createCrumb. Useful for metatransactions
@@ -60,7 +64,10 @@ export interface ICrumbsContract extends IBaseContract {
   burnCrumb(
     crumbId: TokenId,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  >;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
 }

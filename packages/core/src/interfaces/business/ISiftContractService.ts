@@ -6,6 +6,7 @@ import {
   TokenUri,
   UninitializedError,
   EScamFilterStatus,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -14,14 +15,20 @@ export interface ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | TBlockchainCommonErrors
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
   >;
 
   maliciousURL(
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | TBlockchainCommonErrors
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
   >;
 
   checkURL(

@@ -3,8 +3,8 @@ import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract.js";
 import {
   ContractsAbis,
   WrappedTransactionResponse,
+  ContractOverrides,
 } from "@contracts-sdk/interfaces/objects/index.js";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -13,6 +13,7 @@ import {
   CrumbsContractError,
   IBlockchainError,
   HexString,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -84,7 +85,10 @@ export class CrumbsContract
     crumbId: TokenId,
     tokenUri: TokenUri,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  > {
     return this.writeToContract("createCrumb", [crumbId, tokenUri], overrides);
   }
 
@@ -103,7 +107,10 @@ export class CrumbsContract
   public burnCrumb(
     crumbId: TokenId,
     overrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  > {
     return this.writeToContract("createCrumb", [crumbId], overrides);
   }
 
@@ -117,7 +124,10 @@ export class CrumbsContract
     crumbId: TokenId,
     tokenURI: TokenUri,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  > {
     return this.writeToContract(
       "updateTokenURI",
       [crumbId, tokenURI],
@@ -125,7 +135,7 @@ export class CrumbsContract
     );
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

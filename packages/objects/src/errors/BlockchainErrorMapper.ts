@@ -12,19 +12,28 @@ export class BlockchainErrorMapper {
     [
       BlockchainErrorMessage("could not detect network"),
       (error: unknown | null) =>
-        new NetworkUnreachableError(BlockchainErrorMessage("debug"), error),
+        new NetworkUnreachableError(
+          BlockchainErrorMessage("Could not detect network"),
+          error,
+        ),
     ],
     [
       BlockchainErrorMessage(
         "insufficient funds for intrinsic transaction cost",
       ),
       (error: unknown | null) =>
-        new InsufficientFundsError(BlockchainErrorMessage("debug"), error),
+        new InsufficientFundsError(
+          BlockchainErrorMessage("Insufficient funds to send transaction"),
+          error,
+        ),
     ],
     [
       BlockchainErrorMessage("sender doesn't have enough funds to send tx"),
       (error: unknown | null) =>
-        new InsufficientFundsError(BlockchainErrorMessage("debug"), error),
+        new InsufficientFundsError(
+          BlockchainErrorMessage("Insufficient funds to send transaction"),
+          error,
+        ),
     ],
   ]);
 

@@ -10,6 +10,7 @@ import {
   TokenId,
   TokenUri,
   BaseURI,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -63,7 +64,10 @@ export interface IERC721RewardContract extends IBaseContract {
   setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   /**
    * Checks if an address has a specific role in the Reward contract
@@ -84,7 +88,10 @@ export interface IERC721RewardContract extends IBaseContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   /**
    * Revokes a role of an address
@@ -95,7 +102,10 @@ export interface IERC721RewardContract extends IBaseContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   /**
    * Allows an address to renounce its role
@@ -106,7 +116,10 @@ export interface IERC721RewardContract extends IBaseContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   filters: IERC721Filters;
 }

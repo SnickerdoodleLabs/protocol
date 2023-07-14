@@ -1,14 +1,14 @@
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   SiftContractError,
   TokenUri,
   DomainName,
   BaseURI,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface ISiftContract extends IBaseContract {
   /**
@@ -19,7 +19,10 @@ export interface ISiftContract extends IBaseContract {
   verifyURL(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | SiftContractError
+  >;
 
   /**
    * Sets a URL as malicious
@@ -29,7 +32,10 @@ export interface ISiftContract extends IBaseContract {
   maliciousURL(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | SiftContractError
+  >;
 
   /**
    * Checks a URL
@@ -46,7 +52,10 @@ export interface ISiftContract extends IBaseContract {
   setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | SiftContractError
+  >;
 }
 
 export const ISiftContractType = Symbol.for("ISiftContract");

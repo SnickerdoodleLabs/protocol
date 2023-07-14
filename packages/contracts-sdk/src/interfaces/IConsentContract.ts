@@ -348,7 +348,10 @@ export interface IConsentContract extends IBaseContract {
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Revokes a role of an address
@@ -359,7 +362,10 @@ export interface IConsentContract extends IBaseContract {
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Allows an address to renounce its role
@@ -370,7 +376,10 @@ export interface IConsentContract extends IBaseContract {
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Returns the earliest block that should be looked at for requestForData events
@@ -387,7 +396,10 @@ export interface IConsentContract extends IBaseContract {
   setQueryHorizon(
     blockNumber: BlockNumber,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   /**
    * Get the number of opted in addresses
@@ -420,27 +432,39 @@ export interface IConsentContract extends IBaseContract {
     tag: string,
     newSlot: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   newLocalTagUpstream(
     tag: string,
     newSlot: BigNumberString,
     existingSlot: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   newLocalTagDownstream(
     tag: string,
     existingSlot: BigNumberString,
     newSlot: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   replaceExpiredListing(
     tag: string,
     slot: BigNumberString,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | ConsentContractError
+  >;
 
   removeListing(
     tag: string,

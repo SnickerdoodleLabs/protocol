@@ -13,6 +13,7 @@ import {
   SiftContractError,
   DomainName,
   EScamFilterStatus,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -33,7 +34,10 @@ export class SiftContractRepository implements ISiftContractRepository {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | TBlockchainCommonErrors
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
       return contract.verifyURL(domain);
@@ -44,7 +48,10 @@ export class SiftContractRepository implements ISiftContractRepository {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | TBlockchainCommonErrors
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
   > {
     return this.getSiftContract().andThen((contract) => {
       return contract.maliciousURL(domain);

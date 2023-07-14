@@ -1,3 +1,5 @@
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ContractOverrides,
@@ -11,11 +13,9 @@ import {
   EVMAccountAddress,
   TokenUri,
   CrumbsContractError,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -61,7 +61,10 @@ export class CrumbsContractWrapper
     crumbId: TokenId,
     tokenUri: TokenUri,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  > {
     return this.fallback(
       () => this.primary.createCrumb(crumbId, tokenUri, contractOverrides),
       () => this.secondary?.createCrumb(crumbId, tokenUri, contractOverrides),
@@ -78,7 +81,10 @@ export class CrumbsContractWrapper
   public burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    TBlockchainCommonErrors | CrumbsContractError
+  > {
     return this.fallback(
       () => this.primary.burnCrumb(crumbId, contractOverrides),
       () => this.secondary?.burnCrumb(crumbId, contractOverrides),
