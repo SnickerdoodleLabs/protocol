@@ -38,6 +38,7 @@ const errorCodes = {
   InvalidArgumentError: "ERR_INVALID_ARGUMENT",
   MissingArgumentError: "ERR_MISSING_ARGUMENT",
   UnexpectedArgumentError: "ERR_UNEXPECTED_ARGUMENT",
+  UnknownBlockchainError: "ERR_UNKNOWN_BLOCKCHAIN",
 };
 
 export default errorCodes;

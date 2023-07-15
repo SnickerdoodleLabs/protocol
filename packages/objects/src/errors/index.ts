@@ -41,4 +41,5 @@ export * from "@objects/errors/InsufficientFundsError.js";
 export * from "@objects/errors/NetworkUnreachableError.js";
 export * from "@objects/errors/InvalidArgumentError.js";
 export * from "@objects/errors/MissingArgumentError.js";
+export * from "@objects/errors/UnknownBlockchainError.js";
 export * from "@objects/errors/UnexpectedArgumentError.js";

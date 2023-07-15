@@ -901,9 +901,9 @@ export class ConsentContract
   protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
-    e: unknown,
+    err: unknown,
   ): ConsentContractError {
-    return new ConsentContractError(msg, reason, e);
+    return new ConsentContractError(msg, reason, err);
   }
 }
 

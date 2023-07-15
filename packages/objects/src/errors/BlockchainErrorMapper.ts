@@ -4,6 +4,7 @@ import {
   InvalidArgumentError,
   MissingArgumentError,
   UnexpectedArgumentError,
+  UnknownBlockchainError,
 } from "@objects/errors/index.js";
 import { BlockchainErrorMessage } from "@objects/primitives/BlockchainErrorMessage.js";
 
@@ -70,28 +71,55 @@ export class BlockchainErrorMapper {
     ],
   ]);
 
+  // Repeating this pattern for each error type is not ideal, but it's the only way to get the type safety we want
+  public static buildBlockchainError(error): TBlockchainCommonErrors;
+
   public static buildBlockchainError<TGenericError>(
     error,
-    generateGenericError: (
+    generateGenericError?: (
       msg: string,
       reason: string | undefined,
-      e: unknown,
+      err: unknown,
+    ) => TGenericError,
+  ): TBlockchainCommonErrors | TGenericError;
+
+  public static buildBlockchainError<TGenericError>(
+    error,
+    generateGenericError?: (
+      msg: string,
+      reason: string | undefined,
+      err: unknown,
     ) => TGenericError,
   ): TBlockchainCommonErrors | TGenericError {
     const errorReason = error?.reason;
-    const errorInitializer = this.blockchainErrorMapping.get(
+    const errorMessage = error?.message || error?.msg;
+    const errorInitializerFromReason = this.blockchainErrorMapping.get(
       BlockchainErrorMessage(errorReason),
     );
 
-    if (errorInitializer != null) {
-      return errorInitializer?.(error);
+    const errorInitializerFromMessage = this.blockchainErrorMapping.get(
+      BlockchainErrorMessage(errorMessage),
+    );
+
+    if (errorInitializerFromReason != null) {
+      return errorInitializerFromReason?.(error);
     }
 
-    return generateGenericError(error?.message, errorReason, error);
+    if (errorInitializerFromMessage != null) {
+      return errorInitializerFromMessage?.(error);
+    }
+
+    // If both are null, then we don't know what the error is
+    if (generateGenericError != null) {
+      return generateGenericError(errorMessage, errorReason, error);
+    }
+
+    return new UnknownBlockchainError(errorReason || errorMessage, error);
   }
 }
 
 export type TBlockchainCommonErrors =
+  | UnknownBlockchainError
   | NetworkUnreachableError
   | InsufficientFundsError
   | InvalidArgumentError
