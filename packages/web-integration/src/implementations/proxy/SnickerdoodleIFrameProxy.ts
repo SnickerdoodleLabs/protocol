@@ -1,6 +1,8 @@
 import {
   AccountAddress,
   Age,
+  BackupCreatedEvent,
+  BackupRestoreEvent,
   BigNumberString,
   ChainId,
   CountryCode,
@@ -152,7 +154,11 @@ export class SnickerdoodleIFrameProxy
         this.events.onNftBalanceUpdate.next(data);
       });
 
-      child.on("onBackupRestored", (data: DataWalletBackupID) => {
+      child.on("onBackupCreated", (data: BackupCreatedEvent) => {
+        this.events.onBackupCreated.next(data);
+      });
+
+      child.on("onBackupRestored", (data: BackupRestoreEvent) => {
         this.events.onBackupRestored.next(data);
       });
 
@@ -543,6 +549,10 @@ export class SnickerdoodleIFrameProxy
       contractAddresses,
       timeoutMs,
     });
+  }
+
+  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
+    throw new Error("Method not implemented.");
   }
 
   public discord: ISdlDiscordMethods = {

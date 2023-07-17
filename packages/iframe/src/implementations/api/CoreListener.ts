@@ -730,6 +730,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         parent.emit("onNftBalanceUpdate", val);
       });
 
+      events.onBackupCreated.subscribe((val) => {
+        parent.emit("onBackupCreated", val);
+      });
+
       events.onBackupRestored.subscribe((val) => {
         parent.emit("onBackupRestored", val);
       });
@@ -756,6 +760,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
       events.onSocialProfileUnlinked.subscribe((val) => {
         parent.emit("onSocialProfileUnlinked", val);
+      });
+
+      events.onBirthdayUpdated.subscribe((val) => {
+        parent.emit("onBirthdayUpdated", val);
+      });
+
+      events.onGenderUpdated.subscribe((val) => {
+        parent.emit("onGenderUpdated", val);
+      });
+
+      events.onLocationUpdated.subscribe((val) => {
+        parent.emit("onLocationUpdated", val);
       });
     });
   }

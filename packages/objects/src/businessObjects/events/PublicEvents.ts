@@ -21,10 +21,13 @@ import {
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
 import {
+  CountryCode,
   DataWalletAddress,
   DomainName,
   EVMContractAddress,
+  Gender,
   IpfsCID,
+  UnixTimestamp,
 } from "@objects/primitives/index.js";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
@@ -50,6 +53,9 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsRevoked: Subject<DomainName>;
   public onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
   public onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
+  public onBirthdayUpdated: Subject<UnixTimestamp>;
+  public onGenderUpdated: Subject<Gender>;
+  public onLocationUpdated: Subject<CountryCode>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -74,5 +80,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsRevoked = new Subject();
     this.onSocialProfileLinked = new Subject();
     this.onSocialProfileUnlinked = new Subject();
+    this.onBirthdayUpdated = new Subject();
+    this.onGenderUpdated = new Subject();
+    this.onLocationUpdated = new Subject();
   }
 }

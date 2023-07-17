@@ -230,9 +230,7 @@ export const AppContextProvider: FC = ({ children }) => {
   }, [appMode]);
 
   // notification handlers
-  const onEarnedRewardAdded = (
-    notification: EarnedRewardsAddedNotification,
-  ) => {
+  const onEarnedRewardAdded = (earnedRewards: EarnedReward[]) => {
     getEarnedRewards();
   };
 
@@ -260,7 +258,7 @@ export const AppContextProvider: FC = ({ children }) => {
     getUserAccounts();
   };
 
-  const onCohortJoined = (notification: CohortJoinedNotification) => {
+  const onCohortJoined = (consentContractAddress: EVMContractAddress) => {
     getOptedInContracts();
   };
 

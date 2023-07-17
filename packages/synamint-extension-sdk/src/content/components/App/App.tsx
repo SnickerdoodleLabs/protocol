@@ -8,22 +8,6 @@ import {
   PossibleReward,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import ScamFilterComponent, {
-  EScamFilterStatus,
-} from "@synamint-extension-sdk/content/components/ScamFilterComponent";
-import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
-import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
-import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
-import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
-import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
-import {
-  EAPP_STATE,
-  IRewardItem,
-} from "@synamint-extension-sdk/content/constants";
-import usePath from "@synamint-extension-sdk/content/hooks/usePath";
-import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
-import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
-import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -43,6 +27,22 @@ import React, {
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
+import ScamFilterComponent, {
+  EScamFilterStatus,
+} from "@synamint-extension-sdk/content/components/ScamFilterComponent";
+import Loading from "@synamint-extension-sdk/content/components/Screens/Loading";
+import Permissions from "@synamint-extension-sdk/content/components/Screens/Permissions";
+import RewardCard from "@synamint-extension-sdk/content/components/Screens/RewardCard";
+import SubscriptionConfirmation from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation";
+import SubscriptionSuccess from "@synamint-extension-sdk/content/components/Screens/SubscriptionSuccess";
+import {
+  EAPP_STATE,
+  IRewardItem,
+} from "@synamint-extension-sdk/content/constants";
+import usePath from "@synamint-extension-sdk/content/hooks/usePath";
+import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
+import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
+import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   EPortNames,
   IInvitationDomainWithUUID,
@@ -186,7 +186,7 @@ const App = () => {
   }, [walletState]);
 
   const handleNotification = (notification: BaseNotification) => {
-    if (notification.type === ENotificationTypes.ACCOUNT_INITIALIZED) {
+    if (notification.type === ENotificationTypes.WALLET_INITIALIZED) {
       setWalletState(EWalletState.UNLOCKED);
     }
   };

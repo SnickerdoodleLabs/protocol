@@ -18,10 +18,13 @@ import {
   WalletNFT,
 } from "@objects/businessObjects/index.js";
 import {
+  CountryCode,
   DataWalletAddress,
   DomainName,
   EVMContractAddress,
+  Gender,
   IpfsCID,
+  UnixTimestamp,
 } from "@objects/primitives/index.js";
 
 export interface ISnickerdoodleCoreEvents {
@@ -47,4 +50,7 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsRevoked: Observable<DomainName>;
   onSocialProfileLinked: Observable<SocialProfileLinkedEvent>;
   onSocialProfileUnlinked: Observable<SocialProfileUnlinkedEvent>;
+  onBirthdayUpdated: Observable<UnixTimestamp>;
+  onGenderUpdated: Observable<Gender>;
+  onLocationUpdated: Observable<CountryCode>;
 }

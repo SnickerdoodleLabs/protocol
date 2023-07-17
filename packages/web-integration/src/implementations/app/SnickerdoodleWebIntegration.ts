@@ -1,5 +1,5 @@
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { SnickerdoodleIFrameProxy } from "@web-integration/implementations/proxy/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";

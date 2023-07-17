@@ -9,13 +9,16 @@ import {
   EWalletDataType,
   Gender,
   PossibleReward,
-  TwitterProfile,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { FC, useCallback, useEffect, useState } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
@@ -30,10 +33,6 @@ import {
   SetLocationParams,
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcError } from "json-rpc-engine";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import React, { FC, useCallback, useEffect, useState } from "react";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
@@ -128,9 +127,7 @@ const Permissions: FC<IPermissionsProps> = ({
 
   const getRewards = useCallback(() => {
     return ResultUtils.combine([
-      isUnlocked
-        ? coreGateway.getEarnedRewards()
-        : (okAsync([]) as ResultAsync<EarnedReward[], JsonRpcError>),
+      isUnlocked ? coreGateway.getEarnedRewards() : okAsync([]),
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),

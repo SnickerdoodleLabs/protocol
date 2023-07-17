@@ -109,7 +109,10 @@ export class ContextProvider implements IContextProvider {
     );
   }
 
-  public onProfileFieldChanged(profileFieldType: EProfileFieldType): void {
+  public onProfileFieldChanged(
+    profileFieldType: EProfileFieldType,
+    value: any,
+  ): void {
     this.appContext.notifyAllConnections(
       new ProfileFieldChangedNotification(profileFieldType),
     );

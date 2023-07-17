@@ -42,8 +42,9 @@ import {
   PublicEvents,
   LinkedAccount,
   DataWalletAddress,
+  ENotificationTypes,
+  EProfileFieldType,
 } from "@snickerdoodlelabs/objects";
-import { ENotificationTypes } from "@synamint-extension-sdk/shared/enums/notification";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync } from "neverthrow";
@@ -185,6 +186,25 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
     );
 
+    this.on(
+      ENotificationTypes.PROFILE_FIELD_CHANGED,
+      (notification: {
+        data: { fieldType: EProfileFieldType; value: any };
+      }) => {
+        switch (notification.data.fieldType) {
+          case EProfileFieldType.DOB:
+            this.events.onBirthdayUpdated.next(notification.data.value);
+            return;
+          case EProfileFieldType.GENDER:
+            this.events.onGenderUpdated.next(notification.data.value);
+            return;
+          case EProfileFieldType.LOCATION:
+            this.events.onLocationUpdated.next(notification.data.value);
+            return;
+        }
+      },
+    );
+
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
@@ -227,7 +247,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     });
   }
 
-  public switchToTab(tabId: number): ResultAsync<void, unknown> {
+  public switchToTab(tabId: number): ResultAsync<void, ProxyError> {
     return coreGateway.switchToTab(new SwitchToTabParams(tabId));
   }
 
