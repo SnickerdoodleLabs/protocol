@@ -41,6 +41,7 @@ const errorCodes = {
   UnknownBlockchainError: "ERR_UNKNOWN_BLOCKCHAIN",
   GasTooLowError: "ERR_GAS_TOO_LOW",
   InvalidAddressError: "ERR_INVALID_ADDRESS",
+  ExecutionRevertedError: "ERR_EXECUTION_REVERTED",
 };
 
 export default errorCodes;

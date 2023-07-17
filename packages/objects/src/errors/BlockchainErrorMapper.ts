@@ -7,6 +7,7 @@ import {
   UnknownBlockchainError,
   GasTooLowError,
   InvalidAddressError,
+  ExecutionRevertedError,
 } from "@objects/errors/index.js";
 import { BlockchainErrorMessage } from "@objects/primitives/BlockchainErrorMessage.js";
 
@@ -87,6 +88,16 @@ export class BlockchainErrorMapper {
           error,
         ),
     ],
+    [
+      BlockchainErrorMessage("execution reverted"),
+      (error: unknown | null) =>
+        new ExecutionRevertedError(
+          BlockchainErrorMessage(
+            "Function hits a revert message on the contract",
+          ),
+          error,
+        ),
+    ],
   ]);
 
   // Repeating this pattern for each error type is not ideal, but it's the only way to get the type safety we want
@@ -116,8 +127,16 @@ export class BlockchainErrorMapper {
       providerError = this.getSpecificProviderError(error);
     }
 
-    const errorReason = error?.reason;
+    let errorReason = error?.reason;
     const errorMessage = error?.message || error?.msg;
+
+    if (errorReason != null) {
+      // If there is a reason property, check if it has the text execution reverted
+      // This means that the error hit the contract specific revert message
+      if (errorReason.search("execution reverted")) {
+        errorReason = "execution reverted";
+      }
+    }
 
     const errorInitializerFromProviderError = this.blockchainErrorMapping.get(
       BlockchainErrorMessage(providerError),
@@ -172,4 +191,5 @@ export type TBlockchainCommonErrors =
   | MissingArgumentError
   | UnexpectedArgumentError
   | GasTooLowError
-  | InvalidAddressError;
+  | InvalidAddressError
+  | ExecutionRevertedError;

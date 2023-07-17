@@ -45,3 +45,4 @@ export * from "@objects/errors/UnknownBlockchainError.js";
 export * from "@objects/errors/UnexpectedArgumentError.js";
 export * from "@objects/errors/GasTooLowError.js";
 export * from "@objects/errors/InvalidAddressError.js";
+export * from "@objects/errors/ExecutionRevertedError.js";
