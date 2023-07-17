@@ -5,6 +5,7 @@ import {
   MissingArgumentError,
   UnexpectedArgumentError,
   UnknownBlockchainError,
+  GasTooLowError,
 } from "@objects/errors/index.js";
 import { BlockchainErrorMessage } from "@objects/primitives/BlockchainErrorMessage.js";
 
@@ -69,6 +70,14 @@ export class BlockchainErrorMapper {
           error,
         ),
     ],
+    [
+      BlockchainErrorMessage("instrinsic gas too low"),
+      (error: unknown | null) =>
+        new GasTooLowError(
+          BlockchainErrorMessage("Insufficient gas provided to function call"),
+          error,
+        ),
+    ],
   ]);
 
   // Repeating this pattern for each error type is not ideal, but it's the only way to get the type safety we want
@@ -91,8 +100,20 @@ export class BlockchainErrorMapper {
       err: unknown,
     ) => TGenericError,
   ): TBlockchainCommonErrors | TGenericError {
+    // First check if error message is a ProviderError as some errors are triggered at the provider level rather than contract level
+    let providerError;
+
+    if (error?.name == "ProviderError") {
+      providerError = this.getSpecificProviderError(error);
+    }
+
     const errorReason = error?.reason;
     const errorMessage = error?.message || error?.msg;
+
+    const errorInitializerFromProviderError = this.blockchainErrorMapping.get(
+      BlockchainErrorMessage(providerError),
+    );
+
     const errorInitializerFromReason = this.blockchainErrorMapping.get(
       BlockchainErrorMessage(errorReason),
     );
@@ -100,6 +121,10 @@ export class BlockchainErrorMapper {
     const errorInitializerFromMessage = this.blockchainErrorMapping.get(
       BlockchainErrorMessage(errorMessage),
     );
+
+    if (errorInitializerFromProviderError != null) {
+      return errorInitializerFromProviderError?.(error);
+    }
 
     if (errorInitializerFromReason != null) {
       return errorInitializerFromReason?.(error);
@@ -109,12 +134,24 @@ export class BlockchainErrorMapper {
       return errorInitializerFromMessage?.(error);
     }
 
-    // If both are null, then we don't know what the error is
+    // If all above are null, then we don't know what the error is
     if (generateGenericError != null) {
       return generateGenericError(errorMessage, errorReason, error);
     }
 
     return new UnknownBlockchainError(errorReason || errorMessage, error);
+  }
+
+  public static getSpecificProviderError(error): BlockchainErrorMessage | null {
+    // ProviderError has the following properties : [ 'parent', 'name', '_stack', 'code', '_isProviderError', 'data' ]
+    // The error message is within the '_stack' property
+    // Search for a specific error text and return it if found,
+    if (error._stack.search("intrinsic gas too low") >= 0) {
+      return BlockchainErrorMessage("instrinsic gas too low");
+    }
+
+    // If no match is found, .search() will return -1, we do not recognize the type ProviderError and return null so that it can be captured as a generic error
+    return null;
   }
 }
 
@@ -124,4 +161,5 @@ export type TBlockchainCommonErrors =
   | InsufficientFundsError
   | InvalidArgumentError
   | MissingArgumentError
-  | UnexpectedArgumentError;
+  | UnexpectedArgumentError
+  | GasTooLowError;
