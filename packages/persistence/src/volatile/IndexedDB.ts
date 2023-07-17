@@ -155,12 +155,10 @@ export class IndexedDB {
           const req = store.clear();
           req.onsuccess = function (evt) {
             clearTimeout(timeout);
-            tx.commit();
             resolve(store);
           };
           req.onerror = function (evt) {
             clearTimeout(timeout);
-            tx.abort();
             reject(new PersistenceError("error clearing object store"));
           };
         } catch (e) {
@@ -243,12 +241,10 @@ export class IndexedDB {
               const request = store.delete(key);
               request.onsuccess = (event) => {
                 clearTimeout(timeout);
-                tx.commit();
                 resolve(undefined);
               };
               request.onerror = (event) => {
                 clearTimeout(timeout);
-                tx.abort();
                 reject(new PersistenceError("error updating object store"));
               };
             } catch (e) {
@@ -278,11 +274,9 @@ export class IndexedDB {
           const store = tx.objectStore(name);
           const request = store.get(key);
           request.onsuccess = (event) => {
-            tx.commit();
             resolve(request.result);
           };
           request.onerror = (event) => {
-            tx.abort();
             reject(new PersistenceError("error reading from object store"));
           };
         });
