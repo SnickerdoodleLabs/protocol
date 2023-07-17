@@ -1,3 +1,4 @@
+import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
 import {
   Box,
   Typography,
@@ -10,6 +11,7 @@ import {
   AccountAddress,
   EarnedReward,
   EInvitationStatus,
+  ESocialType,
   ETag,
   EVMContractAddress,
   EWalletDataType,
@@ -24,6 +26,7 @@ import {
   PERMISSIONS_WITH_ICONS,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { set } from "date-fns";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,7 +34,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumb from "@extension-onboarding/components/Breadcrumb";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
@@ -122,10 +125,16 @@ const RewardProgramDetails: FC = () => {
   const [consentPermissions, setConsentPermissions] = useState<
     EWalletDataType[]
   >([]);
-  const { optedInContracts, earnedRewards, updateOptedInContracts } =
-    useAppContext();
+  const {
+    optedInContracts,
+    earnedRewards,
+    updateOptedInContracts,
+    appMode,
+    setLinkerModalOpen,
+  } = useAppContext();
   const { setAlert } = useNotificationContext();
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
+  const { twitterProvider, discordProvider } = useAccountLinkingContext();
   const [permissionsState, setPermissionsState] = useState<EWalletDataType[]>(
     [],
   );
@@ -136,7 +145,33 @@ const RewardProgramDetails: FC = () => {
     }
   }, [JSON.stringify(consentPermissions)]);
 
+  const handleSocialLink = async (socialType: ESocialType) => {
+    switch (socialType) {
+      case ESocialType.TWITTER: {
+        return twitterProvider
+          .getOAuth1aRequestToken()
+          .map((tokenAndSecret) => {
+            window.open(
+              twitterProvider.getTwitterApiAuthUrl(tokenAndSecret),
+              `_blank`,
+            );
+          });
+      }
+      case ESocialType.DISCORD: {
+        return discordProvider.installationUrl(true).map((url) => {
+          window.open(url, `_blank`);
+        });
+      }
+      default: {
+        return;
+      }
+    }
+  };
+
   const handleSubscribeButton = () => {
+    if (appMode != EAppModes.AUTH_USER) {
+      return setLinkerModalOpen();
+    }
     const { eligibleRewards, unEligibleRewards } = programRewards.reduce(
       (acc, item) => {
         const requiredDataTypes = item.estimatedQueryDependencies.map(
@@ -220,7 +255,7 @@ const RewardProgramDetails: FC = () => {
   }, [JSON.stringify(optedInContracts), consentContractAddress]);
 
   useEffect(() => {
-    if (!isSubscribed) {
+    if (!isSubscribed && appMode === EAppModes.AUTH_USER) {
       window.sdlDataWallet
         .checkInvitationStatus(consentContractAddress)
         .map((invitationStatus) => {
@@ -228,7 +263,7 @@ const RewardProgramDetails: FC = () => {
             updateOptedInContracts();
         });
     }
-  }, [consentContractAddress, isSubscribed]);
+  }, [consentContractAddress, isSubscribed, appMode]);
 
   useEffect(() => {
     getCapacityInfo();
@@ -494,12 +529,14 @@ const RewardProgramDetails: FC = () => {
                   })
                 }
                 isSafe={isSafe}
-                updateProfileValues={updateProfileValues}
                 onClick={handlePermissionSelect}
                 permissions={permissionsState}
                 handleSelectAllClick={() => {
                   setPermissionsState(UI_SUPPORTED_PERMISSIONS);
                 }}
+                isUnlocked={appMode === EAppModes.AUTH_USER}
+                onClickWhenLocked={setLinkerModalOpen}
+                onSocialClick={handleSocialLink}
               />
             </Box>
           </Grid>

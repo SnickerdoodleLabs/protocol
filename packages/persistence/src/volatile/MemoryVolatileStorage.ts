@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
+  ERecordKey,
   PersistenceError,
   VersionedObject,
   VolatileStorageDataKey,
@@ -7,7 +8,7 @@ import {
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
@@ -15,7 +16,7 @@ import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js"
 
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
-  private _keyPaths: Map<string, string | string[]>;
+  private _keyPaths: Map<ERecordKey, string | string[]>;
   public constructor(
     public name: string,
     private schema: VolatileTableIndex<VersionedObject>[],
@@ -33,17 +34,13 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     throw new Error("Method not implemented.");
   }
   getKey(
-    tableName: string,
+    recordKey: ERecordKey,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey, PersistenceError> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const keyPath = this._keyPaths.get(tableName);
+    const keyPath = this._keyPaths.get(recordKey);
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
-    }
-
-    if (keyPath == VolatileTableIndex.DEFAULT_KEY) {
-      return okAsync(null);
     }
 
     try {

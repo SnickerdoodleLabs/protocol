@@ -734,6 +734,10 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
+  /**
+   * Restores a backup directly. Should only be called for testing purposes.
+   * @param backup
+   */
   restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   unpackBackupChunk(
     backup: DataWalletBackup,

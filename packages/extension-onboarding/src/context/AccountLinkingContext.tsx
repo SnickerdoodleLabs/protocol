@@ -20,13 +20,14 @@ import {
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
-  DiscordProvider,
-  TwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/implementations";
-import {
   IDiscordProvider,
   ITwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/interfaces";
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
+import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -49,7 +50,8 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
   const {
     providerList,
     linkedAccounts,
-    isSDLDataWalletDetected,
+    isLinkerModalOpen,
+    setLinkerModalClose,
     socialMediaProviderList,
   } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
@@ -115,7 +117,8 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
             .andThen((signature) => {
               if (
                 !linkedAccounts?.find(
-                  (linkedAccount) => linkedAccount.accountAddress === account,
+                  (linkedAccount) =>
+                    linkedAccount.sourceAccountAddress === account,
                 )
               ) {
                 // use it for metadata
@@ -170,6 +173,9 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         onProviderConnectClick,
       }}
     >
+      {isLinkerModalOpen && (
+        <LinkAccountModal closeModal={setLinkerModalClose} />
+      )}
       {children}
     </AccountLinkingContext.Provider>
   );

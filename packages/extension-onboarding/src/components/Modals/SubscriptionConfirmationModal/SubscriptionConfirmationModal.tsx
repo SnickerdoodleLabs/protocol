@@ -45,7 +45,7 @@ const SubscriptionConfirmationModal: FC = () => {
         campaignName={campaignName}
         consentAddress={consentAddress}
         missingRewards={missingRewards}
-        accounts={linkedAccounts.map((account) => account.accountAddress)}
+        accounts={linkedAccounts.map((account) => account.sourceAccountAddress)}
         onCloseClick={closeModal}
         onConfirmClick={(receivingAccount) => {
           onPrimaryButtonClick(receivingAccount);

@@ -62,6 +62,9 @@ export class MasterIndexer implements IMasterIndexer {
     [EChain.Mumbai, [this.alchemy]],
     [EChain.Astar, [this.alchemy]],
     [EChain.Shibuya, [this.alchemy]],
+
+    // Doodlechain
+    [EChain.DevDoodle, [this.sim]],
   ]);
 
   protected componentStatus: ComponentStatus = new ComponentStatus(

@@ -7,7 +7,7 @@ const EmptyContent: FC = () => {
   const classes = useStyles();
   return (
     <Box
-      mt={15}
+      py={6}
       textAlign="center"
       alignItems="center"
       justifyContent="center"

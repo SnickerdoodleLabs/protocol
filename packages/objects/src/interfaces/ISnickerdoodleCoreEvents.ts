@@ -13,6 +13,7 @@ import {
 import {
   DataWalletAddress,
   DomainName,
+  EVMContractAddress,
   IpfsCID,
 } from "@objects/primitives/index.js";
 
@@ -22,6 +23,7 @@ export interface ISnickerdoodleCoreEvents {
   onQueryParametersRequired: Subject<IpfsCID>;
   onAccountAdded: Observable<LinkedAccount>;
   onAccountRemoved: Observable<LinkedAccount>;
+  onCohortJoined: Observable<EVMContractAddress>;
   onEarnedRewardsAdded: Observable<EarnedReward[]>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;
   onPermissionsGranted: Observable<PermissionsGrantedEvent>;

@@ -34,12 +34,26 @@ export class MetricsService implements IMetricsService {
         this.metricsRepo.recordApiCall(apiName);
       });
 
-      context.publicEvents.onBackupRestored.subscribe(() => {
-        this.metricsRepo.recordRestoredBackup();
-      });
-
       context.publicEvents.onQueryPosted.subscribe(() => {
         this.metricsRepo.recordQueryPosted();
+      });
+
+      context.publicEvents.onBackupCreated.subscribe((event) => {
+        this.metricsRepo.recordBackupCreated(
+          event.storageType,
+          event.dataType,
+          event.backupId,
+          event.name,
+        );
+      });
+
+      context.publicEvents.onBackupRestored.subscribe((event) => {
+        this.metricsRepo.recordBackupRestored(
+          event.storageType,
+          event.dataType,
+          event.backupId,
+          event.name,
+        );
       });
 
       // Now, we can look for some patterns. For instance, if the API is spiking,
@@ -52,22 +66,44 @@ export class MetricsService implements IMetricsService {
       this.contextProvider.getContext(),
       this.metricsRepo.getApiStatSummaries(),
       this.metricsRepo.getQueriesPostedSummary(),
-      this.metricsRepo.getRestoredBackupSummary(),
-    ]).map(([context, apiStats, queriesPosted, backupsRestored]) => {
-      const now = this.timeUtils.getUnixNow();
-      const uptime = now - context.startTime;
-      const statsMap = new Map(
-        apiStats.map((stats) => [stats.stat as EExternalApi, stats]),
-      );
-
-      return new RuntimeMetrics(
-        uptime,
-        context.startTime,
-        statsMap,
+      this.metricsRepo.getCreatedBackupsSummary(),
+      this.metricsRepo.getCreatedBackupsByTypeSummary(),
+      this.metricsRepo.getCreatedBackups(),
+      this.metricsRepo.getRestoredBackupsSummary(),
+      this.metricsRepo.getRestoredBackupsByTypeSummary(),
+      this.metricsRepo.getRestoredBackups(),
+    ]).map(
+      ([
+        context,
+        apiStats,
         queriesPosted,
-        backupsRestored,
-        context.components,
-      );
-    });
+        createdBackupsTotal,
+        createdBackupsByType,
+        createdBackups,
+        restoredBackupsTotal,
+        restoredBackupsByType,
+        restoredBackups,
+      ]) => {
+        const now = this.timeUtils.getUnixNow();
+        const uptime = now - context.startTime;
+        const statsMap = new Map(
+          apiStats.map((stats) => [stats.stat as EExternalApi, stats]),
+        );
+
+        return new RuntimeMetrics(
+          uptime,
+          context.startTime,
+          statsMap,
+          queriesPosted,
+          createdBackupsTotal,
+          createdBackupsByType,
+          createdBackups,
+          restoredBackupsTotal,
+          restoredBackupsByType,
+          restoredBackups,
+          context.components,
+        );
+      },
+    );
   }
 }

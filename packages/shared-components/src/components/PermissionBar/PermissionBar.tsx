@@ -15,10 +15,12 @@ import {
 } from "@material-ui/pickers";
 import {
   CountryCode,
+  ESocialType,
   EWalletDataType,
   Gender,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
+import { isValid } from "date-fns";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Select } from "formik-material-ui";
 import { ResultAsync } from "neverthrow";
@@ -41,11 +43,14 @@ interface IPermissionBarProps {
   onClick: (permission: EWalletDataType) => void;
   handleSelectAllClick: () => void;
   isSafe: (dataType: EWalletDataType) => boolean;
-  updateProfileValues: () => void;
+  isUnlocked: boolean;
+  onClickWhenLocked: () => void;
+  onSocialClick: (type: ESocialType) => void;
 }
 
 const Tooltip = withStyles((theme) => ({
   tooltip: {
+    zIndex: 99999,
     backgroundColor: "#F18935",
     color: "white",
     maxWidth: 210,
@@ -109,14 +114,15 @@ const SaveButton = withStyles({
 
 export const PermissionBar: FC<IPermissionBarProps> = ({
   isSafe,
-  updateProfileValues,
   setBirthday,
   setGender,
   setLocation,
-
   permissions,
   onClick,
   handleSelectAllClick,
+  onClickWhenLocked,
+  onSocialClick,
+  isUnlocked,
 }) => {
   const classes = useStyles();
   const [expandeds, setExpandeds] = useState<EWalletDataType[]>([]);
@@ -125,12 +131,6 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
   const [countryFormValues, setCountryFormValues] = useState({
     country_code: null,
   });
-
-  const generateSuccessMessage = (dataType: EWalletDataType) => {
-    return `Your "${
-      PERMISSIONS_WITH_ICONS[dataType]!.name
-    }" data has successfully saved`;
-  };
 
   const popoverClasses = useDatePickerPopoverStyles();
 
@@ -155,11 +155,7 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       setBirthday(
         (+new Date(values.date_of_birth) / 1000) as UnixTimestamp,
       ).map(() => {
-        setExpandeds((expandeds) =>
-          expandeds.filter((item) => item != EWalletDataType.Age),
-        );
         onClick(EWalletDataType.Age);
-        updateProfileValues();
       });
     }
   };
@@ -171,11 +167,7 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       return;
     } else {
       setLocation(values.country_code).map(() => {
-        setExpandeds((expandeds) =>
-          expandeds.filter((item) => item != EWalletDataType.Location),
-        );
         onClick(EWalletDataType.Location);
-        updateProfileValues();
       });
     }
   };
@@ -184,11 +176,7 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       return;
     } else {
       setGender(values.gender).map(() => {
-        setExpandeds((expandeds) =>
-          expandeds.filter((item) => item != EWalletDataType.Gender),
-        );
         onClick(EWalletDataType.Gender);
-        updateProfileValues();
       });
     }
   };
@@ -440,6 +428,52 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
             }}
           </Formik>
         );
+      case EWalletDataType.Discord:
+        return (
+          <Box mt={1} display="flex" justifyContent="flex-end">
+            <Box mr={0.5}>
+              <CancelButton
+                onClick={() => {
+                  setExpandeds((expandeds) =>
+                    expandeds.filter((item) => item != EWalletDataType.Discord),
+                  );
+                }}
+              >
+                Cancel
+              </CancelButton>
+            </Box>
+            <SaveButton
+              onClick={() => {
+                onSocialClick(ESocialType.DISCORD);
+              }}
+            >
+              Connect
+            </SaveButton>
+          </Box>
+        );
+      // case EWalletDataType.Twitter:
+      //   return (
+      //     <Box mt={1} display="flex" justifyContent="flex-end">
+      //       <Box mr={0.5}>
+      //         <CancelButton
+      //           onClick={() => {
+      //             setExpandeds((expandeds) =>
+      //               expandeds.filter((item) => item != EWalletDataType.Twitter),
+      //             );
+      //           }}
+      //         >
+      //           Cancel
+      //         </CancelButton>
+      //       </Box>
+      //       <SaveButton
+      //         onClick={() => {
+      //           onSocialClick(ESocialType.TWITTER);
+      //         }}
+      //       >
+      //         Connect
+      //       </SaveButton>
+      //     </Box>
+      //   );
       default:
         return null;
     }
@@ -447,16 +481,20 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
 
   const isSelectAllVisible = useMemo(() => {
     return (
+      isUnlocked &&
       UI_SUPPORTED_PERMISSIONS.some((item) => !permissions.includes(item)) &&
       isSafe(EWalletDataType.Age) &&
       isSafe(EWalletDataType.Location) &&
-      isSafe(EWalletDataType.Gender)
+      isSafe(EWalletDataType.Gender) &&
+      isSafe(EWalletDataType.Discord) &&
+      isSafe(EWalletDataType.Twitter)
     );
-  }, [isSafe, permissions]);
+  }, [isSafe, isUnlocked, permissions]);
 
   return (
     <>
       <Box
+        zIndex={1}
         bgcolor="#FFFFFF"
         border="1px solid #fafafa"
         borderRadius={12}
@@ -481,6 +519,11 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
             const dataType = PERMISSIONS_WITH_ICONS[permission]!.dataType;
             const isSelected = permissions.includes(dataType);
             const valid = !isSelected ? isSafe(dataType) : true;
+            if (valid && expandeds.includes(dataType)) {
+              setExpandeds((expandeds) =>
+                expandeds.filter((item) => item != dataType),
+              );
+            }
             return (
               <Box
                 mb={2}
@@ -495,7 +538,11 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                 <Box
                   bgcolor="#F2F2F8"
                   border={`1px solid ${
-                    isSelected ? "#C5C1DD" : !valid ? "#F18935" : "transparent"
+                    isSelected
+                      ? "#C5C1DD"
+                      : !valid || !isUnlocked
+                      ? "#F18935"
+                      : "transparent"
                   }`}
                   {...(isSelected && {
                     boxShadow: "0px 2px 0px rgba(0, 0, 0, 0.043)",
@@ -507,11 +554,15 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                   px={1.25}
                   style={{ cursor: "pointer" }}
                   onClick={(event) => {
-                    if (!valid) {
-                      setExpandeds((expandeds) => [...expandeds, dataType]);
-                      return;
+                    if (!isUnlocked) {
+                      onClickWhenLocked();
+                    } else {
+                      if (!valid) {
+                        setExpandeds((expandeds) => [...expandeds, dataType]);
+                        return;
+                      }
+                      onClick(dataType);
                     }
-                    onClick(dataType);
                   }}
                 >
                   <Box display="flex" alignItems="center">
@@ -544,14 +595,21 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
                       />
                     </Box>
                   )}
-                  {!valid && (
+                  {(!valid || !isUnlocked) && (
                     <Box ml="auto">
                       <Tooltip
-                        PopperProps={{ disablePortal: true }}
+                        PopperProps={{
+                          disablePortal: true,
+                          style: { zIndex: "9999 !important" },
+                        }}
                         arrow
-                        title={`Looks like there is no input for your “${
-                          PERMISSIONS_WITH_ICONS[permission]!.name
-                        }” data click to resolve`}
+                        title={
+                          isUnlocked
+                            ? `Looks like there is no input for your “${
+                                PERMISSIONS_WITH_ICONS[permission]!.name
+                              }” data click to resolve`
+                            : `You need to link your crypto account first to make changes.`
+                        }
                       >
                         <img
                           width={12}

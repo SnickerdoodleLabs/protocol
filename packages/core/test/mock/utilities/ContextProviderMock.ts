@@ -1,4 +1,6 @@
 import {
+  BackupCreatedEvent,
+  BackupRestoreEvent,
   ComponentStatus,
   DataPermissionsUpdatedEvent,
   DataWalletAddress,
@@ -41,6 +43,8 @@ export class ContextProviderMock implements IContextProvider {
     [];
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
+  public onBackupCreatedActivations: BackupCreatedEvent[] = [];
+  public onBackupRestoredActivations: BackupRestoreEvent[] = [];
 
   constructor(context: CoreContext | null = null) {
     if (context != null) {
@@ -102,6 +106,14 @@ export class ContextProviderMock implements IContextProvider {
       this.onDataPermissionsUpdatedActivations.push(val);
     });
 
+    this.publicEvents.onBackupCreated.subscribe((val) => {
+      this.onBackupCreatedActivations.push(val);
+    });
+
+    this.publicEvents.onBackupRestored.subscribe((val) => {
+      this.onBackupRestoredActivations.push(val);
+    });
+
     this.privateEvents.heartbeat.subscribe((val) => {
       this.heartbeatActivations.push(val);
     });
@@ -133,6 +145,8 @@ export class ContextProviderMock implements IContextProvider {
       onDataPermissionsUpdated: 0,
       heartbeat: 0,
       onApiAccessed: 0,
+      onBackupCreated: 0,
+      onBackupRestored: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -156,6 +170,10 @@ export class ContextProviderMock implements IContextProvider {
     );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
     expect(this.onApiAccessedActivations.length).toBe(counts.onApiAccessed);
+    expect(this.onBackupCreatedActivations.length).toBe(counts.onBackupCreated);
+    expect(this.onBackupRestoredActivations.length).toBe(
+      counts.onBackupRestored,
+    );
   }
 }
 
@@ -170,4 +188,6 @@ export interface IExpectedEventCounts {
   onDataPermissionsUpdated?: number;
   heartbeat?: number;
   onApiAccessed?: number;
+  onBackupCreated?: number;
+  onBackupRestored?: number;
 }

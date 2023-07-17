@@ -3,9 +3,10 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   Signature,
-  BackupBlob,
-  EncryptedBackupBlob,
   DataWalletBackupID,
+  VolatileDataUpdate,
+  FieldDataUpdate,
+  AESEncryptedString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -16,19 +17,22 @@ export interface IBackupUtils {
   ): ResultAsync<boolean, never>;
 
   generateBackupSignature(
-    hash: string,
+    hash: DataWalletBackupID,
     timestamp: number,
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never>;
 
   getBackupHash(
-    blob: BackupBlob | EncryptedBackupBlob,
+    blob: VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
   ): ResultAsync<DataWalletBackupID, never>;
 
   encryptBlob(
-    blob: BackupBlob,
+    blob: VolatileDataUpdate[] | FieldDataUpdate,
     privateKey: EVMPrivateKey | null,
-  ): ResultAsync<BackupBlob | EncryptedBackupBlob, never>;
+  ): ResultAsync<
+    VolatileDataUpdate[] | FieldDataUpdate | AESEncryptedString,
+    never
+  >;
 }
 
 export const IBackupUtilsType = Symbol.for("IBackupUtils");
