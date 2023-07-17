@@ -34,7 +34,10 @@ export interface ISiftContractRepository {
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | TBlockchainCommonErrors
   >;
 }
 

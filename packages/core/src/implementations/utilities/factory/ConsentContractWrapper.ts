@@ -162,14 +162,17 @@ export class ConsentContractWrapper
 
   public agreementFlags(
     tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError> {
+  ): ResultAsync<HexString32, ConsentContractError | TBlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.agreementFlags(tokenId),
       () => this.secondary?.agreementFlags(tokenId),
     );
   }
 
-  public getMaxCapacity(): ResultAsync<number, ConsentContractError> {
+  public getMaxCapacity(): ResultAsync<
+    number,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getMaxCapacity(),
       () => this.secondary?.getMaxCapacity(),
@@ -222,7 +225,7 @@ export class ConsentContractWrapper
 
   public getConsentOwner(): ResultAsync<
     EVMAccountAddress,
-    ConsentContractError
+    ConsentContractError | TBlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getConsentOwner(),
@@ -232,7 +235,7 @@ export class ConsentContractWrapper
 
   public getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | TBlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getDefaultAdminRoleMembers(),
@@ -242,7 +245,7 @@ export class ConsentContractWrapper
 
   public getSignerRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | TBlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getSignerRoleMembers(),
@@ -252,7 +255,7 @@ export class ConsentContractWrapper
 
   public getPauserRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | TBlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getPauserRoleMembers(),
@@ -262,7 +265,7 @@ export class ConsentContractWrapper
 
   public getRequesterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | TBlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getRequesterRoleMembers(),
@@ -272,7 +275,7 @@ export class ConsentContractWrapper
 
   public balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError> {
+  ): ResultAsync<number, ConsentContractError | TBlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.balanceOf(address),
       () => this.secondary?.balanceOf(address),
@@ -281,7 +284,10 @@ export class ConsentContractWrapper
 
   public ownerOf(
     tokenId: TokenId,
-  ): ResultAsync<EVMAccountAddress, ConsentContractError> {
+  ): ResultAsync<
+    EVMAccountAddress,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.ownerOf(tokenId),
       () => this.secondary?.ownerOf(tokenId),
@@ -290,7 +296,10 @@ export class ConsentContractWrapper
 
   public tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, ConsentContractError> {
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.tokenURI(tokenId),
       () => this.secondary?.tokenURI(tokenId),
@@ -301,7 +310,7 @@ export class ConsentContractWrapper
     eventFilter: EventFilter,
     fromBlock?: BlockNumber | undefined,
     toBlock?: BlockNumber | undefined,
-  ): ResultAsync<Event[], ConsentContractError> {
+  ): ResultAsync<Event[], ConsentContractError | TBlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.queryFilter(eventFilter, fromBlock, toBlock),
       () => this.secondary?.queryFilter(eventFilter, fromBlock, toBlock),
@@ -310,7 +319,7 @@ export class ConsentContractWrapper
 
   public getConsentToken(
     tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError> {
+  ): ResultAsync<ConsentToken, ConsentContractError | TBlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.getConsentToken(tokenId),
       () => this.secondary?.getConsentToken(tokenId),
@@ -341,7 +350,10 @@ export class ConsentContractWrapper
     );
   }
 
-  public getDomains(): ResultAsync<DomainName[], ConsentContractError> {
+  public getDomains(): ResultAsync<
+    DomainName[],
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getDomains(),
       () => this.secondary?.getDomains(),
@@ -352,7 +364,10 @@ export class ConsentContractWrapper
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber | undefined,
     toBlock?: BlockNumber | undefined,
-  ): ResultAsync<RequestForData[], ConsentContractError> {
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () =>
         this.primary.getRequestForDataListByRequesterAddress(
@@ -371,7 +386,10 @@ export class ConsentContractWrapper
 
   public getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
-  ): ResultAsync<TokenId | null, ConsentContractError> {
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getLatestTokenIdByOptInAddress(optInAddress),
       () => this.secondary?.getLatestTokenIdByOptInAddress(optInAddress),
@@ -398,7 +416,10 @@ export class ConsentContractWrapper
     );
   }
 
-  public baseURI(): ResultAsync<BaseURI, ConsentContractError> {
+  public baseURI(): ResultAsync<
+    BaseURI,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.baseURI(),
       () => this.secondary?.baseURI(),
@@ -424,7 +445,7 @@ export class ConsentContractWrapper
       | "REQUESTER_ROLE"
       | "SIGNER_ROLE",
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ConsentContractError> {
+  ): ResultAsync<boolean, ConsentContractError | TBlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.hasRole(role, address),
       () => this.secondary?.hasRole(role, address),
@@ -482,7 +503,10 @@ export class ConsentContractWrapper
     );
   }
 
-  public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
+  public getQueryHorizon(): ResultAsync<
+    BlockNumber,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getQueryHorizon(),
       () => this.secondary?.getQueryHorizon(),
@@ -501,14 +525,20 @@ export class ConsentContractWrapper
     );
   }
 
-  public totalSupply(): ResultAsync<number, ConsentContractError> {
+  public totalSupply(): ResultAsync<
+    number,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.totalSupply(),
       () => this.secondary?.totalSupply(),
     );
   }
 
-  public openOptInDisabled(): ResultAsync<boolean, ConsentContractError> {
+  public openOptInDisabled(): ResultAsync<
+    boolean,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.openOptInDisabled(),
       () => this.secondary?.openOptInDisabled(),
@@ -532,21 +562,30 @@ export class ConsentContractWrapper
 
   public filters: IConsentContractFilters = this.primary.filters;
 
-  public getMaxTags(): ResultAsync<number, ConsentContractError> {
+  public getMaxTags(): ResultAsync<
+    number,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getMaxTags(),
       () => this.secondary?.getMaxTags(),
     );
   }
 
-  public getNumberOfStakedTags(): ResultAsync<number, ConsentContractError> {
+  public getNumberOfStakedTags(): ResultAsync<
+    number,
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getNumberOfStakedTags(),
       () => this.secondary?.getNumberOfStakedTags(),
     );
   }
 
-  public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
+  public getTagArray(): ResultAsync<
+    Tag[],
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getTagArray(),
       () => this.secondary?.getTagArray(),

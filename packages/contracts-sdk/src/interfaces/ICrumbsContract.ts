@@ -23,7 +23,7 @@ export interface ICrumbsContract extends IBaseContract {
   addressToCrumbId(
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenId | null, CrumbsContractError>;
+  ): ResultAsync<TokenId | null, CrumbsContractError | TBlockchainCommonErrors>;
 
   /**
    * Gets the token URI value for the crumb owned by a particular account address
@@ -34,7 +34,10 @@ export interface ICrumbsContract extends IBaseContract {
   tokenURI(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenUri | null, CrumbsContractError>;
+  ): ResultAsync<
+    TokenUri | null,
+    CrumbsContractError | TBlockchainCommonErrors
+  >;
 
   /**
    * Creates a crumb id for the address calling the contract

@@ -7,6 +7,7 @@ import {
   PagingRequest,
   PagedResponse,
   ConsentContractError,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,21 +18,31 @@ export interface IMarketplaceRepository {
     filterActive?: boolean, // make it optional in interface, = true here
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   >;
 
   getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
+    | TBlockchainCommonErrors
   >;
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 }
 

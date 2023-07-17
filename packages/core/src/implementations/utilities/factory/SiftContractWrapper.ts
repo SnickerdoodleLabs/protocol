@@ -61,7 +61,7 @@ export class SiftContractWrapper
 
   public checkURL(
     domain: DomainName,
-  ): ResultAsync<TokenUri, SiftContractError> {
+  ): ResultAsync<TokenUri, SiftContractError | TBlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.checkURL(domain),
       () => this.secondary?.checkURL(domain),

@@ -37,6 +37,7 @@ import {
   UninitializedError,
   UnixTimestamp,
   DataPermissionsUpdatedEvent,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -104,6 +105,7 @@ export class InvitationService implements IInvitationService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | TBlockchainCommonErrors
   > {
     let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
@@ -275,6 +277,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | ConsentError
+    | TBlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -440,6 +443,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | ConsentError
+    | TBlockchainCommonErrors
   > {
     // Need to check first if we are already opted in
     return this.consentRepo
@@ -471,6 +475,7 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | ConsentError
     | PersistenceError
+    | TBlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -590,6 +595,7 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
     | PersistenceError
+    | TBlockchainCommonErrors
   > {
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
@@ -614,6 +620,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | TBlockchainCommonErrors
   > {
     return this.invitationRepo
       .getAcceptedInvitations()
@@ -646,7 +653,10 @@ export class InvitationService implements IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   > {
     return this.consentRepo.getConsentCapacity(consentContractAddress);
   }
@@ -661,7 +671,10 @@ export class InvitationService implements IInvitationService {
     consentAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   > {
     return this.consentRepo.getMetadataCID(consentAddress);
   }
@@ -676,6 +689,7 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | IPFSError
     | PersistenceError
+    | TBlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
@@ -683,52 +697,50 @@ export class InvitationService implements IInvitationService {
       this.getConsentCapacity(consentContractAddress),
       // @TODO - check later
       // this.invitationRepo.getRejectedInvitations(),
-    ]).andThen(
-      ([invitationUrls, ipfsCID, consentCapacity]) => {
-        // If there's no slots, there's no invites
-        if (consentCapacity.availableOptInCount == 0) {
-          return okAsync([]);
-        }
+    ]).andThen(([invitationUrls, ipfsCID, consentCapacity]) => {
+      // If there's no slots, there's no invites
+      if (consentCapacity.availableOptInCount == 0) {
+        return okAsync([]);
+      }
 
-        // @TODO - blocks the promise to be resolved
-        // const rejected = rejectedInvitations.find((rejectedInvitation) => {
-        //   return rejectedInvitation == consentContractAddress;
-        // });
+      // @TODO - blocks the promise to be resolved
+      // const rejected = rejectedInvitations.find((rejectedInvitation) => {
+      //   return rejectedInvitation == consentContractAddress;
+      // });
 
-        // if (rejected != null) {
-        //   return okAsync([]);
-        // }
+      // if (rejected != null) {
+      //   return okAsync([]);
+      // }
 
-        // The baseUri is an IPFS CID
-        return this.invitationRepo
-          .getInvitationDomainByCID(ipfsCID, domain)
-          .andThen((invitationDomain) => {
-            if (invitationDomain == null) {
-              return errAsync(
-                new IPFSError(
-                  `No invitation details could be found at IPFS CID ${ipfsCID}`,
-                ),
-              );
-            }
-            return ResultUtils.combine(
-              invitationUrls.map((invitationUrl) => {
-                return this.cryptoUtils.getTokenId().map((tokenId) => {
-                  return new PageInvitation(
-                    invitationUrl, // getDomains() is actually misnamed, it returns URLs now
-                    new Invitation(
-                      domain,
-                      consentContractAddress,
-                      tokenId,
-                      null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
-                    ),
-                    invitationDomain,
-                  );
-                });
-              }),
+      // The baseUri is an IPFS CID
+      return this.invitationRepo
+        .getInvitationDomainByCID(ipfsCID, domain)
+        .andThen((invitationDomain) => {
+          if (invitationDomain == null) {
+            return errAsync(
+              new IPFSError(
+                `No invitation details could be found at IPFS CID ${ipfsCID}`,
+              ),
             );
-          });
-      },
-    );
+          }
+          return ResultUtils.combine(
+            invitationUrls.map((invitationUrl) => {
+              return this.cryptoUtils.getTokenId().map((tokenId) => {
+                return new PageInvitation(
+                  invitationUrl, // getDomains() is actually misnamed, it returns URLs now
+                  new Invitation(
+                    domain,
+                    consentContractAddress,
+                    tokenId,
+                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+                  ),
+                  invitationDomain,
+                );
+              });
+            }),
+          );
+        });
+    });
   }
 
   public updateDataPermissions(
@@ -743,6 +755,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
+    | TBlockchainCommonErrors
   > {
     // This will actually create a metatransaction. We need to update the on-chain
     // DataPermissions. You can only do this every so often, which we will need to
@@ -876,6 +889,7 @@ export class InvitationService implements IInvitationService {
     | ConsentError
     | PersistenceError
     | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   > {
     return this.consentTokenUtils.getAgreementFlags(consentContractAddress);
   }
@@ -887,6 +901,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | TBlockchainCommonErrors
   > {
     return this.getAvailableConsentContractAddresses().andThen(
       (consentAddresses) => {
@@ -1017,7 +1032,10 @@ export class InvitationService implements IInvitationService {
     businessSignature: Signature,
   ): ResultAsync<
     boolean,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   > {
     return this.consentRepo
       .getSignerRoleMembers(consentContractAddres)
@@ -1083,6 +1101,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | PersistenceError
     | ConsentContractError
+    | TBlockchainCommonErrors
   > {
     return ResultUtils.combine([
       // can be fetched via insight-platform API call

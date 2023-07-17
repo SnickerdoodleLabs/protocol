@@ -40,7 +40,10 @@ export abstract class BaseContract<TContractSpecificError>
     return this.contract;
   }
 
-  //generateError, generates a T, Error
+  protected abstract generateError(
+    error,
+    errorMessage: string,
+  ): TContractSpecificError | TBlockchainCommonErrors;
 
   protected abstract generateContractSpecificError(
     msg: string,

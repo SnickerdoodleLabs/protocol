@@ -5,7 +5,6 @@ import {
 import {
   RewardsFactoryError,
   BaseURI,
-  EVMContractAddress,
   TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -26,7 +25,10 @@ export interface IRewardsContractFactory {
     name: string,
     symbol: string,
     baseURI: BaseURI,
-  ): ResultAsync<ethers.BigNumber, RewardsFactoryError>;
+  ): ResultAsync<
+    ethers.BigNumber,
+    RewardsFactoryError | TBlockchainCommonErrors
+  >;
 }
 
 export const IRewardsContractFactoryType = Symbol.for(

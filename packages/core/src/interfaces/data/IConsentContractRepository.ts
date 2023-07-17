@@ -19,6 +19,7 @@ import {
   TokenUri,
   IConsentCapacity,
   BlockNumber,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -31,7 +32,10 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     URLString[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   /**
@@ -43,7 +47,10 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   /**
@@ -54,14 +61,20 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   getConsentToken(
     optInInfo: OptInInfo,
   ): ResultAsync<
     ConsentToken | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | TBlockchainCommonErrors
   >;
 
   isAddressOptedIn(
@@ -73,13 +86,17 @@ export interface IConsentContractRepository {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | TBlockchainCommonErrors
   >;
 
   getLatestConsentTokenId(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     TokenId | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | TBlockchainCommonErrors
   >;
 
   getConsentContracts(
@@ -91,21 +108,30 @@ export interface IConsentContractRepository {
 
   getDeployedConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   >;
 
   getSignerRoleMembers(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   isOpenOptInDisabled(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<
     boolean,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   getTokenURI(
@@ -113,14 +139,20 @@ export interface IConsentContractRepository {
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | TBlockchainCommonErrors
   >;
 
   getQueryHorizon(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     BlockNumber,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   // Encoders

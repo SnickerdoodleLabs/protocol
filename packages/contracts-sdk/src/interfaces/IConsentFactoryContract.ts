@@ -42,7 +42,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError>;
+  ): ResultAsync<number, ConsentFactoryContractError | TBlockchainCommonErrors>;
 
   /**
    *  Return the an array of Consent addresses that user has deployed between two indexes
@@ -54,7 +54,10 @@ export interface IConsentFactoryContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     startingIndex: number,
     endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   /**
    *  Return the an array of Consent addresses that user has deployed
@@ -62,7 +65,10 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserDeployedConsents(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   /**
    *  Return the number Consent addresses that user has specific roles for
@@ -72,7 +78,7 @@ export interface IConsentFactoryContract extends IBaseContract {
   getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
     role: ConsentRoles,
-  ): ResultAsync<number, ConsentFactoryContractError>;
+  ): ResultAsync<number, ConsentFactoryContractError | TBlockchainCommonErrors>;
 
   /**
    *  Return the an array of Consent addresses that user has specific roles for
@@ -86,22 +92,31 @@ export interface IConsentFactoryContract extends IBaseContract {
     role: ConsentRoles,
     startingIndex: number,
     endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   /**
    *  Return Consent addresses by checking ContractDeployed event logs
    */
   getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError
+    ConsentFactoryContractError | TBlockchainCommonErrors
   >;
 
   /**
    * Marketplace Listings
    */
-  getMaxTagsPerListing(): ResultAsync<number, ConsentFactoryContractError>;
+  getMaxTagsPerListing(): ResultAsync<
+    number,
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
-  getListingDuration(): ResultAsync<number, ConsentFactoryContractError>;
+  getListingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   setListingDuration(
     listingDuration: number,
@@ -131,25 +146,34 @@ export interface IConsentFactoryContract extends IBaseContract {
   getListingDetail(
     tag: MarketplaceTag,
     slot: BigNumberString,
-  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing,
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   getListingsForward(
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   getListingsBackward(
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   getTagTotal(
     tag: MarketplaceTag,
-  ): ResultAsync<number, ConsentFactoryContractError>;
+  ): ResultAsync<number, ConsentFactoryContractError | TBlockchainCommonErrors>;
 
   /**
    *  Return the list of marketplace listings of a specific tag
@@ -158,7 +182,10 @@ export interface IConsentFactoryContract extends IBaseContract {
   getListingsByTag(
     tag: MarketplaceTag,
     removeExpired: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | TBlockchainCommonErrors
+  >;
 
   getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,

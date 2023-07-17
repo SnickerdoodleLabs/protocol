@@ -62,7 +62,10 @@ export class SiftContractRepository implements ISiftContractRepository {
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | TBlockchainCommonErrors
   > {
     return this.getSiftContract().andThen((contract) => {
       return contract.checkURL(domain).map((url) => {

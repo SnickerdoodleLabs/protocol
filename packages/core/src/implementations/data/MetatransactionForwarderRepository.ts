@@ -10,6 +10,7 @@ import {
   EVMPrivateKey,
   MinimalForwarderContractError,
   Signature,
+  TBlockchainCommonErrors,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -48,7 +49,10 @@ export class MetatransactionForwarderRepository
     accountAddress?: EVMAccountAddress,
   ): ResultAsync<
     BigNumberString,
-    BlockchainProviderError | UninitializedError | MinimalForwarderContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | MinimalForwarderContractError
+    | TBlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.contractFactory.factoryMinimalForwarderContract(),

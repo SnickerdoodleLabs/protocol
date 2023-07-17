@@ -17,12 +17,18 @@ import { ResultAsync } from "neverthrow";
 export interface IMinimalForwarderContract extends IBaseContract {
   getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError>;
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | TBlockchainCommonErrors
+  >;
 
   verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError>;
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | TBlockchainCommonErrors
+  >;
 
   execute(
     request: IMinimalForwarderRequest,

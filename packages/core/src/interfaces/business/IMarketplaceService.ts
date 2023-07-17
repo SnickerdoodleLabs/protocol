@@ -10,6 +10,7 @@ import {
   EvaluationError,
   EVMContractAddress,
   PossibleReward,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -20,21 +21,30 @@ export interface IMarketplaceService {
     filterActive?: boolean,
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   >;
 
   getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   >;
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    UninitializedError | BlockchainProviderError | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   >;
 
   getPossibleRewards(

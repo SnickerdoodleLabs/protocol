@@ -40,7 +40,10 @@ export class CrumbsContractWrapper
   public addressToCrumbId(
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<TokenId | null, CrumbsContractError> {
+  ): ResultAsync<
+    TokenId | null,
+    CrumbsContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.addressToCrumbId(accountAddress, contractOverrides),
       () => this.secondary?.addressToCrumbId(accountAddress, contractOverrides),
@@ -50,7 +53,10 @@ export class CrumbsContractWrapper
   public tokenURI(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<TokenUri | null, CrumbsContractError> {
+  ): ResultAsync<
+    TokenUri | null,
+    CrumbsContractError | TBlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.tokenURI(tokenId, contractOverrides),
       () => this.secondary?.tokenURI(tokenId, contractOverrides),

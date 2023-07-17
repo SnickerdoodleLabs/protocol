@@ -29,6 +29,7 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
+  TBlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -54,7 +55,10 @@ export class MarketplaceService implements IMarketplaceService {
     filterActive = true,
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   > {
     return this.marketplaceRepo.getMarketplaceListingsByTag(
       pagingReq,
@@ -67,7 +71,10 @@ export class MarketplaceService implements IMarketplaceService {
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | TBlockchainCommonErrors
   > {
     return this.marketplaceRepo.getListingsTotalByTag(tag);
   }
@@ -76,7 +83,10 @@ export class MarketplaceService implements IMarketplaceService {
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    UninitializedError | BlockchainProviderError | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | TBlockchainCommonErrors
   > {
     return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
@@ -148,7 +158,7 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getPublishedQueriesPerContract(
     consentContract: IConsentContract,
-  ): ResultAsync<IpfsCID[], ConsentContractError> {
+  ): ResultAsync<IpfsCID[], ConsentContractError | TBlockchainCommonErrors> {
     return this._getRequestForDataList(consentContract).map((r4dList) =>
       r4dList.map((r4d) => r4d.requestedCID),
     );
@@ -156,7 +166,10 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getRequestForDataList(
     consentContract: IConsentContract,
-  ): ResultAsync<RequestForData[], ConsentContractError> {
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | TBlockchainCommonErrors
+  > {
     return consentContract.getConsentOwner().andThen((consentOwner) => {
       return consentContract.getRequestForDataListByRequesterAddress(
         consentOwner,

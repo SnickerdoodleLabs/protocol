@@ -43,7 +43,9 @@ export interface ISiftContract extends IBaseContract {
    * eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED
    * @param domain Domain name to check
    */
-  checkURL(domain: DomainName): ResultAsync<TokenUri, SiftContractError>;
+  checkURL(
+    domain: DomainName,
+  ): ResultAsync<TokenUri, SiftContractError | TBlockchainCommonErrors>;
 
   /**
    * Sets a new base uri for the contract
