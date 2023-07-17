@@ -6,6 +6,7 @@ import {
   UnexpectedArgumentError,
   UnknownBlockchainError,
   GasTooLowError,
+  InvalidAddressError,
 } from "@objects/errors/index.js";
 import { BlockchainErrorMessage } from "@objects/primitives/BlockchainErrorMessage.js";
 
@@ -75,6 +76,14 @@ export class BlockchainErrorMapper {
       (error: unknown | null) =>
         new GasTooLowError(
           BlockchainErrorMessage("Insufficient gas provided to function call"),
+          error,
+        ),
+    ],
+    [
+      BlockchainErrorMessage("invalid address"),
+      (error: unknown | null) =>
+        new InvalidAddressError(
+          BlockchainErrorMessage("Invalid address provided as argument"),
           error,
         ),
     ],
@@ -162,4 +171,5 @@ export type TBlockchainCommonErrors =
   | InvalidArgumentError
   | MissingArgumentError
   | UnexpectedArgumentError
-  | GasTooLowError;
+  | GasTooLowError
+  | InvalidAddressError;

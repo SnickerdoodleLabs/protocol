@@ -40,6 +40,7 @@ const errorCodes = {
   UnexpectedArgumentError: "ERR_UNEXPECTED_ARGUMENT",
   UnknownBlockchainError: "ERR_UNKNOWN_BLOCKCHAIN",
   GasTooLowError: "ERR_GAS_TOO_LOW",
+  InvalidAddressError: "ERR_INVALID_ADDRESS",
 };
 
 export default errorCodes;
