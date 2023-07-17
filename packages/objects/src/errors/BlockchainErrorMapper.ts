@@ -84,7 +84,9 @@ export class BlockchainErrorMapper {
       BlockchainErrorMessage("invalid address"),
       (error: unknown | null) =>
         new InvalidAddressError(
-          BlockchainErrorMessage("Invalid address provided as argument"),
+          BlockchainErrorMessage(
+            "Invalid address provided as argument to create contract instance",
+          ),
           error,
         ),
     ],
