@@ -160,11 +160,11 @@ export class BlockchainErrorMapper {
     // ProviderError has the following properties : [ 'parent', 'name', '_stack', 'code', '_isProviderError', 'data' ]
     // The error message is within the '_stack' property
     // Search for a specific error text and return it if found,
-    if (error._stack.search("intrinsic gas too low") >= 0) {
+    if (error._stack.includes("intrinsic gas too low")) {
       return "intrinsic gas too low";
     }
 
-    // If no match is found, .search() will return -1, we do not recognize the type ProviderError and return null so that it can be captured as a generic error
+    // If no match is found, .includes() will return false, we do not recognize the type ProviderError and return null so that it can be captured as a generic error
     return null;
   }
 }
