@@ -22,26 +22,14 @@ task("createCrumb", "Creates a crumb")
       account,
     );
 
-    try {
-      await crumbsContractHandle
-        .createCrumb(crumbID, tokenURI, { gasLimit: 0 })
-        .then((txResponse) => {
-          return txResponse.wait();
-        })
-        .then((txrct) => {
-          logTXDetails(txrct);
-        });
-    } catch (e) {
-        console.log(e);
-      /* console.log(Object.keys(e));
-      console.log("PARENT:", e.parent);
-      console.log("NAME:", e.name);
-      console.log("STACK:", e._stack);
-      console.log("CODE:", e.code);
-      console.log("_isProviderError:", e._isProviderError);
-      console.log("DATA: ", e.data);
-      console.log("sliced:", e._stack.slice(0,15)); */
-    }
+    await crumbsContractHandle
+      .createCrumb(crumbID, tokenURIzzz)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("burnCrumb", "Burns a crumb")
@@ -62,25 +50,15 @@ task("burnCrumb", "Burns a crumb")
       account,
     );
 
-    try {
-
-        await crumbsContractHandle
-        .connect(account)
-        .burn(taskArgs.crumbid)
-        .then((txResponse) => {
-          return txResponse.wait();
-        })
-        .then((txrct) => {
-          logTXDetails(txrct);
-        });
-    } catch(err) {
-        const properties = Object.keys(err);
-        
-        properties.forEach((key) => {console.log(key, err[key])});
-
-
-    }
-
+    await crumbsContractHandle
+      .connect(account)
+      .burn(taskArgs.crumbid)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("numberOfCrumbs", "Check number of crumbs an account has")
