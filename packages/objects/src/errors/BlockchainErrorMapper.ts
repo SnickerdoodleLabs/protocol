@@ -148,7 +148,7 @@ export class BlockchainErrorMapper {
   protected static getErrorKey(errorString: string): string {
     errorString = errorString.toLowerCase();
     Array.from(this.blockchainErrorMapping.keys()).forEach((key) => {
-      if (errorString?.includes(key.toLocaleLowerCase())) {
+      if (errorString?.includes(key.toLowerCase())) {
         errorString = key;
       }
     });
