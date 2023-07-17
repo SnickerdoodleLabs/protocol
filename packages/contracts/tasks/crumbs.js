@@ -23,7 +23,7 @@ task("createCrumb", "Creates a crumb")
     );
 
     await crumbsContractHandle
-      .createCrumb(crumbID, tokenURIzzz)
+      .createCrumb(crumbID, tokenURI)
       .then((txResponse) => {
         return txResponse.wait();
       })
