@@ -1,3 +1,5 @@
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentRoles,
@@ -31,10 +33,8 @@ import {
   MarketplaceTag,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -67,6 +67,20 @@ export class ConsentFactoryContractWrapper
         this.secondary?.createConsent(ownerAddress, baseUri, name, overrides),
     );
   }
+
+  public estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError> {
+    return this.fallback(
+      () =>
+        this.primary.estimateGasToCreateConsent(ownerAddress, baseUri, name),
+      () =>
+        this.secondary?.estimateGasToCreateConsent(ownerAddress, baseUri, name),
+    );
+  }
+
   public getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<number, ConsentFactoryContractError> {

@@ -1,7 +1,7 @@
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
+  ContractsAbis,
   ConsentRoles,
   ContractOverrides,
   WrappedTransactionResponse,
@@ -59,6 +59,25 @@ export class ConsentFactoryContract
       [ownerAddress, baseUri, name],
       overrides,
     );
+  }
+
+  public estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.estimateGas["createConsent"](ownerAddress, baseUri, name),
+      (e) => {
+        return new ConsentFactoryContractError(
+          `Failed to estimate gas with error: ${e}`,
+        );
+      },
+    ).map((estimatedGas) => {
+      // TODO: confirm buffer value
+      // Increase estimated gas buffer by 10%
+      return estimatedGas.mul(110).div(100);
+    });
   }
 
   // Gets the count of user's deployed Consents
