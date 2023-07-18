@@ -6,10 +6,14 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
+const argon2 = require("argon2");
 const fileSystem = require("fs-extra");
 
 /** @type import('webpack').Configuration */
 module.exports = {
+  externals: {
+    argon2: argon2,
+  },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.ts"),
@@ -102,19 +106,15 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],
-      process: "process/browser.js",
+      process: "process/browser",
     }),
     new webpack.DefinePlugin({
-      __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
-      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
-      __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
-      __GA_TRACKING_ID__: JSON.stringify(process.env.__GA_TRACKING_ID__),
+      __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
       __IPFS_FETCH_BASE_URL__: JSON.stringify(
         process.env.__IPFS_FETCH_BASE_URL__,
       ),
-      __HOTJAR_ID__: JSON.stringify(process.env.__HOTJAR_ID__),
-      __HOTJAR_SNIPPET_VERSION__: JSON.stringify(
-        process.env.__HOTJAR_SNIPPET_VERSION__,
+      __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: JSON.stringify(
+        process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       ),
     }),
   ],

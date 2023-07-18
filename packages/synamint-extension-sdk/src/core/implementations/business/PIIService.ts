@@ -6,8 +6,10 @@ import {
   Gender,
   EmailAddressString,
   CountryCode,
-  EProfileFieldType
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+
 import { IPIIService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IPIIRepository,
@@ -18,8 +20,6 @@ import {
   IContextProvider,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
-import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class PIIService implements IPIIService {

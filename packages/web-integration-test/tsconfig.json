@@ -3,7 +3,6 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
     "jsx": "react",
     "target": "es5",
     "module": "commonjs",
@@ -14,7 +13,7 @@
     ],
     "paths": {
       "@web-integration-test/*": [
-        "./*"
+        "./packages/web-integration-test/src/*"
       ],
     }
   },

@@ -1,1 +1,1 @@
-export * from "./ICoreListener";
+export * from "@core-iframe/interfaces/api/ICoreListener";

@@ -33,6 +33,15 @@ RUN yarn install --network-timeout 60000
 ARG DEBUG=true
 ENV __DEBUG__ $DEBUG
 
+ARG CONTROL_CHAIN_ID=31337
+ENV __CONTROL_CHAIN_ID__ $CONTROL_CHAIN_ID
+
+ARG IPFS_FETCH_BASE_URL="http://127.0.0.1:8080/ipfs"
+ENV __IPFS_FETCH_BASE_URL__ $IPFS_FETCH_BASE_URL
+
+ARG DEFAULT_INSIGHT_PLATFORM_BASE_URL="http://localhost:3006"
+ENV __DEFAULT_INSIGHT_PLATFORM_BASE_URL__ $DEFAULT_INSIGHT_PLATFORM_BASE_URL
+
 # Copy the rest of the stuff and build
 COPY . /build
 RUN cd packages/iframe && yarn build

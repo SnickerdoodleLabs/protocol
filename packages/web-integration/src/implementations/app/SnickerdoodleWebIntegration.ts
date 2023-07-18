@@ -1,4 +1,8 @@
-import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
+import {
+  IConfigOverrides,
+  ISdlDataWallet,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { SnickerdoodleIFrameProxy } from "@web-integration/implementations/proxy/index.js";
@@ -7,30 +11,28 @@ import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/in
 export class SnickerdoodleWebIntegration
   implements ISnickerdoodleWebIntegration
 {
-  protected iframeURL = "http://localhost:9010";
+  protected iframeURL = URLString("http://localhost:9010");
+  protected debug = false;
+
   protected _core: SnickerdoodleIFrameProxy;
 
-  protected debug = false;
   protected initializeResult: ResultAsync<ISdlDataWallet, Error> | null = null;
 
-  constructor(iframeURL: string | null, debug: boolean | null) {
-    const iframeURLWithSearchParams = new URL(iframeURL || this.iframeURL);
-
-    if (debug != null) {
-      iframeURLWithSearchParams.searchParams.append("debug", debug.toString());
-    }
-    this.iframeURL = iframeURLWithSearchParams.toString();
-    this.debug = debug || this.debug;
+  constructor(config: IConfigOverrides) {
+    this.iframeURL = config.iframeURL || this.iframeURL;
+    this.debug = config.debug || this.debug;
 
     if (window.snickerdoodle) {
       // If there's already a proxy injected, we don't need to create a new one
       this._core = window.snickerdoodle;
     } else {
       // Create a proxy connection to the iframe
+      console.log("Creating Snickerdoodle Protocol Iframe Proxy");
       this._core = new SnickerdoodleIFrameProxy(
         this._prepareIFrameContainer(),
         this.iframeURL,
         "snickerdoodle-core-iframe",
+        config,
       );
     }
   }

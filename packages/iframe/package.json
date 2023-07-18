@@ -17,6 +17,7 @@
     "SDQL"
   ],
   "browser": "dist/index.js",
+  "main": "dist/index.js",
   "files": [
     "dist",
     "!dist/test",
@@ -28,7 +29,7 @@
     "dev": "webpack watch --config webpack.config.js --mode development",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "alias": "tsc-alias",
+    "alias": "npx tsc-alias",
     "postCompile": "npx webpack",
     "prepare": "yarn build",
     "test": "echo \"No tests specified yet\" && exit 0"
@@ -38,6 +39,7 @@
     "@snickerdoodlelabs/core": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
+    "inversify": "^6.0.1",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "postmate": "^1.5.2"

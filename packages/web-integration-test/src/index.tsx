@@ -5,6 +5,7 @@ import {
   EChain,
   LanguageCode,
   Signature,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import { ethers } from "ethers";
@@ -73,10 +74,11 @@ export class WalletProvider {
 
 // ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 
-const integration = new SnickerdoodleWebIntegration(
-  "http://localhost:9010",
-  true,
-);
+const integration = new SnickerdoodleWebIntegration({
+  primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc",
+  iframeURL: URLString("http://localhost:9010"),
+  debug: true,
+});
 const provider = new WalletProvider();
 
 async function start() {

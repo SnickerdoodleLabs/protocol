@@ -123,6 +123,8 @@ export abstract class ParentProxy {
       });
 
       this.active = true;
+
+      console.log("Handshake with iframe complete");
     });
 
     return this.activateResult;

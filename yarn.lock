@@ -7718,7 +7718,7 @@ __metadata:
     argon2: ^0.28.4
     axios: ^0.27.2
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     oauth-1.0a: ^2.2.6
@@ -7735,7 +7735,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -7780,7 +7780,7 @@ __metadata:
     ethers: ^5.6.6
     express: ^4.18.1
     inquirer: ^8.0.0
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     ipfs-http-client: ^55.0.0
     jsonwebtoken: ^9.0.0
     lzutf8: ^0.6.3
@@ -7803,7 +7803,7 @@ __metadata:
     "@snickerdoodlelabs/query-parser": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     jsonwebtoken: ^9.0.0
     measured-core: ^2.0.0
     neverthrow: ^5.1.0
@@ -7874,6 +7874,7 @@ __metadata:
     "@snickerdoodlelabs/core": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     postmate: ^1.5.2
@@ -7891,7 +7892,7 @@ __metadata:
     "@solana/spl-token": ^0.3.6
     "@solana/web3.js": ^1.66.2
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
@@ -7908,7 +7909,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     ts-brand: ^0.0.2
     url-join-ts: ^1.0.5
@@ -8093,7 +8094,7 @@ __metadata:
     "@snickerdoodlelabs/utils": "workspace:^"
     dids: ^3.3.0
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     ipfs-only-hash: ^4.0.0
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.1.0
@@ -8108,7 +8109,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -8193,7 +8194,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     postmate: ^1.5.2
   languageName: unknown
@@ -23581,13 +23582,6 @@ __metadata:
   version: 3.1.0
   resolution: "inversify-inject-decorators@npm:3.1.0"
   checksum: 61fd6948c0914ec1c6f10a87903c949d3987903fdb2d23952a1257223f192d0386862974568044dd73d2fcf4f0f37d59eb4dc83124b1d143ed4852266e1585b6
-  languageName: node
-  linkType: hard
-
-"inversify@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "inversify@npm:5.1.1"
-  checksum: 22d201647b572024333c58bed8ac929da4724a4c0c8a261ecc261a180afcb899359013fafb8d87ce4d606000149fb4590dc5c8278b9feb544a5f69a6159e4ffb
   languageName: node
   linkType: hard
 

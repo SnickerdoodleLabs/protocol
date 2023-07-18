@@ -1,7 +1,8 @@
 /**
- * This is the main implementation of the Snickerdoodle Query Engine.
+ * This is the main implementation of the Snickerdoodle Protocol.
  *
- * Regardless of form factor, you need to instantiate an instance of
+ * Regardless of form factor, you need to instantiate an instance 
+ * of SnickerdoodleCore.
  */
 import {
   AccountAddress,
@@ -18,9 +19,7 @@ import {
   ConsentContractError,
   ConsentError,
   CountryCode,
-  CrumbsContractError,
   DataPermissions,
-  DataWalletAddress,
   DataWalletBackup,
   DataWalletBackupID,
   DiscordID,
@@ -47,8 +46,6 @@ import {
   IInvitationMethods,
   IMasterIndexerType,
   IMetricsMethods,
-  InvalidParametersError,
-  InvalidSignatureError,
   Invitation,
   IpfsCID,
   IPFSError,
@@ -60,7 +57,6 @@ import {
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
-  MinimalForwarderContractError,
   OAuth1RequstToken,
   OAuthAuthorizationCode,
   OAuthVerifier,
@@ -82,7 +78,6 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError,
   URLString,
   WalletNFT,
   IMasterIndexer,

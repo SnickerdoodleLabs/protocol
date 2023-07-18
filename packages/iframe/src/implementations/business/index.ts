@@ -1,1 +1,1 @@
-export * from "./CoreUIService";
+export * from "@core-iframe/implementations/business/CoreUIService";

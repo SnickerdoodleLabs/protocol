@@ -8,7 +8,6 @@ import {
   CountryCode,
   DataPermissionsUpdatedEvent,
   DataWalletAddress,
-  DataWalletBackupID,
   DiscordGuildProfile,
   DiscordID,
   DiscordProfile,
@@ -23,13 +22,13 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  IConfigOverrides,
   IConsentCapacity,
   IOpenSeaMetadata,
   IScamFilterPreferences,
   ISdlDataWallet,
   ISdlDiscordMethods,
   ISdlTwitterMethods,
-  ISnickerdoodleCoreEvents,
   IpfsCID,
   LanguageCode,
   LinkedAccount,
@@ -70,125 +69,150 @@ export class SnickerdoodleIFrameProxy
   extends ParentProxy
   implements ISdlDataWallet
 {
-  protected _handshakePromise: Promise<void> | null;
-
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
     protected iframeName: string,
+    protected config: IConfigOverrides,
   ) {
     super(element, iframeUrl, iframeName);
 
-    this._handshakePromise = null;
     this.events = new PublicEvents();
+  }
 
-    // Initialize the promise that we'll use to monitor the core
-    // initialization status. The iframe will emit an event "initialized"
-    // once the core is initialized, we'll use that to resolve this promise.
-    this._handshakePromise = this.handshake.then((child) => {
-      console.log("Handshake with Snickerdoodle Protocol iframe complete");
-      // Subscribe to the message streams from the iframe,
-      // and convert them back to RXJS Subjects.
-      child.on("onInitialized", (data: DataWalletAddress) => {
-        this.events.onInitialized.next(data);
+  public activate(): ResultAsync<void, ProxyError> {
+    return super
+      .activate()
+      .andThen(() => {
+        if (this.child == null) {
+          throw new Error(
+            "Child proxy not initialized in activate extension in SnickerdoodleIFrameProxy. This indicates a logical error.",
+          );
+        }
+
+        // Subscribe to the message streams from the iframe,
+        // and convert them back to RXJS Subjects.
+        this.child.on("onInitialized", (data: DataWalletAddress) => {
+          this.events.onInitialized.next(data);
+        });
+
+        this.child.on("onQueryPosted", (data: SDQLQueryRequest) => {
+          this.events.onQueryPosted.next(data);
+        });
+
+        this.child.on("onQueryParametersRequired", (data: IpfsCID) => {
+          this.events.onQueryParametersRequired.next(data);
+        });
+
+        this.child.on("onAccountAdded", (data: LinkedAccount) => {
+          this.events.onAccountAdded.next(data);
+        });
+
+        this.child.on("onPasswordAdded", (data: void) => {
+          this.events.onPasswordAdded.next(undefined);
+        });
+
+        this.child.on("onAccountRemoved", (data: LinkedAccount) => {
+          this.events.onAccountRemoved.next(data);
+        });
+
+        this.child.on("onPasswordRemoved", (data: void) => {
+          this.events.onPasswordRemoved.next(data);
+        });
+
+        this.child.on("onCohortJoined", (data: EVMContractAddress) => {
+          this.events.onCohortJoined.next(data);
+        });
+
+        this.child.on("onCohortLeft", (data: EVMContractAddress) => {
+          this.events.onCohortLeft.next(data);
+        });
+
+        this.child.on(
+          "onDataPermissionsUpdated",
+          (data: DataPermissionsUpdatedEvent) => {
+            this.events.onDataPermissionsUpdated.next(data);
+          },
+        );
+
+        this.child.on("onTransaction", (data: EVMTransaction) => {
+          this.events.onTransaction.next(data);
+        });
+
+        this.child.on(
+          "onMetatransactionSignatureRequested",
+          (data: MetatransactionSignatureRequest) => {
+            this.events.onMetatransactionSignatureRequested.next(data);
+          },
+        );
+
+        this.child.on(
+          "onTokenBalanceUpdate",
+          (data: PortfolioUpdate<TokenBalance[]>) => {
+            this.events.onTokenBalanceUpdate.next(data);
+          },
+        );
+
+        this.child.on(
+          "onNftBalanceUpdated",
+          (data: PortfolioUpdate<WalletNFT[]>) => {
+            this.events.onNftBalanceUpdate.next(data);
+          },
+        );
+
+        this.child.on("onBackupCreated", (data: BackupCreatedEvent) => {
+          this.events.onBackupCreated.next(data);
+        });
+
+        this.child.on("onBackupRestored", (data: BackupRestoreEvent) => {
+          this.events.onBackupRestored.next(data);
+        });
+
+        this.child.on("onEarnedRewardsAdded", (data: EarnedReward[]) => {
+          this.events.onEarnedRewardsAdded.next(data);
+        });
+
+        this.child.on(
+          "onPermissionsGranted",
+          (data: PermissionsGrantedEvent) => {
+            this.events.onPermissionsGranted.next(data);
+          },
+        );
+
+        this.child.on(
+          "onPermissionsRequested",
+          (data: PermissionsRequestedEvent) => {
+            this.events.onPermissionsRequested.next(data);
+          },
+        );
+
+        this.child.on("onPermissionsRevoked", (data: DomainName) => {
+          this.events.onPermissionsRevoked.next(data);
+        });
+
+        this.child.on(
+          "onSocialProfileLinked",
+          (data: SocialProfileLinkedEvent) => {
+            this.events.onSocialProfileLinked.next(data);
+          },
+        );
+
+        this.child.on(
+          "onSocialProfileUnlinked",
+          (data: SocialProfileUnlinkedEvent) => {
+            this.events.onSocialProfileUnlinked.next(data);
+          },
+        );
+
+        /* Now, we need to pass the config over to the iframe */
+        return this._createCall<IConfigOverrides, ProxyError, void>(
+          "setConfig",
+          this.config,
+        );
+      })
+      .map(() => {
+        console.log("Snickerdoodle Protocol web integration activated");
       });
-
-      child.on("onQueryPosted", (data: SDQLQueryRequest) => {
-        this.events.onQueryPosted.next(data);
-      });
-
-      child.on("onQueryParametersRequired", (data: IpfsCID) => {
-        this.events.onQueryParametersRequired.next(data);
-      });
-
-      child.on("onAccountAdded", (data: LinkedAccount) => {
-        this.events.onAccountAdded.next(data);
-      });
-
-      child.on("onPasswordAdded", (data: void) => {
-        this.events.onPasswordAdded.next(undefined);
-      });
-
-      child.on("onAccountRemoved", (data: LinkedAccount) => {
-        this.events.onAccountRemoved.next(data);
-      });
-
-      child.on("onPasswordRemoved", (data: void) => {
-        this.events.onPasswordRemoved.next(data);
-      });
-
-      child.on("onCohortJoined", (data: EVMContractAddress) => {
-        this.events.onCohortJoined.next(data);
-      });
-
-      child.on("onCohortLeft", (data: EVMContractAddress) => {
-        this.events.onCohortLeft.next(data);
-      });
-
-      child.on(
-        "onDataPermissionsUpdated",
-        (data: DataPermissionsUpdatedEvent) => {
-          this.events.onDataPermissionsUpdated.next(data);
-        },
-      );
-
-      child.on("onTransaction", (data: EVMTransaction) => {
-        this.events.onTransaction.next(data);
-      });
-
-      child.on(
-        "onMetatransactionSignatureRequested",
-        (data: MetatransactionSignatureRequest) => {
-          this.events.onMetatransactionSignatureRequested.next(data);
-        },
-      );
-
-      child.on(
-        "onTokenBalanceUpdate",
-        (data: PortfolioUpdate<TokenBalance[]>) => {
-          this.events.onTokenBalanceUpdate.next(data);
-        },
-      );
-
-      child.on("onNftBalanceUpdated", (data: PortfolioUpdate<WalletNFT[]>) => {
-        this.events.onNftBalanceUpdate.next(data);
-      });
-
-      child.on("onBackupCreated", (data: BackupCreatedEvent) => {
-        this.events.onBackupCreated.next(data);
-      });
-
-      child.on("onBackupRestored", (data: BackupRestoreEvent) => {
-        this.events.onBackupRestored.next(data);
-      });
-
-      child.on("onEarnedRewardsAdded", (data: EarnedReward[]) => {
-        this.events.onEarnedRewardsAdded.next(data);
-      });
-
-      child.on("onPermissionsGranted", (data: PermissionsGrantedEvent) => {
-        this.events.onPermissionsGranted.next(data);
-      });
-
-      child.on("onPermissionsRequested", (data: PermissionsRequestedEvent) => {
-        this.events.onPermissionsRequested.next(data);
-      });
-
-      child.on("onPermissionsRevoked", (data: DomainName) => {
-        this.events.onPermissionsRevoked.next(data);
-      });
-
-      child.on("onSocialProfileLinked", (data: SocialProfileLinkedEvent) => {
-        this.events.onSocialProfileLinked.next(data);
-      });
-
-      child.on(
-        "onSocialProfileUnlinked",
-        (data: SocialProfileUnlinkedEvent) => {
-          this.events.onSocialProfileUnlinked.next(data);
-        },
-      );
-    });
   }
 
   public unlock(
