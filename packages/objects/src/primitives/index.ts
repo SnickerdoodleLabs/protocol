@@ -1,3 +1,4 @@
+export * from "@objects/primitives/AccessToken.js";
 export * from "@objects/primitives/AccountAddress.js";
 export * from "@objects/primitives/AdKey.js";
 export * from "@objects/primitives/AdSurfaceId.js";

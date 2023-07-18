@@ -155,6 +155,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { DropboxCloudStorage } from "@snickerdoodlelabs/persistence";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -190,15 +191,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    // Passing in: username/password
     if (cloudStorage != null) {
-      // this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
-      this.iocContainer.bind(ICloudStorageType).to
+      this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
         // .to(NullCloudStorage)
-        .to(GoogleCloudStorage)
+        // .to(GoogleCloudStorage)
+        .to(DropboxCloudStorage)
         .inSingletonScope();
     }
 

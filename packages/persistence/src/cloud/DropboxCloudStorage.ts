@@ -22,6 +22,7 @@ import {
   ECloudStorageType,
   ERecordKey,
   VolatileStorageKey,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Err, ok, okAsync, Result, ResultAsync, errAsync } from "neverthrow";
@@ -44,6 +45,8 @@ export class DropboxCloudStorage implements ICloudStorage {
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
     null;
+  
+  private dropbox = new DropboxConnection(accessToken);
 
   public constructor(
     @inject(IPersistenceConfigProviderType)
@@ -57,6 +60,8 @@ export class DropboxCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+    const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+    this.dropbox = new DropboxConnection(AccessToken);
   }
 
   private generateAuthToken(): string {
@@ -83,6 +88,9 @@ export class DropboxCloudStorage implements ICloudStorage {
   ): ResultAsync<void, PersistenceError> {
     const ACCESS_TOKEN = "";
     const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+
+    this.dropbox.filesUpload({contents: fileContent, path: fileName, mode:{".tag": "overwrite"}})
+
     return okAsync(undefined);
   }
 
@@ -120,6 +128,12 @@ export class DropboxCloudStorage implements ICloudStorage {
         );
       })
       .mapErr((e) => new PersistenceError("error clearing gcp", e));
+  }
+
+  public copy(): ResultAsync<void, PersistenceError> {
+    return errAsync(
+      new PersistenceError("Error: DropBox copy() is not implemented yet"),
+    );
   }
 
   public pollByPriority(
@@ -245,6 +259,10 @@ export class DropboxCloudStorage implements ICloudStorage {
       );
     });
   }
+}
+
+class DropboxConnection {
+  public constructor(public accessToken: AccessToken) {}
 }
 
 class ParsedBackupFileName {

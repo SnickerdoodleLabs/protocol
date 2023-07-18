@@ -66,6 +66,11 @@ export interface ICloudStorage {
   clear(): ResultAsync<void, PersistenceError>;
 
   /**
+   * This moves backups from one storage source to another
+   */
+  copy(): ResultAsync<void, PersistenceError>;
+
+  /**
    * Returns a list of all the backup file names
    */
   listFileNames(): ResultAsync<BackupFileName[], PersistenceError>;

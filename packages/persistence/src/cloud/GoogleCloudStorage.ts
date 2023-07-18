@@ -24,7 +24,7 @@ import {
   DataWalletBackupHeader,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
@@ -170,6 +170,12 @@ export class GoogleCloudStorage implements ICloudStorage {
         );
       })
       .mapErr((e) => new PersistenceError("error clearing gcp", e));
+  }
+
+  public copy(): ResultAsync<void, PersistenceError> {
+    return errAsync(
+      new PersistenceError("Error: DropBox copy() is not implemented yet"),
+    );
   }
 
   public putBackup(
