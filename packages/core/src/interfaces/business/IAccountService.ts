@@ -30,6 +30,7 @@ import {
   UnauthorizedError,
   AccountIndexingError,
   PasswordString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -53,6 +54,7 @@ export interface IAccountService {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   addAccount(
@@ -70,6 +72,7 @@ export interface IAccountService {
     | PersistenceError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   unlinkAccount(
@@ -88,6 +91,7 @@ export interface IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   getDataWalletForAccount(
@@ -103,6 +107,7 @@ export interface IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+    | BlockchainCommonErrors
   >;
 
   unlockWithPassword(
@@ -117,6 +122,7 @@ export interface IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   addPassword(
@@ -129,6 +135,7 @@ export interface IAccountService {
     | UninitializedError
     | CrumbsContractError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   removePassword(
@@ -140,6 +147,7 @@ export interface IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   getAccounts(

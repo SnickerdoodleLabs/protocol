@@ -7,10 +7,10 @@ import {
   EVMContractAddress,
   TokenUri,
   SiftContractError,
-  IBlockchainError,
   BaseURI,
   DomainName,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
+  BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -37,17 +37,13 @@ export class SiftContract
 
   public checkURL(
     domain: DomainName,
-  ): ResultAsync<TokenUri, SiftContractError> {
+  ): ResultAsync<TokenUri, SiftContractError | BlockchainCommonErrors> {
     // Returns the tokenURI or string
     // eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED'
     return ResultAsync.fromPromise(
       this.contract.checkURL(domain) as Promise<TokenUri>,
       (e) => {
-        return new SiftContractError(
-          "Unable to call checkURL()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, `Unable to call checkURL(${domain})`);
       },
     );
   }
@@ -58,7 +54,7 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.writeToContract("verifyURL", [domain], overrides);
   }
@@ -69,7 +65,7 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.writeToContract("maliciousURL", [domain], overrides);
   }
@@ -79,7 +75,7 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.writeToContract("setBaseURI", [baseUri], overrides);
   }

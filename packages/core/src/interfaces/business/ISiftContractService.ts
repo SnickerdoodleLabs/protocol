@@ -6,7 +6,7 @@ import {
   TokenUri,
   UninitializedError,
   EScamFilterStatus,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -15,7 +15,7 @@ export interface ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
     | BlockchainProviderError
     | UninitializedError
     | SiftContractError
@@ -25,7 +25,7 @@ export interface ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
     | BlockchainProviderError
     | UninitializedError
     | SiftContractError
@@ -35,7 +35,10 @@ export interface ISiftContractService {
     domain: DomainName,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | BlockchainCommonErrors
   >;
 }
 

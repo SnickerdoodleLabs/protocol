@@ -11,12 +11,11 @@ import {
 import {
   EVMContractAddress,
   EVMAccountAddress,
-  IBlockchainError,
   BaseURI,
   RewardsFactoryError,
   ECreatedRewardType,
   BlockchainErrorMapper,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -58,11 +57,9 @@ export class RewardsContractFactory
     overrides: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | RewardsFactoryError
+    BlockchainCommonErrors | RewardsFactoryError
   > {
-    return GasUtils.getGasFee<RewardsFactoryError>(
-      this.providerOrSigner,
-    ).andThen((gasFee) => {
+    return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
       const contractOverrides = {
         ...gasFee,
         ...overrides,
@@ -80,16 +77,18 @@ export class RewardsContractFactory
     name: string,
     symbol: string,
     baseURI: BaseURI,
-  ): ResultAsync<ethers.BigNumber, RewardsFactoryError> {
+  ): ResultAsync<
+    ethers.BigNumber,
+    RewardsFactoryError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.providerOrSigner.estimateGas(
         this.contractFactory.getDeployTransaction(name, symbol, baseURI),
       ),
       (e) => {
-        return new RewardsFactoryError(
-          "Failed to wait() for contract deployment",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Failed to wait() for contract deployment",
         );
       },
     ).map((estimatedGas) => {
@@ -114,37 +113,27 @@ export class RewardsContractFactory
     isDeployingContract?: boolean,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | RewardsFactoryError
+    BlockchainCommonErrors | RewardsFactoryError
   > {
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {
         ...overrides,
       }) as Promise<ethers.providers.TransactionResponse | ethers.Contract>,
       (e) => {
-        return new RewardsFactoryError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, `Unable to call ${functionName}()`);
       },
-    )
-      .map((transactionResponse) => {
-        // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
-        return RewardsContractFactory.buildWrappedTransactionResponse(
-          isDeployingContract == true
-            ? (transactionResponse as ethers.Contract).deployTransaction
-            : (transactionResponse as ethers.providers.TransactionResponse),
-          EVMContractAddress(""),
-          EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-          functionName,
-          functionParams,
-          ContractsAbis.ConsentFactoryAbi.abi,
-        );
-      })
-      .mapErr((e) => {
-        return BlockchainErrorMapper.buildBlockchainError(e, (msg, reason, e) =>
-          this.generateContractSpecificError(msg, reason, e),
-        );
-      });
+    ).map((transactionResponse) => {
+      // If we are deploying a contract, the deploy() call returns an ethers.Contract object and the txresponse is under the deployTransaction property
+      return RewardsContractFactory.buildWrappedTransactionResponse(
+        isDeployingContract == true
+          ? (transactionResponse as ethers.Contract).deployTransaction
+          : (transactionResponse as ethers.providers.TransactionResponse),
+        EVMContractAddress(""),
+        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+        functionName,
+        functionParams,
+        ContractsAbis.ConsentFactoryAbi.abi,
+      );
+    });
   }
 }

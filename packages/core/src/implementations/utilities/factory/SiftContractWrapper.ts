@@ -11,7 +11,7 @@ import {
   BaseURI,
   DomainName,
   TokenUri,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -39,7 +39,7 @@ export class SiftContractWrapper
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.fallback(
       () => this.primary.verifyURL(domain),
@@ -51,7 +51,7 @@ export class SiftContractWrapper
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.fallback(
       () => this.primary.maliciousURL(domain),
@@ -61,7 +61,7 @@ export class SiftContractWrapper
 
   public checkURL(
     domain: DomainName,
-  ): ResultAsync<TokenUri, SiftContractError> {
+  ): ResultAsync<TokenUri, SiftContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.checkURL(domain),
       () => this.secondary?.checkURL(domain),
@@ -72,7 +72,7 @@ export class SiftContractWrapper
     baseUri: BaseURI,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.fallback(
       () => this.primary.setBaseURI(baseUri),

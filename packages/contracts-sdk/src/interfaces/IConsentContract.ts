@@ -22,7 +22,7 @@ import {
   HexString32,
   InvalidParametersError,
   BigNumberString,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -40,7 +40,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
@@ -62,7 +62,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   encodeRestrictedOptIn(
@@ -87,7 +87,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   encodeAnonymousRestrictedOptIn(
@@ -105,7 +105,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
   encodeOptOut(tokenId: TokenId): HexString;
 
@@ -115,16 +115,19 @@ export interface IConsentContract extends IBaseContract {
    */
   agreementFlags(
     tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError>;
+  ): ResultAsync<HexString32, ConsentContractError | BlockchainCommonErrors>;
 
-  getMaxCapacity(): ResultAsync<number, ConsentContractError>;
+  getMaxCapacity(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   updateMaxCapacity(
     maxCapacity: number,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   updateAgreementFlags(
@@ -133,7 +136,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   encodeUpdateAgreementFlags(
@@ -150,14 +153,17 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
    * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
    * Address at index 0 of the returned array is the contract owner
    */
-  getConsentOwner(): ResultAsync<EVMAccountAddress, ConsentContractError>;
+  getConsentOwner(): ResultAsync<
+    EVMAccountAddress,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
@@ -165,7 +171,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -173,7 +179,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getSignerRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -181,7 +187,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getPauserRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -189,7 +195,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getRequesterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -198,7 +204,7 @@ export interface IConsentContract extends IBaseContract {
    */
   balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError>;
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Returns the owner account for a token Id
@@ -206,7 +212,10 @@ export interface IConsentContract extends IBaseContract {
    */
   ownerOf(
     tokenId: TokenId,
-  ): ResultAsync<EVMAccountAddress, ConsentContractError>;
+  ): ResultAsync<
+    EVMAccountAddress,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the token uri for a specific token Id
@@ -214,7 +223,10 @@ export interface IConsentContract extends IBaseContract {
    */
   tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, ConsentContractError>;
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns a topic event object that can be fetched for events logs
@@ -226,7 +238,7 @@ export interface IConsentContract extends IBaseContract {
     eventFilter: EventFilter,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError>;
+  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Returns a consent token by the token ID
@@ -234,7 +246,7 @@ export interface IConsentContract extends IBaseContract {
    */
   getConsentToken(
     tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError>;
+  ): ResultAsync<ConsentToken, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Adds a domain to the contract storage
@@ -247,7 +259,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
@@ -261,13 +273,16 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
    * Returns an array of domains added to the contract
    */
-  getDomains(): ResultAsync<DomainName[], ConsentContractError>;
+  getDomains(): ResultAsync<
+    DomainName[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns a list of RequestForData events between two block numbers
@@ -279,7 +294,10 @@ export interface IConsentContract extends IBaseContract {
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<RequestForData[], ConsentContractError>;
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the tokenId of latest opt-in contract the user has
@@ -288,7 +306,10 @@ export interface IConsentContract extends IBaseContract {
    */
   getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
-  ): ResultAsync<TokenId | null, ConsentContractError>;
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Disables open opt ins on the contract
@@ -298,7 +319,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
@@ -309,13 +330,16 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
    * Returns the baseURI of the Consent contract
    */
-  baseURI(): ResultAsync<BaseURI, ConsentContractError>;
+  baseURI(): ResultAsync<
+    BaseURI,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Sets a new baseURI for the Consent contract
@@ -326,7 +350,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
@@ -337,7 +361,7 @@ export interface IConsentContract extends IBaseContract {
   hasRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ConsentContractError>;
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors>;
 
   /**
    * Grants a role to an address
@@ -350,7 +374,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
@@ -364,7 +388,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
@@ -378,13 +402,16 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
    * Returns the earliest block that should be looked at for requestForData events
    */
-  getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError>;
+  getQueryHorizon(): ResultAsync<
+    BlockNumber,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Sets the earliest block that should ever be looked at for requestForData events.
@@ -398,18 +425,24 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   /**
    * Get the number of opted in addresses
    */
-  totalSupply(): ResultAsync<number, ConsentContractError>;
+  totalSupply(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Get the open optIn availability
    */
-  openOptInDisabled(): ResultAsync<boolean, ConsentContractError>;
+  openOptInDisabled(): ResultAsync<
+    boolean,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   getSignature(
     values: Array<
@@ -422,11 +455,20 @@ export interface IConsentContract extends IBaseContract {
   /**
    * Marketplace functions
    */
-  getMaxTags(): ResultAsync<number, ConsentContractError>;
+  getMaxTags(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
-  getNumberOfStakedTags(): ResultAsync<number, ConsentContractError>;
+  getNumberOfStakedTags(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
-  getTagArray(): ResultAsync<Tag[], ConsentContractError>;
+  getTagArray(): ResultAsync<
+    Tag[],
+    ConsentContractError | BlockchainCommonErrors
+  >;
 
   newGlobalTag(
     tag: string,
@@ -434,7 +476,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   newLocalTagUpstream(
@@ -444,7 +486,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   newLocalTagDownstream(
@@ -454,7 +496,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   replaceExpiredListing(
@@ -463,7 +505,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 
   removeListing(
@@ -471,7 +513,7 @@ export interface IConsentContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   >;
 }
 

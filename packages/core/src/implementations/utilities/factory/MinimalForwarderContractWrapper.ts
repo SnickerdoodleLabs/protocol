@@ -1,6 +1,5 @@
 import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
-import { TransactionResponse } from "@ethersproject/abstract-provider";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IMinimalForwarderContract,
@@ -13,7 +12,7 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -34,7 +33,10 @@ export class MinimalForwarderContractWrapper
   }
   public getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError> {
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getNonce(from),
       () => this.secondary?.getNonce(from),
@@ -43,7 +45,10 @@ export class MinimalForwarderContractWrapper
   public verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError> {
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.verify(request, signature),
       () => this.secondary?.verify(request, signature),
@@ -54,7 +59,7 @@ export class MinimalForwarderContractWrapper
     signature: Signature,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | MinimalForwarderContractError
+    BlockchainCommonErrors | MinimalForwarderContractError
   > {
     return this.fallback(
       () => this.primary.execute(request, signature),

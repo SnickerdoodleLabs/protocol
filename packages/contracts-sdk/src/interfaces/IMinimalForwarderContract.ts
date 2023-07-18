@@ -9,7 +9,7 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -17,12 +17,18 @@ import { ResultAsync } from "neverthrow";
 export interface IMinimalForwarderContract extends IBaseContract {
   getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError>;
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  >;
 
   verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError>;
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  >;
 
   execute(
     request: IMinimalForwarderRequest,
@@ -30,7 +36,7 @@ export interface IMinimalForwarderContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | MinimalForwarderContractError
+    BlockchainCommonErrors | MinimalForwarderContractError
   >;
 }
 
