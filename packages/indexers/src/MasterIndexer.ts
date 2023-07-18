@@ -64,7 +64,7 @@ export class MasterIndexer implements IMasterIndexer {
 
     // Doodlechain
     [EChain.DevDoodle, [this.sim]],
-  ]);
+  ]); 
 
   protected componentStatus: ComponentStatus = new ComponentStatus(
     EComponentStatus.TemporarilyDisabled,
