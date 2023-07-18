@@ -32,6 +32,8 @@ import {
   IDiscordServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
   IScamFilterService,
@@ -130,6 +132,7 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  GetMetricsParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -681,6 +684,12 @@ export class RpcCallHandler implements IRpcCallHandler {
         return okAsync(this.configProvider.getConfig());
       },
     ),
+    new CoreActionHandler<GetMetricsParams>(
+      GetMetricsParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getMetrics();
+      },
+    ),
   ];
 
   constructor(
@@ -706,6 +715,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected twitterService: ITwitterService,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
+    @inject(IMetricsServiceType) protected metricsService: IMetricsService,
   ) {}
 
   public async handleRpcCall(

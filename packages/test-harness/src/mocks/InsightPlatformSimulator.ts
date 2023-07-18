@@ -45,6 +45,7 @@ import {
   clearCloudBackupsTypes,
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
+import cors from "cors";
 import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
@@ -77,6 +78,13 @@ export class InsightPlatformSimulator {
 
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+
+    const corsOptions = {
+      origin: "*",
+      methods: ["POST", "GET", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    };
+    this.app.use(cors(corsOptions));
 
     this.app.get("/", (req, res) => {
       res.send("Hello World!");

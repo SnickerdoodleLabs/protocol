@@ -44,6 +44,7 @@ import {
   DataWalletAddress,
   ENotificationTypes,
   EProfileFieldType,
+  IProxyMetricsMethods,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -141,6 +142,7 @@ initConnection();
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public discord: ISdlDiscordMethods;
   public twitter: ISdlTwitterMethods;
+  public metrics: IProxyMetricsMethods;
 
   public events: PublicEvents = new PublicEvents();
 
@@ -242,6 +244,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.twitter.getUserProfiles();
       },
     };
+    this.metrics = {
+      getMetrics: () => {
+        return coreGateway.metrics.getMetrics();
+      },
+    };
+    
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });

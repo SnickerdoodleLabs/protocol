@@ -19,6 +19,7 @@ import {
   TokenMarketData,
   TwitterProfile,
   WalletNFT,
+  RuntimeMetrics,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -194,6 +195,7 @@ export interface ISdlDataWallet {
 
   discord: ISdlDiscordMethods;
   twitter: ISdlTwitterMethods;
+  metrics: IProxyMetricsMethods;
 
   events: ISnickerdoodleCoreEvents;
 }
@@ -235,4 +237,8 @@ export interface ISdlTwitterMethods {
   ): ResultAsync<TwitterProfile, ProxyError>;
   unlinkProfile(id: TwitterID): ResultAsync<void, ProxyError>;
   getUserProfiles(): ResultAsync<TwitterProfile[], ProxyError>;
+}
+
+export interface IProxyMetricsMethods {
+  getMetrics(): ResultAsync<RuntimeMetrics, ProxyError>;
 }

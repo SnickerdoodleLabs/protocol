@@ -37,6 +37,8 @@ import {
   TokenAndSecret,
   SiteVisit,
   ProxyError,
+  IProxyMetricsMethods,
+  RuntimeMetrics,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -114,12 +116,14 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  GetMetricsParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
   public discord: ISdlDiscordMethods;
   public twitter: ISdlTwitterMethods;
+  public metrics: IProxyMetricsMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -166,6 +170,12 @@ export class ExternalCoreGateway {
       },
       getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
         return this._handler.call(new TwitterGetLinkedProfilesParams());
+      },
+    };
+
+    this.metrics = {
+      getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+        return this._handler.call(new GetMetricsParams());
       },
     };
   }

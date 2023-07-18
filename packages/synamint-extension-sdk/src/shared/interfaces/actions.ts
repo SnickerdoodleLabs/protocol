@@ -44,7 +44,10 @@ import {
   TwitterID,
   TwitterProfile,
   TokenAndSecret,
+  RuntimeMetrics,
 } from "@snickerdoodlelabs/objects";
+
+import { IExtensionConfig } from "./IExtensionConfig";
 
 import {
   ECoreActions,
@@ -53,7 +56,6 @@ import {
   IInvitationDomainWithUUID,
   IScamFilterPreferences,
 } from "@synamint-extension-sdk/shared";
-import { IExtensionConfig } from "./IExtensionConfig";
 
 export abstract class CoreActionParams<TReturn> {
   public constructor(public method: ECoreActions) {}
@@ -730,6 +732,16 @@ export class TwitterGetLinkedProfilesParams extends CoreActionParams<
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.TWITTER_GET_LINKED_PROFILES;
+  }
+}
+
+export class GetMetricsParams extends CoreActionParams<RuntimeMetrics> {
+  public constructor() {
+    super(GetMetricsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.METRICS_GET_METRICS;
   }
 }
 

@@ -25,6 +25,7 @@ import {
   IConfigOverrides,
   IConsentCapacity,
   IOpenSeaMetadata,
+  IProxyMetricsMethods,
   IScamFilterPreferences,
   ISdlDataWallet,
   ISdlDiscordMethods,
@@ -46,6 +47,7 @@ import {
   PossibleReward,
   ProxyError,
   PublicEvents,
+  RuntimeMetrics,
   SDQLQueryRequest,
   Signature,
   SiteVisit,
@@ -603,7 +605,7 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
-  twitter: ISdlTwitterMethods = {
+  public twitter: ISdlTwitterMethods = {
     getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, ProxyError> => {
       return this._createCall("twitter.getOAuth1aRequestToken", null);
     },
@@ -621,6 +623,12 @@ export class SnickerdoodleIFrameProxy
     },
     getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
       return this._createCall("twitter.getUserProfiles", null);
+    },
+  };
+
+  public metrics: IProxyMetricsMethods = {
+    getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+      return this._createCall("metrics.getMetrics", null);
     },
   };
 

@@ -22,9 +22,9 @@ export class SnickerdoodleWebIntegration
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
 
-    if (window.snickerdoodle) {
+    if (window.sdlDataWallet) {
       // If there's already a proxy injected, we don't need to create a new one
-      this._core = window.snickerdoodle;
+      this._core = window.sdlDataWallet;
     } else {
       // Create a proxy connection to the iframe
       console.log("Creating Snickerdoodle Protocol Iframe Proxy");
@@ -47,7 +47,7 @@ export class SnickerdoodleWebIntegration
       console.log("Activating Snickerdoodle Core web integration");
       this.initializeResult = this._core.activate().map(() => {
         console.log("Snickerdoodle Core web integration activated");
-        window.snickerdoodle = this.core;
+        window.sdlDataWallet = this.core;
         return this.core;
       });
     }
