@@ -1,4 +1,5 @@
 import { ProxyError } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import Postmate from "postmate";
 
@@ -11,12 +12,15 @@ class IFrameCallData<T> implements IIFrameCallData<T> {
   constructor(public callId: number, public data: T) {}
 }
 
+@injectable()
 export abstract class ChildProxy {
   protected parent: Postmate.ChildAPI | undefined;
 
   protected abstract getModel(): Postmate.Model;
 
   protected abstract onModelActivated(parent: Postmate.ChildAPI): void;
+
+  public constructor() {}
 
   public activateModel(): ResultAsync<Postmate.ChildAPI, ProxyError> {
     const handshake = this.getModel();

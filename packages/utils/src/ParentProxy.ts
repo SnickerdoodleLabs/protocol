@@ -1,4 +1,5 @@
 import { ProxyError } from "@snickerdoodlelabs/objects";
+import { injectable, unmanaged } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
 import Postmate from "postmate";
 
@@ -45,6 +46,7 @@ class IFrameCall<CallDataType, ResultType, ErrorType> {
   }
 }
 
+@injectable()
 export abstract class ParentProxy {
   protected handshake: Postmate;
   protected child: Postmate.ParentAPI | null;
@@ -54,10 +56,10 @@ export abstract class ParentProxy {
   protected active: boolean;
 
   constructor(
-    protected element: HTMLElement | null,
-    protected iframeUrl: string,
-    protected iframeName: string,
-    protected debug: boolean = false,
+    @unmanaged() protected element: HTMLElement | null,
+    @unmanaged() protected iframeUrl: string,
+    @unmanaged() protected iframeName: string,
+    @unmanaged() protected debug: boolean = false,
   ) {
     this.child = null;
     this.active = false;

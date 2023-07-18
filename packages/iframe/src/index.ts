@@ -6,7 +6,6 @@ import {
   ICoreListener,
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
-// Instantiate the Snickerdoodle core.
 
 console.log("Snickerdoodle Core IFrame Loaded");
 
@@ -16,6 +15,7 @@ console.log("Snickerdoodle Core IFrame Loaded");
 // const debug = urlParams.get("debug");
 
 const iocContainer = new Container();
+
 // Elaborate syntax to demonstrate that we can use multiple modules
 iocContainer.load(...[iframeModule]);
 

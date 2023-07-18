@@ -1,33 +1,5 @@
-FROM node:16 AS builder
-
-WORKDIR /app
-
-# Install all the yarn stuff
-COPY .yarn .yarn
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY packages/browserExtension/package.json ./packages/browserExtension/
-COPY packages/synamint-extension-sdk/package.json ./packages/synamint-extension-sdk/
-COPY packages/common-utils/package.json ./packages/common-utils/
-COPY packages/contracts/package.json ./packages/contracts/
-COPY packages/contracts-sdk/package.json ./packages/contracts-sdk/
-COPY packages/core/package.json ./packages/core/
-COPY packages/extension-onboarding/package.json ./packages/extension-onboarding/
-COPY packages/indexers/package.json ./packages/indexers/
-COPY packages/insight-platform-api/package.json ./packages/insight-platform-api/
-COPY packages/objects/package.json ./packages/objects/
-COPY packages/persistence/package.json ./packages/persistence/
-COPY packages/query-parser/package.json ./packages/query-parser/
-COPY packages/shared-components/package.json ./packages/shared-components/
-COPY packages/signatureVerification/package.json ./packages/signatureVerification/
-COPY packages/test-harness/package.json ./packages/test-harness/
-COPY packages/utils/package.json ./packages/utils/
-RUN yarn install --network-timeout 60000
-
-# Now build the code
-COPY . .
-RUN yarn compile
-
-WORKDIR /app/packages/extension-onboarding
+ARG BASE_TAG=local
+FROM snickerdoodlelabs/protocol-docker-base:${BASE_TAG} as builder
 
 ARG BUILD_ENV=PROD
 ENV __BUILD_ENV__ $BUILD_ENV
@@ -50,11 +22,11 @@ ENV __HOTJAR_SNIPPET_VERSION__ $HOTJAR_SNIPPET_VERSION
 ARG IPFS_FETCH_BASE_URL="https://ipfs-gateway.snickerdoodle.dev/ipfs/"
 ENV __IPFS_FETCH_BASE_URL__ $IPFS_FETCH_BASE_URL
 
-RUN yarn build
+RUN cd packages/extension-onboarding && yarn postCompile
 
 FROM nginx:latest AS server
 
 # Copy over the dist files
-COPY --from=builder /app/packages/extension-onboarding/dist/bundle /usr/share/nginx/html
-COPY --from=builder /app/packages/extension-onboarding/nginx.conf /etc/nginx/nginx.conf
-COPY --from=builder /app/packages/extension-onboarding/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /build/packages/extension-onboarding/dist/bundle /usr/share/nginx/html
+COPY --from=builder /build/packages/extension-onboarding/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /build/packages/extension-onboarding/default.conf /etc/nginx/conf.d/default.conf

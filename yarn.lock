@@ -8102,6 +8102,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/protocol-docker-base@workspace:packages/docker":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/protocol-docker-base@workspace:packages/docker"
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/query-parser@workspace:^, @snickerdoodlelabs/query-parser@workspace:packages/query-parser":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/query-parser@workspace:packages/query-parser"

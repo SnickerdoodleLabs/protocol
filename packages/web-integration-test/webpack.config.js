@@ -110,16 +110,6 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
-      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
-      __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
-      __GA_TRACKING_ID__: JSON.stringify(process.env.__GA_TRACKING_ID__),
-      __IPFS_FETCH_BASE_URL__: JSON.stringify(
-        process.env.__IPFS_FETCH_BASE_URL__,
-      ),
-      __HOTJAR_ID__: JSON.stringify(process.env.__HOTJAR_ID__),
-      __HOTJAR_SNIPPET_VERSION__: JSON.stringify(
-        process.env.__HOTJAR_SNIPPET_VERSION__,
-      ),
     }),
   ],
 };
