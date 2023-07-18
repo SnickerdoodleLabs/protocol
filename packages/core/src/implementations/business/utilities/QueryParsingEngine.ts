@@ -15,7 +15,9 @@ import {
   IpfsCID,
   ISDQLAd,
   ISDQLCompensations,
+  MissingASTError,
   MissingTokenConstructorError,
+  MissingWalletDataTypeError,
   ParserError,
   PersistenceError,
   PossibleReward,
@@ -73,7 +75,18 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
+  ): ResultAsync<
+    [QueryIdentifier[], ExpectedReward[]],
+    | EvaluationError
+    | PersistenceError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  > {
     const queryString = query.query;
     const cid: IpfsCID = query.cid;
 
@@ -99,7 +112,16 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   public getPossibleRewards(
     query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | ParserError
+    | QueryFormatError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  > {
     return this.filterQueryWithAllPermissions(query.query).andThen(
       (queryFilteredByPermissions) => {
         return this.constructPossibleRewards(
@@ -117,7 +139,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IInsights,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | PersistenceError
   > {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
@@ -142,6 +172,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | DuplicateIdInSchema
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.queryUtils.filterQueryByPermissions(
       queryString,
@@ -161,6 +193,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | DuplicateIdInSchema
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.queryFactories
       .makeParserAsync(cid, query.query)
@@ -258,7 +292,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IInsights,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | PersistenceError
   > {
     return this.getAstAndAstEvaluator(sdqlParser, cid).andThen(
       ([ast, astEvaluator]) => {
@@ -280,7 +322,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     cid: IpfsCID,
   ): ResultAsync<
     [AST, IAST_Evaluator],
-    QueryFormatError | QueryExpiredError | ParserError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return sdqlParser.buildAST().map((ast: AST) => {
       return [
@@ -296,7 +344,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IInsightsQueries,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | PersistenceError
   > {
     return this.getPermittedQueries(sdqlParser, ast, dataPermissions).andThen(
       (permittedQueries) => {
@@ -325,7 +379,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     AST_Query[],
-    EvaluationError | QueryFormatError | QueryExpiredError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
   > {
     return this.queryUtils
       .getPermittedQueryIds(sdqlParser, dataPermissions)
@@ -357,7 +416,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     IInsightsReturns,
-    EvaluationError | QueryFormatError | QueryExpiredError
+    EvaluationError | QueryFormatError | QueryExpiredError | PersistenceError
   > {
     const allReturns = [...ast.logic.returns.keys()];
 
@@ -406,7 +465,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   private evalQueries(
     queries: AST_Query[],
-  ): ResultAsync<[QueryIdentifier, SDQL_Return], EvaluationError>[] {
+  ): ResultAsync<
+    [QueryIdentifier, SDQL_Return],
+    EvaluationError | PersistenceError
+  >[] {
     return queries.map((query) =>
       this.queryRepository
         .get(IpfsCID(""), query)
@@ -418,7 +480,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     ast: AST,
     astEvaluator: IAST_Evaluator,
     returnExpressions: string[],
-  ): ResultAsync<[string, SDQL_Return], EvaluationError>[] {
+  ): ResultAsync<[string, SDQL_Return], EvaluationError | PersistenceError>[] {
     return returnExpressions.map((returnExpr) =>
       astEvaluator
         .evalAny(ast.logic.returns.get(returnExpr))

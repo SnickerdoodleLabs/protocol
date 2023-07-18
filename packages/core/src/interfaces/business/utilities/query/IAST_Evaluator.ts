@@ -22,22 +22,38 @@ import { ResultAsync } from "neverthrow";
 export interface IAST_Evaluator {
   eval(): ResultAsync<SDQL_Return, EvaluationError>;
 
-  evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError>;
+  evalAny(
+    expr: any,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
   evalExpr(
     expr: AST_Expr | Command_IF | Operator,
   ): ResultAsync<SDQL_Return, EvaluationError>;
-  evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError>;
+  evalIf(
+    eef: Command_IF,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
   evalConditionExpr(
     expr: AST_ConditionExpr,
-  ): ResultAsync<SDQL_Return, EvaluationError>;
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
   evalQuery(q: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;
   evalOperator(op: Operator): ResultAsync<SDQL_Return, EvaluationError>;
-  evalAnd(cond: ConditionAnd): ResultAsync<SDQL_Return, EvaluationError>;
-  evalOr(cond: ConditionOr): ResultAsync<SDQL_Return, EvaluationError>;
-  evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError>;
-  evalGE(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError>;
-  evalG(cond: ConditionG): ResultAsync<SDQL_Return, EvaluationError>;
-  evalL(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError>;
+  evalAnd(
+    cond: ConditionAnd,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
+  evalOr(
+    cond: ConditionOr,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
+  evalIn(
+    cond: ConditionIn,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
+  evalGE(
+    cond: ConditionGE,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
+  evalG(
+    cond: ConditionG,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
+  evalL(
+    cond: ConditionGE,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
   evalCompensationExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError>;
   evalCompCondition(
     expr: AST_ConditionExpr,

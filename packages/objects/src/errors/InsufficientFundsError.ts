@@ -1,9 +1,9 @@
 import errorCodes from "@objects/errors/errorCodes.js";
-import { BaseBEError } from "@objects/errors/BaseBEError.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class InsufficientFundsError extends BaseBEError {
+export class InsufficientFundsError extends BaseError {
   protected errorCode: string = errorCodes[InsufficientFundsError.name];
-  constructor(message: string, public src: unknown) {
+  constructor(message: string, public src?: unknown) {
     super(message, 500, errorCodes[InsufficientFundsError.name], src, false);
   }
 }

@@ -1,9 +1,9 @@
 import errorCodes from "@objects/errors/errorCodes.js";
-import { BaseBEError } from "@objects/errors/BaseBEError.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class ExecutionRevertedError extends BaseBEError {
+export class ExecutionRevertedError extends BaseError {
   protected errorCode: string = errorCodes[ExecutionRevertedError.name];
-  constructor(message: string, public src: unknown) {
+  constructor(message: string, public src?: unknown) {
     super(message, 500, errorCodes[ExecutionRevertedError.name], src, false);
   }
 }

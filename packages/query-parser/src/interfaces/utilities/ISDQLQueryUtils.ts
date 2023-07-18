@@ -11,6 +11,8 @@ import {
   QueryFilteredByPermissions,
   QueryIdentifier,
   QueryTypes,
+  MissingASTError,
+  MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -25,6 +27,8 @@ export interface ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   >;
 
   getPermittedQueryIdsFromSchemaString(
@@ -37,6 +41,8 @@ export interface ISDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   >;
 
   getPermittedQueryIds(
@@ -61,6 +67,8 @@ export interface ISDQLQueryUtils {
     | DuplicateIdInSchema
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   >;
 
   getQueryTypeDependencies(

@@ -1,9 +1,9 @@
 import errorCodes from "@objects/errors/errorCodes.js";
-import { BaseBEError } from "@objects/errors/BaseBEError.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class UnknownBlockchainError extends BaseBEError {
+export class UnknownBlockchainError extends BaseError {
   protected errorCode: string = errorCodes[UnknownBlockchainError.name];
-  constructor(message: string, public src: unknown) {
+  constructor(message: string, public src?: unknown) {
     super(message, 500, errorCodes[UnknownBlockchainError.name], src, false);
   }
 }

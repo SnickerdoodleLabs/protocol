@@ -1,11 +1,17 @@
 import {
   DataPermissions,
+  DuplicateIdInSchema,
   EvaluationError,
   EVMContractAddress,
   ExpectedReward,
   IInsights,
+  MissingASTError,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
   ParserError,
+  PersistenceError,
   PossibleReward,
+  QueryExpiredError,
   QueryFormatError,
   QueryIdentifier,
   SDQLQuery,
@@ -17,14 +23,45 @@ export interface IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError>;
+  ): ResultAsync<
+    [QueryIdentifier[], ExpectedReward[]],
+    | EvaluationError
+    | PersistenceError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  >;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-  ): ResultAsync<IInsights, EvaluationError | QueryFormatError>;
+  ): ResultAsync<
+    IInsights,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | PersistenceError
+  >;
   getPossibleRewards(
     query: SDQLQuery,
-  ): ResultAsync<PossibleReward[], ParserError>;
+  ): ResultAsync<
+    PossibleReward[],
+    | ParserError
+    | QueryFormatError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  >;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");
