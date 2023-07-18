@@ -12,7 +12,7 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
@@ -46,7 +46,7 @@ export class MinimalForwarderContract
     from: EVMAccountAddress,
   ): ResultAsync<
     BigNumberString,
-    MinimalForwarderContractError | TBlockchainCommonErrors
+    MinimalForwarderContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getNonce(from) as Promise<BigNumber>,
@@ -63,7 +63,7 @@ export class MinimalForwarderContract
     signature: Signature,
   ): ResultAsync<
     boolean,
-    MinimalForwarderContractError | TBlockchainCommonErrors
+    MinimalForwarderContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.verify(request, signature) as Promise<boolean>,
@@ -79,7 +79,7 @@ export class MinimalForwarderContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | MinimalForwarderContractError
+    BlockchainCommonErrors | MinimalForwarderContractError
   > {
     return this.writeToContract("execute", [request, signature], overrides);
   }
@@ -90,16 +90,5 @@ export class MinimalForwarderContract
     e: unknown,
   ): MinimalForwarderContractError {
     return new MinimalForwarderContractError(msg, reason, e);
-  }
-
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): MinimalForwarderContractError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
   }
 }

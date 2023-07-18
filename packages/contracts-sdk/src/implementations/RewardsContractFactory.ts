@@ -15,7 +15,7 @@ import {
   RewardsFactoryError,
   ECreatedRewardType,
   BlockchainErrorMapper,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -57,7 +57,7 @@ export class RewardsContractFactory
     overrides: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | RewardsFactoryError
+    BlockchainCommonErrors | RewardsFactoryError
   > {
     return GasUtils.getGasFee(this.providerOrSigner).andThen((gasFee) => {
       const contractOverrides = {
@@ -79,7 +79,7 @@ export class RewardsContractFactory
     baseURI: BaseURI,
   ): ResultAsync<
     ethers.BigNumber,
-    RewardsFactoryError | TBlockchainCommonErrors
+    RewardsFactoryError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.providerOrSigner.estimateGas(
@@ -105,17 +105,6 @@ export class RewardsContractFactory
     return new RewardsFactoryError(msg, reason, e);
   }
 
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): RewardsFactoryError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
-  }
-
   // Takes the factory's deploy function name and params, submits the transaction and returns a WrappedTransactionResponse
   protected writeToContractFactory(
     functionName: string,
@@ -124,7 +113,7 @@ export class RewardsContractFactory
     isDeployingContract?: boolean,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | RewardsFactoryError
+    BlockchainCommonErrors | RewardsFactoryError
   > {
     return ResultAsync.fromPromise(
       this.contractFactory[functionName](...functionParams, {

@@ -29,7 +29,7 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -58,7 +58,7 @@ export class MarketplaceService implements IMarketplaceService {
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getMarketplaceListingsByTag(
       pagingReq,
@@ -74,7 +74,7 @@ export class MarketplaceService implements IMarketplaceService {
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getListingsTotalByTag(tag);
   }
@@ -86,7 +86,7 @@ export class MarketplaceService implements IMarketplaceService {
     | UninitializedError
     | BlockchainProviderError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
@@ -158,7 +158,7 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getPublishedQueriesPerContract(
     consentContract: IConsentContract,
-  ): ResultAsync<IpfsCID[], ConsentContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<IpfsCID[], ConsentContractError | BlockchainCommonErrors> {
     return this._getRequestForDataList(consentContract).map((r4dList) =>
       r4dList.map((r4d) => r4d.requestedCID),
     );
@@ -168,7 +168,7 @@ export class MarketplaceService implements IMarketplaceService {
     consentContract: IConsentContract,
   ): ResultAsync<
     RequestForData[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return consentContract.getConsentOwner().andThen((consentOwner) => {
       return consentContract.getRequestForDataListByRequesterAddress(

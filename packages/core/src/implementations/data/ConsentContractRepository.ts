@@ -20,7 +20,7 @@ import {
   UninitializedError,
   URLString,
   BlockNumber,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -60,7 +60,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
@@ -80,7 +80,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
@@ -114,7 +114,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
@@ -155,7 +155,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.contextProvider
       .getContext()
@@ -192,7 +192,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.contextProvider
       .getContext()
@@ -316,7 +316,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.consentContractFactory
       .factoryConsentFactoryContract()
@@ -332,7 +332,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
@@ -348,7 +348,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
@@ -365,7 +365,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
@@ -381,7 +381,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // Check if the query horizon is in the cache
     const cachedQueryHorizon = this.queryHorizonCache.get(

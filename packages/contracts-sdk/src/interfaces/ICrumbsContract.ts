@@ -9,7 +9,7 @@ import {
   TokenId,
   TokenUri,
   HexString,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -23,7 +23,7 @@ export interface ICrumbsContract extends IBaseContract {
   addressToCrumbId(
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenId | null, CrumbsContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<TokenId | null, CrumbsContractError | BlockchainCommonErrors>;
 
   /**
    * Gets the token URI value for the crumb owned by a particular account address
@@ -36,7 +36,7 @@ export interface ICrumbsContract extends IBaseContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<
     TokenUri | null,
-    CrumbsContractError | TBlockchainCommonErrors
+    CrumbsContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -50,7 +50,7 @@ export interface ICrumbsContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   >;
 
   /**
@@ -69,7 +69,7 @@ export interface ICrumbsContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   >;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;

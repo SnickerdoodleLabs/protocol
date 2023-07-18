@@ -56,7 +56,7 @@ import {
   PersistenceError,
   QueryFormatError,
   SiftContractError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   TwitterError,
   UnauthorizedError,
   UninitializedError,
@@ -153,7 +153,7 @@ export interface IAccountMethods {
     | UnsupportedLanguageError
     | MinimalForwarderContractError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -186,7 +186,7 @@ export interface IAccountMethods {
     | AjaxError
     | MinimalForwarderContractError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -213,7 +213,7 @@ export interface IAccountMethods {
     | AjaxError
     | MinimalForwarderContractError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -240,7 +240,7 @@ export interface IAccountMethods {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   unlockWithPassword(
@@ -256,7 +256,7 @@ export interface IAccountMethods {
     | CrumbsContractError
     | InvalidSignatureError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   addPassword(
@@ -270,7 +270,7 @@ export interface IAccountMethods {
     | UninitializedError
     | CrumbsContractError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   removePassword(
@@ -283,7 +283,7 @@ export interface IAccountMethods {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 }
 
@@ -297,7 +297,7 @@ export interface ICoreMarketplaceMethods {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getListingsTotalByTag(
@@ -307,7 +307,7 @@ export interface ICoreMarketplaceMethods {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getRecommendationsByListing(
@@ -317,7 +317,7 @@ export interface ICoreMarketplaceMethods {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -523,7 +523,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | ConsentContractRepositoryError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -546,7 +546,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -573,7 +573,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | ConsentContractRepositoryError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -594,7 +594,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitations(
@@ -613,7 +613,7 @@ export interface IInvitationMethods {
     | IPFSError
     | UnauthorizedError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getAgreementFlags(
@@ -628,7 +628,7 @@ export interface IInvitationMethods {
     | PersistenceError
     | ConsentError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getAvailableInvitationsCID(
@@ -641,7 +641,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | PersistenceError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitationsCID(
@@ -654,7 +654,7 @@ export interface IInvitationMethods {
     | ConsentFactoryContractError
     | PersistenceError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getInvitationMetadataByCID(
@@ -674,7 +674,7 @@ export interface IInvitationMethods {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 }
 
@@ -693,7 +693,7 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getConsentContractCID(
@@ -704,7 +704,7 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | ConsentContractError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   checkURL(
@@ -716,7 +716,7 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | SiftContractError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   // Called by the form factor to approve the processing of the query.

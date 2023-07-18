@@ -5,7 +5,7 @@ import {
 import {
   RewardsFactoryError,
   BaseURI,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -18,7 +18,7 @@ export interface IRewardsContractFactory {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | RewardsFactoryError
+    BlockchainCommonErrors | RewardsFactoryError
   >;
 
   estimateGasToDeployERC721Contract(
@@ -27,7 +27,7 @@ export interface IRewardsContractFactory {
     baseURI: BaseURI,
   ): ResultAsync<
     ethers.BigNumber,
-    RewardsFactoryError | TBlockchainCommonErrors
+    RewardsFactoryError | BlockchainCommonErrors
   >;
 }
 

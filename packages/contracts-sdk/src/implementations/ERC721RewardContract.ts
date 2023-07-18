@@ -13,7 +13,7 @@ import {
   TokenId,
   BaseURI,
   ERC721RewardContractError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers, EventFilter } from "ethers";
@@ -41,7 +41,7 @@ export class ERC721RewardContract
 
   public getOwner(): ResultAsync<
     EVMAccountAddress,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
@@ -58,7 +58,7 @@ export class ERC721RewardContract
   // Note that the address on index 0 is the contract owner
   public getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
@@ -97,7 +97,7 @@ export class ERC721RewardContract
 
   public getMinterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
@@ -136,7 +136,7 @@ export class ERC721RewardContract
 
   public baseURI(): ResultAsync<
     BaseURI,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.baseURI() as Promise<BaseURI>,
@@ -151,14 +151,14 @@ export class ERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   > {
     return this.writeToContract("setBaseURI", [baseUri, overrides]);
   }
 
   public balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ERC721RewardContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.balanceOf(address) as Promise<BigNumber>,
       (e) => {
@@ -173,7 +173,7 @@ export class ERC721RewardContract
     tokenId: TokenId,
   ): ResultAsync<
     EVMAccountAddress,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
@@ -187,7 +187,7 @@ export class ERC721RewardContract
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
@@ -208,7 +208,7 @@ export class ERC721RewardContract
   public hasRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC721RewardContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
       (e) => {
@@ -223,7 +223,7 @@ export class ERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   > {
     return this.writeToContract(
       "grantRole",
@@ -238,7 +238,7 @@ export class ERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   > {
     return this.writeToContract(
       "revokeRole",
@@ -253,7 +253,7 @@ export class ERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   > {
     return this.writeToContract(
       "renounceRole",
@@ -268,17 +268,6 @@ export class ERC721RewardContract
     e: unknown,
   ): ERC721RewardContractError {
     return new ERC721RewardContractError(msg, reason, e);
-  }
-
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): ERC721RewardContractError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
   }
 
   public filters = {

@@ -10,7 +10,7 @@ import {
   EVMPrivateKey,
   MinimalForwarderContractError,
   Signature,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -52,7 +52,7 @@ export class MetatransactionForwarderRepository
     | BlockchainProviderError
     | UninitializedError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.contractFactory.factoryMinimalForwarderContract(),

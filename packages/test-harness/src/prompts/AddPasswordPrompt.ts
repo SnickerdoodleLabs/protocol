@@ -6,7 +6,7 @@ import {
   MinimalForwarderContractError,
   PasswordString,
   PersistenceError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
@@ -28,7 +28,7 @@ export class AddPasswordPrompt extends Prompt {
     | InvalidSignatureError
     | MinimalForwarderContractError
     | UnauthorizedError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return inquiryWrapper([
       {

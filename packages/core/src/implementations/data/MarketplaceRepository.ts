@@ -10,7 +10,7 @@ import {
   PagingRequest,
   UnixTimestamp,
   ConsentContractError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -43,7 +43,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentFactoryContract().andThen(
       (consentFactoryContract) => {
@@ -61,7 +61,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getMarketplaceTagListingsCached(tag, true).map((listings) => {
       const page = pagingReq.page;
@@ -87,7 +87,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // Check if listing has a consent contract attached
     if (listing.consentContract == null) {
@@ -122,7 +122,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.configProvider.getConfig().andThen((config) => {
       const cache = this.tagCache.get(tag);
@@ -153,7 +153,7 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentFactoryContract()
       .andThen((consentFactoryContract) => {

@@ -5,7 +5,7 @@ import {
   EVMAccountAddress,
   HexString,
   LanguageCode,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   TokenId,
   TokenUri,
   UninitializedError,
@@ -27,7 +27,7 @@ export interface ICrumbsRepository {
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getCrumbTokenId(
@@ -37,7 +37,7 @@ export interface ICrumbsRepository {
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -65,7 +65,7 @@ export interface ICrumbsRepository {
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 }
 

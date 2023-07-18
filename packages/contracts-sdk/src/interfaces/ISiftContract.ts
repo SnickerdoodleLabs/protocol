@@ -6,7 +6,7 @@ import {
   TokenUri,
   DomainName,
   BaseURI,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -21,7 +21,7 @@ export interface ISiftContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   >;
 
   /**
@@ -34,7 +34,7 @@ export interface ISiftContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   >;
 
   /**
@@ -45,7 +45,7 @@ export interface ISiftContract extends IBaseContract {
    */
   checkURL(
     domain: DomainName,
-  ): ResultAsync<TokenUri, SiftContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<TokenUri, SiftContractError | BlockchainCommonErrors>;
 
   /**
    * Sets a new base uri for the contract
@@ -56,7 +56,7 @@ export interface ISiftContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   >;
 }
 

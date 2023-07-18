@@ -4,7 +4,7 @@ import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 import { injectable } from "inversify";
 import {
   BlockchainErrorMapper,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 
 @injectable()
@@ -14,7 +14,7 @@ export class GasUtils {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-  ): ResultAsync<ContractOverrides, TBlockchainCommonErrors> {
+  ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
       return BlockchainErrorMapper.buildBlockchainError(e);
     }).map((feeData) => {
@@ -27,7 +27,7 @@ export class GasUtils {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-  ): ResultAsync<ContractOverrides, TBlockchainCommonErrors> {
+  ): ResultAsync<ContractOverrides, BlockchainCommonErrors> {
     return ResultAsync.fromPromise(providerOrSigner.getFeeData(), (e) => {
       return BlockchainErrorMapper.buildBlockchainError(e);
     }).map((feeData) => {

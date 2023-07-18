@@ -17,7 +17,7 @@ import {
   IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   TransactionResponseError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -56,7 +56,7 @@ export class ConsentFactoryContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.writeToContract(
       "createConsent",
@@ -70,7 +70,7 @@ export class ConsentFactoryContract
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsCount(
@@ -96,7 +96,7 @@ export class ConsentFactoryContract
     endingIndex: number,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsByIndex(
@@ -118,7 +118,7 @@ export class ConsentFactoryContract
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.getUserDeployedConsentsCount(ownerAddress).andThen((count) => {
       return this.getUserDeployedConsentsByIndex(ownerAddress, 0, count);
@@ -131,7 +131,7 @@ export class ConsentFactoryContract
     role: ConsentRoles,
   ): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
@@ -159,7 +159,7 @@ export class ConsentFactoryContract
     endingIndex: number,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getUserRoleAddressesCountByIndex(
@@ -179,7 +179,7 @@ export class ConsentFactoryContract
 
   public getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     const eventFilter = this.contract.filters.ConsentDeployed();
     return ResultAsync.fromPromise(
@@ -204,7 +204,7 @@ export class ConsentFactoryContract
   // Marketplace functions
   public getMaxTagsPerListing(): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.maxTagsPerListing() as Promise<BigNumber>,
@@ -218,7 +218,7 @@ export class ConsentFactoryContract
 
   public getListingDuration(): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getListingDuration() as Promise<BigNumber>,
@@ -235,7 +235,7 @@ export class ConsentFactoryContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.writeToContract(
       "setListingDuration",
@@ -249,7 +249,7 @@ export class ConsentFactoryContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.writeToContract(
       "setMaxTagsPerListing",
@@ -264,7 +264,7 @@ export class ConsentFactoryContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.writeToContract(
       "setMaxTagsPerListing",
@@ -278,7 +278,7 @@ export class ConsentFactoryContract
     slot: BigNumberString,
   ): ResultAsync<
     MarketplaceListing,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getListing(tag, slot) as Promise<IListingStruct>,
@@ -305,7 +305,7 @@ export class ConsentFactoryContract
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
@@ -348,7 +348,7 @@ export class ConsentFactoryContract
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
@@ -389,7 +389,7 @@ export class ConsentFactoryContract
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getTagTotal(tag) as Promise<BigNumber>,
@@ -406,7 +406,7 @@ export class ConsentFactoryContract
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     // We get the total number of slots by calling getTagTotal()
     // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
@@ -470,17 +470,6 @@ export class ConsentFactoryContract
     e: unknown,
   ): ConsentFactoryContractError {
     return new ConsentFactoryContractError(msg, reason, e);
-  }
-
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): ConsentFactoryContractError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
   }
 }
 interface IListingStruct {

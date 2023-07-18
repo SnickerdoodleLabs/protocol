@@ -19,7 +19,7 @@ import {
   TokenUri,
   IConsentCapacity,
   BlockNumber,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -35,7 +35,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -50,7 +50,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -64,7 +64,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getConsentToken(
@@ -74,7 +74,7 @@ export interface IConsentContractRepository {
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   isAddressOptedIn(
@@ -86,7 +86,7 @@ export interface IConsentContractRepository {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getLatestConsentTokenId(
@@ -96,7 +96,7 @@ export interface IConsentContractRepository {
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getConsentContracts(
@@ -111,7 +111,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getSignerRoleMembers(
@@ -121,7 +121,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   isOpenOptInDisabled(
@@ -131,7 +131,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getTokenURI(
@@ -142,7 +142,7 @@ export interface IConsentContractRepository {
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getQueryHorizon(
@@ -152,7 +152,7 @@ export interface IConsentContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   // Encoders

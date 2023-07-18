@@ -18,7 +18,7 @@ import {
   TokenId,
   HexString,
   TokenUri,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -59,7 +59,7 @@ export class CrumbsRepository implements ICrumbsRepository {
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getCrumbsContract().andThen((contract) => {
       // Retrieve the crumb id or token id mapped to the address
@@ -110,7 +110,7 @@ export class CrumbsRepository implements ICrumbsRepository {
     | UninitializedError
     | BlockchainProviderError
     | CrumbsContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getCrumbsContract().andThen((contract) => {
       return contract.addressToCrumbId(accountAddress);
@@ -156,7 +156,7 @@ export class CrumbsRepository implements ICrumbsRepository {
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getCrumbsContract().andThen((crumbsContract) => {
       return crumbsContract.tokenURI(tokenId);

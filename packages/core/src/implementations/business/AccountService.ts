@@ -50,7 +50,7 @@ import {
   ITokenPriceRepository,
   AccountIndexingError,
   PasswordString,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -156,7 +156,7 @@ export class AccountService implements IAccountService {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -317,7 +317,7 @@ export class AccountService implements IAccountService {
     | PersistenceError
     | AjaxError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -416,7 +416,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -517,7 +517,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -566,7 +566,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // Next step is to convert the signature into a derived account
     return ResultUtils.combine([
@@ -671,7 +671,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | CrumbsContractError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return ResultUtils.combine([
@@ -730,7 +730,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -850,7 +850,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | MinimalForwarderContractError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     const derivedEVMAccountAddress =
       this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(derivedEVMKey);
@@ -923,7 +923,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | MinimalForwarderContractError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
@@ -1012,7 +1012,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | AjaxError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),
@@ -1055,7 +1055,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | AjaxError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),

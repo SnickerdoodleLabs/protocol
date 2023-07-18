@@ -13,7 +13,7 @@ import {
 export class BlockchainErrorMapper {
   protected static blockchainErrorMapping = new Map<
     string,
-    (error: unknown | null) => TBlockchainCommonErrors
+    (error: unknown | null) => BlockchainCommonErrors
   >([
     [
       "could not detect network",
@@ -84,7 +84,7 @@ export class BlockchainErrorMapper {
   ]);
 
   // Repeating this pattern for each error type is not ideal, but it's the only way to get the type safety we want
-  public static buildBlockchainError(error): TBlockchainCommonErrors;
+  public static buildBlockchainError(error): BlockchainCommonErrors;
 
   public static buildBlockchainError<TGenericError>(
     error,
@@ -93,7 +93,7 @@ export class BlockchainErrorMapper {
       reason: string | undefined,
       err: unknown,
     ) => TGenericError,
-  ): TBlockchainCommonErrors | TGenericError;
+  ): BlockchainCommonErrors | TGenericError;
 
   public static buildBlockchainError<TGenericError>(
     error,
@@ -102,7 +102,7 @@ export class BlockchainErrorMapper {
       reason: string | undefined,
       err: unknown,
     ) => TGenericError,
-  ): TBlockchainCommonErrors | TGenericError {
+  ): BlockchainCommonErrors | TGenericError {
     // First check if error message is a ProviderError as some errors are triggered at the provider level rather than contract level
     let providerError;
 
@@ -169,7 +169,7 @@ export class BlockchainErrorMapper {
   }
 }
 
-export type TBlockchainCommonErrors =
+export type BlockchainCommonErrors =
   | UnknownBlockchainError
   | NetworkUnreachableError
   | InsufficientFundsError

@@ -26,7 +26,7 @@ import {
   ConsentToken,
   DataPermissions,
   BigNumberString,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
@@ -60,7 +60,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("optIn", [tokenId, agreementFlags], overrides);
   }
@@ -82,7 +82,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "restrictedOptIn",
@@ -112,7 +112,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "anonymousRestrictedOptIn",
@@ -140,7 +140,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("optOut", [tokenId], overrides);
   }
@@ -153,7 +153,7 @@ export class ConsentContract
 
   public agreementFlags(
     tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<HexString32, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
       (e) => {
@@ -164,7 +164,7 @@ export class ConsentContract
 
   public getMaxCapacity(): ResultAsync<
     number,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.maxCapacity() as Promise<BigNumber>,
@@ -181,7 +181,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
   }
@@ -192,7 +192,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "updateAgreementFlags",
@@ -218,7 +218,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("requestForData", [ipfsCID], overrides);
   }
@@ -227,7 +227,7 @@ export class ConsentContract
   // Note that the address on index 0 of the DEFAULT_ADMIN_ROLE members is the contract owner
   public getConsentOwner(): ResultAsync<
     EVMAccountAddress,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
@@ -244,7 +244,7 @@ export class ConsentContract
   // Note that the address on index 0 is the contract owner
   public getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
@@ -283,7 +283,7 @@ export class ConsentContract
 
   public getSignerRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
@@ -322,7 +322,7 @@ export class ConsentContract
 
   public getPauserRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
@@ -361,7 +361,7 @@ export class ConsentContract
 
   public getRequesterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
@@ -403,7 +403,7 @@ export class ConsentContract
 
   public balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.balanceOf(address) as Promise<BigNumber>,
       (e) => {
@@ -418,7 +418,7 @@ export class ConsentContract
     tokenId: TokenId,
   ): ResultAsync<
     EVMAccountAddress,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
@@ -432,7 +432,7 @@ export class ConsentContract
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
@@ -454,7 +454,7 @@ export class ConsentContract
     eventFilter: EventFilter,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<Event[], ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
         Event[]
@@ -467,7 +467,7 @@ export class ConsentContract
 
   public getConsentToken(
     tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<ConsentToken, ConsentContractError | BlockchainCommonErrors> {
     // Get the agreement flags of the user's current consent token
     return ResultUtils.combine([
       this.ownerOf(tokenId),
@@ -489,7 +489,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("addDomain", [domain], overrides);
   }
@@ -499,14 +499,14 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
   public getDomains(): ResultAsync<
     DomainName[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       // returns array of domains
@@ -523,7 +523,7 @@ export class ConsentContract
     toBlock?: BlockNumber,
   ): ResultAsync<
     RequestForData[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.queryFilter(
       this.filters.RequestForData(requesterAddress),
@@ -549,7 +549,7 @@ export class ConsentContract
     optInAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenId | null,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return this.queryFilter(
       this.filters.Transfer(null, optInAddress),
@@ -580,7 +580,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("disableOpenOptIn", [], overrides);
   }
@@ -589,14 +589,14 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("enableOpenOptIn", [], overrides);
   }
 
   public baseURI(): ResultAsync<
     BaseURI,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.baseURI() as Promise<BaseURI>,
@@ -611,7 +611,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
@@ -619,7 +619,7 @@ export class ConsentContract
   public hasRole(
     role: keyof typeof ConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ConsentContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.hasRole(ConsentRoles[role], address) as Promise<boolean>,
       (e) => {
@@ -634,7 +634,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("grantRole", [role, address], overrides);
   }
@@ -645,7 +645,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("revokeRole", [role, address], overrides);
   }
@@ -656,14 +656,14 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("renounceRole", [role, address], overrides);
   }
 
   public getQueryHorizon(): ResultAsync<
     BlockNumber,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.queryHorizon() as Promise<BigNumber>,
@@ -678,7 +678,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("setQueryHorizon", [blockNumber], overrides);
   }
@@ -686,7 +686,7 @@ export class ConsentContract
   // Get the number of opted in addresses
   public totalSupply(): ResultAsync<
     number,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.totalSupply() as Promise<BigNumber>,
@@ -698,7 +698,7 @@ export class ConsentContract
 
   public openOptInDisabled(): ResultAsync<
     boolean,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.openOptInDisabled() as Promise<boolean>,
@@ -711,7 +711,7 @@ export class ConsentContract
   // Marketplace functions
   public getMaxTags(): ResultAsync<
     number,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.maxTags() as Promise<BigNumber>,
@@ -725,7 +725,7 @@ export class ConsentContract
 
   public getNumberOfStakedTags(): ResultAsync<
     number,
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
@@ -739,7 +739,7 @@ export class ConsentContract
 
   public getTagArray(): ResultAsync<
     Tag[],
-    ConsentContractError | TBlockchainCommonErrors
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getTagArray() as Promise<ITagStruct[]>,
@@ -763,7 +763,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "newGlobalTag",
@@ -779,7 +779,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "newLocalTagUpstream",
@@ -795,7 +795,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "newLocalTagDownstream",
@@ -810,7 +810,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract(
       "replaceExpiredListing",
@@ -824,7 +824,7 @@ export class ConsentContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     return this.writeToContract("removeListing", [tag], overrides);
   }
@@ -864,17 +864,6 @@ export class ConsentContract
     err: unknown,
   ): ConsentContractError {
     return new ConsentContractError(msg, reason, err);
-  }
-
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): ConsentContractError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
   }
 }
 

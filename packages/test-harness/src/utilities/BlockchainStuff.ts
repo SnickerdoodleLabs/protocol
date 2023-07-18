@@ -18,7 +18,7 @@ import {
   DomainName,
   EVMContractAddress,
   IpfsCID,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
@@ -107,7 +107,7 @@ export class BlockchainStuff {
     metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
     | ConsentFactoryContractError
     | ConsentContractError
     | TransactionResponseError
@@ -141,7 +141,7 @@ export class BlockchainStuff {
     maxCapacity: number,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentContractError
+    BlockchainCommonErrors | ConsentContractError
   > {
     const contract = this.getConsentContract(contractAddress);
 

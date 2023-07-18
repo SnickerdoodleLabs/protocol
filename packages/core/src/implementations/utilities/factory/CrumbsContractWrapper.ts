@@ -13,7 +13,7 @@ import {
   EVMAccountAddress,
   TokenUri,
   CrumbsContractError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -42,7 +42,7 @@ export class CrumbsContractWrapper
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<
     TokenId | null,
-    CrumbsContractError | TBlockchainCommonErrors
+    CrumbsContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.addressToCrumbId(accountAddress, contractOverrides),
@@ -55,7 +55,7 @@ export class CrumbsContractWrapper
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<
     TokenUri | null,
-    CrumbsContractError | TBlockchainCommonErrors
+    CrumbsContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.tokenURI(tokenId, contractOverrides),
@@ -69,7 +69,7 @@ export class CrumbsContractWrapper
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   > {
     return this.fallback(
       () => this.primary.createCrumb(crumbId, tokenUri, contractOverrides),
@@ -89,7 +89,7 @@ export class CrumbsContractWrapper
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   > {
     return this.fallback(
       () => this.primary.burnCrumb(crumbId, contractOverrides),

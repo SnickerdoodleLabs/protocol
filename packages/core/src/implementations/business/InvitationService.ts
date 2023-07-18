@@ -37,7 +37,7 @@ import {
   UninitializedError,
   UnixTimestamp,
   DataPermissionsUpdatedEvent,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -105,7 +105,7 @@ export class InvitationService implements IInvitationService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
@@ -277,7 +277,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | ConsentError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -443,7 +443,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | ConsentError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // Need to check first if we are already opted in
     return this.consentRepo
@@ -475,7 +475,7 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | ConsentError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -595,7 +595,7 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
@@ -620,7 +620,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.invitationRepo
       .getAcceptedInvitations()
@@ -656,7 +656,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.consentRepo.getConsentCapacity(consentContractAddress);
   }
@@ -674,7 +674,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.consentRepo.getMetadataCID(consentAddress);
   }
@@ -689,7 +689,7 @@ export class InvitationService implements IInvitationService {
     | ConsentContractError
     | IPFSError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
@@ -755,7 +755,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     // This will actually create a metatransaction. We need to update the on-chain
     // DataPermissions. You can only do this every so often, which we will need to
@@ -889,7 +889,7 @@ export class InvitationService implements IInvitationService {
     | ConsentError
     | PersistenceError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.consentTokenUtils.getAgreementFlags(consentContractAddress);
   }
@@ -901,7 +901,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getAvailableConsentContractAddresses().andThen(
       (consentAddresses) => {
@@ -1035,7 +1035,7 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.consentRepo
       .getSignerRoleMembers(consentContractAddres)
@@ -1101,7 +1101,7 @@ export class InvitationService implements IInvitationService {
     | ConsentFactoryContractError
     | PersistenceError
     | ConsentContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       // can be fetched via insight-platform API call

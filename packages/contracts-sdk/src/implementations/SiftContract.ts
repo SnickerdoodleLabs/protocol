@@ -9,7 +9,7 @@ import {
   SiftContractError,
   BaseURI,
   DomainName,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -37,7 +37,7 @@ export class SiftContract
 
   public checkURL(
     domain: DomainName,
-  ): ResultAsync<TokenUri, SiftContractError | TBlockchainCommonErrors> {
+  ): ResultAsync<TokenUri, SiftContractError | BlockchainCommonErrors> {
     // Returns the tokenURI or string
     // eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED'
     return ResultAsync.fromPromise(
@@ -54,7 +54,7 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.writeToContract("verifyURL", [domain], overrides);
   }
@@ -65,7 +65,7 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.writeToContract("maliciousURL", [domain], overrides);
   }
@@ -75,7 +75,7 @@ export class SiftContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | SiftContractError
+    BlockchainCommonErrors | SiftContractError
   > {
     return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
@@ -86,16 +86,5 @@ export class SiftContract
     e: unknown,
   ): SiftContractError {
     return new SiftContractError(msg, reason, e);
-  }
-
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): SiftContractError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
   }
 }

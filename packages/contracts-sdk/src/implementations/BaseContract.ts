@@ -7,7 +7,7 @@ import {
   EVMContractAddress,
   EVMAccountAddress,
   BlockchainErrorMapper,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -40,10 +40,16 @@ export abstract class BaseContract<TContractSpecificError>
     return this.contract;
   }
 
-  protected abstract generateError(
+  protected generateError(
     error,
     errorMessage: string,
-  ): TContractSpecificError | TBlockchainCommonErrors;
+  ): TContractSpecificError | BlockchainCommonErrors {
+    return BlockchainErrorMapper.buildBlockchainError(
+      error,
+      (msg, reason, err) =>
+        this.generateContractSpecificError(errorMessage || msg, reason, err),
+    );
+  }
 
   protected abstract generateContractSpecificError(
     msg: string,
@@ -58,7 +64,7 @@ export abstract class BaseContract<TContractSpecificError>
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | TContractSpecificError
+    BlockchainCommonErrors | TContractSpecificError
   > {
     return ResultAsync.fromPromise(
       this.contract[functionName](...functionParams, {

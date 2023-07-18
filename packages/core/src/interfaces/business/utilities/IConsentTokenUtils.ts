@@ -7,7 +7,7 @@ import {
   EVMContractAddress,
   HexString32,
   PersistenceError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -22,7 +22,7 @@ export interface IConsentTokenUtils {
     | BlockchainProviderError
     | ConsentError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   getAgreementFlags(
@@ -35,7 +35,7 @@ export interface IConsentTokenUtils {
     | BlockchainProviderError
     | ConsentError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 }
 

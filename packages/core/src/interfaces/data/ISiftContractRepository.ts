@@ -5,7 +5,7 @@ import {
   DomainName,
   UninitializedError,
   EScamFilterStatus,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -14,7 +14,7 @@ export interface ISiftContractRepository {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
     | BlockchainProviderError
     | UninitializedError
     | SiftContractError
@@ -24,7 +24,7 @@ export interface ISiftContractRepository {
     domain: DomainName,
   ): ResultAsync<
     WrappedTransactionResponse,
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
     | BlockchainProviderError
     | UninitializedError
     | SiftContractError
@@ -37,7 +37,7 @@ export interface ISiftContractRepository {
     | BlockchainProviderError
     | UninitializedError
     | SiftContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 }
 

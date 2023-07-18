@@ -12,7 +12,7 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -35,7 +35,7 @@ export class MinimalForwarderContractWrapper
     from: EVMAccountAddress,
   ): ResultAsync<
     BigNumberString,
-    MinimalForwarderContractError | TBlockchainCommonErrors
+    MinimalForwarderContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getNonce(from),
@@ -47,7 +47,7 @@ export class MinimalForwarderContractWrapper
     signature: Signature,
   ): ResultAsync<
     boolean,
-    MinimalForwarderContractError | TBlockchainCommonErrors
+    MinimalForwarderContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.verify(request, signature),
@@ -59,7 +59,7 @@ export class MinimalForwarderContractWrapper
     signature: Signature,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | MinimalForwarderContractError
+    BlockchainCommonErrors | MinimalForwarderContractError
   > {
     return this.fallback(
       () => this.primary.execute(request, signature),

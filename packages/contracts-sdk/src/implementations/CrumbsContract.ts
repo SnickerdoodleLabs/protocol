@@ -12,7 +12,7 @@ import {
   TokenId,
   CrumbsContractError,
   HexString,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -42,7 +42,7 @@ export class CrumbsContract
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
     TokenId | null,
-    CrumbsContractError | TBlockchainCommonErrors
+    CrumbsContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(accountAddress) as Promise<TokenId>,
@@ -63,7 +63,7 @@ export class CrumbsContract
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    CrumbsContractError | TBlockchainCommonErrors
+    CrumbsContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
@@ -87,7 +87,7 @@ export class CrumbsContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   > {
     return this.writeToContract("createCrumb", [crumbId, tokenUri], overrides);
   }
@@ -109,7 +109,7 @@ export class CrumbsContract
     overrides?: ContractOverrides | undefined,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   > {
     return this.writeToContract("createCrumb", [crumbId], overrides);
   }
@@ -126,7 +126,7 @@ export class CrumbsContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | CrumbsContractError
+    BlockchainCommonErrors | CrumbsContractError
   > {
     return this.writeToContract(
       "updateTokenURI",
@@ -141,16 +141,5 @@ export class CrumbsContract
     e: unknown,
   ): CrumbsContractError {
     return new CrumbsContractError(msg, reason, e);
-  }
-
-  protected generateError(
-    error,
-    errorMessage: string,
-  ): CrumbsContractError | TBlockchainCommonErrors {
-    return BlockchainErrorMapper.buildBlockchainError(
-      error,
-      (msg, reason, err) =>
-        this.generateContractSpecificError(errorMessage || msg, reason, err),
-    );
   }
 }

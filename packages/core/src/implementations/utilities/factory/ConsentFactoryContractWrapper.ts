@@ -17,7 +17,7 @@ import {
   MarketplaceListing,
   MarketplaceTag,
   TransactionResponseError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -47,7 +47,7 @@ export class ConsentFactoryContractWrapper
     overrides?: ContractOverrides | undefined,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.fallback(
       () => this.primary.createConsent(ownerAddress, baseUri, name, overrides),
@@ -59,7 +59,7 @@ export class ConsentFactoryContractWrapper
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getUserDeployedConsentsCount(ownerAddress),
@@ -72,7 +72,7 @@ export class ConsentFactoryContractWrapper
     endingIndex: number,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () =>
@@ -93,7 +93,7 @@ export class ConsentFactoryContractWrapper
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getUserDeployedConsents(ownerAddress),
@@ -105,7 +105,7 @@ export class ConsentFactoryContractWrapper
     role: ConsentRoles,
   ): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getUserRoleAddressesCount(ownerAddress, role),
@@ -119,7 +119,7 @@ export class ConsentFactoryContractWrapper
     endingIndex: number,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () =>
@@ -140,7 +140,7 @@ export class ConsentFactoryContractWrapper
   }
   public getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getDeployedConsents(),
@@ -149,7 +149,7 @@ export class ConsentFactoryContractWrapper
   }
   public getMaxTagsPerListing(): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getMaxTagsPerListing(),
@@ -158,7 +158,7 @@ export class ConsentFactoryContractWrapper
   }
   public getListingDuration(): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getListingDuration(),
@@ -169,7 +169,7 @@ export class ConsentFactoryContractWrapper
     listingDuration: number,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.fallback(
       () => this.primary.setListingDuration(listingDuration),
@@ -180,7 +180,7 @@ export class ConsentFactoryContractWrapper
     maxTagsPerListing: number,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.fallback(
       () => this.primary.setMaxTagsPerListing(maxTagsPerListing),
@@ -192,7 +192,7 @@ export class ConsentFactoryContractWrapper
     removedSlot: BigNumberString,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   > {
     return this.fallback(
       () => this.primary.adminRemoveListing(tag, removedSlot),
@@ -204,7 +204,7 @@ export class ConsentFactoryContractWrapper
     slot: BigNumberString,
   ): ResultAsync<
     MarketplaceListing,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getListingDetail(tag, slot),
@@ -218,7 +218,7 @@ export class ConsentFactoryContractWrapper
     filterActive: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () =>
@@ -244,7 +244,7 @@ export class ConsentFactoryContractWrapper
     filterActive: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () =>
@@ -267,7 +267,7 @@ export class ConsentFactoryContractWrapper
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getTagTotal(tag),
@@ -279,7 +279,7 @@ export class ConsentFactoryContractWrapper
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
       () => this.primary.getListingsByTag(tag, removeExpired),

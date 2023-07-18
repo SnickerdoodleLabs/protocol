@@ -13,7 +13,7 @@ import {
   EVMContractAddress,
   MarketplaceListing,
   MarketplaceTag,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -33,7 +33,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   >;
 
   /**
@@ -42,7 +42,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the an array of Consent addresses that user has deployed between two indexes
@@ -56,7 +56,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     endingIndex: number,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -67,7 +67,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -78,7 +78,7 @@ export interface IConsentFactoryContract extends IBaseContract {
   getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
     role: ConsentRoles,
-  ): ResultAsync<number, ConsentFactoryContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the an array of Consent addresses that user has specific roles for
@@ -94,7 +94,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     endingIndex: number,
   ): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -102,7 +102,7 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -110,12 +110,12 @@ export interface IConsentFactoryContract extends IBaseContract {
    */
   getMaxTagsPerListing(): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   getListingDuration(): ResultAsync<
     number,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   setListingDuration(
@@ -123,7 +123,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   >;
 
   setMaxTagsPerListing(
@@ -131,7 +131,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   >;
 
   adminRemoveListing(
@@ -140,7 +140,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ConsentFactoryContractError
+    BlockchainCommonErrors | ConsentFactoryContractError
   >;
 
   getListingDetail(
@@ -148,7 +148,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     slot: BigNumberString,
   ): ResultAsync<
     MarketplaceListing,
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   getListingsForward(
@@ -158,7 +158,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     filterActive: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   getListingsBackward(
@@ -168,12 +168,12 @@ export interface IConsentFactoryContract extends IBaseContract {
     filterActive: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   getTagTotal(
     tag: MarketplaceTag,
-  ): ResultAsync<number, ConsentFactoryContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the list of marketplace listings of a specific tag
@@ -184,7 +184,7 @@ export interface IConsentFactoryContract extends IBaseContract {
     removeExpired: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    ConsentFactoryContractError | TBlockchainCommonErrors
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   getAddressOfConsentCreated(

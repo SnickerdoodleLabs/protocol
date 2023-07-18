@@ -7,7 +7,7 @@ import {
   EVMContractAddress,
   HexString32,
   PersistenceError,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -44,7 +44,7 @@ export class ConsentTokenUtils {
     | BlockchainProviderError
     | ConsentError
     | PersistenceError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.invitationRepo.getAcceptedInvitations().andThen((optIns) => {
       const currentOptIn = optIns.find((optIn) => {
@@ -67,7 +67,7 @@ export class ConsentTokenUtils {
     | BlockchainProviderError
     | ConsentError
     | ConsentFactoryContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   > {
     return this.getCurrentConsentToken(consentContractAddress).andThen(
       (consentToken) => {

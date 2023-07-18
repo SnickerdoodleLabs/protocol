@@ -10,7 +10,7 @@ import {
   TokenId,
   TokenUri,
   BaseURI,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -18,17 +18,17 @@ import { ResultAsync } from "neverthrow";
 export interface IERC721RewardContract extends IBaseContract {
   getOwner(): ResultAsync<
     EVMAccountAddress,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   getMinterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -37,7 +37,7 @@ export interface IERC721RewardContract extends IBaseContract {
    */
   balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ERC721RewardContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Returns the owner account for a token Id
@@ -47,7 +47,7 @@ export interface IERC721RewardContract extends IBaseContract {
     tokenId: TokenId,
   ): ResultAsync<
     EVMAccountAddress,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -58,7 +58,7 @@ export interface IERC721RewardContract extends IBaseContract {
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -66,7 +66,7 @@ export interface IERC721RewardContract extends IBaseContract {
    */
   baseURI(): ResultAsync<
     BaseURI,
-    ERC721RewardContractError | TBlockchainCommonErrors
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -78,7 +78,7 @@ export interface IERC721RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   >;
 
   /**
@@ -89,7 +89,7 @@ export interface IERC721RewardContract extends IBaseContract {
   hasRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC721RewardContractError | TBlockchainCommonErrors>;
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Grants a role to an address
@@ -102,7 +102,7 @@ export interface IERC721RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   >;
 
   /**
@@ -116,7 +116,7 @@ export interface IERC721RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   >;
 
   /**
@@ -130,7 +130,7 @@ export interface IERC721RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    TBlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ERC721RewardContractError
   >;
 
   filters: IERC721Filters;

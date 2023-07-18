@@ -5,7 +5,7 @@ import {
   EVMPrivateKey,
   MinimalForwarderContractError,
   Signature,
-  TBlockchainCommonErrors,
+  BlockchainCommonErrors,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -24,7 +24,7 @@ export interface IMetatransactionForwarderRepository {
     | BlockchainProviderError
     | UninitializedError
     | MinimalForwarderContractError
-    | TBlockchainCommonErrors
+    | BlockchainCommonErrors
   >;
 
   signMetatransactionRequest(
