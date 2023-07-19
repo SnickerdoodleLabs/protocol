@@ -503,6 +503,7 @@ export default function Marketplace() {
               </View>
             )}
           </View>
+          <View style={{height:normalizeHeight(80)}} />
         </SafeAreaView>
       </ScrollView>
     </SafeAreaView>

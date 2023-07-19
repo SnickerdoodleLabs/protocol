@@ -30,6 +30,7 @@ import { useNavigation } from "@react-navigation/native";
 import { ROUTES } from "../constants";
 import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
 import FastImage from "react-native-fast-image";
+import { useTheme } from "./ThemeContext";
 
 var styles = StyleSheet.create({
   overlay: {
@@ -252,6 +253,7 @@ const LayoutContextProvider = ({ children }) => {
   const [invitationStatus, _setInvitationStatus] = useState<IInvitationStatus>({
     status: false,
   });
+  const theme = useTheme();
 
   const [nestedPopup, setNestedPopup] = React.useState(false);
   const [nestedSettings, setNestedSettings] = React.useState(false);
@@ -456,6 +458,135 @@ const LayoutContextProvider = ({ children }) => {
   }, [loadingStatus]);
 
   const InvitationPopUp = useMemo(() => {
+    const theme = useTheme();
+    var styles = StyleSheet.create({
+      overlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      centeredView: {
+        width: "100%",
+      },
+      modalView: {
+        height: "100%",
+        backgroundColor: theme?.colors.background,
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 30,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+      },
+      title: {
+        // fontFamily: "Roboto",
+        fontStyle: "normal",
+        fontWeight: "700",
+        fontSize: normalizeWidth(24),
+        lineHeight: normalizeHeight(29),
+        marginLeft: normalizeWidth(25),
+        marginTop: normalizeHeight(20),
+        color: theme?.colors.title,
+      },
+      banner: {
+        marginTop: normalizeHeight(30),
+        alignItems: "center",
+      },
+      bannerImage: {
+        width: normalizeWidth(380),
+        height: normalizeHeight(127),
+      },
+      subtitle: {
+        // fontFamily: "Roboto",
+        fontWeight: "700",
+        fontStyle: "italic",
+        fontSize: normalizeWidth(22),
+        lineHeight: normalizeHeight(32),
+        textAlign: "center",
+        marginVertical: normalizeHeight(12),
+      },
+      description: {
+        // fontFamily: "Roboto",
+        color: theme?.colors.tokenText,
+        fontWeight: "400",
+        fontSize: normalizeWidth(16),
+        lineHeight: normalizeHeight(22),
+        textAlign: "center",
+      },
+      sectionTitle: {
+        color: "#424242",
+        fontWeight: "700",
+        fontSize: normalizeWidth(20),
+        lineHeight: normalizeHeight(24),
+        marginVertical: normalizeHeight(24),
+      },
+      sectionDescription: {
+        color: theme?.colors.tokenText,
+        fontWeight: "500",
+        fontSize: normalizeWidth(16),
+        lineHeight: normalizeHeight(22),
+      },
+      button: {
+        color: "#5D4F97",
+        fontWeight: "700",
+        fontSize: normalizeWidth(16),
+      },
+      containerBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      },
+      dropdownContainer: {
+        width: normalizeWidth(60),
+        height: normalizeHeight(56),
+        backgroundColor: "#F5F5F5",
+        borderRadius: normalizeWidth(16),
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      sidebar: {
+        position: "absolute",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "#fff",
+        borderLeftWidth: 1,
+        borderLeftColor: "#ccc",
+        paddingHorizontal: 16,
+        zIndex: 999,
+      },
+      borderBox: {
+        width: "100%",
+        borderWidth: 1,
+        borderColor: "#EAECF0",
+        borderRadius: normalizeWidth(24),
+        marginTop: normalizeHeight(24),
+        paddingVertical: normalizeHeight(20),
+        paddingHorizontal: normalizeWidth(0),
+      },
+      row: {
+        borderWidth: 0,
+        borderColor: "#ccc",
+        borderRadius: 16,
+        paddingHorizontal: normalizeWidth(20),
+        paddingVertical: normalizeHeight(0),
+        marginBottom: 16,
+      },
+      rowTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 15,
+      },
+      toggleContainer: {
+        marginBottom: 20,
+      },
+    });
     if (invitationStatus) {
       return (
         <View>
@@ -499,7 +630,7 @@ const LayoutContextProvider = ({ children }) => {
                 >
                   <Text
                     style={{
-                      color: "#212121",
+                      color: theme?.colors.title,
                       fontWeight: "400",
                       fontSize: normalizeWidth(18),
                       paddingBottom: normalizeHeight(20),
@@ -529,7 +660,7 @@ const LayoutContextProvider = ({ children }) => {
                       style={{
                         fontSize: normalizeWidth(24),
                         textAlign: "center",
-                        color: "#424242",
+                        color: theme?.colors.title,
                         fontWeight: "700",
                         paddingTop: normalizeHeight(20),
                       }}
@@ -541,7 +672,7 @@ const LayoutContextProvider = ({ children }) => {
                         fontSize: normalizeWidth(16),
                         textAlign: "center",
                         fontWeight: "400",
-                        color: "#616161",
+                        color: theme?.colors.description,
                         lineHeight: normalizeHeight(22),
                         paddingHorizontal: normalizeWidth(24),
                         paddingTop: normalizeHeight(16),
@@ -620,7 +751,12 @@ const LayoutContextProvider = ({ children }) => {
                     backgroundColor: "rgba(0, 0, 0, 0.5)",
                   }}
                 >
-                  <View style={{ backgroundColor: "white", borderRadius: 32 }}>
+                  <View
+                    style={{
+                      backgroundColor: theme?.colors.background,
+                      borderRadius: 32,
+                    }}
+                  >
                     <View style={{ alignItems: "center" }}>
                       <Image
                         source={{
@@ -635,7 +771,7 @@ const LayoutContextProvider = ({ children }) => {
                       />
                       <Text
                         style={{
-                          color: "#424242",
+                          color: theme?.colors.title,
                           fontSize: normalizeWidth(24),
                           fontWeight: "700",
                           lineHeight: normalizeHeight(29),
@@ -648,7 +784,7 @@ const LayoutContextProvider = ({ children }) => {
                       </Text>
                       <Text
                         style={{
-                          color: "#616161",
+                          color: theme?.colors.description,
                           fontSize: normalizeWidth(16),
                           fontWeight: "400",
                           lineHeight: normalizeHeight(22),
@@ -721,7 +857,7 @@ const LayoutContextProvider = ({ children }) => {
                   >
                     <View
                       style={{
-                        backgroundColor: "white",
+                        backgroundColor: theme?.colors.background,
                         position: "absolute",
                         bottom: 0,
                         width: "100%",
@@ -733,7 +869,7 @@ const LayoutContextProvider = ({ children }) => {
                         style={{
                           fontSize: normalizeWidth(24),
                           textAlign: "center",
-                          color: "#424242",
+                          color: theme?.colors.title,
                           fontWeight: "700",
                           paddingTop: normalizeHeight(40),
                         }}
@@ -745,7 +881,7 @@ const LayoutContextProvider = ({ children }) => {
                           fontSize: normalizeWidth(16),
                           textAlign: "center",
                           fontWeight: "400",
-                          color: "#616161",
+                          color: theme?.colors.description,
                           lineHeight: normalizeHeight(22),
                           paddingHorizontal: normalizeWidth(24),
                           paddingTop: normalizeHeight(5),

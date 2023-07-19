@@ -132,16 +132,16 @@ const AccountLinkingContextProvider = ({ children }) => {
       accountService.unlock(
         credentials.accountAddress!,
         credentials.signature!,
-        EChain.EthereumMainnet,
         enLangueCode,
+        EChain.EthereumMainnet,
       );
       // .map(() => wcConnector.killSession());
     } else {
       accountService.addAccount(
         credentials.accountAddress!,
         credentials.signature!,
-        EChain.EthereumMainnet,
         enLangueCode,
+        EChain.EthereumMainnet,
       );
       // .map(() => wcConnector.killSession());
     }

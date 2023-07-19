@@ -34,8 +34,9 @@ export default function Settings() {
   const { mobileCore } = useAppContext();
 
   useEffect(() => {
-    mobileCore.accountService
-      .getUnlockMessage(LanguageCode("en"))
+    mobileCore
+      .getCore()
+      .account.getUnlockMessage(LanguageCode("en"))
       .map((message) => {
         console.log("message", message);
       });

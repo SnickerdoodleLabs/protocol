@@ -137,19 +137,23 @@ export function BlockchainActions({ onDisconnect, signStatus }: Props) {
       });
       console.log("UseUnlock", { rpc, enLangueCode });
       if (!isUnlocked) {
-        mobileCore.accountService.unlock(
-          rpc.address as AccountAddress,
-          rpc.result as Signature,
-          EChain.EthereumMainnet,
-          enLangueCode,
-        );
+        mobileCore
+          .getCore()
+          .account.unlock(
+            rpc.address as AccountAddress,
+            rpc.result as Signature,
+            enLangueCode,
+            EChain.EthereumMainnet,
+          );
       } else {
-        mobileCore.accountService.addAccount(
-          rpc.address as AccountAddress,
-          rpc.result as Signature,
-          EChain.EthereumMainnet,
-          enLangueCode,
-        );
+        mobileCore
+          .getCore()
+          .account.addAccount(
+            rpc.address as AccountAddress,
+            rpc.result as Signature,
+            enLangueCode,
+            EChain.EthereumMainnet,
+          );
       }
     }
   }, [rpcResponse]);

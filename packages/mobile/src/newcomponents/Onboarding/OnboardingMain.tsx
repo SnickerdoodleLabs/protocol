@@ -352,32 +352,35 @@ const OnboardingMain = () => {
 
   const accountGeneratedNext = () => {
     const enLangueCode: LanguageCode = LanguageCode("en");
-    mobileCore.accountService.getUnlockMessage(enLangueCode).map((message) => {
-      setLoadingStatus({
-        loading: true,
-        type: ELoadingStatusType.ADDING_ACCOUNT,
+    mobileCore
+      .getCore()
+      .account.getUnlockMessage(enLangueCode)
+      .map((message) => {
+        setLoadingStatus({
+          loading: true,
+          type: ELoadingStatusType.ADDING_ACCOUNT,
+        });
+        setConnectModal(false);
+        setGenerated(false);
+        const accountService = mobileCore.accountService;
+        walletObject?.signMessage(message).then((signature) => {
+          if (!isUnlocked) {
+            accountService.unlock(
+              walletObject?.address as EVMAccountAddress,
+              signature as Signature,
+              enLangueCode,
+              EChain.EthereumMainnet,
+            );
+          } else {
+            accountService.addAccount(
+              walletObject?.address as EVMAccountAddress,
+              signature as Signature,
+              enLangueCode,
+              EChain.EthereumMainnet,
+            );
+          }
+        });
       });
-      setConnectModal(false);
-      setGenerated(false);
-      const accountService = mobileCore.accountService;
-      walletObject?.signMessage(message).then((signature) => {
-        if (!isUnlocked) {
-          accountService.unlock(
-            walletObject?.address as EVMAccountAddress,
-            signature as Signature,
-            EChain.EthereumMainnet,
-            enLangueCode,
-          );
-        } else {
-          accountService.addAccount(
-            walletObject?.address as EVMAccountAddress,
-            signature as Signature,
-            EChain.EthereumMainnet,
-            enLangueCode,
-          );
-        }
-      });
-    });
   };
 
   useEffect(() => {

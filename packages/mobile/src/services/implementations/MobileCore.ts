@@ -72,7 +72,6 @@ export class MobileCore {
   protected iocContainer: Container;
   protected core: ISnickerdoodleCore;
 
-  public invitationService: IInvitationService;
   public accountService: IAccountService;
   public tokenPriceService: ITokenPriceService;
   public piiService: IPIIService;
@@ -156,101 +155,6 @@ export class MobileCore {
             IDataPermissionsRepositoryType,
           );
         return _dataPermissionUtils.getDataTypesFromFlagsString(flags);
-      },
-    };
-
-    this.invitationService = {
-      checkInvitationStatus: (invitation: Invitation) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.checkInvitationStatus(invitation);
-      },
-      acceptInvitation: (
-        invitation: Invitation,
-        dataTypes: DataPermissions | null,
-      ) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.acceptInvitation(invitation, dataTypes);
-      },
-      rejectInvitation: (invitation: Invitation) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.rejectInvitation(invitation);
-      },
-      leaveCohort: (consentContractAddress: EVMContractAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.leaveCohort(consentContractAddress);
-      },
-
-      getAcceptedInvitationsCID: () => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getAcceptedInvitationsCID();
-      },
-      getInvitationMetadataByCID: (ipfsCID: IpfsCID) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getInvitationMetadataByCID(ipfsCID);
-      },
-      getAvailableInvitationsCID: () => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getAvailableInvitationsCID();
-      },
-
-      getConsentContractCID: (consentAddress: EVMContractAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getConsentContractCID(consentAddress);
-      },
-      getReceivingAddress: (contractAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getReceivingAddress(contractAddress);
-      },
-      getAgreementFlags: (contractAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getAgreementFlags(contractAddress);
-      },
-      getConsentCapacity: (contractAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getConsentCapacity(contractAddress);
-      },
-      getInvitationsByDomain: (domain) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.getInvitationsByDomain(domain);
-      },
-      setReceivingAddress: (contractAddress, receivingAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.setReceivingAddress(
-          contractAddress,
-          receivingAddress,
-        );
-      },
-      setDefaultReceivingAddress: (receivingAddress) => {
-        const _invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-        return _invitationService.setDefaultReceivingAddress(receivingAddress);
       },
     };
 

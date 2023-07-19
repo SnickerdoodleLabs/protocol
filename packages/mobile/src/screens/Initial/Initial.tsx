@@ -99,13 +99,17 @@ const Initial = ({ navigation }) => {
                     return "Try Unlock Error";
                   });
               }
+              console.log("first", {
+                unlockParamsArr,
+                dataWalletAddressOnCookie,
+                dataWalletAddress,
+              });
               return accountService
                 .unlock(
                   accountAddress,
                   signature,
-                  chain ?? EChain.EthereumMainnet,
                   languageCode,
-                  true,
+                  chain ?? EChain.EthereumMainnet,
                 )
                 .map(() => {
                   console.error("WAITING EVENT");

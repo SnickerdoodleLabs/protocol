@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ERecordKey,
@@ -18,6 +20,7 @@ import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js"
  * It's persistence only for a single run.
  * Should look at using FakeDBVolatileStorage, should be the same thing!
  */
+// @ts-nocheck
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
   private _keyPaths: Map<ERecordKey, string | string[]>;

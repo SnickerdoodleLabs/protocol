@@ -53,16 +53,19 @@ const AppContextProvider = ({ children }) => {
   };
 
   const updateLinkedAccounts = () => {
-    mobileCore.accountService.getAccounts().map((accounts) => {
-      setLinkedAccounts(
-        Array.from(
-          new Set([
-            ...linkedAccounts,
-            ...accounts.map((account) => account.sourceAccountAddress),
-          ]),
-        ),
-      );
-    });
+    mobileCore
+      .getCore()
+      .getAccounts()
+      .map((accounts) => {
+        setLinkedAccounts(
+          Array.from(
+            new Set([
+              ...linkedAccounts,
+              ...accounts.map((account) => account.sourceAccountAddress),
+            ]),
+          ),
+        );
+      });
   };
 
   return (

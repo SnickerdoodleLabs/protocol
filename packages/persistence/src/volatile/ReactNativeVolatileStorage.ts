@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+// @ts-nocheck
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -66,7 +67,7 @@ export class ReactNativeVolatileStorage implements IVolatileStorage {
         return errAsync(new PersistenceError("invalid table name"));
       }
 
-      if (keyPath == VolatileTableIndex.DEFAULT_KEY) {
+      if (keyPath == VolatileTableIndex.name) {
         return okAsync(null);
       }
 

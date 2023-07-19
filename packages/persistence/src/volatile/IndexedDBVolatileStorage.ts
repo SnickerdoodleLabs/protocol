@@ -129,18 +129,4 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
       db.getAllKeys<T>(schemaKey, indexName, query, count),
     );
   }
-
-  private _getIDB(): ResultAsync<IndexedDB, never> {
-    if (this.indexedDB != null) {
-      return this.indexedDB;
-    }
-
-    this.indexedDB = this.schemaProvider
-      .getVolatileStorageSchema()
-      .map(
-        (schema) =>
-          new IndexedDB("SD_Wallet", Array.from(schema.values()), indexedDB),
-      );
-    return this.indexedDB;
-  }
 }
