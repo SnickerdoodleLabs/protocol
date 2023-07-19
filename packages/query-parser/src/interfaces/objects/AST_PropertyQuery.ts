@@ -82,7 +82,9 @@ export class AST_PropertyQuery extends AST_Query {
       case "social_twitter":
         return ok(EWalletDataType.Twitter);
       default:
-        const missingWalletType = new MissingWalletDataTypeError(this.property);
+        const missingWalletType = new MissingWalletDataTypeError(
+          `no wallet data type defined for ${this.property}`,
+        );
         console.error(missingWalletType);
         return err(missingWalletType);
     }

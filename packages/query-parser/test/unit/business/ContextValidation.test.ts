@@ -85,7 +85,7 @@ describe.only("Schema context validation", () => {
       // console.log(res.error)
       expect(res.error.constructor).toBe(MissingASTError);
       const error = res.error as MissingASTError;
-      expect(error.forId).toBe("q0");
+      expect(error.message).toContain("q0");
     }
   });
   test("invalid return schema", async () => {
@@ -146,7 +146,7 @@ describe.only("Schema context validation", () => {
       // console.log(res.error)
       expect(res.error.constructor).toBe(QueryFormatError);
       const error = res.error as QueryFormatError;
-      expect(error.data.invalid).toBe("invalid");
+      expect((error.data as any).invalid).toBe("invalid");
     }
   });
 });

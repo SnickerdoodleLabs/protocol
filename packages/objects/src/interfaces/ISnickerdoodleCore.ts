@@ -61,6 +61,12 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
+  DuplicateIdInSchema,
+  MissingASTError,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
+  ParserError,
+  QueryExpiredError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
@@ -331,7 +337,22 @@ export interface ICoreMarketplaceMethods {
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+  >;
 }
 
 export interface ICoreDiscordMethods {
@@ -736,6 +757,7 @@ export interface ISnickerdoodleCore {
     | QueryFormatError
     | EvaluationError
     | UnauthorizedError
+    | PersistenceError
   >;
 
   /**

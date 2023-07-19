@@ -286,7 +286,7 @@ describe("IntegrationService tests", () => {
     // Arrange
     const mocks = new IntegrationServiceMocks();
 
-    const err = new PersistenceError();
+    const err = new PersistenceError(`PersistenceError`);
     td.when(
       mocks.domainCredentialRepo.getDomainCredential(testDomain1),
     ).thenReturn(errAsync(err));
@@ -309,7 +309,7 @@ describe("IntegrationService tests", () => {
     // Arrange
     const mocks = new IntegrationServiceMocks();
 
-    const err = new KeyGenerationError();
+    const err = new KeyGenerationError(`KeyGenerationError`);
     td.when(mocks.cryptoUtils.createRSAKeyPair()).thenReturn(errAsync(err));
 
     const service = mocks.factory();
@@ -330,7 +330,7 @@ describe("IntegrationService tests", () => {
     // Arrange
     const mocks = new IntegrationServiceMocks();
 
-    const err = new PersistenceError();
+    const err = new PersistenceError(`PersistenceError`);
     td.when(
       mocks.domainCredentialRepo.addDomainCredential(td.matchers.anything()),
     ).thenReturn(errAsync(err));

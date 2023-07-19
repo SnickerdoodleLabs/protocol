@@ -13,6 +13,7 @@ import {
   Command_IF,
   ISDQLParserFactory,
   ISDQLParserFactoryType,
+  ISDQLQueryUtils,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/index.js";
@@ -24,7 +25,9 @@ import {
   IpfsCID,
   ISDQLAd,
   ISDQLCompensations,
+  MissingASTError,
   MissingTokenConstructorError,
+  MissingWalletDataTypeError,
   ParserError,
   QueryExpiredError,
   QueryFilteredByPermissions,
@@ -39,7 +42,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
-export class SDQLQueryUtils {
+export class SDQLQueryUtils implements ISDQLQueryUtils {
   public constructor(
     @inject(ISDQLParserFactoryType)
     protected parserFactory: ISDQLParserFactory,
@@ -57,6 +60,8 @@ export class SDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.parserFactory
       .makeParser(IpfsCID(""), schemaString)
@@ -86,6 +91,8 @@ export class SDQLQueryUtils {
     | DuplicateIdInSchema
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.parserFactory
       .makeParser(IpfsCID(""), schemaString)
@@ -170,6 +177,8 @@ export class SDQLQueryUtils {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.parserFactory
       .makeParser(IpfsCID(""), schemaString)

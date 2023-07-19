@@ -1,13 +1,19 @@
 import {
   AjaxError,
+  BlockchainCommonErrors,
   BlockchainProviderError,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  DuplicateIdInSchema,
   EvaluationError,
   EVMContractAddress,
   IDynamicRewardParameter,
   IPFSError,
+  MissingASTError,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
+  ParserError,
   PersistenceError,
   QueryExpiredError,
   QueryFormatError,
@@ -24,15 +30,23 @@ export interface IQueryService {
     requestForData: RequestForData,
   ): ResultAsync<
     void,
+    | EvaluationError
+    | PersistenceError
+    | AjaxError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
-    | AjaxError
-    | QueryFormatError
-    | EvaluationError
-    | QueryExpiredError
     | ServerRewardError
+    | ConsentError
+    | IPFSError
+    | BlockchainCommonErrors
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
   >;
 
   approveQuery(
@@ -59,6 +73,7 @@ export interface IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 }
 

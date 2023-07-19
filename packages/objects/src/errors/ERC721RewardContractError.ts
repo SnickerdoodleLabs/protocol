@@ -1,7 +1,8 @@
 import errorCodes from "@objects/errors/errorCodes.js";
 import { ProviderRpcError } from "@objects/errors/ProviderRpcError.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class ERC721RewardContractError extends Error {
+export class ERC721RewardContractError extends BaseError {
   protected errorCode: string = errorCodes[ERC721RewardContractError.name];
   constructor(
     message?: string,
@@ -10,6 +11,10 @@ export class ERC721RewardContractError extends Error {
   ) {
     super(
       `${message} ${(src as any)?.reason ? `: ${(src as any)?.reason}` : ``}`,
+      500,
+      errorCodes[ERC721RewardContractError.name],
+      src,
+      false,
     );
   }
 }

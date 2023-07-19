@@ -14,11 +14,13 @@ import {
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
+  BlockchainCommonErrors,
   BlockchainProviderError,
   BlockNumber,
   ConsentContractError,
   ConsentError,
   ConsentToken,
+  DuplicateIdInSchema,
   EligibleReward,
   EQueryProcessingStatus,
   EvaluationError,
@@ -29,7 +31,12 @@ import {
   IpfsCID,
   IPFSError,
   LinkedAccount,
+  MissingASTError,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
+  ParserError,
   PersistenceError,
+  QueryExpiredError,
   QueryFormatError,
   QueryIdentifier,
   QueryStatus,
@@ -115,7 +122,26 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     requestForData: RequestForData,
-  ): ResultAsync<void, EvaluationError> {
+  ): ResultAsync<
+    void,
+    | EvaluationError
+    | PersistenceError
+    | AjaxError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ServerRewardError
+    | ConsentError
+    | IPFSError
+    | BlockchainCommonErrors
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  > {
     /**
      * TODO
      * This method, for Ads Flow, will no longer process insights immediately. It will process the
@@ -265,6 +291,7 @@ export class QueryService implements IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     // Step 1, get all queries that are ready to return insights
     this.logUtils.debug(
@@ -363,7 +390,7 @@ export class QueryService implements IQueryService {
                 })
                 .orElse((err) => {
                   if (err instanceof AjaxError) {
-                    if (err.statusCode == 403) {
+                    if (err.code == 403) {
                       // 403 means a response has already been submitted, and we should stop asking
                       queryStatus.status =
                         EQueryProcessingStatus.RewardsReceived;
@@ -441,7 +468,7 @@ export class QueryService implements IQueryService {
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
     expectedRewards: ExpectedReward[],
-  ): ResultAsync<void, EvaluationError | ServerRewardError> {
+  ): ResultAsync<void, EvaluationError | ServerRewardError | AjaxError> {
     return this.getEligibleRewardsFromInsightPlatform(
       consentToken,
       optInKey,
@@ -496,7 +523,7 @@ export class QueryService implements IQueryService {
     eligibleRewards: EligibleReward[],
     accounts: LinkedAccount[],
     context: CoreContext,
-  ): ResultAsync<void, Error> {
+  ): ResultAsync<void, never> {
     // Wrap the query & send to core
     const queryRequest = new SDQLQueryRequest(
       consentContractAddress,

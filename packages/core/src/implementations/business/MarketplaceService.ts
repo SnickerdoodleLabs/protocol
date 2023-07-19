@@ -30,6 +30,13 @@ import {
   PagingRequest,
   ConsentContractError,
   BlockchainCommonErrors,
+  QueryFormatError,
+  ParserError,
+  QueryExpiredError,
+  DuplicateIdInSchema,
+  MissingTokenConstructorError,
+  MissingASTError,
+  MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -94,7 +101,22 @@ export class MarketplaceService implements IMarketplaceService {
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+  > {
     if (!contractAddresses) {
       return okAsync(new Map());
     }
@@ -180,7 +202,18 @@ export class MarketplaceService implements IMarketplaceService {
   private _getPossibleRewards(
     queryCids: IpfsCID[],
     timeoutMs: number,
-  ): ResultAsync<PossibleReward[], EvaluationError | AjaxError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  > {
     if (!queryCids || queryCids.length == 0) {
       return okAsync([]);
     }
@@ -194,7 +227,18 @@ export class MarketplaceService implements IMarketplaceService {
   private _getPossibleRewardsPerQuery(
     queryCid: IpfsCID,
     timeoutMs: number,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+  > {
     return this.sdqlQueryRepo
       .getSDQLQueryByCID(queryCid, timeoutMs)
       .andThen((sdqlQuery) => {

@@ -59,7 +59,9 @@ export class AST_Evaluator implements IAST_Evaluator {
     return errAsync(new EvaluationError("Not implemented"));
   }
 
-  public evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalAny(
+    expr: any,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     // console.log("evalAny", expr);
     if (expr === undefined) {
       return errAsync(new EvaluationError("undefined expression"));
@@ -93,12 +95,14 @@ export class AST_Evaluator implements IAST_Evaluator {
       if (evaluator) {
         return evaluator.apply(this, [expr]); // Always returns ResultAsync
       } else {
-        return errAsync(new EvalNotImplementedError(typeof expr));
+        return errAsync(new EvaluationError(`${typeof expr} not implemented`));
       }
     }
   }
 
-  public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalIf(
+    eef: Command_IF,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalConditionExpr(eef.conditionExpr).andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
@@ -117,7 +121,7 @@ export class AST_Evaluator implements IAST_Evaluator {
 
   public evalConditionExpr(
     expr: AST_ConditionExpr,
-  ): ResultAsync<SDQL_Return, EvaluationError> {
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     if (TypeChecker.isQuery(expr.source)) {
       return this.evalQuery(expr.source as AST_Query);
     } else if (TypeChecker.isOperator(expr.source)) {
@@ -157,7 +161,7 @@ export class AST_Evaluator implements IAST_Evaluator {
 
   public evalAnd(
     cond: ConditionAnd,
-  ): ResultAsync<SDQL_Return, EvaluationError> {
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalAny(cond.lval).andThen((lval) => {
       if (lval == false) {
         return okAsync(SDQL_Return(false));
@@ -169,15 +173,19 @@ export class AST_Evaluator implements IAST_Evaluator {
     });
   }
 
-  public evalOr(cond: ConditionOr): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalOr(
+    cond: ConditionOr,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalAny(cond.lval).andThen(
-      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+      (lval): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
         if (lval == true) {
           return okAsync(SDQL_Return(true));
         } else {
           const right = this.evalAny(cond.rval);
           return right.andThen(
-            (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+            (
+              rval,
+            ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
               if (rval == true) {
                 return okAsync(SDQL_Return(true));
               } else {
@@ -190,12 +198,16 @@ export class AST_Evaluator implements IAST_Evaluator {
     );
   }
 
-  public evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalIn(
+    cond: ConditionIn,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalAny(cond.lval).andThen(
-      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+      (lval): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
         const right = this.evalAny(cond.rval);
         return right.andThen(
-          (rvals): ResultAsync<SDQL_Return, EvaluationError> => {
+          (
+            rvals,
+          ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
             // console.log('left', lval);
             // console.log('right', rvals);
             return okAsync(
@@ -209,9 +221,11 @@ export class AST_Evaluator implements IAST_Evaluator {
     );
   }
 
-  public evalGE(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalGE(
+    cond: ConditionGE,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalAny(cond.lval).andThen(
-      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+      (lval): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
         const right = this.evalAny(cond.rval);
         return right.andThen(
           (rval): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -222,9 +236,11 @@ export class AST_Evaluator implements IAST_Evaluator {
     );
   }
 
-  public evalG(cond: ConditionG): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalG(
+    cond: ConditionG,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalAny(cond.lval).andThen(
-      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+      (lval): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
         const right = this.evalAny(cond.rval);
         return right.andThen(
           (rval): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -235,9 +251,11 @@ export class AST_Evaluator implements IAST_Evaluator {
     );
   }
 
-  public evalL(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalL(
+    cond: ConditionGE,
+  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> {
     return this.evalAny(cond.lval).andThen(
-      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+      (lval): ResultAsync<SDQL_Return, EvaluationError | PersistenceError> => {
         const right = this.evalAny(cond.rval);
         return right.andThen(
           (rval): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -279,7 +297,9 @@ export class AST_Evaluator implements IAST_Evaluator {
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
     if (TypeChecker.isQuery(expr.source)) {
-      return this.evalQuery(expr.source as AST_Query);
+      return this.evalQuery(expr.source as AST_Query).mapErr(
+        (e) => new EvaluationError("Error evaluating query", e),
+      );
     } else if (TypeChecker.isOperator(expr.source)) {
       return this.evalOperator(expr.source as Operator);
     } else {
@@ -299,9 +319,11 @@ export class AST_Evaluator implements IAST_Evaluator {
       if (qResult === undefined) {
         console.log("got undefined for", expr);
       }
-      return this.evalQuery(expr.source as AST_Query).andThen((val) => {
-        return okAsync(val);
-      });
+      return this.evalQuery(expr.source as AST_Query)
+        .andThen((val) => {
+          return okAsync(val);
+        })
+        .mapErr((e) => new EvaluationError("Error evaluating query", e));
     }
 
     return this.evalReturn((expr as AST_ReturnExpr).source as AST_Return);
