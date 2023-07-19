@@ -3,6 +3,7 @@ import discIcon from "@extension-onboarding/assets/icons/local-disc.svg";
 import sdlIcon from "@extension-onboarding/assets/icons/sdl-circle.svg";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import Typography from "@extension-onboarding/components/Typography";
+import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
@@ -114,16 +115,17 @@ const StorageSettings = () => {
   const { setLoadingStatus } = useLayoutContext();
   const { setAlert } = useNotificationContext();
   const [accessToken, setAccessToken] = useState<string>(
-    localStorage.getItem("dropboxAccessToken") || "",
+    sessionStorage.getItem("dropboxAccessToken") || "",
   );
 
-  const [folders, setFolders] = useState<NestedFolder[]>([]);
+  // dropbox folders
+  const [folders, setFolders] = useState<NestedFolder[]>();
   const [storageOption, setStorageOption] = useState<EStorage>();
 
   useEffect(() => {
-    // if (appMode === EAppModes.AUTH_USER) {
-    getInitialStorageOption();
-    // }
+    if (appMode === EAppModes.AUTH_USER) {
+      getInitialStorageOption();
+    }
   }, [appMode]);
 
   const getInitialStorageOption = () => {
@@ -143,7 +145,7 @@ const StorageSettings = () => {
   const handleCode = (code) => {
     initializeUserWithAuthorizationCode(code).map((accessToken) => {
       setAccessToken(accessToken);
-      localStorage.setItem("dropboxAccessToken", accessToken);
+      sessionStorage.setItem("dropboxAccessToken", accessToken);
       return window.history.replaceState(null, "", window.location.pathname);
     });
   };
@@ -235,24 +237,17 @@ const StorageSettings = () => {
         severity: EAlertSeverity.SUCCESS,
         message: "Your Dropbox account has successfully been connected.",
       });
+      sessionStorage.removeItem("dropboxAccessToken");
       setStorageOption(EStorage.DROPBOX);
     });
 
-    setFolders([]);
-  };
-
-  const handleLocalDirectory = () => {
-    // // @ts-ignore
-    // ResultAsync.fromPromise(window.showDirectoryPicker(), (e) => e).map(
-    //   (directory) => {
-    //     console.log(directory);
-    //   },
-    // );
+    setFolders(undefined);
   };
 
   const onStorageOptionClicked = (option: EStorage) => {
     switch (option) {
       case EStorage.SDL_STORAGE: {
+        // set to default
         return;
       }
       case EStorage.DROPBOX: {
@@ -260,9 +255,8 @@ const StorageSettings = () => {
           window.open(url, "_self");
         });
       }
-      case EStorage.LOCAL_DISC: {
-        return handleLocalDirectory();
-      }
+      default:
+        return null;
     }
   };
 
@@ -279,53 +273,61 @@ const StorageSettings = () => {
           inaccessible to others.
         </Typography>
       </Box>
-      {folders.length > 0 && (
-        <FileExplorer
-          onCreateRequested={createFolder}
-          onFolderSelect={onFolderSelect}
-          folders={folders}
-          onCancel={() => {
-            setFolders([]);
-          }}
-        />
-      )}
-      {STORAGE_OPTIONS.map((option, index) => {
-        return (
-          <Box
-            mb={3}
-            display="flex"
-            flexDirection="column"
-            key={option.key}
-            border="1px solid #ECECEC"
-            borderRadius={12}
-            bgcolor="#fff"
-            p={3}
-          >
-            <Box display="flex" alignItems="center">
-              <Radio
-                checked={option.key === storageOption}
-                onClick={(e) => {
-                  if (option.key === storageOption) {
-                    return e.preventDefault();
-                  }
-                  return onStorageOptionClicked(option.key);
-                }}
-              />
-              <img className={classes.storageIcon} src={option.icon} />
-              <Box ml={2}>
-                <Typography className={classes.storageTitle}>
-                  {option.name}
-                </Typography>
+      {appMode === EAppModes.AUTH_USER ? (
+        <>
+          {folders && (
+            <FileExplorer
+              onCreateRequested={createFolder}
+              onFolderSelect={onFolderSelect}
+              folders={folders}
+              onCancel={() => {
+                // @TODO this action may require rollback on the core side
+                sessionStorage.removeItem("dropboxAccessToken");
+                setFolders(undefined);
+              }}
+            />
+          )}
+          {STORAGE_OPTIONS.map((option, index) => {
+            return (
+              <Box
+                mb={3}
+                display="flex"
+                flexDirection="column"
+                key={option.key}
+                border="1px solid #ECECEC"
+                borderRadius={12}
+                bgcolor="#fff"
+                p={3}
+              >
+                <Box display="flex" alignItems="center">
+                  <Radio
+                    checked={option.key === storageOption}
+                    onClick={(e) => {
+                      if (option.key === storageOption) {
+                        return e.preventDefault();
+                      }
+                      return onStorageOptionClicked(option.key);
+                    }}
+                  />
+                  <img className={classes.storageIcon} src={option.icon} />
+                  <Box ml={2}>
+                    <Typography className={classes.storageTitle}>
+                      {option.name}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography className={classes.storageDescription}>
+                    {option.description}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-            <Box>
-              <Typography className={classes.storageDescription}>
-                {option.description}
-              </Typography>
-            </Box>
-          </Box>
-        );
-      })}
+            );
+          })}
+        </>
+      ) : (
+        <UnauthScreen />
+      )}
     </div>
   );
 };
