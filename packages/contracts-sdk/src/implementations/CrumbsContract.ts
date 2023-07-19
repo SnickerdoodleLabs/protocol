@@ -1,10 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract.js";
-import {
-  ContractsAbis,
-  WrappedTransactionResponse,
-  ContractOverrides,
-} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -18,6 +11,14 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, errAsync, ResultAsync } from "neverthrow";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract.js";
+import {
+  ContractsAbis,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects/index.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class CrumbsContract
@@ -40,10 +41,7 @@ export class CrumbsContract
 
   public addressToCrumbId(
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenId | null,
-    CrumbsContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<TokenId | null, CrumbsContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(accountAddress) as Promise<TokenId>,
       (e) => {

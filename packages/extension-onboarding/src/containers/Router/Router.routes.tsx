@@ -1,3 +1,6 @@
+import React from "react";
+import { Route } from "react-router-dom";
+
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
@@ -24,8 +27,6 @@ import CategorySelection from "@extension-onboarding/pages/Onboarding/CategorySe
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import PermissionSelection from "@extension-onboarding/pages/Onboarding/PermissionSelection";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-import React from "react";
-import { Route } from "react-router-dom";
 
 export const OnboardingRoutes = (
   <Route>

@@ -1,3 +1,6 @@
+import { ChainId } from "@snickerdoodlelabs/objects";
+import { useWalletConnect } from "@walletconnect/react-native-dapp";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,18 +12,17 @@ import {
   Button,
   Switch,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import DropDownPicker, { ItemType } from "react-native-dropdown-picker";
+import { ScrollView } from "react-native-gesture-handler";
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ROUTES } from "../constants";
-import { ScrollView } from "react-native-gesture-handler";
-import { useWalletConnect } from "@walletconnect/react-native-dapp";
-import { MoralisAPI } from "../services/implementations/api/MoralisAPI";
-import { ChainId } from "@snickerdoodlelabs/objects";
+
 import { TokenItem } from "../components/TokenItem";
-import { useAppContext } from "../context/AppContextProvider";
+import { ROUTES } from "../constants";
 import { useAccountLinkingContext } from "../context/AccountLinkingContextProvider";
-import DropDownPicker, { ItemType } from "react-native-dropdown-picker";
+import { useAppContext } from "../context/AppContextProvider";
+import { MoralisAPI } from "../services/implementations/api/MoralisAPI";
+
 const Wallet = (props: any) => {
   const { navigation } = props;
   const connector = useWalletConnect();
@@ -30,7 +32,7 @@ const Wallet = (props: any) => {
 
   const [myNFTs, setMyNFTs] = React.useState<string[]>([]);
   const [myTokens, setMyTokens] = React.useState<any[]>([]);
-  const [totalVal, setTotalVal] = React.useState<Number>(0);
+  const [totalVal, setTotalVal] = React.useState<number>(0);
   const { linkedAccounts } = useAppContext();
   const { onWCButtonClicked } = useAccountLinkingContext();
   const [selectedAccount, setSelectedAccount] = React.useState(
@@ -48,7 +50,7 @@ const Wallet = (props: any) => {
   }, [selectedAccount, isMainnet]);
 
   useEffect(() => {
-    let accs = [];
+    const accs = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
@@ -98,11 +100,11 @@ const Wallet = (props: any) => {
 
   const getTokens = async (isMainnet: boolean) => {
     const api = new MoralisAPI();
-    let a = [ChainId(1), ChainId(137), ChainId(43113), ChainId(43114)];
+    const a = [ChainId(1), ChainId(137), ChainId(43113), ChainId(43114)];
     const chains = isMainnet
       ? ["1", "137", "43114"]
       : ["4", "42", "43113", "8001"];
-    let allTokens: any[] = [];
+    const allTokens: any[] = [];
     let total = 0;
     if (selectedAccount) {
       await chains.map((res) => {
@@ -125,7 +127,7 @@ const Wallet = (props: any) => {
   }, [myTokens]);
 
   const Tokens = () => {
-    let render: JSX.Element[] = [];
+    const render: JSX.Element[] = [];
     myTokens.flat().map((res) => {
       render.push(
         <ScrollView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
@@ -402,7 +404,7 @@ const Wallet = (props: any) => {
     </View>
   );
 };
-let styles = StyleSheet.create({
+const styles = StyleSheet.create({
   profilePhoto: {
     height: 75,
     width: 75,

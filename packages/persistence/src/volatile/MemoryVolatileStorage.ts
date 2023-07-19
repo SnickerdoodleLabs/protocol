@@ -108,10 +108,9 @@ export class MemoryVolatileStorage implements IVolatileStorage {
     AsyncStorage.getAllKeys().then((keys) => {});
     const promise = AsyncStorage.getItem(name);
 
-    return ResultAsync.fromPromise(
-      promise,
-      (e) => new PersistenceError("error getting object"),
-    )
+    return ResultAsync.fromPromise(promise, (e) => {
+      return new PersistenceError("error getting object");
+    })
       .andThen((result) => {
         if (result) {
           return okAsync(JSON.parse(result) as T);

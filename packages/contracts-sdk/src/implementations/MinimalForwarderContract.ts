@@ -1,11 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import {
-  ContractOverrides,
-  IMinimalForwarderContract,
-  IMinimalForwarderRequest,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -18,6 +10,15 @@ import {
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import {
+  ContractOverrides,
+  IMinimalForwarderContract,
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class MinimalForwarderContract

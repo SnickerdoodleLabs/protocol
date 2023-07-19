@@ -13,13 +13,14 @@ import {
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
-  BlockchainCommonErrors,
   ServerRewardError,
   ParserError,
-  DuplicateIdInSchema,
   MissingTokenConstructorError,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
   MissingASTError,
   MissingWalletDataTypeError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";

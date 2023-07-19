@@ -1,7 +1,3 @@
-import Switch from "@extension-onboarding/components/Switch";
-import Typography from "@extension-onboarding/components/Typography";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/ScamFilterSettings/ScamFilterSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   CircularProgress,
@@ -11,6 +7,11 @@ import {
   RadioGroup,
 } from "@material-ui/core";
 import React, { FC, useEffect, useState } from "react";
+
+import Switch from "@extension-onboarding/components/Switch";
+import Typography from "@extension-onboarding/components/Typography";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/ScamFilterSettings/ScamFilterSettings.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 declare const window: IWindowWithSdlDataWallet;
 
 interface IScamFilterPreferences {

@@ -1,9 +1,10 @@
+import { Box } from "@material-ui/core";
+import React, { useEffect, useMemo, useState } from "react";
+
 import Loading from "@extension-onboarding/containers/Router/InitialScreen/components/Loading";
 import MobileScreen from "@extension-onboarding/containers/Router/InitialScreen/components/MobileScreen";
 import WebScreen from "@extension-onboarding/containers/Router/InitialScreen/components/WebScreen";
 import useIsMobile from "@extension-onboarding/hooks/useIsMobile";
-import { Box } from "@material-ui/core";
-import React, { useEffect, useMemo, useState } from "react";
 
 MobileScreen;
 const InitialScreen = () => {

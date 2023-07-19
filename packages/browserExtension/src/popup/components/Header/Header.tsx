@@ -1,7 +1,8 @@
-import React, { FC } from "react";
 import { Box } from "@material-ui/core";
-import { useStyles } from "@browser-extension/popup/components/Header/Header.style";
+import React, { FC } from "react";
 import Browser from "webextension-polyfill";
+
+import { useStyles } from "@browser-extension/popup/components/Header/Header.style";
 
 const Header: FC = () => {
   const classes = useStyles();

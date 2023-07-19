@@ -1,11 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
-import {
-  ContractOverrides,
-  IERC721RewardContract,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -20,6 +12,15 @@ import { BigNumber, ethers, EventFilter } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
+import {
+  ContractOverrides,
+  IERC721RewardContract,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 @injectable()
 export class ERC721RewardContract
   extends BaseContract<ERC721RewardContractError>

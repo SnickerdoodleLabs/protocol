@@ -14,7 +14,7 @@ import {
   AST_BlockchainTransactionQuery,
   AST_NftQuery,
   AST_PropertyQuery,
-  AST_Query,
+  AST_SubQuery,
   BinaryCondition,
   ConditionE,
   ConditionG,
@@ -70,7 +70,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   protected age: Age = Age(0);
   protected location: CountryCode = CountryCode("12345");
 
-  public eval<T extends AST_Query>(
+  public eval<T extends AST_SubQuery>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     if (query instanceof AST_BlockchainTransactionQuery) {
@@ -104,6 +104,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               }
               return okAsync(result);
             case "integer":
+            case "number":
               result = SDQL_Return(age);
               return okAsync(result);
             default:
@@ -147,7 +148,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         });
       case "url_visited_count":
         return this.browsingDataRepo
-          .getSiteVisitsMap(q.timestampRange)
+          .getSiteVisitsMap(q.timestampRange!)
           .andThen((url_visited_count) => {
             return okAsync(SDQL_Return(url_visited_count));
           });

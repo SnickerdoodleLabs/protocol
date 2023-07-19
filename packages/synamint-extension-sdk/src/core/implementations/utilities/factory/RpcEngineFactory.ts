@@ -7,8 +7,14 @@ import { err, ok } from "neverthrow";
 import pump from "pump";
 import { Runtime } from "webextension-polyfill";
 
-import { IRpcCallHandler, IRpcCallHandlerType } from "@synamint-extension-sdk/core/interfaces/api";
-import { IContextProvider, IContextProviderType } from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IRpcCallHandler,
+  IRpcCallHandlerType,
+} from "@synamint-extension-sdk/core/interfaces/api";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import { IRpcEngineFactory } from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 import { EPortNames } from "@synamint-extension-sdk/shared/enums/ports";
 

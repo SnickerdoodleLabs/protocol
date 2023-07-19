@@ -1,3 +1,6 @@
+import { Box } from "@material-ui/core";
+import React, { FC, useMemo, useState } from "react";
+
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import Typography from "@extension-onboarding/components/Typography";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
@@ -6,9 +9,6 @@ import { useNotificationContext } from "@extension-onboarding/context/Notificati
 import InfoCard from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/InfoCard";
 import UpdateForm from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/Personalnfo.style";
-import { Box } from "@material-ui/core";
-
-import React, { FC, useMemo, useState } from "react";
 
 enum EMode {
   DISPLAY,

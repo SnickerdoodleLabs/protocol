@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 type RadioButtonProps = {
   label: string;
@@ -20,25 +20,25 @@ const RadioButton = ({ label, checked, onPress }: RadioButtonProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
-    width:'90%'
+    width: "90%",
   },
   radio: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#6E62A6',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#6E62A6",
+    alignItems: "center",
+    justifyContent: "center",
   },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#6E62A6',
+    backgroundColor: "#6E62A6",
   },
   label: {
     marginLeft: 8,

@@ -1,17 +1,16 @@
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import React, { useCallback, useRef, useMemo } from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
 const BottomSheetComponenet = () => {
   // hooks
   const sheetRef = useRef<BottomSheet>(null);
 
   // variables
-  const snapPoints = useMemo(() => ["30%","100%"], []);
+  const snapPoints = useMemo(() => ["30%", "100%"], []);
 
   // callbacks
-  const handleSheetChange = useCallback((index) => {
-  }, []);
+  const handleSheetChange = useCallback((index) => {}, []);
   const handleSnapPress = useCallback((index) => {
     sheetRef.current?.snapToIndex(index);
   }, []);
@@ -27,9 +26,9 @@ const BottomSheetComponenet = () => {
         snapPoints={snapPoints}
         onChange={handleSheetChange}
         enablePanDownToClose={false}
-        style={{borderRadius:50}}
+        style={{ borderRadius: 50 }}
       >
-        <BottomSheetView style={{borderRadius:60}}>
+        <BottomSheetView style={{ borderRadius: 60 }}>
           <Text>Awesome 🔥</Text>
         </BottomSheetView>
       </BottomSheet>
@@ -41,7 +40,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 500,
-    borderRadius:50
+    borderRadius: 50,
   },
 });
 

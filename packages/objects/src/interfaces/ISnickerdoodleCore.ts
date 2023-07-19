@@ -46,14 +46,18 @@ import {
   ConsentFactoryContractError,
   CrumbsContractError,
   DiscordError,
+  EvalNotImplementedError,
   EvaluationError,
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   KeyGenerationError,
   MinimalForwarderContractError,
+  MissingASTError,
+  MissingTokenConstructorError,
   OAuthError,
   PersistenceError,
+  QueryExpiredError,
   QueryFormatError,
   SiftContractError,
   BlockchainCommonErrors,
@@ -62,11 +66,8 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   DuplicateIdInSchema,
-  MissingASTError,
-  MissingTokenConstructorError,
   MissingWalletDataTypeError,
   ParserError,
-  QueryExpiredError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
@@ -342,16 +343,21 @@ export interface ICoreMarketplaceMethods {
     | AjaxError
     | EvaluationError
     | QueryFormatError
-    | ParserError
     | QueryExpiredError
-    | DuplicateIdInSchema
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
     | MissingTokenConstructorError
-    | MissingASTError
-    | MissingWalletDataTypeError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentFactoryContractError
     | ConsentContractError
+    | ConsentError
+    | ConsentFactoryContractError
+    | MissingASTError
   >;
 }
 

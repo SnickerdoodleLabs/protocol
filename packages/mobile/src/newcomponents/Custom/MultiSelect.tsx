@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 const MultiSelectOption = ({

@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import { MotiView } from "@motify/components";
 import LottieView from "lottie-react-native";
+import React, { useEffect } from "react";
 import {
   StatusBar,
   Animated,
@@ -11,18 +12,17 @@ import {
   Button,
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Easing } from "react-native-reanimated";
+
+import error from "../../assets/lotties/error.json";
 import profileForm from "../../assets/lotties/profileForm.json";
+import success from "../../assets/lotties/success.json";
 import tour1 from "../../assets/lotties/tour1.json";
 import tour2 from "../../assets/lotties/tour2.json";
-import error from "../../assets/lotties/error.json";
-import success from "../../assets/lotties/success.json";
-
 import { ROUTES } from "../../constants";
-import { MotiView } from "@motify/components";
-import { Easing } from "react-native-reanimated";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
-import { ProfileForm } from "../ProfileForm/ProfileForm";
 import { useAppContext } from "../../context/AppContextProvider";
+import { ProfileForm } from "../ProfileForm/ProfileForm";
 
 export default function StarterTour(props: any) {
   const { navigation } = props;

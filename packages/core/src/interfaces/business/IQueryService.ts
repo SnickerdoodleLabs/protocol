@@ -3,18 +3,20 @@ import {
   BlockchainCommonErrors,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
+  ConsentToken,
   DuplicateIdInSchema,
+  EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
+  EVMPrivateKey,
   IDynamicRewardParameter,
   IPFSError,
   MissingASTError,
   MissingTokenConstructorError,
-  MissingWalletDataTypeError,
   ParserError,
   PersistenceError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   RequestForData,
@@ -24,6 +26,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { CoreConfig } from "../objects";
+
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
   onQueryPosted(
@@ -32,21 +36,26 @@ export interface IQueryService {
     void,
     | EvaluationError
     | PersistenceError
-    | AjaxError
     | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
+    | AjaxError
+    | QueryFormatError
+    | QueryExpiredError
     | ServerRewardError
+    | ConsentContractError
     | ConsentError
     | IPFSError
-    | BlockchainCommonErrors
-    | QueryFormatError
     | ParserError
+    | EvaluationError
+    | QueryFormatError
     | QueryExpiredError
-    | DuplicateIdInSchema
     | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
     | MissingASTError
-    | MissingWalletDataTypeError
+    | BlockchainCommonErrors
   >;
 
   approveQuery(
@@ -74,6 +83,29 @@ export interface IQueryService {
     | QueryFormatError
     | AjaxError
     | BlockchainCommonErrors
+  >;
+
+  getPossibleRewards(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    config: CoreConfig,
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
 }
 

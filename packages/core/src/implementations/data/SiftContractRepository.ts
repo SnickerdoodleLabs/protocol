@@ -1,8 +1,3 @@
-import { ISiftContractRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
 import {
   ISiftContract,
   WrappedTransactionResponse,
@@ -17,6 +12,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { ISiftContractRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class SiftContractRepository implements ISiftContractRepository {

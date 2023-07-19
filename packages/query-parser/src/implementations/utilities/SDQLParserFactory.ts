@@ -5,16 +5,19 @@ import {
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
 import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
-  ISDQLParserFactory,
+} from "@query-parser/interfaces/index.js";
+import { ISDQLParserFactory } from "@query-parser/interfaces/utilities/ISDQLParserFactory.js";
+import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
-} from "@query-parser/interfaces/index.js";
+} from "@query-parser/interfaces/utilities/ISDQLQueryWrapperFactory.js";
+
 @injectable()
 export class SDQLParserFactory implements ISDQLParserFactory {
   constructor(

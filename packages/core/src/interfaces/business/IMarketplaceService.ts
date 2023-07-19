@@ -10,15 +10,18 @@ import {
   EvaluationError,
   EVMContractAddress,
   PossibleReward,
-  BlockchainCommonErrors,
   AjaxError,
+  ConsentError,
   DuplicateIdInSchema,
-  MissingASTError,
+  EvalNotImplementedError,
   MissingTokenConstructorError,
-  MissingWalletDataTypeError,
   ParserError,
+  PersistenceError,
   QueryExpiredError,
   QueryFormatError,
+  MissingASTError,
+  MissingWalletDataTypeError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -61,18 +64,21 @@ export interface IMarketplaceService {
   ): ResultAsync<
     Map<EVMContractAddress, PossibleReward[]>,
     | AjaxError
+    | MissingWalletDataTypeError
+    | ParserError
     | EvaluationError
     | QueryFormatError
-    | ParserError
     | QueryExpiredError
-    | DuplicateIdInSchema
     | MissingTokenConstructorError
-    | MissingASTError
-    | MissingWalletDataTypeError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentFactoryContractError
     | ConsentContractError
+    | ConsentError
+    | ConsentFactoryContractError
+    | MissingASTError
   >;
 }
 

@@ -1,11 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
-import {
-  ContractsAbis,
-  ConsentRoles,
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   BaseURI,
   BigNumberString,
@@ -25,6 +17,15 @@ import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
+import {
+  ConsentRoles,
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class ConsentFactoryContract
@@ -68,10 +69,7 @@ export class ConsentFactoryContract
   // Gets the count of user's deployed Consents
   public getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsCount(
         ownerAddress,
@@ -129,10 +127,7 @@ export class ConsentFactoryContract
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
     role: ConsentRoles,
-  ): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
         ownerAddress,
@@ -387,10 +382,7 @@ export class ConsentFactoryContract
 
   public getTagTotal(
     tag: MarketplaceTag,
-  ): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.getTagTotal(tag) as Promise<BigNumber>,
       (e) => {

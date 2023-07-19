@@ -1,12 +1,12 @@
+import { gapi } from "gapi-script";
+import React, { useEffect, useState } from "react";
+import * as yup from "yup";
+
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { ALERT_MESSAGES, googleScopes } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import { gapi } from "gapi-script";
-import React, { useEffect, useState } from "react";
-import * as yup from "yup";
 
 const useProfileIFormLogic = (): {
   isGoogleButtonVisible: boolean;

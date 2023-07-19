@@ -2,65 +2,53 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   EvaluationError,
-  EVMContractAddress,
-  ExpectedReward,
-  IInsights,
-  MissingASTError,
-  MissingTokenConstructorError,
-  MissingWalletDataTypeError,
   ParserError,
-  PersistenceError,
-  PossibleReward,
-  QueryExpiredError,
   QueryFormatError,
-  QueryIdentifier,
   SDQLQuery,
+  IQueryDeliveryItems,
+  QueryExpiredError,
+  DuplicateIdInSchema,
+  MissingTokenConstructorError,
+  EvalNotImplementedError,
+  PersistenceError,
+  MissingASTError,
 } from "@snickerdoodlelabs/objects";
+import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
-  getPermittedQueryIdsAndExpectedRewards(
-    query: SDQLQuery,
-    dataPermissions: DataPermissions,
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    [QueryIdentifier[], ExpectedReward[]],
-    | EvaluationError
-    | PersistenceError
-    | QueryFormatError
-    | ParserError
-    | QueryExpiredError
-    | DuplicateIdInSchema
-    | MissingTokenConstructorError
-    | MissingASTError
-    | MissingWalletDataTypeError
-  >;
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    IInsights,
+    IQueryDeliveryItems,
     | EvaluationError
     | QueryFormatError
     | QueryExpiredError
     | ParserError
-    | DuplicateIdInSchema
-    | MissingTokenConstructorError
-    | MissingASTError
-    | MissingWalletDataTypeError
-    | PersistenceError
-  >;
-  getPossibleRewards(
-    query: SDQLQuery,
-  ): ResultAsync<
-    PossibleReward[],
-    | ParserError
+    | EvaluationError
     | QueryFormatError
     | QueryExpiredError
-    | DuplicateIdInSchema
     | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
     | MissingASTError
-    | MissingWalletDataTypeError
+  >;
+  parseQuery(
+    query: SDQLQuery,
+  ): ResultAsync<
+    AST,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
   >;
 }
 

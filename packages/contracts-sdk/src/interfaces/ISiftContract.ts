@@ -1,6 +1,3 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
 import {
   SiftContractError,
   TokenUri,
@@ -9,6 +6,10 @@ import {
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects/index.js";
 
 export interface ISiftContract extends IBaseContract {
   /**

@@ -6,9 +6,7 @@ import {
 import {
   AST_ConditionExpr,
   AST_Expr,
-  AST_Query,
-  AST_Return,
-  AST_ReturnExpr,
+  AST_SubQuery,
   Command_IF,
   ConditionAnd,
   ConditionG,
@@ -20,11 +18,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IAST_Evaluator {
-  eval(): ResultAsync<SDQL_Return, EvaluationError>;
-
-  evalAny(
-    expr: any,
-  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
+  evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError>;
   evalExpr(
     expr: AST_Expr | Command_IF | Operator,
   ): ResultAsync<SDQL_Return, EvaluationError>;
@@ -33,8 +27,8 @@ export interface IAST_Evaluator {
   ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
   evalConditionExpr(
     expr: AST_ConditionExpr,
-  ): ResultAsync<SDQL_Return, EvaluationError | PersistenceError>;
-  evalQuery(q: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;
+  ): ResultAsync<SDQL_Return, EvaluationError>;
+  evalSubQuery(q: AST_SubQuery): ResultAsync<SDQL_Return, PersistenceError>;
   evalOperator(op: Operator): ResultAsync<SDQL_Return, EvaluationError>;
   evalAnd(
     cond: ConditionAnd,
@@ -58,10 +52,5 @@ export interface IAST_Evaluator {
   evalCompCondition(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError>;
-  evalReturnExpr(
-    expr: AST_ReturnExpr,
-  ): ResultAsync<SDQL_Return, EvaluationError>;
-  evalReturn(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError>;
-  evalCompensation(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError>;
   evalPrimitiveExpr(expr: AST_Expr): ResultAsync<SDQL_Return, EvaluationError>;
 }
