@@ -136,8 +136,7 @@ export class ExprParser {
           const parenthesisOpen = stack.pop();
           if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
             const e = new ParserError(
-              token.position,
-              "No matching opening parenthesis for this",
+              `No matching opening parenthesis at position ${token.position}`,
             );
             console.log(e);
             throw e;
@@ -184,8 +183,7 @@ export class ExprParser {
     }
 
     const err = new ParserError(
-      token.position,
-      `Missing matching ${toType} for ${token.type}`,
+      `Missing matching ${toType} for ${token.type} at position ${token.position}`,
     );
     console.error(err);
     throw err;
@@ -207,8 +205,7 @@ export class ExprParser {
     }
 
     const err = new ParserError(
-      token.position,
-      `Missing matching ${toType} for ${token.type}`,
+      `Missing matching ${toType} for ${token.type} at position ${token.position}`,
     );
     console.error(err);
     throw err;
@@ -236,8 +233,7 @@ export class ExprParser {
 
         if (!newExp) {
           const err = new ParserError(
-            token.position,
-            `Could not convert to ast ${token.val}`,
+            `Could not convert to ast ${token.val} at position ${token.position}`,
           );
           console.error(err);
           throw err;
@@ -283,8 +279,7 @@ export class ExprParser {
         return token.val;
       default:
         const err = new ParserError(
-          token.position,
-          `invalid executable type for ${token.val}`,
+          `invalid executable type for ${token.val} at position ${token.position}`,
         );
         console.error(err);
         throw err;
@@ -293,8 +288,7 @@ export class ExprParser {
     const executable = this.context.get(nameStr);
     if (!executable) {
       const err = new ParserError(
-        token.position,
-        `no executable for token ${token.val} in the context`,
+        `no executable for token ${token.val} in the context at position ${token.position}`,
       );
       console.error(err);
       throw err;

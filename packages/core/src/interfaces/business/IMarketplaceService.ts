@@ -64,21 +64,22 @@ export interface IMarketplaceService {
   ): ResultAsync<
     Map<EVMContractAddress, PossibleReward[]>,
     | AjaxError
-    | MissingWalletDataTypeError
-    | ParserError
     | EvaluationError
     | QueryFormatError
+    | ParserError
     | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentContractError
-    | ConsentError
     | ConsentFactoryContractError
-    | MissingASTError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
   >;
 }
 

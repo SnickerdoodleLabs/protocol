@@ -7,7 +7,6 @@ import {
   SDQLQuery,
   IQueryDeliveryItems,
   QueryExpiredError,
-  DuplicateIdInSchema,
   MissingTokenConstructorError,
   EvalNotImplementedError,
   PersistenceError,

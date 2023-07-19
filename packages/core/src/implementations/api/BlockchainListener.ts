@@ -138,6 +138,7 @@ export class BlockchainListener implements IBlockchainListener {
     | MissingTokenConstructorError
     | MissingASTError
     | MissingWalletDataTypeError
+    | EvalNotImplementedError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -170,6 +171,7 @@ export class BlockchainListener implements IBlockchainListener {
     | MissingTokenConstructorError
     | MissingASTError
     | MissingWalletDataTypeError
+    | EvalNotImplementedError
   > {
     return this.invitationRepo
       .getAcceptedInvitations()

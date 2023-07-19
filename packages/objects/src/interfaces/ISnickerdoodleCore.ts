@@ -343,21 +343,20 @@ export interface ICoreMarketplaceMethods {
     | AjaxError
     | EvaluationError
     | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
     | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentContractError
-    | ConsentError
     | ConsentFactoryContractError
-    | MissingASTError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
   >;
 }
 
