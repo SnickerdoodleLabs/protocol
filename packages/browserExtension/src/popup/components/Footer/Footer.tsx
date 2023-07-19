@@ -1,8 +1,12 @@
-import { useStyles } from "@browser-extension/popup/components/Footer/Footer.style";
-import { PRIVACY_POLICY_URL, WEBSITE_URL } from "@browser-extension/popup/constants";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 import Browser from "webextension-polyfill";
+
+import { useStyles } from "@browser-extension/popup/components/Footer/Footer.style";
+import {
+  PRIVACY_POLICY_URL,
+  WEBSITE_URL,
+} from "@browser-extension/popup/constants";
 
 const SOCIAL_LINKS = [
   {

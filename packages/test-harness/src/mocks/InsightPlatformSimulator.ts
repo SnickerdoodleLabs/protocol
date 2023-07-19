@@ -35,7 +35,8 @@ import {
   SHA256Hash,
   AdSignature,
   InvalidSignatureError,
-  CompensationId,
+  CompensationKey,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -93,7 +94,7 @@ export class InsightPlatformSimulator {
       });
     });
 
-    /* Rewards Preview API - get Eligible Rewards*/
+    /* Rewards Preview API - get Possible Rewards*/
     this.app.post("/insights/responses/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
       console.log("Req is this: ", req.body);
@@ -101,42 +102,45 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const tokenId = TokenId(BigInt(req.body.tokenId));
       const queryCID = IpfsCID(req.body.queryCID);
-      const queries = JSON.stringify(req.body.queries);
+      const queryDeliveryItems = JSON.stringify(req.body.queryDeliveryItems);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
         queryCID,
         tokenId,
-        queries,
+        queryDeliveryItems,
       };
 
-      const eligibleRewards: EligibleReward[] = [];
-      eligibleRewards[0] = new EligibleReward(
-        CompensationId("c1"),
-        "Sugar to your coffee",
+      const possibleRewards: PossibleReward[] = [];
+      possibleRewards[0] = new PossibleReward(
         IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+        CompensationKey("c1"),
+        ["age"],
+        "Sugar to your coffee",
+        IpfsCID("sugar image"),
         "10% discount code for Starbucks",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
-      eligibleRewards[1] = new EligibleReward(
-        CompensationId("c2"),
-        "The CryptoPunk Draw",
+      possibleRewards[1] = new PossibleReward(
         IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
+        CompensationKey("c2"),
+        ["location"],
+        "The CryptoPunk Draw",
+        IpfsCID("Punk image"),
         "participate in the draw to win a CryptoPunk NFT",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
-      eligibleRewards[2] = new EligibleReward(
-        CompensationId("c3"),
-        "CrazyApesClub NFT distro",
+      possibleRewards[2] = new PossibleReward(
         IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
+        CompensationKey("c3"),
+        [],
+        "CrazyApesClub NFT distro",
+        IpfsCID("Ape image"),
         "a free CrazyApesClub NFT",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
 
@@ -177,7 +181,7 @@ export class InsightPlatformSimulator {
           });
         })
         .map(() => {
-          res.send(eligibleRewards);
+          res.send(possibleRewards);
         })
         .mapErr((e) => {
           console.error(e);
@@ -187,7 +191,9 @@ export class InsightPlatformSimulator {
 
     this.app.post("/insights/responses", (req, res) => {
       console.log("Recieved Insight Response");
-      console.log("Req is this: ", req.body);
+
+      console.log("Insights : ", req.body["insights"]["insights"]);
+      console.log("Ads : ", req.body["insights"]["ads"]);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);

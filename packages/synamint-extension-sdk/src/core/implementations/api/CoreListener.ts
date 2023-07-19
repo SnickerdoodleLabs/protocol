@@ -111,7 +111,7 @@ export class CoreListener implements ICoreListener {
                 type: ESolidityAbiParameterType.address,
                 value: accountAddress,
               },
-              compensationId: {
+              compensationKey: {
                 type: ESolidityAbiParameterType.string,
                 value: eligibleReward.compensationKey,
               },

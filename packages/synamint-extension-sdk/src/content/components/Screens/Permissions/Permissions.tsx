@@ -16,6 +16,10 @@ import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { FC, useCallback, useEffect, useState } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/Permissions/Permissions.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
@@ -31,9 +35,6 @@ import {
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import { JsonRpcError } from "json-rpc-engine";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import React, { FC, useCallback, useEffect, useState } from "react";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;

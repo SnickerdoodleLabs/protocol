@@ -1,13 +1,14 @@
+import { Box, Grid, Typography } from "@material-ui/core";
+import { EVMNFT, SolanaNFT, WalletNFT } from "@snickerdoodlelabs/objects";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router";
+
 import externalLinkIcon from "@extension-onboarding/assets/icons/external-link.svg";
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { INFT, POAPMetadata } from "@extension-onboarding/objects";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTDetails/NFTDetails.syle";
 import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-import { Box, Grid, Typography } from "@material-ui/core";
-import { EVMNFT, SolanaNFT, WalletNFT } from "@snickerdoodlelabs/objects";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
 
 export default () => {
   const { item, metadataString, poapMetadata } = (useLocation().state ||

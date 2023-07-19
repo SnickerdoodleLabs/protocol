@@ -9,10 +9,7 @@ import { ResultAsync } from "neverthrow";
 
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 export interface ITwitterService {
-  getOAuth1aRequestToken(): ResultAsync<
-    TokenAndSecret,
-    SnickerDoodleCoreError
-  >;
+  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, SnickerDoodleCoreError>;
   initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,

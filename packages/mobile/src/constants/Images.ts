@@ -1,3 +1,3 @@
 export default {
-  unlockLottie: '../assets/lotties/unlock.json',
+  unlockLottie: "../assets/lotties/unlock.json",
 };

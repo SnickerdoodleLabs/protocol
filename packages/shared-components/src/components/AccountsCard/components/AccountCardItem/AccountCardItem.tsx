@@ -1,10 +1,11 @@
 import { Box, Fade, Typography } from "@material-ui/core";
+import { AccountAddress } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
+
 import { AccountIdentIcon } from "@shared-components/components/AccountIdentIcon";
 import { useStyles } from "@shared-components/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
 import { Radio } from "@shared-components/components/Radio";
 import { getAccountAddressText } from "@shared-components/utils/AccountAddressUtils";
-import { AccountAddress } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
 interface IAccountCardItemProps {
   accountAddress: AccountAddress;
   onButtonClick?: () => void;

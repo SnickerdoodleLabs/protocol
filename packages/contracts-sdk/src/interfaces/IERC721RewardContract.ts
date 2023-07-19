@@ -1,9 +1,3 @@
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
 import {
   ERC721RewardContractError,
   EVMAccountAddress,
@@ -13,6 +7,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IERC721RewardContract extends IBaseContract {
   getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;

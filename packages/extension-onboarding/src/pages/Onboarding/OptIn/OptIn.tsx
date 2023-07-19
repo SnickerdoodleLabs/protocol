@@ -1,13 +1,3 @@
-import optInBg from "@extension-onboarding/assets/images/opt-in-bg.svg";
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/OptIn/OptIn.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Typography } from "@material-ui/core";
 import {
   BigNumberString,
@@ -16,8 +6,19 @@ import {
   IOpenSeaMetadata,
   Signature,
 } from "@snickerdoodlelabs/objects";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, useState, FC, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+
+import optInBg from "@extension-onboarding/assets/images/opt-in-bg.svg";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useStyles } from "@extension-onboarding/pages/Onboarding/OptIn/OptIn.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 const OptIn: FC = () => {

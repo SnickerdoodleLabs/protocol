@@ -1,6 +1,6 @@
 import { Button, makeStyles, ButtonProps } from "@material-ui/core";
-import React, { FC } from "react";
 import clsx from "clsx";
+import React, { FC } from "react";
 
 export interface IPrimaryButtonProps extends ButtonProps {}
 

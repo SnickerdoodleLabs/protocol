@@ -2,12 +2,12 @@ import { inject, injectable } from "inversify";
 import { okAsync } from "neverthrow";
 import Browser, { Runtime } from "webextension-polyfill";
 
-import { PortConnectionUtils } from "@synamint-extension-sdk/enviroment/manifest3/utils";
 import { IPortConnectionListener } from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IPortConnectionService,
   IPortConnectionServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
+import { PortConnectionUtils } from "@synamint-extension-sdk/enviroment/manifest3/utils";
 import { VersionUtils } from "@synamint-extension-sdk/extensionShared";
 
 @injectable()

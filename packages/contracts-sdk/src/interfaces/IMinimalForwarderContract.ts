@@ -1,9 +1,3 @@
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import {
-  ContractOverrides,
-  IMinimalForwarderRequest,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
 import {
   EVMAccountAddress,
   MinimalForwarderContractError,
@@ -12,6 +6,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IMinimalForwarderContract extends IBaseContract {
   getNonce(

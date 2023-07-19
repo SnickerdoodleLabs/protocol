@@ -1,4 +1,6 @@
 //@ts-ignore
+import { ESocialType } from "@snickerdoodlelabs/objects";
+
 import DiscordIcon from "@extension-onboarding/assets/icons/discord.svg";
 import TwitterIcon from "@extension-onboarding/assets/icons/twitter.svg";
 import {
@@ -6,7 +8,6 @@ import {
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
 import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import { ESocialType } from "@snickerdoodlelabs/objects";
 export interface ISocialMediaWrapper {
   provider: ISocialMediaProvider;
   icon: any;

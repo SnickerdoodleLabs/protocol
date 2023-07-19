@@ -48,7 +48,7 @@ export class InvitationService implements IInvitationService {
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
-    filterActive: boolean = true,
+    filterActive = true,
   ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.invitationRepository.getMarketplaceListingsByTag(
       pagingReq,

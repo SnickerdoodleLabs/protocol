@@ -8,9 +8,10 @@ import {
   ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAppContext } from "../../context/AppContextProvider";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { countries } from "../../services/interfaces/objects/Countries";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 interface Country {
   label: string;
@@ -76,9 +77,7 @@ const DropdownInput = ({
                 style={styles.dropdownOption}
               >
                 <Text style={styles.dropdownOptionText}>
-                  {typeof option === "string"
-                    ? option
-                    : `${option.label}`}
+                  {typeof option === "string" ? option : `${option.label}`}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -143,11 +142,7 @@ const MyComponent = () => {
     <View style={styles.container}>
       <DropdownInput
         label="Country"
-        selectedValue={
-          selectedCountry
-            ? `${selectedCountry.label}`
-            : null
-        }
+        selectedValue={selectedCountry ? `${selectedCountry.label}` : null}
         options={countries}
         setSelectedValue={handleCountryPress}
       />

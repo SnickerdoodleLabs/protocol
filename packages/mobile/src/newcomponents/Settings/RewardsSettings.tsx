@@ -1,4 +1,10 @@
 import {
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
+import React, { useEffect } from "react";
+import {
   ActivityIndicator,
   Button,
   Image,
@@ -9,19 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import RadioButton from "../Custom/RadioButton";
-import MyComponent from "../Onboarding/Mycomponent";
-import {
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
 import { ipfsParse } from "../Dashboard/NFTs/NFTDetails";
+import MyComponent from "../Onboarding/Mycomponent";
 
 interface ILoadingProps {
   status: boolean;
@@ -47,8 +48,7 @@ export default function RewardsSettings() {
   };
 
   useEffect(() => {
-    mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {
-    });
+    mobileCore.accountService.getEarnedRewards().map((earnedRewards) => {});
     setIsLoading([]);
     getOptedInInvitationMetaData();
   }, [unsubsribed]);
