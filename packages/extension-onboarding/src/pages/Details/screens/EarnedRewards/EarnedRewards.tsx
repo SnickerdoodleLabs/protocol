@@ -63,20 +63,19 @@ const EarnedRewards: FC = () => {
             {rewards?.length ? (
               Array.from(
                 rewards?.reduce((acc, reward) => {
-
-                  const selector = reward.name + reward.image + reward.description;
+                  const selector =
+                    reward.name + reward.image + reward.description;
                   if (acc.has(selector)) {
                     const prev = acc.get(selector);
                     prev!.count++;
                     acc.set(selector, prev!);
                   } else {
-                    acc.set(selector, {reward, count: 1});
+                    acc.set(selector, { reward, count: 1 });
                   }
 
                   return acc;
-                }, new Map<string, {reward: EarnedReward, count: number}>())
+                }, new Map<string, { reward: EarnedReward; count: number }>()),
               ).map(([selector, rewardToCount], index) => {
-
                 const reward = rewardToCount.reward;
                 const count = rewardToCount.count;
 

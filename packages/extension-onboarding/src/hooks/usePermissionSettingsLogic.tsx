@@ -1,7 +1,8 @@
-import { PERMISSION_NAMES } from "@extension-onboarding/constants/permissions";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useState } from "react";
+
+import { PERMISSION_NAMES } from "@extension-onboarding/constants/permissions";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 declare const window: IWindowWithSdlDataWallet;
 
 const usePermissionSettingsLogic = (): {

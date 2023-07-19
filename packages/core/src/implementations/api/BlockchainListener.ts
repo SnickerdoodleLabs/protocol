@@ -13,6 +13,12 @@ import {
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
+  ServerRewardError,
+  ParserError,
+  MissingTokenConstructorError,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
+  MissingASTError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -124,6 +130,12 @@ export class BlockchainListener implements IBlockchainListener {
     | QueryFormatError
     | QueryExpiredError
     | EvaluationError
+    | ServerRewardError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | EvalNotImplementedError
+    | MissingASTError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -150,6 +162,12 @@ export class BlockchainListener implements IBlockchainListener {
     | QueryFormatError
     | EvaluationError
     | QueryExpiredError
+    | ServerRewardError
+    | ParserError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | EvalNotImplementedError
+    | MissingASTError
   > {
     return this.invitationRepo
       .getAcceptedInvitations()

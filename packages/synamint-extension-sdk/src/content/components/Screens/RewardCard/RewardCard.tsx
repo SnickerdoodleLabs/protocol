@@ -1,9 +1,10 @@
 import { Box, Typography, Dialog, IconButton, Button } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import React from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/RewardCard/RewardCard.style";
 import { IRewardItem } from "@synamint-extension-sdk/content/constants";
 import { ExtensionConfig } from "@synamint-extension-sdk/shared";
-import React from "react";
 
 interface IRewardCardProps {
   onJoinClick: () => void;

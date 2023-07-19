@@ -13,23 +13,25 @@ import { NavigationContainer } from "@react-navigation/native";
 import WalletConnectProvider from "@walletconnect/react-native-dapp";
 import React, { useEffect } from "react";
 import { Platform, StyleSheet, useColorScheme, LogBox } from "react-native";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+import Orientation from "react-native-orientation-locker";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Colors } from "react-native/Libraries/NewAppScreen";
+
 import AccountLinkingContextProvider, {
   useAccountLinkingContext,
 } from "./context/AccountLinkingContextProvider";
-import LayoutContextProvider from "./context/LayoutContext";
 import AppContextProvider, {
   useAppContext,
 } from "./context/AppContextProvider";
 import EventContextProvider from "./context/EventContextProvider";
 import InvitationContextProvider from "./context/InvitationContext";
-import DeepLinkHandler from "./navigators/DeepLinkHandler";
-import BottomTabNavigator from "./navigators/BottomTabNavigator";
+import LayoutContextProvider from "./context/LayoutContext";
 import { AuthNavigator } from "./navigators/AuthNavigator";
-import Orientation from "react-native-orientation-locker";
+import BottomTabNavigator from "./navigators/BottomTabNavigator";
+import DeepLinkHandler from "./navigators/DeepLinkHandler";
+
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 

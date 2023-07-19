@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   dropdown: {
     position: "absolute",
     backgroundColor: "#fff",
-    marginLeft:'5%',
+    marginLeft: "5%",
     width: "90%",
     shadowColor: "#000000",
     shadowRadius: 4,

@@ -1,3 +1,11 @@
+import { Box, Button, Typography } from "@material-ui/core";
+import {
+  DiscordID,
+  DiscordProfile,
+  OAuthAuthorizationCode,
+} from "@snickerdoodlelabs/objects";
+import React, { FC, memo, useEffect, useState } from "react";
+
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import SocialUnlinkingModal from "@extension-onboarding/components/Modals/SocialUnlinkingModal";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
@@ -8,13 +16,6 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMed
 import { DiscordAccountItem } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Discord/types";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Button, Typography } from "@material-ui/core";
-import {
-  DiscordID,
-  DiscordProfile,
-  OAuthAuthorizationCode,
-} from "@snickerdoodlelabs/objects";
-import React, { FC, memo, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 

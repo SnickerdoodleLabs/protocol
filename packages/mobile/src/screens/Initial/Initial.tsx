@@ -12,9 +12,9 @@ import { StyleSheet, Image, View, Dimensions } from "react-native";
 
 import LoadingLottie from "../../assets/lotties/loading.json";
 import { useAppContext } from "../../context/AppContextProvider";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 import { styles } from "./Initial.styles";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 // Make all neccassary checks here
 
