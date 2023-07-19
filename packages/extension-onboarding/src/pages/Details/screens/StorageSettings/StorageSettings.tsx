@@ -59,13 +59,13 @@ const STORAGE_OPTIONS: IStorageOption[] = [
     description:
       "You can now import your data through your very own Dropbox storage. If you storage your data files in Dropbox. SDL will still keep a copy of your data in SDL storage.",
   },
-  {
-    key: EStorage.LOCAL_DISC,
-    icon: discIcon,
-    name: "Local Disk",
-    description:
-      "You can now import your data through your very own local storage.  SDL will still keep a copy of your data in SDL storage.",
-  },
+  // {
+  //   key: EStorage.LOCAL_DISC,
+  //   icon: discIcon,
+  //   name: "Local Disk",
+  //   description:
+  //     "You can now import your data through your very own local storage.  SDL will still keep a copy of your data in SDL storage.",
+  // },
 ];
 const StorageSettings = () => {
   // #region dropbox api mock
