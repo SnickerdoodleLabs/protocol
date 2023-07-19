@@ -204,7 +204,7 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
    * @returns
    */
   public filterCompensationsForPreviews(
-    queryCID : IpfsCID,
+    queryCID: IpfsCID,
     schemaString: SDQLString,
     activeCompensationKeys: CompensationKey[],
     possibleInsightsAndAds: (InsightKey | AdKey)[],

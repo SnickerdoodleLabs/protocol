@@ -22,6 +22,10 @@ import {
   MissingTokenConstructorError,
   EvalNotImplementedError,
   MissingASTError,
+  PossibleReward,
+  SDQLString,
+  CompensationKey,
+  InsightKey,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -30,12 +34,14 @@ import {
   IQueryFactoriesType,
   IQueryRepository,
   IQueryRepositoryType,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
   ISDQLQueryUtils,
   ISDQLQueryUtilsType,
   SDQLParser,
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
@@ -102,6 +108,42 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories
       .makeParserAsync(query.cid, query.query)
       .andThen((sdqlParser) => sdqlParser.buildAST());
+  }
+
+  // This method only calculates possible rewards from the query itself.
+  // Useful for showing user possible rewards
+  public constructPossibleRewardsFronQuery(
+    query: SDQLQuery,
+  ): ResultAsync<
+    PossibleReward[],
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+    | PersistenceError
+    | EvalNotImplementedError
+  > {
+    return this.parseQuery(query).andThen((ast) => {
+      const compensationKeys: CompensationKey[] = [
+        ...ast.compensations.keys(),
+      ].map((compKey) => CompensationKey(compKey));
+
+      const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
+        (insightKey) => InsightKey(insightKey),
+      );
+
+      const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
+      return this.queryUtils.filterCompensationsForPreviews(
+        query.cid,
+        query.query,
+        compensationKeys,
+        [...insightKeys, ...adKeys],
+      );
+    });
   }
 
   protected gatherDeliveryItems(
