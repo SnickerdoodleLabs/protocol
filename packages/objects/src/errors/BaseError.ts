@@ -1,6 +1,6 @@
 import { Signature } from "@objects/primitives/Signature.js";
 
-export class BaseBEError extends Error {
+export class BaseError extends Error {
   public code: number;
   public type: string;
   public data: unknown;

@@ -476,7 +476,11 @@ export class AccountService implements IAccountService {
             .andThen((crumbTokenId) => {
               if (crumbTokenId == null) {
                 // We can't unlink an account with no crumb
-                return errAsync(new UninitializedError());
+                return errAsync(
+                  new UninitializedError(
+                    `No crumb found for account ${accountAddress}`,
+                  ),
+                );
               }
 
               // Remove the crumb
@@ -749,7 +753,11 @@ export class AccountService implements IAccountService {
         .andThen((crumbTokenId) => {
           if (crumbTokenId == null) {
             // We can't unlink an account with no crumb
-            return errAsync(new UninitializedError());
+            return errAsync(
+              new UninitializedError(
+                `No crumb found for account ${derivedEVMAccount.accountAddress}`,
+              ),
+            );
           }
 
           // Remove the crumb

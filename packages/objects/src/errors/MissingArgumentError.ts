@@ -1,9 +1,9 @@
 import errorCodes from "@objects/errors/errorCodes.js";
-import { BaseBEError } from "@objects/errors/BaseBEError.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class MissingArgumentError extends BaseBEError {
+export class MissingArgumentError extends BaseError {
   protected errorCode: string = errorCodes[MissingArgumentError.name];
-  constructor(message: string, public src: unknown) {
+  constructor(message: string, public src?: unknown) {
     super(message, 500, errorCodes[MissingArgumentError.name], src, false);
   }
 }

@@ -69,7 +69,9 @@ export class SDQLParser {
 
   private saveInContext(name: string, val: ParserContextDataTypes): void {
     if (this.context.get(name)) {
-      const err = new DuplicateIdInSchema(name);
+      const err = new DuplicateIdInSchema(
+        `${name} already exists in the parser context`,
+      );
       // console.error(err);
       throw err;
     }
@@ -83,6 +85,8 @@ export class SDQLParser {
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.parseAds().andThen(() => {
       return this.parseQueries().andThen(() => {
@@ -104,6 +108,8 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | MissingWalletDataTypeError
   > {
     return this.validateSchema(this.schema, this.cid).andThen(() => {
       return this.parse().andThen(() => {
@@ -176,7 +182,10 @@ export class SDQLParser {
       return errAsync(new QueryFormatError("Invalid expiry date format"));
     } else if (schema.isExpired()) {
       return errAsync(
-        new QueryExpiredError("Tried to execute an expired query", cid),
+        new QueryExpiredError(
+          `Tried to execute an expired query with CID ${cid}`,
+          null,
+        ),
       );
     }
     return okAsync(undefined);
@@ -254,7 +263,7 @@ export class SDQLParser {
       if (err instanceof QueryFormatError) {
         return errAsync(err as QueryFormatError);
       }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(new QueryFormatError(JSON.stringify(err), err));
     }
   }
 
@@ -340,7 +349,9 @@ export class SDQLParser {
             | AST_Query
             | AST_Return;
           if (null == source) {
-            return errAsync(new MissingASTError(schema.query!));
+            return errAsync(
+              new MissingASTError(`No AST found for ${schema.query!}`),
+            );
           }
           const returnExpr = new AST_ReturnExpr(name, source);
           returns.push(returnExpr);
@@ -356,7 +367,7 @@ export class SDQLParser {
           // console.error(err);
           // throw err;
           return errAsync(
-            new QueryFormatError("Missing type definition", 0, schema),
+            new QueryFormatError("Missing type definition", schema),
           );
         }
       }
@@ -376,7 +387,7 @@ export class SDQLParser {
       if (err instanceof QueryFormatError) {
         return errAsync(err as QueryFormatError);
       }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(new QueryFormatError(JSON.stringify(err), err));
     }
   }
 
@@ -420,7 +431,7 @@ export class SDQLParser {
       if (err instanceof QueryFormatError) {
         return errAsync(err as QueryFormatError);
       }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(new QueryFormatError(JSON.stringify(err), err));
     }
   }
   // #endregion
@@ -454,7 +465,7 @@ export class SDQLParser {
       if (err instanceof MissingTokenConstructorError) {
         return errAsync(err as MissingTokenConstructorError);
       }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
+      return errAsync(new QueryFormatError(JSON.stringify(err), err));
     }
   }
 
