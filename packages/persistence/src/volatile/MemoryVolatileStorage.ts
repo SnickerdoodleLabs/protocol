@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ERecordKey,
   PersistenceError,
@@ -6,7 +7,7 @@ import {
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
@@ -19,8 +20,7 @@ import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js"
  */
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
-  private _keyPaths: Map<string, string | string[]>;
-
+  private _keyPaths: Map<ERecordKey, string | string[]>;
   public constructor(
     public name: string,
     private schema: VolatileTableIndex<VersionedObject>[],
@@ -38,12 +38,31 @@ export class MemoryVolatileStorage implements IVolatileStorage {
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
-
-  public getKey(
-    schemaKey: ERecordKey,
+  getKey(
+    recordKey: ERecordKey,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
-    throw new Error("Method not implemented.");
+  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const keyPath = this._keyPaths.get(recordKey);
+    if (keyPath == undefined) {
+      return errAsync(new PersistenceError("invalid table name"));
+    }
+
+    try {
+      if (Array.isArray(keyPath)) {
+        const ret: VolatileStorageKey[] = [];
+        keyPath.forEach((item) => {
+          ret.push(this._getRecursiveKey(obj, item));
+        });
+        return okAsync(ret);
+      } else {
+        return okAsync(this._getRecursiveKey(obj, keyPath));
+      }
+    } catch (e) {
+      return errAsync(
+        new PersistenceError("error extracting key from object", e),
+      );
+    }
   }
 
   public persist(): ResultAsync<boolean, PersistenceError> {

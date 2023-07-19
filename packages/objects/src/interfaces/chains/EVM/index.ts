@@ -1,6 +1,1 @@
-export * from "@objects/interfaces/chains/EVM/IEVMIndexer";
-export * from "@objects/interfaces/chains/EVM";
-export * from "@objects/interfaces/chains/Solana";
-export * from "@objects/interfaces/chains/IIndexer";
-
-
+export * from "@objects/interfaces/chains/EVM/IEVMIndexer.js";

@@ -11,6 +11,7 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IpfsCID,
+  LanguageCode,
   ProviderUrl,
   SDQLQuery,
   SDQLString,
@@ -159,6 +160,7 @@ export const testCoreConfig = new CoreConfig(
   ), // metatransactionGasAmounts
   ProviderUrl(""), // devChainProviderUrl
   60, // maxStatsRetentionSeconds
+  LanguageCode("en-pw"), // passwordLanguageCode
 );
 
 // #endregion

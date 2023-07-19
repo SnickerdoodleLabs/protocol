@@ -7,6 +7,8 @@ import {
   VolatileStorageMetadata,
   ERecordKey,
   EFieldKey,
+  RestoredBackup,
+  SerializedObject,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -21,18 +23,23 @@ export interface IBackupManager {
   ): ResultAsync<void, PersistenceError>;
   updateField(
     key: EFieldKey,
-    value: unknown,
+    value: SerializedObject,
   ): ResultAsync<void, PersistenceError>;
 
   restore(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
-  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
+  getRestored(): ResultAsync<RestoredBackup[], PersistenceError>;
 
   getRendered(
     force?: boolean,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
-  popRendered(
+
+  /**
+   * Marks a backup from getRendered() as having been restored.
+   * @param id
+   */
+  markRenderedChunkAsRestored(
     id: DataWalletBackupID,
-  ): ResultAsync<DataWalletBackupID, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   unpackBackupChunk(
     backup: DataWalletBackup,

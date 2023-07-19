@@ -51,20 +51,22 @@ export class IndexedDB {
         };
         request.onupgradeneeded = (event: Event) => {
           const db = request.result;
-          this.schema.forEach((storeInfo) => {
+          this.schema.forEach((volatileTableIndex) => {
             let keyPath: string | string[];
-            if (Array.isArray(storeInfo.keyPath)) {
-              keyPath = storeInfo.keyPath.map((x) => this._getFieldPath(x));
+            if (Array.isArray(volatileTableIndex.keyPath)) {
+              keyPath = volatileTableIndex.keyPath.map((x) => {
+                return this._getFieldPath(x);
+              });
             } else {
-              keyPath = this._getFieldPath(storeInfo.keyPath);
+              keyPath = this._getFieldPath(volatileTableIndex.keyPath);
             }
 
             const keyPathObj: IDBObjectStoreParameters = {
-              autoIncrement: storeInfo.autoIncrement ?? false,
+              autoIncrement: volatileTableIndex.autoIncrement ?? false,
               keyPath: keyPath,
             };
             const objectStore = db.createObjectStore(
-              storeInfo.name,
+              volatileTableIndex.name,
               keyPathObj,
             );
 
@@ -72,8 +74,8 @@ export class IndexedDB {
               objectStore.createIndex(name, name, { unique: unique });
             });
 
-            if (storeInfo.indexBy) {
-              storeInfo.indexBy.forEach(([name, unique]) => {
+            if (volatileTableIndex.indexBy) {
+              volatileTableIndex.indexBy.forEach(([name, unique]) => {
                 if (Array.isArray(name)) {
                   const paths = name.map((x) => this._getFieldPath(x));
                   objectStore.createIndex(
@@ -98,19 +100,15 @@ export class IndexedDB {
       }
     });
 
-    this._initialized = ResultAsync.fromPromise(
-      promise,
-      (e) => new PersistenceError("error initializing object store", e),
-    )
-      .andThen((db) => {
-        this._db = db;
-        return this.persist();
-      })
-      .andThen((persisted) => {
-        console.log("Local storage persisted: " + persisted);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return okAsync(this._db!);
+    this._initialized = ResultAsync.fromPromise(promise, (e) => {
+      return new PersistenceError("error initializing object store", e);
+    }).andThen((db) => {
+      this._db = db;
+      return this.persist().andThen((persisted) => {
+        console.log("IndexDB Persist success: " + persisted);
+        return okAsync(db);
       });
+    });
 
     return this._initialized;
   }
@@ -120,13 +118,16 @@ export class IndexedDB {
       typeof navigator === "undefined" ||
       !(navigator.storage && navigator.storage.persist)
     ) {
+      console.warn("navigator.storage does not exist not supported");
       return okAsync(false);
     }
 
-    return ResultAsync.fromPromise(
-      navigator.storage.persist(),
-      (e) => new PersistenceError(JSON.stringify(e)),
-    );
+    return ResultAsync.fromPromise(navigator.storage.persist(), (e) => {
+      return new PersistenceError(
+        "Unable to call navigator.storage.persist",
+        e,
+      );
+    });
   }
 
   private getTransaction(
@@ -413,7 +414,6 @@ export class IndexedDB {
             const indexObj: IDBIndex = store.index("deleted");
             request = indexObj.getAllKeys(EBoolean.FALSE, count);
           } else {
-            // TODO: fix when we go to SQLite
             throw new PersistenceError(
               "getting keys by index query no longer supported",
             );
@@ -442,15 +442,17 @@ export class IndexedDB {
   public getKey(
     tableName: string,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
+  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const keyPath = this._keyPaths.get(tableName);
     if (keyPath == undefined) {
       return errAsync(new PersistenceError("invalid table name"));
     }
 
-    if (keyPath == VolatileTableIndex.DEFAULT_KEY) {
-      return okAsync(null);
-    }
+    // I can't for the life of me figure out what's going on here.
+    // if (keyPath == VolatileTableIndex.DEFAULT_KEY) {
+    //   return okAsync(null);
+    // }
 
     try {
       if (Array.isArray(keyPath)) {

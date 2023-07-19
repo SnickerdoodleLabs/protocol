@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { BigNumberString } from "@snickerdoodlelabs/objects";
 import { BigNumber, utils } from "ethers";
 
-import { BigNumberUtils } from "@common-utils/implementations/BigNumberUtils";
+import { BigNumberUtils } from "@common-utils/implementations/BigNumberUtils.js";
 
 describe("BigNumberUtils class", () => {
   const bigNumberUtils = new BigNumberUtils();

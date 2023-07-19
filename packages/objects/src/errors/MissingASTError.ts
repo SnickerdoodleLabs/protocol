@@ -1,5 +1,4 @@
-import errorCodes from "@objects/errors/errorCodes";
-import { IpfsCID } from "@objects/primitives/IpfsCID";
+import errorCodes from "@objects/errors/errorCodes.js";
 
 export class MissingASTError extends Error {
   protected errorCode: string = errorCodes[MissingASTError.name];

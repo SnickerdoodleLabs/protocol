@@ -1,4 +1,4 @@
-import { AccountAddress, ChainId } from "@objects/primitives";
+import { AccountAddress, ChainId } from "@objects/primitives/index.js";
 
 export class PortfolioUpdate<T> {
   public constructor(

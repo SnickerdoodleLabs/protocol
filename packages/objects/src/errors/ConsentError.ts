@@ -1,4 +1,4 @@
-import errorCodes from "@objects/errors/errorCodes";
+import errorCodes from "@objects/errors/errorCodes.js";
 
 export class ConsentError extends Error {
   protected errorCode: string = errorCodes[ConsentError.name];

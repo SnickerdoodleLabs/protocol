@@ -25,11 +25,30 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     protected schemaProvider: IVolatileStorageSchemaProvider,
   ) {}
 
+  private _getIDB(): ResultAsync<IndexedDB, never> {
+    if (this.indexedDB != null) {
+      return this.indexedDB;
+    }
+
+    this.indexedDB = this.schemaProvider
+      .getVolatileStorageSchema()
+      .map((schema) => {
+        return new IndexedDB(
+          "SD_Wallet",
+          Array.from(schema.values()),
+          indexedDB, // This is magical; it's a global variable IDBFactory
+        );
+      });
+    return this.indexedDB;
+  }
+
   public getKey(
-    schemaKey: ERecordKey,
+    recordKey: ERecordKey,
     obj: VersionedObject,
-  ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
-    return this._getIDB().andThen((db) => db.getKey(schemaKey, obj));
+  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+    return this._getIDB().andThen((db) => {
+      return db.getKey(recordKey, obj);
+    });
   }
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
