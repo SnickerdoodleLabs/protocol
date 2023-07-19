@@ -39,7 +39,7 @@ export const signMessage = async ({
   if (!web3Provider) {
     throw new Error("web3Provider not connected");
   }
-  const msg = "Hello World";
+  const msg = "Login to your Snickerdoodle data wallet";
   const hexMsg = utf8ToHex(msg, true);
   const [address] = await web3Provider.listAccounts();
   if (!address) {
@@ -48,6 +48,7 @@ export const signMessage = async ({
 
   const signature = await web3Provider.send("personal_sign", [hexMsg, address]);
   const valid = verifyEip155MessageSignature(msg, signature, address);
+  
   return {
     method,
     address,

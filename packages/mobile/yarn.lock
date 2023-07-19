@@ -5642,7 +5642,6 @@ __metadata:
     bn.js: ^5.2.1
     browserify-zlib: ^0.2.0
     buffer: ^6.0.3
-    canvas: 2.11.1
     console-browserify: ^1.2.0
     constants-browserify: ^1.0.0
     create-hmac: ^1.1.7
@@ -5661,7 +5660,7 @@ __metadata:
     formik: ^2.2.9
     global: ^4.4.0
     https-browserify: ^0.0.1
-    indexeddbshim: ^13.0.0-pre.1
+    indexeddbshim: ^10.1.0
     inversify: ^6.0.1
     inversify-inject-decorators: ^3.1.0
     jest: ^26.6.3
@@ -5693,7 +5692,6 @@ __metadata:
     react-native-date-picker: ^4.2.9
     react-native-dropdown-picker: ^5.4.4
     react-native-fast-image: ^8.6.3
-    react-native-flipper: ^0.189.0
     react-native-gesture-handler: ^2.8.0
     react-native-get-random-values: ^1.9.0
     react-native-level-fs: ^3.0.1
@@ -9434,10 +9432,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-arraybuffer-es6@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "base64-arraybuffer-es6@npm:3.0.1"
-  checksum: 923ed9632999c33eb3c817274241f45527836bd82ff3cb37c61a7f66e6e9a444d982a31ca6ed6ccf91160e1b3a50f07c8701b849fb57942ae8af1e760ac95909
+"base64-arraybuffer-es6@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "base64-arraybuffer-es6@npm:1.0.0"
+  checksum: 197998802e6e075b85bdc32f14fbac62e4e050b452e96343f1cc714ccc6886d4c93537fb333d74e8baaafb42b0c5d1e287f61e47e648fa488be09640668d24ca
   languageName: node
   linkType: hard
 
@@ -10359,30 +10357,6 @@ __metadata:
   version: 1.0.8
   resolution: "canonicalize@npm:1.0.8"
   checksum: c31ea64160171bbcd7ac0dc081058fbcff055410a1d532d7b3959e7b02a3001c5d5f4f8bad934ed5246eafc9a928d333cc0c29846c16fb6d0be97b8fb444de3c
-  languageName: node
-  linkType: hard
-
-"canvas@npm:2.11.1":
-  version: 2.11.1
-  resolution: "canvas@npm:2.11.1"
-  dependencies:
-    "@mapbox/node-pre-gyp": ^1.0.0
-    nan: ^2.17.0
-    node-gyp: latest
-    simple-get: ^3.0.3
-  checksum: bc6c1aab572d1815233f280b77041ac64d89f8ba86ad17a63618bdc2a5afbfd593e7bae8078255a9fceb521afb762cb77da65305b3121003616c6cee1c960770
-  languageName: node
-  linkType: hard
-
-"canvas@npm:^2.11.2":
-  version: 2.11.2
-  resolution: "canvas@npm:2.11.2"
-  dependencies:
-    "@mapbox/node-pre-gyp": ^1.0.0
-    nan: ^2.17.0
-    node-gyp: latest
-    simple-get: ^3.0.3
-  checksum: 61e554aef80022841dc836964534082ec21435928498032562089dfb7736215f039c7d99ee546b0cf10780232d9bf310950f8b4d489dc394e0fb6f6adfc97994
   languageName: node
   linkType: hard
 
@@ -11934,15 +11908,6 @@ __metadata:
   dependencies:
     mimic-response: ^1.0.0
   checksum: 952552ac3bd7de2fc18015086b09468645c9638d98a551305e485230ada278c039c91116e946d07894b39ee53c0f0d5b6473f25a224029344354513b412d7380
-  languageName: node
-  linkType: hard
-
-"decompress-response@npm:^4.2.0":
-  version: 4.2.1
-  resolution: "decompress-response@npm:4.2.1"
-  dependencies:
-    mimic-response: ^2.0.0
-  checksum: 4e783ca4dfe9417354d61349750fe05236f565a4415a6ca20983a311be2371debaedd9104c0b0e7b36e5f167aeaae04f84f1a0b3f8be4162f1d7d15598b8fdba
   languageName: node
   linkType: hard
 
@@ -13866,10 +13831,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventtargeter@npm:0.9.0":
-  version: 0.9.0
-  resolution: "eventtargeter@npm:0.9.0"
-  checksum: 45b524eb8f17c1f0eaa85e712e541e10869d06214d66f254772686520dfed7530d01b1a06ccd417d567e21ffb8beb970306eab061eb6db94aa09b8d7c08d6c6e
+"eventtargeter@npm:0.8.0":
+  version: 0.8.0
+  resolution: "eventtargeter@npm:0.8.0"
+  checksum: acd825abfb15c4d1242abaf05ddec0a8ed648e1d6ae212752c643e0459a04b43a13d99d244b4fda0af557f60b5d8dd087b0a06969fd8b9a1bbc20c0ac3dac6da
   languageName: node
   linkType: hard
 
@@ -16021,17 +15986,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"indexeddbshim@npm:^13.0.0-pre.1":
-  version: 13.0.0-pre.1
-  resolution: "indexeddbshim@npm:13.0.0-pre.1"
+"indexeddbshim@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "indexeddbshim@npm:10.1.0"
   dependencies:
-    canvas: ^2.11.2
-    eventtargeter: 0.9.0
-    sync-promise-expanded: ^1.0.0
-    typeson: 9.0.2
-    typeson-registry: 7.2.1
-    websql-configurable: ^3.0.3
-  checksum: 05986a9519e59a247392c65bae88afc69b85ae3cdade5ae2e697ecc0a42f95098098f1b08cf6d02b5401d3b8148f272211c4b6cdaba807b4b79eedae1431e2e1
+    eventtargeter: 0.8.0
+    sync-promise: "git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features"
+    typeson: 7.0.2
+    typeson-registry: 3.0.0
+    websql: "git+https://github.com/brettz9/node-websql.git#configurable-secure3"
+  checksum: cb53db3bfe5b47b246ea410721b75e0590907e7035906a22a4217fd06106e5841a9926dd3a86159186c751e14667b2b7e148da68959bb2dd03a7f8d55e55e6e1
   languageName: node
   linkType: hard
 
@@ -19755,13 +19719,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mimic-response@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "mimic-response@npm:2.1.0"
-  checksum: 014fad6ab936657e5f2f48bd87af62a8e928ebe84472aaf9e14fec4fcb31257a5edff77324d8ac13ddc6685ba5135cf16e381efac324e5f174fb4ddbf902bf07
-  languageName: node
-  linkType: hard
-
 "mimic-response@npm:^3.1.0":
   version: 3.1.0
   resolution: "mimic-response@npm:3.1.0"
@@ -20189,15 +20146,6 @@ __metadata:
   version: 1.0.0
   resolution: "mute-stream@npm:1.0.0"
   checksum: 36fc968b0e9c9c63029d4f9dc63911950a3bdf55c9a87f58d3a266289b67180201cade911e7699f8b2fa596b34c9db43dad37649e3f7fdd13c3bb9edb0017ee7
-  languageName: node
-  linkType: hard
-
-"nan@npm:^2.17.0":
-  version: 2.17.0
-  resolution: "nan@npm:2.17.0"
-  dependencies:
-    node-gyp: latest
-  checksum: ec609aeaf7e68b76592a3ba96b372aa7f5df5b056c1e37410b0f1deefbab5a57a922061e2c5b369bae9c7c6b5e6eecf4ad2dac8833a1a7d3a751e0a7c7f849ed
   languageName: node
   linkType: hard
 
@@ -23083,13 +23031,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"punycode@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "punycode@npm:2.3.0"
-  checksum: 39f760e09a2a3bbfe8f5287cf733ecdad69d6af2fe6f97ca95f24b8921858b91e9ea3c9eeec6e08cede96181b3bb33f95c6ffd8c77e63986508aa2e8159fa200
-  languageName: node
-  linkType: hard
-
 "q@npm:^1.1.2":
   version: 1.5.1
   resolution: "q@npm:1.5.1"
@@ -23539,16 +23480,6 @@ __metadata:
     react: ^17 || ^18
     react-native: ">=0.60.0"
   checksum: 29289cb6b2eae0983c8922b22e2d9de3be07322bb7991c5def19f95eadefaedb0e308ff0b38cc1d0444e8bd4fe94a7621a99a2d3d9298100bcb60b3144677234
-  languageName: node
-  linkType: hard
-
-"react-native-flipper@npm:^0.189.0":
-  version: 0.189.0
-  resolution: "react-native-flipper@npm:0.189.0"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-native: ">0.62.0"
-  checksum: 7a6ee62b7d1b4e4d1a18e0e649fd9c6682a58f6ce0b7e5d5832c3d8dc90de06a893e6adfcb2f0837ebfdaa1dbec7176de1508f1ce3d482001355ad22295fc7e7
   languageName: node
   linkType: hard
 
@@ -25496,17 +25427,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simple-get@npm:^3.0.3":
-  version: 3.1.1
-  resolution: "simple-get@npm:3.1.1"
-  dependencies:
-    decompress-response: ^4.2.0
-    once: ^1.3.1
-    simple-concat: ^1.0.0
-  checksum: 80195e70bf171486e75c31e28e5485468195cc42f85940f8b45c4a68472160144d223eb4d07bc82ef80cb974b7c401db021a540deb2d34ac4b3b8883da2d6401
-  languageName: node
-  linkType: hard
-
 "simple-get@npm:^4.0.0":
   version: 4.0.1
   resolution: "simple-get@npm:4.0.1"
@@ -26541,10 +26461,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sync-promise-expanded@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "sync-promise-expanded@npm:1.0.0"
-  checksum: 0cd0915dca7e814302e71fbbe3b1d1b28fe654f2cdf85d779cfc4e4ab4027baf25c8984ba3653574234d12e2baa4f104d8bc98cb78c96ff7034e770538683ab5
+"sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
+  version: 1.0.1
+  resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
+  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
   languageName: node
   linkType: hard
 
@@ -27098,12 +27018,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tr46@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "tr46@npm:4.1.1"
+"tr46@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "tr46@npm:3.0.0"
   dependencies:
-    punycode: ^2.3.0
-  checksum: aeeb821ac2cd792e63ec84888b4fd6598ac6ed75d861579e21a5cf9d4ee78b2c6b94e7d45036f2ca2088bc85b9b46560ad23c4482979421063b24137349dbd96
+    punycode: ^2.1.1
+  checksum: 44c3cc6767fb800490e6e9fd64fd49041aa4e49e1f6a012b34a75de739cc9ed3a6405296072c1df8b6389ae139c5e7c6496f659cfe13a04a4bff3a1422981270
   languageName: node
   linkType: hard
 
@@ -27379,14 +27299,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typeson-registry@npm:7.2.1":
-  version: 7.2.1
-  resolution: "typeson-registry@npm:7.2.1"
+"typeson-registry@npm:3.0.0":
+  version: 3.0.0
+  resolution: "typeson-registry@npm:3.0.0"
   dependencies:
-    base64-arraybuffer-es6: ^3.0.0
-    typeson: ^9.0.2
-    whatwg-url: ^12.0.1
-  checksum: 947ea9791792bdbb21076949c1b0c32f854a656909dc4a9b42586ac5c01eb71ada4cd32a09905177955351566192222d53f15fa547b0db0625df567792db06a5
+    base64-arraybuffer-es6: ^1.0.0
+    typeson: ^7.0.1
+    whatwg-url: ^11.0.0
+  checksum: 10b30bac0154f6bc9607e953643dc7ba88f1b8a1d3162ad136e0696f5e1e1e8f087f9e583d571bcd71775b26dd2d294252570db6328bf44a5f6b1c980f1aa40d
   languageName: node
   linkType: hard
 
@@ -27401,10 +27321,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typeson@npm:9.0.2":
-  version: 9.0.2
-  resolution: "typeson@npm:9.0.2"
-  checksum: 68fa794144abd6e1bf8c22261d6cf5badf136982f8968bc9d309b090c5b7b2abd71af4008a67463f971f131f1f9926be91a1de86679580ca7ce2d96818052c6c
+"typeson@npm:7.0.2, typeson@npm:^7.0.1":
+  version: 7.0.2
+  resolution: "typeson@npm:7.0.2"
+  checksum: 617d4a3400c226e610a653812c2e1b84ffcd252fa92408ccd5aef0bf9fa447a28c8ba395327e86a7eb14ff5475adcddf5c3f0ff8be3f1568a24dbd22d602b3e6
   languageName: node
   linkType: hard
 
@@ -27412,13 +27332,6 @@ __metadata:
   version: 6.1.0
   resolution: "typeson@npm:6.1.0"
   checksum: 00a77b03ac8f704acb103307bad9295fe47d6b304c386297f078ec3be63875c0b81e022a4815edb9dc2c7da0a72a431345411d35c755a8510af4a420e9e46cdc
-  languageName: node
-  linkType: hard
-
-"typeson@npm:^9.0.2":
-  version: 9.0.3
-  resolution: "typeson@npm:9.0.3"
-  checksum: 67cb3d5e2678fec46969cbf0263843eb11110967d744f9c407cf5c33d970b456b73858b1561acd4f5d9bb8e845c4f542724da3c2613e34e78ae5b0a5eb6cc706
   languageName: node
   linkType: hard
 
@@ -28567,9 +28480,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"websql-configurable@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "websql-configurable@npm:3.0.3"
+"websql@git+https://github.com/brettz9/node-websql.git#configurable-secure3":
+  version: 2.0.1
+  resolution: "websql@https://github.com/brettz9/node-websql.git#commit=73f7e4051cda5e58de7669a54ab184d387b2f98d"
   dependencies:
     argsarray: ^0.0.1
     immediate: ^3.2.2
@@ -28579,7 +28492,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 991ae512e49c4b46394e87328f2fb1f837803833a4684b16e1f2dfae056099d9565d12ab40d5827fc220bf98fcb77081a08a3b2f4f184b0247b1771ecbbdf847
+  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
   languageName: node
   linkType: hard
 
@@ -28622,13 +28535,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"whatwg-url@npm:^12.0.1":
-  version: 12.0.1
-  resolution: "whatwg-url@npm:12.0.1"
+"whatwg-url@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "whatwg-url@npm:11.0.0"
   dependencies:
-    tr46: ^4.1.1
+    tr46: ^3.0.0
     webidl-conversions: ^7.0.0
-  checksum: 8698993b763c1e7eda5ed16c31dab24bca6489626aca7caf8b5a2b64684dda6578194786f10ec42ceb1c175feea16d0a915096e6419e08d154ce551c43176972
+  checksum: ed4826aaa57e66bb3488a4b25c9cd476c46ba96052747388b5801f137dd740b73fde91ad207d96baf9f17fbcc80fc1a477ad65181b5eb5fa718d27c69501d7af
   languageName: node
   linkType: hard
 

@@ -41,6 +41,8 @@ export class AccountService implements IAccountService {
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("addAccount", {account, signature, chain, languageCode});
+
     return this.core
       .addAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
@@ -55,6 +57,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
     calledWithCookie: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError> {
+    console.log("unlock", {account, signature, chain, languageCode});
     return this.core
       .unlock(account, signature, languageCode, chain)
       .mapErr((error) => {

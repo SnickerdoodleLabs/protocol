@@ -66,15 +66,7 @@ const App = () => {
   const linking = {
     prefixes: ["sdmobile://"],
   };
-  useEffect(() => {
-    setGlobalVars(global, {
-      checkOrigin: false,
-      win: SQLite,
-      // deleteDatabaseFiles: false,
-      // useSQLiteIndexes: true,
-    });
-    console.log('global',global);
-  }, []);
+
   useEffect(() => {
     Orientation.lockToPortrait(); // lock to portrait mode
   }, []);
@@ -82,6 +74,12 @@ const App = () => {
     Clipboard.setString(value);
   };
 
+  setGlobalVars(global, {
+    checkOrigin: false,
+    win: SQLite,
+    /*   deleteDatabaseFiles: false,
+      useSQLiteIndexes: true, */
+  });
   return (
     <AppContextProvider>
       <ThemeContextProvider>

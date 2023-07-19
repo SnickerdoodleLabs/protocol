@@ -23,9 +23,11 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { useAppContext } from "./AppContextProvider";
 import { useLayoutContext, ELoadingStatusType } from "./LayoutContext";
+import { BlockchainActions } from "../newcomponents/Settings/BlockchainActions";
+import { useWalletConnectModal } from "@walletconnect/modal-react-native";
 
 export interface IAccountLinkingContext {
-  onWCButtonClicked: () => ResultAsync<void, never>;
+  onWCButtonClicked: () => void;
 }
 
 interface ICredentials {
@@ -47,6 +49,7 @@ export const AccountLinkingContext =
   React.createContext<IAccountLinkingContext>({} as IAccountLinkingContext);
 
 const AccountLinkingContextProvider = ({ children }) => {
+  const [signClick, setSignClick] = useState(false);
   const { mobileCore, isUnlocked, linkedAccounts } = useAppContext();
   const [askForSignature, setAskForSignature] = useState<boolean>(false);
   const [credentials, setCredentials] =
@@ -101,7 +104,7 @@ const AccountLinkingContextProvider = ({ children }) => {
   };
 
   const onConnect = () => {
-    return ResultAsync.fromPromise(wcConnector.connect(), (e) => e)
+    /*   return ResultAsync.fromPromise(wcConnector.connect(), (e) => e)
       .andThen((sessionstatus) => {
         if (
           linkedAccounts.includes(sessionstatus.accounts[0] as AccountAddress)
@@ -115,7 +118,8 @@ const AccountLinkingContextProvider = ({ children }) => {
       .orElse((e) => {
         console.error(e);
         return okAsync(undefined);
-      });
+      }); */
+    handleButtonPress();
   };
 
   const manageAccountCredentials = () => {
@@ -143,9 +147,37 @@ const AccountLinkingContextProvider = ({ children }) => {
     }
   };
 
+  /// V2 /////
+  const [clientId, setClientId] = React.useState<string>();
+  const { isConnected, provider, open } = useWalletConnectModal();
+  const handleButtonPress = async () => {
+    if (isConnected) {
+      return provider?.disconnect();
+    }
+    return open();
+  };
+
+  useEffect(() => {
+    async function getClientId() {
+      if (provider && isConnected) {
+        const _clientId = await provider?.client?.core.crypto.getClientId();
+        setClientId(_clientId);
+        setSignClick(true);
+      } else {
+        setClientId(undefined);
+      }
+    }
+
+    getClientId();
+  }, [isConnected, provider]);
+
   return (
     <AccountLinkingContext.Provider value={{ onWCButtonClicked: onConnect }}>
       {children}
+      <BlockchainActions
+        signStatus={signClick}
+        onDisconnect={handleButtonPress}
+      />
     </AccountLinkingContext.Provider>
   );
 };

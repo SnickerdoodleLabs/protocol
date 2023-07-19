@@ -88,8 +88,8 @@ export class MobileCore {
     this.core = new SnickerdoodleCore(
       coreConfig,
       new MobileStorageUtils(),
+      reactVolatileStorage,
       undefined,
-      new NullCloudStorage(),
     );
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
     this.dataPermissionUtils = {

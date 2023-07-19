@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useWalletConnectModal } from "@walletconnect/modal-react-native";
 import { ethers } from "ethers";
 import { useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
 
-import { RequestModal } from "./RequestModal";
 import {
   AccountAction,
   FormattedRpcError,
@@ -19,20 +18,34 @@ import {
   signTypedData,
 } from "./MethodUtil";
 import { getFilterChanges, readContract } from "./ContractUtil";
+import { useAppContext } from "../../context/AppContextProvider";
+import {
+  AccountAddress,
+  EChain,
+  EVMAccountAddress,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
+import {
+  ELoadingStatusType,
+  useLayoutContext,
+} from "../../context/LayoutContext";
 
 interface Props {
   onDisconnect: () => void;
+  signStatus: boolean;
 }
 
-export function BlockchainActions({ onDisconnect }: Props) {
+export function BlockchainActions({ onDisconnect, signStatus }: Props) {
   const [rpcResponse, setRpcResponse] = useState<FormattedRpcResponse>();
   const [rpcError, setRpcError] = useState<FormattedRpcError>();
   const { provider } = useWalletConnectModal();
-
+  const { mobileCore, isUnlocked } = useAppContext();
   const web3Provider = useMemo(
     () => (provider ? new ethers.providers.Web3Provider(provider) : undefined),
     [provider],
   );
+  const { setLoadingStatus } = useLayoutContext();
 
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -108,9 +121,42 @@ export function BlockchainActions({ onDisconnect }: Props) {
     return actions;
   };
 
+  useEffect(() => {
+    signStatus && getEthereumActions()[2].callback(web3Provider);
+  }, [signStatus]);
+
+  useEffect(() => {
+    const enLangueCode: LanguageCode = LanguageCode("en");
+    if (rpcResponse?.result) {
+      const rpc = rpcResponse as FormattedRpcResponse;
+      console.log("rpc", rpc);
+      onDisconnect();
+      setLoadingStatus({
+        loading: true,
+        type: ELoadingStatusType.ADDING_ACCOUNT,
+      });
+      console.log("UseUnlock", { rpc, enLangueCode });
+      if (!isUnlocked) {
+        mobileCore.accountService.unlock(
+          rpc.address as AccountAddress,
+          rpc.result as Signature,
+          EChain.EthereumMainnet,
+          enLangueCode,
+        );
+      } else {
+        mobileCore.accountService.addAccount(
+          rpc.address as AccountAddress,
+          rpc.result as Signature,
+          EChain.EthereumMainnet,
+          enLangueCode,
+        );
+      }
+    }
+  }, [rpcResponse]);
+
   return (
     <>
-      <FlatList
+      {/*    <FlatList
         data={getEthereumActions()}
         ListHeaderComponent={
           <TouchableOpacity style={styles.button} onPress={onDisconnect}>
@@ -134,7 +180,7 @@ export function BlockchainActions({ onDisconnect }: Props) {
         isLoading={loading}
         isVisible={modalVisible}
         onClose={onModalClose}
-      />
+      /> */}
     </>
   );
 }

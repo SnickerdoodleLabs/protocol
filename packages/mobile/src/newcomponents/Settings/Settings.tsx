@@ -23,14 +23,23 @@ import Svg, { Path } from "react-native-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useWalletConnectModal } from "@walletconnect/modal-react-native";
 import { BlockchainActions } from "./BlockchainActions";
-
-const conector = useWalletConnectModal();
+import { useAppContext } from "../../context/AppContextProvider";
+import { LanguageCode } from "@snickerdoodlelabs/objects";
 
 export default function Settings() {
   const [clientId, setClientId] = React.useState<string>();
   const navigation = useNavigation();
   const theme = useTheme();
   const { isConnected, provider, open } = useWalletConnectModal();
+  const { mobileCore } = useAppContext();
+
+  useEffect(() => {
+    mobileCore.accountService
+      .getUnlockMessage(LanguageCode("en"))
+      .map((message) => {
+        console.log("message", message);
+      });
+  }, []);
 
   const onCopy = (value: string) => {
     Clipboard.setString(value);
@@ -336,23 +345,6 @@ export default function Settings() {
               />
             </View>
           </TouchableOpacity>
-          <Button title="Logout" onPress={handleButtonPress} />
-          {clientId && (
-            <TouchableOpacity onPress={() => onCopy(clientId)}>
-              <Text>
-                {"Client ID:"} <Text>{clientId}</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
-          {isConnected ? (
-            <BlockchainActions onDisconnect={handleButtonPress} />
-          ) : (
-            <View>
-              <TouchableOpacity onPress={handleButtonPress}>
-                <Text>{isConnected ? "Disconnect" : "Connect Wallet"}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </SafeAreaView>
       </ScrollView>
     </SafeAreaView>
