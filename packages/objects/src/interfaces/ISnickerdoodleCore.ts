@@ -656,7 +656,16 @@ export interface IMetricsMethods {
   /**
    * Returns the current runtime data for the user's data wallet.
    */
-  getMetrics(): ResultAsync<RuntimeMetrics, never>;
+  getMetrics(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<RuntimeMetrics, never>;
+
+  /**
+   * Returns the current unlock status of the data wallet.
+   */
+  getUnlocked(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<boolean, never>;
 }
 
 export interface ISnickerdoodleCore {

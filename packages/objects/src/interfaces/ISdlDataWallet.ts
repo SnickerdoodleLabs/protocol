@@ -241,4 +241,5 @@ export interface ISdlTwitterMethods {
 
 export interface IProxyMetricsMethods {
   getMetrics(): ResultAsync<RuntimeMetrics, ProxyError>;
+  getUnlocked(): ResultAsync<boolean, ProxyError>;
 }

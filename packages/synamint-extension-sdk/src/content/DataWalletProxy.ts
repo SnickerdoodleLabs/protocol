@@ -248,8 +248,11 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       getMetrics: () => {
         return coreGateway.metrics.getMetrics();
       },
+      getUnlocked: () => {
+        return coreGateway.metrics.getUnlocked();
+      },
     };
-    
+
     eventEmitter.on(PORT_NOTIFICATION, (resp: BaseNotification) => {
       _this.emit(resp.type, resp);
     });

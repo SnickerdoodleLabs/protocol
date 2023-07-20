@@ -133,6 +133,7 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
+  GetUnlockedParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -688,6 +689,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetMetricsParams.getCoreAction(),
       (_params) => {
         return this.metricsService.getMetrics();
+      },
+    ),
+    new CoreActionHandler<GetUnlockedParams>(
+      GetUnlockedParams.getCoreAction(),
+      (_params) => {
+        return this.metricsService.getUnlocked();
       },
     ),
   ];

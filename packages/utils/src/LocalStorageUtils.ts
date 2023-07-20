@@ -45,6 +45,7 @@ export class LocalStorageUtils implements IStorageUtils {
     }
 
     // If not, then we default to a "memory storage" system
+    console.warn("No local storage available, using memory storage");
     let store = {};
     return {
       getItem: function (key) {

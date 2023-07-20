@@ -27,8 +27,15 @@ import {
   TwitterID,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { IIFrameCallData, ChildProxy } from "@snickerdoodlelabs/utils";
+import {
+  IIFrameCallData,
+  ChildProxy,
+  IStorageUtilsType,
+  IStorageUtils,
+} from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
@@ -43,6 +50,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
   protected sourceDomain = DomainName(document.location.ancestorOrigins[0]);
 
   constructor(
+    @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICoreProviderType) protected coreProvider: ICoreProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
@@ -73,13 +81,38 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.account.unlock(
-              data.data.accountAddress,
-              data.data.signature,
-              data.data.languageCode,
-              data.data.chain,
-              this.sourceDomain,
-            );
+            return core.account
+              .unlock(
+                data.data.accountAddress,
+                data.data.signature,
+                data.data.languageCode,
+                data.data.chain,
+                this.sourceDomain,
+              )
+              .andThen(() => {
+                // Store the unlock values in local storage
+                console.log("Storing unlock values in local storage");
+                return ResultUtils.combine([
+                  this.storageUtils.write(
+                    "storedAccountAddress",
+                    data.data.accountAddress,
+                  ),
+                  this.storageUtils.write(
+                    "storedSignature",
+                    data.data.signature,
+                  ),
+                  this.storageUtils.write("storedChain", data.data.chain),
+                  this.storageUtils.write(
+                    "storedLanguageCode",
+                    data.data.languageCode,
+                  ),
+                ])
+                  .map(() => {})
+                  .orElse((e) => {
+                    console.error("Error storing unlock values", e);
+                    return okAsync(undefined);
+                  });
+              });
           });
         }, data.callId);
       },
@@ -772,6 +805,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.metrics.getMetrics();
+          });
+        }, data.callId);
+      },
+      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getUnlocked();
           });
         }, data.callId);
       },

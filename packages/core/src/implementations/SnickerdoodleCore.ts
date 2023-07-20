@@ -682,6 +682,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return metricsService.getMetrics();
       },
+      getUnlocked: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getUnlocked();
+      },
     };
 
     // Social Media Methods ----------------------------------------------------------

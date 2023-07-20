@@ -5,6 +5,7 @@ import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/e
 
 export interface IMetricsService {
   getMetrics(): ResultAsync<RuntimeMetrics, SnickerDoodleCoreError>;
+  getUnlocked(): ResultAsync<boolean, SnickerDoodleCoreError>;
 }
 
 export const IMetricsServiceType = Symbol.for("IMetricsService");

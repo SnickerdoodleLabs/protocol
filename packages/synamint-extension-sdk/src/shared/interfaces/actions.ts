@@ -745,6 +745,16 @@ export class GetMetricsParams extends CoreActionParams<RuntimeMetrics> {
   }
 }
 
+export class GetUnlockedParams extends CoreActionParams<boolean> {
+  public constructor() {
+    super(GetUnlockedParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.METRICS_GET_UNLOCKED;
+  }
+}
+
 export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
   public constructor() {
     super(GetConfigParams.getCoreAction());

@@ -3,6 +3,11 @@ import {
   ILogUtilsType,
   LogUtils,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  IStorageUtils,
+  IStorageUtilsType,
+  LocalStorageUtils,
+} from "@snickerdoodlelabs/utils";
 import { ContainerModule, interfaces } from "inversify";
 
 import { CoreListener } from "@core-iframe/implementations/api/index";
@@ -30,6 +35,9 @@ export const iframeModule = new ContainerModule(
   ) => {
     bind<ICoreListener>(ICoreListenerType).to(CoreListener).inSingletonScope();
 
+    bind<IStorageUtils>(IStorageUtilsType)
+      .to(LocalStorageUtils)
+      .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();

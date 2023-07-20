@@ -90,21 +90,54 @@ async function start() {
       return provider.connect();
     })
     .andThen((accountAddress) => {
-      console.log("Unlocking core");
-      return integration.core
-        .getUnlockMessage()
-        .andThen((unlockMessage) => {
-          console.log("Getting unlock message");
-          return provider.getSignature(unlockMessage);
-        })
-        .andThen((signature) => {
-          return integration.core.unlock(
-            accountAddress,
-            signature,
-            EChain.EthereumMainnet,
-            LanguageCode("en"),
-          );
-        });
+      // Check if the integration is already unlocked or not
+      return integration.core.metrics.getUnlocked().andThen((unlocked) => {
+        if (unlocked) {
+          // No need to do anything!
+          console.log("Snickerdoodle core was automatically unlocked!");
+          return integration.core.getAccounts().andThen((linkedAccounts) => {
+            // Check if the account that is linked to the page is linked to the data wallet
+            const existingAccount = linkedAccounts.find((linkedAccount) => {
+              return linkedAccount.sourceAccountAddress == accountAddress;
+            });
+
+            // Account is already linked, no need to do anything
+            if (existingAccount != null) {
+              return okAsync(undefined);
+            }
+
+            // No account linked, need to connect it
+            return integration.core
+              .getUnlockMessage()
+              .andThen((unlockMessage) => {
+                return provider.getSignature(unlockMessage);
+              })
+              .andThen((signature) => {
+                return integration.core.addAccount(
+                  accountAddress,
+                  signature,
+                  EChain.EthereumMainnet,
+                  LanguageCode("en"),
+                );
+              });
+          });
+        }
+
+        // Integration is not unlocked
+        return integration.core
+          .getUnlockMessage()
+          .andThen((unlockMessage) => {
+            return provider.getSignature(unlockMessage);
+          })
+          .andThen((signature) => {
+            return integration.core.unlock(
+              accountAddress,
+              signature,
+              EChain.EthereumMainnet,
+              LanguageCode("en"),
+            );
+          });
+      });
     })
     .map(() => {
       console.log("Unlocked core!");

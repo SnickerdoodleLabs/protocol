@@ -26,4 +26,11 @@ export class MetricsService implements IMetricsService {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
+
+  public getUnlocked(): ResultAsync<boolean, SnickerDoodleCoreError> {
+    return this.core.metrics.getUnlocked().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
 }

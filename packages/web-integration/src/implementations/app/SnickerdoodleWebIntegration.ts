@@ -1,133 +1,90 @@
 import {
   IConfigOverrides,
   ISdlDataWallet,
+  PersistenceError,
+  ProxyError,
   URLString,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { Container } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 
-import { SnickerdoodleIFrameProxy } from "@web-integration/implementations/proxy/index.js";
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
+import {
+  IIFrameProxyFactory,
+  IIFrameProxyFactoryType,
+} from "@web-integration/interfaces/proxy/index.js";
+import { webIntegrationModule } from "@web-integration/WebIntegrationModule.js";
 
 export class SnickerdoodleWebIntegration
   implements ISnickerdoodleWebIntegration
 {
   protected iframeURL = URLString("http://localhost:9010");
   protected debug = false;
+  protected iocContainer: Container;
 
-  protected _core: SnickerdoodleIFrameProxy;
+  protected _core: ISdlDataWallet | null = null;
 
-  protected initializeResult: ResultAsync<ISdlDataWallet, Error> | null = null;
+  protected initializeResult: ResultAsync<
+    ISdlDataWallet,
+    ProxyError | PersistenceError
+  > | null = null;
 
-  constructor(config: IConfigOverrides) {
+  constructor(protected config: IConfigOverrides) {
     this.iframeURL = config.iframeURL || this.iframeURL;
     this.debug = config.debug || this.debug;
 
-    if (window.sdlDataWallet) {
-      // If there's already a proxy injected, we don't need to create a new one
-      this._core = window.sdlDataWallet;
-    } else {
-      // Create a proxy connection to the iframe
-      console.log("Creating Snickerdoodle Protocol Iframe Proxy");
-      this._core = new SnickerdoodleIFrameProxy(
-        this._prepareIFrameContainer(),
-        this.iframeURL,
-        "snickerdoodle-core-iframe",
-        config,
-      );
-    }
+    this.iocContainer = new Container();
+
+    // Elaborate syntax to demonstrate that we can use multiple modules
+    this.iocContainer.load(...[webIntegrationModule]);
   }
 
-  public get core(): SnickerdoodleIFrameProxy {
+  public get core(): ISdlDataWallet {
+    if (this._core == null) {
+      throw new UninitializedError("Must call initialize() first");
+    }
     return this._core;
   }
 
   // wait for the core to be intialized
   public initialize(): ResultAsync<ISdlDataWallet, Error> {
-    if (this.initializeResult == null) {
-      console.log("Activating Snickerdoodle Core web integration");
-      this.initializeResult = this._core.activate().map(() => {
-        console.log("Snickerdoodle Core web integration activated");
-        window.sdlDataWallet = this.core;
-        return this.core;
-      });
+    if (this.initializeResult != null) {
+      return this.initializeResult;
     }
 
+    console.log("Activating Snickerdoodle Core web integration");
+
+    // Check if the proxy is already injected
+    if (window.sdlDataWallet != null) {
+      // If there's already a proxy injected, we don't need to create a new one
+      console.log("Existing Snickerdoodle injected proxy on the page");
+      this._core = window.sdlDataWallet;
+      console.log("Snickerdoodle Core web integration activated");
+      this.initializeResult = okAsync(window.sdlDataWallet);
+      return this.initializeResult;
+    }
+
+    // No proxy injected, create a new one via the iframe
+    // Create a proxy connection to the iframe
+    console.log("Creating Snickerdoodle Protocol Iframe Proxy");
+    const proxyFactory = this.iocContainer.get<IIFrameProxyFactory>(
+      IIFrameProxyFactoryType,
+    );
+
+    this.initializeResult = proxyFactory
+      .createProxy(this.iframeURL, this.config)
+      .map((proxy) => {
+        // Assign the iframe proxy to the internal reference and the window object
+        this._core = proxy;
+        window.sdlDataWallet = this.core;
+        console.log("Snickerdoodle Core web integration activated");
+        return proxy;
+      });
     return this.initializeResult;
-  }
-
-  private _prepareIFrameContainer(): HTMLElement {
-    // Create a container element for the iframe proxy
-    const iframeContainer = document.createElement("div");
-    iframeContainer.id = "__snickerdoodle-protocol-iframe-container__";
-
-    // Add close modal icon to iframe container
-    // const closeButton = document.createElement("div");
-    // closeButton.id = "__snickerdoodle-protocol-iframe-close-icon__";
-    // closeButton.innerHTML = `
-    //   <img id="__snickerdoodle-protocol-iframe-close-img__" src="https://storage.googleapis.com/snickerdoodle-public-assets/snickerdoodle-protocol/Close-big.png" width="20" />
-    // `;
-    // iframeContainer.appendChild(closeButton);
-
-    // Add iframe modal style
-    const style = document.createElement("style");
-    style.appendChild(
-      document.createTextNode(`
-        iframe {
-          position: absolute;
-          display: none;
-          border: none;
-          width: 550px;
-          height: 60%;
-          min-height: 200px;
-          background-color: white;
-          top: 50%;
-          left: 50%;
-          box-shadow: 0px 4px 20px #000000;
-          border-radius: 4px;
-          transform: translate(-50%, -50%);
-        }
-        #__snickerdoodle-protocol-iframe-container__ {
-          position: fixed;
-          display: none;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 100%;
-          background-color: rgba(0,0,0,0.6);
-          z-index: 999999 !important;
-        }
-        #__snickerdoodle-protocol-iframe-close-icon__ {
-          z-index: 2;
-          position: absolute;
-          height: 60%;
-          top: 50%;
-          left: 50%;
-          transform: translate(calc(-50% + 263px), -50%);
-        }
-        #__snickerdoodle-protocol-iframe-close-img__{
-          cursor: pointer;
-        }
-    `),
-    );
-    document.head.appendChild(style);
-
-    // Attach everything to the body
-    document.body.appendChild(iframeContainer);
-
-    const closeImg = document.getElementById(
-      "__snickerdoodle-protocol-iframe-close-img__",
-    );
-
-    closeImg?.addEventListener(
-      "click",
-      (_event) => {
-        iframeContainer.style.display = "none";
-      },
-      false,
-    );
-
-    return iframeContainer;
   }
 }
 
-declare let window: any;
+declare let window: {
+  sdlDataWallet: ISdlDataWallet | undefined;
+};

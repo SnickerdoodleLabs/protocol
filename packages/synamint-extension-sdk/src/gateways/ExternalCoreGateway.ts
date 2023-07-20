@@ -117,6 +117,7 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
+  GetUnlockedParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -176,6 +177,9 @@ export class ExternalCoreGateway {
     this.metrics = {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
+      },
+      getUnlocked: (): ResultAsync<boolean, ProxyError> => {
+        return this._handler.call(new GetUnlockedParams());
       },
     };
   }

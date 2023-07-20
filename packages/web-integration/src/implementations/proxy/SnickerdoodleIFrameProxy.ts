@@ -27,7 +27,6 @@ import {
   IOpenSeaMetadata,
   IProxyMetricsMethods,
   IScamFilterPreferences,
-  ISdlDataWallet,
   ISdlDiscordMethods,
   ISdlTwitterMethods,
   IpfsCID,
@@ -64,18 +63,21 @@ import {
   UnixTimestamp,
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
-import { ParentProxy } from "@snickerdoodlelabs/utils";
+import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
+
+import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISdlDataWallet
+  implements ISnickerdoodleIFrameProxy
 {
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
     protected iframeName: string,
     protected config: IConfigOverrides,
+    protected storageUtils: IStorageUtils,
   ) {
     super(element, iframeUrl, iframeName);
 
@@ -629,6 +631,9 @@ export class SnickerdoodleIFrameProxy
   public metrics: IProxyMetricsMethods = {
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
+    },
+    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
+      return this._createCall("metrics.getUnlocked", null);
     },
   };
 
