@@ -18,8 +18,8 @@ import {
   IConsentCapacity,
   IpfsCID,
   ISdlDataWallet,
-  ISdlDiscordMethods,
-  ISdlTwitterMethods,
+  IProxyDiscordMethods,
+  IProxyTwitterMethods,
   LanguageCode,
   MarketplaceListing,
   MarketplaceTag,
@@ -140,8 +140,8 @@ const initConnection = () => {
 initConnection();
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
-  public discord: ISdlDiscordMethods;
-  public twitter: ISdlTwitterMethods;
+  public discord: IProxyDiscordMethods;
+  public twitter: IProxyTwitterMethods;
   public metrics: IProxyMetricsMethods;
 
   public events: PublicEvents = new PublicEvents();
@@ -211,8 +211,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: (attachRedirectTabId?: boolean) => {
-        return coreGateway.discord.installationUrl(attachRedirectTabId);
+      installationUrl: (redirectTabId?: number) => {
+        return coreGateway.discord.installationUrl(redirectTabId);
       },
       getUserProfiles: () => {
         return coreGateway.discord.getUserProfiles();

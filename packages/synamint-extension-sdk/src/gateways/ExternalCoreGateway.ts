@@ -27,11 +27,11 @@ import {
   IConsentCapacity,
   PossibleReward,
   PagedResponse,
-  ISdlDiscordMethods,
+  IProxyDiscordMethods,
   DiscordProfile,
   DiscordGuildProfile,
   OAuthAuthorizationCode,
-  ISdlTwitterMethods,
+  IProxyTwitterMethods,
   DiscordID,
   OAuthVerifier,
   TokenAndSecret,
@@ -122,8 +122,8 @@ import {
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
-  public discord: ISdlDiscordMethods;
-  public twitter: ISdlTwitterMethods;
+  public discord: IProxyDiscordMethods;
+  public twitter: IProxyTwitterMethods;
   public metrics: IProxyMetricsMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
@@ -136,10 +136,10 @@ export class ExternalCoreGateway {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
       installationUrl: (
-        attachRedirectTabId?: boolean,
+        redirectTabId?: number,
       ): ResultAsync<URLString, ProxyError> => {
         return this._handler.call(
-          new GetDiscordInstallationUrlParams(attachRedirectTabId),
+          new GetDiscordInstallationUrlParams(redirectTabId),
         );
       },
       getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {

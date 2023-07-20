@@ -12,7 +12,9 @@ export interface IDiscordService {
   initializeUserWithAuthorizationCode(
     code: OAuthAuthorizationCode,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError>;
+  installationUrl(
+    redirectTabId?: number,
+  ): ResultAsync<URLString, SnickerDoodleCoreError>;
   getUserProfiles(): ResultAsync<DiscordProfile[], SnickerDoodleCoreError>;
   getGuildProfiles(): ResultAsync<
     DiscordGuildProfile[],

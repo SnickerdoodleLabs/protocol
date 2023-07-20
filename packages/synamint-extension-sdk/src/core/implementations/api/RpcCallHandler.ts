@@ -578,16 +578,17 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetDiscordInstallationUrlParams>(
       GetDiscordInstallationUrlParams.getCoreAction(),
       (params, sender) => {
-        return this.discordService.installationUrl().map((url) => {
-          if (params.attachRedirectTabId && sender?.tab?.id) {
-            return URLString(
-              `${url}&state=${encodeURI(
-                JSON.stringify({ redirect_tab_id: sender.tab.id }),
-              )}`,
-            );
-          }
-          return url;
-        });
+        // This is a bit of a hack, but literally the ONLY place we can
+        // get a tab ID is from this message sender in the extension.
+        // But the URL must be formulated in the core itself, so we pass
+        // the tab ID directly to the core. So what we do is we'll pass
+        // any redirectTabId in the params, and overrride it with the
+        // sender.tab.id which will be accurate.
+        if (params.redirectTabId != null && sender?.tab?.id != null) {
+          return this.discordService.installationUrl(sender.tab.id);
+        }
+
+        return this.discordService.installationUrl();
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(

@@ -58,7 +58,7 @@ import {
 } from "@synamint-extension-sdk/shared";
 
 export abstract class CoreActionParams<TReturn> {
-  public constructor(public method: ECoreActions) {}
+  public constructor(public method: ECoreActions) { }
 
   public returnMethodMarker(): TReturn {
     throw new Error("Shouldn't execute this, only used for typing purposes");
@@ -651,7 +651,7 @@ export class InitializeDiscordUserParams extends CoreActionParams<void> {
 }
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor(public attachRedirectTabId?: boolean) {
+  public constructor(public redirectTabId?: number) {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {

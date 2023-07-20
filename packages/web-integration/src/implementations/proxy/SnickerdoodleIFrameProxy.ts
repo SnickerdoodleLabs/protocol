@@ -27,8 +27,8 @@ import {
   IOpenSeaMetadata,
   IProxyMetricsMethods,
   IScamFilterPreferences,
-  ISdlDiscordMethods,
-  ISdlTwitterMethods,
+  IProxyDiscordMethods,
+  IProxyTwitterMethods,
   IpfsCID,
   LanguageCode,
   LinkedAccount,
@@ -583,7 +583,7 @@ export class SnickerdoodleIFrameProxy
     throw new Error("Method not implemented.");
   }
 
-  public discord: ISdlDiscordMethods = {
+  public discord: IProxyDiscordMethods = {
     initializeUserWithAuthorizationCode: (
       code: OAuthAuthorizationCode,
     ): ResultAsync<void, ProxyError> => {
@@ -592,8 +592,12 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", null);
+    installationUrl: (
+      redirectTabId?: number,
+    ): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", {
+        redirectTabId: redirectTabId,
+      });
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -607,7 +611,7 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
-  public twitter: ISdlTwitterMethods = {
+  public twitter: IProxyTwitterMethods = {
     getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, ProxyError> => {
       return this._createCall("twitter.getOAuth1aRequestToken", null);
     },

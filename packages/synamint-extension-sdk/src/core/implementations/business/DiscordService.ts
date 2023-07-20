@@ -34,8 +34,10 @@ export class DiscordService implements IDiscordService {
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
-  public installationUrl(): ResultAsync<URLString, SnickerDoodleCoreError> {
-    return this.core.discord.installationUrl().mapErr((error) => {
+  public installationUrl(
+    redirectTabId?: number,
+  ): ResultAsync<URLString, SnickerDoodleCoreError> {
+    return this.core.discord.installationUrl(redirectTabId).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

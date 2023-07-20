@@ -358,7 +358,7 @@ export interface ICoreDiscordMethods {
    * call to be made. If user gives consent token can be used
    * to initialize the user
    */
-  installationUrl(): ResultAsync<URLString, OAuthError>;
+  installationUrl(redirectTabId?: number): ResultAsync<URLString, OAuthError>;
 
   getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
   getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;

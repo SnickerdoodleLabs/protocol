@@ -712,11 +712,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       },
 
       "discord.installationUrl": (
-        data: IIFrameCallData<Record<string, never>>,
+        data: IIFrameCallData<{
+          redirectTabId?: number;
+        }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.installationUrl();
+            return core.discord.installationUrl(data.data.redirectTabId);
           });
         }, data.callId);
       },
