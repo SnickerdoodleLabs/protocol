@@ -38,6 +38,7 @@ import {
   TwitterID,
   OAuthVerifier,
   BaseNotification,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -83,6 +84,7 @@ import {
   GetPossibleRewardsParams,
   GetDiscordInstallationUrlParams,
   SwitchToTabParams,
+  GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -253,6 +255,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getEarnedRewards();
   }
 
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, JsonRpcError> {
+    return coreGateway.getQueryStatusByQueryCID(
+      new GetQueryStatusByCidParams(queryCID),
+    );
+  }
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,

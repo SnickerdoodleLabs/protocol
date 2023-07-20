@@ -221,8 +221,14 @@ export class QueryService implements IQueryService {
     ]);
   }
 
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
+  }
+
   /**
-   * THis method assums that the ads are completed if there is any.
+   * This method assums that the ads are completed if there is any.
    * @param consentContractAddress
    * @param query
    * @param rewardParameters

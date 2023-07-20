@@ -11,6 +11,7 @@ import {
   AccountAddress,
   EarnedReward,
   EInvitationStatus,
+  EQueryProcessingStatus,
   ESocialType,
   ETag,
   EVMContractAddress,
@@ -18,6 +19,7 @@ import {
   IConsentCapacity,
   IOpenSeaMetadata,
   PossibleReward,
+  QueryStatus,
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -109,6 +111,9 @@ const RewardProgramDetails: FC = () => {
     info?: IOpenSeaMetadata;
     consentContractAddress: EVMContractAddress;
   };
+  const [queryStatus, setQueryStatus] = useState<EQueryProcessingStatus>(
+    EQueryProcessingStatus.Received,
+  );
   const rewardsRef = useRef<PossibleReward[]>([]);
   const { ref: saveButtonRef, inView: isSaveButtonInView } = useInView({
     threshold: 0.5,
@@ -277,6 +282,18 @@ const RewardProgramDetails: FC = () => {
     }
   }, [isSubscribed]);
 
+  useEffect(() => {
+    if (possibleRewards.length > 1) {
+      window.sdlDataWallet
+        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
+        .map((queryStatus) => {
+          if (queryStatus) {
+            setQueryStatus(queryStatus.status);
+          }
+        });
+    }
+  }, [possibleRewards, earnedRewards]);
+
   const getConsentPermissions = () => {
     window.sdlDataWallet
       .getAgreementPermissions(consentContractAddress)
@@ -327,18 +344,21 @@ const RewardProgramDetails: FC = () => {
     }
 
     // get eligibleRewards
-    const eligibleRewards = possibleRewards.reduce((acc, item) => {
-      const requiredDataTypes = item.estimatedQueryDependencies.map(
-        (queryType) => QueryTypePermissionMap.get(queryType)!,
-      );
-      const permissionsMatched = requiredDataTypes.every((item) =>
-        consentPermissions.includes(item),
-      );
-      if (permissionsMatched) {
-        acc = [...acc, item];
-      }
-      return acc;
-    }, [] as PossibleReward[]);
+    const eligibleRewards =
+      queryStatus === EQueryProcessingStatus.RewardsReceived
+        ? []
+        : possibleRewards.reduce((acc, item) => {
+            const requiredDataTypes = item.estimatedQueryDependencies.map(
+              (queryType) => QueryTypePermissionMap.get(queryType)!,
+            );
+            const permissionsMatched = requiredDataTypes.every((item) =>
+              consentPermissions.includes(item),
+            );
+            if (permissionsMatched) {
+              acc = [...acc, item];
+            }
+            return acc;
+          }, [] as PossibleReward[]);
 
     // get eligible but not delivered rewards
     const waitingRewards = eligibleRewards.filter(
@@ -363,7 +383,7 @@ const RewardProgramDetails: FC = () => {
           !uniqueImagessofEarnedRewards.includes(possibleReward.queryCID) &&
           !uniqueImagesofWaitingRewards.includes(possibleReward.queryCID),
       );
-
+    console.log("Program rewards", programRewards);
     return {
       collectedRewards,
       waitingRewards,

@@ -6,7 +6,10 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
-import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
+import {
+  isSameReward,
+  PossibleRewardComponent,
+} from "@snickerdoodlelabs/shared-components";
 import React, {
   FC,
   Fragment,
@@ -46,13 +49,11 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
   const [displayMode, setDisplayMode] = useState<EDISPLAY_MODE>(
     EDISPLAY_MODE.COZY,
   );
-  const { apiGateway } = useAppContext();
+  const { apiGateway, earnedRewards } = useAppContext();
 
   const getBadge = useCallback(
-    (queryDependencies: QueryTypes[]) =>
-      queryDependencies
-        .map((dependency) => QueryTypePermissionMap.get(dependency)!)
-        .every((dataType) => currentPermissions.includes(dataType))
+    (reward: PossibleReward) =>
+      earnedRewards.find((earnedReward) => isSameReward(earnedReward, reward))
         ? EBadgeType.Available
         : EBadgeType.MorePermissionRequired,
     [currentPermissions],
@@ -141,7 +142,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
                       : "default"
                   }
                   consentContractAddress={consentContractAddress}
-                  badgeType={getBadge(reward.estimatedQueryDependencies)}
+                  badgeType={getBadge(reward)}
                   reward={reward}
                 />
               </Box>
