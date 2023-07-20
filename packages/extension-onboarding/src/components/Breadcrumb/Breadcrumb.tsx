@@ -1,8 +1,3 @@
-import BackButton from "@extension-onboarding/components/BackButton";
-import { useStyles } from "@extension-onboarding/components/Breadcrumb/Breadcrumb.style";
-import { tags } from "@extension-onboarding/constants/tags";
-import { breadcrumb } from "@extension-onboarding/containers/Router/Router.breadcrumb";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { Box, Typography } from "@material-ui/core";
 import React, { Fragment, useMemo } from "react";
 import {
@@ -12,6 +7,12 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+
+import BackButton from "@extension-onboarding/components/BackButton";
+import { useStyles } from "@extension-onboarding/components/Breadcrumb/Breadcrumb.style";
+import { tags } from "@extension-onboarding/constants/tags";
+import { breadcrumb } from "@extension-onboarding/containers/Router/Router.breadcrumb";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 
 interface IBreadcrumbProps {
   currentPathName?: string;

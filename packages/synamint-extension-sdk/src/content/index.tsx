@@ -3,6 +3,7 @@ import { render } from "react-dom";
 import "@webcomponents/custom-elements";
 
 import App from "@synamint-extension-sdk/content/components/App";
+
 import { StylesProvider, jssPreset } from "@material-ui/styles";
 import { create } from "jss";
 

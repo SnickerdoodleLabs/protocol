@@ -27,5 +27,5 @@ export interface ITwitterProvider extends ISocialMediaProvider {
     params: ITwitterUnlinkProfileParams,
   ): ResultAsync<void, unknown>;
   getUserProfiles(): ResultAsync<TwitterProfile[], unknown>;
-  getTwitterApiAuthUrl(tokenAndSecret : TokenAndSecret) : URLString
+  getTwitterApiAuthUrl(tokenAndSecret: TokenAndSecret): URLString;
 }

@@ -1,12 +1,3 @@
-import { Button } from "@snickerdoodlelabs/shared-components";
-import { useStyles } from "@extension-onboarding/components/Modals/DataPermissionsModal/DataPermissionsModal.style";
-import Switch from "@extension-onboarding/components/Switch";
-import {
-  PERMISSION_NAMES,
-  PERMISSIONS,
-} from "@extension-onboarding/constants/permissions";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   Dialog,
@@ -16,7 +7,17 @@ import {
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import React, { useEffect, FC, useState } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/DataPermissionsModal/DataPermissionsModal.style";
+import Switch from "@extension-onboarding/components/Switch";
+import {
+  PERMISSION_NAMES,
+  PERMISSIONS,
+} from "@extension-onboarding/constants/permissions";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 

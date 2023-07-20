@@ -1,4 +1,4 @@
-import { EligibleReward } from "@objects/businessObjects/rewards/index.js";
+import { PossibleReward } from "@objects/businessObjects/rewards/index.js";
 import { SDQLQuery } from "@objects/businessObjects/SDQLQuery.js";
 import { LinkedAccount } from "@objects/businessObjects/versioned/index.js";
 import {
@@ -10,7 +10,7 @@ export class SDQLQueryRequest {
   constructor(
     readonly consentContractAddress: EVMContractAddress,
     readonly query: SDQLQuery,
-    readonly rewardsPreview: EligibleReward[],
+    readonly rewardsPreview: PossibleReward[],
     readonly accounts: LinkedAccount[],
     readonly dataWalletAddress: DataWalletAddress | null,
   ) {}

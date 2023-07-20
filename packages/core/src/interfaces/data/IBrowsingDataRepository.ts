@@ -21,7 +21,9 @@ export interface IBrowsingDataRepository {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   // return a map of URLs
-  getSiteVisitsMap(timestampRange ?:ISDQLTimestampRange): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitsMap(
+    timestampRange?: ISDQLTimestampRange,
+  ): ResultAsync<Map<URLString, number>, PersistenceError>;
 }
 
 export const IBrowsingDataRepositoryType = Symbol.for(

@@ -1,16 +1,3 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { useStyles } from "@extension-onboarding/components/Modals/PermissionSelectionModal/PermissionSelectionModal.style";
-import { PERMISSIONS_WITH_ICONS } from "@extension-onboarding/constants/permissions";
-import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  PermissionManagerContextProvider,
-  usePermissionContext,
-} from "@extension-onboarding/context/PermissionContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { DiscordProvider, TwitterProvider } from "@extension-onboarding/services/socialMediaProviders/implementations";
 import { Dialog } from "@material-ui/core";
 import {
   ESocialType,
@@ -20,7 +7,23 @@ import {
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { PermissionSelection } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { useStyles } from "@extension-onboarding/components/Modals/PermissionSelectionModal/PermissionSelectionModal.style";
+import { PERMISSIONS_WITH_ICONS } from "@extension-onboarding/constants/permissions";
+import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import {
+  PermissionManagerContextProvider,
+  usePermissionContext,
+} from "@extension-onboarding/context/PermissionContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import {
+  DiscordProvider,
+  TwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/implementations";
 
 declare const window: IWindowWithSdlDataWallet;
 

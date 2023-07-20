@@ -46,14 +46,20 @@ import {
   ConsentFactoryContractError,
   CrumbsContractError,
   DiscordError,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
   EvaluationError,
   InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   KeyGenerationError,
   MinimalForwarderContractError,
+  MissingASTError,
+  MissingTokenConstructorError,
   OAuthError,
+  ParserError,
   PersistenceError,
+  QueryExpiredError,
   QueryFormatError,
   SiftContractError,
   TwitterError,
@@ -314,7 +320,27 @@ export interface ICoreMarketplaceMethods {
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | ConsentError
+    | ConsentFactoryContractError
+    | MissingASTError
+  >;
 }
 
 export interface ICoreDiscordMethods {
@@ -714,6 +740,7 @@ export interface ISnickerdoodleCore {
     | QueryFormatError
     | EvaluationError
     | UnauthorizedError
+    | PersistenceError
   >;
 
   /**

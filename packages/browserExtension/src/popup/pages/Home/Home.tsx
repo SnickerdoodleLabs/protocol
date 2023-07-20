@@ -1,9 +1,10 @@
 import { Box, Typography } from "@material-ui/core";
+import React, { FC } from "react";
+import Browser from "webextension-polyfill";
+
 import { SPA_PATHS } from "@browser-extension/popup/constants";
 import LinkCard from "@browser-extension/popup/pages/Home/components/LinkCard";
 import { useStyles } from "@browser-extension/popup/pages/Home/Home.style";
-import React, { FC } from "react";
-import Browser from "webextension-polyfill";
 
 const Home: FC = () => {
   const classes = useStyles();

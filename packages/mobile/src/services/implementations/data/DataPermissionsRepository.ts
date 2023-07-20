@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   EWalletDataType,
   HexString32,
@@ -5,9 +6,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { IDataPermissionsRepository } from "../../interfaces/data/IDataPermissionsRepository";
+import { MobileStorageError } from "../../interfaces/objects/errors/MobileStorageError";
 
 export const dependedFlags = {
   [EWalletDataType.Age]: [EWalletDataType.Birthday],

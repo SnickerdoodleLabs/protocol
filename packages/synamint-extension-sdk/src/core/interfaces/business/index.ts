@@ -8,4 +8,3 @@ export * from "@synamint-extension-sdk/core/interfaces/business/IScamFilterServi
 export * from "@synamint-extension-sdk/core/interfaces/business/ITokenPriceService";
 export * from "@synamint-extension-sdk/core/interfaces/business/ITwitterService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IUserSiteInteractionService";
-

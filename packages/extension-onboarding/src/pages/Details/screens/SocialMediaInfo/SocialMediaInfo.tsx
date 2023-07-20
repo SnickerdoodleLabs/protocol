@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import { ESocialType } from "@snickerdoodlelabs/objects";
 import React from "react";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
@@ -7,7 +8,6 @@ import {
   TwitterInfo,
 } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/SocialMediaInfo.style";
-import { ESocialType } from "@snickerdoodlelabs/objects";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
 
 interface ISocialMediaInfoProps {

@@ -1,4 +1,3 @@
-import { EHttpMethods } from "@core/interfaces/enums/index.js";
 import {
   AjaxError,
   OAuth1RequstToken,
@@ -8,6 +7,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import { OAuth1Config } from "packages/objects/src/businessObjects/oauth/OAuth1Config.js";
+
+import { EHttpMethods } from "@core/interfaces/enums/index.js";
 
 export interface IOauthUtils {
   getOauth1RequestToken(

@@ -1,3 +1,8 @@
+import { MotiView } from "@motify/components";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { Formik, Field, Form } from "formik";
+import AnimatedLottieView from "lottie-react-native";
 import React, { useEffect } from "react";
 import {
   Button,
@@ -7,21 +12,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Formik, Field, Form } from "formik";
+import DatePicker from "react-native-date-picker";
+import DropDownPicker from "react-native-dropdown-picker";
+import { Easing } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import AnimatedLottieView from "lottie-react-native";
 import profileFormLottie from "../../assets/lotties/profileForm.json";
-import RNDateTimePicker from "@react-native-community/datetimepicker";
-import Dropdown from "./Dropdown";
-import { MotiView } from "@motify/components";
-import { Easing } from "react-native-reanimated";
-import DatePicker from "react-native-date-picker";
 import { ROUTES } from "../../constants";
-import DropDownPicker from "react-native-dropdown-picker";
 import { useAppContext } from "../../context/AppContextProvider";
-import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { countries } from "../../services/interfaces/objects/Countries";
+
+import Dropdown from "./Dropdown";
 
 export const ProfileForm = ({ navigation }) => {
   const [selected, setSelected] = React.useState(undefined);
@@ -88,9 +89,9 @@ export const ProfileForm = ({ navigation }) => {
     },
   });
   function getFormattedDate(date) {
-    let year = date.getFullYear();
-    let month = (1 + date.getMonth()).toString().padStart(2, "0");
-    let day = date.getDate().toString().padStart(2, "0");
+    const year = date.getFullYear();
+    const month = (1 + date.getMonth()).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
 
     return month + "/" + day + "/" + year;
   }

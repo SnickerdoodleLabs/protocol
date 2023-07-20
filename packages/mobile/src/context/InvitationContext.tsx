@@ -59,7 +59,7 @@ const InvitationContextProvider = ({ children }) => {
       _invitation = {
         consentContractAddress: consentAddress as EVMContractAddress,
         domain: DomainName(""),
-        tokenId,  
+        tokenId,
         businessSignature: (signature as Signature) ?? null,
       };
       return invitationService

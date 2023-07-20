@@ -1,11 +1,3 @@
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
-import {
-  ConsentRoles,
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects/index.js";
 import {
   BaseURI,
   BigNumberString,
@@ -24,6 +16,15 @@ import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
+import {
+  ConsentRoles,
+  ContractOverrides,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class ConsentFactoryContract

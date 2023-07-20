@@ -812,6 +812,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | EvaluationError
+    | PersistenceError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);

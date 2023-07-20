@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import { IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { useEffect } from "react";
 import {
   View,
@@ -7,10 +9,9 @@ import {
   Platform,
   TouchableOpacity,
 } from "react-native";
+
 import { ROUTES } from "../../constants";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import { useNavigation } from "@react-navigation/native";
-import { IpfsCID } from "@snickerdoodlelabs/objects";
 
 interface CardItemProps {
   imageSource: string;

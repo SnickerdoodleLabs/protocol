@@ -1,14 +1,23 @@
 import {
+  AdKey,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  ConsentToken,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
+  EVMPrivateKey,
   IDynamicRewardParameter,
   IPFSError,
+  MissingASTError,
+  MissingTokenConstructorError,
+  ParserError,
   PersistenceError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   RequestForData,
@@ -18,21 +27,35 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { CoreConfig } from "../objects";
+
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
   onQueryPosted(
     requestForData: RequestForData,
   ): ResultAsync<
     void,
+    | EvaluationError
+    | PersistenceError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
     | QueryFormatError
-    | EvaluationError
     | QueryExpiredError
     | ServerRewardError
+    | ConsentContractError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
 
   approveQuery(
@@ -59,6 +82,29 @@ export interface IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+  >;
+
+  getPossibleRewards(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    config: CoreConfig,
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
 }
 
