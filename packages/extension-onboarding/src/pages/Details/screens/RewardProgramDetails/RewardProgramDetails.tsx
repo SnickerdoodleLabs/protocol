@@ -383,7 +383,6 @@ const RewardProgramDetails: FC = () => {
           !uniqueImagessofEarnedRewards.includes(possibleReward.queryCID) &&
           !uniqueImagesofWaitingRewards.includes(possibleReward.queryCID),
       );
-    console.log("Program rewards", programRewards);
     return {
       collectedRewards,
       waitingRewards,
