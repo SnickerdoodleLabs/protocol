@@ -34,7 +34,14 @@ jobs:
     - name: Docker configuration
       run: |-
         gcloud --quiet auth configure-docker $GAR_LOCATION-docker.pkg.dev
-        
+
+    - name: Build protocol base
+      run: |-
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-base:$GITHUB_SHA" \
+          --tag "snickerdoodlelabs/protocol-docker-base:$GITHUB_SHA" \
+          -f ./packages/docker/Dockerfile \
+          .
     - name: Build protocol
       run: |-
         docker build \
