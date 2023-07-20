@@ -54,6 +54,19 @@ jobs:
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           -f ./packages/extension-onboarding/Dockerfile \
           .
+    - name: Build protocol Iframe
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
+          --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="app.snickerdoodle.com" \
+          --build-arg CONTROL_CHAIN_ID=31337 \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs \
+          -f ./packages/iframe/Dockerfile \
+          .
+          
+
     - name: Slack Notification
       if: ${{ failure() }}
       run: |-
