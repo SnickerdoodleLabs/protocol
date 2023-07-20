@@ -30,6 +30,7 @@ const defaultConfigs: IExtensionConfig = {
   portfolioPollingIntervalMS: ONE_MINUTE_MS,
   transactionPollingIntervalMS: ONE_MINUTE_MS,
   backupPollingIntervalMS: ONE_MINUTE_MS,
+  backupChunkSizeTarget: 500,
   requestForDataCheckingFrequency: 4000,
 };
 @injectable()

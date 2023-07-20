@@ -1,3 +1,4 @@
+import { ISocialMediaProvider } from "@snickerdoodlelabs/extension-onboarding/src/services/socialMediaProviders/interfaces/ISocialMediaProvider";
 import {
   OAuth1RequstToken,
   TokenAndSecret,
@@ -7,8 +8,6 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { ISocialMediaProvider } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 export type ITwitterInitParams = {
   requestToken: OAuth1RequstToken;

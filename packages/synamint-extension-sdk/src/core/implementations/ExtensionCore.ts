@@ -79,6 +79,7 @@ export class ExtensionCore {
       accountIndexingPollingIntervalMS: config.transactionPollingIntervalMS,
       accountNFTPollingIntervalMS: config.portfolioPollingIntervalMS,
       dataWalletBackupIntervalMS: config.backupPollingIntervalMS,
+      backupChunkSizeTarget: config.backupChunkSizeTarget,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
