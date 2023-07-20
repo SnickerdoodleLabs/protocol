@@ -46,6 +46,7 @@ jobs:
       run: |-
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
           --build-arg DOMAIN="extension.dev.snickerdoodle.dev" \
           --build-arg CONTROL_CHAIN_ID=31337 \
           --build-arg BUILD_ENV=production \
