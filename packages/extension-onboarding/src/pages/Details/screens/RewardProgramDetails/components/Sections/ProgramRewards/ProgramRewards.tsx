@@ -57,6 +57,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
         : EBadgeType.MorePermissionRequired,
     [currentPermissions],
   );
+  console.log("Rewards ", rewards);
 
   return (
     <Section>
