@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   BigNumberString,
@@ -22,9 +27,11 @@ import {
   OAuthVerifier,
   PagingRequest,
   Signature,
+  SiteVisit,
   TokenAddress,
   TokenId,
   TwitterID,
+  URLString,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -53,6 +60,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICoreProviderType) protected coreProvider: ICoreProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {
     super();
   }
@@ -112,6 +120,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
                     console.error("Error storing unlock values", e);
                     return okAsync(undefined);
                   });
+              })
+              .andThen(() => {
+                // We want to record the sourceDomain as a site visit
+                return core.addSiteVisits([
+                  new SiteVisit(
+                    URLString(this.sourceDomain), // We can't get the full URL, but the domain will suffice
+                    this.timeUtils.getUnixNow(), // Visit started now
+                    UnixTimestamp(this.timeUtils.getUnixNow() + 10), // We're not going to wait, so just record the visit as for 10 seconds
+                  ),
+                ]);
               });
           });
         }, data.callId);

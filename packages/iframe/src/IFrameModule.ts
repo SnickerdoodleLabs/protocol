@@ -1,7 +1,10 @@
 import {
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   LogUtils,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IStorageUtils,
@@ -43,5 +46,6 @@ export const iframeModule = new ContainerModule(
       .inSingletonScope();
     bind<ICoreProvider>(ICoreProviderType).to(CoreProvider).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },
 );
