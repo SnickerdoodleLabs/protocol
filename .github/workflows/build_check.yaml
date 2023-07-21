@@ -63,6 +63,7 @@ jobs:
           --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="app.snickerdoodle.com" \
           --build-arg CONTROL_CHAIN_ID=31337 \
           --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.com/ipfs \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
           -f ./packages/iframe/Dockerfile \
           .
           
