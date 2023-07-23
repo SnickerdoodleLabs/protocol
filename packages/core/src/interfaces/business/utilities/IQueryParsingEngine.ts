@@ -11,6 +11,7 @@ import {
   EvalNotImplementedError,
   PersistenceError,
   MissingASTError,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
@@ -48,6 +49,22 @@ export interface IQueryParsingEngine {
     | MissingTokenConstructorError
     | DuplicateIdInSchema
     | MissingASTError
+  >;
+
+  constructPossibleRewardsFronQuery(
+    query: SDQLQuery,
+  ): ResultAsync<
+    PossibleReward[],
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | MissingASTError
+    | PersistenceError
+    | EvalNotImplementedError
   >;
 }
 
