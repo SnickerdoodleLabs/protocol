@@ -362,14 +362,18 @@ const OnboardingMain = () => {
         });
         setConnectModal(false);
         setGenerated(false);
+
         const accountService = mobileCore.accountService;
+
         walletObject?.signMessage(message).then((signature) => {
           if (!isUnlocked) {
+            console.log("signature", signature);
             accountService.unlock(
               walletObject?.address as EVMAccountAddress,
               signature as Signature,
               enLangueCode,
               EChain.EthereumMainnet,
+              true,
             );
           } else {
             accountService.addAccount(

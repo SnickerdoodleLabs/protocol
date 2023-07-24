@@ -61,12 +61,17 @@ export class AccountService implements IAccountService {
     return this.core.account
       .unlock(account, signature, languageCode, chain)
       .mapErr((error) => {
+        console.log("mapErr", error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       })
       .andThen(() => {
+        console.log("success1");
         if (calledWithCookie) {
+          console.log("success2");
+
           return okAsync(undefined);
         }
+        console.log("success3");
         return this.accountStorage.writeAccountInfoToStorage(
           account,
           signature,
@@ -75,6 +80,8 @@ export class AccountService implements IAccountService {
         );
       })
       .orElse((error) => {
+        console.log("success4", error);
+
         this.errorUtils.emit(error);
         return okAsync(undefined);
       });

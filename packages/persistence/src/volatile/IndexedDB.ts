@@ -38,7 +38,7 @@ export class IndexedDB {
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new PersistenceError("timeout"));
-      }, 1000);
+      }, 3000);
 
       try {
         const request = this.dbFactory.open(this.name);

@@ -5705,6 +5705,8 @@ __metadata:
     react-native-pie: ^1.1.2
     react-native-qrcode-svg: 6.0.6
     react-native-quick-crypto: ^0.5.0
+    react-native-quick-sqlite: ^8.0.4
+    react-native-quick-websql: ^0.3.0
     react-native-randombytes: ^3.6.1
     react-native-reanimated: ^3.1.0
     react-native-safe-area-context: ^4.4.1
@@ -23672,6 +23674,29 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: b9ddb2f83b0190d2831dd912dd425a5a873a89744fe02248ac7125c5afee1945a67df61c343295ab22267a4ec1f4a8e9d380a7ad5deee415d22d7437d4c554e7
+  languageName: node
+  linkType: hard
+
+"react-native-quick-sqlite@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "react-native-quick-sqlite@npm:8.0.4"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 034f8d1ea8a497af6d45d287d6173bd1b61e2120983a952ec7f46872a413a493dcf7f099943f0e91b2b951da832c740d0e1f216481619c7664107bf562a2df99
+  languageName: node
+  linkType: hard
+
+"react-native-quick-websql@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "react-native-quick-websql@npm:0.3.0"
+  dependencies:
+    websql: ^2.0.3
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-quick-sqlite: ^6.1.1
+  checksum: 40283f89144a3024e461d2a84cedd9b6b28696b420534d2e660801f29006bff82b28daa6de3d9d5afd7af6e247f016ad37c3438b89044159cc7352e019ba4c88
   languageName: node
   linkType: hard
 

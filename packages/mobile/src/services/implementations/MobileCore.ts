@@ -162,23 +162,23 @@ export class MobileCore {
       addAccount: (
         account: AccountAddress,
         signature: Signature,
-        chain: EChain,
         languageCode: LanguageCode,
+        chain: EChain,
       ) => {
         const _accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
         return _accountService.addAccount(
           account,
           signature,
-          chain,
           languageCode,
+          chain,
         );
       },
       unlock: (
         account: AccountAddress,
         signature: Signature,
-        chain: EChain,
         languageCode: LanguageCode,
+        chain: EChain,
         calledWithCookie?: boolean,
       ) => {
         const _accountService =
@@ -186,8 +186,8 @@ export class MobileCore {
         return _accountService.unlock(
           account,
           signature,
-          chain,
           languageCode,
+          chain,
           calledWithCookie,
         );
       },
