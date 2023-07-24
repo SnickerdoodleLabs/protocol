@@ -2,6 +2,7 @@ import {
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
   RuntimeMetrics,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -18,17 +19,21 @@ export class MetricsService implements IMetricsService {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
-  ) {}
+  ) { }
 
-  public getMetrics(): ResultAsync<RuntimeMetrics, SnickerDoodleCoreError> {
-    return this.core.metrics.getMetrics().mapErr((error) => {
+  public getMetrics(
+    sourceDomain?: DomainName,
+  ): ResultAsync<RuntimeMetrics, SnickerDoodleCoreError> {
+    return this.core.metrics.getMetrics(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
 
-  public getUnlocked(): ResultAsync<boolean, SnickerDoodleCoreError> {
-    return this.core.metrics.getUnlocked().mapErr((error) => {
+  public getUnlocked(
+    sourceDomain?: DomainName,
+  ): ResultAsync<boolean, SnickerDoodleCoreError> {
+    return this.core.metrics.getUnlocked(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

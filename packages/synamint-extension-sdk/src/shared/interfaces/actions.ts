@@ -45,6 +45,9 @@ import {
   TwitterProfile,
   TokenAndSecret,
   RuntimeMetrics,
+  EDataWalletPermission,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -58,7 +61,7 @@ import {
 } from "@synamint-extension-sdk/shared";
 
 export abstract class CoreActionParams<TReturn> {
-  public constructor(public method: ECoreActions) { }
+  public constructor(public method: ECoreActions) {}
 
   public returnMethodMarker(): TReturn {
     throw new Error("Shouldn't execute this, only used for typing purposes");
@@ -774,3 +777,49 @@ export class SwitchToTabParams extends CoreActionParams<void> {
     return ECoreActions.SWITCH_TO_TAB;
   }
 }
+
+// #region Integration
+export class RequestPermissionsParams extends CoreActionParams<
+  EDataWalletPermission[]
+> {
+  public constructor(public permissions: EDataWalletPermission[]) {
+    super(RequestPermissionsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REQUEST_PERMISSIONS;
+  }
+}
+
+export class GetPermissionsParams extends CoreActionParams<
+  EDataWalletPermission[]
+> {
+  public constructor(public domain: DomainName) {
+    super(GetPermissionsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_PERMISSIONS;
+  }
+}
+
+export class GetTokenVerificationPublicKeyParams extends CoreActionParams<PEMEncodedRSAPublicKey> {
+  public constructor(public domain: DomainName) {
+    super(GetTokenVerificationPublicKeyParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TOKEN_VERIFICATION_PUBLIC_KEY;
+  }
+}
+
+export class GetBearerTokenParams extends CoreActionParams<JsonWebToken> {
+  public constructor(public nonce: string, public domain: DomainName) {
+    super(GetBearerTokenParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_BEARER_TOKEN;
+  }
+}
+// #endregion

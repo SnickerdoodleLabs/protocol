@@ -21,6 +21,7 @@ import {
 import {
   AccountService,
   DiscordService,
+  IntegrationService,
   InvitationService,
   MetricsService,
   PIIService,
@@ -65,6 +66,8 @@ import {
   IAccountServiceType,
   IDiscordService,
   IDiscordServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMetricsService,
@@ -142,6 +145,9 @@ export const extensionCoreModule = new ContainerModule(
     // Business=
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
+      .inSingletonScope();
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
       .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)

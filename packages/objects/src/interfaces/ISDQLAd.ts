@@ -1,7 +1,7 @@
-import { AdContent } from "@objects/businessObjects/AdContent.js";
+import { AdContent } from "@objects/businessObjects/index.js";
+import { EAdDisplayType } from "@objects/enum/index.js";
 import {
   UnixTimestamp,
-  EAdDisplayType,
   ISDQLConditionString,
 } from "@objects/primitives/index.js";
 

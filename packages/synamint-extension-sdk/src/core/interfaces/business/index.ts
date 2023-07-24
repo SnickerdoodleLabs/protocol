@@ -1,5 +1,6 @@
 export * from "@synamint-extension-sdk/core/interfaces/business/IAccountService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IDiscordService";
+export * from "@synamint-extension-sdk/core/interfaces/business/IIntegrationService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IInvitationService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IMetricsService";
 export * from "@synamint-extension-sdk/core/interfaces/business/IPIIService";

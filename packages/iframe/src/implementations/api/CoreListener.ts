@@ -12,6 +12,7 @@ import {
   DiscordID,
   DomainName,
   EChain,
+  EDataWalletPermission,
   EVMContractAddress,
   EmailAddressString,
   FamilyName,
@@ -302,7 +303,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getAccounts: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAccounts(this.sourceDomain);
+            // TODO- make this provide the source domain after
+            // we have an interface to grant permissions
+            // return core.getAccounts(this.sourceDomain);
+            return core.getAccounts();
           });
         }, data.callId);
       },
@@ -724,6 +728,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.discord.initializeUserWithAuthorizationCode(
               data.data.code,
+              this.sourceDomain,
             );
           });
         }, data.callId);
@@ -736,7 +741,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.installationUrl(data.data.redirectTabId);
+            return core.discord.installationUrl(
+              data.data.redirectTabId,
+              this.sourceDomain,
+            );
           });
         }, data.callId);
       },
@@ -746,7 +754,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.getUserProfiles();
+            return core.discord.getUserProfiles(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -756,7 +764,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.getGuildProfiles();
+            return core.discord.getGuildProfiles(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -768,7 +776,85 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.unlink(data.data.discordProfileId);
+            return core.discord.unlink(
+              data.data.discordProfileId,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.requestPermissions": (
+        data: IIFrameCallData<{
+          permissions: EDataWalletPermission[];
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.requestPermissions(
+              data.data.permissions,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.getPermissions": (
+        data: IIFrameCallData<{
+          domain: DomainName;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.getPermissions(
+              data.data.domain,
+              this.sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.getTokenVerificationPublicKey": (
+        data: IIFrameCallData<{
+          domain: DomainName;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.getTokenVerificationPublicKey(
+              data.data.domain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.getBearerToken": (
+        data: IIFrameCallData<{
+          nonce: string;
+          domain: DomainName;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.getBearerToken(
+              data.data.nonce,
+              data.data.domain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "metrics.getMetrics": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getMetrics(this.sourceDomain);
+          });
+        }, data.callId);
+      },
+      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getUnlocked(this.sourceDomain);
           });
         }, data.callId);
       },
@@ -778,11 +864,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.twitter.getOAuth1aRequestToken();
+            return core.twitter.getOAuth1aRequestToken(this.sourceDomain);
           });
         }, data.callId);
       },
-
       "twitter.initTwitterProfile": (
         data: IIFrameCallData<{
           requestToken: OAuth1RequstToken;
@@ -794,11 +879,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.twitter.initTwitterProfile(
               data.data.requestToken,
               data.data.oAuthVerifier,
+              this.sourceDomain,
             );
           });
         }, data.callId);
       },
-
       "twitter.unlinkProfile": (
         data: IIFrameCallData<{
           id: TwitterID;
@@ -806,32 +891,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.twitter.unlinkProfile(data.data.id);
+            return core.twitter.unlinkProfile(data.data.id, this.sourceDomain);
           });
         }, data.callId);
       },
-
       "twitter.getUserProfiles": (
         data: IIFrameCallData<Record<string, never>>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.twitter.getUserProfiles();
-          });
-        }, data.callId);
-      },
-
-      "metrics.getMetrics": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.metrics.getMetrics();
-          });
-        }, data.callId);
-      },
-      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.metrics.getUnlocked();
+            return core.twitter.getUserProfiles(this.sourceDomain);
           });
         }, data.callId);
       },

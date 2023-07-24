@@ -45,6 +45,11 @@ import {
   ENotificationTypes,
   EProfileFieldType,
   IProxyMetricsMethods,
+  IProxyIntegrationMethods,
+  EDataWalletPermission,
+  DomainName,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -88,7 +93,6 @@ import {
   GetListingsTotalByTagParams,
   GetConsentCapacityParams,
   GetPossibleRewardsParams,
-  GetDiscordInstallationUrlParams,
   SwitchToTabParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
@@ -141,8 +145,9 @@ initConnection();
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public discord: IProxyDiscordMethods;
-  public twitter: IProxyTwitterMethods;
+  public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
+  public twitter: IProxyTwitterMethods;
 
   public events: PublicEvents = new PublicEvents();
 
@@ -211,7 +216,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
         return coreGateway.discord.initializeUserWithAuthorizationCode(code);
       },
-      installationUrl: (redirectTabId?: number) => {
+      installationUrl: (redirectTabId: number | undefined) => {
         return coreGateway.discord.installationUrl(redirectTabId);
       },
       getUserProfiles: () => {
@@ -224,6 +229,40 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
         return coreGateway.discord.unlink(discordProfileId);
       },
     };
+
+    this.integration = {
+      requestPermissions: (
+        permissions: EDataWalletPermission[],
+      ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+        return coreGateway.integration.requestPermissions(permissions);
+      },
+      getPermissions: (
+        domain: DomainName,
+      ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+        return coreGateway.integration.getPermissions(domain);
+      },
+      getTokenVerificationPublicKey: (
+        domain: DomainName,
+      ): ResultAsync<PEMEncodedRSAPublicKey, ProxyError> => {
+        return coreGateway.integration.getTokenVerificationPublicKey(domain);
+      },
+      getBearerToken: (
+        nonce: string,
+        domain: DomainName,
+      ): ResultAsync<JsonWebToken, ProxyError> => {
+        return coreGateway.integration.getBearerToken(nonce, domain);
+      },
+    } as IProxyIntegrationMethods;
+
+    this.metrics = {
+      getMetrics: () => {
+        return coreGateway.metrics.getMetrics();
+      },
+      getUnlocked: () => {
+        return coreGateway.metrics.getUnlocked();
+      },
+    };
+
     this.twitter = {
       getOAuth1aRequestToken: () => {
         return coreGateway.twitter.getOAuth1aRequestToken();
@@ -242,14 +281,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       },
       getUserProfiles: () => {
         return coreGateway.twitter.getUserProfiles();
-      },
-    };
-    this.metrics = {
-      getMetrics: () => {
-        return coreGateway.metrics.getMetrics();
-      },
-      getUnlocked: () => {
-        return coreGateway.metrics.getUnlocked();
       },
     };
 

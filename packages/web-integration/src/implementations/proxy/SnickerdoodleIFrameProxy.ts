@@ -62,11 +62,15 @@ import {
   URLString,
   UnixTimestamp,
   WalletNFT,
+  EDataWalletPermission,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
+import { IProxyIntegrationMethods } from "@snickerdoodlelabs/objects/src/interfaces/ISdlDataWallet";
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
@@ -611,6 +615,48 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
+  public integration: IProxyIntegrationMethods = {
+    requestPermissions: (
+      permissions: EDataWalletPermission[],
+    ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+      return this._createCall("integration.requestPermissions", {
+        permissions,
+      });
+    },
+    getPermissions: (
+      domain: DomainName,
+    ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+      return this._createCall("integration.getPermissions", {
+        domain,
+      });
+    },
+    getTokenVerificationPublicKey: (
+      domain: DomainName,
+    ): ResultAsync<PEMEncodedRSAPublicKey, ProxyError> => {
+      return this._createCall("integration.getTokenVerificationPublicKey", {
+        domain,
+      });
+    },
+    getBearerToken: (
+      nonce: string,
+      domain: DomainName,
+    ): ResultAsync<JsonWebToken, ProxyError> => {
+      return this._createCall("integration.getBearerToken", {
+        nonce,
+        domain,
+      });
+    },
+  };
+
+  public metrics: IProxyMetricsMethods = {
+    getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+      return this._createCall("metrics.getMetrics", null);
+    },
+    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
+      return this._createCall("metrics.getUnlocked", null);
+    },
+  };
+
   public twitter: IProxyTwitterMethods = {
     getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, ProxyError> => {
       return this._createCall("twitter.getOAuth1aRequestToken", null);
@@ -629,15 +675,6 @@ export class SnickerdoodleIFrameProxy
     },
     getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
       return this._createCall("twitter.getUserProfiles", null);
-    },
-  };
-
-  public metrics: IProxyMetricsMethods = {
-    getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
-      return this._createCall("metrics.getMetrics", null);
-    },
-    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("metrics.getUnlocked", null);
     },
   };
 

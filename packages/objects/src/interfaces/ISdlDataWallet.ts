@@ -17,15 +17,17 @@ import {
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  EDataWalletPermission,
   EInvitationStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
-import { ProxyError } from "@objects/errors/index.js";
+import { PersistenceError, ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
 import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences.js";
 import {
   ICoreDiscordMethods,
+  ICoreIntegrationMethods,
   ICoreTwitterMethods,
   IMetricsMethods,
 } from "@objects/interfaces/ISnickerdoodleCore.js";
@@ -37,6 +39,7 @@ import {
   ChainId,
   CountryCode,
   DataWalletAddress,
+  DomainName,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
@@ -49,7 +52,7 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives/index.js";
-import { GetResultAsyncValueType } from "@objects/types.js";
+import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
 
 // export type IProxyAccountMethods = {
 //   [key in FunctionKeys<IAccountMethods>]: (
@@ -93,30 +96,80 @@ import { GetResultAsyncValueType } from "@objects/types.js";
 
 export type IProxyDiscordMethods = {
   [key in FunctionKeys<ICoreDiscordMethods>]: (
-    ...args: [...Exclude<Parameters<ICoreDiscordMethods[key]>, "sourceDomain">]
+    ...args: [...PopTuple<Parameters<ICoreDiscordMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<ICoreDiscordMethods[key]>>,
     ProxyError
   >;
 };
 
-export type IProxyTwitterMethods = {
-  [key in FunctionKeys<ICoreTwitterMethods>]: (
-    ...args: [...Exclude<Parameters<ICoreTwitterMethods[key]>, "sourceDomain">]
+export type IProxyIntegrationMethods = {
+  [key in Exclude<
+    FunctionKeys<ICoreIntegrationMethods>,
+    | "grantPermissions"
+    | "revokePermissions" // These methods should not exist on the proxy!
+    | "requestPermissions"
+    | "getPermissions" // These methods need special handling
+  >]: (
+    ...args: [...Parameters<ICoreIntegrationMethods[key]>]
   ) => ResultAsync<
-    GetResultAsyncValueType<ReturnType<ICoreTwitterMethods[key]>>,
+    GetResultAsyncValueType<ReturnType<ICoreIntegrationMethods[key]>>,
+    ProxyError
+  >;
+} & {
+  requestPermissions(
+    ...args: [
+      ...PopTuple<Parameters<ICoreIntegrationMethods["requestPermissions"]>>,
+    ]
+  ): ResultAsync<
+    GetResultAsyncValueType<
+      ReturnType<ICoreIntegrationMethods["requestPermissions"]>
+    >,
+    ProxyError
+  >;
+
+  getPermissions(
+    ...args: [
+      ...PopTuple<Parameters<ICoreIntegrationMethods["getPermissions"]>>,
+    ]
+  ): ResultAsync<
+    GetResultAsyncValueType<
+      ReturnType<ICoreIntegrationMethods["getPermissions"]>
+    >,
     ProxyError
   >;
 };
 
 export type IProxyMetricsMethods = {
   [key in FunctionKeys<IMetricsMethods>]: (
-    ...args: [...Exclude<Parameters<IMetricsMethods[key]>, "sourceDomain">]
+    ...args: [...PopTuple<Parameters<IMetricsMethods[key]>>]
   ) => ResultAsync<
     GetResultAsyncValueType<ReturnType<IMetricsMethods[key]>>,
     ProxyError
   >;
 };
+
+export type IProxyTwitterMethods = {
+  [key in FunctionKeys<ICoreTwitterMethods>]: (
+    ...args: [...PopTuple<Parameters<ICoreTwitterMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<ICoreTwitterMethods[key]>>,
+    ProxyError
+  >;
+};
+
+// This stuff is left in for reference- I'm still working on improving these
+// methods and
+// type test = Parameters<ICoreIntegrationMethods["requestPermissions"]>;
+// type test2 = Exclude<test, "sourceDomain">;
+// type test3 = Omit<test, "sourceDomain">;
+// type test4 = PopTuple<test>;
+// type test5 = Parameters<
+//   ICoreDiscordMethods["initializeUserWithAuthorizationCode"]
+// >;
+// type test6 = PopTuple<
+//   Parameters<ICoreDiscordMethods["initializeUserWithAuthorizationCode"]>
+// >;
 
 // export type IBaseProxyMethods = {
 //   [key in FunctionKeys<ISnickerdoodleCore>]: (
@@ -277,6 +330,7 @@ export interface ISdlDataWallet {
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 
   discord: IProxyDiscordMethods;
+  integration: IProxyIntegrationMethods;
   twitter: IProxyTwitterMethods;
   metrics: IProxyMetricsMethods;
 

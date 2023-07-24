@@ -39,13 +39,17 @@ import {
   ProxyError,
   IProxyMetricsMethods,
   RuntimeMetrics,
+  IProxyIntegrationMethods,
+  EDataWalletPermission,
+  DomainName,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
-  SnickerDoodleCoreError,
   AcceptInvitationParams,
   GetInvitationMetadataByCIDParams,
   GetInvitationWithDomainParams,
@@ -118,13 +122,18 @@ import {
   SwitchToTabParams,
   GetMetricsParams,
   GetUnlockedParams,
+  RequestPermissionsParams,
+  GetPermissionsParams,
+  GetTokenVerificationPublicKeyParams,
+  GetBearerTokenParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 export class ExternalCoreGateway {
   public discord: IProxyDiscordMethods;
-  public twitter: IProxyTwitterMethods;
+  public integration: IProxyIntegrationMethods;
   public metrics: IProxyMetricsMethods;
+  public twitter: IProxyTwitterMethods;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -136,7 +145,7 @@ export class ExternalCoreGateway {
         return this._handler.call(new InitializeDiscordUserParams(code));
       },
       installationUrl: (
-        redirectTabId?: number,
+        redirectTabId: number | undefined = undefined,
       ): ResultAsync<URLString, ProxyError> => {
         return this._handler.call(
           new GetDiscordInstallationUrlParams(redirectTabId),
@@ -154,6 +163,42 @@ export class ExternalCoreGateway {
         );
       },
     };
+
+    this.integration = {
+      requestPermissions: (
+        permissions: EDataWalletPermission[],
+      ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+        return this._handler.call(new RequestPermissionsParams(permissions));
+      },
+      getPermissions: (
+        domain: DomainName,
+      ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+        return this._handler.call(new GetPermissionsParams(domain));
+      },
+      getTokenVerificationPublicKey: (
+        domain: DomainName,
+      ): ResultAsync<PEMEncodedRSAPublicKey, ProxyError> => {
+        return this._handler.call(
+          new GetTokenVerificationPublicKeyParams(domain),
+        );
+      },
+      getBearerToken: (
+        nonce: string,
+        domain: DomainName,
+      ): ResultAsync<JsonWebToken, ProxyError> => {
+        return this._handler.call(new GetBearerTokenParams(nonce, domain));
+      },
+    };
+
+    this.metrics = {
+      getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+        return this._handler.call(new GetMetricsParams());
+      },
+      getUnlocked: (): ResultAsync<boolean, ProxyError> => {
+        return this._handler.call(new GetUnlockedParams());
+      },
+    };
+
     this.twitter = {
       getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, ProxyError> => {
         return this._handler.call(new TwitterGetRequestTokenParams());
@@ -171,15 +216,6 @@ export class ExternalCoreGateway {
       },
       getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
         return this._handler.call(new TwitterGetLinkedProfilesParams());
-      },
-    };
-
-    this.metrics = {
-      getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
-        return this._handler.call(new GetMetricsParams());
-      },
-      getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-        return this._handler.call(new GetUnlockedParams());
       },
     };
   }
