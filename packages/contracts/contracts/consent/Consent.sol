@@ -76,6 +76,9 @@ contract Consent is
     /// @dev updateable image URL for this consent registry used in data wallet UI
     string private registryImg;
 
+    /// @dev Mapping owner address to a token id
+    mapping(address => uint256) private ownership;
+
     /* MODIFIERS */
 
     /// Checks if open opt in is current disabled
@@ -133,7 +136,11 @@ contract Consent is
     /* CORE FUNCTIONS */
 
     /// @notice Get all details for a consent registry in one rpc call
-    function getRegistryDetails() external view returns(RegistryDetails memory) {
+    /// @dev also takes an address as an input so the data wallet can determin membership info
+    /// @param audienceMember address of the consent key used by the calling data wallet client. 
+    function getRegistryDetails(address audienceMember) external view returns(RegistryDetails memory) {
+        // if memberTokenId is 0, then the address is not an audience member
+        address memberTokenId = ownership(audienceMember);
         RegistryDetails memory deets = RegistryDetails(
             registryName,
             registryDesc,
@@ -144,7 +151,8 @@ contract Consent is
             openOptInDisabled,
             queryHorizon,
             domains,
-            tags
+            tags,
+            memberTokenId
         );
         return deets; 
     }
@@ -385,6 +393,9 @@ contract Consent is
 
         /// increase total supply count, this is 20,000 gas
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows specific users to opt in to sharing their data
@@ -424,6 +435,9 @@ contract Consent is
 
         /// increase total supply count
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
@@ -463,6 +477,9 @@ contract Consent is
 
         /// increase total supply count before interaction
         totalSupply++;
+
+        /// create reverse mapping
+        ownership[_msgSender()] = tokenId;
     }
 
     /// @notice Allows users to opt out of sharing their data
@@ -752,6 +769,9 @@ contract Consent is
     function _burn(uint256 tokenId) internal override(ERC721Upgradeable) {
         /// decrease total supply count
         totalSupply--;
+
+        /// create reverse mapping
+        delete ownership[_msgSender()];
 
         _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 

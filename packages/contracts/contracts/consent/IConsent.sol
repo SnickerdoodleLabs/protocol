@@ -23,6 +23,7 @@ interface IConsent {
         uint queryHorizon;
         string[] domains; 
         Tag[] tags;
+        uint256 tokenId;
     }
 
     /* EVENTS */

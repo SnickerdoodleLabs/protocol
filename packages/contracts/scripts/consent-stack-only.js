@@ -6,7 +6,7 @@
 const { ethers, upgrades } = require("hardhat");
 
 // declare variables that need to be referenced by other functions
-let trustedForwarderAddress;
+let trustedForwarderAddress = "0xdB5c885944d903Ac5c146eef400D2ee20572d357";
 let consentAddress;
 
 async function deployMinimalForwarder() {
@@ -57,7 +57,7 @@ async function deployConsentFactory() {
 
 // function that runs the full deployment of all contracts
 async function fullDeployment() {
-  await deployMinimalForwarder();
+  //await deployMinimalForwarder();
   await deployConsent();
   await deployConsentFactory();
 

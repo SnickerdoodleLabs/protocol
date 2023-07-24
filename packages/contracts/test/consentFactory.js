@@ -465,6 +465,20 @@ describe("ConsentFactory", () => {
           return txrct.wait();
         });
 
+        await deployedConsentInstance1
+        .connect(user1)
+        .removeListing(tag2)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
+        await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3)
+        .then((txrct) => {
+          return txrct.wait();
+        });
+
       await expect(
         deployedConsentInstance2
           .connect(user2)
