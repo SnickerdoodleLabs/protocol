@@ -110,9 +110,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
-  // This method only calculates possible rewards from the query itself.
-  // Useful for showing user possible rewards
-  public constructPossibleRewardsFronQuery(
+  public constructPossibleRewardsFromQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],
@@ -127,23 +125,67 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | PersistenceError
     | EvalNotImplementedError
   > {
-    return this.parseQuery(query).andThen((ast) => {
-      const compensationKeys: CompensationKey[] = [
-        ...ast.compensations.keys(),
-      ].map((compKey) => CompensationKey(compKey));
+    return this.getPossibleQueryDeliveryItems(query).andThen(
+      (queryDeliveryItems) => {
+        return this.queryUtils
+          .getCompensationsToDispense(query.query, queryDeliveryItems)
+          .andThen((compensationKeys) => {
+            const insightAndAdKeys =
+              this.getInsightAndAdKeys(queryDeliveryItems);
+            return this.queryUtils.filterCompensationsForPreviews(
+              query.cid,
+              query.query,
+              compensationKeys,
+              insightAndAdKeys,
+            );
+          });
+      },
+    );
+  }
 
-      const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
-        (insightKey) => InsightKey(insightKey),
-      );
+  public getPossibleQueryDeliveryItems(
+    query: SDQLQuery,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
+    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
+  }
 
-      const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
-      return this.queryUtils.filterCompensationsForPreviews(
-        query.cid,
-        query.query,
-        compensationKeys,
-        [...insightKeys, ...adKeys],
-      );
-    });
+  private getInsightAndAdKeys({
+    ads,
+    insights,
+  }: IQueryDeliveryItems): (InsightKey | AdKey)[] {
+    const answeredInsightAndAdKeys: (InsightKey | AdKey)[] = [];
+
+    if (ads) {
+      Object.entries(ads).forEach(([adKey, adValue]) => {
+        if (adValue !== null) {
+          answeredInsightAndAdKeys.push(AdKey(adKey));
+        }
+      }, []);
+    }
+
+    if (insights) {
+      Object.entries(insights).forEach(([insightKey, insightValue]) => {
+        if (insightValue !== null) {
+          answeredInsightAndAdKeys.push(InsightKey(insightKey));
+        }
+      });
+    }
+
+    return answeredInsightAndAdKeys;
   }
 
   protected gatherDeliveryItems(

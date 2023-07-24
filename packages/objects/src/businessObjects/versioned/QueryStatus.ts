@@ -10,6 +10,7 @@ import {
   JSONString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import { PossibleRewardWithStatus } from "@objects/businessObjects/rewards/PossibleRewardStatus.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
@@ -32,6 +33,7 @@ export class QueryStatus extends VersionedObject {
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
     public rewardsParameters: JSONString | null,
+    public rewardsWithStatus: JSONString | PossibleRewardWithStatus[] | null,
   ) {
     super();
   }
@@ -54,6 +56,7 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
       data["status"] as EQueryProcessingStatus,
       data["expirationDate"] as UnixTimestamp,
       data["rewardsParameters"] as JSONString,
+      data["rewardsWithStatus"] as JSONString,
     );
   }
 
