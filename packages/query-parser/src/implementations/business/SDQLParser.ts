@@ -419,6 +419,7 @@ export class SDQLParser {
       .map((ast) => {
         return new AST_Compensation(
           name,
+          schema.name,
           schema.description,
           ast as AST_RequireExpr,
           schema.requires!,

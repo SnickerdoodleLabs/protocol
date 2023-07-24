@@ -10,14 +10,7 @@ import {
   isSameReward,
   PossibleRewardComponent,
 } from "@snickerdoodlelabs/shared-components";
-import React, {
-  FC,
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { FC, Fragment, useCallback, useState } from "react";
 
 import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
 import DisplayModeToggle, {
@@ -26,7 +19,6 @@ import DisplayModeToggle, {
 import Typography from "@extension-onboarding/components/Typography";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
-import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";

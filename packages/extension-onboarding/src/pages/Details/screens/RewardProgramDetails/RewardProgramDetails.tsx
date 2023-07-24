@@ -11,8 +11,6 @@ import {
   AccountAddress,
   EarnedReward,
   EInvitationStatus,
-  EQueryProcessingStatus,
-  ERewardStatus,
   ESocialType,
   ETag,
   EVMContractAddress,
@@ -20,8 +18,6 @@ import {
   IConsentCapacity,
   IOpenSeaMetadata,
   PossibleReward,
-  PossibleRewardWithStatus,
-  QueryStatus,
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -113,7 +109,6 @@ const RewardProgramDetails: FC = () => {
     info?: IOpenSeaMetadata;
     consentContractAddress: EVMContractAddress;
   };
-  const [queryStatus, setQueryStatus] = useState<QueryStatus>();
   const rewardsRef = useRef<PossibleReward[]>([]);
   const { ref: saveButtonRef, inView: isSaveButtonInView } = useInView({
     threshold: 0.5,
@@ -282,18 +277,6 @@ const RewardProgramDetails: FC = () => {
     }
   }, [isSubscribed]);
 
-  useEffect(() => {
-    if (possibleRewards.length > 1) {
-      window.sdlDataWallet
-        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
-        .map((queryStatus) => {
-          if (queryStatus) {
-            setQueryStatus(queryStatus);
-          }
-        });
-    }
-  }, [possibleRewards, earnedRewards]);
-
   const getConsentPermissions = () => {
     window.sdlDataWallet
       .getAgreementPermissions(consentContractAddress)
@@ -309,50 +292,77 @@ const RewardProgramDetails: FC = () => {
   };
 
   const { collectedRewards, programRewards, waitingRewards } = useMemo(() => {
-    let collectedRewards: EarnedReward[] = [];
-    let waitingRewards: PossibleReward[] = [];
-    let programRewards: PossibleReward[] = [];
-
-    if (queryStatus && queryStatus.rewardsWithStatus) {
-      const rewards =
-        queryStatus.rewardsWithStatus as PossibleRewardWithStatus[];
-      if (queryStatus.status === EQueryProcessingStatus.Received) {
-        waitingRewards = rewards.reduce<PossibleReward[]>(
-          (possibleRewards, rewardWithStatus) => {
-            possibleRewards.push(rewardWithStatus.possibleReward);
-            return possibleRewards;
-          },
-          [],
-        );
-      } else if (
-        queryStatus.status === EQueryProcessingStatus.RewardsReceived
-      ) {
-        const { receivedRewards, rejectedRewards } = rewards.reduce<{
-          receivedRewards: EarnedReward[];
-          rejectedRewards: PossibleReward[];
-        }>(
-          (rewardObject, rewardWithStatus) => {
-            if (rewardWithStatus.rewardStatus === ERewardStatus.Earned) {
-              const earnedReward = earnedRewards.find(
-                (reward) =>
-                  reward.image === rewardWithStatus.possibleReward.image,
-              )!;
-              rewardObject.receivedRewards.push(earnedReward);
-            } else {
-              rewardObject.rejectedRewards.push(
-                rewardWithStatus.possibleReward,
-              );
-            }
-            return rewardObject;
-          },
-          { receivedRewards: [], rejectedRewards: [] },
-        );
-        collectedRewards = receivedRewards;
-        programRewards = rejectedRewards;
+    //earned rewards
+    const collectedRewards = possibleRewards.reduce((acc, item) => {
+      const matchedReward = earnedRewards.find((reward) =>
+        isSameReward(reward, item),
+      );
+      if (matchedReward) {
+        acc = [...acc, matchedReward];
       }
-    } else {
-      waitingRewards = possibleRewards;
+      return acc;
+    }, [] as EarnedReward[]);
+
+    const uniqueImagessofEarnedRewards = Array.from(
+      new Set(collectedRewards.map((reward) => reward.image)),
+    );
+
+    if (!isSubscribed) {
+      return {
+        programRewards: possibleRewards
+          .filter(
+            (possibleReward) =>
+              !collectedRewards.find((item) =>
+                isSameReward(possibleReward, item),
+              ),
+          )
+          .filter(
+            (possibleReward) =>
+              !uniqueImagessofEarnedRewards.includes(possibleReward.queryCID),
+          ),
+        waitingRewards: [] as PossibleReward[],
+        collectedRewards,
+      };
     }
+
+    // get eligibleRewards
+    const eligibleRewards = possibleRewards.reduce((acc, item) => {
+      const requiredDataTypes = item.estimatedQueryDependencies.map(
+        (queryType) => QueryTypePermissionMap.get(queryType)!,
+      );
+      const permissionsMatched = requiredDataTypes.every((item) =>
+        consentPermissions.includes(item),
+      );
+      if (permissionsMatched) {
+        acc = [...acc, item];
+      }
+      return acc;
+    }, [] as PossibleReward[]);
+
+    // get eligible but not delivered rewards
+    const waitingRewards = eligibleRewards.filter(
+      (item) =>
+        !collectedRewards.find((earnedReward) =>
+          isSameReward(earnedReward, item),
+        ),
+    );
+
+    const uniqueImagesofWaitingRewards = Array.from(
+      new Set(waitingRewards.map((reward) => reward.image)),
+    );
+
+    const programRewards = possibleRewards
+      .filter(
+        (item) =>
+          !collectedRewards.find((reward) => isSameReward(reward, item)) &&
+          !waitingRewards.find((reward) => isSameReward(reward, item)),
+      )
+      .filter(
+        (possibleReward) =>
+          !uniqueImagessofEarnedRewards.includes(possibleReward.queryCID) &&
+          !uniqueImagesofWaitingRewards.includes(possibleReward.queryCID),
+      );
+
     return {
       collectedRewards,
       waitingRewards,

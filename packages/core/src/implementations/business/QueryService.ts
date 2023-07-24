@@ -236,7 +236,6 @@ export class QueryService implements IQueryService {
             EQueryProcessingStatus.Received,
             queryWrapper.expiry,
             null,
-            ObjectUtils.serialize(this.getRewardStatus(possibleRewards)),
           ),
         ]);
       });
@@ -245,14 +244,7 @@ export class QueryService implements IQueryService {
   public getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
-    return this.sdqlQueryRepo
-      .getQueryStatusByQueryCID(queryCID)
-      .map((queryStatus) => {
-        queryStatus!.rewardsWithStatus = ObjectUtils.deserialize<
-          PossibleRewardWithStatus[]
-        >(queryStatus!.rewardsWithStatus! as JSONString);
-        return queryStatus;
-      });
+    return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
   }
 
   /**
@@ -294,7 +286,6 @@ export class QueryService implements IQueryService {
               EQueryProcessingStatus.AdsCompleted,
               this.timeUtils.getUnixNow(),
               ObjectUtils.serialize(rewardParameters),
-              null,
             ),
           ]);
         }
@@ -394,7 +385,7 @@ export class QueryService implements IQueryService {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
                   this.logUtils.debug(
-                    "Starting queryParsingEngine for query ${query.cid}",
+                    `Starting queryParsingEngine for query ${query.cid}`,
                   );
                   return ResultUtils.combine([
                     this.queryParsingEngine
@@ -449,11 +440,10 @@ export class QueryService implements IQueryService {
                   this.logUtils.log("insight delivery api call done");
                   this.logUtils.log("Earned Rewards: ", earnedRewards);
                   // add EarnedRewards to the wallet, and update the QueryStatus
+                  queryStatus.status = EQueryProcessingStatus.RewardsReceived;
                   return ResultUtils.combine([
                     this.accountRepo.addEarnedRewards(earnedRewards),
-                    this.sdqlQueryRepo.upsertQueryStatus([
-                      this.updateRewards(queryStatus, earnedRewards),
-                    ]),
+                    this.sdqlQueryRepo.upsertQueryStatus([queryStatus]),
                   ]);
                   /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
                   /* Show Lazy Rewards in rewards tab? */
@@ -524,7 +514,6 @@ export class QueryService implements IQueryService {
           requestForData.blockNumber,
           EQueryProcessingStatus.NoConsentToken,
           queryWrapper.expiry,
-          null,
           null,
         ),
       ])
@@ -648,42 +637,5 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
-  }
-
-  protected updateRewards(
-    queryStatus: QueryStatus,
-    earnedRewards: EarnedReward[],
-  ): QueryStatus {
-    queryStatus.status = EQueryProcessingStatus.RewardsReceived;
-    if (queryStatus.rewardsWithStatus === null) return queryStatus;
-
-    const rewardStatus = ObjectUtils.deserialize<PossibleRewardWithStatus[]>(
-      queryStatus.rewardsWithStatus as JSONString,
-    );
-
-    rewardStatus.map((rewardStatus: PossibleRewardWithStatus) => {
-      const image = rewardStatus.possibleReward.image;
-      if (earnedRewards.find((reward) => reward.image === image)) {
-        rewardStatus.rewardStatus = ERewardStatus.Earned;
-      } else {
-        rewardStatus.rewardStatus = ERewardStatus.PermissionNotGiven;
-      }
-    });
-
-    queryStatus.rewardsWithStatus = ObjectUtils.serialize(rewardStatus);
-    return queryStatus;
-  }
-
-  protected getRewardStatus(
-    possibleRewards: PossibleReward[],
-    status: ERewardStatus = ERewardStatus.Received,
-  ): PossibleRewardWithStatus[] {
-    return possibleRewards.reduce<PossibleRewardWithStatus[]>(
-      (rewardStatus, possibleReward) => {
-        rewardStatus.push(new PossibleRewardWithStatus(possibleReward, status));
-        return rewardStatus;
-      },
-      [],
-    );
   }
 }

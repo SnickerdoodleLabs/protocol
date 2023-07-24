@@ -33,7 +33,6 @@ export class QueryStatus extends VersionedObject {
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
     public rewardsParameters: JSONString | null,
-    public rewardsWithStatus: JSONString | PossibleRewardWithStatus[] | null,
   ) {
     super();
   }
@@ -56,7 +55,6 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
       data["status"] as EQueryProcessingStatus,
       data["expirationDate"] as UnixTimestamp,
       data["rewardsParameters"] as JSONString,
-      data["rewardsWithStatus"] as JSONString,
     );
   }
 
