@@ -292,7 +292,7 @@ const RewardProgramDetails: FC = () => {
   };
 
   const { collectedRewards, programRewards, waitingRewards } = useMemo(() => {
-    // earned rewards
+    //earned rewards
     const collectedRewards = possibleRewards.reduce((acc, item) => {
       const matchedReward = earnedRewards.find((reward) =>
         isSameReward(reward, item),
@@ -303,8 +303,8 @@ const RewardProgramDetails: FC = () => {
       return acc;
     }, [] as EarnedReward[]);
 
-    const uniqueCIDsofEarnedRewards = Array.from(
-      new Set(collectedRewards.map((reward) => reward.queryCID)),
+    const uniqueImagessofEarnedRewards = Array.from(
+      new Set(collectedRewards.map((reward) => reward.image)),
     );
 
     if (!isSubscribed) {
@@ -318,7 +318,7 @@ const RewardProgramDetails: FC = () => {
           )
           .filter(
             (possibleReward) =>
-              !uniqueCIDsofEarnedRewards.includes(possibleReward.queryCID),
+              !uniqueImagessofEarnedRewards.includes(possibleReward.queryCID),
           ),
         waitingRewards: [] as PossibleReward[],
         collectedRewards,
@@ -346,9 +346,11 @@ const RewardProgramDetails: FC = () => {
           isSameReward(earnedReward, item),
         ),
     );
-    const uniqueCIDsofWaitingRewards = Array.from(
-      new Set(waitingRewards.map((reward) => reward.queryCID)),
+
+    const uniqueImagesofWaitingRewards = Array.from(
+      new Set(waitingRewards.map((reward) => reward.image)),
     );
+
     const programRewards = possibleRewards
       .filter(
         (item) =>
@@ -357,8 +359,8 @@ const RewardProgramDetails: FC = () => {
       )
       .filter(
         (possibleReward) =>
-          !uniqueCIDsofEarnedRewards.includes(possibleReward.queryCID) &&
-          !uniqueCIDsofWaitingRewards.includes(possibleReward.queryCID),
+          !uniqueImagessofEarnedRewards.includes(possibleReward.queryCID) &&
+          !uniqueImagesofWaitingRewards.includes(possibleReward.queryCID),
       );
 
     return {
