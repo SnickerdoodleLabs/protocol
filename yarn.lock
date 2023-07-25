@@ -8389,7 +8389,7 @@ __metadata:
     date-fns: ^2.29.1
     formik: 2.2.9
     formik-material-ui: 3.0.1
-    react-multi-carousel: ^2.8.2
+    framer-motion: ^6.0.0
     yup: 0.32.9
   peerDependencies:
     "@material-ui/core": 4.12.3
@@ -21182,7 +21182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^6.3.0":
+"framer-motion@npm:^6.0.0, framer-motion@npm:^6.3.0":
   version: 6.5.1
   resolution: "framer-motion@npm:6.5.1"
   dependencies:
