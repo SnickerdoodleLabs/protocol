@@ -27,9 +27,7 @@ import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
-declare const window: IWindowWithSdlDataWallet;
 interface IProgramRewardsProps {
   rewards: PossibleReward[];
   consentContractAddress: EVMContractAddress;

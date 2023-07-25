@@ -21,15 +21,14 @@ import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constant
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 const CampaignPopup: FC = () => {
   const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
   const [loading, setLoading] = useState<boolean>(false);
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
+  const { sdlDataWallet } = useDataWalletContext();
   const {
     invitationInfo,
     updateOptedInContracts,
@@ -101,7 +100,7 @@ const CampaignPopup: FC = () => {
       invitationMeta
     ) {
       isStatusCheckRequiredRef.current = false;
-      window.sdlDataWallet
+      sdlDataWallet
         .checkInvitationStatus(
           invitationInfo.consentAddress,
           invitationInfo.signature,
@@ -129,7 +128,7 @@ const CampaignPopup: FC = () => {
     }
     return (
       appMode === EAppModes.AUTH_USER
-        ? window.sdlDataWallet.checkInvitationStatus(
+        ? sdlDataWallet.checkInvitationStatus(
             invitationInfo.consentAddress,
             invitationInfo.signature,
             invitationInfo.tokenId,
@@ -138,10 +137,10 @@ const CampaignPopup: FC = () => {
     )
       .andThen((invitationStatus) => {
         if (invitationStatus === EInvitationStatus.New) {
-          return window.sdlDataWallet
+          return sdlDataWallet
             .getConsentContractCID(invitationInfo.consentAddress!)
             .andThen((ipfsCID) => {
-              return window.sdlDataWallet.getInvitationMetadataByCID(ipfsCID);
+              return sdlDataWallet.getInvitationMetadataByCID(ipfsCID);
             })
             .map((invitationMetaData) => {
               setInvitationMeta(invitationMetaData);
@@ -171,7 +170,7 @@ const CampaignPopup: FC = () => {
     signature?: Signature,
   ) => {
     setLoadingStatus(true);
-    return window.sdlDataWallet
+    return sdlDataWallet
       .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
       .mapErr((e) => {
         handleClose();
@@ -222,7 +221,7 @@ const CampaignPopup: FC = () => {
           modalSelector: EModalSelectors.SUBSCRIPTION_CONFIRMATION_MODAL,
           onPrimaryButtonClick: (receivingAccount: AccountAddress) => {
             setLoadingStatus(true);
-            window.sdlDataWallet
+            sdlDataWallet
               .setReceivingAddress(
                 invitationInfo.consentAddress!,
                 receivingAccount,

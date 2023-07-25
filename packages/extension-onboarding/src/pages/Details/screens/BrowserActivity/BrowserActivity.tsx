@@ -18,9 +18,8 @@ import { Bar } from "react-chartjs-2";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowserActivity/BrowserActivity.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import UnauthScreen from "@extension-onboarding/components/UnauthScreen/UnauthScreen";
-
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,8 +28,6 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-
-declare const window: IWindowWithSdlDataWallet;
 
 const hourMs = 60 * 60 * 1000;
 
@@ -59,9 +56,10 @@ export default () => {
   const [selectedInterval, setSelectedInterVal] = useState<ETimeInterval>(
     ETimeInterval.ONE_WEEK,
   );
+  const { sdlDataWallet } = useDataWalletContext();
 
   const getSiteVisits = () => {
-    window.sdlDataWallet.getSiteVisits().map((res) => {
+    sdlDataWallet.getSiteVisits().map((res) => {
       setSiteVisits(res);
     });
   };

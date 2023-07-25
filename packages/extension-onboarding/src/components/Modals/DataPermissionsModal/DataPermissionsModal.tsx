@@ -17,18 +17,17 @@ import {
   PERMISSIONS,
 } from "@extension-onboarding/constants/permissions";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const DataPermissionsModal: FC = () => {
+  const { sdlDataWallet } = useDataWalletContext();
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
   const onCloseClicked: () => void = customProps.onCloseClicked;
 
   useEffect(() => {
-    window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
+    sdlDataWallet.getDefaultPermissions().map((permissions) => {
       setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
     });
   }, []);

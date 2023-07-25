@@ -15,9 +15,7 @@ import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 interface IWaitingRewardsProps {
   rewards: PossibleReward[];
   type: EPossibleRewardDisplayType;
@@ -29,6 +27,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
   consentContractAddress,
 }) => {
   const sectionClasses = useSectionStyles();
+  const { sdlDataWallet } = useDataWalletContext();
   const { apiGateway } = useAppContext();
   const [defaultPermissions, setDefaultPermissions] = useState<
     EWalletDataType[]
@@ -41,7 +40,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
   }, [type]);
 
   const getDefaultPermissions = () => {
-    window.sdlDataWallet.getDefaultPermissions().map((dataTypes) => {
+    sdlDataWallet.getDefaultPermissions().map((dataTypes) => {
       setDefaultPermissions(dataTypes);
     });
   };

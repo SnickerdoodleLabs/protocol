@@ -18,10 +18,8 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { ResultUtils } from "neverthrow-result-utils";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 interface IPermissionContext {
   isSafe: (dataType: EWalletDataType) => boolean;
   generateAllPermissions: () => ResultAsync<EWalletDataType[], unknown>;
@@ -34,6 +32,7 @@ const PermissionContext = createContext<IPermissionContext>(
 );
 
 export const PermissionManagerContextProvider: FC = ({ children }) => {
+  const { sdlDataWallet } = useDataWalletContext();
   const { dataWalletGateway, appMode, linkedAccounts } = useAppContext();
   const [socialProfileValues, setSocialProfileValues] = useState<{
     discordProfiles: DiscordProfile[];
@@ -47,21 +46,21 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
       updateProfileValues();
       updateSocialProfileValues();
       isInitialized.current = true;
-      window?.sdlDataWallet.on(
+      sdlDataWallet.on(
         ENotificationTypes.SOCIAL_PROFILE_LINKED,
         updateSocialProfileValues,
       );
-      window?.sdlDataWallet.on(
+      sdlDataWallet.on(
         ENotificationTypes.PROFILE_FIELD_CHANGED,
         updateProfileValues,
       );
     }
     return () => {
-      window?.sdlDataWallet.off(
+      sdlDataWallet.off(
         ENotificationTypes.SOCIAL_PROFILE_LINKED,
         updateSocialProfileValues,
       );
-      window?.sdlDataWallet.off(
+      sdlDataWallet.off(
         ENotificationTypes.PROFILE_FIELD_CHANGED,
         updateProfileValues,
       );
@@ -77,7 +76,7 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
 
   const updateSocialProfileValues = () => {
     return ResultUtils.combine([
-      window?.sdlDataWallet.discord.getUserProfiles(),
+      sdlDataWallet.discord.getUserProfiles(),
       // window?.sdlDataWallet.twitter.getUserProfiles(),
     ]).map(([discordProfiles]) => {
       const values = { discordProfiles };

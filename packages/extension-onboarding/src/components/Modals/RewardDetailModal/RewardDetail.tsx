@@ -12,9 +12,6 @@ import React, { FC, useState } from "react";
 import { useStyles } from "@extension-onboarding/components/Modals/RewardDetailModal/RewardDetail.style";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
 
 const RewardDetail: FC = () => {
   const { modalState, closeModal } = useLayoutContext();

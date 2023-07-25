@@ -14,14 +14,13 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-
-declare const window: IWindowWithSdlDataWallet;
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 
 const RewardsInfo: FC = () => {
   const navigate = useNavigate();
   const { setAlert } = useNotificationContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { sdlDataWallet } = useDataWalletContext();
   const { earnedRewards, updateOptedInContracts, appMode } = useAppContext();
   const [
     campaignContractAddressesWithCID,
@@ -45,7 +44,7 @@ const RewardsInfo: FC = () => {
   ]);
 
   const getInvitations = () => {
-    return window.sdlDataWallet
+    return sdlDataWallet
       .getAcceptedInvitationsCID()
       .mapErr((e) => {
         setIsLoading(false);
@@ -57,7 +56,7 @@ const RewardsInfo: FC = () => {
 
   const leaveCohort = (consentContractAddress: EVMContractAddress) => {
     setLoadingStatus(true);
-    window.sdlDataWallet
+    sdlDataWallet
       .leaveCohort(consentContractAddress)
       .mapErr((e) => {
         setLoadingStatus(false);
