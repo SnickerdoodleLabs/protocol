@@ -32,7 +32,7 @@ const PopularRewardsPrograms: FC<IPopularRewardsProgramsProps> = ({
           {Array.from(
             new Set([...listings.map((item) => item.consentContract)]),
           ).map((item) => (
-            <Box key={JSON.stringify(item)} style={{ background: "red" }}>
+            <Box key={JSON.stringify(item)}>
               <DefaultCampaignItem
                 tag={tag}
                 consentContractAddress={item as EVMContractAddress}
