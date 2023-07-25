@@ -1,6 +1,7 @@
+import { ResultAsync } from "neverthrow";
+
 import { IScamFilterPreferences } from "@synamint-extension-sdk/shared/interfaces/scamFilterPreferences";
 import { ExtensionStorageError } from "@synamint-extension-sdk/shared/objects/errors";
-import { ResultAsync } from "neverthrow";
 
 export interface IScamFilterSettingsUtils {
   setScamFilterSettings(

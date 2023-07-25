@@ -1,9 +1,10 @@
-import Footer from "@browser-extension/popup/components/Footer";
-import Header from "@browser-extension/popup/components/Header";
-import { AuthRequiredRoutes } from "@browser-extension/popup/containers/Router/Router.routes";
 import { Box } from "@material-ui/core";
 import React, { FC, useMemo } from "react";
 import { Route, HashRouter, Routes, Navigate } from "react-router-dom";
+
+import Footer from "@browser-extension/popup/components/Footer";
+import Header from "@browser-extension/popup/components/Header";
+import { AuthRequiredRoutes } from "@browser-extension/popup/containers/Router/Router.routes";
 
 const Router: FC = () => {
   const routes = useMemo(() => {

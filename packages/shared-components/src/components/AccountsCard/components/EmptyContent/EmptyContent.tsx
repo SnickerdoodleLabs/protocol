@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
-import { useStyles } from "@shared-components/components/AccountsCard/components/EmptyContent/EmptyContent.style";
 import React, { FC } from "react";
+
+import { useStyles } from "@shared-components/components/AccountsCard/components/EmptyContent/EmptyContent.style";
 
 const EmptyContent: FC = () => {
   const classes = useStyles();

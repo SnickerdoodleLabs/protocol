@@ -12,9 +12,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import {
-  SnickerDoodleCoreError,
-} from "@synamint-extension-sdk/shared/objects/errors";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface IAccountRepository {
   addAccount(

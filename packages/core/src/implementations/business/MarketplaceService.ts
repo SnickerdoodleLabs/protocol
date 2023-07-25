@@ -1,17 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { IMarketplaceService } from "@core/interfaces/business/index.js";
-import {
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IMarketplaceRepositoryType,
-  IMarketplaceRepository,
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
-} from "@core/interfaces/data/index.js";
+
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -29,10 +17,52 @@ import {
   PagedResponse,
   PagingRequest,
   ConsentContractError,
+  ConsentToken,
+  EVMPrivateKey,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
+  MissingTokenConstructorError,
+  ParserError,
+  PersistenceError,
+  QueryExpiredError,
+  QueryFormatError,
+  ConsentError,
+  MissingASTError,
+  MissingWalletDataTypeError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import {
+  IMarketplaceService,
+  IQueryService,
+  IQueryServiceType,
+} from "@core/interfaces/business/index.js";
+import {
+  IConsentTokenUtilsType,
+  IConsentTokenUtils,
+  IQueryParsingEngineType,
+  IQueryParsingEngine,
+} from "@core/interfaces/business/utilities/index.js";
+import {
+  IMarketplaceRepositoryType,
+  IMarketplaceRepository,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
+} from "@core/interfaces/data/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import {
+  IConfigProviderType,
+  IConfigProvider,
+  IContextProvider,
+  IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MarketplaceService implements IMarketplaceService {
@@ -41,11 +71,21 @@ export class MarketplaceService implements IMarketplaceService {
     protected marketplaceRepo: IMarketplaceRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
-    @inject(IQueryParsingEngineType)
-    protected queryParsingEngine: IQueryParsingEngine,
+    @inject(IQueryServiceType)
+    protected queryService: IQueryService,
     @inject(ISDQLQueryRepositoryType)
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IConfigProviderType)
+    protected configProvider: IConfigProvider,
+    @inject(IConsentTokenUtilsType)
+    protected consentTokenUtils: IConsentTokenUtils,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
+    @inject(IDataWalletUtilsType)
+    protected dataWalletUtils: IDataWalletUtils,
+    @inject(IQueryParsingEngineType)
+    protected queryParsingEngine: IQueryParsingEngine,
   ) {}
 
   public getMarketplaceListingsByTag(
@@ -54,7 +94,10 @@ export class MarketplaceService implements IMarketplaceService {
     filterActive = true,
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getMarketplaceListingsByTag(
       pagingReq,
@@ -67,7 +110,10 @@ export class MarketplaceService implements IMarketplaceService {
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getListingsTotalByTag(tag);
   }
@@ -76,7 +122,10 @@ export class MarketplaceService implements IMarketplaceService {
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    UninitializedError | BlockchainProviderError | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
@@ -84,10 +133,30 @@ export class MarketplaceService implements IMarketplaceService {
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs: number,
-  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, EvaluationError> {
+  ): ResultAsync<
+    Map<EVMContractAddress, PossibleReward[]>,
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | ParserError
+    | QueryExpiredError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
+  > {
     if (!contractAddresses) {
       return okAsync(new Map());
     }
+
     return ResultUtils.combine(
       contractAddresses.map((address) => {
         return this._getPublishedQueries(address).andThen((queries) => {
@@ -148,7 +217,7 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getPublishedQueriesPerContract(
     consentContract: IConsentContract,
-  ): ResultAsync<IpfsCID[], ConsentContractError> {
+  ): ResultAsync<IpfsCID[], ConsentContractError | BlockchainCommonErrors> {
     return this._getRequestForDataList(consentContract).map((r4dList) =>
       r4dList.map((r4d) => r4d.requestedCID),
     );
@@ -156,7 +225,10 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getRequestForDataList(
     consentContract: IConsentContract,
-  ): ResultAsync<RequestForData[], ConsentContractError> {
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return consentContract.getConsentOwner().andThen((consentOwner) => {
       return consentContract.getRequestForDataListByRequesterAddress(
         consentOwner,
@@ -167,10 +239,31 @@ export class MarketplaceService implements IMarketplaceService {
   private _getPossibleRewards(
     queryCids: IpfsCID[],
     timeoutMs: number,
-  ): ResultAsync<PossibleReward[], EvaluationError | AjaxError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | ConsentError
+    | MissingASTError
+    | BlockchainCommonErrors
+  > {
     if (!queryCids || queryCids.length == 0) {
       return okAsync([]);
     }
+
     return ResultUtils.combine(
       queryCids.map((cid) => this._getPossibleRewardsPerQuery(cid, timeoutMs)),
     ).map((rewardsOfAllQueries) =>
@@ -181,14 +274,31 @@ export class MarketplaceService implements IMarketplaceService {
   private _getPossibleRewardsPerQuery(
     queryCid: IpfsCID,
     timeoutMs: number,
-  ): ResultAsync<PossibleReward[], AjaxError | EvaluationError> {
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
     return this.sdqlQueryRepo
       .getSDQLQueryByCID(queryCid, timeoutMs)
       .andThen((sdqlQuery) => {
         if (sdqlQuery == null) {
           return okAsync([]);
         }
-        return this.queryParsingEngine.getPossibleRewards(sdqlQuery);
+        return this.queryParsingEngine.constructPossibleRewardsFronQuery(
+          sdqlQuery,
+        );
       });
   }
 }

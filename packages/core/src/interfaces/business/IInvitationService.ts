@@ -21,6 +21,7 @@ import {
   AccountAddress,
   IConsentCapacity,
   UnixTimestamp,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -35,6 +36,7 @@ export interface IInvitationService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 
   acceptInvitation(
@@ -48,6 +50,7 @@ export interface IInvitationService {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | BlockchainCommonErrors
   >;
 
   rejectInvitation(
@@ -62,6 +65,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | ConsentError
+    | BlockchainCommonErrors
   >;
 
   leaveCohort(
@@ -75,6 +79,7 @@ export interface IInvitationService {
     | ConsentContractError
     | ConsentError
     | PersistenceError
+    | BlockchainCommonErrors
   >;
 
   setDefaultReceivingAddress(
@@ -94,7 +99,10 @@ export interface IInvitationService {
     consentAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getInvitationsByDomain(
@@ -107,6 +115,7 @@ export interface IInvitationService {
     | AjaxError
     | IPFSError
     | PersistenceError
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitationsCID(): ResultAsync<
@@ -116,12 +125,16 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | BlockchainCommonErrors
   >;
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getInvitationMetadataByCID(
@@ -138,6 +151,7 @@ export interface IInvitationService {
     | ConsentError
     | PersistenceError
     | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
   updateDataPermissions(
     consentContractAddress: EVMContractAddress,
@@ -151,6 +165,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 
   getAvailableInvitationsCID(): ResultAsync<
@@ -160,6 +175,7 @@ export interface IInvitationService {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | BlockchainCommonErrors
   >;
 }
 

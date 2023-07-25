@@ -1,4 +1,5 @@
-import { TransactionResponse } from "@ethersproject/abstract-provider";
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   IMinimalForwarderContract,
@@ -11,11 +12,9 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
@@ -34,7 +33,10 @@ export class MinimalForwarderContractWrapper
   }
   public getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError> {
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.getNonce(from),
       () => this.secondary?.getNonce(from),
@@ -43,7 +45,10 @@ export class MinimalForwarderContractWrapper
   public verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError> {
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.verify(request, signature),
       () => this.secondary?.verify(request, signature),
@@ -52,7 +57,10 @@ export class MinimalForwarderContractWrapper
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | MinimalForwarderContractError
+  > {
     return this.fallback(
       () => this.primary.execute(request, signature),
       () => this.secondary?.execute(request, signature),

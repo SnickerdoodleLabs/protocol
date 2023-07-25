@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 import {
   Image,
   SafeAreaView,
@@ -7,12 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
-
 import Icon from "react-native-vector-icons/Ionicons";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
+
 import { ROUTES } from "../../constants";
-import { useNavigation } from "@react-navigation/native";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 
 export default function Settings() {
   const navigation = useNavigation();

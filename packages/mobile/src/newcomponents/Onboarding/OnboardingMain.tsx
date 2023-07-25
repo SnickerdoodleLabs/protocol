@@ -1,3 +1,15 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Clipboard from "@react-native-clipboard/clipboard";
+import { useNavigation } from "@react-navigation/native";
+import {
+  EChain,
+  EVMAccountAddress,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
+import Wallet from "ethereumjs-wallet";
+import { ethers } from "ethers";
+import { keccak256 } from "ethers/lib/utils";
 import React, { useEffect, useRef } from "react";
 import {
   View,
@@ -16,34 +28,22 @@ import {
   Alert,
   NativeModules,
 } from "react-native";
+import Crypto from "react-native-quick-crypto";
+
+import { ROUTES } from "../../constants";
 import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
+import { useAppContext } from "../../context/AppContextProvider";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import PieChart from "../Custom/PieChart";
 import MyComponent from "./Mycomponent";
 import OnboardingItem from "./OnboardingItem";
 import Permission from "./Permission";
-import { useAppContext } from "../../context/AppContextProvider";
-import { useNavigation } from "@react-navigation/native";
-import { ROUTES } from "../../constants";
 import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
-import { ethers } from "ethers";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import {
-  EChain,
-  EVMAccountAddress,
-  LanguageCode,
-  Signature,
-} from "@snickerdoodlelabs/objects";
 import {
   ELoadingStatusType,
   ILoadingStatus,
   useLayoutContext,
 } from "../../context/LayoutContext";
-import Clipboard from "@react-native-clipboard/clipboard";
-import Crypto from "react-native-quick-crypto";
-import Wallet from "ethereumjs-wallet";
-import { keccak256 } from "ethers/lib/utils";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;

@@ -1,7 +1,8 @@
-import {View, Text, StyleSheet} from 'react-native';
-import React from 'react';
-import LottieView from 'lottie-react-native';
-import UnlockLottie from '../../assets/lotties/unlock.json';
+import LottieView from "lottie-react-native";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+
+import UnlockLottie from "../../assets/lotties/unlock.json";
 
 const UnlockLoader = () => {
   return (
@@ -16,9 +17,9 @@ const UnlockLoader = () => {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.2)",
     zIndex: 1,
   },
 });

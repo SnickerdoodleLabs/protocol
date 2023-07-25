@@ -1,7 +1,4 @@
 import DateFnsUtils from "@date-io/date-fns";
-import { countries } from "@extension-onboarding/constants/countries";
-import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import {
   Box,
   Grid,
@@ -14,15 +11,18 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { useDatePickerPopoverStyles } from "@snickerdoodlelabs/shared-components";
+import { Button } from "@snickerdoodlelabs/shared-components";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Select, RadioGroup } from "formik-material-ui";
 import React, { FC, useEffect } from "react";
 import { GoogleLogin } from "react-google-login";
-import artboardImage from "@extension-onboarding/assets/images/artboard.svg";
-import { Button } from "@snickerdoodlelabs/shared-components";
-
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useNavigate } from "react-router-dom";
+
+import artboardImage from "@extension-onboarding/assets/images/artboard.svg";
+import { countries } from "@extension-onboarding/constants/countries";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
+import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 interface ProfileFormProps {
   onSubmitted?: () => void;
 }

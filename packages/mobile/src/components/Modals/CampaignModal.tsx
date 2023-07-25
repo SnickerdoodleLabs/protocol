@@ -1,5 +1,5 @@
-import {View, Modal, StyleSheet} from 'react-native';
-import React from 'react';
+import React from "react";
+import { View, Modal, StyleSheet } from "react-native";
 
 interface ICampaignModalProps {
   visible: boolean;
@@ -21,13 +21,13 @@ export default function CampaignModal({
 const styles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
-    width: '80%',
-    backgroundColor: 'white',
+    width: "80%",
+    backgroundColor: "white",
     paddingHorizontal: 20,
     paddingVertical: 30,
     borderRadius: 10,

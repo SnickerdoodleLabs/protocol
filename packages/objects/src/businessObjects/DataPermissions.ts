@@ -109,6 +109,12 @@ export class DataPermissions {
     );
   }
 
+  static get permissionString(): HexString32 {
+    return HexString32(
+      "0x111111111111111111111111111111111111111111111111111111111111111b",
+    ); //31 ones
+  }
+
   static createWithAllPermissions(): DataPermissions {
     return new DataPermissions(DataPermissions.allPermissionsHexString);
   }

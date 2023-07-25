@@ -11,6 +11,7 @@ import {
   UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 import { SnickerDoodleCoreError } from "../objects/errors/SnickerDoodleCoreError";
 
 export interface IAccountService {

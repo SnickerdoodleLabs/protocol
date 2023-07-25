@@ -8,18 +8,17 @@ import {
   AjaxError,
   BigNumberString,
   EarnedReward,
-  EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
   IDynamicRewardParameter,
-  IInsights,
   IpfsCID,
-  QueryIdentifier,
   Signature,
   TokenId,
   URLString,
+  IQueryDeliveryItems,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -149,13 +148,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    answeredQueries: QueryIdentifier[],
-  ): ResultAsync<EligibleReward[], AjaxError> {
+    queryDeliveryItems: IQueryDeliveryItems,
+  ): ResultAsync<PossibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
-      queries: JSON.stringify(answeredQueries),
+      queryDeliveryItems: JSON.stringify(queryDeliveryItems),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -172,11 +171,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<EligibleReward[]>(url, {
+        return this.ajaxUtils.post<PossibleReward[]>(url, {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
           tokenId: tokenId.toString(),
-          queries: answeredQueries,
+          queryDeliveryItems: queryDeliveryItems,
           signature: signature,
         } as IReceivePreviewsParams as unknown as Record<string, unknown>);
       });
@@ -186,7 +185,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
-    insights: IInsights,
+    insights: IQueryDeliveryItems,
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,

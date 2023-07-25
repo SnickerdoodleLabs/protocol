@@ -1,12 +1,13 @@
+import { Box, Grid } from "@material-ui/core";
+import React, { FC, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import accountLinking from "@extension-onboarding/assets/images/account-linking.svg";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/AccountLinking/AccountLinking.style";
-import { Box, Grid } from "@material-ui/core";
-import React, { FC, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 const AccountLinking: FC = () => {
   const navigate = useNavigate();

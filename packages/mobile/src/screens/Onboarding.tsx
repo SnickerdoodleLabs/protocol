@@ -1,5 +1,6 @@
 import { View } from "@motify/components";
 import React from "react";
+
 import { ProfileForm } from "../components/ProfileForm/ProfileForm";
 
 export default function Onboarding(props) {

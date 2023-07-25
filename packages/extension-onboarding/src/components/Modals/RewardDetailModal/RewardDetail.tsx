@@ -1,8 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/Modals/RewardDetailModal/RewardDetail.style";
-import { Permissions } from "@snickerdoodlelabs/shared-components";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Grid, Modal, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import {
@@ -11,7 +6,14 @@ import {
   EWalletDataType,
   QueryTypePermissionMap,
 } from "@snickerdoodlelabs/objects";
+import { Permissions } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useState } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/RewardDetailModal/RewardDetail.style";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardDetail: FC = () => {
@@ -26,7 +28,7 @@ const RewardDetail: FC = () => {
 
   const _permissions = permissions
     ? permissions
-    : (reward as PossibleReward)?.queryDependencies.map(
+    : (reward as PossibleReward)?.estimatedQueryDependencies.map(
         (queryType) => QueryTypePermissionMap.get(queryType)!,
       );
 
