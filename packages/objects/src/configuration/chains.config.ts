@@ -342,6 +342,8 @@ export function isAccountValidForChain(
   chainId: ChainId,
   account: LinkedAccount,
 ): boolean {
+  // Put this so we wont get `unknown chain id 5 error`. Goerli is deprecated, but still
+  // Supported till 2024 jan. This hack in the meantime will spare us of that error log
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);

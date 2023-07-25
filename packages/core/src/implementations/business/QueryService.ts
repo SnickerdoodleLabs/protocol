@@ -44,8 +44,6 @@ import {
   DuplicateIdInSchema,
   EvalNotImplementedError,
   MissingASTError,
-  PossibleRewardWithStatus,
-  ERewardStatus,
   EarnedReward,
   JSONString,
 } from "@snickerdoodlelabs/objects";
@@ -212,33 +210,17 @@ export class QueryService implements IQueryService {
   public createQueryStatusWithConsent(
     requestForData: RequestForData,
     queryWrapper: SDQLQueryWrapper,
-  ): ResultAsync<
-    void,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | MissingASTError
-    | PersistenceError
-    | EvalNotImplementedError
-  > {
-    return this.queryParsingEngine
-      .constructPossibleRewardsFromQuery(queryWrapper.sdqlQuery)
-      .andThen((possibleRewards) => {
-        return this.sdqlQueryRepo.upsertQueryStatus([
-          new QueryStatus(
-            requestForData.consentContractAddress,
-            requestForData.requestedCID,
-            requestForData.blockNumber,
-            EQueryProcessingStatus.Received,
-            queryWrapper.expiry,
-            null,
-          ),
-        ]);
-      });
+  ): ResultAsync<void, PersistenceError> {
+    return this.sdqlQueryRepo.upsertQueryStatus([
+      new QueryStatus(
+        requestForData.consentContractAddress,
+        requestForData.requestedCID,
+        requestForData.blockNumber,
+        EQueryProcessingStatus.Received,
+        queryWrapper.expiry,
+        null,
+      ),
+    ]);
   }
 
   public getQueryStatusByQueryCID(
