@@ -13,13 +13,6 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import { useStyles } from "@shared-components/components/PermissionBar/PermissionBar.style";
-import {
-  COUNTRIES,
-  PERMISSIONS_WITH_ICONS,
-  UI_SUPPORTED_PERMISSIONS,
-} from "@shared-components/constants";
-import { useDatePickerPopoverStyles } from "@shared-components/styles/datePickerPopover";
 import {
   CountryCode,
   ESocialType,
@@ -33,6 +26,14 @@ import { Select } from "formik-material-ui";
 import { ResultAsync } from "neverthrow";
 import React, { FC, useMemo, useState } from "react";
 import * as yup from "yup";
+
+import { useStyles } from "@shared-components/components/PermissionBar/PermissionBar.style";
+import {
+  COUNTRIES,
+  PERMISSIONS_WITH_ICONS,
+  UI_SUPPORTED_PERMISSIONS,
+} from "@shared-components/constants";
+import { useDatePickerPopoverStyles } from "@shared-components/styles/datePickerPopover";
 
 interface IPermissionBarProps {
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;

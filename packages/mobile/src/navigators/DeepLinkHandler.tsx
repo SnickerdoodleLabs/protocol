@@ -1,7 +1,9 @@
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { parse } from "querystring";
+
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import { useEffect, useState } from "react";
 import { Linking } from "react-native";
+
 import {
   IInvitationParams,
   useInvitationContext,

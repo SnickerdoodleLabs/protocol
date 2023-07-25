@@ -6,7 +6,7 @@ import {
   Gender,
   EmailAddressString,
   CountryCode,
-  EProfileFieldType
+  EProfileFieldType,
 } from "@snickerdoodlelabs/objects";
 import { IPIIService } from "@synamint-extension-sdk/core/interfaces/business";
 import {

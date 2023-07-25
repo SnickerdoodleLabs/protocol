@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,13 +7,13 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
-import Video from "react-native-video";
-import VideoPlayer from "../VideoPlayer";
-import Icon from "react-native-vector-icons/Ionicons";
 import { ScrollView } from "react-native-gesture-handler";
+import Icon from "react-native-vector-icons/Ionicons";
+import Video from "react-native-video";
+
+import { normalizeWidth, normalizeHeight } from "../../themes/Metrics";
 import BottomSheetComponenet from "../Custom/BottomSheetComponenet";
+import VideoPlayer from "../VideoPlayer";
 
 interface OnboardingItemProps {
   item: {

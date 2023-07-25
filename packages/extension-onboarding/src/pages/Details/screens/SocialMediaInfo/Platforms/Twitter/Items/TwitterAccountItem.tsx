@@ -1,7 +1,8 @@
-import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Twitter.style";
 import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import { TwitterFollowData, TwitterProfile } from "@snickerdoodlelabs/objects";
 import React, { FC, memo } from "react";
+
+import { useStyles } from "@extension-onboarding/pages/Details/screens/SocialMediaInfo/Platforms/Twitter/Twitter.style";
 
 interface ITwitterAccountItemProps {
   item: TwitterProfile;
@@ -24,7 +25,6 @@ export const TwitterAccountItem: FC<ITwitterAccountItemProps> = memo(
       data: TwitterFollowData | undefined,
       key: Key,
     ): number => {
-    
       if (!(data && data[key])) {
         return 0;
       }

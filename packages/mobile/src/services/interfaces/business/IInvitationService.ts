@@ -26,6 +26,7 @@ import {
   IConsentCapacity,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 import { MobileStorageError } from "../objects/errors/MobileStorageError";
 import { SnickerDoodleCoreError } from "../objects/errors/SnickerDoodleCoreError";
 

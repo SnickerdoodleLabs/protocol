@@ -7,6 +7,15 @@ import {
 } from "@material-ui/core";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
+import {
+  AccountAddress,
+  EVMContractAddress,
+  EWalletDataType,
+  PossibleReward,
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+import React, { useEffect, FC, useState } from "react";
+
 import { AccountIdentIcon } from "@shared-components/components/AccountIdentIcon";
 import { AccountsCard } from "@shared-components/components/AccountsCard";
 import { Button } from "@shared-components/components/Button";
@@ -17,14 +26,6 @@ import {
   PERMISSION_TEXT_NAMES,
 } from "@shared-components/constants/permissions";
 import { getAccountAddressText } from "@shared-components/utils/AccountAddressUtils";
-import {
-  AccountAddress,
-  EVMContractAddress,
-  EWalletDataType,
-  PossibleReward,
-} from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
-import React, { useEffect, FC, useState } from "react";
 
 interface ISubscriptionConfirmationProps {
   campaignImage: string;
@@ -201,7 +202,10 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
             <Divider />
             <Box mb={1.5} />
             <Typography className={classes.subtitle}>Missed Rewards</Typography>
-            <Typography className={classes.content} style={{ color: "#D32F2F" }}>
+            <Typography
+              className={classes.content}
+              style={{ color: "#D32F2F" }}
+            >
               Attention: You won't get a chance to earn these rewards again. You
               can change your data permission setting to get this reward.
             </Typography>

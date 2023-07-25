@@ -1,8 +1,4 @@
 import { Box, Grid, Typography } from "@material-ui/core";
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
-import Section, {
-  useSectionStyles,
-} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 import {
   EVMContractAddress,
   EWalletDataType,
@@ -10,11 +6,16 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+
+import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
 import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
+import Section, {
+  useSectionStyles,
+} from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
-import { useAppContext } from "@extension-onboarding/context/App";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IWaitingRewardsProps {
@@ -46,8 +47,8 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
   };
 
   const getBadge = useCallback(
-    (queryDependencies: QueryTypes[]) =>
-      queryDependencies
+    (estimatedQueryDependencies: QueryTypes[]) =>
+      estimatedQueryDependencies
         .map((dependency) => QueryTypePermissionMap.get(dependency)!)
         .every((dataType) => defaultPermissions.includes(dataType))
         ? EBadgeType.Available
@@ -101,7 +102,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
                 consentContractAddress={consentContractAddress}
                 badgeType={
                   type === EPossibleRewardDisplayType.ProgramRewards
-                    ? getBadge(reward.queryDependencies)
+                    ? getBadge(reward.estimatedQueryDependencies)
                     : badge
                 }
                 reward={reward}

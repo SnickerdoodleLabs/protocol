@@ -8,14 +8,15 @@ import {
   SnackbarOrigin,
   Typography,
 } from "@material-ui/core";
-import Browser from "webextension-polyfill";
 import React, { FC, useEffect, useState, memo } from "react";
-import { useStyles } from "@extension-onboarding/components/CustomizedAlert/CustomizedAlert.style";
+import Browser from "webextension-polyfill";
+
 import {
   EAlertSeverity,
   SEVERITY_COLORS,
   SEVERITY_TEXT_COLORS,
 } from "@extension-onboarding/components/CustomizedAlert/CustomizedAlert.constants";
+import { useStyles } from "@extension-onboarding/components/CustomizedAlert/CustomizedAlert.style";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 export interface State extends SnackbarOrigin {

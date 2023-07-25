@@ -1,10 +1,11 @@
-import { useStyles } from "@extension-onboarding/components/Typography/Typography.style";
 import {
   TypographyProps,
   Typography as MuiTypography,
 } from "@material-ui/core";
 import clsx from "clsx";
 import React, { ElementType, FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Typography/Typography.style";
 
 type CustomVariants = "pageTitle" | "pageDescription" | "tableTitle";
 

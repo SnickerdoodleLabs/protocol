@@ -1,9 +1,10 @@
+import { Box, Typography, Grid } from "@material-ui/core";
+import React, { FC, memo } from "react";
+
 import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
 import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { Box, Grid, Typography } from "@material-ui/core";
-import React, { FC, memo } from "react";
 
 const WalletProviders: FC = () => {
   const classes = useStyles();

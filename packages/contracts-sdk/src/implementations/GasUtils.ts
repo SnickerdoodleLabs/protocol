@@ -1,8 +1,9 @@
-import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
-import { injectable } from "inversify";
 import { GasPriceError } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import { injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class GasUtils {

@@ -4,6 +4,7 @@ import {
   HexString32,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 import { MobileStorageError } from "../objects/errors/MobileStorageError";
 
 export interface IDataPermissionsRepository {

@@ -1,9 +1,4 @@
 import {
-  IBaseContract,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/index.js";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
-import {
   EVMContractAddress,
   IBlockchainError,
   EVMAccountAddress,
@@ -11,6 +6,12 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import {
+  IBaseContract,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export abstract class BaseContract<TError> implements IBaseContract {
