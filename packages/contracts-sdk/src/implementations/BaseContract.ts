@@ -1,7 +1,8 @@
 import {
   EVMContractAddress,
-  IBlockchainError,
   EVMAccountAddress,
+  BlockchainErrorMapper,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -14,7 +15,9 @@ import {
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
-export abstract class BaseContract<TError> implements IBaseContract {
+export abstract class BaseContract<TContractSpecificError>
+  implements IBaseContract
+{
   protected contract: ethers.Contract;
   protected contractAbi: ethers.ContractInterface;
 
@@ -38,43 +41,58 @@ export abstract class BaseContract<TError> implements IBaseContract {
     return this.contract;
   }
 
-  //generateError, generates a T, Error
+  protected generateError(
+    error,
+    errorMessage: string,
+  ): TContractSpecificError | BlockchainCommonErrors {
+    return BlockchainErrorMapper.buildBlockchainError(
+      error,
+      (msg, reason, err) =>
+        this.generateContractSpecificError(errorMessage || msg, reason, err),
+    );
+  }
 
-  protected abstract generateError(
+  protected abstract generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,
-  ): TError;
+  ): TContractSpecificError;
 
   // Takes the contract's function name and params, submits the transaction and returns a WrappedTransactionResponse
   protected writeToContract(
     functionName: string,
     functionParams: any[],
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, TError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | TContractSpecificError
+  > {
     return ResultAsync.fromPromise(
       this.contract[functionName](...functionParams, {
         ...overrides,
       }) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
-        return this.generateError(
-          `Unable to call ${functionName}()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return e;
       },
-    ).map((transactionResponse) => {
-      return BaseContract.buildWrappedTransactionResponse(
-        transactionResponse,
-        EVMContractAddress(this.contract.address),
-        EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-        functionName,
-        functionParams,
-        this.contractAbi,
-      );
-    });
+    )
+      .map((transactionResponse) => {
+        return BaseContract.buildWrappedTransactionResponse(
+          transactionResponse,
+          EVMContractAddress(this.contract.address),
+          EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
+          functionName,
+          functionParams,
+          this.contractAbi,
+        );
+      })
+      .mapErr((e) => {
+        return BlockchainErrorMapper.buildBlockchainError(e, (msg, reason, e) =>
+          this.generateContractSpecificError(msg, reason, e),
+        );
+      });
   }
 
+  // Function to return the correct error type based on mapping of error message
   static buildWrappedTransactionResponse(
     transactionResponse: ethers.providers.TransactionResponse,
     contractAddress: EVMContractAddress,

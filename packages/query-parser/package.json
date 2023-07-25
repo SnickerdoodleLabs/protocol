@@ -1,7 +1,7 @@
 {
   "name": "@snickerdoodlelabs/query-parser",
-  "version": "0.0.15",
-  "description": "Utilitites for parsing and understanding SDQL Queries",
+  "version": "0.0.17",
+  "description": "Utilities for parsing and understanding SDQL Queries",
   "license": "MIT",
   "repository": {
     "type": "git",
