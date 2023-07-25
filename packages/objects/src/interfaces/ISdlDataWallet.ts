@@ -171,6 +171,7 @@ export type IProxyTwitterMethods = {
 //   Parameters<ICoreDiscordMethods["initializeUserWithAuthorizationCode"]>
 // >;
 
+// These types are how to put it all together when we're done
 // export type IBaseProxyMethods = {
 //   [key in FunctionKeys<ISnickerdoodleCore>]: (
 //     ...args: [...Exclude<Parameters<ISnickerdoodleCore[key]>, "sourceDomain">]
@@ -193,6 +194,15 @@ export type IProxyTwitterMethods = {
 // };
 
 export interface ISdlDataWallet {
+  // TODO: These account methods should 1. be moved into their own
+  // sub object accounts, but 2, I think they need to be re-thought
+  // for the data proxy period. As is, they encourage collecting
+  // signatures on the DApp/client side. This works for the SPA
+  // since it's a "controlled" environment. But it doesn't work
+  // for some generic dapp.com. These methods should only be callable
+  // if you are adjacent to the core (IE, in the extension or in the
+  // iframe).
+  // #region Account Methods
   unlock(
     accountAddress: AccountAddress,
     signature: Signature,
@@ -208,6 +218,8 @@ export interface ISdlDataWallet {
   getUnlockMessage(
     languageCode?: LanguageCode,
   ): ResultAsync<string, ProxyError>;
+  // #endregion
+
   getAge(): ResultAsync<Age | null, ProxyError>;
   setGivenName(givenName: GivenName): ResultAsync<void, ProxyError>;
   getGivenName(): ResultAsync<GivenName | null, ProxyError>;

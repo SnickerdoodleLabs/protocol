@@ -16,7 +16,7 @@ module.exports = {
   },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
-  entry: path.join(__dirname, "src/index.ts"),
+  entry: path.join(__dirname, "src/index.tsx"),
   output: {
     filename: "index.js",
     path: path.join(__dirname, "/dist/bundle"),

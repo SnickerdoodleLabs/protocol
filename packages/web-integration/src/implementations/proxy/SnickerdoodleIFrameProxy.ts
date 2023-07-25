@@ -66,16 +66,15 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
 } from "@snickerdoodlelabs/objects";
+import { IProxyIntegrationMethods } from "@snickerdoodlelabs/objects/src/interfaces/ISdlDataWallet";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
-import { IProxyIntegrationMethods } from "@snickerdoodlelabs/objects/src/interfaces/ISdlDataWallet";
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy
-{
+  implements ISnickerdoodleIFrameProxy {
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -221,6 +220,14 @@ export class SnickerdoodleIFrameProxy
       .map(() => {
         console.log("Snickerdoodle Protocol web integration activated");
       });
+  }
+
+  public suggestAddAccount(
+    accountAddress: AccountAddress,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("suggestAddAccount", {
+      accountAddress,
+    });
   }
 
   public unlock(
