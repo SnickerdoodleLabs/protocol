@@ -458,4 +458,10 @@ export class ExternalCoreGateway {
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(params);
   }
+
+  public getProviderKey = (): ResultAsync<string | undefined, JsonRpcError> => {
+    return this.getConfig().map((config) => {
+      return config.providerKey;
+    });
+  };
 }

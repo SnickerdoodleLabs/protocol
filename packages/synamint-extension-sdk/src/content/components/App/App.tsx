@@ -74,6 +74,7 @@ interface ISafeURLHistory {
 let coreGateway: ExternalCoreGateway;
 let extensionConfig: IExtensionConfig;
 let eventEmitter: UpdatableEventEmitterWrapper;
+const appID = Browser.runtime.id;
 
 const connect = () => {
   const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
@@ -102,7 +103,7 @@ const connect = () => {
           extensionConfig = config;
         }
         if (new URL(config.onboardingUrl).origin === window.location.origin) {
-          DataWalletProxyInjectionUtils.inject();
+          DataWalletProxyInjectionUtils.inject(config.providerKey || "");
         }
       },
     );
@@ -119,8 +120,8 @@ const connect = () => {
       if (new URL(config.onboardingUrl).origin === window.location.origin) {
         {
           const postMessageStream = new LocalMessageStream({
-            name: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-            target: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+            name: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+            target: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
           });
           const pageMux = new ObjectMultiplex();
           pump(pageMux, postMessageStream, pageMux);
@@ -133,7 +134,7 @@ const connect = () => {
           pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
           extensionMux.on("finish", () => {
             document.dispatchEvent(
-              new CustomEvent("extension-stream-channel-closed"),
+              new CustomEvent(`extension-stream-channel-closed${appID}`),
             );
             pageMux.destroy();
           });
@@ -169,8 +170,33 @@ const App = () => {
     dataTypes: EWalletDataType[];
   }>();
   const _path = usePath();
-
   const isStatusCheckRequiredRef = useRef<boolean>(false);
+  const [isHidden, setIsHidden] = useState<boolean>(false);
+
+  useEffect(() => {
+    window.postMessage(
+      {
+        type: "popupContentUpdated",
+        id: appID,
+        name: extensionConfig?.providerKey || "",
+        hasContent: appState !== EAPP_STATE.INIT,
+      },
+      "*",
+    );
+  }, [appState]);
+
+  const handleTabManagerMessage = (event: MessageEvent) => {
+    if (event.data.type === "selectedTabUpdated") {
+      setIsHidden(!(!event.data.id || event.data.id === appID));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("message", handleTabManagerMessage);
+    return () => {
+      window.removeEventListener("message", handleTabManagerMessage);
+    };
+  }, []);
 
   useEffect(() => {
     initiateScamFilterStatus();
@@ -289,6 +315,7 @@ const App = () => {
             ).map((status) => {
               if (status === EInvitationStatus.New) {
                 setInvitationDomain(result);
+                setAppState(EAPP_STATE.INVITATION_PREVIEW);
                 initiateRewardPopup(result);
                 if (!isInitialized) {
                   isStatusCheckRequiredRef.current = true;
@@ -361,7 +388,7 @@ const App = () => {
     switch (true) {
       case !rewardToDisplay || walletState === EWalletState.UNKNOWN:
         return null;
-      case appState === EAPP_STATE.INIT:
+      case appState === EAPP_STATE.INVITATION_PREVIEW:
         return (
           <RewardCard
             onJoinClick={() => {
@@ -443,8 +470,12 @@ const App = () => {
     JSON.stringify(subscriptionPreviewData),
   ]);
 
+  if (isHidden) {
+    return null;
+  }
+
   return (
-    <>
+    <div>
       {scamFilterStatus && (
         <ScamFilterComponent
           scamFilterStatus={scamFilterStatus}
@@ -452,7 +483,7 @@ const App = () => {
         />
       )}
       {renderComponent}
-    </>
+    </div>
   );
 };
 

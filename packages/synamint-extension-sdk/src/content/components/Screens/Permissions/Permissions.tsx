@@ -32,7 +32,7 @@ import {
   SetBirthdayParams,
   SetGenderParams,
   SetLocationParams,
-} from "@synamint-extension-sdk/shared/interfaces/actions.js";
+} from "@synamint-extension-sdk/shared/interfaces/actions";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 import { JsonRpcError } from "json-rpc-engine";
 

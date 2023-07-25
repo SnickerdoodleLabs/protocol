@@ -55,6 +55,8 @@ import {
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
+  extensionId: string;
+  name: string;
   unlock(
     accountAddress: AccountAddress,
     signature: Signature,

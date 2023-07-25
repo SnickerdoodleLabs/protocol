@@ -88,11 +88,12 @@ import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
 let coreGateway: ExternalCoreGateway;
 let eventEmitter: UpdatableEventEmitterWrapper;
+let appID: string;
 
 const initConnection = () => {
   const localStream = new LocalMessageStream({
-    name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-    target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+    name: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+    target: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
   });
   const mux = new ObjectMultiplex();
   pump(localStream, mux, localStream);
@@ -119,26 +120,25 @@ const initConnection = () => {
   const clearMuxAndUpdate = () => {
     mux.destroy();
     document.removeEventListener(
-      "extension-stream-channel-closed",
+      `extension-stream-channel-closed${appID}`,
       clearMuxAndUpdate,
     );
     initConnection();
   };
   document.addEventListener(
-    "extension-stream-channel-closed",
+    `extension-stream-channel-closed${appID}`,
     clearMuxAndUpdate,
   );
 };
-
-initConnection();
 
 export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   discord: ISdlDiscordMethods;
   twitter: ISdlTwitterMethods;
 
-  constructor() {
+  constructor(public extensionId: string, public name: string) {
     super();
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    appID = extensionId;
+    initConnection(); // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
     this.discord = {
       initializeUserWithAuthorizationCode: (code: OAuthAuthorizationCode) => {
@@ -459,4 +459,4 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
 }
 
-export const DataWalletProxy = new _DataWalletProxy();
+// export const DataWalletProxy = new _DataWalletProxy();
