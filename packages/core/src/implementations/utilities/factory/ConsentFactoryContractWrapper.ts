@@ -19,6 +19,7 @@ import {
   TransactionResponseError,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -55,6 +56,20 @@ export class ConsentFactoryContractWrapper
         this.secondary?.createConsent(ownerAddress, baseUri, name, overrides),
     );
   }
+
+  public estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError> {
+    return this.fallback(
+      () =>
+        this.primary.estimateGasToCreateConsent(ownerAddress, baseUri, name),
+      () =>
+        this.secondary?.estimateGasToCreateConsent(ownerAddress, baseUri, name),
+    );
+  }
+
   public getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<

@@ -66,6 +66,25 @@ export class ConsentFactoryContract
     );
   }
 
+  public estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.estimateGas["createConsent"](ownerAddress, baseUri, name),
+      (e) => {
+        return new ConsentFactoryContractError(
+          `Failed to estimate gas with error: ${e}`,
+        );
+      },
+    ).map((estimatedGas) => {
+      // TODO: confirm buffer value
+      // Increase estimated gas buffer by 10%
+      return estimatedGas.mul(110).div(100);
+    });
+  }
+
   // Gets the count of user's deployed Consents
   public getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,

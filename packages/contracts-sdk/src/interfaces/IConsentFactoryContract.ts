@@ -16,6 +16,7 @@ import {
   BlockchainCommonErrors,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentFactoryContract extends IBaseContract {
@@ -35,6 +36,18 @@ export interface IConsentFactoryContract extends IBaseContract {
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
   >;
+
+  /**
+   *  Return the amount of gas required to create a Consent contract
+   * @param ownerAddress Address of the user
+   * @param baseUri URI for consent contract
+   * @param name Name of the consent contract
+   */
+  estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError>;
 
   /**
    *  Return the number Consent addresses that user has deployed
