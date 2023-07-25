@@ -11,9 +11,7 @@ import LinearProgress from "@extension-onboarding/components/LinearProgress";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import useCampaignLogic from "@extension-onboarding/hooks/useCampaignLogic";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
-declare const window: IWindowWithSdlDataWallet;
 interface IFeaturedCampaignItemProps {
   consentContractAddress: EVMContractAddress;
   navigationPath?: EPaths;
