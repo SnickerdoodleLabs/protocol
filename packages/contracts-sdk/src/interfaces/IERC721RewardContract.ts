@@ -4,6 +4,7 @@ import {
   TokenId,
   TokenUri,
   BaseURI,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -16,16 +17,19 @@ import {
 } from "@contracts-sdk/interfaces/objects";
 
 export interface IERC721RewardContract extends IBaseContract {
-  getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;
+  getOwner(): ResultAsync<
+    EVMAccountAddress,
+    ERC721RewardContractError | BlockchainCommonErrors
+  >;
 
   getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   getMinterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError
+    ERC721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -34,7 +38,7 @@ export interface IERC721RewardContract extends IBaseContract {
    */
   balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ERC721RewardContractError>;
+  ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Returns the owner account for a token Id
@@ -42,7 +46,10 @@ export interface IERC721RewardContract extends IBaseContract {
    */
   ownerOf(
     tokenId: TokenId,
-  ): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;
+  ): ResultAsync<
+    EVMAccountAddress,
+    ERC721RewardContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the token uri for a specific token Id
@@ -50,12 +57,18 @@ export interface IERC721RewardContract extends IBaseContract {
    */
   tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, ERC721RewardContractError>;
+  ): ResultAsync<
+    TokenUri | null,
+    ERC721RewardContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the baseURI of the Reward contract
    */
-  baseURI(): ResultAsync<BaseURI, ERC721RewardContractError>;
+  baseURI(): ResultAsync<
+    BaseURI,
+    ERC721RewardContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Sets a new baseURI for the Reward contract
@@ -64,7 +77,10 @@ export interface IERC721RewardContract extends IBaseContract {
   setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   /**
    * Checks if an address has a specific role in the Reward contract
@@ -74,7 +90,7 @@ export interface IERC721RewardContract extends IBaseContract {
   hasRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC721RewardContractError>;
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Grants a role to an address
@@ -85,7 +101,10 @@ export interface IERC721RewardContract extends IBaseContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   /**
    * Revokes a role of an address
@@ -96,7 +115,10 @@ export interface IERC721RewardContract extends IBaseContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   /**
    * Allows an address to renounce its role
@@ -107,7 +129,10 @@ export interface IERC721RewardContract extends IBaseContract {
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, ERC721RewardContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  >;
 
   filters: IERC721Filters;
 }

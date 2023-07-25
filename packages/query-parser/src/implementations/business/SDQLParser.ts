@@ -136,7 +136,10 @@ export class SDQLParser {
       return errAsync(new QueryFormatError("Invalid expiry date format"));
     } else if (schema.isExpired()) {
       return errAsync(
-        new QueryExpiredError("Tried to execute an expired query", cid),
+        new QueryExpiredError(
+          `Tried to execute an expired query with CID ${cid}`,
+          null,
+        ),
       );
     }
     return okAsync(undefined);

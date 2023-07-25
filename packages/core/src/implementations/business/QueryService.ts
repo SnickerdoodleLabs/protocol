@@ -36,7 +36,6 @@ import {
   ServerRewardError,
   UninitializedError,
   PossibleReward,
-  DataPermissions,
   IQueryDeliveryItems,
   QueryExpiredError,
   ParserError,
@@ -44,8 +43,7 @@ import {
   DuplicateIdInSchema,
   EvalNotImplementedError,
   MissingASTError,
-  EarnedReward,
-  JSONString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -146,6 +144,7 @@ export class QueryService implements IQueryService {
     | PersistenceError
     | EvalNotImplementedError
     | MissingASTError
+    | BlockchainCommonErrors
   > {
     /**
      * TODO
@@ -300,6 +299,7 @@ export class QueryService implements IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     // Step 1, get all queries that are ready to return insights
     this.logUtils.debug(
@@ -398,7 +398,7 @@ export class QueryService implements IQueryService {
                 })
                 .orElse((err) => {
                   if (err instanceof AjaxError) {
-                    if (err.statusCode == 403) {
+                    if (err.code == 403) {
                       // 403 means a response has already been submitted, and we should stop asking
                       queryStatus.status =
                         EQueryProcessingStatus.RewardsReceived;
@@ -552,7 +552,7 @@ export class QueryService implements IQueryService {
     eligibleRewards: PossibleReward[],
     accounts: LinkedAccount[],
     context: CoreContext,
-  ): ResultAsync<void, Error> {
+  ): ResultAsync<void, never> {
     // Wrap the query & send to core
     const queryRequest = new SDQLQueryRequest(
       consentContractAddress,

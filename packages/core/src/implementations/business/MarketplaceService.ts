@@ -28,6 +28,8 @@ import {
   QueryFormatError,
   ConsentError,
   MissingASTError,
+  MissingWalletDataTypeError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -92,7 +94,10 @@ export class MarketplaceService implements IMarketplaceService {
     filterActive = true,
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getMarketplaceListingsByTag(
       pagingReq,
@@ -105,7 +110,10 @@ export class MarketplaceService implements IMarketplaceService {
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getListingsTotalByTag(tag);
   }
@@ -114,7 +122,10 @@ export class MarketplaceService implements IMarketplaceService {
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    UninitializedError | BlockchainProviderError | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.marketplaceRepo.getRecommendationsByListing(listing);
   }
@@ -127,21 +138,20 @@ export class MarketplaceService implements IMarketplaceService {
     | AjaxError
     | EvaluationError
     | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
     | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentContractError
-    | ConsentError
     | ConsentFactoryContractError
-    | MissingASTError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
   > {
     if (!contractAddresses) {
       return okAsync(new Map());
@@ -207,7 +217,7 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getPublishedQueriesPerContract(
     consentContract: IConsentContract,
-  ): ResultAsync<IpfsCID[], ConsentContractError> {
+  ): ResultAsync<IpfsCID[], ConsentContractError | BlockchainCommonErrors> {
     return this._getRequestForDataList(consentContract).map((r4dList) =>
       r4dList.map((r4d) => r4d.requestedCID),
     );
@@ -215,7 +225,10 @@ export class MarketplaceService implements IMarketplaceService {
 
   private _getRequestForDataList(
     consentContract: IConsentContract,
-  ): ResultAsync<RequestForData[], ConsentContractError> {
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return consentContract.getConsentOwner().andThen((consentOwner) => {
       return consentContract.getRequestForDataListByRequesterAddress(
         consentOwner,
@@ -245,6 +258,7 @@ export class MarketplaceService implements IMarketplaceService {
     | ConsentContractError
     | ConsentError
     | MissingASTError
+    | BlockchainCommonErrors
   > {
     if (!queryCids || queryCids.length == 0) {
       return okAsync([]);

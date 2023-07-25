@@ -19,7 +19,9 @@ function testExpectedValues(expr: string, expectedValues: Array<unknown>) {
 
   expect(gotValues).toEqual(expectedValues);
   expect(tokenizer.hasNext()).toBe(false);
-  expect(() => tokenizer.next()).toThrow(new ParserError(0, "no more tokens"));
+  expect(() => tokenizer.next()).toThrow(
+    new ParserError(`no more tokens at position ${0}`),
+  );
 }
 
 function testExpectedValuesAndTypes(
@@ -44,7 +46,9 @@ function testExpectedValuesAndTypes(
 
   expect(tokenizer.hasNext()).toBe(false);
 
-  expect(() => tokenizer.next()).toThrow(new ParserError(0, "no more tokens"));
+  expect(() => tokenizer.next()).toThrow(
+    new ParserError(`no more tokens at position ${0}`),
+  );
 }
 
 describe("Tokenizer type tests", () => {
