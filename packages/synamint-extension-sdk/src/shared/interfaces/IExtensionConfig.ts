@@ -72,6 +72,8 @@ export interface IExtensionConfigOverrides {
   transactionPollingIntervalMS?: number;
   backupPollingIntervalMS?: number;
   cloudStorageKey?: string;
+  dropboxAppKey?: string;
+  dropboxAppSecret?: string;
   apiKeys: {
     alchemyApiKeys?: {
       Arbitrum: string;

@@ -4,6 +4,10 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
+import {
   AccountAddress,
   AdSignatureMigrator,
   ChainId,
@@ -84,10 +88,6 @@ import { coreConfig } from "../interfaces/objects/Config";
 
 import { mobileCoreModule } from "./MobileCore.module";
 import { MobileStorageUtils } from "./utils/MobileStorageUtils";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@snickerdoodlelabs/core/dist/interfaces/utilities";
 
 export class MobileCore {
   protected iocContainer: Container;
@@ -313,6 +313,13 @@ export class MobileCore {
         ),
       ],
     ]);
+
+    console.log(
+      "defaultGoogleCloudBucket: " + coreConfig.defaultGoogleCloudBucket,
+    );
+    console.log(
+      "defaultDropboxCloudBucket: " + coreConfig.defaultDropboxCloudBucket,
+    );
 
     this.core = new SnickerdoodleCore(
       coreConfig,

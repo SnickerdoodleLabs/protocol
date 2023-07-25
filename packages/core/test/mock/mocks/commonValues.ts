@@ -103,6 +103,8 @@ export const testCoreConfig = new CoreConfig(
   1000, // dataWalletBackupIntervalMS
   100000, // backupChunkSizeTarget
   "", // cloud storage key
+  "dropbox App Key",
+  "dropbox App Secret",
   {
     alchemyApiKeys: {
       Arbitrum: "",

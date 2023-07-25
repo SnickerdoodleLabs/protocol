@@ -61,14 +61,13 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public readBeforeUnlock(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.storageUtils.read(key);
+  ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
+    // return this.storageUtils.read(key);
   }
 
   public writeBeforeUnlock(
-    name: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
     return okAsync(undefined);

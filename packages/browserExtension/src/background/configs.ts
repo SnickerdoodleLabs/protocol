@@ -49,6 +49,7 @@ declare const __CERAMIC_NODE_URL__: URLString;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
 declare const __GOOGLE_CLOUD_BUCKET__: string;
+declare const __DROPBOX_CLOUD_BUCKET__: string;
 declare const __PORTFOLIO_POLLING_INTERVAL__: string;
 declare const __TRANSACTION_POLLING_INTERVAL__: string;
 declare const __BACKUP_POLLING_INTERVAL__: string;
@@ -62,6 +63,8 @@ declare const __TWITTER_POLL_INTERVAL__: string;
 declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
 declare const __CLOUD_STORAGE_KEY__: string;
+declare const __DROPBOX_APP_KEY__: string;
+declare const __DROPBOX_APP_SECRET__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -186,7 +189,16 @@ export const configs: IExtensionConfigOverrides = {
       ? __DEFAULT_INSIGHT_PLATFORM_BASE_URL__
       : URLString("https://insight-api.snickerdoodle.com/v0/"),
 
-  /* API KEYS */
+  dropboxAppKey:
+    typeof __DROPBOX_APP_KEY__ !== "undefined" && !!__DROPBOX_APP_KEY__
+      ? __DROPBOX_APP_KEY__
+      : "",
+
+  dropboxAppSecret:
+    typeof __DROPBOX_APP_SECRET__ !== "undefined" && !!__DROPBOX_APP_SECRET__
+      ? __DROPBOX_APP_SECRET__
+      : "",
+
   cloudStorageKey:
     typeof __CLOUD_STORAGE_KEY__ !== "undefined" && !!__CLOUD_STORAGE_KEY__
       ? __CLOUD_STORAGE_KEY__
@@ -325,9 +337,10 @@ export const configs: IExtensionConfigOverrides = {
       ? __GOOGLE_CLOUD_BUCKET__
       : undefined,
   defaultDropboxCloudBucket:
-      typeof __DROPBOX_CLOUD_BUCKET__ !== "undefined" && !!__DROPBOX_CLOUD_BUCKET__
-        ? __DROPBOX_CLOUD_BUCKET__
-        : undefined,
+    typeof __DROPBOX_CLOUD_BUCKET__ !== "undefined" &&
+    !!__DROPBOX_CLOUD_BUCKET__
+      ? __DROPBOX_CLOUD_BUCKET__
+      : undefined,
   enableBackupEncryption:
     typeof __ENABLE_BACKUP_ENCRYPTION__ !== "undefined" &&
     !!__ENABLE_BACKUP_ENCRYPTION__

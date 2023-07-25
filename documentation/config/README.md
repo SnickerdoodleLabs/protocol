@@ -52,3 +52,6 @@ Ex: __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
 26. Ceramic Node URL: OBSOLETE - NOT NECESSARY
 27. DNS SERVER ADDRESS: read txt records - proof of ownership on any domain (Cloudflare)
 28. DOMAIN Filter: sample values include regex (localhost), do not need to store in browsing history
+
+29. Dropbox App Key: The App Key needed to connect to dropbox
+30. Dropbox App Secret: The Secret client ID needed to connect to dropbox

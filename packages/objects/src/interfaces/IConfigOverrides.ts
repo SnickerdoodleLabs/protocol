@@ -13,6 +13,8 @@ export interface IConfigOverrides {
   accountBalancePollingIntervalMS?: number;
   accountNFTPollingIntervalMS?: number;
   cloudStorageKey?: string;
+  dropboxAppKey?: string;
+  dropboxAppSecret?: string;
   alchemyApiKeys?: {
     Arbitrum: string;
     Astar: string;

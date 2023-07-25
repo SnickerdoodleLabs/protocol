@@ -12,14 +12,12 @@ import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
   readBeforeUnlock(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   writeBeforeUnlock(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   /**
    * Stores a new backup file in the cloud

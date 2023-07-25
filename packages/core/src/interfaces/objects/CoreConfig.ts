@@ -30,6 +30,9 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dataWalletBackupIntervalMS: number,
     public backupChunkSizeTarget: number,
     public cloudStorageKey: string,
+    public dropboxAppKey: string,
+    public dropboxAppSecret: string,
+
     public apiKeys: {
       alchemyApiKeys: {
         Arbitrum: string;

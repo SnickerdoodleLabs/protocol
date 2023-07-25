@@ -91,6 +91,11 @@ export class ExtensionCore {
       devChainProviderURL: config.devChainProviderURL,
     } as IConfigOverrides;
 
+    console.log("defaultGoogleCloudBucket: " + config.defaultGoogleCloudBucket);
+    console.log(
+      "defaultDropboxCloudBucket: " + config.defaultDropboxCloudBucket,
+    );
+
     this.core = new SnickerdoodleCore(
       coreConfig,
       new ChromeStorageUtils(),

@@ -7,6 +7,8 @@ import {
 
 export interface IIndexerConfig {
   cloudStorageKey: string;
+  dropboxAppKey: string;
+  dropboxAppSecret: string;
   apiKeys: {
     alchemyApiKeys: {
       Arbitrum: string;

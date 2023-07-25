@@ -22,6 +22,8 @@ export class ExtensionConfig {
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public cloudStorageKey: string,
+    public dropboxAppKey: string,
+    public dropboxAppSecret: string,
     public apiKeys: {
       alchemyApiKeys?: {
         Arbitrum: string;

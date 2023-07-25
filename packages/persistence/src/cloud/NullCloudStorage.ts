@@ -9,7 +9,8 @@ import {
   StorageKey,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+
+import { okAsync, ResultAsync, errAsync } from "neverthrow";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 
@@ -18,23 +19,20 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
-  constructor(
-    @inject(IStorageUtilsType)
-    protected storageUtils: IStorageUtils,
-  ) {}
+  constructor() {} // protected storageUtils: IStorageUtils, // @inject(IStorageUtilsType)
 
   public readBeforeUnlock(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.storageUtils.read(key);
+  ): ResultAsync<void, PersistenceError> {
+    // return this.storageUtils.read(key);
+    return okAsync(undefined);
   }
 
   public writeBeforeUnlock(
-    name: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(key);
+    // return this.storageUtils.write(key);
+    return okAsync(undefined);
   }
 
   public pollByStorageType(
@@ -83,5 +81,11 @@ export class NullCloudStorage implements ICloudStorage {
 
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
     return okAsync([]);
+  }
+
+  public copy(): ResultAsync<void, PersistenceError> {
+    return errAsync(
+      new PersistenceError("Error: DropBox copy() is not implemented yet"),
+    );
   }
 }

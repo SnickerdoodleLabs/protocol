@@ -155,6 +155,14 @@ var options = {
       __CLOUD_STORAGE_KEY__: JSON.stringify(process.env.__CLOUD_STORAGE_KEY__),
 
       /* ALCHEMY API KEYS to PASS IN */
+      __DROPBOX_APP_KEY__: JSON.stringify(process.env.__DROPBOX_APP_KEY__),
+
+      /* ALCHEMY API KEYS to PASS IN */
+      __DROPBOX_APP_SECRET__: JSON.stringify(
+        process.env.__DROPBOX_APP_SECRET__,
+      ),
+
+      /* ALCHEMY API KEYS to PASS IN */
       __ALCHEMY_ARBITRUM_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_ARBITRUM_API_KEY__,
       ),

@@ -25,6 +25,13 @@ export interface IInsightPlatformRepository {
     storageType: ECloudStorageType,
     walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError>;
+
+  getAuthToken(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<URLString, AjaxError>;
+  
   getSignedUrl(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,

@@ -198,7 +198,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .bind(ICloudStorageType)
         // .to(NullCloudStorage)
         // .to(GoogleCloudStorage)
-        .to(DropboxCloudStorage)
+        .to(GoogleCloudStorage)
         .inSingletonScope();
     }
 

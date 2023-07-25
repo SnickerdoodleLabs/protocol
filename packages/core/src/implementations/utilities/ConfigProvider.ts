@@ -95,12 +95,15 @@ export class ConfigProvider
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
       "ceramic-replacement-bucket",
+      "backups",
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
       60000, // backup interval
       5, // backup chunk size target
       "", // cloudStorageKey
+      "dropbox App Key",
+      "dropbox App Secret",
       {
         alchemyApiKeys: {
           Arbitrum: "",
@@ -249,6 +252,15 @@ export class ConfigProvider
       overrides.primaryInfuraKey ?? this.config.apiKeys.primaryInfuraKey;
     this.config.apiKeys.secondaryInfuraKey =
       overrides.secondaryInfuraKey ?? this.config.apiKeys.secondaryInfuraKey;
+
+    this.config.dropboxAppKey =
+      overrides.dropboxAppKey ?? this.config.dropboxAppKey;
+
+    this.config.dropboxAppSecret =
+      overrides.dropboxAppKey ?? this.config.dropboxAppSecret;
+
+    this.config.cloudStorageKey =
+      overrides.cloudStorageKey ?? this.config.cloudStorageKey;
 
     this.config.cloudStorageKey =
       overrides.cloudStorageKey ?? this.config.cloudStorageKey;

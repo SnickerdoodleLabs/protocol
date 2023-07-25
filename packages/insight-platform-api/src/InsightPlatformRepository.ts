@@ -20,7 +20,6 @@ import {
   Signature,
   TokenId,
   URLString,
-  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -42,6 +41,7 @@ import {
   IReceivePreviewsParams,
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
+import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -111,6 +111,37 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         );
       });
   }
+
+  public getAuthToken(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<URLString, AjaxError> {
+    const signableData = {
+      fileName: fileName,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        signedUrlTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getAuthToken"));
+        const postBody = {
+          fileName: fileName,
+          signature: signature,
+        } as ISignedUrlParams;
+        return this.ajaxUtils.post<URLString>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
+      });
+  }
+
+
   //
   public receivePreviews(
     consentContractAddress: EVMContractAddress,

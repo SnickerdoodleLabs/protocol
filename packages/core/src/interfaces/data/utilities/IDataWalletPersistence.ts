@@ -34,14 +34,12 @@ export interface IDataWalletPersistence {
    */
 
   readBeforeUnlock<T extends VersionedObject>(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   writeBeforeUnlock<T extends VersionedObject>(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError>;
+  ): ResultAsync<void, PersistenceError>;
 
   unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;

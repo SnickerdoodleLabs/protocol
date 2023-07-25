@@ -75,6 +75,7 @@ import {
   ICloudStorage,
   GoogleCloudStorage,
   IGoogleCloudStorageType,
+  DropboxCloudStorage,
   IDropboxCloudStorageType,
 } from "@snickerdoodlelabs/persistence";
 import {

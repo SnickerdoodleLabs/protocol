@@ -87,17 +87,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     TODO: Reading and Writing Before Unlock() - passed from the cloud storage techniques
   */
   public readBeforeUnlock<T extends VersionedObject>(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.cloudStorage.readBeforeUnlock();
+  ): ResultAsync<void, PersistenceError> {
+    return this.cloudStorage.readBeforeUnlock(key);
   }
 
   public writeBeforeUnlock<T extends VersionedObject>(
-    name: ERecordKey,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.cloudStorage.writeBeforeUnlock();
+  ): ResultAsync<void, PersistenceError> {
+    return this.cloudStorage.writeBeforeUnlock(key);
   }
 
   // #region Field Methods
