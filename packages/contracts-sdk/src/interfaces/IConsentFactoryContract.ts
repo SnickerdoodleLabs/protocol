@@ -43,11 +43,11 @@ export interface IConsentFactoryContract extends IBaseContract {
    * @param baseUri URI for consent contract
    * @param name Name of the consent contract
    */
-  estimateGasToCreateConsent(
+   estimateGasToCreateConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError>;
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError | BlockchainCommonErrors>
 
   /**
    *  Return the number Consent addresses that user has deployed

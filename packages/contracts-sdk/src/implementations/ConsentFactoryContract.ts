@@ -70,11 +70,12 @@ export class ConsentFactoryContract
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError> {
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.estimateGas["createConsent"](ownerAddress, baseUri, name),
       (e) => {
-        return new ConsentFactoryContractError(
+        return this.generateError(
+          e,
           `Failed to estimate gas with error: ${e}`,
         );
       },

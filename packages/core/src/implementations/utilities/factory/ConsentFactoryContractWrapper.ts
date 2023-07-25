@@ -61,7 +61,7 @@ export class ConsentFactoryContractWrapper
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError> {
+  ): ResultAsync<ethers.BigNumber, ConsentFactoryContractError | BlockchainCommonErrors> {
     return this.fallback(
       () =>
         this.primary.estimateGasToCreateConsent(ownerAddress, baseUri, name),
