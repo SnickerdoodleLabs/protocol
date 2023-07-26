@@ -52,6 +52,11 @@ const envVars = {
   __DOMAIN_FILTER__: "(localhost|chrome://)",
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "prod-qkppf-sdl-dw",
+  __DROPBOX_CLOUD_BUCKET__: "snickerdoodle-dev",
+
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.dev.snickerdoodle.dev",
 };
 

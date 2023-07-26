@@ -7,6 +7,7 @@ import {
   ERecordKey,
   VolatileStorageKey,
   StorageKey,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
@@ -19,7 +20,11 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
-  constructor() {} // protected storageUtils: IStorageUtils, // @inject(IStorageUtilsType)
+  constructor() { } // protected storageUtils: IStorageUtils, // @inject(IStorageUtilsType)
+
+  public type(): ECloudStorageType {
+    return ECloudStorageType.Local_Only;
+  }
 
   public readBeforeUnlock(
     key: VolatileStorageKey,

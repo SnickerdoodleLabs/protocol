@@ -154,10 +154,8 @@ var options = {
       /* CLOUD STORAGE SELECTION */
       __CLOUD_STORAGE_KEY__: JSON.stringify(process.env.__CLOUD_STORAGE_KEY__),
 
-      /* ALCHEMY API KEYS to PASS IN */
+      /* DROPBOX APP KEY AND SECRET to PASS IN: REQUIRED FOR LOGIN */
       __DROPBOX_APP_KEY__: JSON.stringify(process.env.__DROPBOX_APP_KEY__),
-
-      /* ALCHEMY API KEYS to PASS IN */
       __DROPBOX_APP_SECRET__: JSON.stringify(
         process.env.__DROPBOX_APP_SECRET__,
       ),
@@ -275,9 +273,8 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: `./src/manifest/${
-            process.env.__MANIFEST_VERSION__ || "v3"
-          }/base.json`,
+          from: `./src/manifest/${process.env.__MANIFEST_VERSION__ || "v3"
+            }/base.json`,
           to: path.join(__dirname, "build/manifest.json"),
           force: true,
           transform: function (content, path) {
@@ -286,17 +283,16 @@ var options = {
                 merge(
                   JSON.parse(content.toString()),
                   fileSystem.readJSONSync(
-                    `./src/manifest/${
-                      process.env.__MANIFEST_VERSION__ || "v3"
+                    `./src/manifest/${process.env.__MANIFEST_VERSION__ || "v3"
                     }/${process.env.__PLATFORM__ || "chrome"}.json`,
                   ),
                   {
                     ...((process.env.__MANIFEST_VERSION__ || "v3") === "v3"
                       ? {
-                          host_permissions: [
-                            process.env.__ACCOUNT_COOKIE_URL__,
-                          ],
-                        }
+                        host_permissions: [
+                          process.env.__ACCOUNT_COOKIE_URL__,
+                        ],
+                      }
                       : { permissions: [process.env.__ACCOUNT_COOKIE_URL__] }),
                   },
                 ),

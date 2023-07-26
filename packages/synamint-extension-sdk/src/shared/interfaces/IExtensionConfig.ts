@@ -57,6 +57,9 @@ export interface IExtensionConfig extends IExtensionConfigDefaults {
   primaryInfuraKey?: string;
   secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
+
+  dropboxAppKey?: string;
+  dropboxAppSecret?: string;
 }
 
 export interface IExtensionConfigOverrides {

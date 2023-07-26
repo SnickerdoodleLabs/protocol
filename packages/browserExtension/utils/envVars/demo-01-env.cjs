@@ -45,13 +45,16 @@ const envVars = {
   __PRIMARY_INFURA_KEY__: "a8ae124ed6aa44bb97a7166cda30f1bc",
   __SECONDARY_INFURA_KEY__: "",
 
-
   __PORTFOLIO_POLLING_INTERVAL__: "",
   __TRANSACTION_POLLING_INTERVAL__: "",
   __BACKUP_POLLING_INTERVAL__: "",
   __DOMAIN_FILTER__: "(localhost|chrome://)",
   __DNS_SERVER_ADDRESS__: "",
   __GOOGLE_CLOUD_BUCKET__: "demo-01-fcszy-sdl-dw",
+
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+
   __DEV_CHAIN_PROVIDER_URL__: "https://doodlechain.demo-01.snickerdoodle.dev",
 };
 

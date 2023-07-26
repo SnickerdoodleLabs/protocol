@@ -35,6 +35,7 @@ import {
 } from "@synamint-extension-sdk/core/interfaces/utilities";
 import { ExtensionUtils } from "@synamint-extension-sdk/extensionShared";
 import { IExtensionConfigOverrides } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
+import { DropboxCloudStorage, GoogleCloudStorage } from "@snickerdoodlelabs/persistence";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -83,6 +84,10 @@ export class ExtensionCore {
       domainFilter: config.domainFilter,
       defaultGoogleCloudBucket: config.defaultGoogleCloudBucket,
       defaultDropboxCloudBucket: config.defaultDropboxCloudBucket,
+
+      dropboxAppKey: config.dropboxAppKey,
+      dropboxAppSecret: config.dropboxAppSecret,
+
       enableBackupEncryption: config.enableBackupEncryption,
       discordOverrides: config.discordOverrides,
       twitterOverrides: config.twitterOverrides,
@@ -91,16 +96,29 @@ export class ExtensionCore {
       devChainProviderURL: config.devChainProviderURL,
     } as IConfigOverrides;
 
-    console.log("defaultGoogleCloudBucket: " + config.defaultGoogleCloudBucket);
+    let cloudStorage = undefined;
+    console.log("coreConfig.dropboxAppKey: " + coreConfig.dropboxAppKey);
+    console.log("coreConfig.dropboxAppSecret: " + coreConfig.dropboxAppSecret);
+    console.log("defaultGoogleCloudBucket: " + coreConfig.defaultGoogleCloudBucket);
     console.log(
-      "defaultDropboxCloudBucket: " + config.defaultDropboxCloudBucket,
+      "defaultDropboxCloudBucket: " + coreConfig.defaultDropboxCloudBucket,
     );
+
+    if (coreConfig.dropboxAppKey !== undefined && coreConfig.dropboxAppSecret !== undefined) {
+      // Attempt to connect to dropbox
+      // cloudStorage = new DropboxCloudStorage();
+    }
+
+    if (coreConfig.dropboxAppKey !== undefined && coreConfig.dropboxAppSecret !== undefined) {
+      // Attempt to connect to dropbox
+      // cloudStorage = new DropboxCloudStorage();
+    }
 
     this.core = new SnickerdoodleCore(
       coreConfig,
       new ChromeStorageUtils(),
       undefined,
-      undefined,
+      cloudStorage,
     );
 
     // Make the core directly injectable
@@ -126,7 +144,7 @@ export class ExtensionCore {
       browserTabListener.initialize(),
       errorListener.initialize(),
       portConnectionListener.initialize(),
-    ]).map(() => {});
+    ]).map(() => { });
   }
 
   private tryUnlock(): ResultAsync<void, Error> {

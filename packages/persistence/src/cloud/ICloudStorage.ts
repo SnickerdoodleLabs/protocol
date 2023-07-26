@@ -7,14 +7,26 @@ import {
   DataWalletBackupID,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
+  /**
+   * Returns the ECloudStorageType of the cloud storage we use
+   */
+  type(): ECloudStorageType;
+
+  /**
+   * Reads file data before we unlock
+   */
   readBeforeUnlock(
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError>;
 
+  /**
+   * Writes file data before we unlock
+   */
   writeBeforeUnlock(
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError>;

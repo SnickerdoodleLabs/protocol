@@ -513,6 +513,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
+    /* Cloud Storage Options */
     bind<ICloudStorage>(IGoogleCloudStorageType)
       .to(GoogleCloudStorage)
       .inSingletonScope();

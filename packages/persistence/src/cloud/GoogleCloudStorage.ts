@@ -60,6 +60,10 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
+  public type(): ECloudStorageType {
+    return ECloudStorageType.Snickerdoodle;
+  }
+
   public readBeforeUnlock(
     key: VolatileStorageKey,
   ): ResultAsync<void, PersistenceError> {
@@ -354,7 +358,7 @@ class ParsedBackupFileName {
     public timestamp: number,
     public hash: DataWalletBackupID,
     public isField: boolean,
-  ) {}
+  ) { }
 
   public static parse(path: string): ParsedBackupFileName | null {
     const name = path.split(/[/ ]+/).pop();

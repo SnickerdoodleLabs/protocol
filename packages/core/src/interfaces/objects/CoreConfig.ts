@@ -80,7 +80,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
-  ) {}
+  ) { }
 }
 
 export class MetatransactionGasAmounts {
@@ -90,5 +90,5 @@ export class MetatransactionGasAmounts {
     public optInGas: number,
     public optOutGas: number,
     public updateAgreementFlagsGas: number,
-  ) {}
+  ) { }
 }

@@ -192,13 +192,25 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
+    /*
+      Selecting a cloud storage option: 
+      1. If Dropbox credentials are passed in, examine those credentials first. If login is successful, then use that. 
+      2. If Dropbox credentials are not given or if login fails, then look for Google Cloud Storage credentials.  If GCP login is succesful, then use that. 
+      3. If neither Dropbox credentials nor GCP credentials are provided or both fail login attempts, use default GCP.  
+    */
+
+    new CloudStorageParams;
+
     if (cloudStorage != null) {
+      console.log("cloudStorage selection: " + cloudStorage.type());
+      if (cloudStorage.type() == "Dropbox") {
+        console.log("cloudStorage dropbox selected: ");
+      }
+
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        // .to(NullCloudStorage)
-        // .to(GoogleCloudStorage)
         .to(GoogleCloudStorage)
         .inSingletonScope();
     }
@@ -325,7 +337,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => {});
+          .map(() => { });
       },
 
       addAccount: (
@@ -451,7 +463,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => {});
+          .map(() => { });
       },
 
       addPassword: (

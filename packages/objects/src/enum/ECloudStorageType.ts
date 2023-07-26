@@ -1,5 +1,5 @@
 export enum ECloudStorageType {
-  Snickerdoodle,
-  Dropbox,
-  Local_Only,
+  Snickerdoodle = "Snickerdoodle",
+  Dropbox = "Dropbox",
+  Local_Only = "null",
 }
