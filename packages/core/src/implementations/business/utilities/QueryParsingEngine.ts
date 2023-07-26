@@ -110,7 +110,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
-  public constructPossibleRewardsFromQuery(
+  // This method only calculates possible rewards from the query itself.
+  // Useful for showing user possible rewards
+  public constructPossibleRewardsFronQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],
@@ -125,67 +127,23 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | PersistenceError
     | EvalNotImplementedError
   > {
-    return this.getPossibleQueryDeliveryItems(query).andThen(
-      (queryDeliveryItems) => {
-        return this.queryUtils
-          .getCompensationsToDispense(query.query, queryDeliveryItems)
-          .andThen((compensationKeys) => {
-            const insightAndAdKeys =
-              this.getInsightAndAdKeys(queryDeliveryItems);
-            return this.queryUtils.filterCompensationsForPreviews(
-              query.cid,
-              query.query,
-              compensationKeys,
-              insightAndAdKeys,
-            );
-          });
-      },
-    );
-  }
+    return this.parseQuery(query).andThen((ast) => {
+      const compensationKeys: CompensationKey[] = [
+        ...ast.compensations.keys(),
+      ].map((compKey) => CompensationKey(compKey));
 
-  public getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-  ): ResultAsync<
-    IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
-  > {
-    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
-  }
+      const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
+        (insightKey) => InsightKey(insightKey),
+      );
 
-  private getInsightAndAdKeys({
-    ads,
-    insights,
-  }: IQueryDeliveryItems): (InsightKey | AdKey)[] {
-    const answeredInsightAndAdKeys: (InsightKey | AdKey)[] = [];
-
-    if (ads) {
-      Object.entries(ads).forEach(([adKey, adValue]) => {
-        if (adValue !== null) {
-          answeredInsightAndAdKeys.push(AdKey(adKey));
-        }
-      }, []);
-    }
-
-    if (insights) {
-      Object.entries(insights).forEach(([insightKey, insightValue]) => {
-        if (insightValue !== null) {
-          answeredInsightAndAdKeys.push(InsightKey(insightKey));
-        }
-      });
-    }
-
-    return answeredInsightAndAdKeys;
+      const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
+      return this.queryUtils.filterCompensationsForPreviews(
+        query.cid,
+        query.query,
+        compensationKeys,
+        [...insightKeys, ...adKeys],
+      );
+    });
   }
 
   protected gatherDeliveryItems(

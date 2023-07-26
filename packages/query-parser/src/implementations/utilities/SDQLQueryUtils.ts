@@ -263,7 +263,7 @@ export class SDQLQueryUtils implements ISDQLQueryUtils {
               cid,
               CompensationKey(activeCompensationKeys[currentIndex]),
               this.getSubQueryDependicies(compensationQueryDependency),
-              compensation.rewardName,
+              compensation.name,
               compensation.image,
               compensation.description,
               compensation.chainId,
