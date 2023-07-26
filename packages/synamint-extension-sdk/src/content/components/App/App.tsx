@@ -102,9 +102,10 @@ const connect = () => {
         if (!extensionConfig) {
           extensionConfig = config;
         }
-        if (new URL(config.onboardingUrl).origin === window.location.origin) {
-          DataWalletProxyInjectionUtils.inject(config.providerKey || "");
-        }
+        // inject the proxy to any domain
+        // there is no blacklist for now
+        // we should have soon
+        DataWalletProxyInjectionUtils.inject(config.providerKey || "");
       },
     );
   } else {
@@ -112,36 +113,25 @@ const connect = () => {
     eventEmitter.update(streamMiddleware.events);
   }
 
-  (extensionConfig ? okAsync(extensionConfig) : coreGateway.getConfig()).map(
-    (config) => {
-      if (!extensionConfig) {
-        extensionConfig = config;
-      }
-      if (new URL(config.onboardingUrl).origin === window.location.origin) {
-        {
-          const postMessageStream = new LocalMessageStream({
-            name: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
-            target: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
-          });
-          const pageMux = new ObjectMultiplex();
-          pump(pageMux, postMessageStream, pageMux);
-          const pageStreamChannel = pageMux.createStream(
-            ONBOARDING_PROVIDER_SUBSTREAM,
-          );
-          const extensionStreamChannel = extensionMux.createStream(
-            ONBOARDING_PROVIDER_SUBSTREAM,
-          );
-          pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
-          extensionMux.on("finish", () => {
-            document.dispatchEvent(
-              new CustomEvent(`extension-stream-channel-closed${appID}`),
-            );
-            pageMux.destroy();
-          });
-        }
-      }
-    },
+  // before creating message stream we also need to check the blacklist once we have it
+  const postMessageStream = new LocalMessageStream({
+    name: `${CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+    target: `${ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER}${appID}`,
+  });
+  const pageMux = new ObjectMultiplex();
+  pump(pageMux, postMessageStream, pageMux);
+  const pageStreamChannel = pageMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM);
+  const extensionStreamChannel = extensionMux.createStream(
+    ONBOARDING_PROVIDER_SUBSTREAM,
   );
+  pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
+  extensionMux.on("finish", () => {
+    document.dispatchEvent(
+      new CustomEvent(`extension-stream-channel-closed${appID}`),
+    );
+    pageMux.destroy();
+  });
+
   // keep service worker alive
   if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
