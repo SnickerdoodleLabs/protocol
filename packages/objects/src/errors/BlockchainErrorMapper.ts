@@ -104,49 +104,56 @@ export class BlockchainErrorMapper {
     ) => TGenericError,
   ): BlockchainCommonErrors | TGenericError {
     // First check if error message is a ProviderError as some errors are triggered at the provider level rather than contract level
-    let providerError;
+    try {
+      let providerError;
 
-    if (error?.name == "ProviderError") {
-      providerError = this.getSpecificProviderError(error);
+      if (error?.name == "ProviderError") {
+        providerError = this.getSpecificProviderError(error);
+      }
+
+      let errorReason = error?.reason;
+      let errorMessage = error?.message || error?.msg;
+
+      const errorInitializerFromProviderError = this.blockchainErrorMapping.get(
+        this.getErrorKey(providerError),
+      );
+
+      const errorInitializerFromReason = this.blockchainErrorMapping.get(
+        this.getErrorKey(errorReason),
+      );
+
+      const errorInitializerFromMessage = this.blockchainErrorMapping.get(
+        this.getErrorKey(errorMessage),
+      );
+
+      if (errorInitializerFromProviderError != null) {
+        return errorInitializerFromProviderError?.(error);
+      }
+
+      if (errorInitializerFromReason != null) {
+        return errorInitializerFromReason?.(error);
+      }
+
+      if (errorInitializerFromMessage != null) {
+        return errorInitializerFromMessage?.(error);
+      }
+
+      // If all above are null, then we don't know what the error is
+      if (generateGenericError != null) {
+        return generateGenericError(errorMessage, errorReason, error);
+      }
+
+      return new UnknownBlockchainError(errorReason || errorMessage, error);
+    } catch (e: any) {
+      return new UnknownBlockchainError(
+        `Error occurred while running buildBlockchainError ${e}`,
+        e,
+      );
     }
-
-    let errorReason = error?.reason;
-    let errorMessage = error?.message || error?.msg;
-
-    const errorInitializerFromProviderError = this.blockchainErrorMapping.get(
-      this.getErrorKey(providerError),
-    );
-
-    const errorInitializerFromReason = this.blockchainErrorMapping.get(
-      this.getErrorKey(errorReason),
-    );
-
-    const errorInitializerFromMessage = this.blockchainErrorMapping.get(
-      this.getErrorKey(errorMessage),
-    );
-
-    if (errorInitializerFromProviderError != null) {
-      return errorInitializerFromProviderError?.(error);
-    }
-
-    if (errorInitializerFromReason != null) {
-      return errorInitializerFromReason?.(error);
-    }
-
-    if (errorInitializerFromMessage != null) {
-      return errorInitializerFromMessage?.(error);
-    }
-
-    // If all above are null, then we don't know what the error is
-    if (generateGenericError != null) {
-      return generateGenericError(errorMessage, errorReason, error);
-    }
-
-    return new UnknownBlockchainError(errorReason || errorMessage, error);
   }
 
-  protected static getErrorKey(errorString: string): string {
-    errorString = errorString.toLowerCase();
+  protected static getErrorKey(errorString: string | undefined): string {
+    errorString = errorString?.toLowerCase() || "";
     Array.from(this.blockchainErrorMapping.keys()).forEach((key) => {
       if (errorString?.includes(key.toLowerCase())) {
         errorString = key;
