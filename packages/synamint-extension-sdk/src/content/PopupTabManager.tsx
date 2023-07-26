@@ -109,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     zIndex: 9999999999,
     top: "50%",
-    transform: "translateY(-50%)",
+    transform: "translateY(-50%) !important",
     left: 0,
   },
   name: {
