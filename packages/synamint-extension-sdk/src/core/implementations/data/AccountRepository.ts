@@ -10,7 +10,7 @@ import {
   LanguageCode,
   LinkedAccount,
   Signature,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -67,7 +67,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    TokenBalance[],
+    TokenBalanceWithOwnerAddress[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {

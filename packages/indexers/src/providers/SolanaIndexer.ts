@@ -10,7 +10,7 @@ import {
   AjaxError,
   ChainId,
   SolanaAccountAddress,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   SolanaNFT,
   SolanaTransaction,
   EChain,
@@ -83,7 +83,10 @@ export class SolanaIndexer implements ISolanaIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    AccountIndexingError | AjaxError
+  > {
     // return okAsync([]);
     return ResultUtils.combine([
       this.getNonNativeBalance(chainId, accountAddress),
@@ -192,7 +195,10 @@ export class SolanaIndexer implements ISolanaIndexer {
   private getNonNativeBalance(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    AccountIndexingError | AjaxError
+  > {
     return this._getParsedAccounts(chainId, accountAddress)
       .andThen((accounts) => {
         return ResultUtils.combine(
@@ -203,31 +209,36 @@ export class SolanaIndexer implements ISolanaIndexer {
                 if (tokenInfo == null) {
                   return null;
                 }
-                return new TokenBalance(
+                return new TokenBalanceWithOwnerAddress(
                   EChainTechnology.Solana,
                   tokenInfo.symbol,
                   chainId,
-                  tokenInfo.address,
-                  accountAddress,
+                  tokenInfo.address ?? "Native",
                   BigNumberString(
                     BigNumber.from(
                       account.data["parsed"]["info"]["tokenAmount"]["amount"],
                     ).toString(),
                   ),
                   account.data["parsed"]["info"]["tokenAmount"]["decimals"],
+                  accountAddress,
                 );
               });
           }),
         );
       })
       .map((balances) => {
-        return balances.filter((obj) => obj != null) as TokenBalance[];
+        return balances.filter(
+          (obj) => obj != null,
+        ) as TokenBalanceWithOwnerAddress[];
       });
   }
   private getNativeBalance(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress,
+    AccountIndexingError | AjaxError
+  > {
     const publicKey = new PublicKey(accountAddress);
     return ResultUtils.combine([
       this._getConnectionForChainId(chainId),
@@ -244,14 +255,14 @@ export class SolanaIndexer implements ISolanaIndexer {
         });
       })
       .map((balance) => {
-        const nativeBalance = new TokenBalance(
+        const nativeBalance = new TokenBalanceWithOwnerAddress(
           EChainTechnology.Solana,
           TickerSymbol("SOL"),
           chainId,
-          null,
-          accountAddress,
+          "Native",
           BigNumberString(BigNumber.from(balance).toString()),
           getChainInfoByChainId(chainId).nativeCurrency.decimals,
+          accountAddress,
         );
         return nativeBalance;
       });

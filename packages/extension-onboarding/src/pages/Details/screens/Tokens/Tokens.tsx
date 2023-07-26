@@ -262,14 +262,13 @@ export default () => {
       }
       if (accountSelect && !chainSelect) {
         return balanceArr
-          .filter((item) => item.accountAddress === accountSelect)
+          .filter((item) => item.ownerAddress === accountSelect)
           .sort((a, b) => b.quoteBalance - a.quoteBalance);
       }
       return balanceArr
         .filter(
           (item) =>
-            item.accountAddress === accountSelect &&
-            item.chainId === chainSelect,
+            item.ownerAddress === accountSelect && item.chainId === chainSelect,
         )
         .sort((a, b) => b.quoteBalance - a.quoteBalance);
     } else {

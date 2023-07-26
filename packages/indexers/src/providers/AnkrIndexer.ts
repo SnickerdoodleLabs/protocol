@@ -11,10 +11,8 @@ import {
   AccountIndexingError,
   AjaxError,
   ChainId,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   BigNumberString,
-  ITokenPriceRepositoryType,
-  ITokenPriceRepository,
   EVMAccountAddress,
   EVMContractAddress,
   EChain,
@@ -98,8 +96,6 @@ export class AnkrIndexer implements IEVMIndexer {
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(IIndexerContextProviderType)
     protected contextProvider: IIndexerContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -112,7 +108,10 @@ export class AnkrIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    AccountIndexingError | AjaxError
+  > {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -141,14 +140,14 @@ export class AnkrIndexer implements IEVMIndexer {
           return ResultUtils.combine(
             response.result.assets.map((item) => {
               return okAsync(
-                new TokenBalance(
+                new TokenBalanceWithOwnerAddress(
                   EChainTechnology.EVM,
                   item.tokenSymbol,
                   chainId,
-                  null,
-                  accountAddress,
+                  `Native`,
                   BigNumberString("1"),
                   item.tokenDecimals,
+                  accountAddress,
                 ),
               );
             }),
@@ -352,7 +351,7 @@ interface IAnkrBalanceAsset {
   tokenDecimals: number;
   tokenType: "NATIVE";
   holderAddress: EVMAccountAddress;
-  balance: TokenBalance;
+  balance: TokenBalanceWithOwnerAddress;
   balanceRawInteger: "627238654657922210";
   balanceUsd: "1132.318127155933293695";
   tokenPrice: "1805.242898771069514074";

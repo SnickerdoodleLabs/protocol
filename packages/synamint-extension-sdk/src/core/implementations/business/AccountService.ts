@@ -7,7 +7,7 @@ import {
   LanguageCode,
   LinkedAccount,
   Signature,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
@@ -38,7 +38,7 @@ export class AccountService implements IAccountService {
   }
 
   public getAccountBalances(): ResultAsync<
-    TokenBalance[],
+    TokenBalanceWithOwnerAddress[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();

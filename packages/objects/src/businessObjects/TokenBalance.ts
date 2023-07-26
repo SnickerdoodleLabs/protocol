@@ -3,7 +3,6 @@ import { BigNumber, utils } from "ethers";
 import { TokenAddress } from "@objects/businessObjects/TokenAddress.js";
 import { EChainTechnology } from "@objects/enum/index.js";
 import {
-  AccountAddress,
   BigNumberString,
   ChainId,
   TickerSymbol,
@@ -14,8 +13,7 @@ export class TokenBalance {
     public type: EChainTechnology,
     public ticker: TickerSymbol,
     public chainId: ChainId,
-    public tokenAddress: TokenAddress | null, // null implies native
-    public accountAddress: AccountAddress,
+    public tokenAddress: TokenAddress = `native`,
     public balance: BigNumberString,
     public decimals: number,
   ) {}

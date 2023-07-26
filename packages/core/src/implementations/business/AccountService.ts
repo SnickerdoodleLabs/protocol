@@ -24,7 +24,7 @@ import {
   EVMPrivateKey,
   TransactionFilter,
   ExternallyOwnedAccount,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -767,8 +767,11 @@ export class AccountService implements IAccountService {
       });
   }
 
-  public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
-    return this.balanceRepo.getAccountBalances();
+  public getAccountBalances(): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    PersistenceError
+  > {
+    return this.balanceRepo.getAccountBalancesWithOwnerAddress();
   }
 
   public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
@@ -795,7 +798,7 @@ export class AccountService implements IAccountService {
     TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.transactionRepo.getTransactionValueByChain();
+    return this.transactionRepo.getTransactionByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<

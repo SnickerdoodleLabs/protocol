@@ -10,7 +10,7 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   TickerSymbol,
   BigNumberString,
   EChainTechnology,
@@ -97,7 +97,10 @@ export class EtherscanIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    AccountIndexingError | AjaxError
+  > {
     return ResultUtils.combine([
       this.getNonNativeBalance(chain, accountAddress),
       this.getNativeBalance(chain, accountAddress),
@@ -194,7 +197,10 @@ export class EtherscanIndexer implements IEVMIndexer {
   private getNativeBalance(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress,
+    AccountIndexingError | AjaxError
+  > {
     return ResultUtils.combine([
       this._getEtherscanApiKey(chain),
       getEtherscanBaseURLForChain(chain),
@@ -212,14 +218,14 @@ export class EtherscanIndexer implements IEVMIndexer {
         return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
       })
       .map((response) => {
-        const nativeBalance = new TokenBalance(
+        const nativeBalance = new TokenBalanceWithOwnerAddress(
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
           getChainInfoByChain(chain).chainId,
-          null,
-          accountAddress,
+          `Native`,
           BigNumberString(response.result),
           getChainInfoByChain(chain).nativeCurrency.decimals,
+          accountAddress,
         );
         return nativeBalance;
       });
@@ -228,7 +234,10 @@ export class EtherscanIndexer implements IEVMIndexer {
   private getNonNativeBalance(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    AccountIndexingError | AjaxError
+  > {
     if (this.nonNativeSupportCheck.get(chain) == false) {
       return okAsync([]);
     }
@@ -270,14 +279,14 @@ export class EtherscanIndexer implements IEVMIndexer {
             }
 
             return okAsync(
-              new TokenBalance(
+              new TokenBalanceWithOwnerAddress(
                 EChainTechnology.EVM,
                 TickerSymbol(item.TokenSymbol),
                 getChainInfoByChain(chain).chainId,
                 EVMContractAddress(item.TokenAddress),
-                accountAddress,
                 BigNumberString(item.TokenQuantity),
                 Number.parseInt(item.TokenDivisor),
+                accountAddress,
               ),
             );
           }),
@@ -286,7 +295,9 @@ export class EtherscanIndexer implements IEVMIndexer {
 
       .andThen((balances) => {
         return okAsync(
-          balances.filter((x) => x != undefined) as TokenBalance[],
+          balances.filter(
+            (x) => x != undefined,
+          ) as TokenBalanceWithOwnerAddress[],
         );
       });
   }

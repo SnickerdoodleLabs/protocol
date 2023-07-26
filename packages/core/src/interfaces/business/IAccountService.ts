@@ -4,7 +4,7 @@ import {
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   WalletNFT,
   LanguageCode,
   PersistenceError,
@@ -146,7 +146,10 @@ export interface IAccountService {
     sourceDomain: DomainName | undefined,
   ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError>;
 
-  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    PersistenceError
+  >;
 
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   getTranactions(

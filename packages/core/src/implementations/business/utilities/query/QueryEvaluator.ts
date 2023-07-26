@@ -154,7 +154,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           });
       case "chain_transactions":
         return this.transactionRepo
-          .getTransactionValueByChain()
+          .getTransactionByChain()
           .andThen((transactionArray) => {
             return okAsync(SDQL_Return(transactionArray));
           });

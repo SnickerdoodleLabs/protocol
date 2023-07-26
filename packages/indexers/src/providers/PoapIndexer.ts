@@ -14,7 +14,7 @@ import {
   EVMNFT,
   EVMTransaction,
   IEVMIndexer,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   TokenUri,
   MethodSupportError,
   EChain,
@@ -66,7 +66,7 @@ export class PoapRepository implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    TokenBalance[],
+    TokenBalanceWithOwnerAddress[],
     AjaxError | AccountIndexingError | MethodSupportError
   > {
     return errAsync(

@@ -2,10 +2,10 @@ import {
   BigNumberString,
   ChainId,
   EvalNotImplementedError,
-  TokenBalance,
   PersistenceError,
   SDQL_Return,
   TokenAddress,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -130,8 +130,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
             getObject.type,
             getObject.ticker,
             getObject.chainId,
-            getObject.tokenAddress || "NATIVE",
-            getObject.accountAddress,
+            getObject.tokenAddress || "Native",
             BigNumberString(
               BigNumber.from(getObject.balance)
                 .add(BigNumber.from(d.balance))

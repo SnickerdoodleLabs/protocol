@@ -15,7 +15,7 @@ import {
   EVMTransaction,
   getChainInfoByChain,
   IEVMIndexer,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   TokenUri,
   UnixTimestamp,
   MethodSupportError,
@@ -82,7 +82,7 @@ export class NftScanEVMPortfolioRepository implements IEVMIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    TokenBalance[],
+    TokenBalanceWithOwnerAddress[],
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     return errAsync(

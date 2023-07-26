@@ -17,7 +17,7 @@ import {
   DataWalletAddress,
   EInvitationStatus,
   WalletNFT,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   EarnedReward,
   TokenInfo,
   TokenMarketData,
@@ -297,7 +297,10 @@ export class ExternalCoreGateway {
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(new GetAccountsParams());
   }
-  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    JsonRpcError
+  > {
     return this._handler.call(new GetAccountBalancesParams());
   }
 

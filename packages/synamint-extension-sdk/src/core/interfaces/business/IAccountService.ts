@@ -7,7 +7,7 @@ import {
   LanguageCode,
   LinkedAccount,
   Signature,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -32,7 +32,10 @@ export interface IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
+  getAccountBalances(): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    SnickerDoodleCoreError
+  >;
   getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(

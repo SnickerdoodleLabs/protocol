@@ -14,7 +14,7 @@ import {
   PossibleReward,
   SiteVisit,
   TokenAddress,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   TokenInfo,
   TokenMarketData,
   TwitterProfile,
@@ -97,7 +97,10 @@ export interface ISdlDataWallet extends EventEmitter {
     chainId: ChainId,
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, JsonRpcError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
+  getAccountBalances(): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    JsonRpcError
+  >;
   getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
   closeTab(): ResultAsync<void, JsonRpcError>;
   getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;

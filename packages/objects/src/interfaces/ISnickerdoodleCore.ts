@@ -21,7 +21,7 @@ import {
   SDQLQuery,
   SiteVisit,
   TokenAddress,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
@@ -857,7 +857,10 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
+  ): ResultAsync<
+    TokenBalanceWithOwnerAddress[],
+    PersistenceError | UnauthorizedError
+  >;
   getAccountNFTs(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;

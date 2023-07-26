@@ -6,7 +6,7 @@ import {
 import {
   ChainId,
   LinkedAccount,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   PersistenceError,
   WalletNFT,
   AccountIndexingError,
@@ -15,8 +15,6 @@ import {
   isAccountValidForChain,
   AccountAddress,
   EVMAccountAddress,
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
   PortfolioUpdate,
   IMasterIndexerType,
   IMasterIndexer,
@@ -27,6 +25,7 @@ import {
   EVMNFT,
   BigNumberString,
   URLString,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -54,7 +53,7 @@ import {
 export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _balanceCache?: ResultAsync<
     PortfolioCache<
-      TokenBalance[],
+      TokenBalanceWithOwnerAddress[],
       PersistenceError | AccountIndexingError | AjaxError
     >,
     never
@@ -71,8 +70,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
-    @inject(ITokenPriceRepositoryType)
-    protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILinkedAccountRepositoryType)
     protected accountRepo: ILinkedAccountRepository,
     @inject(IDataWalletPersistenceType)
@@ -92,11 +89,13 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     });
   }
 
-  public getAccountBalances(
+  // Do not use this on query evaluation, it holds the account address
+  // It is being used by the spa
+  public getAccountBalancesWithOwnerAddress(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
-    filterEmpty = true,
-  ): ResultAsync<TokenBalance[], PersistenceError> {
+    filterEmpty?: boolean,
+  ): ResultAsync<TokenBalanceWithOwnerAddress[], PersistenceError> {
     return ResultUtils.combine([
       this.accountRepo.getAccounts(),
       this.configProvider.getConfig(),
@@ -125,6 +124,19 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         });
       })
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
+  }
+
+  getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], PersistenceError> {
+    return this.getAccountBalancesWithOwnerAddress(chains, accounts).map(
+      (tokenBalance) => {
+        return tokenBalance.map(
+          ({ ownerAddress, ...restOfBalance }) => restOfBalance,
+        );
+      },
+    );
   }
 
   public getAccountNFTs(
@@ -163,7 +175,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     chainId: ChainId,
     accountAddress: AccountAddress,
   ): ResultAsync<
-    TokenBalance[],
+    TokenBalanceWithOwnerAddress[],
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   > {
     return ResultUtils.combine([
@@ -287,7 +299,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
 
   private _getBalanceCache(): ResultAsync<
     PortfolioCache<
-      TokenBalance[],
+      TokenBalanceWithOwnerAddress[],
       PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
     >,
     never
@@ -299,7 +311,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     this._balanceCache = this.configProvider.getConfig().andThen((config) => {
       return okAsync(
         new PortfolioCache<
-          TokenBalance[],
+          TokenBalanceWithOwnerAddress[],
           PersistenceError | AccountIndexingError | AjaxError
         >(config.accountBalancePollingIntervalMS),
       );

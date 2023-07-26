@@ -73,7 +73,7 @@ import {
   Signature,
   SiteVisit,
   TokenAddress,
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   TokenInfo,
   TokenMarketData,
   TransactionFilter,
@@ -958,7 +958,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getAccountBalances(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<TokenBalance[], PersistenceError> {
+  ): ResultAsync<TokenBalanceWithOwnerAddress[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();

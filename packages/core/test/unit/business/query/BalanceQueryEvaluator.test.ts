@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import {
-  TokenBalance,
+  TokenBalanceWithOwnerAddress,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
@@ -82,9 +82,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalancesWithOwnerAddress()).thenReturn(
       okAsync(
-        new Array<TokenBalance | any>(
+        new Array<TokenBalanceWithOwnerAddress | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -173,9 +173,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalancesWithOwnerAddress()).thenReturn(
       okAsync(
-        new Array<TokenBalance | any>(
+        new Array<TokenBalanceWithOwnerAddress | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -252,9 +252,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalancesWithOwnerAddress()).thenReturn(
       okAsync(
-        new Array<TokenBalance | any>(
+        new Array<TokenBalanceWithOwnerAddress | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -321,9 +321,9 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalancesWithOwnerAddress()).thenReturn(
       okAsync(
-        new Array<TokenBalance | any>(
+        new Array<TokenBalanceWithOwnerAddress | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
@@ -402,9 +402,9 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalancesWithOwnerAddress()).thenReturn(
       okAsync(
-        new Array<TokenBalance | any>(
+        new Array<TokenBalanceWithOwnerAddress | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
