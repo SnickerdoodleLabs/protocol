@@ -1,7 +1,8 @@
 import errorCodes from "@objects/errors/errorCodes.js";
 import { ProviderRpcError } from "@objects/errors/ProviderRpcError.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class RewardsFactoryError extends Error {
+export class RewardsFactoryError extends BaseError {
   protected errorCode: string = errorCodes[RewardsFactoryError.name];
   constructor(
     message?: string,
@@ -10,6 +11,10 @@ export class RewardsFactoryError extends Error {
   ) {
     super(
       `${message} ${(src as any)?.reason ? `: ${(src as any)?.reason}` : ``}`,
+      500,
+      errorCodes[RewardsFactoryError.name],
+      src,
+      false,
     );
   }
 }

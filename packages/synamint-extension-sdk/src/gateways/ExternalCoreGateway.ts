@@ -40,6 +40,7 @@ import {
   OAuthVerifier,
   TokenAndSecret,
   SiteVisit,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -117,6 +118,7 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -402,6 +404,12 @@ export class ExternalCoreGateway {
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
     return this._handler.call(new GetEarnedRewardsParams());
+  }
+
+  public getQueryStatusByQueryCID(
+    params: GetQueryStatusByCidParams,
+  ): ResultAsync<QueryStatus | null, JsonRpcError> {
+    return this._handler.call(params);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError> {

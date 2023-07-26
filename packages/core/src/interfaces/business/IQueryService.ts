@@ -1,9 +1,8 @@
 import {
-  AdKey,
   AjaxError,
+  BlockchainCommonErrors,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   ConsentToken,
   DuplicateIdInSchema,
@@ -12,6 +11,7 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
+  IpfsCID,
   IPFSError,
   MissingASTError,
   MissingTokenConstructorError,
@@ -20,6 +20,7 @@ import {
   PossibleReward,
   QueryExpiredError,
   QueryFormatError,
+  QueryStatus,
   RequestForData,
   SDQLQuery,
   ServerRewardError,
@@ -56,6 +57,7 @@ export interface IQueryService {
     | PersistenceError
     | EvalNotImplementedError
     | MissingASTError
+    | BlockchainCommonErrors
   >;
 
   approveQuery(
@@ -82,6 +84,7 @@ export interface IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 
   getPossibleRewards(
@@ -106,6 +109,10 @@ export interface IQueryService {
     | EvalNotImplementedError
     | MissingASTError
   >;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

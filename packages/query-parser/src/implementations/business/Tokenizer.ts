@@ -79,7 +79,7 @@ export class Tokenizer {
 
   public next(): Token {
     if (!this.hasNext()) {
-      throw new ParserError(this.position, "no more tokens");
+      throw new ParserError(`no more tokens at position ${this.position}`);
     }
 
     for (const rule of rules) {
@@ -98,7 +98,6 @@ export class Tokenizer {
     }
 
     throw new ParserError(
-      this.position,
       `No matching tokens found at ${this.exprStr.slice(this.position)} of ${
         this.exprStr
       }`,

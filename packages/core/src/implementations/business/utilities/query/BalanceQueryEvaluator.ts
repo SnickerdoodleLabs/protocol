@@ -102,7 +102,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
         default:
           console.error("EvalNotImplementedError");
-          throw new EvalNotImplementedError(condition.constructor.name);
+          throw new EvalNotImplementedError(
+            `${condition.constructor.name} not implemented`,
+          );
       }
     }
     return okAsync(balanceArray);

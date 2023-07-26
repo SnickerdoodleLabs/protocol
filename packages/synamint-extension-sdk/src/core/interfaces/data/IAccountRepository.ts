@@ -9,6 +9,8 @@ import {
   Signature,
   TokenBalanceWithOwnerAddress,
   UnauthorizedError,
+  IpfsCID,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -51,6 +53,9 @@ export interface IAccountRepository {
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

@@ -1,12 +1,12 @@
 import {
   DataPermissions,
+  DuplicateIdInSchema,
   EvaluationError,
   ParserError,
   QueryFormatError,
   SDQLQuery,
   IQueryDeliveryItems,
   QueryExpiredError,
-  DuplicateIdInSchema,
   MissingTokenConstructorError,
   EvalNotImplementedError,
   PersistenceError,
@@ -51,7 +51,7 @@ export interface IQueryParsingEngine {
     | MissingASTError
   >;
 
-  constructPossibleRewardsFronQuery(
+  constructPossibleRewardsFromQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],
@@ -65,6 +65,24 @@ export interface IQueryParsingEngine {
     | MissingASTError
     | PersistenceError
     | EvalNotImplementedError
+  >;
+
+  getPossibleQueryDeliveryItems(
+    query: SDQLQuery,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
 }
 

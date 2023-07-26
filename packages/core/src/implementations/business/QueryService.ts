@@ -36,7 +36,6 @@ import {
   ServerRewardError,
   UninitializedError,
   PossibleReward,
-  DataPermissions,
   IQueryDeliveryItems,
   QueryExpiredError,
   ParserError,
@@ -44,6 +43,7 @@ import {
   DuplicateIdInSchema,
   EvalNotImplementedError,
   MissingASTError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -144,6 +144,7 @@ export class QueryService implements IQueryService {
     | PersistenceError
     | EvalNotImplementedError
     | MissingASTError
+    | BlockchainCommonErrors
   > {
     /**
      * TODO
@@ -221,8 +222,14 @@ export class QueryService implements IQueryService {
     ]);
   }
 
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
+  }
+
   /**
-   * THis method assums that the ads are completed if there is any.
+   * This method assums that the ads are completed if there is any.
    * @param consentContractAddress
    * @param query
    * @param rewardParameters
@@ -292,6 +299,7 @@ export class QueryService implements IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     // Step 1, get all queries that are ready to return insights
     this.logUtils.debug(
@@ -359,7 +367,7 @@ export class QueryService implements IQueryService {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
                   this.logUtils.debug(
-                    "Starting queryParsingEngine for query ${query.cid}",
+                    `Starting queryParsingEngine for query ${query.cid}`,
                   );
                   return ResultUtils.combine([
                     this.queryParsingEngine
@@ -390,7 +398,7 @@ export class QueryService implements IQueryService {
                 })
                 .orElse((err) => {
                   if (err instanceof AjaxError) {
-                    if (err.statusCode == 403) {
+                    if (err.code == 403) {
                       // 403 means a response has already been submitted, and we should stop asking
                       queryStatus.status =
                         EQueryProcessingStatus.RewardsReceived;
@@ -462,8 +470,9 @@ export class QueryService implements IQueryService {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    return this.getPossibleQueryDeliveryItems(query).andThen(
-      (queryDeliveryItems) => {
+    return this.queryParsingEngine
+      .getPossibleQueryDeliveryItems(query)
+      .andThen((queryDeliveryItems) => {
         return this.getPossibleRewardsFromIP(
           consentToken,
           optInKey,
@@ -472,8 +481,7 @@ export class QueryService implements IQueryService {
           config,
           queryDeliveryItems,
         );
-      },
-    );
+      });
   }
 
   public createQueryStatusWithNoConsent(
@@ -544,7 +552,7 @@ export class QueryService implements IQueryService {
     eligibleRewards: PossibleReward[],
     accounts: LinkedAccount[],
     context: CoreContext,
-  ): ResultAsync<void, Error> {
+  ): ResultAsync<void, never> {
     // Wrap the query & send to core
     const queryRequest = new SDQLQueryRequest(
       consentContractAddress,
@@ -611,28 +619,5 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
-  }
-
-  protected getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-  ): ResultAsync<
-    IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
-  > {
-    return this.queryParsingEngine.handleQuery(
-      query,
-      DataPermissions.createWithAllPermissions(),
-    );
   }
 }
