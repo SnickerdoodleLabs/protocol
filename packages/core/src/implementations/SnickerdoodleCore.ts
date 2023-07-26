@@ -88,6 +88,7 @@ import {
   IMasterIndexer,
   IAccountMethods,
   PasswordString,
+  QueryStatus,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -824,6 +825,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.approveQuery(consentContractAddress, query, parameters);
+  }
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError> {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.getQueryStatusByQueryCID(queryCID);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

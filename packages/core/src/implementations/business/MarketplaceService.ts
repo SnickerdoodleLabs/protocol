@@ -296,7 +296,7 @@ export class MarketplaceService implements IMarketplaceService {
         if (sdqlQuery == null) {
           return okAsync([]);
         }
-        return this.queryParsingEngine.constructPossibleRewardsFronQuery(
+        return this.queryParsingEngine.constructPossibleRewardsFromQuery(
           sdqlQuery,
         );
       });
