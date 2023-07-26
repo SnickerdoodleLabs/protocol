@@ -97,7 +97,6 @@ export class ExprParserMocks {
   public createCompensation(name: string): AST_Compensation {
     return new AST_Compensation(
       SDQL_Name(name),
-      "default reward",
       "",
       new AST_RequireExpr(SDQL_Name(name), true),
       ISDQLConditionString("True"),

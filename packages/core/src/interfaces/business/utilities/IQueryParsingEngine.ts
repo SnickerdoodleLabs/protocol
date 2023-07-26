@@ -51,7 +51,7 @@ export interface IQueryParsingEngine {
     | MissingASTError
   >;
 
-  constructPossibleRewardsFromQuery(
+  constructPossibleRewardsFronQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],
@@ -65,24 +65,6 @@ export interface IQueryParsingEngine {
     | MissingASTError
     | PersistenceError
     | EvalNotImplementedError
-  >;
-
-  getPossibleQueryDeliveryItems(
-    query: SDQLQuery,
-  ): ResultAsync<
-    IQueryDeliveryItems,
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | ParserError
-    | EvaluationError
-    | QueryFormatError
-    | QueryExpiredError
-    | MissingTokenConstructorError
-    | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
-    | MissingASTError
   >;
 }
 

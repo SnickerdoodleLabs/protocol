@@ -11,7 +11,6 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   IDynamicRewardParameter,
-  IpfsCID,
   IPFSError,
   MissingASTError,
   MissingTokenConstructorError,
@@ -20,7 +19,6 @@ import {
   PossibleReward,
   QueryExpiredError,
   QueryFormatError,
-  QueryStatus,
   RequestForData,
   SDQLQuery,
   ServerRewardError,
@@ -109,10 +107,6 @@ export interface IQueryService {
     | EvalNotImplementedError
     | MissingASTError
   >;
-
-  getQueryStatusByQueryCID(
-    queryCID: IpfsCID,
-  ): ResultAsync<QueryStatus | null, PersistenceError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

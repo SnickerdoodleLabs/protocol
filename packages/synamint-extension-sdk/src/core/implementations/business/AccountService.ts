@@ -9,8 +9,6 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
-  IpfsCID,
-  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
@@ -27,11 +25,6 @@ export class AccountService implements IAccountService {
     @inject(IAccountRepositoryType)
     protected accountRepository: IAccountRepository,
   ) {}
-  getQueryStatusByQueryCID(
-    queryCID: IpfsCID,
-  ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
-    return this.accountRepository.getQueryStatusByQueryCID(queryCID);
-  }
 
   public getEarnedRewards(): ResultAsync<
     EarnedReward[],
