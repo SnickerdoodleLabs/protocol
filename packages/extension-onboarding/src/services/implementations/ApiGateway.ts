@@ -30,7 +30,7 @@ export class ApiGateway {
   public config: ApiGatewayConfig;
   private PIIRepository: IPIIRepository;
   private NFTMetadataRepository: INFTMetadataRepository;
-  private axiosAjaxUtil: IAxiosAjaxUtils;
+  public axiosAjaxUtil: IAxiosAjaxUtils;
   constructor() {
     const configProvider = new ApiGatewayConfigProvider();
     this.config = configProvider.getConfig();
