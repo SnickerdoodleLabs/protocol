@@ -102,11 +102,11 @@ export interface ISdlDataWallet {
   closeTab(): ResultAsync<void, ProxyError>;
   getDataWalletAddress(): ResultAsync<DataWalletAddress | null, ProxyError>;
   getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
   getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   >;
   getInvitationMetadataByCID(
@@ -189,7 +189,7 @@ export interface ISdlDataWallet {
   getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError>;
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
 

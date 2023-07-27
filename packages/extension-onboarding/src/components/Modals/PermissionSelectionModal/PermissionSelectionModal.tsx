@@ -85,7 +85,7 @@ const PermissionSelectionModalV2: FC = () => {
     window.sdlDataWallet
       .getPossibleRewards([consentContractAddress])
       .map((res) => {
-        setPossibleRewards(res[consentContractAddress] ?? []);
+        setPossibleRewards(res.get(consentContractAddress) ?? []);
       });
   }, []);
 

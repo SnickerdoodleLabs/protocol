@@ -131,10 +131,11 @@ const Permissions: FC<IPermissionsProps> = ({
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
-    ]).map(([earnedRewards, possibleRewardsRec]) => {
+    ]).map(([earnedRewards, possibleRewards]) => {
       setRewards({
         earnedRewards,
-        possibleRewards: possibleRewardsRec[domainDetails.consentAddress] ?? [],
+        possibleRewards:
+          possibleRewards.get(domainDetails.consentAddress) ?? [],
       });
     });
   }, [isUnlocked]);

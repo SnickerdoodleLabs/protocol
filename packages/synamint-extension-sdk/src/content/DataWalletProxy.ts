@@ -528,7 +528,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
     return coreGateway.getPossibleRewards(
       new GetPossibleRewardsParams(contractAddresses, timeoutMs),
     );

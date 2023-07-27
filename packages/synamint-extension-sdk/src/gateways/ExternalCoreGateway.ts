@@ -120,6 +120,7 @@ import {
   GetUnlockedParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
+import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 
 export class ExternalCoreGateway {
   public discord: ISdlDiscordMethods;
@@ -205,10 +206,14 @@ export class ExternalCoreGateway {
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._handler.call(new GetAvailableInvitationsCIDParams());
+    return this._handler
+      .call(new GetAvailableInvitationsCIDParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public acceptInvitation(
@@ -257,10 +262,14 @@ export class ExternalCoreGateway {
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
-    return this._handler.call(new GetAcceptedInvitationsCIDParams());
+    return this._handler
+      .call(new GetAcceptedInvitationsCIDParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public getInvitationMetadataByCID(
@@ -405,7 +414,11 @@ export class ExternalCoreGateway {
   }
 
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
-    return this._handler.call(new GetSiteVisitsMapParams());
+    return this._handler
+      .call(new GetSiteVisitsMapParams())
+      .map((jsonString) => {
+        return ObjectUtils.deserialize(jsonString);
+      });
   }
 
   public getMarketplaceListingsByTag(
@@ -446,8 +459,10 @@ export class ExternalCoreGateway {
 
   public getPossibleRewards(
     params: GetPossibleRewardsParams,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
-    return this._handler.call(params);
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
+    return this._handler.call(params).map((jsonString) => {
+      return ObjectUtils.deserialize(jsonString);
+    });
   }
   public getConfig(): ResultAsync<IExtensionConfig, ProxyError> {
     return this._handler.call(new GetConfigParams());

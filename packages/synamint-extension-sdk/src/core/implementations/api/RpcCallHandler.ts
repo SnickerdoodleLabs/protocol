@@ -305,15 +305,17 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetSiteVisitsMapParams>(
       GetSiteVisitsMapParams.getCoreAction(),
       (_params) => {
-        return this.userSiteInteractionService.getSiteVisitsMap();
+        return this.userSiteInteractionService.getSiteVisitsMap().map((map) => {
+          return ObjectUtils.serialize(map);
+        });
       },
     ),
     new CoreActionHandler<GetAcceptedInvitationsCIDParams>(
       GetAcceptedInvitationsCIDParams.getCoreAction(),
       (_params) => {
-        return this.invitationService
-          .getAcceptedInvitationsCID()
-          .map((res) => mapToObj(res)); // TODO: mapToObj is probably just for dealing with serialization; the improved serializer in ObjectUtils probably makes this unnecessary.
+        return this.invitationService.getAcceptedInvitationsCID().map((res) => {
+          return ObjectUtils.serialize(res);
+        });
       },
     ),
     new CoreActionHandler<SetDefaultReceivingAddressParams>(
@@ -431,7 +433,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       (_params) => {
         return this.invitationService
           .getAvailableInvitationsCID()
-          .map((res) => mapToObj(res));
+          .map((res) => {
+            return ObjectUtils.serialize(res);
+          });
       },
     ),
     new CoreActionHandler<GetAgreementPermissionsParams>(
@@ -649,7 +653,9 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.invitationService
           .getPossibleRewards(params.contractAddresses, params.timeoutMs)
-          .map((res) => mapToObj(res));
+          .map((res) => {
+            return ObjectUtils.serialize(res);
+          });
       },
     ),
     new CoreActionHandler<TwitterGetRequestTokenParams>(
@@ -780,6 +786,8 @@ class CoreActionHandler<
       .map((result) => {
         if (typeof result === typeof undefined) {
           res.result = DEFAULT_RPC_SUCCESS_RESULT;
+        } else if (typeof result === "string") {
+          res.result = result;
         } else {
           res.result = ObjectUtils.toGenericObject(result);
         }

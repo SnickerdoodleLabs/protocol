@@ -45,6 +45,7 @@ import {
   TwitterProfile,
   TokenAndSecret,
   RuntimeMetrics,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -349,9 +350,7 @@ export class GetConsentCapacityParams extends CoreActionParams<IConsentCapacity>
   }
 }
 
-export class GetPossibleRewardsParams extends CoreActionParams<
-  Record<EVMContractAddress, PossibleReward[]>
-> {
+export class GetPossibleRewardsParams extends CoreActionParams<JSONString> {
   public constructor(
     public contractAddresses: EVMContractAddress[],
     public timeoutMs?: number,
@@ -387,9 +386,7 @@ export class GetTokenInfoParams extends CoreActionParams<TokenInfo | null> {
   }
 }
 
-export class GetSiteVisitsMapParams extends CoreActionParams<
-  Map<URLString, number>
-> {
+export class GetSiteVisitsMapParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetSiteVisitsMapParams.getCoreAction());
   }
@@ -542,9 +539,7 @@ export class GetApplyDefaultPermissionsOptionParams extends CoreActionParams<boo
   }
 }
 
-export class GetAcceptedInvitationsCIDParams extends CoreActionParams<
-  Record<EVMContractAddress, IpfsCID>
-> {
+export class GetAcceptedInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAcceptedInvitationsCIDParams.getCoreAction());
   }
@@ -582,9 +577,7 @@ export class GetDefaultPermissionsParams extends CoreActionParams<
   }
 }
 
-export class GetAvailableInvitationsCIDParams extends CoreActionParams<
-  Record<EVMContractAddress, IpfsCID>
-> {
+export class GetAvailableInvitationsCIDParams extends CoreActionParams<JSONString> {
   public constructor() {
     super(GetAvailableInvitationsCIDParams.getCoreAction());
   }

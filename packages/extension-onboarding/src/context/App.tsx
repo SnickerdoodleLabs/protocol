@@ -268,8 +268,8 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const getOptedInContracts = () => {
-    window.sdlDataWallet.getAcceptedInvitationsCID().map((records) => {
-      setUptedInContracts(Object.keys(records) as EVMContractAddress[]);
+    window.sdlDataWallet.getAcceptedInvitationsCID().map((res) => {
+      setUptedInContracts(Array.from(res.keys()) as EVMContractAddress[]);
     });
   };
 

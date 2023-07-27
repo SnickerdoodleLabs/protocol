@@ -373,14 +373,14 @@ export class SnickerdoodleIFrameProxy
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
     return this._createCall("getAcceptedInvitationsCID", null);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
+    Map<EVMContractAddress, IpfsCID>,
     ProxyError
   > {
     return this._createCall("getAvailableInvitationsCID", null);
@@ -572,7 +572,7 @@ export class SnickerdoodleIFrameProxy
   public getPossibleRewards(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError> {
+  ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError> {
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,
