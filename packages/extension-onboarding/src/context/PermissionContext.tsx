@@ -1,7 +1,4 @@
-import {
-  DiscordProfile,
-  EWalletDataType,
-} from "@snickerdoodlelabs/objects";
+import { DiscordProfile, EWalletDataType } from "@snickerdoodlelabs/objects";
 import { UI_SUPPORTED_PERMISSIONS } from "@snickerdoodlelabs/shared-components";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -41,10 +38,10 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
   const [profileValues, setProfileValues] = useState<PII>();
   const isInitialized = useRef<boolean>();
 
-  let socialProviderLinkedSubscription: Subscription;
-  let birthdaySubscription: Subscription;
-  let genderSubscription: Subscription;
-  let locationSubscription: Subscription;
+  let socialProviderLinkedSubscription: Subscription | null = null;
+  let birthdaySubscription: Subscription | null = null;
+  let genderSubscription: Subscription | null = null;
+  let locationSubscription: Subscription | null = null;
 
   useEffect(() => {
     if (appMode === EAppModes.AUTH_USER) {

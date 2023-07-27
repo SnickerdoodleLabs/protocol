@@ -2,7 +2,7 @@
 
 This package is a proxy that wraps up the SnickerdoodleCore object from the `core` project inside the context of an iframe for usage on the web. This package uses webpack to create a single deliverable file; for development purposes this file will be built and served by a small NGINX webserver inside a docker container.
 
-The iframe proxy is based on the Postmate library, and acts as a child in the library. It can emit events and recieve event emissions; out modifications to the library make it act like a proper RPC api.
+The iframe proxy is based on the Postmate library, and acts as a child in the library. It can emit events and recieve event emissions; our modifications to the library make it act like a proper RPC api.
 
 ## Design
 

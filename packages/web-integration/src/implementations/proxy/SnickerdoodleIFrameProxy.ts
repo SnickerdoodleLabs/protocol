@@ -65,16 +65,18 @@ import {
   EDataWalletPermission,
   PEMEncodedRSAPublicKey,
   JsonWebToken,
+  IProxyIntegrationMethods,
 } from "@snickerdoodlelabs/objects";
-import { IProxyIntegrationMethods } from "@snickerdoodlelabs/objects/src/interfaces/ISdlDataWallet";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
+import { Subject } from "rxjs";
 
 import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/index.js";
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy {
+  implements ISnickerdoodleIFrameProxy
+{
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -85,7 +87,9 @@ export class SnickerdoodleIFrameProxy
     super(element, iframeUrl, iframeName);
 
     this.events = new PublicEvents();
+    this.onIframeDisplayRequested = new Subject<void>();
   }
+  public onIframeDisplayRequested: Subject<void>;
 
   public activate(): ResultAsync<void, ProxyError> {
     return super
@@ -210,6 +214,10 @@ export class SnickerdoodleIFrameProxy
             this.events.onSocialProfileUnlinked.next(data);
           },
         );
+
+        this.child.on("onIframeDisplayRequested", () => {
+          this.onIframeDisplayRequested.next();
+        });
 
         /* Now, we need to pass the config over to the iframe */
         return this._createCall<IConfigOverrides, ProxyError, void>(

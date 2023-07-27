@@ -1,3 +1,4 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   BlockchainProviderError,
@@ -6,7 +7,6 @@ import {
   EVMAccountAddress,
   IConfigOverrides,
   ISdlDataWallet,
-  LanguageCode,
   PersistenceError,
   ProxyError,
   Signature,
@@ -26,8 +26,7 @@ import {
 import { webIntegrationModule } from "@web-integration/WebIntegrationModule.js";
 
 export class SnickerdoodleWebIntegration
-  implements ISnickerdoodleWebIntegration
-{
+  implements ISnickerdoodleWebIntegration {
   protected iframeURL = URLString("http://localhost:9010");
   protected debug = false;
   protected iocContainer: Container;
@@ -68,21 +67,23 @@ export class SnickerdoodleWebIntegration
       return this.initializeResult;
     }
 
-    console.log("Activating Snickerdoodle Core web integration");
+    const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+
+    logUtils.log("Activating Snickerdoodle Core web integration");
 
     // Check if the proxy is already injected
     if (window.sdlDataWallet != null) {
       // If there's already a proxy injected, we don't need to create a new one
-      console.log("Existing Snickerdoodle injected proxy on the page");
+      logUtils.log("Existing Snickerdoodle injected proxy on the page");
       this._core = window.sdlDataWallet;
-      console.log("Snickerdoodle Core web integration activated");
+      logUtils.log("Snickerdoodle Core web integration activated");
       this.initializeResult = okAsync(window.sdlDataWallet);
       return this.initializeResult;
     }
 
     // No proxy injected, create a new one via the iframe
     // Create a proxy connection to the iframe
-    console.log("Creating Snickerdoodle Protocol Iframe Proxy");
+    logUtils.log("Creating Snickerdoodle Protocol Iframe Proxy");
     const proxyFactory = this.iocContainer.get<IIFrameProxyFactory>(
       IIFrameProxyFactoryType,
     );
@@ -90,6 +91,11 @@ export class SnickerdoodleWebIntegration
     this.initializeResult = proxyFactory
       .createProxy(this.iframeURL, this.config)
       .andThen((proxy) => {
+        // Listen for the iframe; sometimes it needs to be shown
+        proxy.onIframeDisplayRequested.subscribe(() => {
+          logUtils.warning("IFrame display requested");
+        });
+
         return ResultUtils.combine([
           proxy.getAccounts(),
           this.getAccountAddress(),
@@ -107,13 +113,16 @@ export class SnickerdoodleWebIntegration
 
             // The account the DApp is using is not linked to the
             // data wallet. We should add that account.
+            logUtils.log(
+              `Detected unlinked account ${accountAddress} being used on the DApp, suggesting adding to Snickerdoodle Data Wallet`,
+            );
             return proxy.suggestAddAccount(accountAddress);
           })
           .map(() => {
             // Assign the iframe proxy to the internal reference and the window object
             this._core = proxy;
             window.sdlDataWallet = this.core;
-            console.log("Snickerdoodle Core web integration activated");
+            logUtils.log("Snickerdoodle Core web integration activated");
             return proxy;
           });
       });

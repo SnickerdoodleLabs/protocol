@@ -187,11 +187,11 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  let initializedSubscription: Subscription;
-  let accountAddedSubscription: Subscription;
-  let accountRemovedSubscription: Subscription;
-  let earnedRewardsAddedSubscription: Subscription;
-  let cohortJoinedSubscription: Subscription;
+  let initializedSubscription: Subscription | null = null;
+  let accountAddedSubscription: Subscription | null = null;
+  let accountRemovedSubscription: Subscription | null = null;
+  let earnedRewardsAddedSubscription: Subscription | null = null;
+  let cohortJoinedSubscription: Subscription | null = null;
 
   // register events
   useEffect(() => {
@@ -206,7 +206,7 @@ export const AppContextProvider: FC = ({ children }) => {
       getOptedInContracts();
       getEarnedRewards();
 
-      initializedSubscription.unsubscribe();
+      initializedSubscription?.unsubscribe();
       accountAddedSubscription =
         window?.sdlDataWallet?.events.onAccountAdded.subscribe(onAccountAdded);
       accountRemovedSubscription =
