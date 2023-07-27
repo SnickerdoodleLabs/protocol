@@ -50,6 +50,7 @@ import {
   ITokenPriceRepository,
   AccountIndexingError,
   PasswordString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -155,6 +156,7 @@ export class AccountService implements IAccountService {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -315,6 +317,7 @@ export class AccountService implements IAccountService {
     | PersistenceError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -413,6 +416,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -472,7 +476,11 @@ export class AccountService implements IAccountService {
             .andThen((crumbTokenId) => {
               if (crumbTokenId == null) {
                 // We can't unlink an account with no crumb
-                return errAsync(new UninitializedError());
+                return errAsync(
+                  new UninitializedError(
+                    `No crumb found for account ${accountAddress}`,
+                  ),
+                );
               }
 
               // Remove the crumb
@@ -513,6 +521,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return this.validateSignatureForAddress(
@@ -561,6 +570,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | InvalidSignatureError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     // Next step is to convert the signature into a derived account
     return ResultUtils.combine([
@@ -665,6 +675,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | CrumbsContractError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
     return ResultUtils.combine([
@@ -723,6 +734,7 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -741,7 +753,11 @@ export class AccountService implements IAccountService {
         .andThen((crumbTokenId) => {
           if (crumbTokenId == null) {
             // We can't unlink an account with no crumb
-            return errAsync(new UninitializedError());
+            return errAsync(
+              new UninitializedError(
+                `No crumb found for account ${derivedEVMAccount.accountAddress}`,
+              ),
+            );
           }
 
           // Remove the crumb
@@ -842,6 +858,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | MinimalForwarderContractError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     const derivedEVMAccountAddress =
       this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(derivedEVMKey);
@@ -914,6 +931,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | MinimalForwarderContractError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     // We need to get a nonce for this account address from the forwarder contract
     return ResultUtils.combine([
@@ -1002,6 +1020,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),
@@ -1044,6 +1063,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),

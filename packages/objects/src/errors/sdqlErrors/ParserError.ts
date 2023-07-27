@@ -1,7 +1,9 @@
 import errorCodes from "@objects/errors/errorCodes.js";
-export class ParserError extends Error {
+import { BaseError } from "@objects/errors/BaseError.js";
+
+export class ParserError extends BaseError {
   protected errorCode: string = errorCodes[ParserError.name];
-  constructor(position: number, message: string) {
-    super(`${position}: ${message}`);
+  constructor(message: string, public src?: unknown) {
+    super(message, 500, errorCodes[ParserError.name], src, false);
   }
 }

@@ -46,7 +46,6 @@ import {
   ConsentFactoryContractError,
   CrumbsContractError,
   DiscordError,
-  DuplicateIdInSchema,
   EvalNotImplementedError,
   EvaluationError,
   InvalidParametersError,
@@ -57,15 +56,18 @@ import {
   MissingASTError,
   MissingTokenConstructorError,
   OAuthError,
-  ParserError,
   PersistenceError,
   QueryExpiredError,
   QueryFormatError,
   SiftContractError,
+  BlockchainCommonErrors,
   TwitterError,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
+  DuplicateIdInSchema,
+  MissingWalletDataTypeError,
+  ParserError,
 } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata.js";
@@ -173,6 +175,7 @@ export interface IAccountMethods {
     | UnsupportedLanguageError
     | MinimalForwarderContractError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -205,6 +208,7 @@ export interface IAccountMethods {
     | AjaxError
     | MinimalForwarderContractError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -231,6 +235,7 @@ export interface IAccountMethods {
     | AjaxError
     | MinimalForwarderContractError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -257,6 +262,7 @@ export interface IAccountMethods {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   unlockWithPassword(
@@ -272,6 +278,7 @@ export interface IAccountMethods {
     | CrumbsContractError
     | InvalidSignatureError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   addPassword(
@@ -285,6 +292,7 @@ export interface IAccountMethods {
     | UninitializedError
     | CrumbsContractError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 
   removePassword(
@@ -297,6 +305,7 @@ export interface IAccountMethods {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | BlockchainCommonErrors
   >;
 }
 
@@ -307,21 +316,30 @@ export interface ICoreMarketplaceMethods {
     filterActive: boolean, // make it optional in interface, = true here
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
   getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -340,21 +358,20 @@ export interface ICoreMarketplaceMethods {
     | AjaxError
     | EvaluationError
     | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
     | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentContractError
-    | ConsentError
     | ConsentFactoryContractError
-    | MissingASTError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
   >;
 }
 
@@ -562,6 +579,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | ConsentContractRepositoryError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -584,6 +602,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -610,6 +629,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | ConsentContractRepositoryError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -630,6 +650,7 @@ export interface IInvitationMethods {
     | MinimalForwarderContractError
     | ConsentError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitations(
@@ -648,6 +669,7 @@ export interface IInvitationMethods {
     | IPFSError
     | UnauthorizedError
     | PersistenceError
+    | BlockchainCommonErrors
   >;
 
   getAgreementFlags(
@@ -662,6 +684,7 @@ export interface IInvitationMethods {
     | PersistenceError
     | ConsentError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getAvailableInvitationsCID(
@@ -674,6 +697,7 @@ export interface IInvitationMethods {
     | ConsentContractError
     | PersistenceError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getAcceptedInvitationsCID(
@@ -686,6 +710,7 @@ export interface IInvitationMethods {
     | ConsentFactoryContractError
     | PersistenceError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   getInvitationMetadataByCID(
@@ -705,6 +730,7 @@ export interface IInvitationMethods {
     | BlockchainProviderError
     | MinimalForwarderContractError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 }
 
@@ -729,7 +755,10 @@ export interface ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getConsentContractCID(
@@ -740,6 +769,7 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | ConsentContractError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   checkURL(
@@ -751,6 +781,7 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | SiftContractError
     | UnauthorizedError
+    | BlockchainCommonErrors
   >;
 
   // Called by the form factor to approve the processing of the query.

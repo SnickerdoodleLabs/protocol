@@ -1,9 +1,9 @@
 import errorCodes from "@objects/errors/errorCodes.js";
-import { IpfsCID } from "@objects/primitives/index.js";
+import { BaseError } from "@objects/errors/BaseError.js";
 
-export class QueryExpiredError extends Error {
+export class QueryExpiredError extends BaseError {
   protected errorCode: string = errorCodes[QueryExpiredError.name];
-  constructor(public message: string, public queryCID: IpfsCID) {
-    super(message);
+  constructor(message: string, public src?: unknown) {
+    super(message, 500, errorCodes[QueryExpiredError.name], src, false);
   }
 }

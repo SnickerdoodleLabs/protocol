@@ -153,7 +153,11 @@ export class IntegrationService implements IIntegrationService {
     // If the sourceDomain is provided, it has to match the requested domain- you can't
     // get the permissions for any domain but your own.
     if (sourceDomain != null && sourceDomain != domain) {
-      return errAsync(new UnauthorizedError());
+      return errAsync(
+        new UnauthorizedError(
+          `sourceDomain ${sourceDomain} != domain ${domain}`,
+        ),
+      );
     }
 
     return this.permissionRepo.getPermissions(domain);

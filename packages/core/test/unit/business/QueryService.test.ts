@@ -379,7 +379,7 @@ describe("QueryService.approveQuery() tests", () => {
     // Arrange
     const mocks = new QueryServiceMocks();
 
-    const err = new PersistenceError();
+    const err = new PersistenceError(`PersistenceError`);
     td.when(mocks.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID1)).thenReturn(
       errAsync(err),
     );
@@ -405,7 +405,7 @@ describe("QueryService.approveQuery() tests", () => {
     // Arrange
     const mocks = new QueryServiceMocks();
 
-    const err = new PersistenceError();
+    const err = new PersistenceError(`PersistenceError`);
     td.when(
       mocks.sdqlQueryRepo.upsertQueryStatus(td.matchers.anything()),
     ).thenReturn(errAsync(err));
