@@ -1,8 +1,9 @@
 import React, { useEffect, useState, FC } from "react";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
-import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { useNavigate } from "react-router";
+
+import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { INFT } from "@extension-onboarding/objects";
+import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 
 interface IMediaRendererProps {
   metadataString: string | null;

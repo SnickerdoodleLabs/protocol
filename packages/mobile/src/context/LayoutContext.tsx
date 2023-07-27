@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import {
   AccountAddress,
   EWalletDataType,
@@ -21,16 +22,16 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 
 import UnlockLottie from "../assets/lotties/unlock.json";
-import { useAppContext } from "./AppContextProvider";
-import { IInvitationParams } from "./InvitationContext";
+import { ROUTES } from "../constants";
+import BottomSheetComponenet from "../newcomponents/Custom/BottomSheetComponenet";
+import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
 import Dropdown from "../newcomponents/Dashboard/Dropdown";
 import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
-import BottomSheetComponenet from "../newcomponents/Custom/BottomSheetComponenet";
-import { useNavigation } from "@react-navigation/native";
-import { ROUTES } from "../constants";
-import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
 
-var styles = StyleSheet.create({
+import { useAppContext } from "./AppContextProvider";
+import { IInvitationParams } from "./InvitationContext";
+
+const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -348,7 +349,7 @@ const LayoutContextProvider = ({ children }) => {
     setSelectedAccount(item.label);
   };
   useEffect(() => {
-    let accs = [];
+    const accs = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });

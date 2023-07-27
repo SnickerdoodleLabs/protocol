@@ -1,7 +1,8 @@
 import { Button, Grid, Typography } from "@material-ui/core";
+import React, { FC } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/ScamFilterComponent/ScamNotification";
 import { safeURLsObject } from "@synamint-extension-sdk/content/constants";
-import React, { FC } from "react";
 
 const ScamNotification: FC = () => {
   const [dangerousOpen, setDangerousOpen] = React.useState(true);

@@ -2203,9 +2203,7 @@ describe("AccountService addPassword() tests", () => {
     const service = mocks.factory();
 
     // Act
-    const result = await service.addPassword(
-      testPassword,
-    );
+    const result = await service.addPassword(testPassword);
 
     // Assert
     expect(result).toBeDefined();

@@ -1,5 +1,3 @@
-import { RecommendedCampaignItem } from "@extension-onboarding/components/CampaignItems";
-import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 import { Box, Grid, Typography } from "@material-ui/core";
 import {
   ETag,
@@ -7,6 +5,9 @@ import {
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
+
+import { RecommendedCampaignItem } from "@extension-onboarding/components/CampaignItems";
+import { useSectionStyles } from "@extension-onboarding/pages/Details/screens/Marketplace/components/Sections/Section.style";
 
 interface IRecommendedRewardProgramsProps {
   tag?: ETag;

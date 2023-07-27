@@ -1,4 +1,9 @@
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
   BigNumberString,
@@ -7,6 +12,7 @@ import {
   DiscordID,
   DomainName,
   EChain,
+  EDataWalletPermission,
   EVMContractAddress,
   EmailAddressString,
   FamilyName,
@@ -34,12 +40,20 @@ import {
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
 import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IBlockchainProviderRepository,
+  IBlockchainProviderRepositoryType,
+} from "@core-iframe/interfaces/data/index";
+import {
+  IConfigProvider,
+  IConfigProviderType,
   ICoreProvider,
   ICoreProviderType,
 } from "@core-iframe/interfaces/utilities/index";
@@ -50,14 +64,21 @@ export class CoreListener extends ChildProxy implements ICoreListener {
   protected sourceDomain = DomainName(document.location.ancestorOrigins[0]);
 
   constructor(
+    @inject(IAccountServiceType) protected accountService: IAccountService,
+    @inject(IBlockchainProviderRepositoryType)
+    protected blockchainProvider: IBlockchainProviderRepository,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICoreProviderType) protected coreProvider: ICoreProvider,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
   ) {
     super();
   }
 
   protected getModel(): Postmate.Model {
+    const sourceDomain = this.configProvider.getConfig().sourceDomain;
+
     // Fire up the Postmate model, and wrap up the core as the model
     return new Postmate.Model({
       /**
@@ -71,6 +92,17 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.setConfig(data.data);
         }, data.callId);
       },
+      suggestAddAccount: (
+        data: IIFrameCallData<{ accountAddress: AccountAddress }>,
+      ) => {
+        this.returnForModel(() => {
+          // We've been suggested that we should add this new
+          // account to the user's wallet.
+          return this.accountService.handleAddAccountSuggestion(
+            data.data.accountAddress,
+          );
+        }, data.callId);
+      },
       unlock: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
@@ -81,38 +113,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.account
-              .unlock(
-                data.data.accountAddress,
-                data.data.signature,
-                data.data.languageCode,
-                data.data.chain,
-                this.sourceDomain,
-              )
-              .andThen(() => {
-                // Store the unlock values in local storage
-                console.log("Storing unlock values in local storage");
-                return ResultUtils.combine([
-                  this.storageUtils.write(
-                    "storedAccountAddress",
-                    data.data.accountAddress,
-                  ),
-                  this.storageUtils.write(
-                    "storedSignature",
-                    data.data.signature,
-                  ),
-                  this.storageUtils.write("storedChain", data.data.chain),
-                  this.storageUtils.write(
-                    "storedLanguageCode",
-                    data.data.languageCode,
-                  ),
-                ])
-                  .map(() => {})
-                  .orElse((e) => {
-                    console.error("Error storing unlock values", e);
-                    return okAsync(undefined);
-                  });
-              });
+            return core.account.unlock(
+              data.data.accountAddress,
+              data.data.signature,
+              data.data.languageCode,
+              data.data.chain,
+              sourceDomain,
+            );
           });
         }, data.callId);
       },
@@ -127,12 +134,13 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
+            // We need to get a signature for this account
             return core.account.addAccount(
               data.data.accountAddress,
               data.data.signature,
               data.data.languageCode,
               data.data.chain,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -147,7 +155,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.account.getUnlockMessage(
               data.data.languageCode,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -156,7 +164,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getAge: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAge(this.sourceDomain);
+            return core.getAge(sourceDomain);
           });
         }, data.callId);
       },
@@ -168,7 +176,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setGivenName(data.data.givenName, this.sourceDomain);
+            return core.setGivenName(data.data.givenName, sourceDomain);
           });
         }, data.callId);
       },
@@ -176,7 +184,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getGivenName: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getGivenName(this.sourceDomain);
+            return core.getGivenName(sourceDomain);
           });
         }, data.callId);
       },
@@ -188,7 +196,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setFamilyName(data.data.familyName, this.sourceDomain);
+            return core.setFamilyName(data.data.familyName, sourceDomain);
           });
         }, data.callId);
       },
@@ -196,7 +204,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getFamilyName: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getFamilyName(this.sourceDomain);
+            return core.getFamilyName(sourceDomain);
           });
         }, data.callId);
       },
@@ -208,7 +216,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setBirthday(data.data.birthday, this.sourceDomain);
+            return core.setBirthday(data.data.birthday, sourceDomain);
           });
         }, data.callId);
       },
@@ -216,7 +224,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getBirthday: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getBirthday(this.sourceDomain);
+            return core.getBirthday(sourceDomain);
           });
         }, data.callId);
       },
@@ -228,7 +236,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setGender(data.data.gender, this.sourceDomain);
+            return core.setGender(data.data.gender, sourceDomain);
           });
         }, data.callId);
       },
@@ -236,7 +244,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getGender: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getGender(this.sourceDomain);
+            return core.getGender(sourceDomain);
           });
         }, data.callId);
       },
@@ -248,7 +256,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setEmail(data.data.email, this.sourceDomain);
+            return core.setEmail(data.data.email, sourceDomain);
           });
         }, data.callId);
       },
@@ -256,7 +264,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getEmail: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getEmail(this.sourceDomain);
+            return core.getEmail(sourceDomain);
           });
         }, data.callId);
       },
@@ -268,7 +276,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.setLocation(data.data.location, this.sourceDomain);
+            return core.setLocation(data.data.location, sourceDomain);
           });
         }, data.callId);
       },
@@ -276,7 +284,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getLocation: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getLocation(this.sourceDomain);
+            return core.getLocation(sourceDomain);
           });
         }, data.callId);
       },
@@ -284,7 +292,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getAccounts: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAccounts(this.sourceDomain);
+            // TODO- make this provide the source domain after
+            // we have an interface to grant permissions
+            // return core.getAccounts(sourceDomain);
+            return core.getAccounts();
           });
         }, data.callId);
       },
@@ -302,7 +313,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               data.data.chainId,
               data.data.address,
               data.data.timestamp,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -315,7 +326,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getTokenMarketData(data.data.ids, this.sourceDomain);
+            return core.getTokenMarketData(data.data.ids, sourceDomain);
           });
         }, data.callId);
       },
@@ -331,7 +342,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.getTokenInfo(
               data.data.chainId,
               data.data.contractAddress,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -340,7 +351,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getAccountBalances: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAccountBalances(this.sourceDomain);
+            return core.getAccountBalances(sourceDomain);
           });
         }, data.callId);
       },
@@ -348,20 +359,20 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getAccountNFTs: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getAccountNFTs(this.sourceDomain);
+            return core.getAccountNFTs(sourceDomain);
           });
         }, data.callId);
       },
 
       // closeTab: (data: IIFrameCallData<Record<string, never>>) => {
       //   this.returnForModel(() => {
-      //     return core.closeTab(this.sourceDomain);
+      //     return core.closeTab(sourceDomain);
       //   }, data.callId);
       // },
 
       // getDataWalletAddress: (data: IIFrameCallData<Record<string, never>>) => {
       //   this.returnForModel(() => {
-      //     return core.account.(this.sourceDomain);
+      //     return core.account.(sourceDomain);
       //   }, data.callId);
       // },
 
@@ -370,7 +381,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.getAcceptedInvitationsCID(this.sourceDomain);
+            return core.invitation.getAcceptedInvitationsCID(sourceDomain);
           });
         }, data.callId);
       },
@@ -380,9 +391,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.getAvailableInvitationsCID(
-              this.sourceDomain,
-            );
+            return core.invitation.getAvailableInvitationsCID(sourceDomain);
           });
         }, data.callId);
       },
@@ -418,7 +427,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -428,7 +437,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -438,7 +447,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -448,7 +457,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -458,7 +467,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -468,7 +477,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -478,7 +487,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       // ) => {
       //   this.returnForModel(() => {
       //     return core.get(
-      //       this.sourceDomain,
+      //       sourceDomain,
       //     );
       //   }, data.callId);
       // },
@@ -505,7 +514,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation.leaveCohort(
               data.data.consentContractAddress,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -526,7 +535,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
               data.data.signature,
               data.data.languageCode,
               data.data.chain,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -550,7 +559,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
                   : TokenId(BigInt(0)),
                 data.data.signature ?? null,
               ),
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -571,7 +580,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getEarnedRewards: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getEarnedRewards(this.sourceDomain);
+            return core.getEarnedRewards(sourceDomain);
           });
         }, data.callId);
       },
@@ -579,7 +588,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getSiteVisits: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getSiteVisits(this.sourceDomain);
+            return core.getSiteVisits(sourceDomain);
           });
         }, data.callId);
       },
@@ -587,7 +596,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       getSiteVisitsMap: (data: IIFrameCallData<Record<string, never>>) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.getSiteVisitsMap(this.sourceDomain);
+            return core.getSiteVisitsMap(sourceDomain);
           });
         }, data.callId);
       },
@@ -631,7 +640,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.setDefaultReceivingAddress(
               data.data.receivingAddress,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -648,7 +657,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.setReceivingAddress(
               data.data.contractAddress,
               data.data.receivingAddress,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -663,7 +672,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.getReceivingAddress(
               data.data.contractAddress,
-              this.sourceDomain,
+              sourceDomain,
             );
           });
         }, data.callId);
@@ -706,17 +715,23 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.discord.initializeUserWithAuthorizationCode(
               data.data.code,
+              sourceDomain,
             );
           });
         }, data.callId);
       },
 
       "discord.installationUrl": (
-        data: IIFrameCallData<Record<string, never>>,
+        data: IIFrameCallData<{
+          redirectTabId?: number;
+        }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.installationUrl();
+            return core.discord.installationUrl(
+              data.data.redirectTabId,
+              sourceDomain,
+            );
           });
         }, data.callId);
       },
@@ -726,7 +741,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.getUserProfiles();
+            return core.discord.getUserProfiles(sourceDomain);
           });
         }, data.callId);
       },
@@ -736,7 +751,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.getGuildProfiles();
+            return core.discord.getGuildProfiles(sourceDomain);
           });
         }, data.callId);
       },
@@ -748,7 +763,85 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.discord.unlink(data.data.discordProfileId);
+            return core.discord.unlink(
+              data.data.discordProfileId,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.requestPermissions": (
+        data: IIFrameCallData<{
+          permissions: EDataWalletPermission[];
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.requestPermissions(
+              data.data.permissions,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.getPermissions": (
+        data: IIFrameCallData<{
+          domain: DomainName;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.getPermissions(
+              data.data.domain,
+              sourceDomain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.getTokenVerificationPublicKey": (
+        data: IIFrameCallData<{
+          domain: DomainName;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.getTokenVerificationPublicKey(
+              data.data.domain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "integration.getBearerToken": (
+        data: IIFrameCallData<{
+          nonce: string;
+          domain: DomainName;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.integration.getBearerToken(
+              data.data.nonce,
+              data.data.domain,
+            );
+          });
+        }, data.callId);
+      },
+
+      "metrics.getMetrics": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getMetrics(sourceDomain);
+          });
+        }, data.callId);
+      },
+      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.metrics.getUnlocked(sourceDomain);
           });
         }, data.callId);
       },
@@ -758,11 +851,10 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.twitter.getOAuth1aRequestToken();
+            return core.twitter.getOAuth1aRequestToken(sourceDomain);
           });
         }, data.callId);
       },
-
       "twitter.initTwitterProfile": (
         data: IIFrameCallData<{
           requestToken: OAuth1RequstToken;
@@ -774,11 +866,11 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.twitter.initTwitterProfile(
               data.data.requestToken,
               data.data.oAuthVerifier,
+              sourceDomain,
             );
           });
         }, data.callId);
       },
-
       "twitter.unlinkProfile": (
         data: IIFrameCallData<{
           id: TwitterID;
@@ -786,32 +878,16 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.twitter.unlinkProfile(data.data.id);
+            return core.twitter.unlinkProfile(data.data.id, sourceDomain);
           });
         }, data.callId);
       },
-
       "twitter.getUserProfiles": (
         data: IIFrameCallData<Record<string, never>>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.twitter.getUserProfiles();
-          });
-        }, data.callId);
-      },
-
-      "metrics.getMetrics": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.metrics.getMetrics();
-          });
-        }, data.callId);
-      },
-      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.metrics.getUnlocked();
+            return core.twitter.getUserProfiles(sourceDomain);
           });
         }, data.callId);
       },

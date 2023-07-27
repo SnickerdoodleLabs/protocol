@@ -1,7 +1,7 @@
 /**
  * This is the main implementation of the Snickerdoodle Protocol.
  *
- * Regardless of form factor, you need to instantiate an instance 
+ * Regardless of form factor, you need to instantiate an instance
  * of SnickerdoodleCore.
  */
 import {
@@ -723,10 +723,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return discordService.initializeUserWithAuthorizationCode(code);
       },
 
-      installationUrl: () => {
+      installationUrl: (redirectTabId?: number) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.installationUrl();
+        return discordService.installationUrl(redirectTabId);
       },
 
       getUserProfiles: () => {
@@ -812,6 +812,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | EvaluationError
+    | PersistenceError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);

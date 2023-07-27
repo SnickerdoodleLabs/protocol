@@ -201,7 +201,9 @@ const Permissions: FC<IPermissionsProps> = ({
   const onSocialClick = (socialType: ESocialType) => {
     switch (socialType) {
       case ESocialType.DISCORD: {
-        return coreGateway.discord.installationUrl(true).map((url) => {
+        // We send a dummy tab ID here, because we don't know the tab ID.
+        // In the RpcCallHandler, it will be replaced with the correct tab ID.
+        return coreGateway.discord.installationUrl(-1).map((url) => {
           window.open(url, "_blank");
         });
       }

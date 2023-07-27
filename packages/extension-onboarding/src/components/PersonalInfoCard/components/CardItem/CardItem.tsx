@@ -1,6 +1,7 @@
-import { useStyles } from "@extension-onboarding/components/PersonalInfoCard/components/CardItem/CardItem.style";
 import { Grid, Typography } from "@material-ui/core";
 import React from "react";
+
+import { useStyles } from "@extension-onboarding/components/PersonalInfoCard/components/CardItem/CardItem.style";
 
 interface ICardItemProps {
   title: string;

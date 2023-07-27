@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import {
   ICryptoUtils,
   ILogUtils,
@@ -7,38 +6,39 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  EligibleReward,
+  BlockNumber,
+  ConsentToken,
+  DataPermissions,
+  EQueryProcessingStatus,
+  ERewardType,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
-  InsightString,
-  SDQLQuery,
-  SDQLString,
-  UninitializedError,
-  DataPermissions,
-  ConsentToken,
-  TokenId,
-  IPFSError,
-  SDQLQueryRequest,
-  HexString32,
   EVMPrivateKey,
-  IDynamicRewardParameter,
-  IInsights,
-  ESolidityAbiParameterType,
-  QueryStatus,
-  EQueryProcessingStatus,
-  BlockNumber,
-  UnixTimestamp,
-  PersistenceError,
   EarnedReward,
-  ERewardType,
+  EligibleReward,
+  HexString32,
+  IDynamicRewardParameter,
+  IPFSError,
+  InsightString,
+  IpfsCID,
+  ESolidityAbiParameterType,
+  PersistenceError,
+  QueryStatus,
+  SDQLQuery,
+  SDQLQueryRequest,
+  SDQLString,
+  TokenId,
+  UninitializedError,
+  UnixTimestamp,
+  IQueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
-  avalanche1SchemaStr,
   ISDQLQueryWrapperFactory,
+  avalanche1SchemaStr,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import "reflect-metadata";
 import * as td from "testdouble";
 
 import { QueryService } from "@core/implementations/business/index.js";
@@ -56,8 +56,9 @@ import {
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
 import {
-  dataWalletKey,
+  avalanche1AstInstance,
   dataWalletAddress,
+  dataWalletKey,
   defaultInsightPlatformBaseUrl,
 } from "@core-tests/mock/mocks/index.js";
 import {
@@ -73,22 +74,14 @@ const queryCID2 = IpfsCID("Boop");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 const sdqlQuery = new SDQLQuery(queryCID1, SDQLString(avalanche1SchemaStr));
 const sdqlQuery2 = new SDQLQuery(queryCID2, SDQLString(avalanche1SchemaStr));
-const insights = {
-  queries: {},
-  returns: {
-    "if($q1and$q2)then$r1else$r2": InsightString("Hello1"),
-    $r3: InsightString("Hello2"),
-  },
-} as IInsights;
-const insightsError = {
-  returns: {},
-} as IInsights;
-const rewards: EligibleReward[] = [];
+
+const queryDeliveryItems: IQueryDeliveryItems = {
+  insights: {},
+  ads: {},
+} as IQueryDeliveryItems; // TODO fill out with data
+
 const tokenId = TokenId(BigInt(0));
 
-const allPermissions = HexString32(
-  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-);
 const dataPermissions = DataPermissions.createWithAllPermissions();
 
 const rewardParameter = {
@@ -96,7 +89,7 @@ const rewardParameter = {
     type: ESolidityAbiParameterType.address,
     value: "Phoebe",
   },
-  compensationId: {
+  compensationKey: {
     type: ESolidityAbiParameterType.string,
     value: "c1",
   },
@@ -108,7 +101,7 @@ const receivedQueryStatus = new QueryStatus(
   consentContractAddress,
   queryCID1,
   BlockNumber(345),
-  EQueryProcessingStatus.Recieved,
+  EQueryProcessingStatus.Received,
   then,
   null,
 );
@@ -174,13 +167,14 @@ class QueryServiceMocks {
         consentContractAddress,
         tokenId,
         queryCID2,
-        insights,
+        queryDeliveryItems,
         td.matchers.argThat((val: IDynamicRewardParameter[]) => {
           return (
             val.length == 1 &&
-            val[0].compensationId.type == rewardParameter.compensationId.type &&
-            val[0].compensationId.value ==
-              rewardParameter.compensationId.value &&
+            val[0].compensationKey.type ==
+              rewardParameter.compensationKey.type &&
+            val[0].compensationKey.value ==
+              rewardParameter.compensationKey.value &&
             val[0].recipientAddress.type ==
               rewardParameter.recipientAddress.type &&
             val[0].recipientAddress.value ==
@@ -207,7 +201,7 @@ class QueryServiceMocks {
     );
     td.when(
       this.sdqlQueryRepo.getQueryStatusByStatus(
-        EQueryProcessingStatus.Recieved,
+        EQueryProcessingStatus.Received,
       ),
     ).thenReturn(okAsync([receivedQueryStatus]));
     td.when(
@@ -268,14 +262,18 @@ class QueryServiceMocks {
         sdqlQuery,
         this.consentToken.dataPermissions,
       ),
-    ).thenReturn(okAsync(insights));
+    ).thenReturn(okAsync(queryDeliveryItems));
 
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery2,
         this.consentToken.dataPermissions,
       ),
-    ).thenReturn(okAsync(insights));
+    ).thenReturn(okAsync(queryDeliveryItems));
+
+    td.when(this.queryParsingEngine.parseQuery(sdqlQuery)).thenReturn(
+      okAsync(avalanche1AstInstance),
+    );
 
     // AccountRepo
     td.when(this.accountRepo.addEarnedRewards(earnedRewards)).thenReturn(
@@ -491,8 +489,8 @@ describe("QueryService.returnQueries() tests", () => {
   });
 });
 
-describe("processRewardsPreview tests", () => {
-  test("processRewardsPreview: full run through", async () => {
+describe("getPossibleInisightAndAdKeys tests", () => {
+  test("get possbile insights and ad keys", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1)).thenReturn(
@@ -501,13 +499,7 @@ describe("processRewardsPreview tests", () => {
     td.when(
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
-    td.when(
-      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-        sdqlQuery,
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync([[], []]));
+
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getSDQLQueryByCID(queryCID1),
       mocks.contextProvider.getContext(),
@@ -530,13 +522,9 @@ describe("processRewardsPreview tests", () => {
       return mocks.consentContractRepo
         .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
-            query,
-            new DataPermissions(allPermissions),
-            consentContractAddress,
-          );
+          return okAsync(null);
         })
-        .andThen((rewardsPreviews) => {
+        .andThen(() => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,

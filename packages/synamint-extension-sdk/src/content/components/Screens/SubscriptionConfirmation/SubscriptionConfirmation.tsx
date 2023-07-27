@@ -7,6 +7,9 @@ import {
   PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import { SubscriptionConfirmation } from "@snickerdoodlelabs/shared-components";
+import { ResultAsync } from "neverthrow";
+import React, { FC, useEffect, useState } from "react";
+
 import { useStyles } from "@synamint-extension-sdk/content/components/Screens/SubscriptionConfirmation/SubscriptionConfirmation.style";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
@@ -14,8 +17,6 @@ import {
   GetReceivingAddressParams,
   IExtensionConfig,
 } from "@synamint-extension-sdk/shared";
-import { ResultAsync } from "neverthrow";
-import React, { FC, useEffect, useState } from "react";
 
 interface ISubscriptionConfirmationProps {
   coreGateway: ExternalCoreGateway;
@@ -25,7 +26,7 @@ interface ISubscriptionConfirmationProps {
   dataTypes: EWalletDataType[];
   onConfirmClick: (receivingAccount: AccountAddress | undefined) => void;
   onCancelClick: () => void;
-  config: IExtensionConfig
+  config: IExtensionConfig;
 }
 
 const SubscriptionConfirmationModal: FC<ISubscriptionConfirmationProps> = ({

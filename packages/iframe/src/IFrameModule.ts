@@ -1,7 +1,10 @@
 import {
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   LogUtils,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IStorageUtils,
@@ -11,6 +14,8 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import { CoreListener } from "@core-iframe/implementations/api/index";
+import { AccountService } from "@core-iframe/implementations/business/index";
+import { BlockchainProviderRepository } from "@core-iframe/implementations/data/index";
 import {
   ConfigProvider,
   CoreProvider,
@@ -19,6 +24,14 @@ import {
   ICoreListener,
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IBlockchainProviderRepository,
+  IBlockchainProviderRepositoryType,
+} from "@core-iframe/interfaces/data/index";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -33,8 +46,23 @@ export const iframeModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    // #region API
     bind<ICoreListener>(ICoreListenerType).to(CoreListener).inSingletonScope();
+    // #endregion
 
+    // #region Business
+    bind<IAccountService>(IAccountServiceType)
+      .to(AccountService)
+      .inSingletonScope();
+    // #endregion
+
+    // #region Data
+    bind<IBlockchainProviderRepository>(IBlockchainProviderRepositoryType)
+      .to(BlockchainProviderRepository)
+      .inSingletonScope();
+    // #endregion
+
+    // #region Utilities
     bind<IStorageUtils>(IStorageUtilsType)
       .to(LocalStorageUtils)
       .inSingletonScope();
@@ -43,5 +71,7 @@ export const iframeModule = new ContainerModule(
       .inSingletonScope();
     bind<ICoreProvider>(ICoreProviderType).to(CoreProvider).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+    // #endregion
   },
 );

@@ -27,8 +27,8 @@ import {
   IOpenSeaMetadata,
   IProxyMetricsMethods,
   IScamFilterPreferences,
-  ISdlDiscordMethods,
-  ISdlTwitterMethods,
+  IProxyDiscordMethods,
+  IProxyTwitterMethods,
   IpfsCID,
   LanguageCode,
   LinkedAccount,
@@ -62,7 +62,11 @@ import {
   URLString,
   UnixTimestamp,
   WalletNFT,
+  EDataWalletPermission,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
 } from "@snickerdoodlelabs/objects";
+import { IProxyIntegrationMethods } from "@snickerdoodlelabs/objects/src/interfaces/ISdlDataWallet";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
 
@@ -70,8 +74,7 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy
-{
+  implements ISnickerdoodleIFrameProxy {
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -217,6 +220,14 @@ export class SnickerdoodleIFrameProxy
       .map(() => {
         console.log("Snickerdoodle Protocol web integration activated");
       });
+  }
+
+  public suggestAddAccount(
+    accountAddress: AccountAddress,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("suggestAddAccount", {
+      accountAddress,
+    });
   }
 
   public unlock(
@@ -583,7 +594,7 @@ export class SnickerdoodleIFrameProxy
     throw new Error("Method not implemented.");
   }
 
-  public discord: ISdlDiscordMethods = {
+  public discord: IProxyDiscordMethods = {
     initializeUserWithAuthorizationCode: (
       code: OAuthAuthorizationCode,
     ): ResultAsync<void, ProxyError> => {
@@ -592,8 +603,12 @@ export class SnickerdoodleIFrameProxy
       });
     },
 
-    installationUrl: (): ResultAsync<URLString, ProxyError> => {
-      return this._createCall("discord.installationUrl", null);
+    installationUrl: (
+      redirectTabId?: number,
+    ): ResultAsync<URLString, ProxyError> => {
+      return this._createCall("discord.installationUrl", {
+        redirectTabId: redirectTabId,
+      });
     },
 
     getUserProfiles: (): ResultAsync<DiscordProfile[], ProxyError> => {
@@ -607,7 +622,49 @@ export class SnickerdoodleIFrameProxy
     },
   };
 
-  public twitter: ISdlTwitterMethods = {
+  public integration: IProxyIntegrationMethods = {
+    requestPermissions: (
+      permissions: EDataWalletPermission[],
+    ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+      return this._createCall("integration.requestPermissions", {
+        permissions,
+      });
+    },
+    getPermissions: (
+      domain: DomainName,
+    ): ResultAsync<EDataWalletPermission[], ProxyError> => {
+      return this._createCall("integration.getPermissions", {
+        domain,
+      });
+    },
+    getTokenVerificationPublicKey: (
+      domain: DomainName,
+    ): ResultAsync<PEMEncodedRSAPublicKey, ProxyError> => {
+      return this._createCall("integration.getTokenVerificationPublicKey", {
+        domain,
+      });
+    },
+    getBearerToken: (
+      nonce: string,
+      domain: DomainName,
+    ): ResultAsync<JsonWebToken, ProxyError> => {
+      return this._createCall("integration.getBearerToken", {
+        nonce,
+        domain,
+      });
+    },
+  };
+
+  public metrics: IProxyMetricsMethods = {
+    getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
+      return this._createCall("metrics.getMetrics", null);
+    },
+    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
+      return this._createCall("metrics.getUnlocked", null);
+    },
+  };
+
+  public twitter: IProxyTwitterMethods = {
     getOAuth1aRequestToken: (): ResultAsync<TokenAndSecret, ProxyError> => {
       return this._createCall("twitter.getOAuth1aRequestToken", null);
     },
@@ -625,15 +682,6 @@ export class SnickerdoodleIFrameProxy
     },
     getUserProfiles: (): ResultAsync<TwitterProfile[], ProxyError> => {
       return this._createCall("twitter.getUserProfiles", null);
-    },
-  };
-
-  public metrics: IProxyMetricsMethods = {
-    getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
-      return this._createCall("metrics.getMetrics", null);
-    },
-    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("metrics.getUnlocked", null);
     },
   };
 

@@ -21,6 +21,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
 import { IInvitationService } from "../../interfaces/business/IInvitationService";
 import {
   IDataPermissionsRepository,
@@ -54,7 +55,7 @@ export class InvitationService implements IInvitationService {
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
-    filterActive: boolean = true,
+    filterActive = true,
   ): ResultAsync<PagedResponse<MarketplaceListing>, SnickerDoodleCoreError> {
     return this.core.marketplace
       .getMarketplaceListingsByTag(pagingReq, tag, filterActive)

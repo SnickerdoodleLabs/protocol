@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   Animated,
   Button,
@@ -11,24 +12,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
-import Dropdown from "./Dropdown";
 import DropDownPicker from "react-native-dropdown-picker";
 import Icon from "react-native-vector-icons/Ionicons";
-import DashboardTab from "./DashboardTab";
+
+import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
 import { useAppContext } from "../../context/AppContextProvider";
 import { MoralisAPI } from "../../services/implementations/api/MoralisAPI";
-import { useAccountLinkingContext } from "../../context/AccountLinkingContextProvider";
-import Sidebar from "../Custom/Sidebar";
-import RadioButton from "../Custom/RadioButton";
-import MultiSelect from "../Custom/MultiSelect";
+import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
+import MultiSelect from "../Custom/MultiSelect";
+import RadioButton from "../Custom/RadioButton";
+import Sidebar from "../Custom/Sidebar";
+
+import DashboardTab from "./DashboardTab";
+import Dropdown from "./Dropdown";
 export interface IDashboardChildrenProps {
   data: {
     nfts: string[];
     tokens: any[];
-    totalBalance: Number;
+    totalBalance: number;
     selectedAccount: any;
     setSelectedAccount: any;
     isMainnet: boolean;
@@ -42,7 +44,7 @@ const Dashboard = () => {
   const { mobileCore } = useAppContext();
   const [myNFTs, setMyNFTs] = React.useState<any>();
   const [myTokens, setMyTokens] = React.useState<any[]>([]);
-  const [totalVal, setTotalVal] = React.useState<Number>(0);
+  const [totalVal, setTotalVal] = React.useState<number>(0);
   const { linkedAccounts } = useAppContext();
   const [selectedAccount, setSelectedAccount] = React.useState(
     linkedAccounts[0],
@@ -114,7 +116,7 @@ const Dashboard = () => {
   }, [selectedAccount, isMainnet, selectedChains]);
 
   useEffect(() => {
-    let accs = [];
+    const accs = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
@@ -157,7 +159,7 @@ const Dashboard = () => {
     const chains = isMainnet
       ? selectedChains
       : ["0x13881", "0x89", "0x61", "0xa869"];
-    let allTokens: any[] = [];
+    const allTokens: any[] = [];
     let total = 0;
     if (selectedAccount) {
       await chains.map((res) => {

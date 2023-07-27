@@ -1,5 +1,3 @@
-import { useStyles } from "@extension-onboarding/components/Modals/LeaveCohortModal/LeaveCohortModal.style";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import {
   Box,
   Dialog,
@@ -11,6 +9,9 @@ import {
 import CloseIcon from "@material-ui/icons/Close";
 import { withStyles } from "@material-ui/styles";
 import React, { FC } from "react";
+
+import { useStyles } from "@extension-onboarding/components/Modals/LeaveCohortModal/LeaveCohortModal.style";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const CancelButton = withStyles({
   root: {

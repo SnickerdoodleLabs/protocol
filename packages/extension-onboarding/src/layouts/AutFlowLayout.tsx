@@ -1,10 +1,11 @@
+import { Box } from "@material-ui/core";
+import React, { useEffect, useMemo } from "react";
+import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
+
 import CampaignPopup from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup";
 import Sidebar from "@extension-onboarding/components/Sidebar";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { authFlowRouteSettings } from "@extension-onboarding/containers/Router/Router.settings";
-import { Box } from "@material-ui/core";
-import React, { useEffect, useMemo } from "react";
-import { matchPath, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const AutFlowLayout = () => {
   // TODO remove below code when extension navigations fixed

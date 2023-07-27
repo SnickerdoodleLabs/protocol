@@ -1,4 +1,9 @@
-import { ChainId, URLString } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  DomainName,
+  LanguageCode,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
 import { IFrameConfig } from "@core-iframe/interfaces/objects";
@@ -17,6 +22,9 @@ export class ConfigProvider implements IConfigProvider {
       ChainId(Number(__CONTROL_CHAIN_ID__)),
       __IPFS_FETCH_BASE_URL__,
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
+      // Get the source domain
+      DomainName(document.location.ancestorOrigins[0]),
+      LanguageCode("en"), // This may come in from the URL
     );
   }
   getConfig(): IFrameConfig {
