@@ -1,4 +1,3 @@
-import { ModelAliases } from "@glazed/types";
 import {
   ChainId,
   ChainInformation,

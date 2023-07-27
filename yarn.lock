@@ -5888,47 +5888,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/object-multiplex@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "@metamask/object-multiplex@npm:1.2.0"
-  dependencies:
-    end-of-stream: ^1.4.4
-    once: ^1.4.0
-    readable-stream: ^2.3.3
-  checksum: 7c622639cc164c3b780294d790311e4bcb327faf14626717728022e95da5834f32fe4e242d8f4e7d9b8c2b83f0c76450922786b2f6ef50e777bfe119b78bdab7
-  languageName: node
-  linkType: hard
-
-"@metamask/providers@npm:^11.1.0":
-  version: 11.1.0
-  resolution: "@metamask/providers@npm:11.1.0"
-  dependencies:
-    "@metamask/object-multiplex": ^1.1.0
-    "@metamask/safe-event-emitter": ^3.0.0
-    detect-browser: ^5.2.0
-    eth-rpc-errors: ^4.0.2
-    extension-port-stream: ^2.0.1
-    fast-deep-equal: ^2.0.1
-    is-stream: ^2.0.0
-    json-rpc-engine: ^6.1.0
-    json-rpc-middleware-stream: ^4.2.1
-    pump: ^3.0.0
-    webextension-polyfill: ^0.10.0
-  checksum: fe62112c650d0bc2c012fcb48b6d18709866448d5ded289c85c96d683a263b63a9f60c171fb4bc2cdffc00a6c72b27343611680d72274b5778243f1366be7256
-  languageName: node
-  linkType: hard
-
 "@metamask/safe-event-emitter@npm:^2.0.0":
   version: 2.0.0
   resolution: "@metamask/safe-event-emitter@npm:2.0.0"
   checksum: 8b717ac5d53df0027c05509f03d0534700b5898dd1c3a53fb2dc4c0499ca5971b14aae67f522d09eb9f509e77f50afa95fdb3eda1afbff8b071c18a3d2905e93
-  languageName: node
-  linkType: hard
-
-"@metamask/safe-event-emitter@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@metamask/safe-event-emitter@npm:3.0.0"
-  checksum: 8dc58a76f9f75bf2405931465fc311c68043d851e6b8ebe9f82ae339073a08a83430dba9338f8e3adc4bfc8067607125074bcafa32baee3a5157f42343dc89e5
   languageName: node
   linkType: hard
 
@@ -17453,7 +17416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"detect-browser@npm:^5.1.0, detect-browser@npm:^5.2.0":
+"detect-browser@npm:^5.1.0":
   version: 5.3.0
   resolution: "detect-browser@npm:5.3.0"
   checksum: dd6e08d55da1d9e0f22510ac79872078ae03d9dfa13c5e66c96baedc1c86567345a88f96949161f6be8f3e0fafa93bf179bdb1cd311b14f5f163112fcc70ab49
@@ -27062,16 +27025,6 @@ __metadata:
     "@metamask/safe-event-emitter": ^2.0.0
     readable-stream: ^2.3.3
   checksum: 9ff56cd40a6ba0a6f3d0226ea100921635120154c602822f0f4fdfa6bf7c61367d1e8cd055b6e7a7639aa19ed51a9ce7fbf2932a2d348b2404c060f75bc1231f
-  languageName: node
-  linkType: hard
-
-"json-rpc-middleware-stream@npm:^4.2.1":
-  version: 4.2.2
-  resolution: "json-rpc-middleware-stream@npm:4.2.2"
-  dependencies:
-    "@metamask/safe-event-emitter": ^3.0.0
-    readable-stream: ^2.3.3
-  checksum: 01ff3a23b501fde5c2abb8c3b4d100c4fd430b41cf5e7750235f860a02d5823f8a43b0e81150c1d3bb196737f2273af1c7a50ff179e95e3d59fb7fe172249de3
   languageName: node
   linkType: hard
 
@@ -37538,7 +37491,6 @@ __metadata:
     "@jest/types": ^29.0.3
     "@material-ui/core": 4.12.3
     "@material-ui/icons": 4.11.2
-    "@metamask/providers": ^11.1.0
     "@octokit/core": ^3.2.4
     "@react-native-community/eslint-config": ^1.1.0
     "@types/chrome": ^0.0.193
@@ -42456,13 +42408,6 @@ __metadata:
   dependencies:
     webextension-polyfill: ^0.7.0
   checksum: b7d60c787c2041458117f837914b6bc4f03c1685174ff7b751ad19192e232fa7e71a0ac7a22d73e898856a86de198e61e9cd59c63764279127c7ee973f3202d8
-  languageName: node
-  linkType: hard
-
-"webextension-polyfill@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "webextension-polyfill@npm:0.10.0"
-  checksum: 4a59036bda571360c2c0b2fb03fe1dc244f233946bcf9a6766f677956c40fd14d270aaa69cdba95e4ac521014afbe4008bfa5959d0ac39f91c990eb206587f91
   languageName: node
   linkType: hard
 

@@ -8,6 +8,7 @@ import { IFrameFormFactor } from "@core-iframe/implementations/IFrameFormFactor"
 console.log("Snickerdoodle Core IFrame Loaded");
 
 // Render the app UI
+// TODO: The formFactor and the App component probably need to be the same thing
 ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 
 // Left in as an example and reminder that we can pass stuff via the URL params to the iframe

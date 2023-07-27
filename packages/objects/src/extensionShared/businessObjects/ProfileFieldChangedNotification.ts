@@ -3,7 +3,7 @@ import { EProfileFieldType } from "@objects/extensionShared/enums/EProfileFieldT
 import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
 
 export class ProfileFieldChangedNotification extends BaseNotification<ProfileFieldUpdate> {
-  constructor(public update) {
+  constructor(public update: ProfileFieldUpdate) {
     super(ENotificationTypes.PROFILE_FIELD_CHANGED, update);
   }
 }
