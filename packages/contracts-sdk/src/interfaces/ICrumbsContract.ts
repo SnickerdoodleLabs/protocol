@@ -4,6 +4,7 @@ import {
   TokenId,
   TokenUri,
   HexString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -23,7 +24,7 @@ export interface ICrumbsContract extends IBaseContract {
   addressToCrumbId(
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenId | null, CrumbsContractError>;
+  ): ResultAsync<TokenId | null, CrumbsContractError | BlockchainCommonErrors>;
 
   /**
    * Gets the token URI value for the crumb owned by a particular account address
@@ -34,7 +35,10 @@ export interface ICrumbsContract extends IBaseContract {
   tokenURI(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenUri | null, CrumbsContractError>;
+  ): ResultAsync<
+    TokenUri | null,
+    CrumbsContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Creates a crumb id for the address calling the contract
@@ -45,7 +49,10 @@ export interface ICrumbsContract extends IBaseContract {
     crumbId: TokenId,
     tokenUri: TokenUri,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | CrumbsContractError
+  >;
 
   /**
    * Returns an encoded call to createCrumb. Useful for metatransactions
@@ -61,7 +68,10 @@ export interface ICrumbsContract extends IBaseContract {
   burnCrumb(
     crumbId: TokenId,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | CrumbsContractError
+  >;
 
   encodeBurnCrumb(crumbId: TokenId): HexString;
 }

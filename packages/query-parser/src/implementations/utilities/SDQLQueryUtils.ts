@@ -7,6 +7,7 @@ import {
   ISDQLInsightBlock,
   InsightKey,
   MissingTokenConstructorError,
+  MissingWalletDataTypeError,
   ParserError,
   QueryExpiredError,
   QueryFormatError,

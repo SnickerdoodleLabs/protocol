@@ -1,12 +1,12 @@
 import {
   DataPermissions,
+  DuplicateIdInSchema,
   EvaluationError,
   ParserError,
   QueryFormatError,
   SDQLQuery,
   IQueryDeliveryItems,
   QueryExpiredError,
-  DuplicateIdInSchema,
   MissingTokenConstructorError,
   EvalNotImplementedError,
   PersistenceError,

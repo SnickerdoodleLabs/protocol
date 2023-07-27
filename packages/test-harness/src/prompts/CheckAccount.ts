@@ -3,6 +3,7 @@ import {
   CrumbsContractError,
   InvalidSignatureError,
   PersistenceError,
+  BlockchainCommonErrors,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
@@ -23,6 +24,7 @@ export class CheckAccount extends Prompt {
     | UnauthorizedError
     | UnsupportedLanguageError
     | CrumbsContractError
+    | BlockchainCommonErrors
   > {
     return inquiryWrapper([
       {

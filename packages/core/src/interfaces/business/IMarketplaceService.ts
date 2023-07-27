@@ -20,6 +20,8 @@ import {
   QueryExpiredError,
   QueryFormatError,
   MissingASTError,
+  MissingWalletDataTypeError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -30,21 +32,30 @@ export interface IMarketplaceService {
     filterActive?: boolean,
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
   getListingsTotalByTag(
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    UninitializedError | BlockchainProviderError | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getPossibleRewards(
@@ -55,21 +66,20 @@ export interface IMarketplaceService {
     | AjaxError
     | EvaluationError
     | QueryFormatError
-    | QueryExpiredError
     | ParserError
-    | EvaluationError
-    | QueryFormatError
     | QueryExpiredError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | PersistenceError
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
     | UninitializedError
     | BlockchainProviderError
-    | ConsentContractError
-    | ConsentError
     | ConsentFactoryContractError
-    | MissingASTError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+    | EvalNotImplementedError
+    | ConsentError
   >;
 }
 

@@ -45,7 +45,7 @@ export class DiscordService implements IDiscordService {
     throw new Error("Method not implemented.");
   }
 
-  public installationUrl(): ResultAsync<URLString, DiscordError> {
+  public installationUrl(): ResultAsync<URLString, OAuthError> {
     return this.getAPIConfig().map((apiConfig) =>
       URLString(
         `https://discord.com/oauth2/authorize?client_id=${
@@ -116,10 +116,10 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-  protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
+  protected getAPIConfig(): ResultAsync<DiscordConfig, OAuthError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (config.discord == null) {
-        return errAsync(new DiscordError("Discord configuration not found!"));
+        return errAsync(new OAuthError("Discord configuration not found!"));
       }
       return okAsync(config.discord);
     });
