@@ -90,6 +90,7 @@ import {
   PasswordString,
   BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
+import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
   LocalDiskStorage,
@@ -99,6 +100,7 @@ import {
   IndexedDBVolatileStorage,
   IVolatileStorage,
   IVolatileStorageType,
+  DropboxCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -158,8 +160,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { DropboxCloudStorage } from "@snickerdoodlelabs/persistence";
-import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -212,8 +212,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
             .to(DropboxCloudStorage)
             .inSingletonScope();
         }
-      }
-      else if (cloudStorageParams?.getGCPBucket() !== undefined || null) {
+      } else if (cloudStorageParams?.getGCPBucket() !== undefined || null) {
         // Attempt to Authenticate GCP
         if (cloudStorageParams?.authenticateGCPCredentials()) {
           this.iocContainer
@@ -354,7 +353,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => { });
+          .map(() => {});
       },
 
       addAccount: (
@@ -480,7 +479,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => { });
+          .map(() => {});
       },
 
       addPassword: (
