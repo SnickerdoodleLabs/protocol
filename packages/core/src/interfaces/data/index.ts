@@ -1,6 +1,8 @@
 export * from "@core/interfaces/data/IAdContentRepository.js";
 export * from "@core/interfaces/data/IAdDataRepository.js";
 export * from "@core/interfaces/data/IBrowsingDataRepository.js";
+
+// export * from "@core/interfaces/data/ICloudCrumbsRepository.js";
 export * from "@core/interfaces/data/IConsentContractRepository.js";
 export * from "@core/interfaces/data/ICrumbsRepository.js";
 export * from "@core/interfaces/data/IDNSRepository.js";
