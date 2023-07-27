@@ -8053,10 +8053,12 @@ __metadata:
     chroma-js: ^2.4.2
     clsx: ^1.2.1
     date-fns: ^2.29.1
+    dropbox: ^10.34.0
     ethers: ^5.6.6
     formik: 2.2.9
     formik-material-ui: 3.0.1
     gapi-script: ^1.2.0
+    lodash: ^4.17.21
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     notistack: ^2.0.5
@@ -17869,6 +17871,17 @@ __metadata:
     p-event: ^2.1.0
     pify: ^3.0.0
   checksum: 158feb3dab42f3429f4242a7bd6610e6890ab72e6da9bd5a7bee3d0f56b7df2786eefccd4c0d3cfb7f03e77997950e41ca0a2dcdbb76098cedaeb6c594aa0f3f
+  languageName: node
+  linkType: hard
+
+"dropbox@npm:^10.34.0":
+  version: 10.34.0
+  resolution: "dropbox@npm:10.34.0"
+  dependencies:
+    node-fetch: ^2.6.1
+  peerDependencies:
+    "@types/node-fetch": ^2.5.7
+  checksum: 5474e31b0e9c8ff68d140a12b8ef5a06e17125f254ad47702e8ab6932fb0405b467c58098e4e6546e29df57f6fa7581f749b6eb0c2a6daec29644a5a8f5cba75
   languageName: node
   linkType: hard
 
