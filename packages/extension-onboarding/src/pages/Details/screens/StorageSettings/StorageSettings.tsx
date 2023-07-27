@@ -75,6 +75,8 @@ const StorageSettings = () => {
       "https://www.dropbox.com/oauth2/authorize?client_id=xkny72eyaspw0oy&response_type=code&redirect_uri=https://localhost:9005/settings/storage",
     );
   };
+
+  // Okan uses this to get the access token
   const initializeUserWithAuthorizationCode = (code) => {
     return apiGateway.axiosAjaxUtil
       .post<{ access_token: string }>(
@@ -134,6 +136,7 @@ const StorageSettings = () => {
     });
   };
 
+  // Okan used this to get the folders
   const dropbox = useMemo(() => {
     if (accessToken && Dropbox) {
       return new Dropbox({ accessToken });
@@ -192,6 +195,8 @@ const StorageSettings = () => {
     return nestedArray;
   }
 
+  // If search params contain the code, use the code
+  // If not, do nothing
   useEffect(() => {
     const code = searchParams.get("code");
     if (code) {
