@@ -92,7 +92,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
+  LocalDiskStorage,
   ICloudStorage,
+  ICloudStorageParams,
   ICloudStorageType,
   IndexedDBVolatileStorage,
   IVolatileStorage,
@@ -157,6 +159,7 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 import { DropboxCloudStorage } from "@snickerdoodlelabs/persistence";
+import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -175,6 +178,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorage,
     cloudStorage?: ICloudStorage,
+    cloudStorageParams?: ICloudStorageParams,
   ) {
     this.iocContainer = new Container();
 
@@ -198,20 +202,33 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       2. If Dropbox credentials are not given or if login fails, then look for Google Cloud Storage credentials.  If GCP login is succesful, then use that. 
       3. If neither Dropbox credentials nor GCP credentials are provided or both fail login attempts, use default GCP.  
     */
-
-    new CloudStorageParams;
-
+    // LOOK TO SIMPLIFY
     if (cloudStorage != null) {
-      console.log("cloudStorage selection: " + cloudStorage.type());
-      if (cloudStorage.type() == "Dropbox") {
-        console.log("cloudStorage dropbox selected: ");
+      if (cloudStorageParams?.getDropboxKey() !== undefined || null) {
+        // Attempt to Authenticate Dropbox
+        if (cloudStorageParams?.authenticateDropboxCredentials()) {
+          this.iocContainer
+            .bind(ICloudStorageType)
+            .to(DropboxCloudStorage)
+            .inSingletonScope();
+        }
+      }
+      else if (cloudStorageParams?.getGCPBucket() !== undefined || null) {
+        // Attempt to Authenticate GCP
+        if (cloudStorageParams?.authenticateGCPCredentials()) {
+          this.iocContainer
+            .bind(ICloudStorageType)
+            .to(GoogleCloudStorage)
+            .inSingletonScope();
+        }
       }
 
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
     } else {
+      // DEFAULT OPTION - LOCAL DISK STORAGE
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(GoogleCloudStorage)
+        .to(LocalDiskStorage)
         .inSingletonScope();
     }
 

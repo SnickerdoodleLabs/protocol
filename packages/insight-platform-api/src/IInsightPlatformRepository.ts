@@ -1,5 +1,5 @@
-import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 import {
+  ECloudStorageType,
   AjaxError,
   BigNumberString,
   EarnedReward,
@@ -14,6 +14,7 @@ import {
   URLString,
   IQueryDeliveryItems,
   PossibleReward,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -30,11 +31,13 @@ export interface IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<URLString, AjaxError>;
-  
+
   getSignedUrl(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
+    storageType: ECloudStorageType,
+    accessToken: AccessToken,
   ): ResultAsync<URLString, AjaxError>;
 
   receivePreviews(

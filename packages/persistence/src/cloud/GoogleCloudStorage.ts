@@ -22,12 +22,17 @@ import {
   ERecordKey,
   VolatileStorageKey,
   DataWalletBackupHeader,
+  AccessToken,
+  UnixTimestamp,
+  Signature,
+  VolatileStorageDataKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
+import { ICloudStorageParams } from "@persistence/cloud/ICloudStorageParams.js";
 import {
   IGoogleFileBackup,
   IGoogleWalletBackupDirectory,
@@ -54,6 +59,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    protected cloudParams: ICloudStorageParams,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -65,16 +71,60 @@ export class GoogleCloudStorage implements ICloudStorage {
   }
 
   public readBeforeUnlock(
-    key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError> {
-    return okAsync(undefined);
+    key: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
+    return this.fetchBackup(BackupFileName(key)).map((backups) => {
+      return backups[0];
+    });
     // return this.storageUtils.read(key);
   }
 
   public writeBeforeUnlock(
-    key: VolatileStorageKey,
+    backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return okAsync(undefined);
+    return ResultUtils.combine([this._configProvider.getConfig()])
+      .andThen(([config]) => {
+        const defaultInsightPlatformBaseUrl =
+          config.defaultInsightPlatformBaseUrl;
+
+        // getting wallet address is different t
+        // private key is not needed here.
+        // Looking for another function.
+        const addr = this.cloudParams.dataWalletAddress();
+        const privateKey = EVMPrivateKey("");
+
+        return this.insightPlatformRepo
+          .getSignedUrl(
+            privateKey,
+            defaultInsightPlatformBaseUrl,
+            addr + "/" + backup.header.name,
+            ECloudStorageType.Snickerdoodle,
+            AccessToken(""),
+          )
+          .mapErr((e) => {
+            return new PersistenceError(
+              `Unable to retrieve a signed URL to post a backup from the insight platform. Backup named ${backup.header.name}`,
+              e,
+            );
+          })
+          .andThen((signedUrl) => {
+            return this.ajaxUtils
+              .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
+                headers: {
+                  "Content-Type": `multipart/form-data;`,
+                },
+              })
+
+              .mapErr((e) => {
+                return new PersistenceError(
+                  `Error posting backup to Google, name: ${backup.header.name}`,
+                  e,
+                );
+              });
+          });
+      })
+      .map(() => { });
+    //DataWalletBackupID(backup.header.hash
   }
 
   public pollByStorageType(
@@ -199,6 +249,8 @@ export class GoogleCloudStorage implements ICloudStorage {
             privateKey,
             defaultInsightPlatformBaseUrl,
             addr + "/" + backup.header.name,
+            ECloudStorageType.Snickerdoodle,
+            AccessToken(""),
           )
           .mapErr((e) => {
             return new PersistenceError(

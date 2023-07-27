@@ -19,6 +19,8 @@ import {
   URLString,
   IQueryDeliveryItems,
   PossibleReward,
+  ECloudStorageType,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import {
   clearCloudBackupsTypes,
@@ -40,14 +42,13 @@ import {
   IReceivePreviewsParams,
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
-import { ECloudStorageType } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-  ) {}
+  ) { }
 
   public clearAllBackups(
     dataWalletKey: EVMPrivateKey,
@@ -86,6 +87,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
+    storageType: ECloudStorageType,
+    accessToken: AccessToken,
   ): ResultAsync<URLString, AjaxError> {
     const signableData = {
       fileName: fileName,
@@ -139,7 +142,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         );
       });
   }
-
 
   //
   public receivePreviews(
@@ -273,7 +275,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           postBody as unknown as Record<string, unknown>,
         );
       })
-      .map(() => {});
+      .map(() => { });
   }
 }
 

@@ -91,14 +91,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   */
   public readBeforeUnlock<T extends VersionedObject>(
     filePath: string,
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
     return this.cloudStorage.readBeforeUnlock(filePath);
   }
 
   public writeBeforeUnlock<T extends VersionedObject>(
-    filePath: string,
+    backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this.cloudStorage.writeBeforeUnlock(filePath);
+    return this.cloudStorage.writeBeforeUnlock(backup);
   }
 
   // #region Field Methods

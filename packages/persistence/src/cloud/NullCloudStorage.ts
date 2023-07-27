@@ -8,6 +8,10 @@ import {
   VolatileStorageKey,
   StorageKey,
   ECloudStorageType,
+  DataWalletBackupHeader,
+  UnixTimestamp,
+  Signature,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
@@ -27,14 +31,26 @@ export class NullCloudStorage implements ICloudStorage {
   }
 
   public readBeforeUnlock(
-    key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError> {
+    key: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
     // return this.storageUtils.read(key);
-    return okAsync(undefined);
+    return okAsync(
+      new DataWalletBackup(
+        new DataWalletBackupHeader(
+          DataWalletBackupID(""),
+          UnixTimestamp(0),
+          Signature(""),
+          EBackupPriority.DISABLED,
+          ERecordKey.QUERY_STATUS,
+          false,
+        ),
+        [],
+      ),
+    );
   }
 
   public writeBeforeUnlock(
-    key: VolatileStorageKey,
+    backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
     // return this.storageUtils.write(key);
     return okAsync(undefined);

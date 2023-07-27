@@ -21,14 +21,14 @@ export interface ICloudStorage {
    * Reads file data before we unlock
    */
   readBeforeUnlock(
-    key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError>;
+    key: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError>;
 
   /**
    * Writes file data before we unlock
    */
   writeBeforeUnlock(
-    key: VolatileStorageKey,
+    backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError>;
 
   /**

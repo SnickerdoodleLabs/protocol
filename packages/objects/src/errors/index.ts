@@ -1,4 +1,5 @@
 export * from "@objects/errors/sdqlErrors";
+export * from "@objects/errors/AccessTokenError.js";
 export * from "@objects/errors/AccountIndexingError.js";
 export * from "@objects/errors/AjaxError.js";
 export * from "@objects/errors/BaseError.js";
