@@ -1,9 +1,12 @@
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
 
-interface ISdlDataWalletProxy extends ISdlDataWallet {
+export interface ISdlDataWalletProxy extends ISdlDataWallet {
   providers?: ISdlDataWalletProxy[];
   detected?: number;
+  extensionId?: string;
+  name?: string;
 }
+
 export interface IWindowWithSdlDataWallet extends Window {
   sdlDataWallet: ISdlDataWalletProxy;
 }

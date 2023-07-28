@@ -1,4 +1,7 @@
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import {
+  ISdlDataWalletProxy,
+  IWindowWithSdlDataWallet,
+} from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import React, {
   FC,
@@ -167,7 +170,7 @@ export const DataWalletContextProvider: FC = ({ children }) => {
 export const useDataWalletContext = () => useContext(DataWalletContext);
 
 interface IProviderSelectorProps {
-  onProviderSelect: (provider: ISdlDataWallet) => void;
+  onProviderSelect: (provider: ISdlDataWalletProxy) => void;
 }
 const ProviderSelector: FC<IProviderSelectorProps> = ({ onProviderSelect }) => {
   const providerList = useMemo(() => {

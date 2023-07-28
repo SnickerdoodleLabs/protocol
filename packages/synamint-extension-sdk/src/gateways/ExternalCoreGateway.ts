@@ -507,7 +507,7 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public getProviderKey = (): ResultAsync<string | undefined, JsonRpcError> => {
+  public getProviderKey = (): ResultAsync<string | undefined, ProxyError> => {
     return this.getConfig().map((config) => {
       return config.providerKey;
     });
