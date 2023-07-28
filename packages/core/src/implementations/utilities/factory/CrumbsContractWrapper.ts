@@ -1,5 +1,3 @@
-import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
 import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ContractOverrides,
@@ -17,13 +15,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { BaseContractWrapper } from "@core/implementations/utilities/factory/BaseContractWrapper.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
+
 /**
  * This wrapper implements some metrics utilities and well as reliability (by implementing fallbacks to a secondary provider)
  */
 export class CrumbsContractWrapper
   extends BaseContractWrapper<ICrumbsContract>
-  implements ICrumbsContract
-{
+  implements ICrumbsContract {
   public constructor(
     primary: ICrumbsContract,
     secondary: ICrumbsContract | null,
@@ -40,10 +40,7 @@ export class CrumbsContractWrapper
   public addressToCrumbId(
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<
-    TokenId | null,
-    CrumbsContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<TokenId | null, CrumbsContractError | BlockchainCommonErrors> {
     return this.fallback(
       () => this.primary.addressToCrumbId(accountAddress, contractOverrides),
       () => this.secondary?.addressToCrumbId(accountAddress, contractOverrides),

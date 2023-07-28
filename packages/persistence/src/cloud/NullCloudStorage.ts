@@ -5,6 +5,7 @@ import {
   PersistenceError,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -13,6 +14,19 @@ import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 
 @injectable()
 export class NullCloudStorage implements ICloudStorage {
+  type(): ECloudStorageType {
+    throw new Error("Method not implemented.");
+  }
+  readBeforeUnlock(
+    key: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  writeBeforeUnlock(
+    backup: DataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 

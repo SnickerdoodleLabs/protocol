@@ -85,6 +85,9 @@ export const defaultInsightPlatformBaseUrl = URLString(
 );
 export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
+export const defaultDropboxAppKey = "w69949reoalc9xg";
+export const defaultDropboxAppSecret = "78jch5z5o800dyw";
+
 const testDiscordConfig = {
   clientId: "1089994449830027344",
   clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
@@ -120,6 +123,8 @@ export const testCoreConfig = new CoreConfig(
   URLString("http://ipfstest.com/whatever"),
   defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl
   defaultGoogleCloudBucket, // defaultGoogleCloudBucket
+  defaultDropboxAppKey, // dropbox app key sample
+  defaultDropboxAppSecret, // dropbox app secret sample
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT

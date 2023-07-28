@@ -41,6 +41,7 @@ import {
   UnauthorizedError,
   PasswordString,
 } from "@snickerdoodlelabs/objects";
+import { CloudStorageParams } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";

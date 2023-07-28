@@ -36,7 +36,7 @@ const defaultConfigs: IExtensionConfig = {
 export class ConfigProvider implements IConfigProvider {
   private config: IExtensionConfig = defaultConfigs;
 
-  constructor() {}
+  constructor() { }
   public setConfigOverrides(configOverrides: IExtensionConfigOverrides): void {
     this.config.onboardingUrl =
       configOverrides.onboardingUrl ?? this.config.onboardingUrl;
@@ -96,6 +96,12 @@ export class ConfigProvider implements IConfigProvider {
     this.config.defaultGoogleCloudBucket =
       configOverrides.defaultGoogleCloudBucket ??
       this.config.defaultGoogleCloudBucket;
+
+    this.config.dropboxAppKey =
+      configOverrides.dropboxAppKey ?? this.config.dropboxAppKey;
+    this.config.dropboxAppSecret =
+      configOverrides.dropboxAppSecret ?? this.config.dropboxAppSecret;
+
     this.config.enableBackupEncryption =
       configOverrides.enableBackupEncryption ??
       this.config.enableBackupEncryption;

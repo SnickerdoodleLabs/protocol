@@ -5,10 +5,30 @@ import {
   DataWalletBackupID,
   BackupFileName,
   StorageKey,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
+  /**
+   * Returns the ECloudStorageType of the cloud storage we use
+   */
+  type(): ECloudStorageType;
+
+  /**
+   * Reads file data before we unlock
+   */
+  readBeforeUnlock(
+    key: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError>;
+
+  /**
+   * Writes file data before we unlock
+   */
+  writeBeforeUnlock(
+    backup: DataWalletBackup,
+  ): ResultAsync<void, PersistenceError>;
+
   /**
    * Stores a new backup file in the cloud
    * @param backup The backup you want to store in the cloud

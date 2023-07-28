@@ -19,6 +19,7 @@ import {
   BackupFileName,
   StorageKey,
   DataWalletBackupHeader,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -55,6 +56,19 @@ export class GoogleCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+  }
+  type(): ECloudStorageType {
+    throw new Error("Method not implemented.");
+  }
+  readBeforeUnlock(
+    key: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  writeBeforeUnlock(
+    backup: DataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
   }
 
   public pollByStorageType(
@@ -331,7 +345,7 @@ class ParsedBackupFileName {
     public timestamp: number,
     public hash: DataWalletBackupID,
     public isField: boolean,
-  ) {}
+  ) { }
 
   public static parse(path: string): ParsedBackupFileName | null {
     const name = path.split(/[/ ]+/).pop();

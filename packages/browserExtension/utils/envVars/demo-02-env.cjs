@@ -9,6 +9,9 @@ const envVars = {
     "https://insight-api.demo-02.snickerdoodle.dev/v0/",
   __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",
 
+  __DROPBOX_APP_KEY__: "w69949reoalc9xg",
+  __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",
+
   /* Alchemy Keys */
   __ALCHEMY_ARBITRUM_API_KEY__: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
   __ALCHEMY_ASTAR_API_KEY__: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",

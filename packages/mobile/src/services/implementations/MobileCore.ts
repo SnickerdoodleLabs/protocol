@@ -51,6 +51,7 @@ import {
   VersionedObject,
 } from "@snickerdoodlelabs/objects";
 import {
+  CloudStorageParams,
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   MemoryVolatileStorage,
@@ -314,11 +315,14 @@ export class MobileCore {
       ],
     ]);
 
+    const cloudStorageParams = new CloudStorageParams(undefined, undefined);
+
     this.core = new SnickerdoodleCore(
       coreConfig,
       new MobileStorageUtils(),
       new MemoryVolatileStorage("SD_Wallet", Array.from(provider.values())),
       undefined,
+      cloudStorageParams,
     );
 
     console.log("thhis", this.core);

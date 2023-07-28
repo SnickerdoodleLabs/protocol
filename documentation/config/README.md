@@ -24,6 +24,10 @@ Current Supported Chains can be found at [README.md](/documentation/sdql/README.
 12. Google Cloud Bucket: The GCP bucket identifier used for Google Cloud Bucket that we use to store backups from the data wallet. If left 
 "demo-01-fcszy-sdl-dw"
 
+## Dropbox Configs
+29. Dropbox App Key: Key needed to login
+30. Dropbox App Secret: Secret needed to login
+
 ## Backups and Polling Intervals
 13. Portfolio Polling Interval: Polling time for the Portfolio Page inside the Data Wallet. 
 - Sets a polling time interval to review current information and check if there are any changes since the last backup.  If there are changes, the portfolio reflects these changes and displays them accordingly.  This includes sending new backup data to the cloud.  If there aren't any changes, it continues displaying the cached information. 
@@ -52,3 +56,4 @@ Ex: __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
 26. Ceramic Node URL: OBSOLETE - NOT NECESSARY
 27. DNS SERVER ADDRESS: read txt records - proof of ownership on any domain (Cloudflare)
 28. DOMAIN Filter: sample values include regex (localhost), do not need to store in browsing history
+

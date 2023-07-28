@@ -5,6 +5,11 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
+import {
+  GoogleCloudStorage,
+  CloudStorageParams,
+  ICloudStorageParams,
+} from "@snickerdoodlelabs/persistence";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -88,13 +93,22 @@ export class ExtensionCore {
       primaryInfuraKey: config.primaryInfuraKey,
       secondaryInfuraKey: config.secondaryInfuraKey,
       devChainProviderURL: config.devChainProviderURL,
+
+      dropboxAppKey: config.dropboxAppKey,
+      dropboxAppSecret: config.dropboxAppSecret,
     } as IConfigOverrides;
+
+    const cloudStorageParams = new CloudStorageParams(
+      config.dropboxAppKey,
+      config.dropboxAppSecret,
+    );
 
     this.core = new SnickerdoodleCore(
       coreConfig,
       new ChromeStorageUtils(),
       undefined,
-      undefined,
+      // undefined,
+      cloudStorageParams,
     );
 
     // Make the core directly injectable
@@ -120,7 +134,7 @@ export class ExtensionCore {
       browserTabListener.initialize(),
       errorListener.initialize(),
       portConnectionListener.initialize(),
-    ]).map(() => {});
+    ]).map(() => { });
   }
 
   private tryUnlock(): ResultAsync<void, Error> {

@@ -93,6 +93,7 @@ import {
 import {
   GoogleCloudStorage,
   ICloudStorage,
+  ICloudStorageParams,
   ICloudStorageType,
   IndexedDBVolatileStorage,
   IVolatileStorage,
@@ -173,7 +174,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorage,
-    cloudStorage?: ICloudStorage,
+    // cloudStorage?: ICloudStorage,
+    cloudStorageParams?: ICloudStorageParams,
   ) {
     this.iocContainer = new Container();
 
@@ -191,8 +193,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    if (cloudStorage != null) {
-      this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
+    console.log("cloudStorageParams: " + JSON.stringify(cloudStorageParams));
+
+    if (cloudStorageParams != null) {
+      console.log("cloudStorageParams are not null!: ");
+      // cloudStorageParams.dropboxKey
+
+      this.iocContainer
+        .bind(ICloudStorageType)
+        // .to(NullCloudStorage)
+        .to(GoogleCloudStorage)
+        .inSingletonScope();
+      // this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
@@ -323,7 +335,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => {});
+          .map(() => { });
       },
 
       addAccount: (
@@ -449,7 +461,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => {});
+          .map(() => { });
       },
 
       addPassword: (

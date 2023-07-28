@@ -83,6 +83,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  /* 
+    DataWalletPersistence functions
+    1. Read Directory Before Unlock
+    2. Read File Before Unlock
+    3. Write File Before Unlock
+  */
+  public readBeforeUnlock<T extends VersionedObject>(
+    filePath: string,
+  ): ResultAsync<DataWalletBackup, PersistenceError> {
+    return this.cloudStorage.readBeforeUnlock(filePath);
+  }
+
+  public writeBeforeUnlock<T extends VersionedObject>(
+    backup: DataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    return this.cloudStorage.writeBeforeUnlock(backup);
+  }
+
   // #region Field Methods
   public getField<T>(
     fieldKey: EFieldKey,
@@ -536,7 +554,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
           });
       })
-      .map(() => {});
+      .map(() => { });
 
     // Add the restore to the ongoing restores
     this.ongoingRestores.set(recordKey, restore);
