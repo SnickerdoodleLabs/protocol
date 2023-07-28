@@ -3,6 +3,7 @@ import {
   TokenUri,
   DomainName,
   BaseURI,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -19,7 +20,10 @@ export interface ISiftContract extends IBaseContract {
   verifyURL(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SiftContractError
+  >;
 
   /**
    * Sets a URL as malicious
@@ -29,7 +33,10 @@ export interface ISiftContract extends IBaseContract {
   maliciousURL(
     domain: DomainName,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SiftContractError
+  >;
 
   /**
    * Checks a URL
@@ -37,7 +44,9 @@ export interface ISiftContract extends IBaseContract {
    * eg. 'www.sift.com/VERIFIED', 'www.sift.com/MALICIOUS' or 'NOT VERIFIED
    * @param domain Domain name to check
    */
-  checkURL(domain: DomainName): ResultAsync<TokenUri, SiftContractError>;
+  checkURL(
+    domain: DomainName,
+  ): ResultAsync<TokenUri, SiftContractError | BlockchainCommonErrors>;
 
   /**
    * Sets a new base uri for the contract
@@ -46,7 +55,10 @@ export interface ISiftContract extends IBaseContract {
   setBaseURI(
     baseUri: BaseURI,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, SiftContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SiftContractError
+  >;
 }
 
 export const ISiftContractType = Symbol.for("ISiftContract");

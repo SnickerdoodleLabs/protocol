@@ -2,9 +2,10 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   MinimalForwarderContractError,
-  IBlockchainError,
   BigNumberString,
   Signature,
+  BlockchainCommonErrors,
+  BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
@@ -44,15 +45,14 @@ export class MinimalForwarderContract
 
   public getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError> {
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getNonce(from) as Promise<BigNumber>,
       (e) => {
-        return new MinimalForwarderContractError(
-          `Unable to call getNonce(${from})`,
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, `Unable to call getNonce(${from})`);
       },
     ).map((nonce) => {
       return BigNumberString(nonce.toString());
@@ -62,15 +62,14 @@ export class MinimalForwarderContract
   public verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError> {
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.verify(request, signature) as Promise<boolean>,
       (e) => {
-        return new MinimalForwarderContractError(
-          `Unable to call verify()`,
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, `Unable to call verify()`);
       },
     );
   }
@@ -79,11 +78,14 @@ export class MinimalForwarderContract
     request: IMinimalForwarderRequest,
     signature: Signature,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, MinimalForwarderContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | MinimalForwarderContractError
+  > {
     return this.writeToContract("execute", [request, signature], overrides);
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

@@ -149,12 +149,14 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public metrics: IProxyMetricsMethods;
   public twitter: IProxyTwitterMethods;
 
-  public events: PublicEvents = new PublicEvents();
+  public events: PublicEvents;
 
   constructor() {
     super();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
+
+    this.events = new PublicEvents();
 
     this.on(
       ENotificationTypes.ACCOUNT_ADDED,

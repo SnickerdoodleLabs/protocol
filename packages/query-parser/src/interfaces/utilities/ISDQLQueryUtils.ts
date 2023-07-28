@@ -36,7 +36,7 @@ export interface ISDQLQueryUtils {
   >;
 
   filterCompensationsForPreviews(
-    queryCID : IpfsCID,
+    queryCID: IpfsCID,
     schemaString: SDQLString,
     activeCompensationKeys: CompensationKey[],
     possibleInsightsAndAds: (InsightKey | AdKey)[],

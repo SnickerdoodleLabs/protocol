@@ -4,8 +4,9 @@ import {
   TokenUri,
   TokenId,
   CrumbsContractError,
-  IBlockchainError,
   HexString,
+  BlockchainCommonErrors,
+  BlockchainErrorMapper,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { injectable } from "inversify";
@@ -40,15 +41,11 @@ export class CrumbsContract
 
   public addressToCrumbId(
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenId | null, CrumbsContractError> {
+  ): ResultAsync<TokenId | null, CrumbsContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(accountAddress) as Promise<BigNumber>,
       (e) => {
-        return new CrumbsContractError(
-          "Unable to call addressToCrumbId()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call addressToCrumbId()");
       },
     ).map((tokenId) => {
       // The contract returns 0 for an address that does not have a Crumb Id
@@ -62,19 +59,20 @@ export class CrumbsContract
 
   public tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, CrumbsContractError> {
+  ): ResultAsync<
+    TokenUri | null,
+    CrumbsContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
       (e) => {
-        return new CrumbsContractError(
-          "Unable to call tokenURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call tokenURI()");
       },
     ).orElse((error) => {
       // The contract reverts with this message if tokenId does not exist
-      if (error.reason === "ERC721: operator query for nonexistent token") {
+      if (
+        (error as any).reason === "ERC721: operator query for nonexistent token"
+      ) {
         return okAsync(null);
       }
       return errAsync(error);
@@ -85,7 +83,10 @@ export class CrumbsContract
     crumbId: TokenId,
     tokenUri: TokenUri,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | CrumbsContractError
+  > {
     return this.writeToContract("createCrumb", [crumbId, tokenUri], overrides);
   }
 
@@ -104,7 +105,10 @@ export class CrumbsContract
   public burnCrumb(
     crumbId: TokenId,
     overrides?: ContractOverrides | undefined,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | CrumbsContractError
+  > {
     return this.writeToContract("createCrumb", [crumbId], overrides);
   }
 
@@ -118,7 +122,10 @@ export class CrumbsContract
     crumbId: TokenId,
     tokenURI: TokenUri,
     overrides?: ContractOverrides,
-  ): ResultAsync<WrappedTransactionResponse, CrumbsContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | CrumbsContractError
+  > {
     return this.writeToContract(
       "updateTokenURI",
       [crumbId, tokenURI],
@@ -126,7 +133,7 @@ export class CrumbsContract
     );
   }
 
-  protected generateError(
+  protected generateContractSpecificError(
     msg: string,
     reason: string | undefined,
     e: unknown,

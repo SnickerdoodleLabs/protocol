@@ -1,9 +1,8 @@
 import {
-  AdKey,
   AjaxError,
+  BlockchainCommonErrors,
   BlockchainProviderError,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   ConsentToken,
   DuplicateIdInSchema,
@@ -56,6 +55,7 @@ export interface IQueryService {
     | PersistenceError
     | EvalNotImplementedError
     | MissingASTError
+    | BlockchainCommonErrors
   >;
 
   approveQuery(
@@ -82,6 +82,7 @@ export interface IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 
   getPossibleRewards(

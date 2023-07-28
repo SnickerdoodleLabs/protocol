@@ -83,6 +83,7 @@ import {
   IMasterIndexer,
   IAccountMethods,
   PasswordString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -769,7 +770,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -782,7 +786,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -834,7 +841,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | BlockchainCommonErrors
   > {
     const siftService = this.iocContainer.get<ISiftContractService>(
       ISiftContractServiceType,

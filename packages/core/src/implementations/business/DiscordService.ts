@@ -47,7 +47,7 @@ export class DiscordService implements IDiscordService {
 
   public installationUrl(
     redirectTabId?: number,
-  ): ResultAsync<URLString, DiscordError> {
+  ): ResultAsync<URLString, OAuthError> {
     return this.getAPIConfig().map((apiConfig) => {
       let url = `https://discord.com/oauth2/authorize?client_id=${
         apiConfig.clientId
@@ -123,10 +123,10 @@ export class DiscordService implements IDiscordService {
     });
   }
 
-  protected getAPIConfig(): ResultAsync<DiscordConfig, DiscordError> {
+  protected getAPIConfig(): ResultAsync<DiscordConfig, OAuthError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (config.discord == null) {
-        return errAsync(new DiscordError("Discord configuration not found!"));
+        return errAsync(new OAuthError("Discord configuration not found!"));
       }
       return okAsync(config.discord);
     });
