@@ -19,6 +19,8 @@ import {
   DuplicateIdInSchema,
   EvalNotImplementedError,
   MissingASTError,
+  MissingWalletDataTypeError,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -119,23 +121,24 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
-    | ConsentContractRepositoryError
     | IPFSError
     | AjaxError
     | ConsentContractError
     | ConsentError
-    | PersistenceError
     | QueryFormatError
-    | QueryExpiredError
     | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
     | ServerRewardError
     | ParserError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
     | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -154,7 +157,6 @@ export class BlockchainListener implements IBlockchainListener {
     | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
-    | ConsentContractRepositoryError
     | IPFSError
     | AjaxError
     | ConsentContractError
@@ -162,12 +164,14 @@ export class BlockchainListener implements IBlockchainListener {
     | QueryFormatError
     | EvaluationError
     | QueryExpiredError
+    | BlockchainCommonErrors
     | ServerRewardError
     | ParserError
-    | MissingTokenConstructorError
     | DuplicateIdInSchema
-    | EvalNotImplementedError
+    | MissingTokenConstructorError
     | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
   > {
     return this.invitationRepo
       .getAcceptedInvitations()

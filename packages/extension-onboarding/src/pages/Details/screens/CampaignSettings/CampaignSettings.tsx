@@ -25,7 +25,7 @@ const RewardsInfo: FC = () => {
   const [
     campaignContractAddressesWithCID,
     setCampaignContractAddressesWithCID,
-  ] = useState<Record<EVMContractAddress, IpfsCID>>();
+  ] = useState<Map<EVMContractAddress, IpfsCID>>();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
   useEffect(() => {
@@ -62,8 +62,8 @@ const RewardsInfo: FC = () => {
         setLoadingStatus(false);
       })
       .map(() => {
-        const metadata = { ...campaignContractAddressesWithCID };
-        delete metadata[consentContractAddress];
+        const metadata = new Map(campaignContractAddressesWithCID);
+        metadata.delete(consentContractAddress);
         setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
         updateOptedInContracts();
@@ -108,8 +108,8 @@ const RewardsInfo: FC = () => {
       ) : (
         <Grid container spacing={5}>
           {campaignContractAddressesWithCID &&
-          Object.keys(campaignContractAddressesWithCID).length ? (
-            Object.keys(campaignContractAddressesWithCID)?.map((key) => (
+          campaignContractAddressesWithCID.size > 0 ? (
+            Array.from(campaignContractAddressesWithCID!.keys()).map((key) => (
               <Grid item key={key} xs={6}>
                 <DefaultCampaignItem
                   navigationPath={EPaths.REWARDS_SUBSCRIPTION_DETAIL}

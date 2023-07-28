@@ -18,6 +18,7 @@ import {
   DomainName,
   EVMContractAddress,
   IpfsCID,
+  BlockchainCommonErrors,
   TransactionResponseError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -107,6 +108,7 @@ export class BlockchainStuff {
     metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
+    | BlockchainCommonErrors
     | ConsentFactoryContractError
     | ConsentContractError
     | TransactionResponseError
@@ -138,7 +140,10 @@ export class BlockchainStuff {
   public setConsentContractMaxCapacity(
     contractAddress: EVMContractAddress,
     maxCapacity: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     const contract = this.getConsentContract(contractAddress);
 
     return contract.updateMaxCapacity(maxCapacity);

@@ -1,7 +1,8 @@
 /**
- * This is the main implementation of the Snickerdoodle Query Engine.
+ * This is the main implementation of the Snickerdoodle Protocol.
  *
- * Regardless of form factor, you need to instantiate an instance of
+ * Regardless of form factor, you need to instantiate an instance
+ * of SnickerdoodleCore.
  */
 import {
   AccountAddress,
@@ -18,9 +19,7 @@ import {
   ConsentContractError,
   ConsentError,
   CountryCode,
-  CrumbsContractError,
   DataPermissions,
-  DataWalletAddress,
   DataWalletBackup,
   DataWalletBackupID,
   DiscordID,
@@ -47,8 +46,6 @@ import {
   IInvitationMethods,
   IMasterIndexerType,
   IMetricsMethods,
-  InvalidParametersError,
-  InvalidSignatureError,
   Invitation,
   IpfsCID,
   IPFSError,
@@ -60,7 +57,6 @@ import {
   LinkedAccount,
   MarketplaceListing,
   MarketplaceTag,
-  MinimalForwarderContractError,
   OAuth1RequstToken,
   OAuthAuthorizationCode,
   OAuthVerifier,
@@ -82,12 +78,12 @@ import {
   UnauthorizedError,
   UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError,
   URLString,
   WalletNFT,
   IMasterIndexer,
   IAccountMethods,
   PasswordString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -687,6 +683,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return metricsService.getMetrics();
       },
+      getUnlocked: () => {
+        const metricsService =
+          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
+
+        return metricsService.getUnlocked();
+      },
     };
 
     // Social Media Methods ----------------------------------------------------------
@@ -722,10 +724,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return discordService.initializeUserWithAuthorizationCode(code);
       },
 
-      installationUrl: () => {
+      installationUrl: (redirectTabId?: number) => {
         const discordService =
           this.iocContainer.get<IDiscordService>(IDiscordServiceType);
-        return discordService.installationUrl();
+        return discordService.installationUrl(redirectTabId);
       },
 
       getUserProfiles: () => {
@@ -768,7 +770,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -781,7 +786,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -833,7 +841,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | BlockchainCommonErrors
   > {
     const siftService = this.iocContainer.get<ISiftContractService>(
       ISiftContractServiceType,

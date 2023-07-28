@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "jsx": "react",
+    "target": "es6",
+    "module": "commonjs",
+    "lib": [
+      "es5",
+      "es6",
+      "dom"
+    ],
+    "paths": {
+      "@core-iframe/*": [
+        "./packages/iframe/src/*"
+      ],
+    },
+  },
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../utils"
+    }
+  ],
+  "include": ["./src/**/*.ts",
+  "./src/**/*.tsx",
+  "./src/**/*.json",
+  "index.d.ts"],
+  "exclude": ["node_modules"],
+}

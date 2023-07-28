@@ -46,10 +46,13 @@ export class DiscordProvider implements IDiscordProvider {
   }
 
   public installationUrl(
-    attachRedirectTabId?: boolean,
+    attachRedirectTabId = false,
   ): ResultAsync<URLString, unknown> {
+    // Since we can't determine our tab id here in the SPA, we pass
+    // any tab ID we like here, and the extension will replace it with
+    // with the correct one.
     return this.sdlDataWallet.discord
-      .installationUrl(attachRedirectTabId)
+      .installationUrl(attachRedirectTabId ? -1 : undefined)
       .mapErr(
         () => new Error("Discord installation url can not be generated!"),
       );

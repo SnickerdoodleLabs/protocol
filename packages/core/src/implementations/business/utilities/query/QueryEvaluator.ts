@@ -205,7 +205,9 @@ export class QueryEvaluator implements IQueryEvaluator {
     }
 
     console.error(`EvalNotImplementedError ${condition.constructor.name}`);
-    throw new EvalNotImplementedError(condition.constructor.name);
+    throw new EvalNotImplementedError(
+      `${condition.constructor.name} not implemented`,
+    );
   }
 
   getDiscordProfiles(): ResultAsync<SDQL_Return, PersistenceError> {

@@ -110,6 +110,9 @@ const CampaignPopup: FC = () => {
           if (invitationStatus != EInvitationStatus.New) {
             handleInvalidInvitation(invitationStatus);
           }
+        })
+        .mapErr((e) => {
+          console.error(e);
         });
     }
   }, [
@@ -233,6 +236,9 @@ const CampaignPopup: FC = () => {
                   invitationInfo.tokenId,
                   invitationInfo.signature,
                 );
+              })
+              .mapErr((e) => {
+                console.error(e);
               });
           },
           customProps: {
@@ -255,8 +261,6 @@ const CampaignPopup: FC = () => {
     });
   };
 
-  if (loading) {
-  }
   if (!invitationMeta || !open || !isProductTourCompleted) {
     return null;
   }

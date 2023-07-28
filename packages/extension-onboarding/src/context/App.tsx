@@ -43,6 +43,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { Subscription } from "rxjs";
 
 export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
@@ -165,54 +166,50 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
+  let initializedSubscription: Subscription | null = null;
+  let accountAddedSubscription: Subscription | null = null;
+  let accountRemovedSubscription: Subscription | null = null;
+  let earnedRewardsAddedSubscription: Subscription | null = null;
+  let cohortJoinedSubscription: Subscription | null = null;
+
   // register events
   useEffect(() => {
     if (appMode === EAppModes.UNAUTH_USER) {
-      sdlDataWallet.on(
-        ENotificationTypes.ACCOUNT_INITIALIZED,
-        onAccountInitialized,
-      );
+      initializedSubscription =
+        sdlDataWallet.events.onInitialized.subscribe(onAccountInitialized);
     }
     if (appMode === EAppModes.AUTH_USER) {
       getUserAccounts();
       getOptedInContracts();
       getEarnedRewards();
-      sdlDataWallet.off(
-        ENotificationTypes.ACCOUNT_INITIALIZED,
-        onAccountInitialized,
-      );
-      sdlDataWallet.on(ENotificationTypes.ACCOUNT_ADDED, onAccountAdded);
-      sdlDataWallet.on(ENotificationTypes.ACCOUNT_REMOVED, onAccountRemoved);
-      sdlDataWallet.on(
-        ENotificationTypes.EARNED_REWARDS_ADDED,
-        onEarnedRewardAdded,
-      );
-      sdlDataWallet.on(ENotificationTypes.COHORT_JOINED, onCohortJoined);
+
+      initializedSubscription?.unsubscribe();
+      accountAddedSubscription =
+        sdlDataWallet.events.onAccountAdded.subscribe(onAccountAdded);
+      accountRemovedSubscription =
+        sdlDataWallet.events.onAccountRemoved.subscribe(onAccountRemoved);
+      earnedRewardsAddedSubscription =
+        sdlDataWallet.events.onEarnedRewardsAdded.subscribe(
+          onEarnedRewardAdded,
+        );
+      cohortJoinedSubscription =
+        sdlDataWallet.events.onCohortJoined.subscribe(onCohortJoined);
     }
     return () => {
-      sdlDataWallet.off(
-        ENotificationTypes.ACCOUNT_INITIALIZED,
-        onAccountInitialized,
-      );
-      sdlDataWallet.off(ENotificationTypes.ACCOUNT_ADDED, onAccountAdded);
-      sdlDataWallet.off(ENotificationTypes.ACCOUNT_REMOVED, onAccountRemoved);
-      sdlDataWallet.off(
-        ENotificationTypes.EARNED_REWARDS_ADDED,
-        onEarnedRewardAdded,
-      );
+      initializedSubscription?.unsubscribe();
+      accountAddedSubscription?.unsubscribe();
+      accountRemovedSubscription?.unsubscribe();
+      earnedRewardsAddedSubscription?.unsubscribe();
+      cohortJoinedSubscription?.unsubscribe();
     };
   }, [appMode]);
 
   // notification handlers
-  const onEarnedRewardAdded = (
-    notification: EarnedRewardsAddedNotification,
-  ) => {
+  const onEarnedRewardAdded = (earnedRewards: EarnedReward[]) => {
     getEarnedRewards();
   };
 
-  const onAccountInitialized = (
-    notification: AccountInitializedNotification,
-  ) => {
+  const onAccountInitialized = (dataWalletAddress: DataWalletAddress) => {
     getUserAccounts().map(() => {
       setVisualAlert(true);
       setAlert({
@@ -223,8 +220,8 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const onAccountAdded = (notification: AccountAddedNotification) => {
-    addAccount(notification.data);
+  const onAccountAdded = (linkedAccount: LinkedAccount) => {
+    addAccount(linkedAccount);
     setVisualAlert(true);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
@@ -232,11 +229,11 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const onAccountRemoved = (notification: AccountRemovedNotification) => {
+  const onAccountRemoved = (linkedAccount: LinkedAccount) => {
     getUserAccounts();
   };
 
-  const onCohortJoined = (notification: CohortJoinedNotification) => {
+  const onCohortJoined = (consentContractAddress: EVMContractAddress) => {
     getOptedInContracts();
   };
 
@@ -246,8 +243,8 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const getOptedInContracts = () => {
-    sdlDataWallet.getAcceptedInvitationsCID().map((records) => {
-      setUptedInContracts(Object.keys(records) as EVMContractAddress[]);
+    sdlDataWallet.getAcceptedInvitationsCID().map((res) => {
+      setUptedInContracts(Array.from(res.keys()) as EVMContractAddress[]);
     });
   };
 

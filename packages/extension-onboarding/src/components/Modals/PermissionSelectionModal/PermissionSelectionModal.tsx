@@ -83,9 +83,14 @@ const PermissionSelectionModalV2: FC = () => {
   };
 
   useEffect(() => {
-    sdlDataWallet.getPossibleRewards([consentContractAddress]).map((res) => {
-      setPossibleRewards(res[consentContractAddress] ?? []);
-    });
+    sdlDataWallet
+      .getPossibleRewards([consentContractAddress])
+      .map((res) => {
+        setPossibleRewards(res[consentContractAddress] ?? []);
+      })
+      .mapErr((e) => {
+        console.error(e);
+      });
   }, []);
 
   const classes = useStyles();

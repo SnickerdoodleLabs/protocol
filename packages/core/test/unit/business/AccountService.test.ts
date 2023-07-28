@@ -30,6 +30,7 @@ import {
   MinimalForwarderContractError,
   PasswordString,
   PersistenceError,
+  PublicEvents,
   Signature,
   SolanaAccountAddress,
   TokenId,
@@ -57,7 +58,6 @@ import {
   CoreContext,
   CrumbCallData,
   PrivateEvents,
-  PublicEvents,
 } from "@core/interfaces/objects/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import { PermissionsUtilsMock } from "@core-tests/mock/business/utilities/index.js";
@@ -829,7 +829,14 @@ describe("AccountService unlock() tests", () => {
         evmDerivedEVMAccount.accountAddress,
         languageCode,
       ),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -923,7 +930,7 @@ describe("AccountService unlock() tests", () => {
     const mocks = new AccountServiceMocks();
 
     td.when(mocks.dataWalletPersistence.unlock(dataWalletKey)).thenReturn(
-      errAsync(new PersistenceError()),
+      errAsync(new PersistenceError(`PersistenceError`)),
     );
 
     const service = mocks.factory();
@@ -991,7 +998,7 @@ describe("AccountService unlock() tests", () => {
           derivedAccountAddress: evmDerivedEVMAccount.accountAddress,
         }),
       ),
-    ).thenReturn(errAsync(new PersistenceError()));
+    ).thenReturn(errAsync(new PersistenceError(`PersistenceError`)));
 
     const service = mocks.factory();
 
@@ -1052,7 +1059,14 @@ describe("AccountService unlock() tests", () => {
 
     td.when(
       mocks.crumbsRepo.encodeCreateCrumb(languageCode, evmEncryptedDataWallet),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -1359,7 +1373,14 @@ describe("AccountService addAccount() tests", () => {
         evmDerivedEVMAccount.accountAddress,
         languageCode,
       ),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -1395,7 +1416,14 @@ describe("AccountService addAccount() tests", () => {
 
     td.when(
       mocks.crumbsRepo.encodeCreateCrumb(languageCode, evmEncryptedDataWallet),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -1521,7 +1549,7 @@ describe("AccountService addAccount() tests", () => {
           derivedAccountAddress: evmDerivedEVMAccount.accountAddress,
         }),
       ),
-    ).thenReturn(errAsync(new PersistenceError()));
+    ).thenReturn(errAsync(new PersistenceError(`PersistenceError`)));
 
     const service = mocks.factory();
 
@@ -1739,7 +1767,14 @@ describe("AccountService unlockWithPassword() tests", () => {
         passwordDerivedEVMAccount.accountAddress,
         testCoreConfig.passwordLanguageCode,
       ),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -1818,7 +1853,7 @@ describe("AccountService unlockWithPassword() tests", () => {
     const mocks = new AccountServiceMocks();
 
     td.when(mocks.dataWalletPersistence.unlock(dataWalletKey)).thenReturn(
-      errAsync(new PersistenceError()),
+      errAsync(new PersistenceError(`PersistenceError`)),
     );
 
     const service = mocks.factory();
@@ -1878,7 +1913,14 @@ describe("AccountService unlockWithPassword() tests", () => {
         testCoreConfig.passwordLanguageCode,
         passwordEncryptedDataWallet,
       ),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -2090,7 +2132,14 @@ describe("AccountService addPassword() tests", () => {
         passwordDerivedEVMAccount.accountAddress,
         testCoreConfig.passwordLanguageCode,
       ),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 
@@ -2124,7 +2173,14 @@ describe("AccountService addPassword() tests", () => {
         testCoreConfig.passwordLanguageCode,
         passwordEncryptedDataWallet,
       ),
-    ).thenReturn(errAsync(new BlockchainProviderError(ChainId(evmChain))));
+    ).thenReturn(
+      errAsync(
+        new BlockchainProviderError(
+          ChainId(evmChain),
+          `BlockchainProviderError`,
+        ),
+      ),
+    );
 
     const service = mocks.factory();
 

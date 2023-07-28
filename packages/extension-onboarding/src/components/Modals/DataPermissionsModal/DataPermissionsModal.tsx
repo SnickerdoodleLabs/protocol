@@ -27,9 +27,16 @@ const DataPermissionsModal: FC = () => {
   const onCloseClicked: () => void = customProps.onCloseClicked;
 
   useEffect(() => {
-    sdlDataWallet.getDefaultPermissions().map((permissions) => {
-      setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
-    });
+    sdlDataWallet
+      .getDefaultPermissions()
+      .map((permissions) => {
+        setPermissionForm(
+          permissions.filter((item) => !!PERMISSION_NAMES[item]),
+        );
+      })
+      .mapErr((e) => {
+        console.error(e);
+      });
   }, []);
 
   const classes = useStyles();

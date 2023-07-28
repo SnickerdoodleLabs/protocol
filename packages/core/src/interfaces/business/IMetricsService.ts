@@ -7,6 +7,7 @@ import { ResultAsync } from "neverthrow";
  */
 export interface IMetricsService {
   getMetrics(): ResultAsync<RuntimeMetrics, never>;
+  getUnlocked(): ResultAsync<boolean, never>;
   initialize(): ResultAsync<void, never>;
 }
 
