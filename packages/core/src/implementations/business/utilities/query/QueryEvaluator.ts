@@ -97,7 +97,6 @@ export class QueryEvaluator implements IQueryEvaluator {
     switch (q.property) {
       case "age":
         return this.demographicDataRepo.getAge().andThen((age) => {
-          console.log(`Age `, age);
           switch (q.returnType) {
             case "boolean":
               for (const condition of q.conditions) {
@@ -114,7 +113,6 @@ export class QueryEvaluator implements IQueryEvaluator {
         });
       case "location":
         return this.demographicDataRepo.getLocation().andThen((location) => {
-          console.log(`Location `, location);
           switch (q.returnType) {
             case "string":
               result = SDQL_Return(location);

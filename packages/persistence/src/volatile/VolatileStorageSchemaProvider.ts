@@ -56,9 +56,7 @@ export class VolatileStorageSchemaProvider
     Map<ERecordKey, VolatileTableIndex<VersionedObject>>,
     never
   > {
-    console.log(`Getting volatiole storage`);
     return this.configProvider.getConfig().map((config) => {
-      console.log(`Got the config `);
       return new Map<ERecordKey, VolatileTableIndex<VersionedObject>>([
         [
           ERecordKey.ACCOUNT,
