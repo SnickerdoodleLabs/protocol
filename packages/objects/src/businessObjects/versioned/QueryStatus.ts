@@ -10,6 +10,10 @@ import {
   JSONString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import {
+  EarnedReward,
+  IDynamicRewardParameter,
+} from "@objects/businessObjects/rewards/index.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
@@ -31,7 +35,8 @@ export class QueryStatus extends VersionedObject {
     public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
-    public rewardsParameters: JSONString | null,
+    public rewardsParameters: JSONString | IDynamicRewardParameter[] | null,
+    public earnedRewardImages: JSONString | IpfsCID[] | null,
   ) {
     super();
   }
@@ -54,6 +59,7 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
       data["status"] as EQueryProcessingStatus,
       data["expirationDate"] as UnixTimestamp,
       data["rewardsParameters"] as JSONString,
+      data["earnedRewardImages"] as JSONString,
     );
   }
 

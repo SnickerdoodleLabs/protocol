@@ -342,6 +342,7 @@ export function isAccountValidForChain(
   chainId: ChainId,
   account: LinkedAccount,
 ): boolean {
+  if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;

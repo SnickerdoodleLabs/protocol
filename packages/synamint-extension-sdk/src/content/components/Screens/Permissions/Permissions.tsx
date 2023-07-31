@@ -44,8 +44,8 @@ interface IPermissionsProps {
   eventEmitter: UpdatableEventEmitterWrapper;
   isUnlocked: boolean;
   onNextClick: (
-    eligibleRewards: PossibleReward[],
-    missingRewards: PossibleReward[],
+    rewardsThatCanBeAcquired: PossibleReward[],
+    rewardsThatRequireMorePermission: PossibleReward[],
     dataTypes: EWalletDataType[],
   ) => void;
 }
@@ -235,6 +235,7 @@ const Permissions: FC<IPermissionsProps> = ({
     >
       {rewards ? (
         <PermissionSelection
+          coreGateway={coreGateway}
           setBirthday={(birthday) =>
             coreGateway.setBirtday(new SetBirthdayParams(birthday))
           }

@@ -51,7 +51,7 @@ export interface IQueryParsingEngine {
     | MissingASTError
   >;
 
-  constructPossibleRewardsFromQuery(
+  constructAllTheRewardsFromQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],

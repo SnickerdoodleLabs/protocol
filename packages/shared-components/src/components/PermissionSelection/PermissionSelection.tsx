@@ -9,6 +9,7 @@ import {
   Gender,
   IOpenSeaMetadata,
   PossibleReward,
+  QueryStatus,
   QueryTypePermissionMap,
   QueryTypes,
   UnixTimestamp,
@@ -23,8 +24,10 @@ import { PossibleRewardComponent } from "@shared-components/components/PossibleR
 import { UI_SUPPORTED_PERMISSIONS } from "@shared-components/constants";
 import { EBadgeType } from "@shared-components/objects";
 import { isSameReward } from "@shared-components/utils";
+import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 
 interface IPermissionSelectionProps {
+  coreGateway: ExternalCoreGateway;
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;
   setLocation(location: CountryCode): ResultAsync<void, unknown>;
   setGender(gender: Gender): ResultAsync<void, unknown>;
@@ -36,8 +39,8 @@ interface IPermissionSelectionProps {
   consentContractAddress: EVMContractAddress;
   onCancelClick(): void;
   onAcceptClick(
-    eligibleRewards: PossibleReward[],
-    missingRewards: PossibleReward[],
+    rewardsThatCanBeAcquired: PossibleReward[],
+    rewardsThatRequireMorePermission: PossibleReward[],
     dataTypes: EWalletDataType[],
   ): void;
   ipfsBaseUrl: string;
@@ -47,6 +50,7 @@ interface IPermissionSelectionProps {
 }
 
 export const PermissionSelection: FC<IPermissionSelectionProps> = ({
+  coreGateway,
   isSafe,
   generateAllPermissions,
   possibleRewards,
@@ -63,6 +67,7 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
   onSocialConnect,
 }) => {
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
+  const [query, setQueryStatus] = useState<QueryStatus | null>();
   const classes = useStyles();
   const handlePermissionSelect = (permission: EWalletDataType) => {
     permissions.includes(permission)
@@ -81,6 +86,12 @@ export const PermissionSelection: FC<IPermissionSelectionProps> = ({
         : EBadgeType.MorePermissionRequired,
     [permissions],
   );
+
+  useEffect(() => {
+    if (isUnlocked) {
+      coreGateway;
+    }
+  }, [isUnlocked]);
 
   const { programRewards } = useMemo(() => {
     // earned rewards

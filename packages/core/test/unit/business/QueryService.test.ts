@@ -104,6 +104,7 @@ const receivedQueryStatus = new QueryStatus(
   EQueryProcessingStatus.Received,
   then,
   null,
+  null,
 );
 
 const adsCompletedQueryStatus = new QueryStatus(
@@ -113,6 +114,7 @@ const adsCompletedQueryStatus = new QueryStatus(
   EQueryProcessingStatus.AdsCompleted,
   then,
   ObjectUtils.serialize(rewardParameters),
+  null,
 );
 
 const earnedReward = new EarnedReward(
@@ -219,6 +221,7 @@ class QueryServiceMocks {
             EQueryProcessingStatus.AdsCompleted,
             receivedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
+            null,
           ),
         ),
       ]),
@@ -233,6 +236,7 @@ class QueryServiceMocks {
             EQueryProcessingStatus.RewardsReceived,
             adsCompletedQueryStatus.expirationDate,
             ObjectUtils.serialize(rewardParameters),
+            null,
           ),
         ),
       ]),
@@ -352,6 +356,7 @@ describe("QueryService.approveQuery() tests", () => {
             EQueryProcessingStatus.AdsCompleted,
             now,
             ObjectUtils.serialize(rewardParameters),
+            null,
           ),
         ),
       ]),
@@ -455,6 +460,7 @@ describe("QueryService.returnQueries() tests", () => {
       EQueryProcessingStatus.AdsCompleted,
       then,
       null,
+      null,
     );
     td.when(
       mocks.sdqlQueryRepo.getQueryStatusByStatus(
@@ -471,6 +477,7 @@ describe("QueryService.returnQueries() tests", () => {
             queryStatus.receivedBlock,
             EQueryProcessingStatus.NoRewardsParams,
             queryStatus.expirationDate,
+            null,
             null,
           ),
         ),

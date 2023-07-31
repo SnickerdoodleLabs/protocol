@@ -26,6 +26,7 @@ import {
   SDQLString,
   CompensationKey,
   InsightKey,
+  QueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -110,7 +111,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
-  public constructPossibleRewardsFromQuery(
+  /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
+   *  should not be used for anything else !
+   */
+  public constructAllTheRewardsFromQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],
@@ -125,22 +129,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | PersistenceError
     | EvalNotImplementedError
   > {
-    return this.getPossibleQueryDeliveryItems(query).andThen(
-      (queryDeliveryItems) => {
-        return this.queryUtils
-          .getCompensationsToDispense(query.query, queryDeliveryItems)
-          .andThen((compensationKeys) => {
-            const insightAndAdKeys =
-              this.getInsightAndAdKeys(queryDeliveryItems);
-            return this.queryUtils.filterCompensationsForPreviews(
-              query.cid,
-              query.query,
-              compensationKeys,
-              insightAndAdKeys,
-            );
-          });
-      },
-    );
+    return this.parseQuery(query).andThen((ast) => {
+      const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
+      return this.queryUtils.filterCompensationsForPreviews(
+        query.cid,
+        query.query,
+        compensationKeys,
+        insightAndAdKeys,
+      );
+    });
   }
 
   public getPossibleQueryDeliveryItems(
@@ -163,7 +160,25 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.handleQuery(query, DataPermissions.createWithAllPermissions());
   }
 
-  private getInsightAndAdKeys({
+  /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
+   *  should not be used for anything else !
+   */
+  protected getTotalQueryKeys(
+    ast: AST,
+  ): [CompensationKey[], (InsightKey | AdKey)[]] {
+    const compensationKeys: CompensationKey[] = [
+      ...ast.compensations.keys(),
+    ].map((compKey) => CompensationKey(compKey));
+
+    const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
+      (insightKey) => InsightKey(insightKey),
+    );
+
+    const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
+    return [compensationKeys, [...insightKeys, ...adKeys]];
+  }
+
+  protected getInsightAndAdKeys({
     ads,
     insights,
   }: IQueryDeliveryItems): (InsightKey | AdKey)[] {

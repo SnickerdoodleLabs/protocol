@@ -108,6 +108,20 @@ export const PossibleRewardComponent = ({
             </Typography>
           </Box>
         );
+      case badgeType === EBadgeType.UserWasInEligible:
+        return (
+          <Box
+            width="fit-content"
+            bgcolor="#red"
+            px={1}
+            py={0.5}
+            borderRadius={4}
+          >
+            <Typography className={rewardItemsClasses.listPermissionRequired}>
+              Did not match the reward criteria
+            </Typography>
+          </Box>
+        );
       default:
         return null;
     }
@@ -151,15 +165,18 @@ export const PossibleRewardComponent = ({
                   }
                 />
               )}
-              <Zoom in={unlockAnimation} unmountOnExit>
+              {badgeType === EBadgeType.UserWasInEligible && (
                 <img
                   width={23}
                   height={23}
+                  style={{
+                    filter: "grayscale(100%)",
+                  }}
                   src={
-                    "https://storage.googleapis.com/dw-assets/shared/icons/unlocked.png"
+                    "https://storage.googleapis.com/dw-assets/shared/icons/lock.png"
                   }
                 />
-              </Zoom>
+              )}
             </Box>
             <Box
               position="absolute"
@@ -313,6 +330,44 @@ export const PossibleRewardComponent = ({
                       "https://storage.googleapis.com/dw-assets/shared/icons/lock-expanded.png"
                     }
                   />
+                </Grow>
+              </Box>
+            )}
+            {badgeType === EBadgeType.UserWasInEligible && (
+              <Box
+                display="flex"
+                onMouseEnter={() => {
+                  setLockHovered(true);
+                }}
+                onMouseLeave={() => {
+                  setLockHovered(false);
+                }}
+              >
+                <img
+                  height={53}
+                  style={{ zIndex: 1, filter: "grayscale(100%)" }}
+                  src={
+                    "https://storage.googleapis.com/dw-assets/shared/icons/lock.png"
+                  }
+                />
+                <Grow
+                  unmountOnExit
+                  in={lockHovered}
+                  timeout={{ enter: 500, exit: 200 }}
+                >
+                  <Box
+                    style={{
+                      marginLeft: -53,
+                      borderRadius: "26px",
+                      background: "#757575",
+                    }}
+                    height={53}
+                    width={154}
+                  >
+                    <Typography className={rewardItemsClasses.expandedLockText}>
+                      Did not match the reward criteria
+                    </Typography>
+                  </Box>
                 </Grow>
               </Box>
             )}

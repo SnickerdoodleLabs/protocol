@@ -87,7 +87,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getField<T>(
     fieldKey: EFieldKey,
   ): ResultAsync<T | null, PersistenceError> {
+    console.log(`Getting field `, fieldKey);
     return this.waitForFieldRestore(fieldKey).andThen(() => {
+      console.log(`Getting the field`);
       return this.storageUtils
         .read<SerializedObject>(fieldKey)
         .andThen((raw) => {
@@ -151,10 +153,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     recordKey: ERecordKey,
     indexName?: string | undefined,
   ): ResultAsync<T[], PersistenceError> {
+    console.log(`Getting all `, recordKey);
     return this.waitForRecordRestore(recordKey).andThen(() => {
+      console.log(`After restore`);
       return this.volatileStorage
         .getAll<T>(recordKey, indexName)
         .map((values) => {
+          console.log(`Gett them from volatile`);
           return values.map((x) => x.data);
         });
     });
@@ -255,6 +260,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   // #endregion
 
   public waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
+    console.log(`Wait for unlock`);
     return ResultAsync.fromSafePromise(this.unlockPromise);
   }
 

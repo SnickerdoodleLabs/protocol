@@ -44,6 +44,8 @@ import {
   EvalNotImplementedError,
   MissingASTError,
   BlockchainCommonErrors,
+  JSONString,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -218,6 +220,7 @@ export class QueryService implements IQueryService {
         EQueryProcessingStatus.Received,
         queryWrapper.expiry,
         null,
+        null,
       ),
     ]);
   }
@@ -225,7 +228,22 @@ export class QueryService implements IQueryService {
   public getQueryStatusByQueryCID(
     queryCID: IpfsCID,
   ): ResultAsync<QueryStatus | null, PersistenceError> {
-    return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
+    return this.sdqlQueryRepo
+      .getQueryStatusByQueryCID(queryCID)
+      .map((queryStatus) => {
+        if (queryStatus) {
+          const queryEarnedRewardImages = queryStatus.earnedRewardImages
+            ? (queryStatus.earnedRewardImages as JSONString)
+            : "[]";
+          const earnedRewardImages = ObjectUtils.deserialize<IpfsCID[]>(
+            JSONString(queryEarnedRewardImages),
+          );
+
+          queryStatus.earnedRewardImages = earnedRewardImages;
+        }
+
+        return queryStatus;
+      });
   }
 
   /**
@@ -267,6 +285,7 @@ export class QueryService implements IQueryService {
               EQueryProcessingStatus.AdsCompleted,
               this.timeUtils.getUnixNow(),
               ObjectUtils.serialize(rewardParameters),
+              null,
             ),
           ]);
         }
@@ -347,7 +366,7 @@ export class QueryService implements IQueryService {
             }
             const rewardsParameters = ObjectUtils.deserialize<
               IDynamicRewardParameter[]
-            >(queryStatus.rewardsParameters);
+            >(queryStatus.rewardsParameters as JSONString);
             return ResultUtils.combine([
               this.consentTokenUtils.getCurrentConsentToken(
                 queryStatus.consentContractAddress,
@@ -422,10 +441,13 @@ export class QueryService implements IQueryService {
                   this.logUtils.log("insight delivery api call done");
                   this.logUtils.log("Earned Rewards: ", earnedRewards);
                   // add EarnedRewards to the wallet, and update the QueryStatus
-                  queryStatus.status = EQueryProcessingStatus.RewardsReceived;
+
                   return ResultUtils.combine([
                     this.accountRepo.addEarnedRewards(earnedRewards),
-                    this.sdqlQueryRepo.upsertQueryStatus([queryStatus]),
+                    this.updateQueryStatusWithReceivedRewards(
+                      queryStatus,
+                      earnedRewards,
+                    ),
                   ]);
                   /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
                   /* Show Lazy Rewards in rewards tab? */
@@ -447,7 +469,16 @@ export class QueryService implements IQueryService {
       })
       .map(() => {});
   }
+  protected updateQueryStatusWithReceivedRewards(
+    queryStatus: QueryStatus,
+    earnedRewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError> {
+    queryStatus.status = EQueryProcessingStatus.RewardsReceived;
 
+    const earnedRewardImages = earnedRewards.map((reward) => reward.image);
+    queryStatus.earnedRewardImages = ObjectUtils.serialize(earnedRewardImages);
+    return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]);
+  }
   public getPossibleRewards(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
@@ -496,6 +527,7 @@ export class QueryService implements IQueryService {
           requestForData.blockNumber,
           EQueryProcessingStatus.NoConsentToken,
           queryWrapper.expiry,
+          null,
           null,
         ),
       ])
