@@ -243,7 +243,7 @@ const RewardProgramDetails: FC = () => {
           setQueryStatus(queryStatus);
         });
     }
-  }, [possibleRewards, isSubscribed]);
+  }, [possibleRewards, earnedRewards]);
 
   useEffect(() => {
     if (!isSubscribed && appMode === EAppModes.AUTH_USER) {
