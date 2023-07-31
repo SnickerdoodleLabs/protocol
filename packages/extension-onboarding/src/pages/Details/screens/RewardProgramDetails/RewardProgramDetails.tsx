@@ -161,7 +161,7 @@ const RewardProgramDetails: FC = () => {
           setQueryStatus(queryStatus);
         });
     }
-  }, [JSON.stringify(consentPermissions)]);
+  }, [possibleRewards]);
 
   const handleSocialLink = async (socialType: ESocialType) => {
     switch (socialType) {

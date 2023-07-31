@@ -3,7 +3,6 @@ import {
   EarnedReward,
   QueryTypePermissionMap,
   EWalletDataType,
-  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 
 export const isSameReward = (
