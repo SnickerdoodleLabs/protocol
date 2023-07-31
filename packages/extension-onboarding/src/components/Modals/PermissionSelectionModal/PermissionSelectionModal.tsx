@@ -151,11 +151,15 @@ const PermissionSelectionModalV2: FC = () => {
         consentContractAddress={consentContractAddress}
         onCancelClick={closeModal}
         onAcceptClick={(
-          eligibleRewards: PossibleReward[],
-          missingRewards: PossibleReward[],
+          rewardsThatCanBeAcquired: PossibleReward[],
+          rewardsThatRequireMorePermission: PossibleReward[],
           dataTypes: EWalletDataType[],
         ) => {
-          onPrimaryButtonClick({ eligibleRewards, missingRewards, dataTypes });
+          onPrimaryButtonClick({
+            rewardsThatCanBeAcquired,
+            rewardsThatRequireMorePermission,
+            dataTypes,
+          });
         }}
         isUnlocked={appMode === EAppModes.AUTH_USER}
         onPermissionClickWhenLocked={function (): void {

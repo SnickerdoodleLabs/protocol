@@ -153,16 +153,6 @@ const RewardProgramDetails: FC = () => {
     }
   }, [JSON.stringify(consentPermissions)]);
 
-  useEffect(() => {
-    if (possibleRewards.length > 0) {
-      window.sdlDataWallet
-        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
-        .map((queryStatus) => {
-          setQueryStatus(queryStatus);
-        });
-    }
-  }, [possibleRewards]);
-
   const handleSocialLink = async (socialType: ESocialType) => {
     switch (socialType) {
       case ESocialType.TWITTER: {
@@ -244,6 +234,16 @@ const RewardProgramDetails: FC = () => {
   const isSubscribed = useMemo(() => {
     return optedInContracts.includes(consentContractAddress);
   }, [JSON.stringify(optedInContracts), consentContractAddress]);
+
+  useEffect(() => {
+    if (possibleRewards.length > 0) {
+      window.sdlDataWallet
+        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
+        .map((queryStatus) => {
+          setQueryStatus(queryStatus);
+        });
+    }
+  }, [possibleRewards, isSubscribed]);
 
   useEffect(() => {
     if (!isSubscribed && appMode === EAppModes.AUTH_USER) {
@@ -352,6 +352,7 @@ const RewardProgramDetails: FC = () => {
     consentPermissions,
     permissionsState,
     consentContractAddress,
+    queryStatus,
   ]);
 
   const handlePermissionSelect = (permission: EWalletDataType) => {
@@ -536,7 +537,7 @@ const RewardProgramDetails: FC = () => {
               />
             </Box>
             {(collectedRewards?.length > 0 ||
-              rewardsThatCanBeAcquired.length > 0) && (
+              rewardsThatAreBeingProcessed.length > 0) && (
               <Box mt={2.5}>
                 <CollectedRewards
                   consentContractAddress={consentContractAddress}
