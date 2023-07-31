@@ -304,8 +304,11 @@ const RewardProgramDetails: FC = () => {
         );
       rewardsThatCanBeAcquired = rewardsThatCanBeEarned;
       rewardsThatRequireMorePermission = rewardsThatCannotBeEarned;
-    } else if (queryStatus) {
-      if (queryStatus.status === EQueryProcessingStatus.RewardsReceived) {
+    } else if (queryStatus || isSubscribed) {
+      if (
+        queryStatus &&
+        queryStatus.status === EQueryProcessingStatus.RewardsReceived
+      ) {
         const {
           rewardsThatWereEarned,
           rewardsThatWereNotEarned,
