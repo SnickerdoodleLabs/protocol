@@ -268,7 +268,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = listings[LLKey][_startingSlot];
             require(listing.timeExpiring > 0, "ConsentFactory: invalid slot"); // ensure the listing is valid by looking at the timestamp
-            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { continue; } // don't include expired listings if filtering enabled
+            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { 
+                _startingSlot = listing.next; // Move on to downstream slot
+                if(_startingSlot == 0) { // slot 0 is the EOL tail slot
+                    break;
+                }
+                continue; 
+            } // don't include expired listings if filtering enabled
             cids[i] = Consent(listing.consentContract).baseURI(); // grab the invitation details from the consent contract
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.next;
@@ -297,7 +303,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = listings[LLKey][_startingSlot];
             require(listing.timeExpiring > 0, "ConsentFactory: invalid slot"); // ensure the listing is valid by looking at the timestamp
-            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { continue; } // don't include expired listings if filtering enabled
+            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { 
+                _startingSlot = listing.previous; // Move on to upstream slot
+                if(listing.previous == type(uint256).max) { // slot 2^256-1 is the EOL head slot
+                    break;
+                }
+                continue;
+            } // don't include expired listings if filtering enabled
             cids[i] = Consent(listing.consentContract).baseURI(); // grab the invitation details from the consent contract
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.previous;
