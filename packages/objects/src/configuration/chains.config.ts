@@ -342,6 +342,8 @@ export function isAccountValidForChain(
   chainId: ChainId,
   account: LinkedAccount,
 ): boolean {
+  // Goerli is deprecated, but still supported (exists). Will throw an error while
+  // A query being processed.
   if (chainId === 5) return false;
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
