@@ -27,6 +27,7 @@ import {
   IPFSError,
   IpfsCID,
   LinkedAccount,
+  MissingWalletDataTypeError,
   PersistenceError,
   QueryFormatError,
   QueryStatus,
@@ -36,6 +37,7 @@ import {
   ServerRewardError,
   UninitializedError,
   PossibleReward,
+  DataPermissions,
   IQueryDeliveryItems,
   QueryExpiredError,
   ParserError,
@@ -222,14 +224,8 @@ export class QueryService implements IQueryService {
     ]);
   }
 
-  public getQueryStatusByQueryCID(
-    queryCID: IpfsCID,
-  ): ResultAsync<QueryStatus | null, PersistenceError> {
-    return this.sdqlQueryRepo.getQueryStatusByQueryCID(queryCID);
-  }
-
   /**
-   * This method assums that the ads are completed if there is any.
+   * THis method assums that the ads are completed if there is any.
    * @param consentContractAddress
    * @param query
    * @param rewardParameters
@@ -367,7 +363,7 @@ export class QueryService implements IQueryService {
                   // After sanity checking, we process the query into insights for a
                   // (hopefully) final time, and get our opt-in key
                   this.logUtils.debug(
-                    `Starting queryParsingEngine for query ${query.cid}`,
+                    "Starting queryParsingEngine for query ${query.cid}",
                   );
                   return ResultUtils.combine([
                     this.queryParsingEngine
@@ -470,9 +466,8 @@ export class QueryService implements IQueryService {
     | EvalNotImplementedError
     | MissingASTError
   > {
-    return this.queryParsingEngine
-      .getPossibleQueryDeliveryItems(query)
-      .andThen((queryDeliveryItems) => {
+    return this.getPossibleQueryDeliveryItems(query).andThen(
+      (queryDeliveryItems) => {
         return this.getPossibleRewardsFromIP(
           consentToken,
           optInKey,
@@ -481,7 +476,8 @@ export class QueryService implements IQueryService {
           config,
           queryDeliveryItems,
         );
-      });
+      },
+    );
   }
 
   public createQueryStatusWithNoConsent(
@@ -619,5 +615,28 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
+  }
+
+  protected getPossibleQueryDeliveryItems(
+    query: SDQLQuery,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
+    return this.queryParsingEngine.handleQuery(
+      query,
+      DataPermissions.createWithAllPermissions(),
+    );
   }
 }

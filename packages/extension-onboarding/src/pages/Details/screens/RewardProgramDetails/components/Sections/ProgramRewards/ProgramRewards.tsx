@@ -6,11 +6,15 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
-import {
-  isSameReward,
-  PossibleRewardComponent,
-} from "@snickerdoodlelabs/shared-components";
-import React, { FC, Fragment, useCallback, useState } from "react";
+import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
+import React, {
+  FC,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
 import DisplayModeToggle, {
@@ -19,6 +23,7 @@ import DisplayModeToggle, {
 import Typography from "@extension-onboarding/components/Typography";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
+import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
@@ -41,11 +46,13 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
   const [displayMode, setDisplayMode] = useState<EDISPLAY_MODE>(
     EDISPLAY_MODE.COZY,
   );
-  const { apiGateway, earnedRewards } = useAppContext();
+  const { apiGateway } = useAppContext();
 
   const getBadge = useCallback(
-    (reward: PossibleReward) =>
-      earnedRewards.find((earnedReward) => isSameReward(earnedReward, reward))
+    (queryDependencies: QueryTypes[]) =>
+      queryDependencies
+        .map((dependency) => QueryTypePermissionMap.get(dependency)!)
+        .every((dataType) => currentPermissions.includes(dataType))
         ? EBadgeType.Available
         : EBadgeType.MorePermissionRequired,
     [currentPermissions],
@@ -134,7 +141,7 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
                       : "default"
                   }
                   consentContractAddress={consentContractAddress}
-                  badgeType={getBadge(reward)}
+                  badgeType={getBadge(reward.estimatedQueryDependencies)}
                   reward={reward}
                 />
               </Box>
