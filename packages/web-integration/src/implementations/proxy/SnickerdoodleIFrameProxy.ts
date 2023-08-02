@@ -66,6 +66,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   IProxyIntegrationMethods,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -89,6 +90,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+
   public onIframeDisplayRequested: Subject<void>;
 
   public activate(): ResultAsync<void, ProxyError> {
@@ -587,6 +589,14 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,
+    });
+  }
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, ProxyError> {
+    return this._createCall("getQueryStatusByQueryCID", {
+      queryCID,
     });
   }
 

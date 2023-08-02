@@ -140,6 +140,7 @@ import {
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
+  GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -571,6 +572,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       IsDataWalletAddressInitializedParams.getCoreAction(),
       (_params) => {
         return this.accountService.isDataWalletAddressInitialized();
+      },
+    ),
+    new CoreActionHandler<GetQueryStatusByCidParams>(
+      GetQueryStatusByCidParams.getCoreAction(),
+      (params) => {
+        return this.accountService.getQueryStatusByQueryCID(params.queryCID);
       },
     ),
     new CoreActionHandler<SwitchToTabParams>(
