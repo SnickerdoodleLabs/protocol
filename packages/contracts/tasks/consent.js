@@ -121,6 +121,119 @@ task(
       });
   });
 
+task("getListing", "Get the queried listing detail for a tag")
+  .addParam("tag", "which listing tag")
+  .addParam("slot", "which slot number")
+  .setAction(async (taskArgs) => {
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    const listing = await consentContractFactorHandle.getListing(
+      taskArgs.tag,
+      taskArgs.slot,
+    );
+
+    console.log(listing);
+  });
+
+task("getCurrentHighestListing", "Get the current highest listing for a tag")
+  .addParam("tag", "which listing tag")
+  .setAction(async (taskArgs) => {
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    const maxSlot = await consentContractFactorHandle.getListing(
+      taskArgs.tag,
+      ethers.constants.MaxUint256,
+    );
+
+    console.log(maxSlot.next);
+  });
+
+task("getListingsForward", "Get listings from highest to lowest")
+  .addParam("tag", "which listing tag")
+  .addParam("startingslot", "which slot to start")
+  .addParam("howmany", "how many listings to return")
+  .addParam("filterexpired", "should filter out expired listings?")
+  .setAction(async (taskArgs) => {
+    const howmany = taskArgs.howmany;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    let filterExpired;
+
+    if (taskArgs.filterexpired == "true") {
+      filterExpired = true;
+    } else {
+      filterExpired = false;
+    }
+
+    await consentContractFactorHandle
+      .getListingsForward(
+        taskArgs.tag,
+        taskArgs.startingslot,
+        taskArgs.howmany,
+        filterExpired,
+      )
+      .then((output) => {
+        console.log("Listings", output);
+      });
+  });
+
+task("getListingsBackwards", "Get listings from lowest to highest slot")
+  .addParam("tag", "which listing tag")
+  .addParam("startingslot", "which slot to start")
+  .addParam("howmany", "how many listings to return")
+  .addParam("filterexpired", "should filter out expired listings?")
+  .setAction(async (taskArgs) => {
+    const howmany = taskArgs.howmany;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    let filterExpired;
+
+    if (taskArgs.filterexpired == "true") {
+      filterExpired = true;
+    } else {
+      filterExpired = false;
+    }
+
+    await consentContractFactorHandle
+      .getListingsBackwards(
+        taskArgs.tag,
+        taskArgs.startingslot,
+        taskArgs.howmany,
+        filterExpired,
+      )
+      .then((output) => {
+        console.log("Listings", output);
+      });
+  });
+
 task(
   "setQueryHorizon",
   "Set the blocknumber of the consent contracts query horizon",
@@ -536,8 +649,14 @@ task(
       });
   });
 
-  task("removeMarketplaceTailListing", "Removes a non-head listing from the marketplace")
-  .addParam("upstreamslot", "Integer number for the slot which points to the listing to be removed.")
+task(
+  "removeMarketplaceTailListing",
+  "Removes a non-head listing from the marketplace",
+)
+  .addParam(
+    "upstreamslot",
+    "Integer number for the slot which points to the listing to be removed.",
+  )
   .addParam(
     "accountnumber",
     "integer referencing the account to use in the configured HD Wallet",
@@ -987,7 +1106,7 @@ task("grantRole", "Grant specific role on the consent contract.")
       })
       .then((txrct) => {
         logTXDetails(txrct);
-      }); 
+      });
   });
 
 // Task to revoke roles on consent contract
