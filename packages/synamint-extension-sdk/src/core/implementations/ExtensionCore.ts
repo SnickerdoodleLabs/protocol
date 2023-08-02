@@ -1,18 +1,12 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
+  AuthenticatedStorageParams,
   EChain,
   ECloudStorageType,
   IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
-import {
-  GoogleCloudStorage,
-  CloudStorageParams,
-  ICloudStorageParams,
-  CloudStorageManager,
-  DropboxCloudStorage,
-} from "@snickerdoodlelabs/persistence";
 import {
   ChromeStorageUtils,
   IStorageUtils,
@@ -106,7 +100,7 @@ export class ExtensionCore {
     } as IConfigOverrides;
 
     // Edit input parameters
-    const cloudStorageParams = new CloudStorageParams(
+    const cloudStorageParams = new AuthenticatedStorageParams(
       ECloudStorageType.Dropbox,
       config.dropboxAppKey,
       config.dropboxAppSecret,
@@ -116,7 +110,6 @@ export class ExtensionCore {
       coreConfig,
       new ChromeStorageUtils(),
       undefined,
-      cloudStorageParams,
     );
 
     // Make the core directly injectable

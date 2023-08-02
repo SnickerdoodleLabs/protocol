@@ -1,11 +1,6 @@
-import { ECloudStorageType } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import { inject, injectable } from "inversify";
+import { ECloudStorageType } from "@objects/enum";
 
-import { ICloudStorageParams } from "./ICloudStorageParams";
-
-@injectable()
-export class AuthenticatedStorageParams implements ICloudStorageParams {
+export class AuthenticatedStorageParams {
   public type;
   public dropboxKey;
   public dropboxSecret;

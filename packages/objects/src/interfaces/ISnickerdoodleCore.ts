@@ -30,6 +30,7 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
+  AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,

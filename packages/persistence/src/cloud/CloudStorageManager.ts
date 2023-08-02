@@ -5,8 +5,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { AuthenticatedStorageParams } from "@snickerdoodlelabs/objects";
 
-import { CloudStorageParams } from "@persistence/cloud/CloudStorageParams";
 import {
   ICloudStorage,
   ICloudStorageType,
@@ -52,7 +52,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     Here we look at the CloudStorageParams passed in from the configs and build scripts. 
   */
   public activateAuthenticatedStorage(
-    cloudStorageParams: CloudStorageParams,
+    cloudStorageParams: AuthenticatedStorageParams,
   ): ResultAsync<void, never> {
     return this.contextProvider.getContext().map((context) => {
       if (cloudStorageParams.type == ECloudStorageType.Dropbox) {

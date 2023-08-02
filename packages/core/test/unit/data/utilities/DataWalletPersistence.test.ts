@@ -299,7 +299,6 @@ class DataWalletPersistenceMocks {
       this.backupManagerProvider,
       this.storageUtils,
       this.volatileStorage,
-      this.cloudStorage,
       this.configProvider,
       this.logUtils,
       this.contextProvider,

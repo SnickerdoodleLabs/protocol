@@ -344,7 +344,6 @@ export class MobileCore {
       coreConfig,
       new MobileStorageUtils(),
       new MemoryVolatileStorage("SD_Wallet", Array.from(provider.values())),
-      cloudStorageManager,
     );
 
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);

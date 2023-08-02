@@ -8,19 +8,15 @@
 //     StorageKey,
 //     ECloudStorageType,
 // } from "@snickerdoodlelabs/objects";
+import { AuthenticatedStorageParams } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import {
-  ICloudStorageParams,
-  CloudStorageParams,
-  ICloudStorage,
-} from "@persistence/cloud";
+import { ICloudStorageParams, ICloudStorage } from "@persistence/cloud";
 
 export interface ICloudStorageManager {
   activateAuthenticatedStorage(
-    cloudStorageParams: CloudStorageParams | undefined,
+    cloudStorageParams: AuthenticatedStorageParams,
   ): ResultAsync<void, never>;
-
   cloudStorageActivated(): boolean;
 
   getCloudStorage(): ResultAsync<ICloudStorage, never>;

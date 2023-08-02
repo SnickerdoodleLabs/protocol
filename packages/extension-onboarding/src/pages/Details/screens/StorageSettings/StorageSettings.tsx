@@ -266,6 +266,7 @@ const StorageSettings = () => {
       sessionStorage.removeItem("dropboxAccessToken");
 
       // new method in core now
+
       // activateAuthenticatedStorage();
       // - takes the cloudStorage Params, what kind it is, the access token, etc.
 
