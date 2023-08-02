@@ -10,7 +10,6 @@ import {
   JSONString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
-import { IDynamicRewardParameter } from "@objects/businessObjects/rewards/index.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
