@@ -111,6 +111,11 @@ export class ExtensionCore {
       config.dropboxAppSecret,
     );
 
+    const manager = new CloudStorageManager(
+      GoogleCloudStorage,
+      DropboxCloudStorage,
+    );
+
     this.core = new SnickerdoodleCore(
       coreConfig,
       new ChromeStorageUtils(),
@@ -141,7 +146,7 @@ export class ExtensionCore {
       browserTabListener.initialize(),
       errorListener.initialize(),
       portConnectionListener.initialize(),
-    ]).map(() => { });
+    ]).map(() => {});
   }
 
   private tryUnlock(): ResultAsync<void, Error> {

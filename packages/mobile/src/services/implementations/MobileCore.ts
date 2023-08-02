@@ -49,6 +49,7 @@ import {
   TokenInfoMigrator,
   UnixTimestamp,
   VersionedObject,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import {
   CloudStorageParams,
@@ -321,7 +322,11 @@ export class MobileCore {
       ],
     ]);
 
-    const cloudStorageParams = new CloudStorageParams(undefined, undefined);
+    const cloudStorageParams = new CloudStorageParams(
+      ECloudStorageType.Snickerdoodle,
+      undefined,
+      undefined,
+    );
     const storageUtils =
       this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
 
@@ -336,8 +341,6 @@ export class MobileCore {
       new MemoryVolatileStorage("SD_Wallet", Array.from(provider.values())),
       cloudStorageManager,
     );
-
-    console.log("thhis", this.core);
 
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
     this.dataPermissionUtils = {

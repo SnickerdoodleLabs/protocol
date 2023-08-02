@@ -181,7 +181,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorage,
-    cloudStorageParams?: ICloudStorageParams,
+    cloudStorageParams?: CloudStorageParams,
   ) {
     this.iocContainer = new Container();
 
@@ -200,25 +200,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
+    let cloudStorageConfig = cloudStorageParams;
+    if (cloudStorageConfig == undefined) {
+      cloudStorageConfig = new CloudStorageParams(
+        ECloudStorageType.Dropbox,
+        undefined,
+        undefined,
+      );
+    }
+
     if (cloudStorageParams != null) {
       this.iocContainer
         .bind(ICloudStorageType)
         .to(DropboxCloudStorage)
         .inSingletonScope();
-
-      // if (cloudStorageParams.type == ECloudStorageType.Dropbox) {
-      //   this.iocContainer
-      //     .bind(ICloudStorageType)
-      //     .to(DropboxCloudStorage)
-      //     .inSingletonScope();
-      // }
-
-      // if (cloudStorageParams == ECloudStorageType.Snickerdoodle) {
-      //   this.iocContainer
-      //     .bind(ICloudStorageType)
-      //     .to(GoogleCloudStorage)
-      //     .inSingletonScope();
-      // }
     } else {
       // No Parameters - Default
       this.iocContainer
@@ -324,11 +319,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           ICloudStorageManagerType,
         );
 
+        console.log("cloudStorageParams: " + cloudStorageParams);
+
         // BlockchainProvider needs to be ready to go in order to do the unlock
         return ResultUtils.combine([
           blockchainProvider.initialize(),
           indexers.initialize(),
-          cloudManager.initialize(),
+          cloudManager.initialize(cloudStorageConfig),
         ])
           .andThen(() => {
             return accountService.unlock(
@@ -354,7 +351,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => { });
+          .map(() => {});
       },
 
       addAccount: (
@@ -464,7 +461,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return ResultUtils.combine([
           blockchainProvider.initialize(),
           indexers.initialize(),
-          cloudManager.initialize(),
+          cloudManager.initialize(cloudStorageParams),
         ])
           .andThen(() => {
             return accountService.unlockWithPassword(password);
@@ -485,7 +482,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
               heartbeatGenerator.initialize(),
             ]);
           })
-          .map(() => { });
+          .map(() => {});
       },
 
       addPassword: (
