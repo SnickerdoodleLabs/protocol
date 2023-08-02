@@ -66,7 +66,7 @@ export class CloudStorageManager implements ICloudStorageManager {
       }
       this.resolveProvider!(this.provider);
       this.activated = true;
-      context.publicEvents.onCloudStorageActivated.next(new CloudProviderSelectedEvent(cloudStorageParams.type));
+      context.publicEvents.onCloudStorageActivated.next(new CloudProviderSelectedEvent(ECloudStorageType.Snickerdoodle));
       console.log("Cloud Manager event called!");
     });
   }

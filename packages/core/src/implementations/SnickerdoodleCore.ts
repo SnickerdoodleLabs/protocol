@@ -86,7 +86,7 @@ import {
   QueryStatus,
   BlockchainCommonErrors,
   ECloudStorageType,
-  AuthenticatedStorageParams,
+  // AuthenticatedStorageParams,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -282,63 +282,61 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const indexers =
           this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
-        const cloudManager = this.iocContainer.get<ICloudStorageManager>(
-          ICloudStorageManagerType,
-        );
+        // const cloudManager = this.iocContainer.get<ICloudStorageManager>(
+        //   ICloudStorageManagerType,
+        // );
         console.log("Inside Unlock function for core - BEFORE CONFIG");
 
-        const configProvider =
-        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+        // const configProvider =
+        //   this.iocContainer.get<IConfigProvider>(IConfigProviderType);
         console.log("Inside Unlock function for core - AFTER CONFIG");
 
-        return configProvider.getConfig().andThen((config) => {
+        // return configProvider.getConfig().andThen((config) => {
+        // Passing in params via config
+        console.log("Inside Unlock function for core - Create params start");
 
-          // Passing in params via config
-          console.log("Inside Unlock function for core - Create params start");
+        // const cloudStorageParams = new AuthenticatedStorageParams(
+        //   ECloudStorageType.Dropbox,
+        //   config.dropboxAppKey,
+        //   config.dropboxAppSecret,
+        // );
+        console.log("Inside Unlock function for core - Create params end");
 
-          const cloudStorageParams = new AuthenticatedStorageParams(
-            ECloudStorageType.Dropbox,
-            config.dropboxAppKey,
-            config.dropboxAppSecret,
-          )
-          console.log("Inside Unlock function for core - Create params end");
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+          // cloudManager.activateAuthenticatedStorage(cloudStorageParams),
+        ])
 
+          .andThen(() => {
+            console.log("cloudManager activateAuthenticatedStorage");
 
-          // BlockchainProvider needs to be ready to go in order to do the unlock
-          return ResultUtils.combine([
-            blockchainProvider.initialize(),
-            indexers.initialize(),
-            cloudManager.activateAuthenticatedStorage(cloudStorageParams),
-          ])
-
-            .andThen(() => {
-              console.log("cloudManager activateAuthenticatedStorage");
-
-              return accountService.unlock(
-                accountAddress,
-                signature,
-                languageCode,
-                chain,
-              );
-            })
-            .andThen(() => {
-              // Service Layer
-              return ResultUtils.combine([
-                queryService.initialize(),
-                metricsService.initialize(),
-              ]);
-            })
-            .andThen(() => {
-              // API Layer
-              return ResultUtils.combine([
-                accountIndexerPoller.initialize(),
-                blockchainListener.initialize(),
-                socialPoller.initialize(),
-                heartbeatGenerator.initialize(),
-              ]);
-            })
-            .map(() => {});
-        });
+            return accountService.unlock(
+              accountAddress,
+              signature,
+              languageCode,
+              chain,
+            );
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
+        // });
       },
 
       addAccount: (
@@ -440,26 +438,25 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const indexers =
           this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
-        const cloudManager = this.iocContainer.get<ICloudStorageManager>(
-          ICloudStorageManagerType,
-        );
+        // const cloudManager = this.iocContainer.get<ICloudStorageManager>(
+        //   ICloudStorageManagerType,
+        // );
 
-        const configProvider =
-        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-        return configProvider.getConfig().andThen((config) => {
-
-          // Passing in params via config
-          const cloudStorageParams = new AuthenticatedStorageParams(
-            ECloudStorageType.Dropbox,
-            config.dropboxAppKey,
-            config.dropboxAppSecret,
-          )
+        // const configProvider =
+        //   this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+        // return configProvider.getConfig().andThen((config) => {
+        // Passing in params via config
+        // const cloudStorageParams = new AuthenticatedStorageParams(
+        //   ECloudStorageType.Dropbox,
+        //   config.dropboxAppKey,
+        //   config.dropboxAppSecret,
+        // );
 
         // BlockchainProvider needs to be ready to go in order to do the unlock
         return ResultUtils.combine([
           blockchainProvider.initialize(),
           indexers.initialize(),
-          cloudManager.activateAuthenticatedStorage(cloudStorageParams),
+          // cloudManager.activateAuthenticatedStorage(cloudStorageParams),
         ])
           .andThen(() => {
             return accountService.unlockWithPassword(password);
@@ -481,7 +478,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
             ]);
           })
           .map(() => {});
-        })
+        // });
       },
 
       addPassword: (
@@ -804,13 +801,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
   }
 
-  public activateAuthenticatedStorage(cloudStorageParams: AuthenticatedStorageParams): ResultAsync<void, PersistenceError> {
-    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
-      ICloudStorageManagerType,
-    );
+  // public activateAuthenticatedStorage(
+  //   cloudStorageParams: AuthenticatedStorageParams,
+  // ): ResultAsync<void, PersistenceError> {
+  //   const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+  //     ICloudStorageManagerType,
+  //   );
 
-    return cloudStorageManager.activateAuthenticatedStorage(cloudStorageParams);
-  }
+  //   return cloudStorageManager.activateAuthenticatedStorage(cloudStorageParams);
+  // }
 
   public getConsentCapacity(
     consentContractAddress: EVMContractAddress,

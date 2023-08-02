@@ -30,7 +30,7 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
-  AuthenticatedStorageParams,
+  // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -753,9 +753,9 @@ export interface IMetricsMethods {
 }
 
 export interface ISnickerdoodleCore {
-  activateAuthenticatedStorage(
-    authenticatedStorageParams: AuthenticatedStorageParams,
-  ): ResultAsync<void, PersistenceError>;
+  // activateAuthenticatedStorage(
+  //   authenticatedStorageParams: AuthenticatedStorageParams,
+  // ): ResultAsync<void, PersistenceError>;
 
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
