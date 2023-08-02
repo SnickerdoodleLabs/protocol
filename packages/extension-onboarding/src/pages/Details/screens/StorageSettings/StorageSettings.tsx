@@ -189,7 +189,7 @@ const StorageSettings = () => {
       (folder) =>
         folder.path_lower.startsWith(path) &&
         folder.path_lower.split("/").filter((part) => part !== "").length ===
-        path.split("/").filter((part) => part !== "").length + 1,
+          path.split("/").filter((part) => part !== "").length + 1,
     );
 
     subFolders.forEach((folder) => {
@@ -264,6 +264,10 @@ const StorageSettings = () => {
         message: "Your Dropbox account has successfully been connected.",
       });
       sessionStorage.removeItem("dropboxAccessToken");
+
+      // new method in core now
+      // activateAuthenticatedStorage();
+      // - takes the cloudStorage Params, what kind it is, the access token, etc.
 
       // added File Path to use for DropboxCloudStorage
       // sessionStorage.setItem("dropboxFilePath", filePath);
