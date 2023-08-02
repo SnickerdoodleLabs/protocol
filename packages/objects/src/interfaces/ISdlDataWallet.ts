@@ -14,6 +14,7 @@ import {
   TokenInfo,
   TokenMarketData,
   WalletNFT,
+  QueryStatus,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -304,6 +305,10 @@ export interface ISdlDataWallet {
   ): ResultAsync<IpfsCID, ProxyError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], ProxyError>;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 

@@ -728,6 +728,18 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
+      getQueryStatusByQueryCID: (
+        data: IIFrameCallData<{
+          queryCID: IpfsCID;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.getQueryStatusByQueryCID(data.data.queryCID);
+          });
+        }, data.callId);
+      },
+
       "discord.initializeUserWithAuthorizationCode": (
         data: IIFrameCallData<{
           code: OAuthAuthorizationCode;
