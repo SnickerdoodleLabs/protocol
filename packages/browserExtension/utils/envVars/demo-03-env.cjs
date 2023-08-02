@@ -7,7 +7,6 @@ const envVars = {
   __IPFS_FETCH_BASE_URL__: "https://ipfs-gateway.snickerdoodle.dev/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__:
     "https://insight-api.demo-03.snickerdoodle.dev/v0/",
-  __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",
 
   __DROPBOX_APP_KEY__: "w69949reoalc9xg",
   __DROPBOX_APP_SECRET__: "78jch5z5o800dyw",

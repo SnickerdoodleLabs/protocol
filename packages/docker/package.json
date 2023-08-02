@@ -1,0 +1,28 @@
+{
+  "name": "@snickerdoodlelabs/protocol-docker-base",
+  "version": "0.0.1",
+  "description": "Package that contains the base dockerfile, which is used by all other packages",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/docker#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "Development"
+  ],
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "docker-push": "docker push snickerdoodlelabs/protocol-docker-base:local",
+    "dockerize": "docker build -t snickerdoodlelabs/protocol-docker-base:local -f Dockerfile --progress=plain ../.."
+  }
+}

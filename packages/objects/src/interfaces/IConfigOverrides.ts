@@ -55,4 +55,6 @@ export interface IConfigOverrides {
   primaryInfuraKey: string;
   secondaryInfuraKey?: string;
   devChainProviderURL?: ProviderUrl;
+  iframeURL?: URLString;
+  debug?: boolean;
 }

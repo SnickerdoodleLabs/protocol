@@ -1,6 +1,6 @@
 export enum ENotificationTypes {
   INCOMING_METATRANSACTION_SIGNATURE_REQUEST = "onMetatransactionSignatureRequested",
-  ACCOUNT_INITIALIZED = "onAccountInitialized",
+  WALLET_INITIALIZED = "onInitialized",
   ACCOUNT_ADDED = "onAccountAdded",
   ACCOUNT_REMOVED = "onAccountRemoved",
   EARNED_REWARDS_ADDED = "onEarnedRewardsAdded",

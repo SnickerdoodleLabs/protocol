@@ -202,8 +202,8 @@ export class DataWalletProfile {
 
   protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
     const discordConfig = {
-      clientId: "1093307083102887996",
-      clientSecret: TokenSecret("w7BG8KmbqQ2QYF2U8ZIZIV7KUalvZQDK"),
+      clientId: "1089994449830027344",
+      clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
       oauthBaseUrl: URLString("https://discord.com/oauth2/authorize"),
       oauthRedirectUrl: URLString(
         "https://localhost:9005/data-dashboard/social-media-data",

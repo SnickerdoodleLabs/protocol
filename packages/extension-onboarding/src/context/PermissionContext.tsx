@@ -1,9 +1,4 @@
-import {
-  DiscordProfile,
-  ENotificationTypes,
-  EWalletDataType,
-  TwitterProfile,
-} from "@snickerdoodlelabs/objects";
+import { DiscordProfile, EWalletDataType } from "@snickerdoodlelabs/objects";
 import { UI_SUPPORTED_PERMISSIONS } from "@snickerdoodlelabs/shared-components";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -12,11 +7,11 @@ import React, {
   createContext,
   useContext,
   useState,
-  useMemo,
   useEffect,
   useRef,
   useCallback,
 } from "react";
+import { Subscription } from "rxjs";
 
 import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
@@ -43,6 +38,11 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
   const [profileValues, setProfileValues] = useState<PII>();
   const isInitialized = useRef<boolean>();
 
+  let socialProviderLinkedSubscription: Subscription | null = null;
+  let birthdaySubscription: Subscription | null = null;
+  let genderSubscription: Subscription | null = null;
+  let locationSubscription: Subscription | null = null;
+
   useEffect(() => {
     console.log("tracking use effect in permission context!!!");
 
@@ -50,24 +50,30 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
       updateProfileValues();
       updateSocialProfileValues();
       isInitialized.current = true;
-      window?.sdlDataWallet.on(
-        ENotificationTypes.SOCIAL_PROFILE_LINKED,
-        updateSocialProfileValues,
-      );
-      window?.sdlDataWallet.on(
-        ENotificationTypes.PROFILE_FIELD_CHANGED,
-        updateProfileValues,
-      );
+
+      socialProviderLinkedSubscription =
+        window?.sdlDataWallet?.events.onSocialProfileLinked.subscribe(
+          updateSocialProfileValues,
+        );
+
+      birthdaySubscription =
+        window?.sdlDataWallet?.events.onBirthdayUpdated.subscribe(
+          updateProfileValues,
+        );
+      genderSubscription =
+        window?.sdlDataWallet?.events.onGenderUpdated.subscribe(
+          updateProfileValues,
+        );
+      locationSubscription =
+        window?.sdlDataWallet?.events.onLocationUpdated.subscribe(
+          updateProfileValues,
+        );
     }
     return () => {
-      window?.sdlDataWallet.off(
-        ENotificationTypes.SOCIAL_PROFILE_LINKED,
-        updateSocialProfileValues,
-      );
-      window?.sdlDataWallet.off(
-        ENotificationTypes.PROFILE_FIELD_CHANGED,
-        updateProfileValues,
-      );
+      socialProviderLinkedSubscription?.unsubscribe();
+      birthdaySubscription?.unsubscribe();
+      genderSubscription?.unsubscribe();
+      locationSubscription?.unsubscribe();
     };
   }, [appMode]);
 

@@ -5,12 +5,11 @@ import {
   ComponentStatus,
   DataWalletAddress,
   EVMPrivateKey,
+  PublicEvents,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { Subject } from "rxjs";
 
 import { PrivateEvents } from "@core/interfaces/objects/PrivateEvents.js";
-import { PublicEvents } from "@core/interfaces/objects/PublicEvents.js";
 
 /**
  * Some people may object to some of the values in here- like private keys.

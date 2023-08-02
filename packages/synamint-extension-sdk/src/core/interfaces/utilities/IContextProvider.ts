@@ -1,7 +1,6 @@
 import {
   DataWalletAddress,
   EarnedReward,
-  EVMContractAddress,
   Invitation,
   LinkedAccount,
   SocialProfileLinkedEvent,
@@ -37,7 +36,7 @@ export interface IContextProvider {
   // new function for switching cloud storage options (cloud manager)
   cloudStorageAltered(event: CloudProviderSelectedEvent): void;
 
-  onProfileFieldChanged(profileFieldType: EProfileFieldType): void;
+  onProfileFieldChanged(profileFieldType: EProfileFieldType, value: any): void;
 }
 
 export const IContextProviderType = Symbol.for("IContextProvider");

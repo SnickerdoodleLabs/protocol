@@ -44,6 +44,10 @@ import {
   TwitterID,
   TwitterProfile,
   TokenAndSecret,
+  RuntimeMetrics,
+  EDataWalletPermission,
+  PEMEncodedRSAPublicKey,
+  JsonWebToken,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -650,7 +654,7 @@ export class InitializeDiscordUserParams extends CoreActionParams<void> {
 }
 
 export class GetDiscordInstallationUrlParams extends CoreActionParams<URLString> {
-  public constructor(public attachRedirectTabId?: boolean) {
+  public constructor(public redirectTabId?: number) {
     super(GetDiscordInstallationUrlParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -734,6 +738,26 @@ export class TwitterGetLinkedProfilesParams extends CoreActionParams<
   }
 }
 
+export class GetMetricsParams extends CoreActionParams<RuntimeMetrics> {
+  public constructor() {
+    super(GetMetricsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.METRICS_GET_METRICS;
+  }
+}
+
+export class GetUnlockedParams extends CoreActionParams<boolean> {
+  public constructor() {
+    super(GetUnlockedParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.METRICS_GET_UNLOCKED;
+  }
+}
+
 export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
   public constructor() {
     super(GetConfigParams.getCoreAction());
@@ -753,3 +777,49 @@ export class SwitchToTabParams extends CoreActionParams<void> {
     return ECoreActions.SWITCH_TO_TAB;
   }
 }
+
+// #region Integration
+export class RequestPermissionsParams extends CoreActionParams<
+  EDataWalletPermission[]
+> {
+  public constructor(public permissions: EDataWalletPermission[]) {
+    super(RequestPermissionsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.REQUEST_PERMISSIONS;
+  }
+}
+
+export class GetPermissionsParams extends CoreActionParams<
+  EDataWalletPermission[]
+> {
+  public constructor(public domain: DomainName) {
+    super(GetPermissionsParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_PERMISSIONS;
+  }
+}
+
+export class GetTokenVerificationPublicKeyParams extends CoreActionParams<PEMEncodedRSAPublicKey> {
+  public constructor(public domain: DomainName) {
+    super(GetTokenVerificationPublicKeyParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_TOKEN_VERIFICATION_PUBLIC_KEY;
+  }
+}
+
+export class GetBearerTokenParams extends CoreActionParams<JsonWebToken> {
+  public constructor(public nonce: string, public domain: DomainName) {
+    super(GetBearerTokenParams.getCoreAction());
+  }
+
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_BEARER_TOKEN;
+  }
+}
+// #endregion

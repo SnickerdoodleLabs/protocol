@@ -7854,7 +7854,7 @@ __metadata:
     argon2: ^0.28.4
     axios: ^0.27.2
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     oauth-1.0a: ^2.2.6
@@ -7871,7 +7871,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -7916,7 +7916,7 @@ __metadata:
     ethers: ^5.6.6
     express: ^4.18.1
     inquirer: ^8.0.0
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     ipfs-http-client: ^55.0.0
     jsonwebtoken: ^9.0.0
     lzutf8: ^0.6.3
@@ -7939,7 +7939,7 @@ __metadata:
     "@snickerdoodlelabs/query-parser": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     jsonwebtoken: ^9.0.0
     measured-core: ^2.0.0
     neverthrow: ^5.1.0
@@ -7967,6 +7967,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/shared-components": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
+    "@snickerdoodlelabs/web-integration": "workspace:^"
     "@walletconnect/web3-provider": ^1.6.6
     chart.js: ^3.9.1
     chroma-js: ^2.4.2
@@ -8005,6 +8006,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/iframe@workspace:packages/iframe":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/iframe@workspace:packages/iframe"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/core": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/utils": "workspace:^"
+    inversify: ^6.0.1
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    postmate: ^1.5.2
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/indexers@workspace:^, @snickerdoodlelabs/indexers@workspace:packages/indexers":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/indexers@workspace:packages/indexers"
@@ -8016,7 +8032,7 @@ __metadata:
     "@solana/spl-token": ^0.3.6
     "@solana/web3.js": ^1.66.2
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
@@ -8033,7 +8049,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     ts-brand: ^0.0.2
     url-join-ts: ^1.0.5
@@ -8218,11 +8234,17 @@ __metadata:
     "@snickerdoodlelabs/utils": "workspace:^"
     dids: ^3.3.0
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     ipfs-only-hash: ^4.0.0
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.1.0
     neverthrow: ^5.1.0
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/protocol-docker-base@workspace:packages/docker":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/protocol-docker-base@workspace:packages/docker"
   languageName: unknown
   linkType: soft
 
@@ -8233,7 +8255,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
   languageName: unknown
@@ -8318,8 +8340,77 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
-    inversify: ^5.1.1
+    inversify: ^6.0.1
     neverthrow: ^5.1.0
+    postmate: ^1.5.2
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/web-integration-test@workspace:packages/web-integration-test":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/web-integration-test@workspace:packages/web-integration-test"
+  dependencies:
+    "@date-io/date-fns": 1.3.9
+    "@download/blockies": ^1.0.3
+    "@material-ui/core": 4.12.3
+    "@material-ui/icons": 4.11.2
+    "@material-ui/lab": 4.0.0-alpha.60
+    "@material-ui/pickers": 3.2.4
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/shared-components": "workspace:^"
+    "@snickerdoodlelabs/web-integration": "workspace:^"
+    "@walletconnect/web3-provider": ^1.6.6
+    chart.js: ^3.9.1
+    chroma-js: ^2.4.2
+    clsx: ^1.2.1
+    date-fns: ^2.29.1
+    ethers: ^5.6.6
+    formik: 2.2.9
+    formik-material-ui: 3.0.1
+    gapi-script: ^1.2.0
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    notistack: ^2.0.5
+    path-browserify: ^1.0.1
+    path-to-regexp: ^6.2.0
+    react: ^17.0.2
+    react-chartjs-2: ^4.3.1
+    react-dom: ^17.0.2
+    react-ga: ^3.3.1
+    react-google-login: ^5.2.2
+    react-hotjar: ^5.2.0
+    react-intersection-observer: ^9.4.3
+    react-joyride: ^2.5.3
+    react-lottie: ^1.2.3
+    react-multi-carousel: ^2.8.2
+    react-router-dom: ^6.3.0
+    react-swipeable-views: ^0.14.0
+    react-swipeable-views-utils: ^0.14.0
+    reflect-metadata: ^0.1.13
+    url-join-ts: ^1.0.5
+    url-loader: ^4.1.1
+    web3: ^1.6.0
+    web3modal: ^1.9.4
+    yup: 0.32.9
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/web-integration@workspace:^, @snickerdoodlelabs/web-integration@workspace:packages/web-integration":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/web-integration@workspace:packages/web-integration"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/utils": "workspace:^"
+    ethers: ^5.6.6
+    inversify: ^6.0.1
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    postmate: ^1.5.2
+    rxjs: ^7.5.5
+  peerDependencies:
+    react: 17.0.1
+    react-dom: 17.0.1
   languageName: unknown
   linkType: soft
 
@@ -23752,13 +23843,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inversify@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "inversify@npm:5.1.1"
-  checksum: 22d201647b572024333c58bed8ac929da4724a4c0c8a261ecc261a180afcb899359013fafb8d87ce4d606000149fb4590dc5c8278b9feb544a5f69a6159e4ffb
-  languageName: node
-  linkType: hard
-
 "inversify@npm:^6.0.1":
   version: 6.0.1
   resolution: "inversify@npm:6.0.1"
@@ -33460,6 +33544,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postmate@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "postmate@npm:1.5.2"
+  checksum: 098eb5ea9d90469fbeff0a43e2eb4047157132e61985dfe6eefcb65b612a87ec764b463238373eb76e66ba644ab64d581f40dcf3c0b23877cddc741927968e76
+  languageName: node
+  linkType: hard
+
 "preact@npm:10.4.1":
   version: 10.4.1
   resolution: "preact@npm:10.4.1"
@@ -37628,6 +37719,7 @@ __metadata:
     typedoc: ^0.20.16
     typescript: ~4.6.4
     url-loader: 3.0.0
+    utility-types: ^3.10.0
     wait-on: ^5.2.0
     web3: ^1.9.0
     webpack: ^5.68.0
@@ -41179,6 +41271,13 @@ __metadata:
   version: 0.4.0
   resolution: "utila@npm:0.4.0"
   checksum: 97ffd3bd2bb80c773429d3fb8396469115cd190dded1e733f190d8b602bd0a1bcd6216b7ce3c4395ee3c79e3c879c19d268dbaae3093564cb169ad1212d436f4
+  languageName: node
+  linkType: hard
+
+"utility-types@npm:^3.10.0":
+  version: 3.10.0
+  resolution: "utility-types@npm:3.10.0"
+  checksum: 8f274415c6196ab62883b8bd98c9d2f8829b58016e4269aaa1ebd84184ac5dda7dc2ca45800c0d5e0e0650966ba063bf9a412aaeaea6850ca4440a391283d5c8
   languageName: node
   linkType: hard
 

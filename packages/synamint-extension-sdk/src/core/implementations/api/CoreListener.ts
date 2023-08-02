@@ -3,12 +3,14 @@ import {
   DataWalletAddress,
   EarnedReward,
   ECloudStorageType,
+  EProfileFieldType,
   ESolidityAbiParameterType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
+  ProfileFieldUpdate,
   SDQLQueryRequest,
   SDQLString,
   SocialProfileLinkedEvent,
@@ -64,6 +66,24 @@ export class CoreListener implements ICoreListener {
       events.onCloudStorageActivated.subscribe(
         this.onCloudStorageActivated.bind(this),
       );
+      events.onBirthdayUpdated.subscribe((birthday) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.DOB,
+          birthday,
+        );
+      });
+      events.onGenderUpdated.subscribe((gender) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.GENDER,
+          gender,
+        );
+      });
+      events.onLocationUpdated.subscribe((location) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.LOCATION,
+          location,
+        );
+      });
     });
   }
 

@@ -45,7 +45,6 @@ declare const __PRIMARY_INFURA_KEY__: string;
 declare const __SECONDARY_INFURA_KEY__: string;
 
 declare const __DNS_SERVER_ADDRESS__: URLString;
-declare const __CERAMIC_NODE_URL__: URLString;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
 declare const __DOMAIN_FILTER__: string;
 declare const __GOOGLE_CLOUD_BUCKET__: string;

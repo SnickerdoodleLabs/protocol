@@ -478,15 +478,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return restore;
     }
 
-    this.logUtils.debug(
-      `Beginning restoration of record backups for ${recordKey}`,
-    );
-
     restore = ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
       this.waitForUnlock(),
     ])
       .andThen(([backupManager]) => {
+        this.logUtils.debug(
+          `Beginning restoration of record backups for ${recordKey}`,
+        );
+
         return ResultUtils.combine([
           backupManager.getRestored(),
           this.contextProvider.getContext(),
