@@ -1,15 +1,10 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountAddress,
-  BlockchainProviderError,
-  ChainId,
-  EChain,
-  EVMAccountAddress,
   IConfigOverrides,
   ISdlDataWallet,
   PersistenceError,
+  ProviderRpcError,
   ProxyError,
-  Signature,
   URLString,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -20,13 +15,23 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { ISnickerdoodleWebIntegration } from "@web-integration/interfaces/app/index.js";
 import {
+  IBlockchainProviderRepository,
+  IBlockchainProviderRepositoryType,
+} from "@web-integration/interfaces/data/index.js";
+import {
   IIFrameProxyFactory,
   IIFrameProxyFactoryType,
+  ISnickerdoodleIFrameProxy,
 } from "@web-integration/interfaces/proxy/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@web-integration/interfaces/utilities/index.js";
 import { webIntegrationModule } from "@web-integration/WebIntegrationModule.js";
 
 export class SnickerdoodleWebIntegration
-  implements ISnickerdoodleWebIntegration {
+  implements ISnickerdoodleWebIntegration
+{
   protected iframeURL = URLString("http://localhost:9010");
   protected debug = false;
   protected iocContainer: Container;
@@ -35,7 +40,7 @@ export class SnickerdoodleWebIntegration
 
   protected initializeResult: ResultAsync<
     ISdlDataWallet,
-    ProxyError | PersistenceError | BlockchainProviderError
+    ProxyError | PersistenceError | ProviderRpcError
   > | null = null;
 
   constructor(
@@ -49,6 +54,11 @@ export class SnickerdoodleWebIntegration
 
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(...[webIntegrationModule]);
+
+    // Set the config values that we need in the integration
+    const configProvider =
+      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+    configProvider.setValues(this.signer, this.iframeURL);
   }
 
   public get core(): ISdlDataWallet {
@@ -61,13 +71,19 @@ export class SnickerdoodleWebIntegration
   // wait for the core to be intialized
   public initialize(): ResultAsync<
     ISdlDataWallet,
-    ProxyError | PersistenceError | BlockchainProviderError
+    ProxyError | PersistenceError | ProviderRpcError
   > {
     if (this.initializeResult != null) {
       return this.initializeResult;
     }
 
     const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+    const blockchainProvider =
+      this.iocContainer.get<IBlockchainProviderRepository>(
+        IBlockchainProviderRepositoryType,
+      );
+    const configProvider =
+      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
 
     logUtils.log("Activating Snickerdoodle Core web integration");
 
@@ -96,67 +112,178 @@ export class SnickerdoodleWebIntegration
           logUtils.warning("IFrame display requested");
         });
 
-        return ResultUtils.combine([
-          proxy.getAccounts(),
-          this.getAccountAddress(),
-        ])
-          .andThen(([linkedAccounts, accountAddress]) => {
-            // Check if the account that is linked to the page is linked to the data wallet
-            const existingAccount = linkedAccounts.find((linkedAccount) => {
-              return linkedAccount.sourceAccountAddress == accountAddress;
-            });
+        const unlockPromise = new Promise((resolve) => {
+          // It can take a little while for the proxy to actually
+          // unlock. We'll wait for it for a bit, and cancel it
+          // if we hear that it's been initialized
+          const timeout = setTimeout(() => {
+            // If this actually fires, we are not interested in waiting for
+            // the onInitialized event
+            subscription.unsubscribe();
 
-            // Account is already linked, no need to do anything
-            if (existingAccount != null) {
-              return okAsync(undefined);
-            }
+            // Just double check that it's not already unlocked
+            this.unlockAndCheck(
+              proxy,
+              logUtils,
+              blockchainProvider,
+              configProvider,
+            )
+              .map(() => {
+                // All done unlocking
+                resolve(undefined);
+              })
+              .mapErr((e) => {
+                logUtils.error(e);
+              });
+          }, 5000); // Wait 5 seconds for the unlock to complete
 
-            // The account the DApp is using is not linked to the
-            // data wallet. We should add that account.
-            logUtils.log(
-              `Detected unlinked account ${accountAddress} being used on the DApp, suggesting adding to Snickerdoodle Data Wallet`,
-            );
-            return proxy.suggestAddAccount(accountAddress);
-          })
-          .map(() => {
-            // Assign the iframe proxy to the internal reference and the window object
-            this._core = proxy;
-            window.sdlDataWallet = this.core;
-            logUtils.log("Snickerdoodle Core web integration activated");
-            return proxy;
+          const subscription = proxy.events.onInitialized.subscribe(() => {
+            // This event is fired when the proxy automatically unlocks
+            clearTimeout(timeout);
+            this.unlockAndCheck(
+              proxy,
+              logUtils,
+              blockchainProvider,
+              configProvider,
+            )
+              .map(() => {
+                // All done unlocking
+                resolve(undefined);
+              })
+              .mapErr((e) => {
+                logUtils.error(e);
+              });
           });
+        });
+
+        return ResultAsync.fromSafePromise(unlockPromise).map(() => {
+          // Assign the iframe proxy to the internal reference and the window object
+          this._core = proxy;
+          window.sdlDataWallet = this.core;
+          logUtils.log("Snickerdoodle Core web integration activated");
+          return proxy;
+        });
       });
 
     return this.initializeResult;
   }
 
-  protected getAccountAddress(): ResultAsync<
-    AccountAddress,
-    BlockchainProviderError
-  > {
-    return ResultAsync.fromPromise(this.signer.getAddress(), (e) => {
-      return new BlockchainProviderError(
-        ChainId(EChain.EthereumMainnet),
-        "Unable to get address from signer",
-        e,
+  protected unlockWallet(
+    proxy: ISnickerdoodleIFrameProxy,
+    logUtils: ILogUtils,
+    blockchainProvider: IBlockchainProviderRepository,
+    configProvider: IConfigProvider,
+  ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
+    logUtils.log("Unlocking Snickerdoodle Data Wallet via signature");
+    return proxy
+      .getUnlockMessage()
+      .andThen((unlockMessage) => {
+        return ResultUtils.combine([
+          blockchainProvider.getSignature(unlockMessage),
+          blockchainProvider.getCurrentAccount(),
+          blockchainProvider.getCurrentChain(),
+        ]);
+      })
+      .andThen(([signature, accountAddress, chainInfo]) => {
+        const config = configProvider.getConfig();
+        if (accountAddress == null || chainInfo == null) {
+          logUtils.error(
+            "No signer provided and no stored credentials available. Cannot unlock data wallet",
+          );
+          return okAsync(undefined);
+        }
+        logUtils.log(`Unlocking data wallet for ${accountAddress}`);
+        return proxy.unlock(
+          accountAddress,
+          signature,
+          chainInfo.chain,
+          config.languageCode,
+        );
+      });
+  }
+
+  protected checkAdditionalAccount(
+    proxy: ISnickerdoodleIFrameProxy,
+    logUtils: ILogUtils,
+    blockchainProvider: IBlockchainProviderRepository,
+    configProvider: IConfigProvider,
+  ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
+    return ResultUtils.combine([
+      proxy.getAccounts(),
+      blockchainProvider.getCurrentAccount(),
+      blockchainProvider.getCurrentChain(),
+    ]).andThen(([linkedAccounts, accountAddress, chainInfo]) => {
+      // If we can't get stuff from the blockchain provider, we can't possibly add
+      // an account
+      if (accountAddress == null || chainInfo == null) {
+        return okAsync(undefined);
+      }
+
+      // Check if the account that is linked to the page is linked to the data wallet
+      const existingAccount = linkedAccounts.find((linkedAccount) => {
+        return linkedAccount.sourceAccountAddress == accountAddress;
+      });
+
+      // Account is already linked, no need to do anything
+      if (existingAccount != null) {
+        return okAsync(undefined);
+      }
+
+      // The account the DApp is using is not linked to the
+      // data wallet. We should add that account.
+      logUtils.log(
+        `Detected unlinked account ${accountAddress} being used on the DApp, adding to Snickerdoodle Data Wallet`,
       );
-    }).map((address) => {
-      // AccountAddress is a type alias and can't be used directly
-      // TODO: Figure out how this would work with Solana
-      return EVMAccountAddress(address);
+      return proxy
+        .getUnlockMessage()
+        .andThen((unlockMessage) => {
+          return blockchainProvider.getSignature(unlockMessage);
+        })
+        .andThen((signature) => {
+          const config = configProvider.getConfig();
+          return proxy.addAccount(
+            accountAddress,
+            signature,
+            chainInfo.chain,
+            config.languageCode,
+          );
+        });
     });
   }
 
-  protected getSignature(
-    message: string,
-  ): ResultAsync<Signature, BlockchainProviderError> {
-    return ResultAsync.fromPromise(this.signer.signMessage(message), (e) => {
-      return new BlockchainProviderError(
-        ChainId(EChain.EthereumMainnet),
-        "Unable to sign message",
-        e,
-      );
-    }).map((signature) => Signature(signature));
+  protected unlockAndCheck(
+    proxy: ISnickerdoodleIFrameProxy,
+    logUtils: ILogUtils,
+    blockchainProvider: IBlockchainProviderRepository,
+    configProvider: IConfigProvider,
+  ) {
+    return proxy.metrics
+      .getUnlocked()
+      .andThen((unlocked) => {
+        // If it's already unlocked, we don't need to do anything
+        if (unlocked) {
+          logUtils.debug(
+            "Snickerdoodle Data Wallet is already unlocked via stored credentials",
+          );
+          return okAsync(undefined);
+        }
+
+        // It's not unlocked, which means we need to unlock it
+        return this.unlockWallet(
+          proxy,
+          logUtils,
+          blockchainProvider,
+          configProvider,
+        );
+      })
+      .andThen(() => {
+        return this.checkAdditionalAccount(
+          proxy,
+          logUtils,
+          blockchainProvider,
+          configProvider,
+        );
+      });
   }
 }
 

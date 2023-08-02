@@ -19,5 +19,5 @@ ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
 const formFactor = new IFrameFormFactor();
 
 formFactor.initialize().mapErr((e) => {
-  console.error("Error while activating CoreListener!", e);
+  console.error("Error while initializing IFrameFormFactor!", e);
 });

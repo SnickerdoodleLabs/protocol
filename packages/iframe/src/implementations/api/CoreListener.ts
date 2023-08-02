@@ -28,9 +28,11 @@ import {
   OAuthVerifier,
   PagingRequest,
   Signature,
+  SiteVisit,
   TokenAddress,
   TokenId,
   TwitterID,
+  URLString,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -40,6 +42,8 @@ import {
   IStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { injectable, inject } from "inversify";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
 
 import { ICoreListener } from "@core-iframe/interfaces/api/index";
@@ -47,10 +51,6 @@ import {
   IAccountService,
   IAccountServiceType,
 } from "@core-iframe/interfaces/business/index";
-import {
-  IBlockchainProviderRepository,
-  IBlockchainProviderRepositoryType,
-} from "@core-iframe/interfaces/data/index";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -65,8 +65,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
   constructor(
     @inject(IAccountServiceType) protected accountService: IAccountService,
-    @inject(IBlockchainProviderRepositoryType)
-    protected blockchainProvider: IBlockchainProviderRepository,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICoreProviderType) protected coreProvider: ICoreProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -92,17 +90,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.setConfig(data.data);
         }, data.callId);
       },
-      suggestAddAccount: (
-        data: IIFrameCallData<{ accountAddress: AccountAddress }>,
-      ) => {
-        this.returnForModel(() => {
-          // We've been suggested that we should add this new
-          // account to the user's wallet.
-          return this.accountService.handleAddAccountSuggestion(
-            data.data.accountAddress,
-          );
-        }, data.callId);
-      },
       unlock: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
@@ -113,13 +100,48 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.account.unlock(
-              data.data.accountAddress,
-              data.data.signature,
-              data.data.languageCode,
-              data.data.chain,
-              sourceDomain,
-            );
+            return core.account
+              .unlock(
+                data.data.accountAddress,
+                data.data.signature,
+                data.data.languageCode,
+                data.data.chain,
+                sourceDomain,
+              )
+              .andThen(() => {
+                // Store the unlock values in local storage
+                console.log("Storing unlock values in local storage");
+                return ResultUtils.combine([
+                  this.storageUtils.write(
+                    "storedAccountAddress",
+                    data.data.accountAddress,
+                  ),
+                  this.storageUtils.write(
+                    "storedSignature",
+                    data.data.signature,
+                  ),
+                  this.storageUtils.write("storedChain", data.data.chain),
+                  this.storageUtils.write(
+                    "storedLanguageCode",
+                    data.data.languageCode,
+                  ),
+                ])
+                  .map(() => {})
+                  .orElse((e) => {
+                    console.error("Error storing unlock values", e);
+                    return okAsync(undefined);
+                  });
+              })
+              .andThen(() => {
+                // We want to record the sourceDomain as a site visit
+                return core.addSiteVisits([
+                  new SiteVisit(
+                    URLString(this.sourceDomain), // We can't get the full URL, but the domain will suffice
+                    this.timeUtils.getUnixNow(), // Visit started now
+                    UnixTimestamp(this.timeUtils.getUnixNow() + 10), // We're not going to wait, so just record the visit as for 10 seconds
+                  ),
+                ]);
+              });
           });
         }, data.callId);
       },

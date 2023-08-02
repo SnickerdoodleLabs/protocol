@@ -41,7 +41,7 @@
     "docker-push": "yarn workspaces foreach -p run docker-push",
     "dockerize": "yarn build && cd packages/docker && yarn dockerize && cd ../iframe && yarn dockerize && cd ../web-integration-test && yarn dockerize && cd ../extension-onboarding && yarn dockerize",
     "dockerize-iframe": "yarn build && cd packages/docker && yarn dockerize && cd ../iframe && yarn dockerize",
-    "dockerize-web-integration": "yarn build && cd packages/docker && yarn dockerize && cd ../web-integration-test && yarn dockerize",
+    "dockerize-web-integration-test": "yarn build && cd packages/docker && yarn dockerize && cd ../web-integration-test && yarn dockerize",
     "dockerize-spa": "yarn build && cd packages/docker && yarn dockerize && cd ../extension-onboarding && yarn dockerize",
     "format": "eslint --fix \"packages/**/*.ts\" && yarn format:pkg",
     "format:pkg": "format-package -w",

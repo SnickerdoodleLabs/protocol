@@ -230,14 +230,6 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
-  public suggestAddAccount(
-    accountAddress: AccountAddress,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("suggestAddAccount", {
-      accountAddress,
-    });
-  }
-
   public unlock(
     accountAddress: AccountAddress,
     signature: Signature,

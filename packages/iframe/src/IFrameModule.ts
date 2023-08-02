@@ -15,7 +15,6 @@ import { ContainerModule, interfaces } from "inversify";
 
 import { CoreListener } from "@core-iframe/implementations/api/index";
 import { AccountService } from "@core-iframe/implementations/business/index";
-import { BlockchainProviderRepository } from "@core-iframe/implementations/data/index";
 import {
   ConfigProvider,
   CoreProvider,
@@ -28,10 +27,6 @@ import {
   IAccountService,
   IAccountServiceType,
 } from "@core-iframe/interfaces/business/index";
-import {
-  IBlockchainProviderRepository,
-  IBlockchainProviderRepositoryType,
-} from "@core-iframe/interfaces/data/index";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -57,9 +52,6 @@ export const iframeModule = new ContainerModule(
     // #endregion
 
     // #region Data
-    bind<IBlockchainProviderRepository>(IBlockchainProviderRepositoryType)
-      .to(BlockchainProviderRepository)
-      .inSingletonScope();
     // #endregion
 
     // #region Utilities
