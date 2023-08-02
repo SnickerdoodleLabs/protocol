@@ -4,4 +4,5 @@ export enum EBadgeType {
   MorePermissionRequired,
   Available,
   None,
+  UserWasInEligible,
 }

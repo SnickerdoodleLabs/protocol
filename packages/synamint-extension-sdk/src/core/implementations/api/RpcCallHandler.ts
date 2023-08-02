@@ -130,6 +130,7 @@ import {
   TwitterGetLinkedProfilesParams,
   GetConfigParams,
   SwitchToTabParams,
+  GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -569,6 +570,12 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this.discordService.initializeUserWithAuthorizationCode(
           params.code,
         );
+      },
+    ),
+    new CoreActionHandler<GetQueryStatusByCidParams>(
+      GetQueryStatusByCidParams.getCoreAction(),
+      (params) => {
+        return this.accountService.getQueryStatusByQueryCID(params.queryCID);
       },
     ),
     new CoreActionHandler<GetDiscordInstallationUrlParams>(
