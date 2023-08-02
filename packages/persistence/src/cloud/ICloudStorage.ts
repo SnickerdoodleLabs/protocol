@@ -10,7 +10,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
-  name(): string;
+  name(): ECloudStorageType;
   /**
    * Stores a new backup file in the cloud
    * @param backup The backup you want to store in the cloud

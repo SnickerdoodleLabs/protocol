@@ -17,8 +17,8 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
-  public name(): string {
-    return "Null Storage";
+  public name(): ECloudStorageType {
+    return ECloudStorageType.Local_Only;
   }
 
   public pollByStorageType(

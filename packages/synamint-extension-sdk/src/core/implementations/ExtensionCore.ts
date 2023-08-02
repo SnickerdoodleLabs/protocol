@@ -11,6 +11,7 @@ import {
   CloudStorageParams,
   ICloudStorageParams,
   CloudStorageManager,
+  DropboxCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   ChromeStorageUtils,
@@ -109,11 +110,6 @@ export class ExtensionCore {
       ECloudStorageType.Dropbox,
       config.dropboxAppKey,
       config.dropboxAppSecret,
-    );
-
-    const manager = new CloudStorageManager(
-      GoogleCloudStorage,
-      DropboxCloudStorage,
     );
 
     this.core = new SnickerdoodleCore(

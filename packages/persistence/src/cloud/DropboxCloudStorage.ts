@@ -85,8 +85,8 @@ export class DropboxCloudStorage implements ICloudStorage {
     // pass in the access token and dropbox folder
   }
 
-  public name(): string {
-    return "Dropbox Storage";
+  public name(): ECloudStorageType {
+    return ECloudStorageType.Dropbox;
   }
 
   private initialize(): void {

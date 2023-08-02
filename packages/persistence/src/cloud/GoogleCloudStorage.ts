@@ -58,8 +58,8 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  public name(): string {
-    return "Google Storage";
+  public name(): ECloudStorageType {
+    return ECloudStorageType.Snickerdoodle;
   }
 
   public pollByStorageType(
@@ -336,7 +336,7 @@ class ParsedBackupFileName {
     public timestamp: number,
     public hash: DataWalletBackupID,
     public isField: boolean,
-  ) { }
+  ) {}
 
   public static parse(path: string): ParsedBackupFileName | null {
     const name = path.split(/[/ ]+/).pop();

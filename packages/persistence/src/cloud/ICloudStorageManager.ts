@@ -17,12 +17,13 @@ import {
 } from "@persistence/cloud";
 
 export interface ICloudStorageManager {
-  initialize(
+  activateAuthenticatedStorage(
     cloudStorageParams: CloudStorageParams | undefined,
   ): ResultAsync<void, never>;
 
-  cloudStorage: ICloudStorage;
+  cloudStorageActivated(): boolean;
 
+  getCloudStorage(): ResultAsync<ICloudStorage, never>;
   // get setCloudStorageOption(
   //     authTokens,
   //     path,
