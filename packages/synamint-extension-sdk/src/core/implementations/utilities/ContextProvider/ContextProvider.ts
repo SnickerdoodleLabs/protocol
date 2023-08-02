@@ -13,6 +13,7 @@ import {
   EProfileFieldType,
   ProfileFieldChangedNotification,
   SocialProfileLinkedNotification,
+  ProfileFieldUpdate,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
@@ -109,9 +110,14 @@ export class ContextProvider implements IContextProvider {
     );
   }
 
-  public onProfileFieldChanged(profileFieldType: EProfileFieldType): void {
+  public onProfileFieldChanged(
+    profileFieldType: EProfileFieldType,
+    value: any,
+  ): void {
     this.appContext.notifyAllConnections(
-      new ProfileFieldChangedNotification(profileFieldType),
+      new ProfileFieldChangedNotification(
+        new ProfileFieldUpdate(profileFieldType, value),
+      ),
     );
   }
 

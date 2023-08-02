@@ -6,7 +6,6 @@ const envVars = {
   __SUPPORTED_CHAINS__: "5,43113,31337,-1,100,56,1284,42161,592",
   __IPFS_FETCH_BASE_URL__: "http://localhost:8080/ipfs/",
   __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: "http://localhost:3001/v0/",
-  __CERAMIC_NODE_URL__: "https://ceramic.snickerdoodle.dev/",
 
   __ALCHEMY_ARBITRUM_API_KEY__: "",
   __ALCHEMY_ASTAR_API_KEY__: "",

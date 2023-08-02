@@ -4,15 +4,12 @@ import {
   ComponentStatus,
   EChain,
   EComponentStatus,
+  PublicEvents,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import {
-  PublicEvents,
-  CoreContext,
-  PrivateEvents,
-} from "@core/interfaces/objects/index.js";
+import { CoreContext, PrivateEvents } from "@core/interfaces/objects/index.js";
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 @injectable()

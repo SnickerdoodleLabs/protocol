@@ -186,10 +186,10 @@ We have a new "DiscordService" in data wallet that handles Discord-related calls
     ```
     type JsonRpcError = unknown;
     export interface ISdlDataWallet extends EventEmitter {
-      discord : ISdlDiscordMethods
+      discord : IProxyDiscordMethods
     }
 
-    export interface ISdlDiscordMethods {
+    export interface IProxyDiscordMethods {
       getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
     }
     ```
@@ -199,7 +199,7 @@ We have a new "DiscordService" in data wallet that handles Discord-related calls
     ```
     export class ExternalCoreGateway {
       protected _handler: CoreHandler;
-      discord : ISdlDiscordMethods;
+      discord : IProxyDiscordMethods;
       constructor(protected rpcEngine: JsonRpcEngine) {
         this._handler = new CoreHandler(rpcEngine);
         this.discord = {

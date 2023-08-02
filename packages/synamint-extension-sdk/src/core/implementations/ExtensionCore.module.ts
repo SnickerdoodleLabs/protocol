@@ -21,7 +21,9 @@ import {
 import {
   AccountService,
   DiscordService,
+  IntegrationService,
   InvitationService,
+  MetricsService,
   PIIService,
   PortConnectionService,
   ScamFilterService,
@@ -64,8 +66,12 @@ import {
   IAccountServiceType,
   IDiscordService,
   IDiscordServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
   IPortConnectionService,
@@ -140,11 +146,17 @@ export const extensionCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
+      .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
       .inSingletonScope();
     bind<IPortConnectionService>(IPortConnectionServiceType)
       .to(PortConnectionService)
+      .inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
       .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
     bind<ITokenPriceService>(ITokenPriceServiceType)

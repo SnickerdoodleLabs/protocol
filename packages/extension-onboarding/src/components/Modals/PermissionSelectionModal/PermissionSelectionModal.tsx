@@ -91,6 +91,9 @@ const PermissionSelectionModalV2: FC = () => {
       .getPossibleRewards([consentContractAddress])
       .map((res) => {
         setPossibleRewards(res[consentContractAddress] ?? []);
+      })
+      .mapErr((e) => {
+        console.error(e);
       });
   }, []);
 
