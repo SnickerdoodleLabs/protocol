@@ -30,6 +30,8 @@ import {
   IVolatileStorage,
   IVolatileStorageSchemaProvider,
   Serializer,
+  ICloudStorageParams,
+  ICloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, ok, okAsync } from "neverthrow";
@@ -127,8 +129,11 @@ class DataWalletPersistenceMocks {
   public contextProvider: ContextProviderMock;
   public timeUtils: ITimeUtils;
   public logUtils: ILogUtils;
+  public cloudStorageParams: ICloudStorageParams;
+  public cloudStoreManager: ICloudStorageManager;
 
   public constructor() {
+    this.cloudStoreManager = td.object<ICloudStorageManager>();
     this.backupManagerProvider = td.object<IBackupManagerProvider>();
     this.backupManager = td.object<IBackupManager>();
     this.storageUtils = td.object<IStorageUtils>();
@@ -140,6 +145,7 @@ class DataWalletPersistenceMocks {
     this.contextProvider = new ContextProviderMock();
     this.timeUtils = td.object<ITimeUtils>();
     this.logUtils = td.object<ILogUtils>();
+    this.cloudStorageParams = td.object<ICloudStorageParams>();
 
     // BackupManagerProvider -------------------------------------------
     td.when(this.backupManagerProvider.unlock(dataWalletKey)).thenReturn(
@@ -188,12 +194,12 @@ class DataWalletPersistenceMocks {
       okAsync([fieldBackup, recordBackup]),
     );
 
-    td.when(this.backupManager.markRenderedChunkAsRestored(fieldBackupId)).thenReturn(
-      okAsync(undefined),
-    );
-    td.when(this.backupManager.markRenderedChunkAsRestored(recordBackupId)).thenReturn(
-      okAsync(undefined),
-    );
+    td.when(
+      this.backupManager.markRenderedChunkAsRestored(fieldBackupId),
+    ).thenReturn(okAsync(undefined));
+    td.when(
+      this.backupManager.markRenderedChunkAsRestored(recordBackupId),
+    ).thenReturn(okAsync(undefined));
 
     // StorageUtils ----------------------------------------------------
     td.when(this.storageUtils.read<SerializedObject>(fieldKey)).thenReturn(
@@ -289,6 +295,7 @@ class DataWalletPersistenceMocks {
 
   public factory(): IDataWalletPersistence {
     return new DataWalletPersistence(
+      this.cloudStoreManager,
       this.backupManagerProvider,
       this.storageUtils,
       this.volatileStorage,

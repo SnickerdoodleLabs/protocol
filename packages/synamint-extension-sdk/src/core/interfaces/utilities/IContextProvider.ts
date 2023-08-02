@@ -7,14 +7,17 @@ import {
   SocialProfileLinkedEvent,
   UUID,
   EProfileFieldType,
+  CloudProviderSelectedEvent,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
+import { Subject } from "rxjs";
+
 import { AccountContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AppContext";
 import {
   IInternalState,
   IExternalState,
 } from "@synamint-extension-sdk/shared/interfaces/states";
-import { Subject } from "rxjs";
 
 export interface IContextProvider {
   getAccountContext(): AccountContext;
@@ -30,6 +33,10 @@ export interface IContextProvider {
   onAccountRemoved(accountAddress: LinkedAccount): void;
   onEarnedRewardsAdded(rewards: EarnedReward[]): void;
   onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
+
+  // new function for switching cloud storage options (cloud manager)
+  cloudStorageAltered(event: CloudProviderSelectedEvent): void;
+
   onProfileFieldChanged(profileFieldType: EProfileFieldType): void;
 }
 

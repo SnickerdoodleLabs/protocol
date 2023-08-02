@@ -1,7 +1,8 @@
-import { configs } from "@browser-extension/background/configs";
 import { initializeSDKCore } from "@snickerdoodlelabs/synamint-extension-sdk/core";
 import { ExtensionUtils } from "@snickerdoodlelabs/synamint-extension-sdk/extensionShared";
 import Browser, { Runtime } from "webextension-polyfill";
+
+import { configs } from "@browser-extension/background/configs";
 
 //#region first installation
 Browser.runtime.onInstalled.addListener((details) => {
@@ -29,16 +30,17 @@ async function createOffscreen() {
       reasons: ["BLOBS"],
       justification: "keep service worker running",
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 Browser.runtime.onStartup.addListener(createOffscreen);
-self.onmessage = (e) => {}; // keepAlive
+self.onmessage = (e) => { }; // keepAlive
 createOffscreen();
 //#endregion
 
 //#region core initialization
 initializeSDKCore(configs).map(() => {
+  console.log("LOOK HERE! INITIALIZE EXTENSION CORE!");
   console.log("core initialized");
 });
 

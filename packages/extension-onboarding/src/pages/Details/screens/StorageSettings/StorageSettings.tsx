@@ -1,3 +1,12 @@
+import { Box } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { IRequestConfig } from "@snickerdoodlelabs/common-utils";
+import { Radio } from "@snickerdoodlelabs/shared-components";
+import { Dropbox } from "dropbox";
+import { ResultAsync, errAsync, ok, okAsync } from "neverthrow";
+import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
 import dropboxIcon from "@extension-onboarding/assets/icons/dropbox.svg";
 import discIcon from "@extension-onboarding/assets/icons/local-disc.svg";
 import sdlIcon from "@extension-onboarding/assets/icons/sdl-circle.svg";
@@ -8,14 +17,6 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import FileExplorer from "@extension-onboarding/pages/Details/screens/StorageSettings/FileExplorer";
-import { Box } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { IRequestConfig } from "@snickerdoodlelabs/common-utils";
-import { Radio } from "@snickerdoodlelabs/shared-components";
-import { Dropbox } from "dropbox";
-import { ResultAsync, errAsync, ok, okAsync } from "neverthrow";
-import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 interface DropboxFolder {
   ".tag": string;
@@ -77,7 +78,10 @@ const StorageSettings = () => {
   };
 
   // Okan uses this to get the access token
+  // Perfect implementation - passes in auth code to get access code
   const initializeUserWithAuthorizationCode = (code) => {
+    console.log("Code is: " + code);
+
     return apiGateway.axiosAjaxUtil
       .post<{ access_token: string }>(
         new URL("https://api.dropbox.com/oauth2/token"),
@@ -96,14 +100,15 @@ const StorageSettings = () => {
         } as IRequestConfig,
       )
       .map((tokens) => {
-        console.log(tokens);
+        console.log("Tokens are : " + JSON.stringify(tokens));
+
         //do some extra stuff here and return the access token
         return tokens.access_token;
       });
   };
 
   const setFolderPath = (folderPath: string) => {
-    console.log(folderPath);
+    console.log("Folder path: " + folderPath);
     return okAsync("");
   };
 
@@ -138,16 +143,23 @@ const StorageSettings = () => {
 
   // Okan used this to get the folders
   const dropbox = useMemo(() => {
+    console.log("Access Token: " + accessToken);
     if (accessToken && Dropbox) {
+      console.log("New Dropbox instance. ");
       return new Dropbox({ accessToken });
     } else {
+      console.log("null");
       return null;
     }
   }, [accessToken, Dropbox]);
 
   const handleCode = (code) => {
+    console.log("Handle Code: " + code);
+
     initializeUserWithAuthorizationCode(code).map((accessToken) => {
       setAccessToken(accessToken);
+      console.log("Set Access Token: " + accessToken);
+
       sessionStorage.setItem("dropboxAccessToken", accessToken);
       return window.history.replaceState(null, "", window.location.pathname);
     });
@@ -177,7 +189,7 @@ const StorageSettings = () => {
       (folder) =>
         folder.path_lower.startsWith(path) &&
         folder.path_lower.split("/").filter((part) => part !== "").length ===
-          path.split("/").filter((part) => part !== "").length + 1,
+        path.split("/").filter((part) => part !== "").length + 1,
     );
 
     subFolders.forEach((folder) => {
@@ -236,13 +248,26 @@ const StorageSettings = () => {
     });
   };
 
+  // Okan passes in onFolderSelect
+  // we need to pass in the path into DropboxCloudStorage as well
   const onFolderSelect = (path: string) => {
     setFolderPath(path).map(() => {
+      // Okan we finished picking a folder, now initiate the storage type
+      const accesToken = sessionStorage.getItem("dropboxAccessToken");
+      // path
+
+      // set another cloud storage
+      // const dbcloudstorage = DropboxCloudStorage();
+
       setAlert({
         severity: EAlertSeverity.SUCCESS,
         message: "Your Dropbox account has successfully been connected.",
       });
       sessionStorage.removeItem("dropboxAccessToken");
+
+      // added File Path to use for DropboxCloudStorage
+      // sessionStorage.setItem("dropboxFilePath", filePath);
+
       setStorageOption(EStorage.DROPBOX);
     });
 
@@ -258,6 +283,7 @@ const StorageSettings = () => {
       case EStorage.DROPBOX: {
         return dropboxInstallationUrl().map((url) => {
           window.open(url, "_self");
+          console.log("Opened dropbox url now");
         });
       }
       default:

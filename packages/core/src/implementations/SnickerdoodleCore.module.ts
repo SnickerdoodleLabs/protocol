@@ -72,6 +72,14 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
+  CloudStorageManager,
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+  ICloudStorage,
+  GoogleCloudStorage,
+  DropboxCloudStorage,
+  IDropboxCloudStorageType,
+  IGDriveCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -279,6 +287,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
+    // Binding cloud storage manager
+    bind<ICloudStorageManager>(IConsentContractRepositoryType).to(
+      CloudStorageManager,
+    );
+
     bind<ISocialMediaPoller>(ISocialMediaPollerType)
       .to(SocialMediaPoller)
       .inSingletonScope();
@@ -424,6 +437,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMasterIndexer>(IMasterIndexerType)
       .to(MasterIndexer)
       .inSingletonScope();
+    bind<ICloudStorageManager>(ICloudStorageManagerType)
+      .to(CloudStorageManager)
+      .inSingletonScope();
 
     // Utilities
     const configProvider = new ConfigProvider();
@@ -507,6 +523,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    /* Cloud Storage Options - may need to comment out */
+    // bind<ICloudStorage>(IGDriveCloudStorage)
+    //   .to(GoogleCloudStorage)
+    //   .inSingletonScope();
+    // bind<ICloudStorage>(IDropboxCloudStorageType)
+    //   .to(DropboxCloudStorage)
+    //   .inSingletonScope();
 
     /* EVM compatible Indexers */
     bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();

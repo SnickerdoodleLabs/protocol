@@ -1,28 +1,30 @@
 import {
-    IAxiosAjaxUtilsType,
-    IAxiosAjaxUtils,
-    ICryptoUtils,
-    ICryptoUtilsType,
-    ILogUtilsType,
-    ILogUtils,
+  IAxiosAjaxUtilsType,
+  IAxiosAjaxUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+  ILogUtilsType,
+  ILogUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { ICrumbsContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
-    LanguageCode,
-    BlockchainProviderError,
-    EVMAccountAddress,
-    AESEncryptedString,
-    UninitializedError,
-    CrumbsContractError,
-    ICrumbContent,
-    TokenId,
-    HexString,
-    TokenUri,
-    BlockchainCommonErrors,
+  LanguageCode,
+  BlockchainProviderError,
+  EVMAccountAddress,
+  AESEncryptedString,
+  UninitializedError,
+  CrumbsContractError,
+  ICrumbContent,
+  TokenId,
+  HexString,
+  TokenUri,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import {
-    ICloudStorage,
-    ICloudStorageType,
+  ICloudStorage,
+  ICloudStorageType,
+  ICloudStorageParamsType,
+  ICloudStorageParams,
 } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -31,156 +33,158 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { ICrumbsRepository } from "@core/interfaces/data/index.js";
 import { CrumbCallData } from "@core/interfaces/objects/index.js";
 import {
-    IContractFactory,
-    IContractFactoryType,
+  IContractFactory,
+  IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
-    IConfigProvider,
-    IConfigProviderType,
+  IConfigProvider,
+  IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class CloudCrumbsRepository implements ICrumbsRepository {
-    protected crumbsContract: ResultAsync<
-        ICrumbsContract,
-        BlockchainProviderError | UninitializedError
-    > | null = null;
+  protected crumbsContract: ResultAsync<
+    ICrumbsContract,
+    BlockchainProviderError | UninitializedError
+  > | null = null;
 
-    public constructor(
-        @inject(IContractFactoryType)
-        protected contractFactory: IContractFactory,
-        @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-        @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-        @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-        @inject(ICloudStorageType) protected cloudstorage: ICloudStorage,
-        @inject(ILogUtilsType) protected logUtils: ILogUtils,
-    ) { }
+  public constructor(
+    @inject(IContractFactoryType)
+    protected contractFactory: IContractFactory,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    // @inject(ICloudStorageType) protected cloudstorage: ICloudStorage,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ICloudStorageParamsType)
+    protected storageParams: ICloudStorageParams,
+  ) { }
 
-    public getCrumb(
-        accountAddress: EVMAccountAddress,
-        languageCode: LanguageCode,
-    ): ResultAsync<
-        AESEncryptedString | null,
-        | BlockchainProviderError
-        | UninitializedError
-        | CrumbsContractError
-        | BlockchainCommonErrors
-    > {
-        return this.getCrumbsContract().andThen((contract) => {
-            // Retrieve the crumb id or token id mapped to the address
-            // returns 0 if non existent
-            return contract.addressToCrumbId(accountAddress).andThen((tokenId) => {
-                if (tokenId == null) {
-                    return okAsync(null);
-                }
-                // Retrieve the token id's token uri and return it
-                // Query reverts with 'ERC721Metadata: URI query for nonexistent token' error if token does not exist
-                return contract.tokenURI(tokenId).map((rawTokenUri) => {
-                    // If the token does not exist (even though it should!)
-                    if (rawTokenUri == null) {
-                        return null;
-                    }
-
-                    // Token uri will be prefixed with the base uri
-                    // currently it is www.crumbs.com/ on the deployment scripts
-                    // alternatively we can also fetch the latest base uri directly from the contract
-                    const tokenUri = rawTokenUri.match(/\{[\s\S]*\}/)?.[0];
-
-                    // If there is no crumb, there's no data
-                    if (tokenUri == null) {
-                        return null;
-                    }
-
-                    // The tokenUri of the crumb is a JSON text, so let's parse it
-                    const content = JSON.parse(tokenUri) as ICrumbContent;
-
-                    // Check if the crumb includes this language code
-                    const languageCrumb = content[languageCode];
-
-                    if (languageCrumb == null) {
-                        return null;
-                    }
-
-                    // We have a crumb for this language code (the key derived from the signature will be able to decrypt this)
-                    return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
-                });
-            });
-        });
-    }
-
-    /* addressToCrumbId is used with blockchain, not needed for cloud store */
-    public getCrumbTokenId(
-        accountAddress: EVMAccountAddress,
-    ): ResultAsync<
-        TokenId | null,
-        | UninitializedError
-        | BlockchainProviderError
-        | CrumbsContractError
-        | BlockchainCommonErrors
-    > {
-        return this.getCrumbsContract().andThen((contract) => {
-            // remove address to CrumbId - it is now directly pulling from crumb
-            return contract.addressToCrumbId(accountAddress);
-        });
-    }
-
-    public encodeCreateCrumb(
-        languageCode: LanguageCode,
-        encryptedDataWalletKey: AESEncryptedString,
-    ): ResultAsync<CrumbCallData, BlockchainProviderError | UninitializedError> {
-        return ResultUtils.combine([
-            this.getCrumbsContract(),
-            this.cryptoUtils.getTokenId(),
-        ]).map(([crumbsContract, crumbId]) => {
-            // Create the crumb content
-
-            // this.cloudstorage.crumbsContract;
-
-            const crumbContent = TokenUri(
-                JSON.stringify({
-                    [languageCode]: {
-                        d: encryptedDataWalletKey.data,
-                        iv: encryptedDataWalletKey.initializationVector,
-                    },
-                } as ICrumbContent),
-            );
-            return new CrumbCallData(
-                crumbsContract.encodeCreateCrumb(crumbId, crumbContent),
-                crumbId,
-            );
-        });
-    }
-
-    public encodeBurnCrumb(
-        tokenId: TokenId,
-    ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
-        return this.getCrumbsContract().map((crumbsContract) => {
-            return crumbsContract.encodeBurnCrumb(tokenId);
-        });
-    }
-
-    public getURI(
-        tokenId: TokenId,
-    ): ResultAsync<
-        TokenUri | null,
-        | BlockchainProviderError
-        | UninitializedError
-        | CrumbsContractError
-        | BlockchainCommonErrors
-    > {
-        return this.getCrumbsContract().andThen((crumbsContract) => {
-            return crumbsContract.tokenURI(tokenId);
-        });
-    }
-
-    // Only instance of blockchain interaction (retrieving crumb data that is already developed)
-    protected getCrumbsContract(): ResultAsync<
-        ICrumbsContract,
-        BlockchainProviderError | UninitializedError
-    > {
-        if (this.crumbsContract == null) {
-            this.crumbsContract = this.contractFactory.factoryCrumbsContract();
+  public getCrumb(
+    accountAddress: EVMAccountAddress,
+    languageCode: LanguageCode,
+  ): ResultAsync<
+    AESEncryptedString | null,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | BlockchainCommonErrors
+  > {
+    return this.getCrumbsContract().andThen((contract) => {
+      // Retrieve the crumb id or token id mapped to the address
+      // returns 0 if non existent
+      return contract.addressToCrumbId(accountAddress).andThen((tokenId) => {
+        if (tokenId == null) {
+          return okAsync(null);
         }
-        return this.crumbsContract;
+        // Retrieve the token id's token uri and return it
+        // Query reverts with 'ERC721Metadata: URI query for nonexistent token' error if token does not exist
+        return contract.tokenURI(tokenId).map((rawTokenUri) => {
+          // If the token does not exist (even though it should!)
+          if (rawTokenUri == null) {
+            return null;
+          }
+
+          // Token uri will be prefixed with the base uri
+          // currently it is www.crumbs.com/ on the deployment scripts
+          // alternatively we can also fetch the latest base uri directly from the contract
+          const tokenUri = rawTokenUri.match(/\{[\s\S]*\}/)?.[0];
+
+          // If there is no crumb, there's no data
+          if (tokenUri == null) {
+            return null;
+          }
+
+          // The tokenUri of the crumb is a JSON text, so let's parse it
+          const content = JSON.parse(tokenUri) as ICrumbContent;
+
+          // Check if the crumb includes this language code
+          const languageCrumb = content[languageCode];
+
+          if (languageCrumb == null) {
+            return null;
+          }
+
+          // We have a crumb for this language code (the key derived from the signature will be able to decrypt this)
+          return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
+        });
+      });
+    });
+  }
+
+  /* addressToCrumbId is used with blockchain, not needed for cloud store */
+  public getCrumbTokenId(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenId | null,
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | BlockchainCommonErrors
+  > {
+    return this.getCrumbsContract().andThen((contract) => {
+      // remove address to CrumbId - it is now directly pulling from crumb
+      return contract.addressToCrumbId(accountAddress);
+    });
+  }
+
+  public encodeCreateCrumb(
+    languageCode: LanguageCode,
+    encryptedDataWalletKey: AESEncryptedString,
+  ): ResultAsync<CrumbCallData, BlockchainProviderError | UninitializedError> {
+    return ResultUtils.combine([
+      this.getCrumbsContract(),
+      this.cryptoUtils.getTokenId(),
+    ]).map(([crumbsContract, crumbId]) => {
+      // Create the crumb content
+
+      // this.cloudstorage.crumbsContract;
+
+      const crumbContent = TokenUri(
+        JSON.stringify({
+          [languageCode]: {
+            d: encryptedDataWalletKey.data,
+            iv: encryptedDataWalletKey.initializationVector,
+          },
+        } as ICrumbContent),
+      );
+      return new CrumbCallData(
+        crumbsContract.encodeCreateCrumb(crumbId, crumbContent),
+        crumbId,
+      );
+    });
+  }
+
+  public encodeBurnCrumb(
+    tokenId: TokenId,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getCrumbsContract().map((crumbsContract) => {
+      return crumbsContract.encodeBurnCrumb(tokenId);
+    });
+  }
+
+  public getURI(
+    tokenId: TokenId,
+  ): ResultAsync<
+    TokenUri | null,
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | BlockchainCommonErrors
+  > {
+    return this.getCrumbsContract().andThen((crumbsContract) => {
+      return crumbsContract.tokenURI(tokenId);
+    });
+  }
+
+  // Only instance of blockchain interaction (retrieving crumb data that is already developed)
+  protected getCrumbsContract(): ResultAsync<
+    ICrumbsContract,
+    BlockchainProviderError | UninitializedError
+  > {
+    if (this.crumbsContract == null) {
+      this.crumbsContract = this.contractFactory.factoryCrumbsContract();
     }
+    return this.crumbsContract;
+  }
 }

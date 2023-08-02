@@ -40,7 +40,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
-import { ICloudStorageParams } from "@persistence/cloud/ICloudStorageParams.js";
 import {
   IDropboxFileBackup,
   IDropboxWalletBackupDirectory,
@@ -63,6 +62,9 @@ export class DropboxCloudStorage implements ICloudStorage {
     null;
   private refreshToken: RefreshToken = RefreshToken("");
 
+  private accessToken: AccessToken = AccessToken("");
+  private dropboxFilePath = "";
+
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected _configProvider: IPersistenceConfigProvider,
@@ -72,53 +74,60 @@ export class DropboxCloudStorage implements ICloudStorage {
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: AxiosAjaxUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-    protected cloudParams: ICloudStorageParams,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+
+    // Possible initialize function needed
+    this.initialize();
+
+    // pass in the access token and dropbox folder
   }
-  type(): ECloudStorageType {
-    throw new Error("Method not implemented.");
+
+  public name(): string {
+    return "Dropbox Storage";
   }
 
-  // public type(): ECloudStorageType {
-  //   return ECloudStorageType.Dropbox;
-  // }
+  private initialize(): void {
+    return undefined;
+  }
 
-  // use /oauth2/token API for getting access token
-  // we need to relegrate the redirect within the form factor - core expects cloud storage to be available immediately
-  // migrate this to form factor
-  // could look into setting up an event to complete this - redirect may lose core
-  /* 2 SCENARIOS: 
-    1. We already have a refresh token, so we can access the access token. 
-    2. We need to go through the entire auth process - ugh. 
-  */
-  // private generateAccessToken(): ResultAsync<AccessToken, AjaxError | AccessTokenError> {
+  public unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError> {
+    // Store the result
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this._resolveUnlock!(derivedKey);
 
-  //   return ResultUtils.combine([
-  //     this._configProvider.getConfig()
-  //   ]).andThen(([config]) => {
-  //     if (this.refreshToken !== "") {
-  //       const url = new URL("https://api.dropbox.com/oauth2/token?grant_type=refresh_token&refresh_token=" + this.refreshToken + "&client_id=" + config.dropboxAppKey + "&client_secret=" + config.dropboxAppSecret);
-  //       // return okAsync(AccessToken(""));
-  //       return this.ajaxUtils.post<RefreshTokenResponse>(url)
-  //         .map((refreshResponse) => {
-  //           return (refreshResponse.access_token);
-  //         })
-  //     }
+    // username/password or an auth token from the FF
+    return okAsync(undefined);
+  }
 
-  //     // No refresh token means we need to do the entire auth process
-  //     const url = new URL("https://www.dropbox.com/oauth2/authorize?client_id=" + config.dropboxAppKey + "&token_access_type=offline&response_type=code");
-  //     return this.ajaxUtils.get<IAuthResponse>(url).andThen((webpage) => {
-  //       const accessUrl = new URL("https://api.dropboxapi.com/oauth2/token?code=" + webpage.access_code + "&grant_type=authorization_code&client_id=" + config.dropboxAppKey + "&client_secret=" + config.dropboxAppSecret);
-  //       return this.ajaxUtils.post<ITokenResponse>(accessUrl)
-  //         .map((refreshResponse) => {
-  //           return (refreshResponse.access_token);
-  //         })
-  //     });
-  //   });
-  // }
+  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
+    return ResultAsync.fromSafePromise(this._unlockPromise);
+  }
+
+  // use /files/delete_v2 API
+  public clear(): ResultAsync<void, PersistenceError> {
+    // we wont need account address, if we pass in the folder location in FF.
+    const data = {
+      path: this.dropboxFilePath,
+    };
+    const url = new URL("https://api.dropboxapi.com/2/files/delete_v2");
+
+    // return undefined;
+    return this.ajaxUtils
+      .post<void>(url, JSON.stringify(data), {
+        headers: {
+          Authorization: `Authorization: Bearer ` + this.accessToken,
+          "Content-Type": `application/json;`,
+        },
+      })
+      .mapErr(() => {
+        return new PersistenceError("Error clearing dropbox backups");
+      });
+  }
 
   // use /file_requests/create API
   /* Same set up as GCP: we need a temporary link, then we use access token to upload */
@@ -128,34 +137,33 @@ export class DropboxCloudStorage implements ICloudStorage {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-      // this.generateAccessToken(),
     ])
-      .andThen(
-        ([
-          privateKey,
-          config,
-          // accessToken
-        ]) => {
-          const defaultInsightPlatformBaseUrl =
-            config.defaultInsightPlatformBaseUrl;
-          const dataWalletAddress =
-            this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(
-              privateKey,
-            );
+      .andThen(([privateKey, config]) => {
+        // Returns a temporary link, just like GCP
+        // SEE https://www.dropbox.com/developers/documentation/http/documentation#files-get_temporary_upload_link
 
-          // Returns a temporary link, just like GCP
-          // SEE https://www.dropbox.com/developers/documentation/http/documentation#files-get_temporary_upload_link
+        const url =
+          "https://api.dropboxapi.com/2/files/get_temporary_upload_link";
+        const data = {
+          commit_info: {
+            autorename: true,
+            mode: "add",
+            mute: false,
+            path: "/" + this.dropboxFilePath,
+            strict_conflict: false,
+          },
+          duration: 3600,
+        };
 
-          // Use generic ajax instead of insight platform! *
-          return this.insightPlatformRepo.getSignedUrl(
-            privateKey,
-            defaultInsightPlatformBaseUrl,
-            dataWalletAddress + "/" + backup.header.name,
-            // ECloudStorageType.Dropbox,
-            // accessToken,
-          );
-        },
-      )
+        return this.ajaxUtils
+          .post<undefined>(new URL(url), JSON.stringify(data), {
+            headers: {
+              Authorization: `Bearer ` + this.accessToken,
+              "Content-Type": `application/json;`,
+            },
+          })
+          .map(() => DataWalletBackupID(backup.header.hash));
+      })
       .andThen((tempUploadUrl) => {
         // If Successful, it ALSO returns a content hash!
         return this.ajaxUtils
@@ -169,32 +177,32 @@ export class DropboxCloudStorage implements ICloudStorage {
       .mapErr((e) => new PersistenceError("error putting backup", e));
   }
 
-  // use /files/delete_v2 API
-  public clear(): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      // this.generateAccessToken()
-    ])
-      .andThen(([privateKey, accessToken]) => {
-        // we wont need account address, if we pass in the folder location in FF.
-        const dataWalletAddress =
-          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        const data = {
-          path: dataWalletAddress,
-        };
-        const url = new URL("https://api.dropboxapi.com/2/files/delete_v2");
+  public pollBackups(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    return okAsync([]);
+    // return this.getWalletListing()
+    //   .andThen((files) => {
+    //     if (files.length == 0) {
+    //       return okAsync([]);
+    //     }
 
-        // return undefined;
-        return this.ajaxUtils.post<void>(url, JSON.stringify(data), {
-          headers: {
-            Authorization: `Authorization: Bearer ` + accessToken,
-            "Content-Type": `application/json;`,
-          },
-        });
-      })
-      .mapErr(() => {
-        return new PersistenceError("Error clearing dropbox backups");
-      });
+    //     // Now iterate only through the found hashes
+    //     return ResultUtils.combine(
+    //       files
+    //         .filter((file) => {
+    //           const parsed = ParsedBackupFileName.parse(file.name);
+    //           if (parsed == null) {
+    //             return false;
+    //           }
+    //           return !restored.has(DataWalletBackupID(parsed.hash));
+    //         })
+    //         .map((file) => {
+    //           return this.getBackupFile(file);
+    //         }),
+    //     );
+    //   })
+    //   .mapErr((e) => new PersistenceError("error polling backups", e));
   }
 
   // use /files/list_folder API
@@ -205,7 +213,6 @@ export class DropboxCloudStorage implements ICloudStorage {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-      // this.generateAccessToken(),
     ])
       .andThen(
         ([
@@ -213,23 +220,9 @@ export class DropboxCloudStorage implements ICloudStorage {
           config,
           // accessToken
         ]) => {
-          // const defaultDropboxCloudBucket = config.defaultDropboxCloudBucket;
-          const defaultDropboxCloudBucket = "";
-          const addr =
-            this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(
-              privateKey,
-            );
-
-          const dataWalletAddress =
-            this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(
-              privateKey,
-            );
-
           const dataWalletFolder =
-            "https://dropbox.com/storage/v1/b/" +
-            defaultDropboxCloudBucket +
-            "/o?prefix=" +
-            addr;
+            "https://dropbox.com/storage/v1/b/" + this.dropboxFilePath;
+
           const url = new URL(dataWalletFolder);
           const data = {
             include_deleted: false,
@@ -237,7 +230,7 @@ export class DropboxCloudStorage implements ICloudStorage {
             include_media_info: false,
             include_mounted_folders: true,
             include_non_downloadable_files: true,
-            path: "/" + dataWalletAddress,
+            path: "/" + this.dropboxFilePath,
             recursive: false,
           };
 
@@ -271,9 +264,8 @@ export class DropboxCloudStorage implements ICloudStorage {
   public fetchBackup(
     backupFileName: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    console.log("fetchBackup is called!");
     return this.getWalletListing().andThen((files) => {
-      // return okAsync([]);
-
       if (files == undefined) {
         return okAsync([]);
       }
@@ -327,6 +319,8 @@ export class DropboxCloudStorage implements ICloudStorage {
   public getLatestBackup(
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup | null, PersistenceError> {
+    console.log("getLatestBackup is called!");
+
     return this.getWalletListing().andThen((files) => {
       if (files.length == 0) {
         return okAsync(null);
@@ -366,60 +360,37 @@ export class DropboxCloudStorage implements ICloudStorage {
     restored: Set<DataWalletBackupID>,
     storageKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return this.getWalletListing().andThen((files) => {
-      if (files.length == 0) {
-        return okAsync([]);
-      }
+    return okAsync([]);
+    // return this.getWalletListing().andThen((files) => {
+    //   if (files.length == 0) {
+    //     return okAsync([]);
+    //   }
 
-      // Now iterate only through the found hashes
-      return ResultUtils.combine(
-        files
-          .filter((file) => {
-            const parsed = ParsedBackupFileName.parse(file.name);
-            if (parsed == null) {
-              return false;
-            }
+    //   // Now iterate only through the found hashes
+    //   return ResultUtils.combine(
+    //     files
+    //       .filter((file) => {
+    //         const parsed = ParsedBackupFileName.parse(file.name);
+    //         if (parsed == null) {
+    //           return false;
+    //         }
 
-            return (
-              storageKey == parsed.dataType &&
-              !restored.has(DataWalletBackupID(parsed.hash))
-            );
-          })
-          .map((file) => {
-            return this.getBackupFile(file);
-          }),
-      );
-    });
+    //         return (
+    //           storageKey == parsed.dataType &&
+    //           !restored.has(DataWalletBackupID(parsed.hash))
+    //         );
+    //       })
+    //       .map((file) => {
+    //         return this.getBackupFile(file);
+    //       }),
+    //   );
+    // });
   }
 
-  public pollBackups(
-    restored: Set<DataWalletBackupID>,
-  ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    return this.getWalletListing()
-      .andThen((files) => {
-        if (files.length == 0) {
-          return okAsync([]);
-        }
-
-        // Now iterate only through the found hashes
-        return ResultUtils.combine(
-          files
-            .filter((file) => {
-              const parsed = ParsedBackupFileName.parse(file.name);
-              if (parsed == null) {
-                return false;
-              }
-              return !restored.has(DataWalletBackupID(parsed.hash));
-            })
-            .map((file) => {
-              return this.getBackupFile(file);
-            }),
-        );
-      })
-      .mapErr((e) => new PersistenceError("error polling backups", e));
-  }
-
+  // file name is passed in, add it to path to get the directory
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    console.log("listFileNames is called!");
+
     return this.getWalletListing().map((files) => {
       if (files.length == 0) {
         return [];
@@ -432,79 +403,41 @@ export class DropboxCloudStorage implements ICloudStorage {
     });
   }
 
-  public readBeforeUnlock(
-    key: string,
-  ): ResultAsync<DataWalletBackup, PersistenceError> {
-    return this.fetchBackup(key).map((backups) => {
-      return backups[0];
-    });
-  }
-
-  /* 
-    Writing Before Unlock
+  // use /oauth2/token API for getting access token
+  // we need to relegrate the redirect within the form factor - core expects cloud storage to be available immediately
+  // migrate this to form factor
+  // could look into setting up an event to complete this - redirect may lose core
+  /* 2 SCENARIOS: 
+    1. We already have a refresh token, so we can access the access token. 
+    2. We need to go through the entire auth process - ugh. 
   */
-  public writeBeforeUnlock(
-    backup: DataWalletBackup,
-  ): ResultAsync<void, PersistenceError> {
-    // return this.putBackup(backup).map(() => { });
-    return ResultUtils.combine([
-      this._configProvider.getConfig(),
-      // this.generateAccessToken(),
-    ])
-      .andThen(
-        ([
-          config,
-          // accessToken
-        ]) => {
-          const defaultInsightPlatformBaseUrl =
-            config.defaultInsightPlatformBaseUrl;
 
-          // getting wallet address is different t
-          // private key is not needed here.
-          // Looking for another function.
-          const dataWalletAddress = this.cloudParams.dataWalletAddress();
-          const privateKey = EVMPrivateKey("");
+  // private generateAccessToken(): ResultAsync<AccessToken, AjaxError | AccessTokenError> {
 
-          // Returns a temporary link, just like GCP
-          // SEE https://www.dropbox.com/developers/documentation/http/documentation#files-get_temporary_upload_link
+  //   return ResultUtils.combine([
+  //     this._configProvider.getConfig()
+  //   ]).andThen(([config]) => {
+  //     if (this.refreshToken !== "") {
+  //       const url = new URL("https://api.dropbox.com/oauth2/token?grant_type=refresh_token&refresh_token=" + this.refreshToken + "&client_id=" + config.dropboxAppKey + "&client_secret=" + config.dropboxAppSecret);
+  //       // return okAsync(AccessToken(""));
+  //       return this.ajaxUtils.post<RefreshTokenResponse>(url)
+  //         .map((refreshResponse) => {
+  //           return (refreshResponse.access_token);
+  //         })
+  //     }
 
-          // Use generic ajax instead of insight platform! *
-          return this.insightPlatformRepo.getSignedUrl(
-            privateKey,
-            defaultInsightPlatformBaseUrl,
-            dataWalletAddress + "/" + backup.header.name,
-            // ECloudStorageType.Dropbox,
-            // accessToken,
-          );
-        },
-      )
-      .andThen((tempUploadUrl) => {
-        // If Successful, it ALSO returns a content hash!
-        return this.ajaxUtils
-          .post<undefined>(new URL(tempUploadUrl), JSON.stringify(backup), {
-            headers: {
-              "Content-Type": `application/octet-stream;`,
-            },
-          })
-          .map(() => { });
-      })
-      .mapErr((e) => new PersistenceError("error putting backup", e));
-  }
+  //     // No refresh token means we need to do the entire auth process
+  //     const url = new URL("https://www.dropbox.com/oauth2/authorize?client_id=" + config.dropboxAppKey + "&token_access_type=offline&response_type=code");
+  //     return this.ajaxUtils.get<IAuthResponse>(url).andThen((webpage) => {
+  //       const accessUrl = new URL("https://api.dropboxapi.com/oauth2/token?code=" + webpage.access_code + "&grant_type=authorization_code&client_id=" + config.dropboxAppKey + "&client_secret=" + config.dropboxAppSecret);
+  //       return this.ajaxUtils.post<ITokenResponse>(accessUrl)
+  //         .map((refreshResponse) => {
+  //           return (refreshResponse.access_token);
+  //         })
+  //     });
+  //   });
+  // }
 
-  public unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this._resolveUnlock!(derivedKey);
-
-    // username/password or an auth token from the FF
-    return okAsync(undefined);
-  }
-
-  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
-    return ResultAsync.fromSafePromise(this._unlockPromise);
-  }
   public copy(): ResultAsync<void, PersistenceError> {
     return errAsync(
       new PersistenceError("Error: DropBox copy() is not implemented yet"),

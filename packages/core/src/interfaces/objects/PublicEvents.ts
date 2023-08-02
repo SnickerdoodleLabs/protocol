@@ -1,4 +1,5 @@
 import {
+  CloudProviderSelectedEvent,
   DataWalletAddress,
   DomainName,
   EarnedReward,
@@ -46,6 +47,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
   public onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
 
+  public onCloudStorageActivated: Subject<CloudProviderSelectedEvent>;
+
   public constructor() {
     this.onInitialized = new Subject();
     this.onQueryPosted = new Subject();
@@ -69,5 +72,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsRevoked = new Subject();
     this.onSocialProfileLinked = new Subject();
     this.onSocialProfileUnlinked = new Subject();
+    this.onCloudStorageActivated = new Subject();
   }
 }

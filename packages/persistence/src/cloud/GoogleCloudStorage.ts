@@ -57,18 +57,9 @@ export class GoogleCloudStorage implements ICloudStorage {
       this._resolveUnlock = resolve;
     });
   }
-  type(): ECloudStorageType {
-    throw new Error("Method not implemented.");
-  }
-  readBeforeUnlock(
-    key: string,
-  ): ResultAsync<DataWalletBackup, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  writeBeforeUnlock(
-    backup: DataWalletBackup,
-  ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+
+  public name(): string {
+    return "Google Storage";
   }
 
   public pollByStorageType(

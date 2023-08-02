@@ -1,6 +1,8 @@
 import {
+  CloudProviderSelectedEvent,
   DataWalletAddress,
   EarnedReward,
+  ECloudStorageType,
   ESolidityAbiParameterType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
@@ -54,6 +56,13 @@ export class CoreListener implements ICoreListener {
       );
       events.onSocialProfileUnlinked.subscribe(
         this.onSocialProfileUnlinked.bind(this),
+      );
+
+      // Add a listener for cloud storage being switched out
+
+      // rename, event emitted from api listeners. keyed and activated by unlock function
+      events.onCloudStorageActivated.subscribe(
+        this.onCloudStorageActivated.bind(this),
       );
     });
   }
@@ -156,5 +165,12 @@ export class CoreListener implements ICoreListener {
   private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
     this.contextProvider.onSocialProfileLinked(event);
   }
+
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
+
+  private onCloudStorageActivated(event: CloudProviderSelectedEvent): void {
+    this.contextProvider.cloudStorageAltered(event);
+
+    // this.core.getCloudStorageParams();
+  }
 }

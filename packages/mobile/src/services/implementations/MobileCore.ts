@@ -57,7 +57,13 @@ import {
   MemoryVolatileStorage,
   NullCloudStorage,
   VolatileTableIndex,
+  CloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
+import {
+  IStorageUtils,
+  StorageUtils,
+  IStorageUtilsType,
+} from "@snickerdoodlelabs/utils";
 import { Container, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -316,13 +322,19 @@ export class MobileCore {
     ]);
 
     const cloudStorageParams = new CloudStorageParams(undefined, undefined);
+    const storageUtils =
+      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
+
+    const cloudStorageManager = new CloudStorageManager(
+      storageUtils,
+      cloudStorageParams,
+    );
 
     this.core = new SnickerdoodleCore(
       coreConfig,
       new MobileStorageUtils(),
       new MemoryVolatileStorage("SD_Wallet", Array.from(provider.values())),
-      undefined,
-      cloudStorageParams,
+      cloudStorageManager,
     );
 
     console.log("thhis", this.core);

@@ -89,6 +89,7 @@ import {
   IAccountMethods,
   PasswordString,
   BlockchainCommonErrors,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import {
   GoogleCloudStorage,
@@ -98,6 +99,12 @@ import {
   IndexedDBVolatileStorage,
   IVolatileStorage,
   IVolatileStorageType,
+  CloudStorageParams,
+  ICloudStorageParamsType,
+  DropboxCloudStorage,
+  CloudStorageManager,
+  ICloudStorageManager,
+  ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -174,7 +181,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorage,
-    // cloudStorage?: ICloudStorage,
     cloudStorageParams?: ICloudStorageParams,
   ) {
     this.iocContainer = new Container();
@@ -184,6 +190,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.
+
     if (storageUtils != null) {
       this.iocContainer.bind(IStorageUtilsType).toConstantValue(storageUtils);
     } else {
@@ -193,22 +200,29 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    console.log("cloudStorageParams: " + JSON.stringify(cloudStorageParams));
-
     if (cloudStorageParams != null) {
-      console.log("cloudStorageParams are not null!: ");
-      // cloudStorageParams.dropboxKey
-
       this.iocContainer
         .bind(ICloudStorageType)
-        // .to(NullCloudStorage)
-        .to(GoogleCloudStorage)
+        .to(DropboxCloudStorage)
         .inSingletonScope();
-      // this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
+
+      // if (cloudStorageParams.type == ECloudStorageType.Dropbox) {
+      //   this.iocContainer
+      //     .bind(ICloudStorageType)
+      //     .to(DropboxCloudStorage)
+      //     .inSingletonScope();
+      // }
+
+      // if (cloudStorageParams == ECloudStorageType.Snickerdoodle) {
+      //   this.iocContainer
+      //     .bind(ICloudStorageType)
+      //     .to(GoogleCloudStorage)
+      //     .inSingletonScope();
+      // }
     } else {
+      // No Parameters - Default
       this.iocContainer
         .bind(ICloudStorageType)
-        // .to(NullCloudStorage)
         .to(GoogleCloudStorage)
         .inSingletonScope();
     }
@@ -306,10 +320,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const indexers =
           this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
+        const cloudManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
+
         // BlockchainProvider needs to be ready to go in order to do the unlock
         return ResultUtils.combine([
           blockchainProvider.initialize(),
           indexers.initialize(),
+          cloudManager.initialize(),
         ])
           .andThen(() => {
             return accountService.unlock(
@@ -437,10 +456,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const indexers =
           this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
+        const cloudManager = this.iocContainer.get<ICloudStorageManager>(
+          ICloudStorageManagerType,
+        );
+
         // BlockchainProvider needs to be ready to go in order to do the unlock
         return ResultUtils.combine([
           blockchainProvider.initialize(),
           indexers.initialize(),
+          cloudManager.initialize(),
         ])
           .andThen(() => {
             return accountService.unlockWithPassword(password);

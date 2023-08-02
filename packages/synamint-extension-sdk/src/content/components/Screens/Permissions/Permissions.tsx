@@ -16,6 +16,7 @@ import {
   PermissionSelection,
   UI_SUPPORTED_PERMISSIONS,
 } from "@snickerdoodlelabs/shared-components";
+import { JsonRpcError } from "json-rpc-engine";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useCallback, useEffect, useState } from "react";
@@ -34,7 +35,6 @@ import {
   SetLocationParams,
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcError } from "json-rpc-engine";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
@@ -91,6 +91,8 @@ const Permissions: FC<IPermissionsProps> = ({
   }, [isUnlocked]);
 
   const handleNotification = (notificaton: BaseNotification) => {
+    console.log("Changed Cloud Storage!");
+
     switch (notificaton.type) {
       case ENotificationTypes.SOCIAL_PROFILE_LINKED: {
         return getSocialProfileValues();
@@ -98,6 +100,9 @@ const Permissions: FC<IPermissionsProps> = ({
       case ENotificationTypes.PROFILE_FIELD_CHANGED: {
         return getProfileValues();
       }
+      // case ENotificationTypes.CLOUD_STORAGE_ALTERED: {
+      //   console.log("Changed Cloud Storage!");
+      // }
       default:
         return;
     }

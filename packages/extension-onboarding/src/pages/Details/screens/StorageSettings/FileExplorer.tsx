@@ -1,10 +1,3 @@
-import backIcon from "@extension-onboarding/assets/icons/back.svg";
-import folderIcon from "@extension-onboarding/assets/icons/folder.svg";
-import forwardIcon from "@extension-onboarding/assets/icons/forward.svg";
-import newFolderIcon from "@extension-onboarding/assets/icons/new-folder.svg";
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { Box, Dialog, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
@@ -14,6 +7,14 @@ import { TextField } from "formik-material-ui";
 import { debounce } from "lodash";
 import { ResultAsync } from "neverthrow";
 import React, { useMemo, useState } from "react";
+
+import backIcon from "@extension-onboarding/assets/icons/back.svg";
+import folderIcon from "@extension-onboarding/assets/icons/folder.svg";
+import forwardIcon from "@extension-onboarding/assets/icons/forward.svg";
+import newFolderIcon from "@extension-onboarding/assets/icons/new-folder.svg";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 interface NestedFolder {
   name: string;
@@ -45,6 +46,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     pathToFind: string,
   ): NestedFolder | undefined {
     for (const folder of nestedArray) {
+      console.log("folder: " + folder);
+
       if (folder.path === pathToFind) {
         return folder;
       }
@@ -64,6 +67,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     setLoadingStatus(true);
     onCreateRequested(values.name.trim(), targetPath ? targetPath : "")
       .map(() => {
+        console.log("Handle Submit");
         setIsNewFolderModalOpen(false);
         setLoadingStatus(false);
         setAlert({
@@ -87,6 +91,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     currentPath = "/",
   } = useMemo(() => {
     if (!targetPath) {
+      console.log("targetPath: " + targetPath);
+
       return {
         foldersToRender: folders,
         backRoute: undefined,
@@ -95,6 +101,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     }
     const folder = findItemByPath(folders, targetPath);
     const folderPath = folder?.path || "";
+    console.log("folderPath: " + folderPath);
+
     return {
       foldersToRender: folder?.children ?? ([] as NestedFolder[]),
       currentPath: folder?.name,
@@ -107,6 +115,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
   const handleClick = React.useCallback(
     debounce((event: React.MouseEvent<HTMLElement>, path: string) => {
       const clickCount = event.detail;
+      console.log("clickCount: " + clickCount);
 
       if (clickCount === 1) {
         setSelected(path);

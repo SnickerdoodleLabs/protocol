@@ -94,7 +94,7 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) { }
 
   // call this from elsewhere
   public initialize(): ResultAsync<void, AjaxError> {
@@ -182,14 +182,14 @@ export class MasterIndexer implements IMasterIndexer {
       (element) =>
         element.getSupportedChains().get(chain)?.balances &&
         element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
-          EComponentStatus.Available,
+        EComponentStatus.Available,
     );
 
     if (provider == undefined) {
       this.logUtils.warning(
         "error fetching balances: no healthy provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
+        getChainInfoByChainId(chainId).name +
+        " protocol",
       );
       return okAsync([]);
     }
@@ -241,14 +241,14 @@ export class MasterIndexer implements IMasterIndexer {
       (element) =>
         element.getSupportedChains().get(chain)?.nfts &&
         element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
-          EComponentStatus.Available,
+        EComponentStatus.Available,
     );
 
     if (provider == undefined) {
       this.logUtils.log(
         "error fetching nfts: no healthy provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
+        getChainInfoByChainId(chainId).name +
+        " protocol",
       );
       return okAsync([]);
     }
@@ -308,14 +308,14 @@ export class MasterIndexer implements IMasterIndexer {
       (element) =>
         element.getSupportedChains().get(chain)?.transactions &&
         element.healthStatus().get(getChainInfoByChainId(chainId).chain) ==
-          EComponentStatus.Available,
+        EComponentStatus.Available,
     );
 
     if (provider == undefined) {
       this.logUtils.log(
         "error fetching transactions: no healthy provider found for " +
-          getChainInfoByChainId(chainId).name +
-          " protocol",
+        getChainInfoByChainId(chainId).name +
+        " protocol",
       );
       return okAsync([]);
     }

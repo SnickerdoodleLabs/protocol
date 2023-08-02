@@ -1,43 +1,22 @@
 import { ECloudStorageType } from "@snickerdoodlelabs/objects";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import { inject, injectable } from "inversify";
 
 import { ICloudStorageParams } from "./ICloudStorageParams";
 
+@injectable()
 export class CloudStorageParams implements ICloudStorageParams {
-    // public credentials = Map< , CloudCredential>
-
+    public type;
     public dropboxKey;
     public dropboxSecret;
-    // public;
 
     public constructor(
+        protected storageType: ECloudStorageType,
         protected dropboxAppKey: string | undefined,
         protected dropboxAppSecret: string | undefined,
     ) {
         this.dropboxKey = dropboxAppKey;
         this.dropboxSecret = dropboxAppSecret;
-
-        if (dropboxAppKey !== undefined && dropboxAppKey.length !== 0) {
-            // this.authenticateDropboxCredentials;
-        }
-    }
-
-    // Get rid of public function and make this a param instead
-    // make thiese values instead.
-    public authenticateDropboxCredentials(): boolean {
-        return true;
-    }
-    public authenticateGCPCredentials(): boolean {
-        return true;
-    }
-    public dataWalletAddress(): string {
-        return "";
-    }
-
-    public type(): ECloudStorageType {
-        //     Snickerdoodle = "Snickerdoodle",
-        //     Dropbox = "Dropbox",
-        //     Local_Only = "null",
-        //   }
-        return ECloudStorageType.Dropbox;
+        this.type = storageType;
     }
 }

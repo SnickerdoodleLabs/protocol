@@ -1,6 +1,7 @@
 import { Observable, Subject } from "rxjs";
 
 import {
+  CloudProviderSelectedEvent,
   EarnedReward,
   LinkedAccount,
   MetatransactionSignatureRequest,
@@ -31,4 +32,6 @@ export interface ISnickerdoodleCoreEvents {
   onPermissionsRevoked: Observable<DomainName>;
   onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
   onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
+
+  onCloudStorageActivated: Subject<CloudProviderSelectedEvent>;
 }

@@ -30,7 +30,7 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
     protected contextProvider: IContextProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
-  ) {}
+  ) { }
 
   public initialize(): ResultAsync<void, never> {
     return ResultUtils.combine([
@@ -64,6 +64,8 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
           this.logUtils.error(e);
         });
       });
+
+      // Cloud Activation here - event found in cloud storage manager
 
       // poll once
       this.logUtils.debug("Doing initial poll for transactions");

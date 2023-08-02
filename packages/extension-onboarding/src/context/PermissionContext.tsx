@@ -1,13 +1,12 @@
-import { UI_SUPPORTED_PERMISSIONS } from "@snickerdoodlelabs/shared-components";
-import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
-import { PII } from "@extension-onboarding/services/interfaces/objects";
 import {
   DiscordProfile,
   ENotificationTypes,
   EWalletDataType,
   TwitterProfile,
 } from "@snickerdoodlelabs/objects";
+import { UI_SUPPORTED_PERMISSIONS } from "@snickerdoodlelabs/shared-components";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   FC,
   createContext,
@@ -18,8 +17,10 @@ import React, {
   useRef,
   useCallback,
 } from "react";
+
+import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
+import { PII } from "@extension-onboarding/services/interfaces/objects";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { ResultUtils } from "neverthrow-result-utils";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IPermissionContext {
@@ -43,6 +44,8 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
   const isInitialized = useRef<boolean>();
 
   useEffect(() => {
+    console.log("tracking use effect in permission context!!!");
+
     if (appMode === EAppModes.AUTH_USER) {
       updateProfileValues();
       updateSocialProfileValues();

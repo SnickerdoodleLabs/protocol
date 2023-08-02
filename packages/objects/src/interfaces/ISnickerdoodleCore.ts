@@ -936,6 +936,11 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
+  // getCloudStorageParams(): ResultAsync<
+  //   CloudStorageParams,
+  //   AccountIndexingError
+  // >;
+
   account: IAccountMethods;
   invitation: IInvitationMethods;
   marketplace: ICoreMarketplaceMethods;

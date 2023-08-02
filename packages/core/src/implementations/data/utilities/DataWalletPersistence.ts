@@ -38,6 +38,10 @@ import {
   IFieldSchemaProvider,
   IFieldSchemaProviderType,
   Serializer,
+  ICloudStorageParams,
+  ICloudStorageParamsType,
+  ICloudStorageManagerType,
+  ICloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -61,7 +65,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ResultAsync<void, PersistenceError>
   > = new Map();
 
+  // cloudstoragemanager.getCloudStorage() - should indefinitely hold until storage is activated OR immediately error out
+  // debug log when having no activated cloud storage yet
   public constructor(
+    @inject(ICloudStorageManagerType)
+    protected cloudStorageManager: ICloudStorageManager,
     @inject(IBackupManagerProviderType)
     protected backupManagerProvider: IBackupManagerProvider,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
@@ -81,24 +89,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
     });
-  }
-
-  /* 
-    DataWalletPersistence functions
-    1. Read Directory Before Unlock
-    2. Read File Before Unlock
-    3. Write File Before Unlock
-  */
-  public readBeforeUnlock<T extends VersionedObject>(
-    filePath: string,
-  ): ResultAsync<DataWalletBackup, PersistenceError> {
-    return this.cloudStorage.readBeforeUnlock(filePath);
-  }
-
-  public writeBeforeUnlock<T extends VersionedObject>(
-    backup: DataWalletBackup,
-  ): ResultAsync<void, PersistenceError> {
-    return this.cloudStorage.writeBeforeUnlock(backup);
   }
 
   // #region Field Methods
@@ -279,6 +269,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
+    console.log("this.cloudStorage: " + this.cloudStorage.name);
     return ResultUtils.combine([
       this.cloudStorage.unlock(derivedKey),
       this.backupManagerProvider.unlock(derivedKey),
@@ -344,6 +335,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             // Convert to a list of DataBackupID
             const restoredIds = new Set(restored.map((x) => x.id));
 
+            console.log("this.cloudStorage: " + this.cloudStorage.name);
             return this.cloudStorage
               .pollBackups(restoredIds)
               .andThen((newBackups) => {

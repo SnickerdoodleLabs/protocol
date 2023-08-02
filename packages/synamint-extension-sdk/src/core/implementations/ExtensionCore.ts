@@ -1,6 +1,7 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   EChain,
+  ECloudStorageType,
   IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -9,8 +10,13 @@ import {
   GoogleCloudStorage,
   CloudStorageParams,
   ICloudStorageParams,
+  CloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
-import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
+import {
+  ChromeStorageUtils,
+  IStorageUtils,
+  IStorageUtilsType,
+} from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -98,7 +104,9 @@ export class ExtensionCore {
       dropboxAppSecret: config.dropboxAppSecret,
     } as IConfigOverrides;
 
+    // Edit input parameters
     const cloudStorageParams = new CloudStorageParams(
+      ECloudStorageType.Dropbox,
       config.dropboxAppKey,
       config.dropboxAppSecret,
     );
@@ -107,7 +115,6 @@ export class ExtensionCore {
       coreConfig,
       new ChromeStorageUtils(),
       undefined,
-      // undefined,
       cloudStorageParams,
     );
 

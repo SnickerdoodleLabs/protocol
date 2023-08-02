@@ -10,25 +10,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
-  /**
-   * Returns the ECloudStorageType of the cloud storage we use
-   */
-  type(): ECloudStorageType;
-
-  /**
-   * Reads file data before we unlock
-   */
-  readBeforeUnlock(
-    key: string,
-  ): ResultAsync<DataWalletBackup, PersistenceError>;
-
-  /**
-   * Writes file data before we unlock
-   */
-  writeBeforeUnlock(
-    backup: DataWalletBackup,
-  ): ResultAsync<void, PersistenceError>;
-
+  name(): string;
   /**
    * Stores a new backup file in the cloud
    * @param backup The backup you want to store in the cloud
@@ -88,3 +70,5 @@ export interface ICloudStorage {
 }
 
 export const ICloudStorageType = Symbol.for("ICloudStorage");
+export const IGDriveCloudStorage = Symbol.for("IGDriveCloudStorage");
+export const IDropboxCloudStorageType = Symbol.for("IDropboxCloudStorage");
