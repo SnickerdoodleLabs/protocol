@@ -111,6 +111,9 @@ const CampaignPopup: FC = () => {
           if (invitationStatus != EInvitationStatus.New) {
             handleInvalidInvitation(invitationStatus);
           }
+        })
+        .mapErr((e) => {
+          console.error(e);
         });
     }
   }, [
@@ -214,8 +217,8 @@ const CampaignPopup: FC = () => {
     return setModal({
       modalSelector: EModalSelectors.PERMISSION_SELECTION,
       onPrimaryButtonClick: ({
-        eligibleRewards,
-        missingRewards,
+        rewardsThatCanBeAcquired,
+        rewardsThatRequireMorePermission,
         dataTypes,
       }) => {
         setModal({
@@ -234,11 +237,14 @@ const CampaignPopup: FC = () => {
                   invitationInfo.tokenId,
                   invitationInfo.signature,
                 );
+              })
+              .mapErr((e) => {
+                console.error(e);
               });
           },
           customProps: {
-            eligibleRewards,
-            missingRewards,
+            rewardsThatCanBeAcquired,
+            rewardsThatRequireMorePermission,
             dataTypes,
             campaignName: invitationMeta?.rewardName,
             campaignImage: invitationMeta?.image,
@@ -256,8 +262,6 @@ const CampaignPopup: FC = () => {
     });
   };
 
-  if (loading) {
-  }
   if (!invitationMeta || !open || !isProductTourCompleted) {
     return null;
   }

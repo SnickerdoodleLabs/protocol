@@ -30,6 +30,7 @@ import {
   MinimalForwarderContractError,
   PasswordString,
   PersistenceError,
+  PublicEvents,
   Signature,
   SolanaAccountAddress,
   TokenId,
@@ -57,7 +58,6 @@ import {
   CoreContext,
   CrumbCallData,
   PrivateEvents,
-  PublicEvents,
 } from "@core/interfaces/objects/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 import { PermissionsUtilsMock } from "@core-tests/mock/business/utilities/index.js";

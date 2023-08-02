@@ -1,26 +1,34 @@
+import { Subject } from "rxjs";
+
+import { BackupCreatedEvent } from "@objects/businessObjects/events/BackupCreatedEvent.js";
+import { BackupRestoreEvent } from "@objects/businessObjects/events/BackupRestoreEvent.js";
+import { DataPermissionsUpdatedEvent } from "@objects/businessObjects/events/DataPermissionsUpdatedEvent.js";
+import { PermissionsGrantedEvent } from "@objects/businessObjects/events/PermissionsGrantedEvent.js";
+import { PermissionsRequestedEvent } from "@objects/businessObjects/events/PermissionsRequestedEvent.js";
 import {
-  DataWalletAddress,
-  DomainName,
-  EarnedReward,
-  EVMContractAddress,
-  EVMTransaction,
-  IpfsCID,
-  ISnickerdoodleCoreEvents,
-  LinkedAccount,
-  MetatransactionSignatureRequest,
-  PermissionsGrantedEvent,
-  PermissionsRequestedEvent,
-  PortfolioUpdate,
-  SDQLQueryRequest,
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
-  TokenBalance,
-  WalletNFT,
-  DataPermissionsUpdatedEvent,
-  BackupRestoreEvent,
-  BackupCreatedEvent,
-} from "@snickerdoodlelabs/objects";
-import { Subject } from "rxjs";
+} from "@objects/businessObjects/events/social/index.js";
+import { MetatransactionSignatureRequest } from "@objects/businessObjects/MetatransactionSignatureRequest.js";
+import { PortfolioUpdate } from "@objects/businessObjects/PortfolioUpdate.js";
+import { EarnedReward } from "@objects/businessObjects/rewards/index.js";
+import { SDQLQueryRequest } from "@objects/businessObjects/SDQLQueryRequest.js";
+import { TokenBalance } from "@objects/businessObjects/TokenBalance.js";
+import {
+  EVMTransaction,
+  LinkedAccount,
+} from "@objects/businessObjects/versioned/index.js";
+import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
+import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
+import {
+  CountryCode,
+  DataWalletAddress,
+  DomainName,
+  EVMContractAddress,
+  Gender,
+  IpfsCID,
+  UnixTimestamp,
+} from "@objects/primitives/index.js";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
@@ -45,6 +53,9 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onPermissionsRevoked: Subject<DomainName>;
   public onSocialProfileLinked: Subject<SocialProfileLinkedEvent>;
   public onSocialProfileUnlinked: Subject<SocialProfileUnlinkedEvent>;
+  public onBirthdayUpdated: Subject<UnixTimestamp>;
+  public onGenderUpdated: Subject<Gender>;
+  public onLocationUpdated: Subject<CountryCode>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -69,5 +80,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onPermissionsRevoked = new Subject();
     this.onSocialProfileLinked = new Subject();
     this.onSocialProfileUnlinked = new Subject();
+    this.onBirthdayUpdated = new Subject();
+    this.onGenderUpdated = new Subject();
+    this.onLocationUpdated = new Subject();
   }
 }

@@ -1,3 +1,5 @@
+export * from "@objects/types.js";
+
 export * from "@objects/businessObjects/index.js";
 export * from "@objects/configuration/index.js";
 export * from "@objects/enum/index.js";

@@ -44,6 +44,15 @@ jobs:
         output=$(echo $GKE_CLUSTER | sed "s/sdl-cluster-//")
         echo "::set-output name=identifier::$output"
         
+    - name: Build protocol base
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+        docker build \
+          --tag "snickerdoodlelabs/protocol-docker-base:$GITHUB_SHA" \
+          -f ./packages/docker/Dockerfile \
+          .
+        
+        
     - name: Build protocol
       run: |-
         JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
@@ -53,16 +62,38 @@ jobs:
           --build-arg DOMAIN="extension.$JIRA_TICKET.snickerdoodle.dev" \
           --build-arg CONTROL_CHAIN_ID=31337 \
           --build-arg BUILD_ENV=prod \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           --build-arg __GOOGLE_CLOUD_BUCKET__=${{ steps.identifier.outputs.identifier }}-sdl-dw \
           -f ./packages/extension-onboarding/Dockerfile \
           .
-  
+
     # Push the Docker image to Google Artifact Registry
     - name: Publish protocol
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
+
+
+
+
+    - name: Build protocol Iframe
+      run: |-
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA" \
+          --build-arg DEFAULT_INSIGHT_PLATFORM_BASE_URL="app.$JIRA_TICKET.snickerdoodle.dev" \
+          --build-arg CONTROL_CHAIN_ID=31337 \
+          --build-arg IPFS_FETCH_BASE_URL=https://ipfs-gateway.snickerdoodle.dev/ipfs \
+          --build-arg BASE_TAG="$GITHUB_SHA" \
+          -f ./packages/iframe/Dockerfile \
+          .
+    - name: Publish protocol Iframe
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol-iframe:$GITHUB_SHA"
+
+
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
@@ -79,4 +110,4 @@ jobs:
         ./get_helm.sh
         cd infra/
         helm install --set ENV=$JIRA_TICKET -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol || true
-        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade --reuse-values --set ProtocolIframe.Image.Tag=$GITHUB_SHA --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 

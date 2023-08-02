@@ -152,11 +152,13 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       //   onCloseOrFail();
       return;
     } else {
-      setBirthday(
-        (+new Date(values.date_of_birth) / 1000) as UnixTimestamp,
-      ).map(() => {
-        onClick(EWalletDataType.Age);
-      });
+      setBirthday((+new Date(values.date_of_birth) / 1000) as UnixTimestamp)
+        .map(() => {
+          onClick(EWalletDataType.Age);
+        })
+        .mapErr((e) => {
+          console.error(e);
+        });
     }
   };
   const onCountryFormSubmit = async (values: {
@@ -166,18 +168,26 @@ export const PermissionBar: FC<IPermissionBarProps> = ({
       //   onCloseOrFail();
       return;
     } else {
-      setLocation(values.country_code).map(() => {
-        onClick(EWalletDataType.Location);
-      });
+      setLocation(values.country_code)
+        .map(() => {
+          onClick(EWalletDataType.Location);
+        })
+        .mapErr((e) => {
+          console.error(e);
+        });
     }
   };
   const onGenderFormSubmit = async (values: { gender: Gender | null }) => {
     if (values.gender === null) {
       return;
     } else {
-      setGender(values.gender).map(() => {
-        onClick(EWalletDataType.Gender);
-      });
+      setGender(values.gender)
+        .map(() => {
+          onClick(EWalletDataType.Gender);
+        })
+        .mapErr((e) => {
+          console.error(e);
+        });
     }
   };
 
