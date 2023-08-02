@@ -214,8 +214,8 @@ const CampaignPopup: FC = () => {
     return setModal({
       modalSelector: EModalSelectors.PERMISSION_SELECTION,
       onPrimaryButtonClick: ({
-        eligibleRewards,
-        missingRewards,
+        rewardsThatCanBeAcquired,
+        rewardsThatRequireMorePermission,
         dataTypes,
       }) => {
         setModal({
@@ -237,8 +237,8 @@ const CampaignPopup: FC = () => {
               });
           },
           customProps: {
-            eligibleRewards,
-            missingRewards,
+            rewardsThatCanBeAcquired,
+            rewardsThatRequireMorePermission,
             dataTypes,
             campaignName: invitationMeta?.rewardName,
             campaignImage: invitationMeta?.image,

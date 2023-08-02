@@ -5,6 +5,7 @@ import {
   EWalletDataType,
   IOpenSeaMetadata,
   PossibleReward,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { PermissionSelection } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useState } from "react";
@@ -53,6 +54,7 @@ const PermissionSelectionModalV2: FC = () => {
   };
 
   const [possibleRewards, setPossibleRewards] = useState<PossibleReward[]>([]);
+  const [queryStatus, setQueryStatus] = useState<QueryStatus | null>(null);
 
   const handleSocialLink = async (socialType: ESocialType) => {
     const twitterProvider = socialMediaProviderList.find(
@@ -92,6 +94,16 @@ const PermissionSelectionModalV2: FC = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (possibleRewards.length > 0) {
+      window.sdlDataWallet
+        .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
+        .map((queryStatus) => {
+          setQueryStatus(queryStatus);
+        });
+    }
+  }, [possibleRewards]);
+
   const classes = useStyles();
   return (
     <Dialog
@@ -105,6 +117,7 @@ const PermissionSelectionModalV2: FC = () => {
       className={classes.container}
     >
       <PermissionSelection
+        queryStatus={queryStatus}
         ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
         setBirthday={(birthday) =>
           window.sdlDataWallet.setBirthday(birthday).map(() => {
@@ -138,11 +151,15 @@ const PermissionSelectionModalV2: FC = () => {
         consentContractAddress={consentContractAddress}
         onCancelClick={closeModal}
         onAcceptClick={(
-          eligibleRewards: PossibleReward[],
-          missingRewards: PossibleReward[],
+          rewardsThatCanBeAcquired: PossibleReward[],
+          rewardsThatRequireMorePermission: PossibleReward[],
           dataTypes: EWalletDataType[],
         ) => {
-          onPrimaryButtonClick({ eligibleRewards, missingRewards, dataTypes });
+          onPrimaryButtonClick({
+            rewardsThatCanBeAcquired,
+            rewardsThatRequireMorePermission,
+            dataTypes,
+          });
         }}
         isUnlocked={appMode === EAppModes.AUTH_USER}
         onPermissionClickWhenLocked={function (): void {

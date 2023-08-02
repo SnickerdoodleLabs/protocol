@@ -44,6 +44,7 @@ import {
   TwitterID,
   TwitterProfile,
   TokenAndSecret,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -648,6 +649,15 @@ export class InitializeDiscordUserParams extends CoreActionParams<void> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.INITIALIZE_DISCORD_USER;
+  }
+}
+
+export class GetQueryStatusByCidParams extends CoreActionParams<QueryStatus | null> {
+  public constructor(public queryCID: IpfsCID) {
+    super(GetQueryStatusByCidParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_QUERY_STATUS_BY_CID;
   }
 }
 
