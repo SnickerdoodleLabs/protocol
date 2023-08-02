@@ -32,7 +32,7 @@ export class QueryStatus extends VersionedObject {
     public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
-    public rewardsParameters: JSONString | IDynamicRewardParameter[] | null,
+    public rewardsParameters: JSONString | null,
   ) {
     super();
   }
