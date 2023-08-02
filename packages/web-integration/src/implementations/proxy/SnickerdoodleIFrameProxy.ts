@@ -76,8 +76,7 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy
-{
+  implements ISnickerdoodleIFrameProxy {
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -482,7 +481,7 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public unlinkAcccount(
+  public unlinkAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
