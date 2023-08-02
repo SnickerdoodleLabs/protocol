@@ -410,7 +410,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new AddAccountParams(accountAddress, signature, chain, languageCode),
     );
   }
-  public unlinkAcccount(
+  public unlinkAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,

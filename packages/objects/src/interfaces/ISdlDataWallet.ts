@@ -287,7 +287,7 @@ export interface ISdlDataWallet {
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
-  unlinkAcccount(
+  unlinkAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
