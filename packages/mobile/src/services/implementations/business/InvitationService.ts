@@ -140,6 +140,7 @@ export class InvitationService implements IInvitationService {
   public getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError> {
+    console.log("getInvitationsByDomain: " + domain);
     return this.core.getInvitationsByDomain(domain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

@@ -525,12 +525,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
     /* Cloud Storage Options - may need to comment out */
-    bind<ICloudStorage>(IGDriveCloudStorage)
-      .to(GoogleCloudStorage)
-      .inSingletonScope();
-    bind<ICloudStorage>(IDropboxCloudStorageType)
-      .to(DropboxCloudStorage)
-      .inSingletonScope();
+    // bind<ICloudStorage>(IGDriveCloudStorage)
+    //   .to(GoogleCloudStorage)
+    //   .inSingletonScope();
+    // bind<ICloudStorage>(IDropboxCloudStorageType)
+    //   .to(DropboxCloudStorage)
+    //   .inSingletonScope();
 
     /* EVM compatible Indexers */
     bind<IEVMIndexer>(IAnkrIndexerType).to(AnkrIndexer).inSingletonScope();

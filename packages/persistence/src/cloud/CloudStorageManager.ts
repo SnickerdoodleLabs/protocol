@@ -16,7 +16,7 @@ import {
 import { ICloudStorageManager } from "@persistence/cloud/ICloudStorageManager";
 import { ICloudStorageParamsType } from "@persistence/cloud/ICloudStorageParams.js";
 import { NullCloudStorage } from "@persistence/cloud/NullCloudStorage.js";
-import { IPersistenceContextProvider, IPersistenceContextProviderType } from "@persistence/IPersistenceContextProvider";
+import { IPersistenceContextProvider, IPersistenceContextProviderType } from "@persistence/IPersistenceContextProvider.js";
 
 /*
     Cloud Storage Manager Object looks for 1 instance ICloudStorage to be present at all times. 
@@ -38,6 +38,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     @inject(IDropboxCloudStorageType) protected dropbox: ICloudStorage, // @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
     @inject(IPersistenceContextProviderType) protected contextProvider: IPersistenceContextProvider,
   ) {
+    console.log("Cloud Manager initialize called!");
     this.initializeResult = ResultAsync.fromSafePromise(new Promise((resolve) => {
       this.resolveProvider = resolve;
     }));
@@ -54,6 +55,7 @@ export class CloudStorageManager implements ICloudStorageManager {
   public activateAuthenticatedStorage(
     cloudStorageParams: AuthenticatedStorageParams,
   ): ResultAsync<void, never> {
+    console.log("Cloud Manager activateAuthenticatedStorage called!");
     return this.contextProvider.getContext().map((context) => {
       if (cloudStorageParams.type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
@@ -64,8 +66,8 @@ export class CloudStorageManager implements ICloudStorageManager {
       }
       this.resolveProvider!(this.provider);
       this.activated = true;
-
-      context.publicEvents.onCloudStorageActivated.next(new CloudProviderSelectedEvent(cloudStorageParams.type))
+      context.publicEvents.onCloudStorageActivated.next(new CloudProviderSelectedEvent(cloudStorageParams.type));
+      console.log("Cloud Manager event called!");
     });
   }
 
