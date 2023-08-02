@@ -19,6 +19,7 @@ import {
   LinkedAccount,
 } from "@objects/businessObjects/versioned/index.js";
 import { WalletNFT } from "@objects/businessObjects/WalletNFT.js";
+import { CloudProviderSelectedEvent } from "@objects/index";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/index.js";
 import {
   CountryCode,
@@ -56,7 +57,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onBirthdayUpdated: Subject<UnixTimestamp>;
   public onGenderUpdated: Subject<Gender>;
   public onLocationUpdated: Subject<CountryCode>;
-
   public onCloudStorageActivated: Subject<CloudProviderSelectedEvent>;
 
   public constructor() {

@@ -79,8 +79,4 @@ export class CloudStorageManager implements ICloudStorageManager {
       );
     });
   }
-
-  // private authenticateStorage(): ResultAsync<void, AuthenticationError> {
-
-  //  }
 }

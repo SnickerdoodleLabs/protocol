@@ -272,6 +272,9 @@ const StorageSettings = () => {
       // added File Path to use for DropboxCloudStorage
       // sessionStorage.setItem("dropboxFilePath", filePath);
 
+      // Trigger event - CloudStorageManager.setCloudStorageOption
+      // Which triggers event onCloudStorageActivated to begin cloud storage
+
       setStorageOption(EStorage.DROPBOX);
     });
 
