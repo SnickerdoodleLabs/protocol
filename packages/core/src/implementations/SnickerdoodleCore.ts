@@ -177,7 +177,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorage,
-    cloudStorageParams?: CloudStorageParams,
   ) {
     this.iocContainer = new Container();
 
@@ -193,30 +192,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(IStorageUtilsType)
         .to(LocalStorageUtils)
-        .inSingletonScope();
-    }
-
-    let cloudStorageConfig = cloudStorageParams;
-    if (cloudStorageConfig == undefined) {
-      cloudStorageConfig = new CloudStorageParams(
-        ECloudStorageType.Dropbox,
-        undefined,
-        undefined,
-      );
-    }
-
-    if (cloudStorageParams != null) {
-      this.iocContainer
-        .bind(ICloudStorageType)
-        .to(DropboxCloudStorage)
-        // .to(GoogleCloudStorage)
-        .inSingletonScope();
-    } else {
-      // No Parameters - Default
-      this.iocContainer
-        .bind(ICloudStorageType)
-        .to(GoogleCloudStorage)
-        // .to(DropboxCloudStorage)
         .inSingletonScope();
     }
 
@@ -802,6 +777,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       },
     };
   }
+
+  public activateAuthenticatedStorage(cloudStorageParams: CloudStorageParams): ResultAsync<void, PersistenceError> {
+    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+      ICloudStorageManagerType,
+    );
+
+    return cloudStorageManager.activateAuthenticatedStorage(cloudStorageParams);
+  }
+
   public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<

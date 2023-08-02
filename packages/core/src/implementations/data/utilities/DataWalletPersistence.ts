@@ -45,7 +45,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
@@ -65,8 +65,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ResultAsync<void, PersistenceError>
   > = new Map();
 
-  // cloudstoragemanager.getCloudStorage() - should indefinitely hold until storage is activated OR immediately error out
-  // debug log when having no activated cloud storage yet
   public constructor(
     @inject(ICloudStorageManagerType)
     protected cloudStorageManager: ICloudStorageManager,
@@ -75,7 +73,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(IVolatileStorageType)
     protected volatileStorage: IVolatileStorage,
-    @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
@@ -95,17 +92,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getField<T>(
     fieldKey: EFieldKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.waitForFieldRestore(fieldKey).andThen(() => {
-      return this.storageUtils
-        .read<SerializedObject>(fieldKey)
-        .andThen((raw) => {
-          if (raw == null) {
-            return okAsync(null);
-          }
-          return Serializer.deserialize(raw).map((result) => {
-            return result as T;
-          });
-        });
+    return this.storageUtils.read<SerializedObject>(fieldKey).andThen((raw) => {
+      if (raw == null) {
+        return okAsync(null);
+      }
+      return Serializer.deserialize(raw).map((result) => {
+        return result as T;
+      });
     });
   }
 
@@ -269,15 +262,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-    console.log("this.cloudStorage: " + this.cloudStorage.name);
     return ResultUtils.combine([
-      this.cloudStorage.unlock(derivedKey),
+      this.cloudStorageManager.unlock(derivedKey),
       this.backupManagerProvider.unlock(derivedKey),
-    ]).map(() => {
-      // The derived key is stored in this result
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.resolveUnlock!(derivedKey);
-    });
+    ])
+      .map(() => {
+        // The derived key is stored in this result
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.resolveUnlock!(derivedKey);
+      })
+      .mapErr((e) => {
+        return new PersistenceError((error as Error).message, error);
+      });
   }
 
   // #region Backup Management Methods
@@ -414,52 +410,59 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public postBackups(
     force?: boolean,
   ): ResultAsync<DataWalletBackupID[], PersistenceError> {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => {
-        return backupManager.getRendered(force).andThen((backups) => {
-          const postedBackupIds = new Array<DataWalletBackupID>();
-          let backupsToCreateCount = backups.length;
-          let totalBackupsCreated = 0;
+    // If cloud storage is not already active, don't wait and just
+    // don't post any backups
+    if (!this.cloudStorageManager.cloudStorageActivated()) {
+      return okAsync([]);
+    }
 
-          return ResultUtils.combine(
-            backups.map((backup) => {
-              return this.cloudStorage
-                .putBackup(backup)
-                .andThen((id) => {
-                  return backupManager.markRenderedChunkAsRestored(id);
-                })
-                .andThen(() => {
-                  return this.contextProvider.getContext();
-                })
-                .map((context) => {
-                  context.publicEvents.onBackupCreated.next(
-                    new BackupCreatedEvent(
-                      backup.header.isField
-                        ? EDataStorageType.Field
-                        : EDataStorageType.Record,
-                      backup.header.dataType,
-                      backup.id,
-                      backup.header.name,
-                      --backupsToCreateCount,
-                      ++totalBackupsCreated,
-                    ),
-                  );
-                  postedBackupIds.push(backup.id);
-                })
-                .orElse((e) => {
-                  this.logUtils.warning(
-                    `Error placing backup ${backup.header.name} in cloud store`,
-                    e,
-                  );
-                  return okAsync(undefined);
-                });
-            }),
-          ).map(() => {
-            return postedBackupIds;
-          });
+    return ResultUtils.combine([
+      this.backupManagerProvider.getBackupManager(),
+      this.cloudStorageManager.getCloudStorage(),
+    ]).andThen(([backupManager, cloudStorage]) => {
+      return backupManager.getRendered(force).andThen((backups) => {
+        const postedBackupIds = new Array<DataWalletBackupID>();
+        let backupsToCreateCount = backups.length;
+        let totalBackupsCreated = 0;
+
+        return ResultUtils.combine(
+          backups.map((backup) => {
+            return cloudStorage
+              .putBackup(backup)
+              .andThen((id) => {
+                return backupManager.markRenderedChunkAsRestored(id);
+              })
+              .andThen(() => {
+                return this.contextProvider.getContext();
+              })
+              .map((context) => {
+                context.publicEvents.onBackupCreated.next(
+                  new BackupCreatedEvent(
+                    backup.header.isField
+                      ? EDataStorageType.Field
+                      : EDataStorageType.Record,
+                    backup.header.dataType,
+                    backup.id,
+                    backup.header.name,
+                    --backupsToCreateCount,
+                    ++totalBackupsCreated,
+                  ),
+                );
+                postedBackupIds.push(backup.id);
+              })
+              .orElse((e) => {
+                this.logUtils.warning(
+                  `Error placing backup ${backup.header.name} in cloud store`,
+                  e,
+                );
+                return okAsync(undefined);
+              });
+          }),
+        ).map(() => {
+          return postedBackupIds;
         });
       });
+    });
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -546,7 +549,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
           });
       })
-      .map(() => { });
+      .map(() => {});
 
     // Add the restore to the ongoing restores
     this.ongoingRestores.set(recordKey, restore);
@@ -564,9 +567,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     }
 
     this.logUtils.log(`Beginning restoration of field backup for ${fieldKey}`);
-    restore = this.waitForUnlock()
-      .andThen(() => {
-        return this.cloudStorage.getLatestBackup(fieldKey);
+    restore = ResultUtils.combine([
+      this.cloudStorageManager.getCloudStorage(),
+      this.waitForUnlock(),
+    ])
+      .andThen(([cloudStorage]) => {
+        return cloudStorage.getLatestBackup(fieldKey);
       })
       .andThen((backup) => {
         if (backup == null) {

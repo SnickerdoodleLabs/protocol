@@ -59,6 +59,8 @@ import {
   NullCloudStorage,
   VolatileTableIndex,
   CloudStorageManager,
+  GoogleCloudStorage,
+  DropboxCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -331,6 +333,9 @@ export class MobileCore {
       this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
 
     const cloudStorageManager = new CloudStorageManager(
+      cloudStorageParams,
+      GoogleCloudStorage,
+      DropboxCloudStorage,
       storageUtils,
       cloudStorageParams,
     );

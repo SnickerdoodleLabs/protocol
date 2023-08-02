@@ -37,26 +37,12 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
     ]).map(([config, context]) => {
-      // Set up polling for backups
-      setInterval(() => {
-        this.monitoringService.pollBackups().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.dataWalletBackupIntervalMS);
-
       // Set up polling for transactions
       setInterval(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {
           this.logUtils.error(e);
         });
       }, config.accountIndexingPollingIntervalMS);
-
-      // Post backups periodically
-      setInterval(() => {
-        this.monitoringService.postBackups().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.backupHeartbeatIntervalMS);
 
       // Poll transactions after an account is added.
       context.publicEvents.onAccountAdded.subscribe(() => {
@@ -70,6 +56,25 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         this.monitoringService.pollTransactions().mapErr((e) => {
           this.logUtils.error(e);
         });
+
+        // Poll immediately for backups
+        this.monitoringService.pollBackups().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+
+        // Set up polling for backups
+        setInterval(() => {
+          this.monitoringService.pollBackups().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.dataWalletBackupIntervalMS);
+
+        // Post backups periodically
+        setInterval(() => {
+          this.monitoringService.postBackups().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.backupHeartbeatIntervalMS);
       });
 
       // poll once

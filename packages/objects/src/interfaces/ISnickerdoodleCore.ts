@@ -752,6 +752,10 @@ export interface IMetricsMethods {
 }
 
 export interface ISnickerdoodleCore {
+  activateAuthenticatedStorage(
+    authenticatedStorageParams: AuthenticatedStorageParams,
+  ): ResultAsync<void, PersistenceError>;
+
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
