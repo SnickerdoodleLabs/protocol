@@ -112,7 +112,7 @@ export const PossibleRewardComponent = ({
         return (
           <Box
             width="fit-content"
-            bgcolor="#red"
+            bgcolor="#FDEFEF"
             px={1}
             py={0.5}
             borderRadius={4}
@@ -169,11 +169,8 @@ export const PossibleRewardComponent = ({
                 <img
                   width={23}
                   height={23}
-                  style={{
-                    filter: "grayscale(100%)",
-                  }}
                   src={
-                    "https://storage.googleapis.com/dw-assets/shared/icons/lock.png"
+                    "https://storage.googleapis.com/dw-assets/shared/icons/cross.png"
                   }
                 />
               )}
@@ -345,9 +342,9 @@ export const PossibleRewardComponent = ({
               >
                 <img
                   height={53}
-                  style={{ zIndex: 1, filter: "grayscale(100%)" }}
+                  style={{ zIndex: 1 }}
                   src={
-                    "https://storage.googleapis.com/dw-assets/shared/icons/lock.png"
+                    "https://storage.googleapis.com/dw-assets/shared/icons/cross.png"
                   }
                 />
                 <Grow
@@ -355,19 +352,13 @@ export const PossibleRewardComponent = ({
                   in={lockHovered}
                   timeout={{ enter: 500, exit: 200 }}
                 >
-                  <Box
-                    style={{
-                      marginLeft: -53,
-                      borderRadius: "26px",
-                      background: "#757575",
-                    }}
+                  <img
+                    style={{ marginLeft: -53 }}
                     height={53}
-                    width={154}
-                  >
-                    <Typography className={rewardItemsClasses.expandedLockText}>
-                      Did not match the reward criteria
-                    </Typography>
-                  </Box>
+                    src={
+                      "https://storage.googleapis.com/dw-assets/shared/icons/cross-expanded.png"
+                    }
+                  />
                 </Grow>
               </Box>
             )}
