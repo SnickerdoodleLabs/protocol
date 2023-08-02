@@ -25,6 +25,8 @@ import {
   ICloudStorageType,
   ICloudStorageParamsType,
   ICloudStorageParams,
+  ICloudStorageManager,
+  ICloudStorageManagerType,
 } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -55,11 +57,16 @@ export class CloudCrumbsRepository implements ICrumbsRepository {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     // @inject(ICloudStorageType) protected cloudstorage: ICloudStorage,
+    @inject(ICloudStorageManagerType)
+    protected cloudStorageManager: ICloudStorageManager,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ICloudStorageParamsType)
     protected storageParams: ICloudStorageParams,
-  ) { }
+  ) {}
 
+  /* 
+    Get crumbs from 
+  */
   public getCrumb(
     accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
@@ -139,7 +146,6 @@ export class CloudCrumbsRepository implements ICrumbsRepository {
       // Create the crumb content
 
       // this.cloudstorage.crumbsContract;
-
       const crumbContent = TokenUri(
         JSON.stringify({
           [languageCode]: {

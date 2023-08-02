@@ -1,11 +1,15 @@
-import { ECloudStorageType } from "@snickerdoodlelabs/objects";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@snickerdoodlelabs/core";
+import {
+  ECloudStorageType,
+  CloudProviderSelectedEvent,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import {
-  CloudStorageParams,
-  ICloudStorageParams,
-} from "@persistence/cloud/CloudStorageParams";
+import { CloudStorageParams } from "@persistence/cloud/CloudStorageParams";
 import {
   ICloudStorage,
   ICloudStorageType,
@@ -29,6 +33,7 @@ export class CloudStorageManager implements ICloudStorageManager {
   // check currentStorageOption from local storage if there is no value then it can return NullCloudStorage
   // then initiate the cloud storage
   public constructor(
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IGDriveCloudStorage) protected gDrive: ICloudStorage,
     @inject(IDropboxCloudStorageType) protected dropbox: ICloudStorage, // @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
   ) {}
@@ -60,16 +65,22 @@ export class CloudStorageManager implements ICloudStorageManager {
     path: string,
     storageOption: ECloudStorageType,
   ): ResultAsync<void, never> {
-    // emit a new event
+    return this.contextProvider.getContext().map((context) => {
+      if (storageOption == ECloudStorageType.Dropbox) {
+        this.provider = this.dropbox;
+      }
+      if (storageOption == ECloudStorageType.Snickerdoodle) {
+        this.provider = this.gDrive;
+      }
 
-    if (storageOption == ECloudStorageType.Dropbox) {
-      this.provider = this.dropbox;
-    }
-    if (storageOption == ECloudStorageType.Snickerdoodle) {
-      this.provider = this.gDrive;
-    }
-    return okAsync(undefined);
+      // emit a new event
+      context.publicEvents.onCloudStorageActivated.next(
+        new CloudProviderSelectedEvent(ECloudStorageType.Dropbox),
+      );
+    });
   }
 
-  // private authenticateStorage(): ResultAsync<void, AuthenticationError> { }
+  // private authenticateStorage(): ResultAsync<void, AuthenticationError> {
+
+  //  }
 }

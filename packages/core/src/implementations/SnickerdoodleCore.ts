@@ -213,12 +213,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(ICloudStorageType)
         .to(DropboxCloudStorage)
+        // .to(GoogleCloudStorage)
         .inSingletonScope();
     } else {
       // No Parameters - Default
       this.iocContainer
         .bind(ICloudStorageType)
         .to(GoogleCloudStorage)
+        // .to(DropboxCloudStorage)
         .inSingletonScope();
     }
 
