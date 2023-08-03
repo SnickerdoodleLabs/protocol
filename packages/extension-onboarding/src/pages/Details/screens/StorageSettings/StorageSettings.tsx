@@ -17,7 +17,9 @@ import { EAppModes, useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import FileExplorer from "@extension-onboarding/pages/Details/screens/StorageSettings/FileExplorer";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
+declare const window: IWindowWithSdlDataWallet;
 interface DropboxFolder {
   ".tag": string;
   name: string;
@@ -71,41 +73,36 @@ const STORAGE_OPTIONS: IStorageOption[] = [
 ];
 const StorageSettings = () => {
   // #region dropbox api mock
-  const dropboxInstallationUrl = () => {
-    return okAsync(
-      "https://www.dropbox.com/oauth2/authorize?client_id=xkny72eyaspw0oy&response_type=code&redirect_uri=https://localhost:9005/settings/storage",
-    );
-  };
 
   // Okan uses this to get the access token
   // Perfect implementation - passes in auth code to get access code
-  const initializeUserWithAuthorizationCode = (code) => {
-    console.log("Code is: " + code);
+  // const initializeUserWithAuthorizationCode = (code) => {
+  //   console.log("Code is: " + code);
 
-    return apiGateway.axiosAjaxUtil
-      .post<{ access_token: string }>(
-        new URL("https://api.dropbox.com/oauth2/token"),
-        new URLSearchParams({
-          client_id: "xkny72eyaspw0oy",
-          client_secret: "hzfn6ddtz2paw82",
-          redirect_uri: "https://localhost:9005/settings/storage",
-          grant_type: "authorization_code",
-          code: code,
-        }),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            accept: "*/*",
-          },
-        } as IRequestConfig,
-      )
-      .map((tokens) => {
-        console.log("Tokens are : " + JSON.stringify(tokens));
+  //   return apiGateway.axiosAjaxUtil
+  //     .post<{ access_token: string }>(
+  //       new URL("https://api.dropbox.com/oauth2/token"),
+  //       new URLSearchParams({
+  //         client_id: "xkny72eyaspw0oy",
+  //         client_secret: "hzfn6ddtz2paw82",
+  //         redirect_uri: "https://localhost:9005/settings/storage",
+  //         grant_type: "authorization_code",
+  //         code: code,
+  //       }),
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/x-www-form-urlencoded",
+  //           accept: "*/*",
+  //         },
+  //       } as IRequestConfig,
+  //     )
+  //     .map((tokens) => {
+  //       console.log("Tokens are : " + JSON.stringify(tokens));
 
-        //do some extra stuff here and return the access token
-        return tokens.access_token;
-      });
-  };
+  //       //do some extra stuff here and return the access token
+  //       return tokens.access_token;
+  //     });
+  // };
 
   const setFolderPath = (folderPath: string) => {
     console.log("Folder path: " + folderPath);
@@ -155,8 +152,8 @@ const StorageSettings = () => {
 
   const handleCode = (code) => {
     console.log("Handle Code: " + code);
-
-    initializeUserWithAuthorizationCode(code).map((accessToken) => {
+    // @ts-ignore
+    window.sdlDataWallet.authenticateDropbox(code).map((accessToken) => {
       setAccessToken(accessToken);
       console.log("Set Access Token: " + accessToken);
 
@@ -289,7 +286,10 @@ const StorageSettings = () => {
         return;
       }
       case EStorage.DROPBOX: {
-        return dropboxInstallationUrl().map((url) => {
+        // @ts-ignore
+
+        // calling the
+        return window.sdlDataWallet.getDropboxAuthUrl().map((url) => {
           window.open(url, "_self");
           console.log("Opened dropbox url now");
         });

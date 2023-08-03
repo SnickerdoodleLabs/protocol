@@ -16,4 +16,8 @@ export interface IPersistenceConfig {
   enableBackupEncryption: boolean;
   dataWalletBackupIntervalMS: number;
   ipfsFetchBaseUrl: URLString;
+
+  dropboxAppKey: string;
+  dropboxAppSecret: string;
+  dropboxRedirectUri: string;
 }

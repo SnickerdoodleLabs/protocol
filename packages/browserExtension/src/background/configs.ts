@@ -62,6 +62,7 @@ declare const __DEV_CHAIN_PROVIDER_URL__: ProviderUrl;
 
 declare const __DROPBOX_APP_KEY__: string;
 declare const __DROPBOX_APP_SECRET__: string;
+declare const __DROPBOX_REDIRECT_URI__: string;
 
 const ONE_MINUTE_MS = 60000;
 
@@ -78,11 +79,11 @@ const _buildDiscordConfig = (): Partial<DiscordConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(
-        urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-      )
+          urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
+        )
       : URLString(
-        "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-      );
+          "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
+        );
 
   const discordConfig = {
     oauthRedirectUrl,
@@ -111,11 +112,11 @@ const _buildTwitterConfig = (): Partial<TwitterConfig> => {
   const oauthRedirectUrl =
     typeof __ONBOARDING_URL__ !== "undefined" && !!__ONBOARDING_URL__
       ? URLString(
-        urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
-      )
+          urlJoin(__ONBOARDING_URL__, "/data-dashboard/social-media-data"),
+        )
       : URLString(
-        "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
-      );
+          "https://datawallet.snickerdoodle.com/data-dashboard/social-media-data",
+        );
 
   const twitterConfig = {
     oAuthCallbackUrl: URLString(oauthRedirectUrl),
@@ -167,22 +168,22 @@ export const configs: IExtensionConfigOverrides = {
       : "(localhost|chrome://)",
   portfolioPollingIntervalMS:
     typeof __PORTFOLIO_POLLING_INTERVAL__ !== "undefined" &&
-      !!__PORTFOLIO_POLLING_INTERVAL__
+    !!__PORTFOLIO_POLLING_INTERVAL__
       ? Number.parseInt(__PORTFOLIO_POLLING_INTERVAL__)
       : ONE_MINUTE_MS,
   transactionPollingIntervalMS:
     typeof __TRANSACTION_POLLING_INTERVAL__ !== "undefined" &&
-      !!__TRANSACTION_POLLING_INTERVAL__
+    !!__TRANSACTION_POLLING_INTERVAL__
       ? Number.parseInt(__TRANSACTION_POLLING_INTERVAL__)
       : ONE_MINUTE_MS,
   backupPollingIntervalMS:
     typeof __BACKUP_POLLING_INTERVAL__ !== "undefined" &&
-      !!__BACKUP_POLLING_INTERVAL__
+    !!__BACKUP_POLLING_INTERVAL__
       ? Number.parseInt(__BACKUP_POLLING_INTERVAL__)
       : ONE_MINUTE_MS,
   defaultInsightPlatformBaseUrl:
     typeof __DEFAULT_INSIGHT_PLATFORM_BASE_URL__ !== "undefined" &&
-      !!__DEFAULT_INSIGHT_PLATFORM_BASE_URL__
+    !!__DEFAULT_INSIGHT_PLATFORM_BASE_URL__
       ? __DEFAULT_INSIGHT_PLATFORM_BASE_URL__
       : URLString("https://insight-api.snickerdoodle.com/v0/"),
 
@@ -191,84 +192,84 @@ export const configs: IExtensionConfigOverrides = {
     alchemyApiKeys: {
       Arbitrum:
         typeof __ALCHEMY_ARBITRUM_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_ARBITRUM_API_KEY__
+        !!__ALCHEMY_ARBITRUM_API_KEY__
           ? __ALCHEMY_ARBITRUM_API_KEY__
           : "",
       Astar:
         typeof __ALCHEMY_ASTAR_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_ASTAR_API_KEY__
+        !!__ALCHEMY_ASTAR_API_KEY__
           ? __ALCHEMY_ASTAR_API_KEY__
           : "",
       Mumbai:
         typeof __ALCHEMY_MUMBAI_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_MUMBAI_API_KEY__
+        !!__ALCHEMY_MUMBAI_API_KEY__
           ? __ALCHEMY_MUMBAI_API_KEY__
           : "",
       Optimism:
         typeof __ALCHEMY_OPTIMISM_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_OPTIMISM_API_KEY__
+        !!__ALCHEMY_OPTIMISM_API_KEY__
           ? __ALCHEMY_OPTIMISM_API_KEY__
           : "",
       Polygon:
         typeof __ALCHEMY_POLYGON_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_POLYGON_API_KEY__
+        !!__ALCHEMY_POLYGON_API_KEY__
           ? __ALCHEMY_POLYGON_API_KEY__
           : "",
       Solana:
         typeof __ALCHEMY_SOLANA_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_SOLANA_API_KEY__
+        !!__ALCHEMY_SOLANA_API_KEY__
           ? __ALCHEMY_SOLANA_API_KEY__
           : "",
       SolanaTestnet:
         typeof __ALCHEMY_SOLANA_TESTNET_API_KEY__ !== "undefined" &&
-          !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
+        !!__ALCHEMY_SOLANA_TESTNET_API_KEY__
           ? __ALCHEMY_SOLANA_TESTNET_API_KEY__
           : "",
     },
     etherscanApiKeys: {
       Ethereum:
         typeof __ETHERSCAN_ETHEREUM_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_ETHEREUM_API_KEY__
+        !!__ETHERSCAN_ETHEREUM_API_KEY__
           ? __ETHERSCAN_ETHEREUM_API_KEY__
           : "",
       Polygon:
         typeof __ETHERSCAN_POLYGON_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_POLYGON_API_KEY__
+        !!__ETHERSCAN_POLYGON_API_KEY__
           ? __ETHERSCAN_POLYGON_API_KEY__
           : "",
       Avalanche:
         typeof __ETHERSCAN_AVALANCHE_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_AVALANCHE_API_KEY__
+        !!__ETHERSCAN_AVALANCHE_API_KEY__
           ? __ETHERSCAN_AVALANCHE_API_KEY__
           : "",
       Binance:
         typeof __ETHERSCAN_BINANCE_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_BINANCE_API_KEY__
+        !!__ETHERSCAN_BINANCE_API_KEY__
           ? __ETHERSCAN_BINANCE_API_KEY__
           : "",
       Moonbeam:
         typeof __ETHERSCAN_MOONBEAM_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_MOONBEAM_API_KEY__
+        !!__ETHERSCAN_MOONBEAM_API_KEY__
           ? __ETHERSCAN_MOONBEAM_API_KEY__
           : "",
       Optimism:
         typeof __ETHERSCAN_OPTIMISM_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_OPTIMISM_API_KEY__
+        !!__ETHERSCAN_OPTIMISM_API_KEY__
           ? __ETHERSCAN_OPTIMISM_API_KEY__
           : "",
       Arbitrum:
         typeof __ETHERSCAN_ARBITRUM_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_ARBITRUM_API_KEY__
+        !!__ETHERSCAN_ARBITRUM_API_KEY__
           ? __ETHERSCAN_ARBITRUM_API_KEY__
           : "",
       Gnosis:
         typeof __ETHERSCAN_GNOSIS_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_GNOSIS_API_KEY__
+        !!__ETHERSCAN_GNOSIS_API_KEY__
           ? __ETHERSCAN_GNOSIS_API_KEY__
           : "",
       Fuji:
         typeof __ETHERSCAN_FUJI_API_KEY__ !== "undefined" &&
-          !!__ETHERSCAN_FUJI_API_KEY__
+        !!__ETHERSCAN_FUJI_API_KEY__
           ? __ETHERSCAN_FUJI_API_KEY__
           : "",
     },
@@ -302,7 +303,7 @@ export const configs: IExtensionConfigOverrides = {
         : "a8ae124ed6aa44bb97a7166cda30f1bc",
     secondaryInfuraKey:
       typeof __SECONDARY_INFURA_KEY__ !== "undefined" &&
-        !!__SECONDARY_INFURA_KEY__
+      !!__SECONDARY_INFURA_KEY__
         ? __SECONDARY_INFURA_KEY__
         : undefined,
   },
@@ -312,7 +313,7 @@ export const configs: IExtensionConfigOverrides = {
       : undefined,
   requestForDataCheckingFrequency:
     typeof __REQUEST_FOR_DATA_EVENT_FREQ__ !== "undefined" &&
-      !!__REQUEST_FOR_DATA_EVENT_FREQ__
+    !!__REQUEST_FOR_DATA_EVENT_FREQ__
       ? Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__)
       : 4000,
   defaultGoogleCloudBucket:
@@ -330,9 +331,15 @@ export const configs: IExtensionConfigOverrides = {
       ? __DROPBOX_APP_SECRET__
       : undefined,
 
+  redirectUri:
+    typeof __DROPBOX_REDIRECT_URI__ !== "undefined" &&
+    !!__DROPBOX_REDIRECT_URI__
+      ? __DROPBOX_REDIRECT_URI__
+      : undefined,
+
   enableBackupEncryption:
     typeof __ENABLE_BACKUP_ENCRYPTION__ !== "undefined" &&
-      !!__ENABLE_BACKUP_ENCRYPTION__
+    !!__ENABLE_BACKUP_ENCRYPTION__
       ? __ENABLE_BACKUP_ENCRYPTION__ == "true"
       : false,
   discordOverrides: _buildDiscordConfig(),
@@ -340,7 +347,7 @@ export const configs: IExtensionConfigOverrides = {
 
   devChainProviderURL:
     typeof __DEV_CHAIN_PROVIDER_URL__ !== "undefined" &&
-      !!__DEV_CHAIN_PROVIDER_URL__
+    !!__DEV_CHAIN_PROVIDER_URL__
       ? __DEV_CHAIN_PROVIDER_URL__
       : ProviderUrl("https://doodlechain.dev.snickerdoodle.dev"),
   ipfsFetchBaseUrl:

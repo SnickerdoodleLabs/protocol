@@ -49,6 +49,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -830,6 +831,32 @@ export class GetBearerTokenParams extends CoreActionParams<JsonWebToken> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_BEARER_TOKEN;
+  }
+}
+
+export class GetDropBoxAuthUrlParams extends CoreActionParams<URLString> {
+  public constructor() {
+    super(GetDropBoxAuthUrlParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DROPBOX_AUTH_URL;
+  }
+}
+export class ActivateAuthenticatedStorageParams extends CoreActionParams<void> {
+  public constructor() {
+    super(ActivateAuthenticatedStorageParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.ACTIVATE_AUTHENTICATED_STORAGE;
+  }
+}
+
+export class AuthenticateDropboxParams extends CoreActionParams<AccessToken> {
+  public constructor(public code: string) {
+    super(AuthenticateDropboxParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.AUTHENTICATE_DROPBOX;
   }
 }
 // #endregion

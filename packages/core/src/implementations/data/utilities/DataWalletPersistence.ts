@@ -22,6 +22,7 @@ import {
   BackupRestoreEvent,
   EDataStorageType,
   BackupCreatedEvent,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -65,6 +66,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ResultAsync<void, PersistenceError>
   > = new Map();
 
+  public storage: ECloudStorageType = ECloudStorageType.Dropbox;
+
   public constructor(
     @inject(ICloudStorageManagerType)
     protected cloudStorageManager: ICloudStorageManager,
@@ -87,6 +90,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.resolveUnlock = resolve;
     });
   }
+
+  // public getCloudStorage(): ResultAsync<ICloudStorage, never> {
+  //   return this.cloudStorageManager.getCloudStorage();
+  // }
 
   // #region Field Methods
   public getField<T>(
@@ -265,6 +272,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {
+        console.log("cloudStorage: " + cloudStorage);
         return ResultUtils.combine([
           cloudStorage.unlock(derivedKey),
           this.backupManagerProvider.unlock(derivedKey),

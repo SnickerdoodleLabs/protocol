@@ -51,6 +51,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -96,6 +97,7 @@ import {
   GetPossibleRewardsParams,
   SwitchToTabParams,
   GetQueryStatusByCidParams,
+  AuthenticateDropboxParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -574,6 +576,16 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getPossibleRewards(
       new GetPossibleRewardsParams(contractAddresses, timeoutMs),
     );
+  }
+
+  public getDropboxAuthUrl(): ResultAsync<URLString, ProxyError> {
+    return coreGateway.getDropboxAuthUrl();
+  }
+
+  public authenticateDropbox(
+    code: string,
+  ): ResultAsync<AccessToken, ProxyError> {
+    return coreGateway.authenticateDropbox(new AuthenticateDropboxParams(code));
   }
 }
 

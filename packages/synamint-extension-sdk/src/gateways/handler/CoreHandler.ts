@@ -20,13 +20,38 @@ export default class CoreHandler {
   >(
     params: TParams,
   ): ResultAsync<ReturnType<TParams["returnMethodMarker"]>, ProxyError> {
+    console.log("Calling Core!");
     return ResultAsync.fromPromise(
       new Promise((resolve, reject) => {
+        console.log("params: " + params);
+        console.log("JSON.stringify params: " + JSON.stringify(params));
+
         const requestObject = this._createRequestObject(params);
+        console.log("requestObject: " + JSON.stringify(requestObject));
+
         this.rpcEngine.handle(requestObject, async (error, result) => {
+          console.log("result: " + JSON.stringify(result));
+          console.log("error: " + JSON.stringify(error));
+
           if (error) {
+            console.log("We hit an error: ");
             return reject(error);
           }
+          console.log("Hit resolve");
+          console.log(
+            "We hit a resolve: " +
+              resolve(
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore - no type support provided
+                result.result === DEFAULT_RPC_SUCCESS_RESULT
+                  ? // resolve void
+                    undefined
+                  : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore - no type support provided
+                    result.result,
+              ),
+          );
+
           return resolve(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - no type support provided

@@ -221,7 +221,7 @@ export class DropboxCloudStorage implements ICloudStorage {
           // accessToken
         ]) => {
           const dataWalletFolder =
-            "https://dropbox.com/storage/v1/b/" + this.dropboxFilePath;
+            "https://api.dropboxapi.com/2/files/list_folder";
 
           const url = new URL(dataWalletFolder);
           const data = {
@@ -446,7 +446,7 @@ export class DropboxCloudStorage implements ICloudStorage {
 }
 
 class DropboxConnection {
-  public constructor(public accessToken: AccessToken) { }
+  public constructor(public accessToken: AccessToken) {}
 }
 
 class ParsedBackupFileName {
@@ -456,7 +456,7 @@ class ParsedBackupFileName {
     public timestamp: number,
     public hash: DataWalletBackupID,
     public isField: boolean,
-  ) { }
+  ) {}
 
   public static parse(path: string): ParsedBackupFileName | null {
     const name = path.split(/[/ ]+/).pop();

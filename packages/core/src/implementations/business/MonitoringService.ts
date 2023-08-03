@@ -12,6 +12,7 @@ import {
   TwitterError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
+import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -142,4 +143,8 @@ export class MonitoringService implements IMonitoringService {
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.persistence.postBackups();
   }
+
+  // public getCloudStorage(): ResultAsync<ICloudStorage, never> {
+  //   return this.persistence.getCloudStorage();
+  // }
 }

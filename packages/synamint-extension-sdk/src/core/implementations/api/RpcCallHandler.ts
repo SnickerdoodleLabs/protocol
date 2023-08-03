@@ -13,6 +13,8 @@ import {
   TokenId,
   BigNumberString,
   URLString,
+  ISnickerdoodleCoreType,
+  ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -141,6 +143,8 @@ import {
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -781,6 +785,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
+
+    new CoreActionHandler<GetDropBoxAuthUrlParams>(
+      GetDropBoxAuthUrlParams.getCoreAction(),
+      (_params) => {
+        return this.core.getDropboxAuth();
+      },
+    ),
+
+    new CoreActionHandler<AuthenticateDropboxParams>(
+      AuthenticateDropboxParams.getCoreAction(),
+      (params) => {
+        return this.core.authenticateDropbox(params.code);
+      },
+    ),
     // #endregion
   ];
 
@@ -810,6 +828,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IMetricsServiceType) protected metricsService: IMetricsService,
     @inject(IIntegrationServiceType)
     protected integrationService: IIntegrationService,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
   ) {}
 
   public async handleRpcCall(

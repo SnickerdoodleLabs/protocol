@@ -45,6 +45,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -128,6 +129,8 @@ import {
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
   GetQueryStatusByCidParams,
+  GetDropBoxAuthUrlParams,
+  AuthenticateDropboxParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -498,6 +501,16 @@ export class ExternalCoreGateway {
     return this._handler.call(new GetConfigParams());
   }
   public switchToTab(params: SwitchToTabParams): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getDropboxAuthUrl(): ResultAsync<URLString, ProxyError> {
+    return this._handler.call(new GetDropBoxAuthUrlParams());
+  }
+
+  public authenticateDropbox(
+    params: AuthenticateDropboxParams,
+  ): ResultAsync<AccessToken, ProxyError> {
     return this._handler.call(params);
   }
 }

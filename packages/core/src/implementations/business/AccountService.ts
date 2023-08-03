@@ -51,7 +51,9 @@ import {
   AccountIndexingError,
   PasswordString,
   BlockchainCommonErrors,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
+import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -159,6 +161,8 @@ export class AccountService implements IAccountService {
     | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
+
+    console.log("Account address begin unlock");
     return this.validateSignatureForAddress(
       accountAddress,
       signature,
@@ -166,6 +170,8 @@ export class AccountService implements IAccountService {
       chain,
     )
       .andThen(() => {
+        console.log("Signature validation");
+
         // Next step is to convert the signature into a derived account
         return ResultUtils.combine([
           this.dataWalletUtils.getDerivedEVMAccountFromSignature(
@@ -176,9 +182,13 @@ export class AccountService implements IAccountService {
         ]);
       })
       .andThen(([derivedEOA, context]) => {
+        console.log("derivedEOA: " + derivedEOA);
+
         return this.crumbsRepo
           .getCrumb(derivedEOA.accountAddress, languageCode)
           .andThen((encryptedDataWalletKey) => {
+            console.log("encryptedDataWalletKey: " + encryptedDataWalletKey);
+
             // If we're already in the process of unlocking
             if (context.unlockInProgress) {
               return errAsync(
@@ -202,6 +212,10 @@ export class AccountService implements IAccountService {
             return this.contextProvider
               .setContext(context)
               .andThen(() => {
+                console.log(
+                  "encryptedDataWalletKey: " + encryptedDataWalletKey,
+                );
+
                 if (encryptedDataWalletKey == null) {
                   // We're trying to unlock for the first time!
                   this.logUtils.info(
@@ -843,6 +857,10 @@ export class AccountService implements IAccountService {
       .postBackups()
       .mapErr((e) => new PersistenceError("error posting backups", e));
   }
+
+  // public getCloudStorage(): ResultAsync<ECloudStorageType, never> {
+  //   return this.dataWalletPersistence.getCloudStorage();
+  // }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.clearCloudStore();

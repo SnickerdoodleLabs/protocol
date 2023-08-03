@@ -123,15 +123,19 @@ export class ContractFactory implements IContractFactory {
     ICrumbsContract,
     BlockchainProviderError | UninitializedError
   > {
+    console.log("Inside factoryCrumbsContract: ");
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.blockchainProvider.getPrimaryProvider(),
       this.blockchainProvider.getSecondaryProvider(),
     ]).map(([config, primaryProvider, secondaryProvider]) => {
+      console.log("Completed combine: ");
+
       const primary = new CrumbsContract(
         primaryProvider,
         config.controlChainInformation.crumbsContractAddress,
       );
+      console.log("primary Crumb contract made: " + primary);
 
       const secondary =
         secondaryProvider != null
@@ -140,6 +144,8 @@ export class ContractFactory implements IContractFactory {
               config.controlChainInformation.crumbsContractAddress,
             )
           : null;
+
+      console.log("secondary Crumb contract made: " + secondary);
 
       return new CrumbsContractWrapper(
         primary,

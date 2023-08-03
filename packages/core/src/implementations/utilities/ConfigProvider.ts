@@ -39,9 +39,10 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 @injectable()
 export class ConfigProvider
   implements
-  IConfigProvider,
-  IIndexerConfigProvider,
-  IPersistenceConfigProvider {
+    IConfigProvider,
+    IIndexerConfigProvider,
+    IPersistenceConfigProvider
+{
   protected config: CoreConfig;
 
   public constructor() {
@@ -96,6 +97,7 @@ export class ConfigProvider
       "ceramic-replacement-bucket", // default Google Cloud Bucket
       "w69949reoalc9xg", // default dropbox app key
       "78jch5z5o800dyw", // default dropbox app secret
+      "https://localhost:9005/settings/storage", // dropboxRedirectUri
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts

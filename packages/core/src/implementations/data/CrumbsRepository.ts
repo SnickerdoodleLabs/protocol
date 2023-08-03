@@ -61,17 +61,25 @@ export class CrumbsRepository implements ICrumbsRepository {
     | CrumbsContractError
     | BlockchainCommonErrors
   > {
+    console.log("getCrumb: " + accountAddress);
     return this.getCrumbsContract().andThen((contract) => {
       // Retrieve the crumb id or token id mapped to the address
       // returns 0 if non existent
+      console.log("getCrumb contract: " + JSON.stringify(contract));
+
       return contract.addressToCrumbId(accountAddress).andThen((tokenId) => {
+        console.log("getCrumb tokenId: " + tokenId);
+
         if (tokenId == null) {
           return okAsync(null);
         }
+
         // Retrieve the token id's token uri and return it
         // Query reverts with 'ERC721Metadata: URI query for nonexistent token' error if token does not exist
         return contract.tokenURI(tokenId).map((rawTokenUri) => {
           // If the token does not exist (even though it should!)
+          console.log("getCrumb rawTokenUri: " + rawTokenUri);
+
           if (rawTokenUri == null) {
             return null;
           }
@@ -80,6 +88,8 @@ export class CrumbsRepository implements ICrumbsRepository {
           // currently it is www.crumbs.com/ on the deployment scripts
           // alternatively we can also fetch the latest base uri directly from the contract
           const tokenUri = rawTokenUri.match(/\{[\s\S]*\}/)?.[0];
+
+          console.log("getCrumb tokenUri: " + tokenUri);
 
           // If there is no crumb, there's no data
           if (tokenUri == null) {
@@ -91,6 +101,8 @@ export class CrumbsRepository implements ICrumbsRepository {
 
           // Check if the crumb includes this language code
           const languageCrumb = content[languageCode];
+
+          console.log("getCrumb languageCrumb: " + languageCrumb);
 
           if (languageCrumb == null) {
             return null;

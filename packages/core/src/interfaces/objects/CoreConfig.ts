@@ -25,6 +25,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public defaultGoogleCloudBucket: string,
     public dropboxAppKey: string,
     public dropboxAppSecret: string,
+    public dropboxRedirectUri: string,
+
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
@@ -77,7 +79,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public devChainProviderURL: ProviderUrl,
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
-  ) { }
+  ) {}
 }
 
 export class MetatransactionGasAmounts {
@@ -87,5 +89,5 @@ export class MetatransactionGasAmounts {
     public optInGas: number,
     public optOutGas: number,
     public updateAgreementFlagsGas: number,
-  ) { }
+  ) {}
 }

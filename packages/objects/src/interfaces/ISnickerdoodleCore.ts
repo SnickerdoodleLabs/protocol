@@ -34,6 +34,7 @@ import {
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
   EScamFilterStatus,
@@ -106,6 +107,7 @@ import {
   UnixTimestamp,
   URLString,
   PasswordString,
+  AccessToken,
 } from "@objects/primitives/index.js";
 
 /**
@@ -757,6 +759,12 @@ export interface ISnickerdoodleCore {
   //   authenticatedStorageParams: AuthenticatedStorageParams,
   // ): ResultAsync<void, PersistenceError>;
 
+  // getCloudStorage(): ResultAsync<ICloudStorage, never>;
+
+  getDropboxAuth(): ResultAsync<URLString, never>;
+
+  authenticateDropbox(code: string): ResultAsync<AccessToken, AjaxError>;
+
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
@@ -953,6 +961,7 @@ export interface ISnickerdoodleCore {
   clearCloudStore(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  // getCloudStorage(): ResultAsync<ICloudStorage, never>;
   listFileNames(
     sourceDomain?: DomainName,
   ): ResultAsync<BackupFileName[], PersistenceError>;
@@ -983,11 +992,6 @@ export interface ISnickerdoodleCore {
     transactions: ChainTransaction[],
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
-
-  // getCloudStorageParams(): ResultAsync<
-  //   CloudStorageParams,
-  //   AccountIndexingError
-  // >;
 
   account: IAccountMethods;
   invitation: IInvitationMethods;

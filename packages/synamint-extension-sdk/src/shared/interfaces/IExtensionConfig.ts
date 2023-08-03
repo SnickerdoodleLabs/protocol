@@ -108,6 +108,7 @@ export interface IExtensionConfigOverrides {
   defaultGoogleCloudBucket?: string;
   dropboxAppKey?: string;
   dropboxAppSecret?: string;
+  redirectUri?: string;
   enableBackupEncryption?: boolean;
   discordOverrides?: Partial<DiscordConfig>;
   twitterOverrides?: Partial<TwitterConfig>;

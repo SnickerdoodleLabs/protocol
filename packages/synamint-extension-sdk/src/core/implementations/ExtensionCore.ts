@@ -104,6 +104,7 @@ export class ExtensionCore {
       ECloudStorageType.Dropbox,
       config.dropboxAppKey,
       config.dropboxAppSecret,
+      "https://localhost:9005/settings/storage",
     );
 
     this.core = new SnickerdoodleCore(
