@@ -1,4 +1,5 @@
 import {
+  DomainName,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   OAuth1RequstToken,
@@ -24,22 +25,24 @@ export class TwitterService implements ITwitterService {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
-  public getOAuth1aRequestToken(): ResultAsync<
-    TokenAndSecret,
-    SnickerDoodleCoreError
-  > {
-    return this.core.twitter.getOAuth1aRequestToken().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+  public getOAuth1aRequestToken(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TokenAndSecret, SnickerDoodleCoreError> {
+    return this.core.twitter
+      .getOAuth1aRequestToken(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
+    sourceDomain?: DomainName,
   ): ResultAsync<TwitterProfile, SnickerDoodleCoreError> {
     return this.core.twitter
-      .initTwitterProfile(requestToken, oAuthVerifier)
+      .initTwitterProfile(requestToken, oAuthVerifier, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -48,18 +51,18 @@ export class TwitterService implements ITwitterService {
 
   public unlinkProfile(
     id: TwitterID,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.twitter.unlinkProfile(id).mapErr((error) => {
+    return this.core.twitter.unlinkProfile(id, sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
 
-  public getUserProfiles(): ResultAsync<
-    TwitterProfile[],
-    SnickerDoodleCoreError
-  > {
-    return this.core.twitter.getUserProfiles().mapErr((error) => {
+  public getUserProfiles(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TwitterProfile[], SnickerDoodleCoreError> {
+    return this.core.twitter.getUserProfiles(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });

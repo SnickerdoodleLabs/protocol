@@ -113,6 +113,21 @@ import {
  ISdlDataWallet.ts. This interface represents the actual core methods, but ISdlDataWallet mostly
  clones this interface, with some methods removed or added, but all of them updated to remove
  sourceDomain (which is managed by the integration package)
+
+ UPDATE: ISdlDataWallet for the most part is derived from this interface, and changes
+ here should be reflected there. By and large, ISdlDataWallet contains all the
+ methods of ISnickerdoodleCore, with the error types changed to ProxyError and
+ the sourceDomain parameter removed. Some methods need special handling and that
+ is done manually in ISdlDataWallet.
+ */
+
+/**
+ * NOTE
+ * There is a bug in PopTuple<> that seems to be an error in typescript, when dealing with optional (?)
+ * parameters. Bascically, if you try to PopTuple<[string, number?]> it will
+ * return "never" and not [string]. The solution is to use a non-optional parameter,
+ * so sourceDomain is now "sourceDomain: DomainName | undefined" instead of optional,
+ * at least on methods that are being dynamically altered in ISdlDataWallet.
  */
 
 export interface IAccountMethods {
@@ -369,6 +384,7 @@ export interface ICoreDiscordMethods {
    */
   initializeUserWithAuthorizationCode(
     code: OAuthAuthorizationCode,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, DiscordError | PersistenceError>;
 
   /**
@@ -376,10 +392,17 @@ export interface ICoreDiscordMethods {
    * call to be made. If user gives consent token can be used
    * to initialize the user
    */
-  installationUrl(): ResultAsync<URLString, OAuthError>;
+  installationUrl(
+    redirectTabId: number | undefined,
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<URLString, OAuthError>;
 
-  getUserProfiles(): ResultAsync<DiscordProfile[], PersistenceError>;
-  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], PersistenceError>;
+  getUserProfiles(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<DiscordProfile[], PersistenceError>;
+  getGuildProfiles(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<DiscordGuildProfile[], PersistenceError>;
   /**
    * This method will remove a users discord profile and
    * discord guild data given their profile id
@@ -387,19 +410,26 @@ export interface ICoreDiscordMethods {
    */
   unlink(
     discordProfileId: DiscordID,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, DiscordError | PersistenceError>;
 }
 
 export interface ICoreTwitterMethods {
-  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, TwitterError>;
+  getOAuth1aRequestToken(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<TokenAndSecret, TwitterError>;
   initTwitterProfile(
     requestToken: OAuth1RequstToken,
     oAuthVerifier: OAuthVerifier,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<TwitterProfile, TwitterError | PersistenceError>;
   unlinkProfile(
     id: TwitterID,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<void, TwitterError | PersistenceError>;
-  getUserProfiles(): ResultAsync<TwitterProfile[], PersistenceError>;
+  getUserProfiles(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<TwitterProfile[], PersistenceError>;
 }
 
 export interface ICoreIntegrationMethods {
@@ -449,7 +479,7 @@ export interface ICoreIntegrationMethods {
    */
   getPermissions(
     domain: DomainName,
-    sourceDomain?: DomainName | undefined,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
 
   /**
@@ -709,7 +739,16 @@ export interface IMetricsMethods {
   /**
    * Returns the current runtime data for the user's data wallet.
    */
-  getMetrics(): ResultAsync<RuntimeMetrics, never>;
+  getMetrics(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<RuntimeMetrics, never>;
+
+  /**
+   * Returns the current unlock status of the data wallet.
+   */
+  getUnlocked(
+    sourceDomain: DomainName | undefined,
+  ): ResultAsync<boolean, never>;
 }
 
 export interface ISnickerdoodleCore {
@@ -829,10 +868,9 @@ export interface ISnickerdoodleCore {
     name: GivenName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
-  getGivenName(): ResultAsync<
-    GivenName | null,
-    PersistenceError | UnauthorizedError
-  >;
+  getGivenName(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<GivenName | null, PersistenceError | UnauthorizedError>;
 
   setFamilyName(
     name: FamilyName,

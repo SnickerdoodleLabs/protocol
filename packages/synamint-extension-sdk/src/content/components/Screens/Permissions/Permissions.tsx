@@ -36,7 +36,6 @@ import {
   SetLocationParams,
 } from "@synamint-extension-sdk/shared/interfaces/actions.js";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
-import { JsonRpcError } from "json-rpc-engine";
 
 interface IPermissionsProps {
   coreGateway: ExternalCoreGateway;
@@ -144,9 +143,7 @@ const Permissions: FC<IPermissionsProps> = ({
 
   const getRewards = useCallback(() => {
     return ResultUtils.combine([
-      isUnlocked
-        ? coreGateway.getEarnedRewards()
-        : (okAsync([]) as ResultAsync<EarnedReward[], JsonRpcError>),
+      isUnlocked ? coreGateway.getEarnedRewards() : okAsync([]),
       coreGateway.getPossibleRewards(
         new GetPossibleRewardsParams([domainDetails.consentAddress]),
       ),
@@ -219,7 +216,9 @@ const Permissions: FC<IPermissionsProps> = ({
   const onSocialClick = (socialType: ESocialType) => {
     switch (socialType) {
       case ESocialType.DISCORD: {
-        return coreGateway.discord.installationUrl(true).map((url) => {
+        // We send a dummy tab ID here, because we don't know the tab ID.
+        // In the RpcCallHandler, it will be replaced with the correct tab ID.
+        return coreGateway.discord.installationUrl(-1).map((url) => {
           window.open(url, "_blank");
         });
       }
