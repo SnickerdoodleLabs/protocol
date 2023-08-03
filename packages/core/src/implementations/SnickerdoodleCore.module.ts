@@ -80,6 +80,8 @@ import {
   DropboxCloudStorage,
   IDropboxCloudStorageType,
   IGDriveCloudStorage,
+  IPersistenceContextProvider,
+  IPersistenceContextProviderType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -287,11 +289,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     _isBound: interfaces.IsBound,
     _rebind: interfaces.Rebind,
   ) => {
-    // Binding cloud storage manager
-    bind<ICloudStorageManager>(IConsentContractRepositoryType).to(
-      CloudStorageManager,
-    );
-
     bind<ISocialMediaPoller>(ISocialMediaPollerType)
       .to(SocialMediaPoller)
       .inSingletonScope();
@@ -434,6 +431,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IFieldSchemaProvider>(IFieldSchemaProviderType)
       .to(FieldSchemaProvider)
       .inSingletonScope();
+
+    bind<IPersistenceContextProvider>(IPersistenceContextProviderType)
+      .to(ContextProvider)
+      .inSingletonScope();
+
     bind<IMasterIndexer>(IMasterIndexerType)
       .to(MasterIndexer)
       .inSingletonScope();
@@ -447,6 +449,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
       configProvider,
     );
+
+    // Binding cloud storage manager
     bind<IPersistenceConfigProvider>(
       IPersistenceConfigProviderType,
     ).toConstantValue(configProvider);
