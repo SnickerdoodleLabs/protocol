@@ -3,7 +3,6 @@ import {
   ESolidityAbiParameterType,
   IDynamicRewardParameter,
   LinkedAccount,
-  SDQLQuery,
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
@@ -18,8 +17,6 @@ export const EventCtx = React.createContext<IEventCtx>({} as IEventCtx);
 
 const EventContextProvider = ({ children }) => {
   const { mobileCore, setUnlockState, updateLinkedAccounts } = useAppContext();
-  const [appLevelNotifications, setAppLevelNotifications] = useState();
-  const [infoLevelNotification, setInfoLevelNotification] = useState();
   const { cancelLoading } = useLayoutContext();
   useEffect(() => {
     mobileCore.getEvents().map((events) => {

@@ -1,13 +1,12 @@
 import {
   AccountAddress,
+  EVMContractAddress,
   EWalletDataType,
   Invitation,
   IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
-import LottieView from "lottie-react-native";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
-  Button,
   Dimensions,
   Image,
   Modal,
@@ -15,19 +14,15 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-import UnlockLottie from "../assets/lotties/unlock.json";
 import { useAppContext } from "./AppContextProvider";
 import { IInvitationParams } from "./InvitationContext";
 import Dropdown from "../newcomponents/Dashboard/Dropdown";
 import { normalizeHeight, normalizeWidth } from "../themes/Metrics";
-import BottomSheetComponenet from "../newcomponents/Custom/BottomSheetComponenet";
 import { useNavigation } from "@react-navigation/native";
-import { ROUTES } from "../constants";
 import CustomSwitch from "../newcomponents/Custom/CustomSwitch";
 import FastImage from "react-native-fast-image";
 import { useTheme } from "./ThemeContext";
@@ -234,7 +229,6 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
 };
 
 const LayoutContextProvider = ({ children }) => {
-  const navigation = useNavigation();
   const { mobileCore } = useAppContext();
   const { linkedAccounts } = useAppContext();
   const [loadingStatus, _setLoadingStatus] =
@@ -339,7 +333,7 @@ const LayoutContextProvider = ({ children }) => {
     mobileCore
       .getCore()
       .setReceivingAddress(
-        invitation?.consentContractAddress,
+        invitation?.consentAddress as EVMContractAddress,
         item.label as AccountAddress,
       );
 
@@ -350,14 +344,14 @@ const LayoutContextProvider = ({ children }) => {
     setSelectedAccount(item.label);
   };
   useEffect(() => {
-    let accs = [];
+    let accs: { label: string; value: string }[] = [];
     linkedAccounts?.map((acc) => {
       accs.push({ label: acc as string, value: acc as string });
     });
     setPickerLinkedAccount(accs);
     mobileCore
       .getCore()
-      .getReceivingAddress(invitation?.consentContractAddress)
+      .getReceivingAddress(invitation?.consentAddress)
       .map((receivingAccount) => {
         setSelectedAccount(receivingAccount);
       });
@@ -381,9 +375,7 @@ const LayoutContextProvider = ({ children }) => {
     mobileCore.dataPermissionUtils.getPermissions().map((perms) => {
       if (perms.length == 0) {
         mobileCore.dataPermissionUtils
-          .generateDataPermissionsClassWithDataTypes([
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-          ])
+          .createWithAllPermissions()
           .map((dataPermissions) => {
             mobileCore
               .getCore()

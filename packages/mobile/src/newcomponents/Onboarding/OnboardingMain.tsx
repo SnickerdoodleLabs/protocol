@@ -367,7 +367,6 @@ const OnboardingMain = () => {
 
         walletObject?.signMessage(message).then((signature) => {
           if (!isUnlocked) {
-            console.log("signature", signature);
             accountService.unlock(
               walletObject?.address as EVMAccountAddress,
               signature as Signature,

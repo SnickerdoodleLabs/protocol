@@ -129,13 +129,11 @@ export function BlockchainActions({ onDisconnect, signStatus }: Props) {
     const enLangueCode: LanguageCode = LanguageCode("en");
     if (rpcResponse?.result) {
       const rpc = rpcResponse as FormattedRpcResponse;
-      console.log("rpc", rpc);
       onDisconnect();
       setLoadingStatus({
         loading: true,
         type: ELoadingStatusType.ADDING_ACCOUNT,
       });
-      console.log("UseUnlock", { rpc, enLangueCode });
       if (!isUnlocked) {
         mobileCore
           .getCore()

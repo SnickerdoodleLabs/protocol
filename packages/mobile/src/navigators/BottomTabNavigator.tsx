@@ -1,5 +1,4 @@
 import React from "react";
-import { View, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { COLORS, ROUTES } from "../constants";
 import Icon from "react-native-vector-icons/Ionicons";

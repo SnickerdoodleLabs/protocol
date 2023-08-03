@@ -22,12 +22,8 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
-  IAsyncStorageWrapper,
-  IAsyncStorageWrapperType,
-  AsyncStorageWrapper,
   IVolatileStorage,
   IVolatileStorageType,
-  ReactNativeVolatileStorage,
   IPersistenceConfigProviderType,
   IPersistenceConfigProvider,
 } from "@snickerdoodlelabs/persistence";
@@ -59,12 +55,7 @@ import {
 } from "../interfaces/data/IDataPermissionsRepository";
 import { IErrorUtils, IErrorUtilsType } from "../interfaces/utils/IErrorUtils";
 
-import {
-  AccountService,
-  PIIService,
-  InvitationService,
-  TokenPriceService,
-} from "./business";
+import { AccountService, PIIService, TokenPriceService } from "./business";
 import { AccountStorageRepository } from "./data/AccountStorageRepository";
 import { DataPermissionsRepository } from "./data/DataPermissionsRepository";
 import { ErrorUtils } from "./utils/ErrorUtils";
@@ -83,9 +74,6 @@ export const mobileCoreModule = new ContainerModule(
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
     bind<ITokenPriceService>(ITokenPriceServiceType)
       .to(TokenPriceService)
-      .inSingletonScope();
-    bind<IInvitationService>(IInvitationServiceType)
-      .to(InvitationService)
       .inSingletonScope();
 
     bind<IAccountStorageRepository>(IAccountStorageRepositoryType).to(
@@ -114,13 +102,6 @@ export const mobileCoreModule = new ContainerModule(
 
     bind<IVolatileStorageSchemaProvider>(IVolatileStorageSchemaProviderType)
       .to(VolatileStorageSchemaProvider)
-      .inSingletonScope();
-    bind<IAsyncStorageWrapper>(IAsyncStorageWrapperType)
-      .to(AsyncStorageWrapper)
-      .inSingletonScope();
-
-    bind<IVolatileStorage>(IVolatileStorageType)
-      .to(ReactNativeVolatileStorage)
       .inSingletonScope();
   },
 );

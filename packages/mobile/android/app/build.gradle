@@ -225,11 +225,11 @@
                 keyPassword 'android'
             }
             release {
-            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-                storeFile file(MYAPP_RELEASE_STORE_FILE)
-                storePassword MYAPP_RELEASE_STORE_PASSWORD
-                keyAlias MYAPP_RELEASE_KEY_ALIAS
-                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            if (project.hasProperty('SNICKERDOODLE_RELEASE_STORE_FILE')) {
+                storeFile file(SNICKERDOODLE_RELEASE_STORE_FILE)
+                storePassword SNICKERDOODLE_RELEASE_STORE_PASSWORD
+                keyAlias SNICKERDOODLE_RELEASE_KEY_ALIAS
+                keyPassword SNICKERDOODLE_RELEASE_KEY_PASSWORD
             }
         }
         }

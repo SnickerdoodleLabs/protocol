@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CookieManager, { Cookie, Cookies } from "@react-native-cookies/cookies";
 import {
   UnixTimestamp,
   Signature,
@@ -29,18 +28,15 @@ export class AccountStorageRepository implements IAccountStorageRepository {
     chain: EChain,
   ): ResultAsync<void, MobileCookieError> {
     return this.readAccountInfoStorage().andThen((accountInfoArr) => {
-      console.log("writeAccountInfoToStorage1");
       const _value = { accountAddress, signature, languageCode, chain };
       if (
         accountInfoArr
           .map((o) => JSON.stringify(o))
           .includes(JSON.stringify(_value))
       ) {
-        console.log("writeAccountInfoToStorage2");
         return okAsync(undefined);
       }
       const value = JSON.stringify([...accountInfoArr, _value]);
-      console.log("writeAccountInfoToStorage3");
       return this._setValue("dw-account-info", value);
     });
   }

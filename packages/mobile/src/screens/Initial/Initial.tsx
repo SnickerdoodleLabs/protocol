@@ -4,28 +4,16 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import LottieView from "lottie-react-native";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Image, View, Dimensions } from "react-native";
-
-import LoadingLottie from "../../assets/lotties/loading.json";
 import { useAppContext } from "../../context/AppContextProvider";
-
-import { styles } from "./Initial.styles";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import { useTheme } from "../../context/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Make all neccassary checks here
-
-interface IUnlockParams {
-  accountAddress: AccountAddress;
-  signature: Signature;
-  chain: EChain;
-  languageCode: LanguageCode;
-}
 
 enum EUnlockState {
   "IDLE",
@@ -99,11 +87,6 @@ const Initial = ({ navigation }) => {
                     return "Try Unlock Error";
                   });
               }
-              console.log("first", {
-                unlockParamsArr,
-                dataWalletAddressOnCookie,
-                dataWalletAddress,
-              });
               return accountService
                 .unlock(
                   accountAddress,

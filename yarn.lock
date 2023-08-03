@@ -39750,8 +39750,6 @@ __metadata:
     solidity-coverage: ^0.7.9
     solium: ^1.2.5
     source-map-loader: ^2.0.0
-    sqlite: ^4.2.0
-    sqlite3: ^5.1.6
     stream-browserify: ^3.0.0
     stream-http: ^3.1.1
     style-loader: ^2.0.0
@@ -40343,7 +40341,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sqlite3@npm:^5.0.2, sqlite3@npm:^5.1.6":
+"sqlite3@npm:^5.0.2":
   version: 5.1.6
   resolution: "sqlite3@npm:5.1.6"
   dependencies:
@@ -40360,13 +40358,6 @@ __metadata:
     node-gyp:
       optional: true
   checksum: ea640628843e37a63dfb4bd2c8429dbd7aab845c1a8204574dca3aac61486ab65bc0abfd99b48f1cead1f783171c6111c0cc4115335d5b95bb0b4eb44db162d5
-  languageName: node
-  linkType: hard
-
-"sqlite@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "sqlite@npm:4.2.0"
-  checksum: 91dd8fd1f68df241f9cc16074b79d2ec3a66a1c59ac5f635befc099a9a46a845e196314b2f3cc52b5012086c070b5b3ac62e26cc8ab65ce9591093280e7380f0
   languageName: node
   linkType: hard
 

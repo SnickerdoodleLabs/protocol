@@ -31,16 +31,6 @@ export default function Settings() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { isConnected, provider, open } = useWalletConnectModal();
-  const { mobileCore } = useAppContext();
-
-  useEffect(() => {
-    mobileCore
-      .getCore()
-      .account.getUnlockMessage(LanguageCode("en"))
-      .map((message) => {
-        console.log("message", message);
-      });
-  }, []);
 
   const onCopy = (value: string) => {
     Clipboard.setString(value);

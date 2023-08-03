@@ -65,7 +65,6 @@ export default function CryptoSettings() {
   useEffect(() => {
     AsyncStorage.getItem("generated-wallet").then((value) => {
       if (value) {
-        console.log("generated", value);
         setGeneratedInfo(JSON.parse(value));
       }
     });

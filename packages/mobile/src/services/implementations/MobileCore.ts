@@ -2,7 +2,7 @@ import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ConfigProvider, SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   AccountAddress,
   ChainId,
@@ -17,8 +17,6 @@ import {
   Gender,
   GivenName,
   HexString32,
-  Invitation,
-  IpfsCID,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
@@ -26,15 +24,10 @@ import {
   Signature,
   TokenAddress,
   UnixTimestamp,
-  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import {
   IVolatileStorage,
-  IVolatileStorageSchemaProvider,
-  IVolatileStorageSchemaProviderType,
   IVolatileStorageType,
-  NullCloudStorage,
-  ReactNativeVolatileStorage,
 } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -43,10 +36,7 @@ import {
   IAccountServiceType,
   IAccountService,
 } from "../interfaces/business/IAccountService";
-import {
-  IInvitationServiceType,
-  IInvitationService,
-} from "../interfaces/business/IInvitationService";
+
 import {
   IPIIServiceType,
   IPIIService,
@@ -80,9 +70,6 @@ export class MobileCore {
   constructor() {
     this.iocContainer = new Container();
     this.iocContainer.load(...[mobileCoreModule]);
-
-    const reactVolatileStorage =
-      this.iocContainer.get<IVolatileStorage>(IVolatileStorageType);
 
     this.core = new SnickerdoodleCore(
       coreConfig,
