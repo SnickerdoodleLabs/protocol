@@ -460,8 +460,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new UnlinkAccountParams(accountAddress, signature, chain, languageCode),
     );
   }
-  public getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
-    return coreGateway.getUnlockMessage(
+  public getLinkAccountMessage(
+    languageCode: LanguageCode = LanguageCode("en"),
+  ) {
+    return coreGateway.getLinkAccountMessage(
       new GetUnlockMessageParams(languageCode),
     );
   }

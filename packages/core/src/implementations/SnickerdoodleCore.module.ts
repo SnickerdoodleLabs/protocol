@@ -143,7 +143,6 @@ import {
   BrowsingDataRepository,
   CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
-  CrumbsRepository,
   DNSRepository,
   DataWalletPersistence,
   DemographicDataRepository,
@@ -234,8 +233,6 @@ import {
   IBrowsingDataRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  ICrumbsRepository,
-  ICrumbsRepositoryType,
   IDNSRepository,
   IDNSRepositoryType,
   IDataWalletPersistence,
@@ -362,9 +359,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
-      .inSingletonScope();
-    bind<ICrumbsRepository>(ICrumbsRepositoryType)
-      .to(CrumbsRepository)
       .inSingletonScope();
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,

@@ -139,60 +139,6 @@ export class DataWalletProfile {
       );
     });
   }
-  public unlock(
-    wallet: TestWallet,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | Error
-  > {
-    return this.getSignatureForAccount(wallet)
-      .andThen((signature) => {
-        return this.core.account.unlock(
-          wallet.accountAddress,
-          signature,
-          this.mocks.languageCode,
-          wallet.chain,
-        );
-      })
-      .andThen(() => {
-        this._unlocked = true;
-        console.log(`Unlocked account ${wallet.accountAddress}!`);
-        return this.loadFromPathAfterUnlocked().map(() => {
-          console.log(`Loaded complete profile for newly unlocked wallet`);
-        });
-      });
-  }
-
-  public unlockWithPassword(
-    password: PasswordString,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-    | Error
-  > {
-    return this.core.account.unlockWithPassword(password).andThen(() => {
-      this._unlocked = true;
-      console.log(`Unlocked account with password ${password}!`);
-      return this.loadFromPathAfterUnlocked().map(() => {
-        console.log(`Loaded complete profile for password`);
-      });
-    });
-  }
 
   protected destroyCore(): void {
     this.coreSubscriptions.map((subscription) => subscription.unsubscribe());
@@ -512,7 +458,7 @@ export class DataWalletProfile {
     wallet: TestWallet,
   ): ResultAsync<Signature, UnsupportedLanguageError | UnauthorizedError> {
     return this.core.account
-      .getUnlockMessage(this.mocks.languageCode)
+      .getLinkAccountMessage(this.mocks.languageCode)
       .andThen((message) => {
         return wallet.signMessage(message);
       });

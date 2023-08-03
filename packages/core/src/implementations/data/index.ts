@@ -4,7 +4,6 @@ export * from "@core/implementations/data/AuthenticatedStorageRepository.js";
 export * from "@core/implementations/data/BrowsingDataRepository.js";
 export * from "@core/implementations/data/CoinGeckoTokenPriceRepository.js";
 export * from "@core/implementations/data/ConsentContractRepository.js";
-export * from "@core/implementations/data/CrumbsRepository.js";
 export * from "@core/implementations/data/DNSRepository.js";
 export * from "@core/implementations/data/DemographicDataRepository.js";
 export * from "@core/implementations/data/DiscordRepository.js";

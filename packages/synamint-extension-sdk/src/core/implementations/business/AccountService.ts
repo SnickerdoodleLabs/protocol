@@ -12,14 +12,15 @@ import {
   IpfsCID,
   QueryStatus,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+
 import { IAccountService } from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
 } from "@synamint-extension-sdk/core/interfaces/data";
 import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared";
-import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -99,10 +100,10 @@ export class AccountService implements IAccountService {
     );
   }
 
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.accountRepository.getUnlockMessage(languageCode);
+    return this.accountRepository.getLinkAccountMessage(languageCode);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<

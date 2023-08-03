@@ -278,10 +278,10 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode = LanguageCode("en"),
   ): ResultAsync<string, ProxyError> {
-    return this._createCall("getUnlockMessage", {
+    return this._createCall("getLinkAccountMessage", {
       languageCode,
     });
   }

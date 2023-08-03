@@ -74,13 +74,11 @@ export class IFrameFormFactor {
               "Unlocking Snickerdoodle Core using stored unlock values",
             );
             // If we have a stored signature, we can automatically unlock the
-            return core.account
-              .unlock(accountAddress, signature, languageCode, chain)
-              .map(() => {
-                logUtils.log(
-                  "Snickerdoodle Core unlocked using stored unlock values",
-                );
-              });
+            return core.account.initialize().map(() => {
+              logUtils.log(
+                "Snickerdoodle Core unlocked using stored unlock values",
+              );
+            });
           }
           // If there's no stored signature, we have to wait for unlock to be called
           return okAsync(undefined);

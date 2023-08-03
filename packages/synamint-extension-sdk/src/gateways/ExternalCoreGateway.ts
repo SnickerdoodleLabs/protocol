@@ -346,7 +346,7 @@ export class ExternalCoreGateway {
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     params: GetUnlockMessageParams,
   ): ResultAsync<string, ProxyError> {
     return this._handler.call(params);

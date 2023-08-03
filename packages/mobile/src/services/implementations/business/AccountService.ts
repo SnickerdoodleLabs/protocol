@@ -76,13 +76,15 @@ export class AccountService implements IAccountService {
         return okAsync(undefined);
       });
   }
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.account.getUnlockMessage(languageCode).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.account
+      .getLinkAccountMessage(languageCode)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
   public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.core.getAccounts().mapErr((error) => {

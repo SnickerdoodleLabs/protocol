@@ -227,14 +227,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Account Methods -------------------------------------------------------------------------------
     this.account = {
-      getUnlockMessage: (
+      getLinkAccountMessage: (
         languageCode: LanguageCode,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-        return accountService.getUnlockMessage(languageCode);
+        return accountService.getLinkAccountMessage(languageCode);
       },
 
       /**
@@ -245,13 +245,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
        * @param languageCode
        * @returns
        */
-      unlock: (
-        accountAddress: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
-        chain: EChain,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
+      initialize: (sourceDomain: DomainName | undefined = undefined) => {
         // Get all of our indexers and initialize them
         const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
           IBlockchainProviderType,
@@ -290,7 +284,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           blockchainProvider.initialize(),
           indexers.initialize(),
         ])
-          .andThen(([]) => {
+          .andThen(() => {
             // Service Layer
             return ResultUtils.combine([
               queryService.initialize(),
@@ -307,13 +301,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
             ]);
           })
           .andThen(() => {
-            // Now the actual initialization!
-            return accountService.unlock(
-              accountAddress,
-              signature,
-              languageCode,
-              chain,
-            );
+            return accountService.initialize();
           })
           .map(() => {});
       },
@@ -338,138 +326,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       unlinkAccount: (
         accountAddress: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
         chain: EChain,
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         const accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-        return accountService.unlinkAccount(
-          accountAddress,
-          signature,
-          languageCode,
-          chain,
-        );
-      },
-
-      getDataWalletForAccount: (
-        accountAddress: AccountAddress,
-        signature: Signature,
-        languageCode: LanguageCode,
-        chain: EChain,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-          IBlockchainProviderType,
-        );
-
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        // BlockchainProvider needs to be ready to go in order to do the unlock
-        return blockchainProvider.initialize().andThen(() => {
-          return accountService.getDataWalletForAccount(
-            accountAddress,
-            signature,
-            languageCode,
-            chain,
-          );
-        });
-      },
-      unlockWithPassword: (
-        password: PasswordString,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        // Get all of our indexers and initialize them
-        // TODO
-        const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-          IBlockchainProviderType,
-        );
-
-        const accountIndexerPoller =
-          this.iocContainer.get<IAccountIndexerPoller>(
-            IAccountIndexerPollerType,
-          );
-
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        const queryService =
-          this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-        const metricsService =
-          this.iocContainer.get<IMetricsService>(IMetricsServiceType);
-
-        const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-          IBlockchainListenerType,
-        );
-
-        const socialPoller = this.iocContainer.get<ISocialMediaPoller>(
-          ISocialMediaPollerType,
-        );
-
-        const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
-          IHeartbeatGeneratorType,
-        );
-
-        const indexers =
-          this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
-
-        const cloudManager = this.iocContainer.get<ICloudStorageManager>(
-          ICloudStorageManagerType,
-        );
-
-        const configProvider =
-          this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-        return configProvider.getConfig().andThen((config) => {
-          // BlockchainProvider needs to be ready to go in order to do the unlock
-          return ResultUtils.combine([
-            blockchainProvider.initialize(),
-            indexers.initialize(),
-          ])
-            .andThen(() => {
-              return accountService.unlockWithPassword(password);
-            })
-            .andThen(() => {
-              // Service Layer
-              return ResultUtils.combine([
-                queryService.initialize(),
-                metricsService.initialize(),
-              ]);
-            })
-            .andThen(() => {
-              // API Layer
-              return ResultUtils.combine([
-                accountIndexerPoller.initialize(),
-                blockchainListener.initialize(),
-                socialPoller.initialize(),
-                heartbeatGenerator.initialize(),
-              ]);
-            })
-            .map(() => {});
-        });
-      },
-
-      addPassword: (
-        password: PasswordString,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        return accountService.addPassword(password);
-      },
-
-      removePassword: (
-        password: PasswordString,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const accountService =
-          this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-        return accountService.removePassword(password);
+        return accountService.unlinkAccount(accountAddress, chain);
       },
     };
 

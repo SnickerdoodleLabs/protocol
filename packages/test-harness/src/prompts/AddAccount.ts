@@ -1,14 +1,10 @@
 import {
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
   InvalidSignatureError,
-  MinimalForwarderContractError,
   PersistenceError,
-  BlockchainCommonErrors,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -21,14 +17,10 @@ export class AddAccount extends Prompt {
     void,
     | UnsupportedLanguageError
     | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
     | UninitializedError
-    | CrumbsContractError
     | InvalidSignatureError
-    | MinimalForwarderContractError
     | UnauthorizedError
-    | BlockchainCommonErrors
+    | InvalidParametersError
   > {
     return this.core
       .getAccounts()

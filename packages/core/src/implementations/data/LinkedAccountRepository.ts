@@ -1,6 +1,7 @@
 import {
   AccountAddress,
   EarnedReward,
+  EChain,
   EFieldKey,
   ERecordKey,
   EVMContractAddress,
@@ -29,6 +30,13 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     protected persistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
+  public getLinkedAccount(
+    accountAddress: AccountAddress,
+    chain: EChain,
+  ): ResultAsync<LinkedAccount | null, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
     return this.persistence.getAll<LinkedAccount>(ERecordKey.ACCOUNT);

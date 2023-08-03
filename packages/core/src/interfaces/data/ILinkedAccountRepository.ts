@@ -4,6 +4,7 @@ import {
   AccountAddress,
   EVMContractAddress,
   EarnedReward,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -27,6 +28,11 @@ export interface ILinkedAccountRepository {
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
+
+  getLinkedAccount(
+    accountAddress: AccountAddress,
+    chain: EChain,
+  ): ResultAsync<LinkedAccount | null, PersistenceError>;
 
   addEarnedRewards(
     rewards: EarnedReward[],

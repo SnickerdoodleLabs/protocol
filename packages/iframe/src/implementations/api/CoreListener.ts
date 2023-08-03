@@ -174,14 +174,14 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      getUnlockMessage: (
+      getLinkAccountMessage: (
         data: IIFrameCallData<{
           languageCode: LanguageCode;
         }>,
       ) => {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
-            return core.account.getUnlockMessage(
+            return core.account.getLinkAccountMessage(
               data.data.languageCode,
               sourceDomain,
             );

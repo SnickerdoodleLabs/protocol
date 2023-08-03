@@ -232,7 +232,7 @@ export interface ISdlDataWallet {
     chain: EChain,
     languageCode?: LanguageCode,
   ): ResultAsync<void, ProxyError>;
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode?: LanguageCode,
   ): ResultAsync<string, ProxyError>;
   // #endregion

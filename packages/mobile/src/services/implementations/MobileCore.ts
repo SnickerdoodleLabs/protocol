@@ -177,10 +177,10 @@ export class MobileCore {
           calledWithCookie,
         );
       },
-      getUnlockMessage: (languageCode: LanguageCode) => {
+      getLinkAccountMessage: (languageCode: LanguageCode) => {
         const _accountService =
           this.iocContainer.get<IAccountService>(IAccountServiceType);
-        return _accountService.getUnlockMessage(languageCode);
+        return _accountService.getLinkAccountMessage(languageCode);
       },
       getAccounts: () => {
         const _accountService =

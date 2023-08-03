@@ -147,13 +147,15 @@ export class AccountRepository implements IAccountRepository {
         return okAsync(undefined);
       });
   }
-  public getUnlockMessage(
+  public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.account.getUnlockMessage(languageCode).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.account
+      .getLinkAccountMessage(languageCode)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<

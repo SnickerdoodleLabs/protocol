@@ -110,7 +110,7 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
     (providerObj: IProvider) => {
       // setSelectedProviderKey(providerObj.key);
       return providerObj.provider.connect().andThen((account) => {
-        return sdlDataWallet.getUnlockMessage().andThen((message) => {
+        return sdlDataWallet.getLinkAccountMessage().andThen((message) => {
           return providerObj.provider
             .getSignature(message)
             .andThen((signature) => {

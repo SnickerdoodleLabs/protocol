@@ -202,7 +202,7 @@ export class SnickerdoodleWebIntegration
   ): ResultAsync<void, ProxyError | PersistenceError | ProviderRpcError> {
     logUtils.log("Unlocking Snickerdoodle Data Wallet via signature");
     return proxy
-      .getUnlockMessage()
+      .getLinkAccountMessage()
       .andThen((unlockMessage) => {
         return ResultUtils.combine([
           blockchainProvider.getSignature(unlockMessage),
@@ -262,7 +262,7 @@ export class SnickerdoodleWebIntegration
       );
 
       return proxy
-        .getUnlockMessage()
+        .getLinkAccountMessage()
         .andThen((unlockMessage) => {
           return blockchainProvider.getSignature(unlockMessage);
         })

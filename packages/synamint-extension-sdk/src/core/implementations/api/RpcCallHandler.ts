@@ -187,7 +187,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     new CoreActionHandler<GetUnlockMessageParams>(
       GetUnlockMessageParams.getCoreAction(),
       (params) => {
-        return this.accountService.getUnlockMessage(params.languageCode);
+        return this.accountService.getLinkAccountMessage(params.languageCode);
       },
     ),
     new CoreActionHandler<GetEarnedRewardsParams>(
