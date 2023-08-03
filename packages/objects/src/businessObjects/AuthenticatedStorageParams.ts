@@ -10,7 +10,7 @@ export class AuthenticatedStorageParams {
     protected storageType: ECloudStorageType,
     protected dropboxAppKey: string | undefined,
     protected dropboxAppSecret: string | undefined,
-    protected dropboxRedirect: string | undefined,
+    protected dropboxRedirect: string | undefined, // protected accessToken: string | undefined, // protected refreshToken: string | undefined, // protected path: string | undefined,
   ) {
     this.dropboxKey = dropboxAppKey;
     this.dropboxSecret = dropboxAppSecret;

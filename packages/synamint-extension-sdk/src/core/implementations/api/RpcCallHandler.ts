@@ -15,6 +15,7 @@ import {
   URLString,
   ISnickerdoodleCoreType,
   ISnickerdoodleCore,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -145,6 +146,9 @@ import {
   GetQueryStatusByCidParams,
   GetDropBoxAuthUrlParams,
   AuthenticateDropboxParams,
+  ActivateAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentStorageOptionParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -797,6 +801,37 @@ export class RpcCallHandler implements IRpcCallHandler {
       AuthenticateDropboxParams.getCoreAction(),
       (params) => {
         return this.core.authenticateDropbox(params.code);
+      },
+    ),
+
+    new CoreActionHandler<ActivateAuthenticatedStorageParams>(
+      ActivateAuthenticatedStorageParams.getCoreAction(),
+      (params) => {
+        return this.core.activateAuthenticatedStorage(
+          params.storageType,
+          params.path,
+          params.accessToken,
+        );
+      },
+    ),
+
+    /* TODO functions: 
+      Okan - returning current storage function AND returning available storage ones
+    */
+    new CoreActionHandler<GetAvailableCloudStorageOptionsParams>(
+      GetAvailableCloudStorageOptionsParams.getCoreAction(),
+      (_params) => {
+        // @TODO call core function
+        // return okAsync([ECloudStorageType.Dropbox]);
+        return this.core.getAvailableCloudStorage();
+      },
+    ),
+
+    new CoreActionHandler<GetCurrentStorageOptionParams>(
+      GetCurrentStorageOptionParams.getCoreAction(),
+      (_params) => {
+        // @TODO call core function
+        return this.core.getCurrentCloudStorage();
       },
     ),
     // #endregion

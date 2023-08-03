@@ -46,6 +46,7 @@ import {
   JsonWebToken,
   QueryStatus,
   AccessToken,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -131,6 +132,9 @@ import {
   GetQueryStatusByCidParams,
   GetDropBoxAuthUrlParams,
   AuthenticateDropboxParams,
+  ActivateAuthenticatedStorageParams,
+  GetAvailableCloudStorageOptionsParams,
+  GetCurrentStorageOptionParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -512,5 +516,22 @@ export class ExternalCoreGateway {
     params: AuthenticateDropboxParams,
   ): ResultAsync<AccessToken, ProxyError> {
     return this._handler.call(params);
+  }
+
+  public activateAuthenticatedStorage(
+    params: ActivateAuthenticatedStorageParams,
+  ): ResultAsync<void, ProxyError> {
+    return this._handler.call(params);
+  }
+
+  public getCurrentStorageOption(): ResultAsync<ECloudStorageType, ProxyError> {
+    return this._handler.call(new GetCurrentStorageOptionParams());
+  }
+
+  public getAvailableCloudStorageOptions(): ResultAsync<
+    Set<ECloudStorageType>,
+    ProxyError
+  > {
+    return this._handler.call(new GetAvailableCloudStorageOptionsParams());
   }
 }

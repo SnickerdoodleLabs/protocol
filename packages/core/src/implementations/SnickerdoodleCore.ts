@@ -289,63 +289,72 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const cloudManager = this.iocContainer.get<ICloudStorageManager>(
           ICloudStorageManagerType,
         );
+
+        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+          ICloudStorageServiceType,
+        );
+
         console.log("Inside Unlock function for core - BEFORE CONFIG");
 
         const configProvider =
           this.iocContainer.get<IConfigProvider>(IConfigProviderType);
         console.log("Inside Unlock function for core - AFTER CONFIG");
 
-        // return configProvider.getConfig().andThen((config) => {
-        //   // Passing in params via config
-        //   console.log("Inside Unlock function for core - Create params start");
+        return configProvider.getConfig().andThen((config) => {
+          // Passing in params via config
+          console.log("Inside Unlock function for core - Create params start");
 
-        //   const cloudStorageParams = new AuthenticatedStorageParams(
-        //     ECloudStorageType.Dropbox,
-        //     config.dropboxAppKey,
-        //     config.dropboxAppSecret,
-        //     "https://localhost:9005/settings/storage",
-        //   );
-        console.log("Inside Unlock function for core - Create params end");
+          const cloudStorageParams = new AuthenticatedStorageParams(
+            ECloudStorageType.Snickerdoodle,
+            config.dropboxAppKey,
+            config.dropboxAppSecret,
+            "https://localhost:9005/settings/storage",
+          );
+          console.log("Inside Unlock function for core - Create params end");
 
-        // BlockchainProvider needs to be ready to go in order to do the unlock
-        return ResultUtils.combine([
-          blockchainProvider.initialize(),
-          indexers.initialize(),
-          // cloudManager.activateAuthenticatedStorage(cloudStorageParams),
-        ])
+          // BlockchainProvider needs to be ready to go in order to do the unlock
+          return ResultUtils.combine([
+            blockchainProvider.initialize(),
+            indexers.initialize(),
+            cloudManager.activateAuthenticatedStorage(
+              ECloudStorageType.Snickerdoodle,
+              "",
+              AccessToken(""),
+            ),
+          ])
 
-          .andThen(() => {
-            console.log("cloudManager activateAuthenticatedStorage");
+            .andThen(() => {
+              console.log("cloudManager activateAuthenticatedStorage");
 
-            return accountService.unlock(
-              accountAddress,
-              signature,
-              languageCode,
-              chain,
-            );
-          })
-          .andThen(() => {
-            console.log("accountService unlock");
+              return accountService.unlock(
+                accountAddress,
+                signature,
+                languageCode,
+                chain,
+              );
+            })
+            .andThen(() => {
+              console.log("accountService unlock");
 
-            // Service Layer
-            return ResultUtils.combine([
-              queryService.initialize(),
-              metricsService.initialize(),
-            ]);
-          })
-          .andThen(() => {
-            console.log("queryService initialize");
+              // Service Layer
+              return ResultUtils.combine([
+                queryService.initialize(),
+                metricsService.initialize(),
+              ]);
+            })
+            .andThen(() => {
+              console.log("queryService initialize");
 
-            // API Layer
-            return ResultUtils.combine([
-              accountIndexerPoller.initialize(),
-              blockchainListener.initialize(),
-              socialPoller.initialize(),
-              heartbeatGenerator.initialize(),
-            ]);
-          })
-          .map(() => {});
-        // });
+              // API Layer
+              return ResultUtils.combine([
+                accountIndexerPoller.initialize(),
+                blockchainListener.initialize(),
+                socialPoller.initialize(),
+                heartbeatGenerator.initialize(),
+              ]);
+            })
+            .map(() => {});
+        });
       },
 
       addAccount: (
@@ -451,44 +460,48 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           ICloudStorageManagerType,
         );
 
-        // const configProvider =
-        //   this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-        // return configProvider.getConfig().andThen((config) => {
-        //   // Passing in params via config
-        //   const cloudStorageParams = new AuthenticatedStorageParams(
-        //     ECloudStorageType.Snickerdoodle,
-        //     config.dropboxAppKey,
-        //     config.dropboxAppSecret,
-        //     "https://localhost:9005/settings/storage",
-        //   );
+        const configProvider =
+          this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+        return configProvider.getConfig().andThen((config) => {
+          // Passing in params via config
+          const cloudStorageParams = new AuthenticatedStorageParams(
+            ECloudStorageType.Snickerdoodle,
+            config.dropboxAppKey,
+            config.dropboxAppSecret,
+            "https://localhost:9005/settings/storage",
+          );
 
-        // BlockchainProvider needs to be ready to go in order to do the unlock
-        return ResultUtils.combine([
-          blockchainProvider.initialize(),
-          indexers.initialize(),
-          // cloudManager.activateAuthenticatedStorage(cloudStorageParams),
-        ])
-          .andThen(() => {
-            return accountService.unlockWithPassword(password);
-          })
-          .andThen(() => {
-            // Service Layer
-            return ResultUtils.combine([
-              queryService.initialize(),
-              metricsService.initialize(),
-            ]);
-          })
-          .andThen(() => {
-            // API Layer
-            return ResultUtils.combine([
-              accountIndexerPoller.initialize(),
-              blockchainListener.initialize(),
-              socialPoller.initialize(),
-              heartbeatGenerator.initialize(),
-            ]);
-          })
-          .map(() => {});
-        // });
+          // BlockchainProvider needs to be ready to go in order to do the unlock
+          return ResultUtils.combine([
+            blockchainProvider.initialize(),
+            indexers.initialize(),
+            cloudManager.activateAuthenticatedStorage(
+              ECloudStorageType.Snickerdoodle,
+              "",
+              AccessToken(""),
+            ),
+          ])
+            .andThen(() => {
+              return accountService.unlockWithPassword(password);
+            })
+            .andThen(() => {
+              // Service Layer
+              return ResultUtils.combine([
+                queryService.initialize(),
+                metricsService.initialize(),
+              ]);
+            })
+            .andThen(() => {
+              // API Layer
+              return ResultUtils.combine([
+                accountIndexerPoller.initialize(),
+                blockchainListener.initialize(),
+                socialPoller.initialize(),
+                heartbeatGenerator.initialize(),
+              ]);
+            })
+            .map(() => {});
+        });
       },
 
       addPassword: (
@@ -811,12 +824,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
   }
 
-  public getCloudStorage(): ResultAsync<ICloudStorage, never> {
+  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never> {
     const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
       ICloudStorageManagerType,
     );
 
-    return cloudStorageManager.getCloudStorage();
+    return cloudStorageManager.getCurrentCloudStorage();
+  }
+
+  getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never> {
+    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
+      ICloudStorageManagerType,
+    );
+
+    return cloudStorageManager.getAvailableCloudStorage();
   }
 
   public getDropboxAuth(): ResultAsync<URLString, never> {
@@ -838,13 +859,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public activateAuthenticatedStorage(
-    cloudStorageParams: AuthenticatedStorageParams,
+    type: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
   ): ResultAsync<void, PersistenceError> {
     const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
       ICloudStorageManagerType,
     );
 
-    return cloudStorageManager.activateAuthenticatedStorage(cloudStorageParams);
+    return cloudStorageManager.activateAuthenticatedStorage(
+      type,
+      path,
+      accessToken,
+    );
   }
 
   public getConsentCapacity(

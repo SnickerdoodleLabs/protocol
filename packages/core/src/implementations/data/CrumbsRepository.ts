@@ -65,7 +65,7 @@ export class CrumbsRepository implements ICrumbsRepository {
     return this.getCrumbsContract().andThen((contract) => {
       // Retrieve the crumb id or token id mapped to the address
       // returns 0 if non existent
-      console.log("getCrumb contract: " + JSON.stringify(contract));
+      console.log("getCrumb contract: " + contract);
 
       return contract.addressToCrumbId(accountAddress).andThen((tokenId) => {
         console.log("getCrumb tokenId: " + tokenId);

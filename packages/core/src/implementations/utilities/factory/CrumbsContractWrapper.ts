@@ -23,7 +23,8 @@ import { IContextProvider } from "@core/interfaces/utilities/index.js";
  */
 export class CrumbsContractWrapper
   extends BaseContractWrapper<ICrumbsContract>
-  implements ICrumbsContract {
+  implements ICrumbsContract
+{
   public constructor(
     primary: ICrumbsContract,
     secondary: ICrumbsContract | null,

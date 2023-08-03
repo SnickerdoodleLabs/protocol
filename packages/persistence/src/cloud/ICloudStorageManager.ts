@@ -9,7 +9,9 @@
 //     ECloudStorageType,
 // } from "@snickerdoodlelabs/objects";
 import {
+  AccessToken,
   AuthenticatedStorageParams,
+  ECloudStorageType,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -20,11 +22,16 @@ export interface ICloudStorageManager {
   getDropboxAuth(): ResultAsync<URLString, never>;
 
   activateAuthenticatedStorage(
-    cloudStorageParams: AuthenticatedStorageParams,
+    type: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
   ): ResultAsync<void, never>;
   cloudStorageActivated(): boolean;
 
   getCloudStorage(): ResultAsync<ICloudStorage, never>;
+  getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never>;
+  getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never>;
+
   // get setCloudStorageOption(
   //     authTokens,
   //     path,

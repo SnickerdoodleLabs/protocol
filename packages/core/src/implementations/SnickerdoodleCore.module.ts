@@ -125,6 +125,7 @@ import {
   QueryService,
   SiftContractService,
   TwitterService,
+  CloudStorageService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -182,6 +183,8 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICloudStorageService,
+  ICloudStorageServiceType,
   IDiscordService,
   IDiscordServiceType,
   IIntegrationService,
@@ -441,6 +444,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorageManager>(ICloudStorageManagerType)
       .to(CloudStorageManager)
+      .inSingletonScope();
+    bind<ICloudStorageService>(ICloudStorageServiceType)
+      .to(CloudStorageService)
       .inSingletonScope();
 
     // Utilities

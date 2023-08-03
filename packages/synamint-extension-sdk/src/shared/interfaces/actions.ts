@@ -50,6 +50,7 @@ import {
   JsonWebToken,
   QueryStatus,
   AccessToken,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 
 import { IExtensionConfig } from "./IExtensionConfig";
@@ -843,7 +844,11 @@ export class GetDropBoxAuthUrlParams extends CoreActionParams<URLString> {
   }
 }
 export class ActivateAuthenticatedStorageParams extends CoreActionParams<void> {
-  public constructor() {
+  public constructor(
+    public path: string,
+    public accessToken: AccessToken,
+    public storageType: ECloudStorageType,
+  ) {
     super(ActivateAuthenticatedStorageParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -857,6 +862,26 @@ export class AuthenticateDropboxParams extends CoreActionParams<AccessToken> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.AUTHENTICATE_DROPBOX;
+  }
+}
+
+export class GetAvailableCloudStorageOptionsParams extends CoreActionParams<
+  Set<ECloudStorageType>
+> {
+  public constructor() {
+    super(GetAvailableCloudStorageOptionsParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_AVAILABLE_CLOUD_STORAGE_OPTIONS;
+  }
+}
+
+export class GetCurrentStorageOptionParams extends CoreActionParams<ECloudStorageType> {
+  public constructor() {
+    super(GetCurrentStorageOptionParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_CURRENT_STORAGE_TYPE;
   }
 }
 // #endregion

@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { IRequestConfig } from "@snickerdoodlelabs/common-utils";
+import { AccessToken, ECloudStorageType } from "@snickerdoodlelabs/objects";
 import { Radio } from "@snickerdoodlelabs/shared-components";
 import { Dropbox } from "dropbox";
 import { ResultAsync, errAsync, ok, okAsync } from "neverthrow";
@@ -118,8 +119,8 @@ const StorageSettings = () => {
   const { apiGateway, appMode } = useAppContext();
   const { setLoadingStatus } = useLayoutContext();
   const { setAlert } = useNotificationContext();
-  const [accessToken, setAccessToken] = useState<string>(
-    sessionStorage.getItem("dropboxAccessToken") || "",
+  const [accessToken, setAccessToken] = useState<AccessToken>(
+    AccessToken(sessionStorage.getItem("dropboxAccessToken") || ""),
   );
 
   // dropbox folders
@@ -248,33 +249,19 @@ const StorageSettings = () => {
   // Okan passes in onFolderSelect
   // we need to pass in the path into DropboxCloudStorage as well
   const onFolderSelect = (path: string) => {
-    setFolderPath(path).map(() => {
-      // Okan we finished picking a folder, now initiate the storage type
-      const accesToken = sessionStorage.getItem("dropboxAccessToken");
-      // path
-
-      // set another cloud storage
-      // const dbcloudstorage = DropboxCloudStorage();
-
-      setAlert({
-        severity: EAlertSeverity.SUCCESS,
-        message: "Your Dropbox account has successfully been connected.",
+    window.sdlDataWallet
+      // @ts-ignore
+      .activateAuthenticatedStorage(
+        path,
+        accessToken,
+        ECloudStorageType.Dropbox,
+      )
+      .map(() => {
+        // Okan we finished picking a folder, now initiate the storage type
+        // Trigger event - CloudStorageManager.setCloudStorageOption
+        // Which triggers event onCloudStorageActivated to begin cloud storage
+        // setStorageOption(EStorage.DROPBOX);
       });
-      sessionStorage.removeItem("dropboxAccessToken");
-
-      // new method in core now
-
-      // activateAuthenticatedStorage();
-      // - takes the cloudStorage Params, what kind it is, the access token, etc.
-
-      // added File Path to use for DropboxCloudStorage
-      // sessionStorage.setItem("dropboxFilePath", filePath);
-
-      // Trigger event - CloudStorageManager.setCloudStorageOption
-      // Which triggers event onCloudStorageActivated to begin cloud storage
-
-      setStorageOption(EStorage.DROPBOX);
-    });
 
     setFolders(undefined);
   };

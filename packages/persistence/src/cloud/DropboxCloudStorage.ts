@@ -75,6 +75,7 @@ export class DropboxCloudStorage implements ICloudStorage {
     protected ajaxUtils: AxiosAjaxUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
+    console.log("Dropbox is Called in init!");
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
@@ -96,6 +97,8 @@ export class DropboxCloudStorage implements ICloudStorage {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
+    console.log("Dropbox is Called in unlock!");
+
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
@@ -180,6 +183,7 @@ export class DropboxCloudStorage implements ICloudStorage {
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    console.log("Dropbox is Called in pollbackups!");
     return okAsync([]);
     // return this.getWalletListing()
     //   .andThen((files) => {

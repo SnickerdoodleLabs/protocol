@@ -4,7 +4,7 @@ import {
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import { AccessToken, AjaxError, URLString } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { ICloudStorageService } from "@core/interfaces/business";
@@ -18,6 +18,7 @@ enum ECloudStorageOption {
   NullCloudStorage = "NullCloudStorage",
 }
 
+@injectable()
 export class CloudStorageService implements ICloudStorageService {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,

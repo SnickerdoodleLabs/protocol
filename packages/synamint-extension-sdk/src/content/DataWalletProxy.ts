@@ -52,6 +52,7 @@ import {
   JsonWebToken,
   QueryStatus,
   AccessToken,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -98,6 +99,7 @@ import {
   SwitchToTabParams,
   GetQueryStatusByCidParams,
   AuthenticateDropboxParams,
+  ActivateAuthenticatedStorageParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -577,7 +579,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       new GetPossibleRewardsParams(contractAddresses, timeoutMs),
     );
   }
-
+  // @TODO below functions are not added to ISDLDataWallet interface and iframe
   public getDropboxAuthUrl(): ResultAsync<URLString, ProxyError> {
     return coreGateway.getDropboxAuthUrl();
   }
@@ -586,6 +588,27 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     code: string,
   ): ResultAsync<AccessToken, ProxyError> {
     return coreGateway.authenticateDropbox(new AuthenticateDropboxParams(code));
+  }
+
+  public activateAuthenticatedStorage(
+    path: string,
+    accessToken: AccessToken,
+    storageType: ECloudStorageType,
+  ): ResultAsync<void, ProxyError> {
+    return coreGateway.activateAuthenticatedStorage(
+      new ActivateAuthenticatedStorageParams(path, accessToken, storageType),
+    );
+  }
+
+  public getCurrentStorageOption(): ResultAsync<ECloudStorageType, ProxyError> {
+    return coreGateway.getCurrentStorageOption();
+  }
+
+  public getAvailableCloudStorageOptions(): ResultAsync<
+    Set<ECloudStorageType>,
+    ProxyError
+  > {
+    return coreGateway.getAvailableCloudStorageOptions();
   }
 }
 

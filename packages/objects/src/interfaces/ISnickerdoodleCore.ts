@@ -30,6 +30,7 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
+  AuthenticatedStorageParams,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -755,11 +756,14 @@ export interface IMetricsMethods {
 }
 
 export interface ISnickerdoodleCore {
-  // activateAuthenticatedStorage(
-  //   authenticatedStorageParams: AuthenticatedStorageParams,
-  // ): ResultAsync<void, PersistenceError>;
+  activateAuthenticatedStorage(
+    type: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
+  ): ResultAsync<void, PersistenceError>;
 
-  // getCloudStorage(): ResultAsync<ICloudStorage, never>;
+  getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never>;
+  getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never>;
 
   getDropboxAuth(): ResultAsync<URLString, never>;
 

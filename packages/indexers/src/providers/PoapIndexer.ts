@@ -147,15 +147,22 @@ export class PoapRepository implements IEVMIndexer {
           new URL(result.url!),
           result,
         )
-        .andThen((result) => {
+        .map((result) => {
           if (result.status !== undefined) {
             this.health.set(EChain.Gnosis, EComponentStatus.Available);
-            return okAsync(this.health);
+            return this.health;
           }
           this.health.set(EChain.Gnosis, EComponentStatus.Error);
-          return okAsync(this.health);
+          return this.health;
         });
+      // .orElse((e) => {
+      //   this.health.set(EChain.Gnosis, EComponentStatus.Error);
+      //   return this.health;
+      // });
     });
+    // .map((efa) => {
+    //   return efa;
+    // });
   }
 
   public healthStatus(): Map<EChain, EComponentStatus> {

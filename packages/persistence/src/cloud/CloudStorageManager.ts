@@ -42,6 +42,7 @@ export class CloudStorageManager implements ICloudStorageManager {
   protected initializeResult: ResultAsync<ICloudStorage, never>;
   protected resolveProvider: null | ((provider: ICloudStorage) => void) = null;
   protected activated = false;
+  protected storageList: Set<ECloudStorageType>;
 
   // check currentStorageOption from local storage if there is no value then it can return NullCloudStorage
   // then initiate the cloud storage
@@ -56,6 +57,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
   ) {
+    this.storageList = new Set();
     console.log("Cloud Manager initialize called!");
     this.initializeResult = ResultAsync.fromSafePromise(
       new Promise((resolve) => {
@@ -64,7 +66,7 @@ export class CloudStorageManager implements ICloudStorageManager {
     );
     console.log(
       "Cloud Manager initialize called: this.initializeResult: " +
-        this.initializeResult,
+        JSON.stringify(this.initializeResult),
     );
   }
 
@@ -78,7 +80,7 @@ export class CloudStorageManager implements ICloudStorageManager {
         URLString(
           "https://www.dropbox.com/oauth2/authorize?client_id=" +
             config.dropboxAppKey +
-            " &response_type=code&redirect_uri=" +
+            "&response_type=code&redirect_uri=" +
             // config.dropboxRedirectUri,
             "https://localhost:9005/settings/storage",
         ),
@@ -86,59 +88,39 @@ export class CloudStorageManager implements ICloudStorageManager {
     });
   }
 
-  // public authenticateDropbox(): ResultAsync<AccessToken, never> {
-  //   // pass in code
-  //   return this.ajaxUtils
-  //     .post<{ access_token: string }>(
-  //       new URL("https://api.dropbox.com/oauth2/token"),
-  //       new URLSearchParams({
-  //         client_id: this.configProvider.dropboxAppKey,
-  //         client_secret: this.configProvider.dropboxAppSecret,
-  //         redirect_uri: "https://localhost:9005/settings/storage",
-  //         grant_type: "authorization_code",
-  //         code: code,
-  //       }),
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/x-www-form-urlencoded",
-  //           accept: "*/*",
-  //         },
-  //       } as IRequestConfig,
-  //     )
-  //     .map((tokens) => {
-  //       console.log("Tokens are : " + JSON.stringify(tokens));
-
-  //       //do some extra stuff here and return the access token
-  //       return tokens.access_token;
-  //     });
-  // }
-
   /* 
     Initializing our CloudStorageManager
     Here we look at the CloudStorageParams passed in from the configs and build scripts. 
   */
   public activateAuthenticatedStorage(
-    cloudStorageParams: AuthenticatedStorageParams,
+    type: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
   ): ResultAsync<void, never> {
     console.log("Cloud Manager activateAuthenticatedStorage called!");
     return this.contextProvider.getContext().map((context) => {
-      console.log(
-        "Look into the contents of cloudStorageParams: " +
-          JSON.stringify(cloudStorageParams),
-      );
+      console.log("Look into the contents of cloudStorageParams: ");
+      console.log("type: " + type);
+      console.log("path: " + path);
+      console.log("accessToken: " + accessToken);
 
-      if (cloudStorageParams.type == ECloudStorageType.Dropbox) {
+      if (type == ECloudStorageType.Dropbox) {
         this.provider = this.dropbox;
-      } else if (cloudStorageParams.type == ECloudStorageType.Snickerdoodle) {
+      } else if (type == ECloudStorageType.Snickerdoodle) {
         this.provider = this.gDrive;
       } else {
         // return errAsync, this means you have invalid params, OR just use NullStorage
       }
       this.resolveProvider!(this.provider);
       this.activated = true;
-      context.publicEvents.onCloudStorageActivated.next(
-        new CloudProviderSelectedEvent(ECloudStorageType.Snickerdoodle),
-      );
+
+      if (!this.storageList.has(type)) {
+        this.storageList.add(type);
+      }
+
+      // context.publicEvents.onCloudStorageActivated.next(
+      //   new CloudProviderSelectedEvent(ECloudStorageType.Snickerdoodle),
+      // );
       console.log("Cloud Manager event called!");
     });
   }
@@ -148,8 +130,23 @@ export class CloudStorageManager implements ICloudStorageManager {
   // public getCloudStorage(): ResultAsync<void, never> {}
   public getCloudStorage(): ResultAsync<ICloudStorage, never> {
     console.log("Inside get Cloud Storage: ");
-    console.log("this.initializeResult: " + this.initializeResult);
+    console.log(
+      "this.initializeResult: " + JSON.stringify(this.initializeResult),
+    );
 
     return this.initializeResult;
+  }
+
+  public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never> {
+    console.log("getCurrentCloudStorage: ");
+    return okAsync(this.provider.name());
+  }
+
+  public getAvailableCloudStorage(): ResultAsync<
+    Set<ECloudStorageType>,
+    never
+  > {
+    console.log("getAvailableCloudStorage: ");
+    return okAsync(this.storageList);
   }
 }
