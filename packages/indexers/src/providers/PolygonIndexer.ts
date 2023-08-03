@@ -12,7 +12,7 @@ import {
   EVMTransaction,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   EChain,
   BigNumberString,
   EVMContractAddress,
@@ -73,10 +73,7 @@ export class PolygonIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AccountIndexingError | AjaxError
-  > {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return okAsync([]);
     // return this._getAlchemyClient(chainId).andThen((alchemy) => {
     //   return ResultUtils.combine([
@@ -107,7 +104,7 @@ export class PolygonIndexer implements IEVMIndexer {
     //             }
 
     //             return okAsync(
-    //               new TokenBalanceWithOwnerAddress(
+    //               new TokenBalance(
     //                 EChainTechnology.EVM,
     //                 TickerSymbol(metadata.symbol),
     //                 chainId,
@@ -121,7 +118,7 @@ export class PolygonIndexer implements IEVMIndexer {
     //             );
     //           });
     //         }),
-    //       ).map((arr) => arr.filter((x) => x != null) as TokenBalanceWithOwnerAddress[]);
+    //       ).map((arr) => arr.filter((x) => x != null) as TokenBalance[]);
     //     }),
     //     ResultAsync.fromPromise(
     //       alchemy.core.getBalance(accountAddress),
@@ -130,7 +127,7 @@ export class PolygonIndexer implements IEVMIndexer {
     //     ),
     //   ]).andThen(([tokenBalances, nativeBalance]) => {
     //     tokenBalances.push(
-    //       new TokenBalanceWithOwnerAddress(
+    //       new TokenBalance(
     //         EChainTechnology.EVM,
     //         TickerSymbol("MATIC"),
     //         chainId,

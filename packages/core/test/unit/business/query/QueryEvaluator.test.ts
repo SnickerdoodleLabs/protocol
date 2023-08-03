@@ -150,41 +150,6 @@ class QueryEvaluatorMocks {
     },
   ];
 
-  public accountBalances = new Array<TokenBalance>(
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMAccountAddress("GOOD1"),
-      BigNumberString("18"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMAccountAddress("GOOD2"),
-      BigNumberString("25"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("BLAH"),
-      ChainId(901398),
-      EVMAccountAddress("BAD"),
-      BigNumberString("26"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMAccountAddress("GOOD3"),
-      BigNumberString("36"),
-      18,
-    ),
-  );
-
   public transactionsFlow = new Array<TransactionPaymentCounter>();
   // {
   //   chainId: ChainId(1),

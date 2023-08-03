@@ -42,7 +42,6 @@ export * from "@objects/businessObjects/StatSummary.js";
 export * from "@objects/businessObjects/TokenAddress.js";
 export * from "@objects/businessObjects/TokenAndSecret.js";
 export * from "@objects/businessObjects/TokenBalance.js";
-export * from "@objects/businessObjects/TokenBalanceWithOwnerAddress.js";
 export * from "@objects/businessObjects/TokenMarketData.js";
 export * from "@objects/businessObjects/TransactionFilter.js";
 export * from "@objects/businessObjects/TransactionPaymentCounter.js";

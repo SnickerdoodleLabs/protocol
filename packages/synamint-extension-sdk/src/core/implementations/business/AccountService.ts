@@ -7,7 +7,7 @@ import {
   LanguageCode,
   LinkedAccount,
   Signature,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
@@ -45,7 +45,7 @@ export class AccountService implements IAccountService {
   }
 
   public getAccountBalances(): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();

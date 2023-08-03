@@ -13,7 +13,7 @@ import {
   EVMTransactionHash,
   IEVMIndexer,
   TickerSymbol,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   TokenUri,
   UnixTimestamp,
   EChain,
@@ -55,11 +55,11 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalanceWithOwnerAddress[], AccountIndexingError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
-    const result: TokenBalanceWithOwnerAddress[] = [];
+    const result: TokenBalance[] = [];
     for (let i = 0; i < num; i++) {
-      const item = new TokenBalanceWithOwnerAddress(
+      const item = new TokenBalance(
         EChainTechnology.EVM,
         TickerSymbol((Math.random() + 1).toString(36).substring(5)),
         chainId,
@@ -69,9 +69,9 @@ export class SimulatorEVMTransactionRepository implements IEVMIndexer {
               Math.floor(Math.random() * 4),
             ),
         ),
+        accountAddress,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         18,
-        accountAddress,
       );
       result.push(item);
     }

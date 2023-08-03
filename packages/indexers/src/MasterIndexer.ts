@@ -28,7 +28,7 @@ import {
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   UnixTimestamp,
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
@@ -148,7 +148,7 @@ export class MasterIndexer implements IMasterIndexer {
     chainId: ChainId,
     accountAddress: AccountAddress,
   ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
+    TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError
   > {
     const chain = getChainInfoByChainId(chainId).chain;

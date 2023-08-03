@@ -11,7 +11,7 @@ import {
   AccountIndexingError,
   AjaxError,
   ChainId,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   BigNumberString,
   EVMAccountAddress,
   EVMContractAddress,
@@ -108,10 +108,7 @@ export class AnkrIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AccountIndexingError | AjaxError
-  > {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
@@ -140,14 +137,14 @@ export class AnkrIndexer implements IEVMIndexer {
           return ResultUtils.combine(
             response.result.assets.map((item) => {
               return okAsync(
-                new TokenBalanceWithOwnerAddress(
+                new TokenBalance(
                   EChainTechnology.EVM,
                   item.tokenSymbol,
                   chainId,
-                  `Native`,
+                  `0x0`,
+                  accountAddress,
                   BigNumberString("1"),
                   item.tokenDecimals,
-                  accountAddress,
                 ),
               );
             }),
@@ -351,7 +348,7 @@ interface IAnkrBalanceAsset {
   tokenDecimals: number;
   tokenType: "NATIVE";
   holderAddress: EVMAccountAddress;
-  balance: TokenBalanceWithOwnerAddress;
+  balance: TokenBalance;
   balanceRawInteger: "627238654657922210";
   balanceUsd: "1132.318127155933293695";
   tokenPrice: "1805.242898771069514074";

@@ -10,7 +10,7 @@ import {
   AccountIndexingError,
   AjaxError,
   ChainId,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   BigNumberString,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
@@ -109,10 +109,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AccountIndexingError | AjaxError
-  > {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.getNonNativeBalance(chain, accountAddress),
       this.getNativeBalance(chain, accountAddress),
@@ -266,10 +263,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   private getNativeBalance(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress,
-    AccountIndexingError | AjaxError
-  > {
+  ): ResultAsync<TokenBalance, AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.retrieveAlchemyUrl(chain),
       this.contextProvider.getContext(),
@@ -286,14 +280,14 @@ export class AlchemyIndexer implements IEVMIndexer {
         })
         .andThen((response) => {
           const weiValue = Web3.utils.hexToNumberString(response.result);
-          const balance = new TokenBalanceWithOwnerAddress(
+          const balance = new TokenBalance(
             EChainTechnology.EVM,
             nativeTickerSymbol,
             nativeChain,
-            `Native`,
+            "0x0",
+            accountAddress,
             BigNumberString(weiValue),
             getChainInfoByChain(chain).nativeCurrency.decimals,
-            accountAddress,
           );
           return okAsync(balance);
         });
@@ -303,10 +297,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   private getNonNativeBalance(
     chain: EChain,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AccountIndexingError | AjaxError
-  > {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     if (!this._alchemyNonNativeSupport.get(chain)) {
       return okAsync([]);
     }
@@ -346,23 +337,21 @@ export class AlchemyIndexer implements IEVMIndexer {
                   }
 
                   return okAsync(
-                    new TokenBalanceWithOwnerAddress(
+                    new TokenBalance(
                       EChainTechnology.EVM,
                       TickerSymbol(tokenInfo.symbol),
                       getChainInfoByChain(chain).chainId,
                       entry.contractAddress,
+                      accountAddress,
                       BigNumberString(weiValue),
                       getChainInfoByChain(chain).nativeCurrency.decimals,
-                      accountAddress,
                     ),
                   );
                 });
             }),
           ).andThen((balances) => {
             return okAsync(
-              balances.filter(
-                (x) => x != undefined,
-              ) as TokenBalanceWithOwnerAddress[],
+              balances.filter((x) => x != undefined) as TokenBalance[],
             );
           });
         });

@@ -144,9 +144,9 @@ class QueryParsingMocks {
     td.when(this.transactionRepo.getTransactionByChain()).thenReturn(
       okAsync(new Array<TransactionPaymentCounter>()),
     );
-    td.when(this.balanceRepo.getAccountBalancesWithOwnerAddress()).thenReturn(
-      okAsync([]),
-    );
+    td.when(
+      this.balanceRepo.getAccountBalancesWithoutOwnerAddress(),
+    ).thenReturn(okAsync([]));
     td.when(this.balanceRepo.getAccountNFTs(chainIds)).thenReturn(okAsync([]));
 
     this.queryEvaluator = new QueryEvaluator(

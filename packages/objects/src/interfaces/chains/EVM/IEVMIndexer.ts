@@ -3,7 +3,7 @@ import { ResultAsync } from "neverthrow";
 import {
   EVMNFT,
   EVMTransaction,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
 } from "@objects/businessObjects/index.js";
 import {
   AccountIndexingError,
@@ -18,7 +18,7 @@ export interface IEVMIndexer extends IIndexer {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
+    TokenBalance[],
     AccountIndexingError | AjaxError | MethodSupportError
   >;
   getTokensForAccount(

@@ -3,7 +3,7 @@ import { ResultAsync } from "neverthrow";
 import {
   SolanaNFT,
   SolanaTransaction,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
 } from "@objects/businessObjects/index.js";
 import { AccountIndexingError, AjaxError } from "@objects/errors/index.js";
 import { IIndexer } from "@objects/interfaces/chains/IIndexer.js";
@@ -13,10 +13,7 @@ export interface ISolanaIndexer extends IIndexer {
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AccountIndexingError | AjaxError
-  >;
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError>;
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,

@@ -2,7 +2,7 @@ import { Box, IconButton, Modal } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import {
   EVMAccountAddress,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
@@ -15,7 +15,7 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
-  [id: EVMAccountAddress]: TokenBalanceWithOwnerAddress[];
+  [id: EVMAccountAddress]: TokenBalance[];
 }
 export interface IAccountNFTsObject {
   [id: EVMAccountAddress]: WalletNFT[];

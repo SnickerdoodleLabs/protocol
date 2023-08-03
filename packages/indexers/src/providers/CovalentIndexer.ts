@@ -15,7 +15,7 @@ import {
   TickerSymbol,
   EVMContractAddress,
   EVMTransactionHash,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   EChainTechnology,
   IEVMIndexer,
   EVMNFT,
@@ -76,7 +76,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<TokenBalanceWithOwnerAddress[], AccountIndexingError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     return this.generateQueryConfig(
       chainId,
       this.ENDPOINT_BALANCES,
@@ -91,14 +91,14 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
           )
           .map((queryResult) => {
             return queryResult.data.items.map((tokenInfo) => {
-              return new TokenBalanceWithOwnerAddress(
+              return new TokenBalance(
                 EChainTechnology.EVM,
                 TickerSymbol(tokenInfo.contract_ticker_symbol),
                 chainId,
                 EVMContractAddress(tokenInfo.contract_address),
+                accountAddress,
                 BigNumberString(tokenInfo.balance),
                 tokenInfo.contract_decimals,
-                accountAddress,
               );
             });
           });

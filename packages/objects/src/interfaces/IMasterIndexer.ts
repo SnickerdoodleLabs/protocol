@@ -2,7 +2,7 @@ import { ResultAsync } from "neverthrow";
 
 import {
   ChainTransaction,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   WalletNFT,
 } from "@objects/businessObjects/index.js";
 import {
@@ -23,7 +23,7 @@ export interface IMasterIndexer {
     chainId: ChainId,
     accountAddress: AccountAddress,
   ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
+    TokenBalance[],
     PersistenceError | AccountIndexingError | AjaxError | MethodSupportError
   >;
   getLatestNFTs(

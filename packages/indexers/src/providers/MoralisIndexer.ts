@@ -17,7 +17,7 @@ import {
   getChainInfoByChainId,
   IEVMIndexer,
   TickerSymbol,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   TokenUri,
   URLString,
   MethodSupportError,
@@ -80,10 +80,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AjaxError | AccountIndexingError
-  > {
+  ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
     return ResultUtils.combine([
       this.generateQueryConfig(chainId, accountAddress, "erc20"),
       this.generateQueryConfig(chainId, accountAddress, "balance"),
@@ -104,26 +101,26 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
         ),
       ]).map(([tokenResponse, balanceResponse]) => {
         const tokenBalances = tokenResponse.map((item) => {
-          return new TokenBalanceWithOwnerAddress(
+          return new TokenBalance(
             EChainTechnology.EVM,
             item.symbol,
             chainId,
             item.token_address,
+            accountAddress,
             item.balance,
             item.decimals,
-            accountAddress,
           );
         });
         const chainInfo = getChainInfoByChainId(chainId);
         tokenBalances.push(
-          new TokenBalanceWithOwnerAddress(
+          new TokenBalance(
             EChainTechnology.EVM,
             TickerSymbol(chainInfo.nativeCurrency.symbol),
             chainId,
-            `Native`,
+            `0x0`,
+            accountAddress,
             balanceResponse.balance,
             chainInfo.nativeCurrency.decimals,
-            accountAddress,
           ),
         );
         return tokenBalances;

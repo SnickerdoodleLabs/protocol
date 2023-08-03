@@ -14,7 +14,7 @@ import {
   SDQLQueryRequest,
   SocialProfileLinkedEvent,
   SocialProfileUnlinkedEvent,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   WalletNFT,
   DataPermissionsUpdatedEvent,
   BackupRestoreEvent,
@@ -35,9 +35,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onDataPermissionsUpdated: Subject<DataPermissionsUpdatedEvent>;
   public onTransaction: Subject<EVMTransaction>;
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
-  public onTokenBalanceUpdate: Subject<
-    PortfolioUpdate<TokenBalanceWithOwnerAddress[]>
-  >;
+  public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
   public onBackupRestored: Subject<BackupRestoreEvent>;
   public onBackupCreated: Subject<BackupCreatedEvent>;

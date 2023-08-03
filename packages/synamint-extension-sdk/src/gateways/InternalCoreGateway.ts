@@ -3,7 +3,7 @@ import {
   FamilyName,
   GivenName,
   WalletNFT,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
@@ -40,10 +40,7 @@ export class InternalCoreGateway {
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(new GetAccountsParams());
   }
-  public getAccountBalances(): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    JsonRpcError
-  > {
+  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(new GetAccountBalancesParams());
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {

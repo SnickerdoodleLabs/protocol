@@ -36,7 +36,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.balanceRepo
-      .getAccountBalances()
+      .getAccountBalancesWithoutOwnerAddress()
       .andThen((balances) => {
         if (query.networkId == null) {
           return okAsync(balances);
@@ -59,8 +59,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public evalConditions(
     query: AST_BalanceQuery,
-    balanceArray: TokenBalance[],
-  ): ResultAsync<TokenBalance[], never> {
+    balanceArray: Omit<TokenBalance, "accountAddress">[],
+  ): ResultAsync<Omit<TokenBalance, "accountAddress">[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
 
@@ -112,9 +112,12 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public combineContractValues(
     query: AST_BalanceQuery,
-    balanceArray: TokenBalance[],
-  ): ResultAsync<TokenBalance[], PersistenceError> {
-    const balanceMap = new Map<`${ChainId}-${TokenAddress}`, TokenBalance>();
+    balanceArray: Omit<TokenBalance, "accountAddress">[],
+  ): ResultAsync<Omit<TokenBalance, "accountAddress">[], PersistenceError> {
+    const balanceMap = new Map<
+      `${ChainId}-${TokenAddress}`,
+      Omit<TokenBalance, "accountAddress">
+    >();
 
     const nonZeroBalanceArray = balanceArray.filter((item) => {
       const ethValue = ethers.BigNumber.from(item.balance);
@@ -126,21 +129,19 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       const getObject = balanceMap.get(networkIdAndAddress);
 
       if (getObject) {
-        balanceMap.set(
-          networkIdAndAddress,
-          new TokenBalance(
-            getObject.type,
-            getObject.ticker,
-            getObject.chainId,
-            getObject.tokenAddress || "Native",
-            BigNumberString(
-              BigNumber.from(getObject.balance)
-                .add(BigNumber.from(d.balance))
-                .toString(),
-            ),
-            getObject.decimals,
+        const balance: Omit<TokenBalance, "accountAddress"> = {
+          type: getObject.type,
+          ticker: getObject.ticker,
+          chainId: getObject.chainId,
+          tokenAddress: getObject.tokenAddress || "0x0",
+          balance: BigNumberString(
+            BigNumber.from(getObject.balance)
+              .add(BigNumber.from(d.balance))
+              .toString(),
           ),
-        );
+          decimals: getObject.decimals,
+        };
+        balanceMap.set(networkIdAndAddress, balance);
       } else {
         balanceMap.set(networkIdAndAddress, d);
       }

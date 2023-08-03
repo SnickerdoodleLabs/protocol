@@ -275,10 +275,6 @@ export class SDQLParser {
               schema,
             ),
           );
-        } else if (schemaName === "balance") {
-          queries.push(
-            this.queryObjectFactory.toBalanceQuery(queryName, schema),
-          );
         } else {
           queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }

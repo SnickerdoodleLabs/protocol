@@ -20,7 +20,7 @@ export type SDQL_Return = Brand<
   | Array<any>
   | Map<URLString, number>
   | Map<ChainId, number>
-  | TokenBalance[]
+  | Omit<TokenBalance, "accountAddress">[]
   | ChainTransaction[]
   | NftHolding[]
   | Object

@@ -10,7 +10,7 @@ import {
   LanguageCode,
   LinkedAccount,
   Signature,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
@@ -77,7 +77,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {

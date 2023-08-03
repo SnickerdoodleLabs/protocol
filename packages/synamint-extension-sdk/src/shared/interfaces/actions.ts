@@ -20,7 +20,7 @@ import {
   TokenAddress,
   IOpenSeaMetadata,
   LinkedAccount,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   TokenMarketData,
   TokenInfo,
   WalletNFT,
@@ -515,9 +515,7 @@ export class GetAccountNFTsParams extends CoreActionParams<WalletNFT[]> {
   }
 }
 
-export class GetAccountBalancesParams extends CoreActionParams<
-  TokenBalanceWithOwnerAddress[]
-> {
+export class GetAccountBalancesParams extends CoreActionParams<TokenBalance[]> {
   public constructor() {
     super(GetAccountBalancesParams.getCoreAction());
   }

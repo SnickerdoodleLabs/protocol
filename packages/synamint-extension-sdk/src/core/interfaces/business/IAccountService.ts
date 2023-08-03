@@ -7,7 +7,7 @@ import {
   LanguageCode,
   LinkedAccount,
   Signature,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   UnauthorizedError,
   IpfsCID,
   QueryStatus,
@@ -34,10 +34,7 @@ export interface IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
-  getAccountBalances(): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    SnickerDoodleCoreError
-  >;
+  getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(

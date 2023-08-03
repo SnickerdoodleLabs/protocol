@@ -11,7 +11,7 @@ import {
   AccountIndexingError,
   AjaxError,
   ChainId,
-  TokenBalanceWithOwnerAddress,
+  TokenBalance,
   BigNumberString,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
@@ -83,10 +83,7 @@ export class OklinkIndexer implements IEVMIndexer {
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    TokenBalanceWithOwnerAddress[],
-    AccountIndexingError | AjaxError
-  > {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this._getOKXConfig(chainId),
       this.configProvider.getConfig(),
@@ -118,14 +115,14 @@ export class OklinkIndexer implements IEVMIndexer {
           );
         }
         const balances = response.data[0].tokenList.map((token) => {
-          return new TokenBalanceWithOwnerAddress(
+          return new TokenBalance(
             EChainTechnology.EVM,
             token.token,
             chainId,
             token.tokenContractAddress,
+            accountAddress,
             BigNumberString(Web3.utils.toWei(token.holdingAmount).toString()),
             18,
-            accountAddress,
           );
         });
         return okAsync(balances);
