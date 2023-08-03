@@ -51,6 +51,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   QueryStatus,
+  SocialProfileLinkedEvent,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -190,6 +191,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       ENotificationTypes.COHORT_JOINED,
       (notification: { data: EVMContractAddress }) => {
         this.events.onCohortJoined.next(notification.data);
+      },
+    );
+
+    this.on(
+      ENotificationTypes.SOCIAL_PROFILE_LINKED,
+      (notification: { data: SocialProfileLinkedEvent }) => {
+        this.events.onSocialProfileLinked.next(notification.data);
       },
     );
 
