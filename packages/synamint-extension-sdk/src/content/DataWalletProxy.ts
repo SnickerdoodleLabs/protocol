@@ -162,38 +162,34 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
 
     this.on(
       ENotificationTypes.ACCOUNT_ADDED,
-      (notification: { data: { linkedAccount: LinkedAccount } }) => {
-        this.events.onAccountAdded.next(notification.data.linkedAccount);
+      (notification: { data: LinkedAccount }) => {
+        this.events.onAccountAdded.next(notification.data);
       },
     );
     this.on(
       ENotificationTypes.WALLET_INITIALIZED,
-      (notification: { data: { dataWalletAddress: DataWalletAddress } }) => {
-        this.events.onInitialized.next(notification.data.dataWalletAddress);
+      (notification: { data: DataWalletAddress }) => {
+        this.events.onInitialized.next(notification.data);
       },
     );
     this.on(
       ENotificationTypes.ACCOUNT_REMOVED,
-      (notification: { data: { linkedAccount: LinkedAccount } }) => {
-        this.events.onAccountRemoved.next(notification.data.linkedAccount);
+      (notification: { data: LinkedAccount }) => {
+        this.events.onAccountRemoved.next(notification.data);
       },
     );
 
     this.on(
       ENotificationTypes.EARNED_REWARDS_ADDED,
-      (notification: { data: { rewards: EarnedReward[] } }) => {
-        this.events.onEarnedRewardsAdded.next(notification.data.rewards);
+      (notification: { data: EarnedReward[] }) => {
+        this.events.onEarnedRewardsAdded.next(notification.data);
       },
     );
 
     this.on(
       ENotificationTypes.COHORT_JOINED,
-      (notification: {
-        data: { consentContractAddress: EVMContractAddress };
-      }) => {
-        this.events.onCohortJoined.next(
-          notification.data.consentContractAddress,
-        );
+      (notification: { data: EVMContractAddress }) => {
+        this.events.onCohortJoined.next(notification.data);
       },
     );
 
