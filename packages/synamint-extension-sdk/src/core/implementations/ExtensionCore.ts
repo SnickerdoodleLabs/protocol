@@ -1,6 +1,6 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  AuthenticatedStorageParams,
+  AuthenticatedStorageSettings,
   EChain,
   ECloudStorageType,
   IConfigOverrides,
@@ -98,14 +98,6 @@ export class ExtensionCore {
       dropboxAppKey: config.dropboxAppKey,
       dropboxAppSecret: config.dropboxAppSecret,
     } as IConfigOverrides;
-
-    // Edit input parameters
-    const cloudStorageParams = new AuthenticatedStorageParams(
-      ECloudStorageType.Dropbox,
-      config.dropboxAppKey,
-      config.dropboxAppSecret,
-      "https://localhost:9005/settings/storage",
-    );
 
     this.core = new SnickerdoodleCore(
       coreConfig,

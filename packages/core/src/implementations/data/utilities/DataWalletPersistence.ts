@@ -23,6 +23,7 @@ import {
   EDataStorageType,
   BackupCreatedEvent,
   ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -39,8 +40,6 @@ import {
   IFieldSchemaProvider,
   IFieldSchemaProviderType,
   Serializer,
-  ICloudStorageParams,
-  ICloudStorageParamsType,
   ICloudStorageManagerType,
   ICloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
@@ -91,10 +90,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  // public getCloudStorage(): ResultAsync<ICloudStorage, never> {
-  //   return this.cloudStorageManager.getCloudStorage();
-  // }
-
   // #region Field Methods
   public getField<T>(
     fieldKey: EFieldKey,
@@ -114,12 +109,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     value: object,
   ): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
-      this.waitForFieldRestore(fieldKey),
       this.backupManagerProvider.getBackupManager(),
       Serializer.serialize(value).asyncAndThen((val) => {
         return okAsync(val);
       }),
-    ]).andThen(([_key, backupManager, serializedValue]) => {
+    ]).andThen(([backupManager, serializedValue]) => {
       return backupManager.updateField(fieldKey, serializedValue);
     });
   }
@@ -130,10 +124,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.waitForRecordRestore(recordKey).andThen(() => {
-      return this.volatileStorage.getObject<T>(recordKey, key).map((x) => {
-        return x == null ? null : x.data;
-      });
+    return this.volatileStorage.getObject<T>(recordKey, key).map((x) => {
+      return x == null ? null : x.data;
     });
   }
 
@@ -144,28 +136,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode | undefined,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
-    return this.waitForRecordRestore(recordKey).andThen(() => {
-      return this.volatileStorage.getCursor<T>(
-        recordKey,
-        indexName,
-        query,
-        direction,
-        mode,
-      );
-    });
+    return this.volatileStorage.getCursor<T>(
+      recordKey,
+      indexName,
+      query,
+      direction,
+      mode,
+    );
   }
 
   public getAll<T extends VersionedObject>(
     recordKey: ERecordKey,
     indexName?: string | undefined,
   ): ResultAsync<T[], PersistenceError> {
-    return this.waitForRecordRestore(recordKey).andThen(() => {
-      return this.volatileStorage
-        .getAll<T>(recordKey, indexName)
-        .map((values) => {
-          return values.map((x) => x.data);
-        });
-    });
+    return this.volatileStorage
+      .getAll<T>(recordKey, indexName)
+      .map((values) => {
+        return values.map((x) => x.data);
+      });
   }
 
   public getAllByIndex<T extends VersionedObject>(
@@ -174,13 +162,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
-    return this.waitForRecordRestore(recordKey).andThen(() => {
-      return this.volatileStorage
-        .getAllByIndex<T>(recordKey, indexName, query)
-        .map((values) => {
-          return values.map((x) => x.data);
-        });
-    });
+    return this.volatileStorage
+      .getAllByIndex<T>(recordKey, indexName, query)
+      .map((values) => {
+        return values.map((x) => x.data);
+      });
   }
 
   // TODO: Fix this- it should return keys, not T!
@@ -190,14 +176,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     query?: IDBValidKey | IDBKeyRange | undefined,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
-    return this.waitForRecordRestore(recordKey).andThen(() => {
-      return this.volatileStorage.getAllKeys<T>(
-        recordKey,
-        indexName,
-        query,
-        count,
-      );
-    });
+    return this.volatileStorage.getAllKeys<T>(
+      recordKey,
+      indexName,
+      query,
+      count,
+    );
   }
 
   public updateRecord<T extends VersionedObject>(
@@ -217,35 +201,32 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             new VolatileStorageMetadata<T>(value, UnixTimestamp(0)),
           )
           .andThen(() => {
-            return this.waitForRecordRestore(recordKey).andThen(() => {
-              return this.volatileStorage
-                .getKey(recordKey, value)
-                .andThen((key) => {
-                  return this.volatileStorage.getObject(recordKey, key);
-                })
-                .andThen((found) => {
-                  if (found!.lastUpdate == 0) {
-                    return backupManager.addRecord(
-                      recordKey,
-                      new VolatileStorageMetadata<T>(
-                        value,
-                        this.timeUtils.getUnixNow(),
-                      ),
-                    );
-                  }
-                  return okAsync(undefined);
-                });
-            });
+            return this.volatileStorage
+              .getKey(recordKey, value)
+              .andThen((key) => {
+                return this.volatileStorage.getObject(recordKey, key);
+              })
+              .andThen((found) => {
+                if (found!.lastUpdate == 0) {
+                  return backupManager.addRecord(
+                    recordKey,
+                    new VolatileStorageMetadata<T>(
+                      value,
+                      this.timeUtils.getUnixNow(),
+                    ),
+                  );
+                }
+                return okAsync(undefined);
+              });
           });
       }
 
       // For all other record types, we just add the record to the backup manager
-      return this.waitForRecordRestore(recordKey).andThen(() => {
-        return backupManager.addRecord(
-          recordKey,
-          new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
-        );
-      });
+
+      return backupManager.addRecord(
+        recordKey,
+        new VolatileStorageMetadata<T>(value, this.timeUtils.getUnixNow()),
+      );
     });
   }
 
@@ -262,6 +243,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
   // #endregion
 
+  // #region Initialization
   public waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
     return ResultAsync.fromSafePromise(this.unlockPromise);
   }
@@ -282,6 +264,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return new PersistenceError((error as Error).message, error);
       });
   }
+
+  public activateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    // TODO: Unblock anything waiting for cloud storage
+    // There may not be anything here to do, since cloudStorageManager.getCloudStorage()
+    // blocks waiting for this call.
+    return this.cloudStorageManager.activateAuthenticatedStorage(settings);
+  }
+
+  // #endregion
 
   // #region Backup Management Methods
   public restoreBackup(

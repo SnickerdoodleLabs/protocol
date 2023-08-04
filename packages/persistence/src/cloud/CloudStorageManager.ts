@@ -3,10 +3,10 @@ import {
   IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AuthenticatedStorageSettings,
   ECloudStorageType,
   CloudProviderSelectedEvent,
   CloudStorageError,
-  AuthenticatedStorageParams,
   URLString,
   AccessToken,
   EVMPrivateKey,
@@ -23,8 +23,7 @@ import {
   IDropboxCloudStorageType,
   IGDriveCloudStorage,
 } from "@persistence/cloud/ICloudStorage.js";
-import { ICloudStorageManager } from "@persistence/cloud/ICloudStorageManager";
-import { ICloudStorageParamsType } from "@persistence/cloud/ICloudStorageParams.js";
+import { ICloudStorageManager } from "@persistence/cloud/ICloudStorageManager.js";
 import { NullCloudStorage } from "@persistence/cloud/NullCloudStorage.js";
 import {
   IPersistenceConfigProvider,
@@ -109,18 +108,16 @@ export class CloudStorageManager implements ICloudStorageManager {
     Here we look at the CloudStorageParams passed in from the configs and build scripts. 
   */
   public activateAuthenticatedStorage(
-    type: ECloudStorageType,
-    path: string,
-    accessToken: AccessToken,
+    credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, never> {
     console.log("Cloud Manager activateAuthenticatedStorage called!");
     return this.contextProvider.getContext().map((context) => {
       console.log("Look into the contents of cloudStorageParams: ");
-      console.log("type: " + type);
-      console.log("path: " + path);
-      console.log("accessToken: " + accessToken);
+      console.log("type: " + credentials.type);
+      console.log("path: " + credentials.path);
+      console.log("accessToken: " + credentials.accessToken);
 
-      if (type == ECloudStorageType.Dropbox) {
+      if (credentials.type == ECloudStorageType.Dropbox) {
         console.log("hit dropbox: ");
         // this.dropbox.passAuthTokens(path, accessToken);
 
@@ -129,7 +126,7 @@ export class CloudStorageManager implements ICloudStorageManager {
         //   new VolatileStorageMetadata<T>(accessToken, UnixTimestamp(0)),
         // );
         this.provider = this.dropbox;
-      } else if (type == ECloudStorageType.Snickerdoodle) {
+      } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
         console.log("hit snickerdoodle: ");
         this.provider = this.gDrive;
       } else {
@@ -146,11 +143,12 @@ export class CloudStorageManager implements ICloudStorageManager {
 
       this.activated = true;
       context.publicEvents.onCloudStorageActivated.next(
-        new CloudProviderSelectedEvent(type),
+        // TODO: Change name of this object to AuthenticatedStorageActivatedEvent
+        new CloudProviderSelectedEvent(credentials.type),
       );
 
-      if (!this.storageList.has(type)) {
-        this.storageList.add(type);
+      if (!this.storageList.has(credentials.type)) {
+        this.storageList.add(credentials.type);
       }
     });
   }

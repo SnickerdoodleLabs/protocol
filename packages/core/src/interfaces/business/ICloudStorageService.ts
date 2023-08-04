@@ -3,7 +3,14 @@ import {
   IAxiosAjaxUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
-import { AccessToken, AjaxError, URLString } from "@snickerdoodlelabs/objects";
+import {
+  AccessToken,
+  AjaxError,
+  ECloudStorageType,
+  URLString,
+  AuthenticatedStorageSettings,
+  PersistenceError,
+} from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -18,6 +25,9 @@ enum ECloudStorageOption {
 }
 
 export interface ICloudStorageService {
+  setAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
   getDropboxAuth(): ResultAsync<URLString, never>;
   authenticateDropbox(code: string): ResultAsync<AccessToken, AjaxError>;
 }

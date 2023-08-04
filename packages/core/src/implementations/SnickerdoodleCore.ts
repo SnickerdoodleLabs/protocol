@@ -86,8 +86,8 @@ import {
   QueryStatus,
   BlockchainCommonErrors,
   ECloudStorageType,
-  AuthenticatedStorageParams,
   AccessToken,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -832,7 +832,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cloudStorageManager.getCurrentCloudStorage();
   }
 
-  getAvailableCloudStorage(): ResultAsync<Set<ECloudStorageType>, never> {
+  public getAvailableCloudStorage(): ResultAsync<
+    Set<ECloudStorageType>,
+    never
+  > {
     const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
       ICloudStorageManagerType,
     );
@@ -858,19 +861,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cloudStorageService.authenticateDropbox(code);
   }
 
-  public activateAuthenticatedStorage(
+  public setAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,
     accessToken: AccessToken,
   ): ResultAsync<void, PersistenceError> {
-    const cloudStorageManager = this.iocContainer.get<ICloudStorageManager>(
-      ICloudStorageManagerType,
+    const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
+      ICloudStorageServiceType,
     );
 
-    return cloudStorageManager.activateAuthenticatedStorage(
-      type,
-      path,
-      accessToken,
+    return cloudStorageService.setAuthenticatedStorage(
+      new AuthenticatedStorageSettings(type, path, accessToken),
     );
   }
 

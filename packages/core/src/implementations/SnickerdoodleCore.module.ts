@@ -160,6 +160,7 @@ import {
   SocialRepository,
   TransactionHistoryRepository,
   TwitterRepository,
+  AuthenticatedStorageRepository,
 } from "@core/implementations/data/index.js";
 import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
@@ -269,6 +270,8 @@ import {
   ITwitterRepositoryType,
   IMetricsRepository,
   IMetricsRepositoryType,
+  IAuthenticatedStorageRepository,
+  IAuthenticatedStorageRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -308,7 +311,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
-
+    bind<ICloudStorageService>(ICloudStorageServiceType)
+      .to(CloudStorageService)
+      .inSingletonScope();
     bind<IIntegrationService>(IIntegrationServiceType)
       .to(IntegrationService)
       .inSingletonScope();
@@ -350,6 +355,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryParsingEngine)
       .inSingletonScope();
 
+    bind<IAuthenticatedStorageRepository>(IAuthenticatedStorageRepositoryType)
+      .to(AuthenticatedStorageRepository)
+      .inSingletonScope();
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
       .inSingletonScope();
@@ -444,9 +452,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICloudStorageManager>(ICloudStorageManagerType)
       .to(CloudStorageManager)
-      .inSingletonScope();
-    bind<ICloudStorageService>(ICloudStorageServiceType)
-      .to(CloudStorageService)
       .inSingletonScope();
 
     // Utilities

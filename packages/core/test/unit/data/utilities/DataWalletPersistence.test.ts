@@ -30,7 +30,6 @@ import {
   IVolatileStorage,
   IVolatileStorageSchemaProvider,
   Serializer,
-  ICloudStorageParams,
   ICloudStorageManager,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
@@ -129,7 +128,6 @@ class DataWalletPersistenceMocks {
   public contextProvider: ContextProviderMock;
   public timeUtils: ITimeUtils;
   public logUtils: ILogUtils;
-  public cloudStorageParams: ICloudStorageParams;
   public cloudStoreManager: ICloudStorageManager;
 
   public constructor() {
@@ -145,7 +143,6 @@ class DataWalletPersistenceMocks {
     this.contextProvider = new ContextProviderMock();
     this.timeUtils = td.object<ITimeUtils>();
     this.logUtils = td.object<ILogUtils>();
-    this.cloudStorageParams = td.object<ICloudStorageParams>();
 
     // BackupManagerProvider -------------------------------------------
     td.when(this.backupManagerProvider.unlock(dataWalletKey)).thenReturn(

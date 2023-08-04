@@ -843,16 +843,16 @@ export class GetDropBoxAuthUrlParams extends CoreActionParams<URLString> {
     return ECoreActions.GET_DROPBOX_AUTH_URL;
   }
 }
-export class ActivateAuthenticatedStorageParams extends CoreActionParams<void> {
+export class SetAuthenticatedStorageParams extends CoreActionParams<void> {
   public constructor(
     public storageType: ECloudStorageType,
     public path: string,
     public accessToken: AccessToken,
   ) {
-    super(ActivateAuthenticatedStorageParams.getCoreAction());
+    super(SetAuthenticatedStorageParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
-    return ECoreActions.ACTIVATE_AUTHENTICATED_STORAGE;
+    return ECoreActions.SET_AUTHENTICATED_STORAGE;
   }
 }
 

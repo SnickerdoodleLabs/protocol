@@ -99,7 +99,7 @@ import {
   SwitchToTabParams,
   GetQueryStatusByCidParams,
   AuthenticateDropboxParams,
-  ActivateAuthenticatedStorageParams,
+  SetAuthenticatedStorageParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -590,13 +590,13 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     return coreGateway.authenticateDropbox(new AuthenticateDropboxParams(code));
   }
 
-  public activateAuthenticatedStorage(
+  public setAuthenticatedStorage(
     storageType: ECloudStorageType,
     path: string,
     accessToken: AccessToken,
   ): ResultAsync<void, ProxyError> {
-    return coreGateway.activateAuthenticatedStorage(
-      new ActivateAuthenticatedStorageParams(storageType, path, accessToken),
+    return coreGateway.setAuthenticatedStorage(
+      new SetAuthenticatedStorageParams(storageType, path, accessToken),
     );
   }
 

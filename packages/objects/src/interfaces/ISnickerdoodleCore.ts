@@ -30,7 +30,6 @@ import {
   WalletNFT,
   RuntimeMetrics,
   QueryStatus,
-  AuthenticatedStorageParams,
   // AuthenticatedStorageParams,
 } from "@objects/businessObjects/index.js";
 import {
@@ -139,6 +138,7 @@ export interface IAccountMethods {
    * The Form Factor must have this string signed by the user's key (via Metamask,
    * wallet connect, etc), in order to call unlock() or addAccount();
    */
+
   getUnlockMessage(
     languageCode: LanguageCode,
     sourceDomain?: DomainName | undefined,
@@ -756,7 +756,7 @@ export interface IMetricsMethods {
 }
 
 export interface ISnickerdoodleCore {
-  activateAuthenticatedStorage(
+  setAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,
     accessToken: AccessToken,

@@ -41,6 +41,10 @@ import { urlJoinP } from "url-join-ts";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 import {
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+} from "@persistence/cloud/ICloudStorageManager.js";
+import {
   IDropboxFileBackup,
   IDropboxWalletBackupDirectory,
 } from "@persistence/cloud/IDropboxBackup.js";
@@ -74,6 +78,8 @@ export class DropboxCloudStorage implements ICloudStorage {
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: AxiosAjaxUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ICloudStorageManagerType)
+    protected cloudStorageMangaer: ICloudStorageManager,
   ) {
     console.log("Dropbox is Called in init!");
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
@@ -161,6 +167,7 @@ export class DropboxCloudStorage implements ICloudStorage {
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
     console.log("Inside Dropbox putBackup");
+
     return this._configProvider
       .getConfig()
       .andThen((config) => {

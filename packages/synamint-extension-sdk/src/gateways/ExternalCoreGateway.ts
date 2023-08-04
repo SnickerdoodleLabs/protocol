@@ -132,7 +132,7 @@ import {
   GetQueryStatusByCidParams,
   GetDropBoxAuthUrlParams,
   AuthenticateDropboxParams,
-  ActivateAuthenticatedStorageParams,
+  SetAuthenticatedStorageParams,
   GetAvailableCloudStorageOptionsParams,
   GetCurrentStorageOptionParams,
 } from "@synamint-extension-sdk/shared";
@@ -518,8 +518,8 @@ export class ExternalCoreGateway {
     return this._handler.call(params);
   }
 
-  public activateAuthenticatedStorage(
-    params: ActivateAuthenticatedStorageParams,
+  public setAuthenticatedStorage(
+    params: SetAuthenticatedStorageParams,
   ): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }

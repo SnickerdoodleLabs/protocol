@@ -3,11 +3,21 @@ import {
   IAxiosAjaxUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
-import { AccessToken, AjaxError, URLString } from "@snickerdoodlelabs/objects";
+import {
+  AccessToken,
+  AjaxError,
+  AuthenticatedStorageSettings,
+  URLString,
+  PersistenceError,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ICloudStorageService } from "@core/interfaces/business";
+import {
+  IAuthenticatedStorageRepository,
+  IAuthenticatedStorageRepositoryType,
+} from "@core/interfaces/data/IAuthenticatedStorageRepository.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -21,10 +31,42 @@ enum ECloudStorageOption {
 @injectable()
 export class CloudStorageService implements ICloudStorageService {
   public constructor(
+    @inject(IAuthenticatedStorageRepositoryType)
+    protected authenticatedStorageRepo: IAuthenticatedStorageRepository,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  /**
+   * This method is called from the core, and represents setting (or resetting)
+   * the chosen authenticated storage system for the user. This system will be
+   * put on-file and automatically used in the future
+   */
+  public setAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError> {
+    // Figure out if cloud storage is already active (we have settings on file)
+    return this.authenticatedStorageRepo
+      .getCredentials()
+      .andThen((credentials) => {
+        // If we don't have settings, store them, and then activate the CloudStorageManager
+        if (credentials == null) {
+          return this.authenticatedStorageRepo
+            .saveCredentials(settings)
+            .andThen(() => {
+              return this.authenticatedStorageRepo.activateAuthenticatedStorage(
+                settings,
+              );
+            });
+        }
+
+        // If we do have settings, then we need to error or reset the cloud storage
+        return errAsync(
+          new PersistenceError("Cannot reset authenticated storage"),
+        );
+      });
+  }
 
   public getDropboxAuth(): ResultAsync<URLString, never> {
     return this.configProvider.getConfig().map((config) => {

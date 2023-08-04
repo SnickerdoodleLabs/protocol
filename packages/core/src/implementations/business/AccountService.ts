@@ -79,6 +79,8 @@ import {
   IPortfolioBalanceRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
+  IAuthenticatedStorageRepository,
+  IAuthenticatedStorageRepositoryType,
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
@@ -93,6 +95,8 @@ import {
 @injectable()
 export class AccountService implements IAccountService {
   public constructor(
+    @inject(IAuthenticatedStorageRepositoryType)
+    protected authenticatedStorageRepo: IAuthenticatedStorageRepository,
     @inject(IPermissionUtilsType) protected permissionUtils: IPermissionUtils,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
@@ -238,10 +242,10 @@ export class AccountService implements IAccountService {
                 );
               })
               .andThen((dataWalletAccount) => {
-                // console.log(
-                //   "Data wallet address initialized: ",
-                //   dataWalletAccount.accountAddress,
-                // );
+                console.log(
+                  "Data wallet address initialized: ",
+                  dataWalletAccount.accountAddress,
+                );
 
                 // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
@@ -252,15 +256,31 @@ export class AccountService implements IAccountService {
                 context.dataWalletKey = dataWalletAccount.privateKey;
                 context.unlockInProgress = false;
 
+                console.log("Unlocking persistence layer: ");
                 // We can update the context and provide the key to the persistence in one step
                 return ResultUtils.combine([
-                  this.dataWalletPersistence.unlock(
-                    dataWalletAccount.privateKey,
-                  ),
+                  this.dataWalletPersistence
+                    .unlock(dataWalletAccount.privateKey)
+                    .andThen(() => {
+                      console.log("Data persistence unlocked: ");
+                      return this.authenticatedStorageRepo.getCredentials();
+                    })
+                    .andThen((credentials) => {
+                      console.log("Auth Credentials: " + credentials);
+
+                      if (credentials == null) {
+                        return okAsync(undefined);
+                      }
+                      return this.authenticatedStorageRepo.activateAuthenticatedStorage(
+                        credentials,
+                      );
+                    }),
                   this.contextProvider.setContext(context),
                 ]);
               })
               .andThen(() => {
+                console.log("Finished Auth: ");
+
                 // This is a bit of a hack.
                 // The problem is, if you have an existing data wallet, but don't have the data
                 // for that wallet, when you call getAccounts() after unlocking you'll get a complete

@@ -10,6 +10,7 @@ import {
   VersionedObject,
   VolatileStorageKey,
   VolatileStorageMetadata,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { ICloudStorage, IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
@@ -80,6 +81,10 @@ export interface IDataWalletPersistence {
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
+
+  activateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
+  ): ResultAsync<void, PersistenceError>;
 
   // backup methods
   /**
