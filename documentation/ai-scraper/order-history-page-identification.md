@@ -40,9 +40,7 @@ Hepsiburada
 
 1. We need to build a database of such URLs (feasible only for major platforms, may not find niche markets)
 
-# Content Matching
-
-## Keywords-based matching
+# Keywords-based matching
 
 1. Detect Language
 2. Keywords: Order, Order History, transaction, transaction history, #of dates,
