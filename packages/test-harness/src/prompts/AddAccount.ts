@@ -15,12 +15,12 @@ import { TestWallet } from "@test-harness/utilities/index.js";
 export class AddAccount extends Prompt {
   public start(): ResultAsync<
     void,
-    | UnsupportedLanguageError
     | PersistenceError
-    | UninitializedError
-    | InvalidSignatureError
     | UnauthorizedError
     | InvalidParametersError
+    | UninitializedError
+    | UnsupportedLanguageError
+    | InvalidSignatureError
   > {
     return this.core
       .getAccounts()
@@ -50,7 +50,7 @@ export class AddAccount extends Prompt {
 
       .andThen((answers) => {
         const wallet = answers.addAccountSelector as TestWallet;
-        // Need to get the unlock message first
+        // Need to get the add account message first
         return this.dataWalletProfile
           .getSignatureForAccount(wallet)
           .andThen((signature) => {

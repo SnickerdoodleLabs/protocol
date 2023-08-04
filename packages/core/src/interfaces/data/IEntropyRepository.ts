@@ -1,6 +1,7 @@
 import {
   PersistenceError,
   ExternallyOwnedAccount,
+  EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -22,6 +23,10 @@ export interface IEntropyRepository {
     ExternallyOwnedAccount,
     PersistenceError
   >;
+
+  setDataWalletPrivateKey(
+    dataWalletPrivateKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IEntropyRepositoryType = Symbol.for("IEntropyRepository");

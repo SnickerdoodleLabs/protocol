@@ -143,7 +143,6 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
-  GetUnlockedParams,
   RequestPermissionsParams,
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
@@ -161,18 +160,6 @@ import {
 export class RpcCallHandler implements IRpcCallHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected rpcCalls: CoreActionHandler<any>[] = [
-    new CoreActionHandler<UnlockParams>(
-      // Annoying that we need to do this; TS doesn't support abstract static methods
-      UnlockParams.getCoreAction(),
-      (params) => {
-        return this.accountService.unlock(
-          params.accountAddress,
-          params.signature,
-          params.chain,
-          params.languageCode,
-        );
-      },
-    ),
     new CoreActionHandler<AddAccountParams>(
       AddAccountParams.getCoreAction(),
       (params) => {
@@ -400,9 +387,7 @@ export class RpcCallHandler implements IRpcCallHandler {
       (params) => {
         return this.accountService.unlinkAccount(
           params.accountAddress,
-          params.signature,
           params.chain,
-          params.languageCode,
         );
       },
     ),
@@ -770,14 +755,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       GetMetricsParams.getCoreAction(),
       (_params, sender) => {
         return this.metricsService.getMetrics(this.getDomainFromSender(sender));
-      },
-    ),
-    new CoreActionHandler<GetUnlockedParams>(
-      GetUnlockedParams.getCoreAction(),
-      (_params, sender) => {
-        return this.metricsService.getUnlocked(
-          this.getDomainFromSender(sender),
-        );
       },
     ),
     // #endregion

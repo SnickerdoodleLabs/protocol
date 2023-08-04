@@ -29,17 +29,13 @@ import {
   URLString,
   Web2Credential,
   Web2Reward,
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
-  InvalidSignatureError,
-  MinimalForwarderContractError,
-  PersistenceError,
-  UninitializedError,
   EVMContractAddress,
   TokenSecret,
   UnauthorizedError,
-  PasswordString,
+  AjaxError,
+  BlockchainProviderError,
+  PersistenceError,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -54,7 +50,6 @@ import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 @injectable()
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
-  private _unlocked = false;
   private defaultPathInfo = {
     name: "empty",
     path: "data/profiles/dataWallet/empty",
@@ -74,69 +69,71 @@ export class DataWalletProfile {
     return this._profilePathInfo.name;
   }
 
-  public get unlocked(): boolean {
-    return this._unlocked;
-  }
-
   public destroy(): void {
     this.destroyCore();
     this._destroyed = true;
   }
 
-  public initCore(env: Environment): void {
+  public initCore(
+    env: Environment,
+  ): ResultAsync<
+    void,
+    PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
+  > {
     if (this.coreSubscriptions.length > 0) {
       this.destroyCore();
     }
+    return this.core.initialize().map(() => {
+      this.core.getEvents().map(async (events) => {
+        this.coreSubscriptions.push(
+          events.onAccountAdded.subscribe((addedAccount) => {
+            console.log(`Added account`);
+            console.log(addedAccount);
+          }),
+        );
 
-    this.core.getEvents().map(async (events) => {
-      this.coreSubscriptions.push(
-        events.onAccountAdded.subscribe((addedAccount) => {
-          console.log(`Added account`);
-          console.log(addedAccount);
-        }),
-      );
+        this.coreSubscriptions.push(
+          events.onInitialized.subscribe((dataWalletAddress) => {
+            console.log(`Initialized with address ${dataWalletAddress}`);
+          }),
+        );
 
-      this.coreSubscriptions.push(
-        events.onInitialized.subscribe((dataWalletAddress) => {
-          console.log(`Initialized with address ${dataWalletAddress}`);
-        }),
-      );
+        this.coreSubscriptions.push(
+          events.onQueryPosted.subscribe(
+            async (queryRequest: SDQLQueryRequest) => {
+              console.log(
+                `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
+              );
 
-      this.coreSubscriptions.push(
-        events.onQueryPosted.subscribe(
-          async (queryRequest: SDQLQueryRequest) => {
-            console.log(
-              `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
-            );
+              try {
+                await new ApproveQuery(env, queryRequest).start();
+              } catch (e) {
+                console.error(e);
+              }
+            },
+          ),
+        );
 
-            try {
-              await new ApproveQuery(env, queryRequest).start();
-            } catch (e) {
-              console.error(e);
-            }
-          },
-        ),
-      );
+        this.coreSubscriptions.push(
+          events.onMetatransactionSignatureRequested.subscribe(
+            async (request) => {
+              // This method needs to happen in nicer form in all form factors
+              console.log(
+                `Metadata Transaction Requested!`,
+                `Request account address: ${request.accountAddress}`,
+              );
 
-      this.coreSubscriptions.push(
-        events.onMetatransactionSignatureRequested.subscribe(
-          async (request) => {
-            // This method needs to happen in nicer form in all form factors
-            console.log(
-              `Metadata Transaction Requested!`,
-              `Request account address: ${request.accountAddress}`,
-            );
-
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            await env
-              .dataWalletProfile!.signMetatransactionRequest(request)
-              .mapErr((e) => {
-                console.error(`Error signing forwarding request!`, e);
-                process.exit(1);
-              });
-          },
-        ),
-      );
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              await env
+                .dataWalletProfile!.signMetatransactionRequest(request)
+                .mapErr((e) => {
+                  console.error(`Error signing forwarding request!`, e);
+                  process.exit(1);
+                });
+            },
+          ),
+        );
+      });
     });
   }
 

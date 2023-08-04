@@ -96,62 +96,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.setConfig(data.data);
         }, data.callId);
       },
-      unlock: (
-        data: IIFrameCallData<{
-          accountAddress: AccountAddress;
-          signature: Signature;
-          languageCode: LanguageCode;
-          chain: EChain;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.account
-              .unlock(
-                data.data.accountAddress,
-                data.data.signature,
-                data.data.languageCode,
-                data.data.chain,
-                sourceDomain,
-              )
-              .andThen(() => {
-                // Store the unlock values in local storage
-                console.log("Storing unlock values in local storage");
-                return ResultUtils.combine([
-                  this.storageUtils.write(
-                    "storedAccountAddress",
-                    data.data.accountAddress,
-                  ),
-                  this.storageUtils.write(
-                    "storedSignature",
-                    data.data.signature,
-                  ),
-                  this.storageUtils.write("storedChain", data.data.chain),
-                  this.storageUtils.write(
-                    "storedLanguageCode",
-                    data.data.languageCode,
-                  ),
-                ])
-                  .map(() => {})
-                  .orElse((e) => {
-                    console.error("Error storing unlock values", e);
-                    return okAsync(undefined);
-                  });
-              })
-              .andThen(() => {
-                // We want to record the sourceDomain as a site visit
-                return core.addSiteVisits([
-                  new SiteVisit(
-                    URLString(this.sourceDomain), // We can't get the full URL, but the domain will suffice
-                    this.timeUtils.getUnixNow(), // Visit started now
-                    UnixTimestamp(this.timeUtils.getUnixNow() + 10), // We're not going to wait, so just record the visit as for 10 seconds
-                  ),
-                ]);
-              });
-          });
-        }, data.callId);
-      },
-
       addAccount: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
@@ -631,8 +575,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       unlinkAccount: (
         data: IIFrameCallData<{
           accountAddress: AccountAddress;
-          signature: Signature;
-          languageCode: LanguageCode;
           chain: EChain;
         }>,
       ) => {
@@ -640,8 +582,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
           return this.coreProvider.getCore().andThen((core) => {
             return core.account.unlinkAccount(
               data.data.accountAddress,
-              data.data.signature,
-              data.data.languageCode,
               data.data.chain,
               sourceDomain,
             );
@@ -955,13 +895,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.metrics.getMetrics(sourceDomain);
-          });
-        }, data.callId);
-      },
-      "metrics.getUnlocked": (data: IIFrameCallData<Record<string, never>>) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.metrics.getUnlocked(sourceDomain);
           });
         }, data.callId);
       },

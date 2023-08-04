@@ -148,6 +148,7 @@ import {
   DemographicDataRepository,
   DiscordRepository,
   DomainCredentialRepository,
+  EntropyRepository,
   InvitationRepository,
   LinkedAccountRepository,
   MarketplaceRepository,
@@ -271,6 +272,8 @@ import {
   IMetricsRepositoryType,
   IAuthenticatedStorageRepository,
   IAuthenticatedStorageRepositoryType,
+  IEntropyRepository,
+  IEntropyRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -356,6 +359,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IAuthenticatedStorageRepository>(IAuthenticatedStorageRepositoryType)
       .to(AuthenticatedStorageRepository)
+      .inSingletonScope();
+    bind<IEntropyRepository>(IEntropyRepositoryType)
+      .to(EntropyRepository)
       .inSingletonScope();
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)

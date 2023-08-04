@@ -515,7 +515,7 @@ describe("getPossibleInisightAndAdKeys tests", () => {
       //QQ: We just mocked context
       // What's the point of checking if DW address is null here?
       if (context.dataWalletAddress == null) {
-        // Need to wait for the wallet to unlock
+        // Need to wait for the wallet to initialize
         return okAsync(undefined);
       }
       // We have the query, next step is check if you actually have a consent token for this business

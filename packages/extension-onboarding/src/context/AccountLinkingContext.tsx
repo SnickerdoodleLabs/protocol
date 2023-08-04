@@ -11,23 +11,23 @@ import React, {
 
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import {
   ELoadingIndicatorType,
   useLayoutContext,
 } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import {
-  IDiscordProvider,
-  ITwitterProvider,
-} from "@extension-onboarding/services/socialMediaProviders/interfaces";
-import {
   DiscordProvider,
   TwitterProvider,
 } from "@extension-onboarding/services/socialMediaProviders/implementations";
-import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import {
+  IDiscordProvider,
+  ITwitterProvider,
+} from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
 interface IAccountLinkingContext {
   detectedProviders: IProvider[];
@@ -120,29 +120,17 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                     linkedAccount.sourceAccountAddress === account,
                 )
               ) {
-                return sdlDataWallet.metrics
-                  .getUnlocked()
-                  .andThen((isUnlocked) => {
-                    if (!linkedAccounts.length && !isUnlocked) {
-                      setLoadingStatus(true, {
-                        type: ELoadingIndicatorType.COMPONENT,
-                        component: <AccountLinkingIndicator />,
-                      });
-                      return sdlDataWallet
-                        .unlock(account, signature, getChain(providerObj.key))
-                        .mapErr((e) => {
-                          setLoadingStatus(false);
-                        });
-                    }
-                    setLoadingStatus(true, {
-                      type: ELoadingIndicatorType.COMPONENT,
-                      component: <AccountLinkingIndicator />,
-                    });
-                    return sdlDataWallet
-                      .addAccount(account, signature, getChain(providerObj.key))
-                      .mapErr((e) => {
-                        setLoadingStatus(false);
-                      });
+                // use it for metadata
+                localStorage.setItem(`${account}`, providerObj.key);
+                setLoadingStatus(true, {
+                  type: ELoadingIndicatorType.COMPONENT,
+                  component: <AccountLinkingIndicator />,
+                });
+                return sdlDataWallet
+                  .addAccount(account, signature, getChain(providerObj.key))
+                  .mapErr((e) => {
+                    console.error(e);
+                    setLoadingStatus(false);
                   });
               } else {
                 setModal({

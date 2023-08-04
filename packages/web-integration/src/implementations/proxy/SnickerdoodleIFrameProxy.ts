@@ -250,18 +250,8 @@ export class SnickerdoodleIFrameProxy
       });
   }
 
-  public unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode: LanguageCode = LanguageCode("en"),
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("unlock", {
-      accountAddress,
-      signature,
-      chain,
-      languageCode,
-    });
+  public initialize(): ResultAsync<void, ProxyError> {
+    return this._createCall("initialize", null);
   }
 
   public addAccount(
@@ -707,9 +697,6 @@ export class SnickerdoodleIFrameProxy
   public metrics: IProxyMetricsMethods = {
     getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
       return this._createCall("metrics.getMetrics", null);
-    },
-    getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-      return this._createCall("metrics.getUnlocked", null);
     },
   };
 

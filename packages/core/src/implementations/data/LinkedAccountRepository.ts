@@ -13,11 +13,11 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ILinkedAccountRepository } from "@core/interfaces/data/ILinkedAccountRepository.js";
+import { ILinkedAccountRepository } from "@core/interfaces/data/index.js";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-} from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
+} from "@core/interfaces/data/utilities/index.js";
 import {
   IContextProviderType,
   IContextProvider,
@@ -31,15 +31,28 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
 
+  public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
+    return this.persistence.getAll<LinkedAccount>(ERecordKey.ACCOUNT);
+  }
+
   public getLinkedAccount(
     accountAddress: AccountAddress,
     chain: EChain,
   ): ResultAsync<LinkedAccount | null, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-
-  public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.persistence.getAll<LinkedAccount>(ERecordKey.ACCOUNT);
+    return this.persistence
+      .getAll<LinkedAccount>(ERecordKey.ACCOUNT)
+      .map((accounts) => {
+        const found = accounts.find((account) => {
+          return (
+            account.sourceAccountAddress == accountAddress &&
+            account.sourceChain == chain
+          );
+        });
+        if (found == null) {
+          return null;
+        }
+        return found;
+      });
   }
 
   public addEarnedRewards(

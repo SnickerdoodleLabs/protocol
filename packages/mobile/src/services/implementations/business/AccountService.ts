@@ -47,35 +47,6 @@ export class AccountService implements IAccountService {
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
-  public unlock(
-    account: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-    calledWithCookie: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.account
-      .unlock(account, signature, languageCode, chain)
-      .mapErr((error) => {
-        console.log("mapErr", error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .andThen(() => {
-        if (calledWithCookie) {
-          return okAsync(undefined);
-        }
-        return this.accountStorage.writeAccountInfoToStorage(
-          account,
-          signature,
-          languageCode,
-          chain,
-        );
-      })
-      .orElse((error) => {
-        this.errorUtils.emit(error);
-        return okAsync(undefined);
-      });
-  }
   public getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {

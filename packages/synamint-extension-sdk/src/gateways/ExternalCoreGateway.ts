@@ -125,7 +125,6 @@ import {
   GetConfigParams,
   SwitchToTabParams,
   GetMetricsParams,
-  GetUnlockedParams,
   RequestPermissionsParams,
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
@@ -205,9 +204,6 @@ export class ExternalCoreGateway {
     this.metrics = {
       getMetrics: (): ResultAsync<RuntimeMetrics, ProxyError> => {
         return this._handler.call(new GetMetricsParams());
-      },
-      getUnlocked: (): ResultAsync<boolean, ProxyError> => {
-        return this._handler.call(new GetUnlockedParams());
       },
     };
 
@@ -338,9 +334,7 @@ export class ExternalCoreGateway {
   public addAccount(params: AddAccountParams): ResultAsync<void, ProxyError> {
     return this._handler.call(params);
   }
-  public unlock(params: UnlockParams): ResultAsync<void, ProxyError> {
-    return this._handler.call<UnlockParams>(params);
-  }
+
   public unlinkAccount(
     params: UnlinkAccountParams,
   ): ResultAsync<void, ProxyError> {

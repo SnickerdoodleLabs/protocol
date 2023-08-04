@@ -2,11 +2,8 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AccountAddress,
-  AjaxError,
-  BlockchainProviderError,
   ChainId,
   ChainTransaction,
-  CrumbsContractError,
   DataWalletAddress,
   EChain,
   TransactionFilter,
@@ -17,7 +14,6 @@ import {
   InvalidSignatureError,
   LanguageCode,
   LinkedAccount,
-  MinimalForwarderContractError,
   PersistenceError,
   Signature,
   SiteVisit,
@@ -35,12 +31,9 @@ import {
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   AccountIndexingError,
-  BlockchainCommonErrors,
-  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
 import {
@@ -63,7 +56,6 @@ import {
   IAuthenticatedStorageRepository,
   IAuthenticatedStorageRepositoryType,
 } from "@core/interfaces/data/index.js";
-import { CoreContext } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -131,51 +123,39 @@ export class AccountService implements IAccountService {
           this.logUtils.warning(
             "No data wallet account found, creating a new one",
           );
-          return this.entropyRepo.createDataWalletPrivateKey();
+          return this.entropyRepo
+            .createDataWalletPrivateKey()
+            .andThen((newDataWalletAccount) => {
+              // We need to unlock before we can write the new key
+              return this.unlockAndActivate(newDataWalletAccount)
+                .andThen(() => {
+                  return this.entropyRepo.setDataWalletPrivateKey(
+                    newDataWalletAccount.privateKey,
+                  );
+                })
+                .map(() => {
+                  return newDataWalletAccount;
+                });
+            });
         }
-        return okAsync(dataWalletAccount);
+        return this.unlockAndActivate(dataWalletAccount);
       })
       .andThen((dataWalletAccount) => {
-        return this.contextProvider.getContext().map((context) => {
-          // Have to explicitly make it a tuple
-          return [dataWalletAccount, context] as [
-            ExternallyOwnedAccount,
-            CoreContext,
-          ];
-        });
-      })
-      .andThen(([dataWalletAccount, context]) => {
-        // The account address in account is just a generic EVMAccountAddress,
-        // we need to cast it to a DataWalletAddress, since in this case, that's
-        // what it is.
-        context.dataWalletAddress = DataWalletAddress(
-          dataWalletAccount.accountAddress,
-        );
-        context.dataWalletKey = dataWalletAccount.privateKey;
-        context.initializeInProgress = false;
+        return this.contextProvider.getContext().andThen((context) => {
+          // The account address in account is just a generic EVMAccountAddress,
+          // we need to cast it to a DataWalletAddress, since in this case, that's
+          // what it is.
+          context.dataWalletAddress = DataWalletAddress(
+            dataWalletAccount.accountAddress,
+          );
+          context.dataWalletKey = dataWalletAccount.privateKey;
+          context.initializeInProgress = false;
 
-        // We can update the context and provide the key to the persistence in one step
-        return ResultUtils.combine([
-          this.dataWalletPersistence
-            .unlock(dataWalletAccount.privateKey)
-            .andThen(() => {
-              console.log("Data persistence unlocked: ");
-              return this.authenticatedStorageRepo.getCredentials();
-            })
-            .andThen((credentials) => {
-              console.log("Auth Credentials: " + credentials);
-
-              if (credentials == null) {
-                return okAsync(undefined);
-              }
-              return this.authenticatedStorageRepo.activateAuthenticatedStorage(
-                credentials,
-              );
-            }),
-          this.contextProvider.setContext(context),
-        ]).map(() => {
-          // Need to emit some events
-          context.publicEvents.onInitialized.next(context.dataWalletAddress!);
+          // We can update the context and provide the key to the persistence in one step
+          return this.contextProvider.setContext(context).map(() => {
+            // Need to emit some events
+            context.publicEvents.onInitialized.next(context.dataWalletAddress!);
+          });
         });
       })
       .orElse((e) => {
@@ -225,7 +205,7 @@ export class AccountService implements IAccountService {
         ) {
           return errAsync(
             new UninitializedError(
-              "Core must be unlocked first before you can add an additional account",
+              "Core must be initialized first before you can add an additional account",
             ),
           );
         }
@@ -400,6 +380,27 @@ export class AccountService implements IAccountService {
     });
   }
 
+  protected unlockAndActivate(
+    dataWalletAccount: ExternallyOwnedAccount,
+  ): ResultAsync<ExternallyOwnedAccount, PersistenceError> {
+    return this.dataWalletPersistence
+      .unlock(dataWalletAccount.privateKey)
+      .andThen(() => {
+        return this.authenticatedStorageRepo.getCredentials();
+      })
+      .andThen((credentials) => {
+        if (credentials == null) {
+          return okAsync(undefined);
+        }
+        return this.authenticatedStorageRepo.activateAuthenticatedStorage(
+          credentials,
+        );
+      })
+      .map(() => {
+        return dataWalletAccount;
+      });
+  }
+
   protected validateSignatureForAddress(
     accountAddress: AccountAddress,
     signature: Signature,
@@ -407,12 +408,12 @@ export class AccountService implements IAccountService {
     chain: EChain,
   ): ResultAsync<void, InvalidSignatureError | UnsupportedLanguageError> {
     return this.getLinkAccountMessage(languageCode)
-      .andThen((unlockMessage) => {
+      .andThen((message) => {
         return this.dataWalletUtils.verifySignature(
           chain,
           accountAddress,
           signature,
-          unlockMessage,
+          message,
         );
       })
       .andThen((verified) => {

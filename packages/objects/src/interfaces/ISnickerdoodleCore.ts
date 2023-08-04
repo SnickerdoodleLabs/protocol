@@ -134,26 +134,12 @@ import {
 export interface IAccountMethods {
   /** getLinkAccountMessage() returns a localized string for the requested LanguageCode.
    * The Form Factor must have this string signed by the user's key (via Metamask,
-   * wallet connect, etc), in order to call unlock() or addAccount();
+   * wallet connect, etc), in order to call addAccount();
    */
   getLinkAccountMessage(
     languageCode: LanguageCode,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
-
-  /**
-   * initialize() should be the first call you make on a new SnickerdoodleCore.
-   * It looks for an existing source entropy in volatile storage, and
-   * if it doesn't exist, it creates it.
-   * @param signature
-   * @param countryCode
-   */
-  initialize(
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    void,
-    PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
-  >;
 
   /**
    * addAccount() adds an additional account to the data wallet. It is almost
@@ -162,8 +148,6 @@ export interface IAccountMethods {
    * can be used for subsequent logins. This can prevent you from being locked out
    * of your data wallet, as long as you have at least 2 accounts connected.
    * addSolanaAccount() is identical to addAccount, but adds a Solana (non-EVM) account.
-   * Like unlock, an EVM private key will be derived from the signature and used for the account
-   * the crumb is assigned to on the doodlechain.
    * @param accountAddress
    * @param signature
    * @param countryCode
@@ -324,7 +308,7 @@ export interface ICoreTwitterMethods {
 export interface ICoreIntegrationMethods {
   /**
    * This method grants the requested permissions to the wallet to the specified domain name.
-   * Other than being unlocked, there are no special requirements to do this- the host of the core
+   * Other than being initialized, there are no special requirements to do this- the host of the core
    * is assumed to know what it's doing here. The permissions are only enforced on a particular method
    * if the sourceDomain parameter is provided; which again is up to the core host. The integration
    * package must determine if a request should be permissioned and pass along the sourceDomain.
@@ -631,13 +615,6 @@ export interface IMetricsMethods {
   getMetrics(
     sourceDomain: DomainName | undefined,
   ): ResultAsync<RuntimeMetrics, never>;
-
-  /**
-   * Returns the current unlock status of the data wallet.
-   */
-  getUnlocked(
-    sourceDomain: DomainName | undefined,
-  ): ResultAsync<boolean, never>;
 }
 
 export interface IStorageMethods {
@@ -663,6 +640,20 @@ export interface IStorageMethods {
 }
 
 export interface ISnickerdoodleCore {
+  /**
+   * initialize() should be the first call you make on a new SnickerdoodleCore.
+   * It looks for an existing source entropy in volatile storage, and
+   * if it doesn't exist, it creates it.
+   * @param signature
+   * @param countryCode
+   */
+  initialize(
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<
+    void,
+    PersistenceError | UninitializedError | BlockchainProviderError | AjaxError
+  >;
+
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<

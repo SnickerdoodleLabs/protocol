@@ -6,18 +6,12 @@ import {
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  EChain,
-  EVMAccountAddress,
-  LanguageCode,
-  Signature,
   SiteVisit,
   URLString,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ResultAsync } from "neverthrow";
 
 import { iframeModule } from "@core-iframe/IFrameModule";
 import {
@@ -44,8 +38,6 @@ export class IFrameFormFactor {
       this.iocContainer.get<ICoreListener>(ICoreListenerType);
     const coreProvider =
       this.iocContainer.get<ICoreProvider>(ICoreProviderType);
-    const storageUtils =
-      this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
     const timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
@@ -55,35 +47,6 @@ export class IFrameFormFactor {
 
     return coreListener
       .activateModel()
-      .andThen(() => {
-        // Check if we have a stored signature
-        return ResultUtils.combine([
-          coreProvider.getCore(),
-          storageUtils.read<EVMAccountAddress>("storedAccountAddress"),
-          storageUtils.read<Signature>("storedSignature"),
-          storageUtils.read<EChain>("storedChain"),
-          storageUtils.read<LanguageCode>("storedLanguageCode"),
-        ]).andThen(([core, accountAddress, signature, chain, languageCode]) => {
-          if (
-            accountAddress != null &&
-            chain != null &&
-            signature != null &&
-            languageCode != null
-          ) {
-            logUtils.log(
-              "Unlocking Snickerdoodle Core using stored unlock values",
-            );
-            // If we have a stored signature, we can automatically unlock the
-            return core.account.initialize().map(() => {
-              logUtils.log(
-                "Snickerdoodle Core unlocked using stored unlock values",
-              );
-            });
-          }
-          // If there's no stored signature, we have to wait for unlock to be called
-          return okAsync(undefined);
-        });
-      })
       .andThen(() => {
         return coreProvider.getCore();
       })
