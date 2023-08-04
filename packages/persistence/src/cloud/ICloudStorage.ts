@@ -6,6 +6,7 @@ import {
   BackupFileName,
   StorageKey,
   ECloudStorageType,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -18,6 +19,8 @@ export interface ICloudStorage {
   putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError>;
+
+  passAuthTokens(path: string, accessToken: AccessToken): void;
 
   /**
    * This returns a list of backups that exist in the cloud, excluding those

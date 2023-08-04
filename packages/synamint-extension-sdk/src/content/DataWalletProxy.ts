@@ -591,12 +591,12 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
 
   public activateAuthenticatedStorage(
+    storageType: ECloudStorageType,
     path: string,
     accessToken: AccessToken,
-    storageType: ECloudStorageType,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.activateAuthenticatedStorage(
-      new ActivateAuthenticatedStorageParams(path, accessToken, storageType),
+      new ActivateAuthenticatedStorageParams(storageType, path, accessToken),
     );
   }
 

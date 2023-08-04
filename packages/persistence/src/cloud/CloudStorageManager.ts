@@ -9,9 +9,13 @@ import {
   AuthenticatedStorageParams,
   URLString,
   AccessToken,
+  EVMPrivateKey,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   ICloudStorage,
@@ -30,6 +34,10 @@ import {
   IPersistenceContextProvider,
   IPersistenceContextProviderType,
 } from "@persistence/IPersistenceContextProvider.js";
+import {
+  IVolatileStorage,
+  IVolatileStorageType,
+} from "@persistence/volatile/IVolatileStorage.js";
 
 /*
     Cloud Storage Manager Object looks for 1 instance ICloudStorage to be present at all times. 
@@ -47,27 +55,35 @@ export class CloudStorageManager implements ICloudStorageManager {
   // check currentStorageOption from local storage if there is no value then it can return NullCloudStorage
   // then initiate the cloud storage
   public constructor(
-    // @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IGDriveCloudStorage) protected gDrive: ICloudStorage,
-    @inject(IDropboxCloudStorageType) protected dropbox: ICloudStorage, // @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
+    @inject(IDropboxCloudStorageType) protected dropbox: ICloudStorage,
     @inject(IPersistenceContextProviderType)
     protected contextProvider: IPersistenceContextProvider,
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: IAxiosAjaxUtils,
+
+    @inject(IStorageUtilsType)
+    protected storageUtils: IStorageUtils,
+    @inject(IVolatileStorageType)
+    protected volatileStorage: IVolatileStorage,
   ) {
     this.storageList = new Set();
-    console.log("Cloud Manager initialize called!");
     this.initializeResult = ResultAsync.fromSafePromise(
       new Promise((resolve) => {
         this.resolveProvider = resolve;
       }),
     );
-    console.log(
-      "Cloud Manager initialize called: this.initializeResult: " +
-        JSON.stringify(this.initializeResult),
-    );
+  }
+
+  public unlock(
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError> {
+    return ResultUtils.combine([
+      this.gDrive.unlock(dataWalletKey),
+      this.dropbox.unlock(dataWalletKey),
+    ]).map(() => {});
   }
 
   public cloudStorageActivated(): boolean {
@@ -105,35 +121,46 @@ export class CloudStorageManager implements ICloudStorageManager {
       console.log("accessToken: " + accessToken);
 
       if (type == ECloudStorageType.Dropbox) {
+        console.log("hit dropbox: ");
+        // this.dropbox.passAuthTokens(path, accessToken);
+
+        // return this.volatileStorage.putObject(
+        //   "ACCESS_TOKEN / REFRESH_TOKEN",
+        //   new VolatileStorageMetadata<T>(accessToken, UnixTimestamp(0)),
+        // );
         this.provider = this.dropbox;
       } else if (type == ECloudStorageType.Snickerdoodle) {
+        console.log("hit snickerdoodle: ");
         this.provider = this.gDrive;
       } else {
         // return errAsync, this means you have invalid params, OR just use NullStorage
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.resolveProvider!(this.provider);
+
+      console.log("Cloud Manager event called after!");
+
+      this.initializeResult.map((cloudstorage) => {
+        console.log("cloudStorage is : " + JSON.stringify(cloudstorage));
+      });
+
       this.activated = true;
+      context.publicEvents.onCloudStorageActivated.next(
+        new CloudProviderSelectedEvent(type),
+      );
 
       if (!this.storageList.has(type)) {
         this.storageList.add(type);
       }
-
-      // context.publicEvents.onCloudStorageActivated.next(
-      //   new CloudProviderSelectedEvent(ECloudStorageType.Snickerdoodle),
-      // );
-      console.log("Cloud Manager event called!");
     });
   }
 
   // cloudstoragemanager.getCloudStorage() - should indefinitely hold until storage is activated OR immediately error out
   // debug log when having no activated cloud storage yet
-  // public getCloudStorage(): ResultAsync<void, never> {}
   public getCloudStorage(): ResultAsync<ICloudStorage, never> {
-    console.log("Inside get Cloud Storage: ");
-    console.log(
-      "this.initializeResult: " + JSON.stringify(this.initializeResult),
-    );
-
+    // return this.initializeResult.map((cloudStorage) => {
+    //   return this.provider;
+    // });
     return this.initializeResult;
   }
 

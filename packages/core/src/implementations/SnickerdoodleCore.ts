@@ -302,25 +302,25 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return configProvider.getConfig().andThen((config) => {
           // Passing in params via config
-          console.log("Inside Unlock function for core - Create params start");
+          // console.log("Inside Unlock function for core - Create params start");
 
-          const cloudStorageParams = new AuthenticatedStorageParams(
-            ECloudStorageType.Snickerdoodle,
-            config.dropboxAppKey,
-            config.dropboxAppSecret,
-            "https://localhost:9005/settings/storage",
-          );
-          console.log("Inside Unlock function for core - Create params end");
+          // const cloudStorageParams = new AuthenticatedStorageParams(
+          //   ECloudStorageType.Snickerdoodle,
+          //   config.dropboxAppKey,
+          //   config.dropboxAppSecret,
+          //   "https://localhost:9005/settings/storage",
+          // );
+          // console.log("Inside Unlock function for core - Create params end");
 
           // BlockchainProvider needs to be ready to go in order to do the unlock
           return ResultUtils.combine([
             blockchainProvider.initialize(),
             indexers.initialize(),
-            cloudManager.activateAuthenticatedStorage(
-              ECloudStorageType.Snickerdoodle,
-              "",
-              AccessToken(""),
-            ),
+            // cloudManager.activateAuthenticatedStorage(
+            //   ECloudStorageType.Snickerdoodle,
+            //   "",
+            //   AccessToken(""),
+            // ),
           ])
 
             .andThen(() => {
@@ -464,22 +464,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           this.iocContainer.get<IConfigProvider>(IConfigProviderType);
         return configProvider.getConfig().andThen((config) => {
           // Passing in params via config
-          const cloudStorageParams = new AuthenticatedStorageParams(
-            ECloudStorageType.Snickerdoodle,
-            config.dropboxAppKey,
-            config.dropboxAppSecret,
-            "https://localhost:9005/settings/storage",
-          );
+          // const cloudStorageParams = new AuthenticatedStorageParams(
+          //   ECloudStorageType.Snickerdoodle,
+          //   config.dropboxAppKey,
+          //   config.dropboxAppSecret,
+          //   "https://localhost:9005/settings/storage",
+          // );
 
           // BlockchainProvider needs to be ready to go in order to do the unlock
           return ResultUtils.combine([
             blockchainProvider.initialize(),
             indexers.initialize(),
-            cloudManager.activateAuthenticatedStorage(
-              ECloudStorageType.Snickerdoodle,
-              "",
-              AccessToken(""),
-            ),
+            // cloudManager.activateAuthenticatedStorage(
+            //   ECloudStorageType.Snickerdoodle,
+            //   "",
+            //   AccessToken(""),
+            // ),
           ])
             .andThen(() => {
               return accountService.unlockWithPassword(password);

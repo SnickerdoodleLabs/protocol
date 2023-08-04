@@ -252,11 +252,19 @@ const StorageSettings = () => {
     window.sdlDataWallet
       // @ts-ignore
       .activateAuthenticatedStorage(
+        ECloudStorageType.Dropbox,
         path,
         accessToken,
-        ECloudStorageType.Dropbox,
       )
       .map(() => {
+        // brought back
+        setAlert({
+          severity: EAlertSeverity.SUCCESS,
+          message: "Your Dropbox account has successfully been connected.",
+        });
+        // sessionStorage.removeItem("dropboxAccessToken");
+        setStorageOption(EStorage.DROPBOX);
+
         // Okan we finished picking a folder, now initiate the storage type
         // Trigger event - CloudStorageManager.setCloudStorageOption
         // Which triggers event onCloudStorageActivated to begin cloud storage

@@ -12,6 +12,8 @@ import {
   AccessToken,
   AuthenticatedStorageParams,
   ECloudStorageType,
+  EVMPrivateKey,
+  PersistenceError,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -19,8 +21,9 @@ import { ResultAsync } from "neverthrow";
 import { ICloudStorageParams, ICloudStorage } from "@persistence/cloud";
 
 export interface ICloudStorageManager {
-  getDropboxAuth(): ResultAsync<URLString, never>;
+  unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
 
+  getDropboxAuth(): ResultAsync<URLString, never>;
   activateAuthenticatedStorage(
     type: ECloudStorageType,
     path: string,

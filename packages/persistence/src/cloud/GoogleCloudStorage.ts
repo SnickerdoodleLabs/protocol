@@ -20,6 +20,7 @@ import {
   StorageKey,
   DataWalletBackupHeader,
   ECloudStorageType,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -56,6 +57,9 @@ export class GoogleCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+  }
+  passAuthTokens(path: string, accessToken: AccessToken): void {
+    throw new Error("Method not implemented.");
   }
 
   public name(): ECloudStorageType {
@@ -162,6 +166,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
+    console.log("Inside Google Cloud Storage");
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -206,6 +211,8 @@ export class GoogleCloudStorage implements ICloudStorage {
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    console.log("Inside Google Cloud Storage");
+
     return this.getWalletListing()
       .andThen((files) => {
         if (files.length == 0) {

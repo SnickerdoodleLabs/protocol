@@ -845,9 +845,9 @@ export class GetDropBoxAuthUrlParams extends CoreActionParams<URLString> {
 }
 export class ActivateAuthenticatedStorageParams extends CoreActionParams<void> {
   public constructor(
+    public storageType: ECloudStorageType,
     public path: string,
     public accessToken: AccessToken,
-    public storageType: ECloudStorageType,
   ) {
     super(ActivateAuthenticatedStorageParams.getCoreAction());
   }

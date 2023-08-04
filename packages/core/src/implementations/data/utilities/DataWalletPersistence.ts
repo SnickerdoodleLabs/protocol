@@ -267,24 +267,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public unlock(
-    derivedKey: EVMPrivateKey,
+    dataWalletKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-    return this.cloudStorageManager
-      .getCloudStorage()
-      .andThen((cloudStorage) => {
-        console.log("cloudStorage: " + cloudStorage);
-        return ResultUtils.combine([
-          cloudStorage.unlock(derivedKey),
-          this.backupManagerProvider.unlock(derivedKey),
-        ])
-          .map(() => {
-            // The derived key is stored in this result
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.resolveUnlock!(derivedKey);
-          })
-          .mapErr((error) => {
-            return new PersistenceError((error as Error).message, error);
-          });
+    return ResultUtils.combine([
+      this.cloudStorageManager.unlock(dataWalletKey),
+      this.backupManagerProvider.unlock(dataWalletKey),
+    ])
+      .map(() => {
+        // The derived key is stored in this result
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.resolveUnlock!(dataWalletKey);
+      })
+      .mapErr((error) => {
+        return new PersistenceError((error as Error).message, error);
       });
   }
 
@@ -415,6 +410,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public fetchBackup(
     backupHeader: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    // if (!this.cloudStorageManager.cloudStorageActivated()) {
+    //   return okAsync([]);
+    // }
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {
@@ -423,6 +421,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    // if (!this.cloudStorageManager.cloudStorageActivated()) {
+    //   return okAsync([]);
+    // }
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {
@@ -435,19 +436,23 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<DataWalletBackupID[], PersistenceError> {
     // If cloud storage is not already active, don't wait and just
     // don't post any backups
-    if (!this.cloudStorageManager.cloudStorageActivated()) {
-      return okAsync([]);
-    }
+    console.log("posting backups:");
+    // if (!this.cloudStorageManager.cloudStorageActivated()) {
+    //   return okAsync([]);
+    // }
 
     return ResultUtils.combine([
       this.backupManagerProvider.getBackupManager(),
       this.cloudStorageManager.getCloudStorage(),
     ]).andThen(([backupManager, cloudStorage]) => {
+      console.log("cloudStorage: " + cloudStorage.name());
+
       return backupManager.getRendered(force).andThen((backups) => {
         const postedBackupIds = new Array<DataWalletBackupID>();
         let backupsToCreateCount = backups.length;
         let totalBackupsCreated = 0;
 
+        console.log("backups: " + JSON.stringify(backups));
         return ResultUtils.combine(
           backups.map((backup) => {
             return cloudStorage
@@ -489,6 +494,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
+    // if (!this.cloudStorageManager.cloudStorageActivated()) {
+    //   return okAsync(undefined);
+    // }
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {
