@@ -1,31 +1,30 @@
 {
-  "name": "sd-nodeify",
+  "name": "@snickerdoodlelabs/mobile-nodeify",
   "repository": {
     "type": "git",
     "url": "https://github.com/dlgn2/sd-nodeify.git"
   },
-  "version": "1.0.10",
+  "version": "1.0.15",
   "preferGlobal": true,
   "bin": {
     "build": "tsc",
-    "test": "jest",
     "prepublishOnly": "npm run build",
     "sd-nodeify": "./cmd.js",
-    "sd-nodeify-setup": "./cmd-setup.js"
+    "sd-nodeify-setup": "./cmd-setup.js",
+    "test": "jest"
   },
   "license": "MIT",
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.19.1",
-    "@snickerdoodlelabs/core": "^0.0.6",
     "@yarnpkg/lockfile": "^1.0.0",
     "deep-equal": "^1.0.0",
     "findit": "^2.0.0",
     "fs-extra": "^0.22.1",
+    "indexeddbshim": "^10.1.0",
     "minimist": "^1.1.2",
     "neverthrow": "^5.1.0",
     "object.pick": "^1.1.1",
-    "react-native-quick-base64": "^2.0.7",
     "react-native-quick-crypto": "^0.6.1",
+    "react-native-sqlite-2": "^3.6.2",
     "run-parallel": "^1.1.2",
     "semver": "^5.0.1",
     "xtend": "^4.0.0"

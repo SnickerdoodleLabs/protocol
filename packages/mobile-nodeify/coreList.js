@@ -28,5 +28,14 @@ module.exports = [
   "net",
   "vm",
   // note: tls doesn't have a shim
-  "tls"
-]
+  "tls",
+  "rxjs",
+  "web3",
+  "react-native-get-random-values",
+  "react-native-argon2",
+  "node-libs-react-native",
+  "react-native-sqlite-2",
+  "indexeddbshim",
+  "fake-indexeddb",
+  "@ethersproject/shims",
+];

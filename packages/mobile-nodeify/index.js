@@ -1,3 +1,3 @@
-import MobileStorageUtils from "./lib/MobileStorageUtils";
+const MobileStorageUtils = require("./dist/MobileStorageUtils");
 
 export { MobileStorageUtils };
