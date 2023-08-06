@@ -64,6 +64,7 @@ packages/test-harness/data/insight/*
 
 # Mobile
 packages/mobile/ios/Pods
+packages/mobile-nodeify/node_modules
 
 # Dapps Data
 documentation/sdql/examples/output
