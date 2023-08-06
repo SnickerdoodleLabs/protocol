@@ -148,27 +148,34 @@ export default () => {
       .map((balances) =>
         balances.map((b) => ({ ...b, balance: formatValue(b) })),
       )
-      .andThen((balanceResults) =>
-        ResultUtils.combine(
+      .andThen((balanceResults) => {
+        console.log(`balance results`, balanceResults);
+        return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
             window.sdlDataWallet
               .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
               .orElse((e) => okAsync(null)),
           ),
-        ).map((tokenInfo) =>
-          balanceResults.map((balanceItem, index) => ({
+        ).map((tokenInfo) => {
+          console.log(`Token Info `, tokenInfo);
+          return balanceResults.map((balanceItem, index) => ({
             ...balanceItem,
             tokenInfo: tokenInfo[index],
-          })),
-        ),
-      )
+          }));
+        });
+      })
       .andThen((balancesWithTokenInfo) => {
+        console.log(
+          `Balance wuth token info `,
+          balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
+        );
         return window.sdlDataWallet
           .getTokenMarketData(
             balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
           )
           .orElse((e) => okAsync([]))
           .map((res) => {
+            console.log(`res `, res);
             const combinedBalances = balancesWithTokenInfo.reduce(
               (acc, item) => {
                 if (!item.tokenInfo) {

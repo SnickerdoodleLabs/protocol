@@ -35,6 +35,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
+
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -216,7 +218,7 @@ export class EtherscanIndexer implements IEVMIndexer {
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
           getChainInfoByChain(chain).chainId,
-          `0x0`,
+          MasterIndexer.nativeAddress,
           accountAddress,
           BigNumberString(response.result),
           getChainInfoByChain(chain).nativeCurrency.decimals,

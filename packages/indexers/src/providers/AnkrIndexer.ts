@@ -39,6 +39,8 @@ import {
   IIndexerContextProviderType,
 } from "@indexers/interfaces/index.js";
 
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
+
 @injectable()
 export class AnkrIndexer implements IEVMIndexer {
   protected health: Map<EChain, EComponentStatus> = new Map<
@@ -141,7 +143,7 @@ export class AnkrIndexer implements IEVMIndexer {
                   EChainTechnology.EVM,
                   item.tokenSymbol,
                   chainId,
-                  `0x0`,
+                  MasterIndexer.nativeAddress,
                   accountAddress,
                   BigNumberString("1"),
                   item.tokenDecimals,

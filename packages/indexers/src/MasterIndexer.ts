@@ -28,6 +28,7 @@ import {
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
+  TokenAddress,
   TokenBalance,
   UnixTimestamp,
   WalletNFT,
@@ -335,5 +336,9 @@ export class MasterIndexer implements IMasterIndexer {
         );
         return okAsync([]);
       });
+  }
+
+  static get nativeAddress(): TokenAddress {
+    return "0x0";
   }
 }

@@ -32,6 +32,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
+import { MasterIndexer } from "@indexers/MasterIndexer.js";
+
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -117,7 +119,7 @@ export class MoralisEVMPortfolioRepository implements IEVMIndexer {
             EChainTechnology.EVM,
             TickerSymbol(chainInfo.nativeCurrency.symbol),
             chainId,
-            `0x0`,
+            MasterIndexer.nativeAddress,
             accountAddress,
             balanceResponse.balance,
             chainInfo.nativeCurrency.decimals,

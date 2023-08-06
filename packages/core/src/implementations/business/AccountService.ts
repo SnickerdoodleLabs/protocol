@@ -119,7 +119,7 @@ export class AccountService implements IAccountService {
 
   public getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError> {
     return this.tokenPriceRepo.getTokenPrice(chainId, address, timestamp);

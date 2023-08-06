@@ -34,7 +34,6 @@ export const Permissions: FC<IPermissionsProps> = ({
     mr: 1,
   },
 }) => {
-  console.log(`perms `, permissions);
   const itemsToRender = () => {
     return (
       <Box display="flex" flexWrap="wrap">
