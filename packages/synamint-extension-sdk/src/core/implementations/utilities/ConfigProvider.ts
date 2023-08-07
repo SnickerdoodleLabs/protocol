@@ -8,6 +8,7 @@ import {
 } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
 const ONE_MINUTE_MS = 60000;
+const FIVE_SECONDS_MS = 5000;
 
 const defaultConfigs: IExtensionConfig = {
   onboardingUrl: "https://datawallet.snickerdoodle.com/",
@@ -29,14 +30,14 @@ const defaultConfigs: IExtensionConfig = {
   domainFilter: "(localhost|chrome://)",
   portfolioPollingIntervalMS: ONE_MINUTE_MS,
   transactionPollingIntervalMS: ONE_MINUTE_MS,
-  backupPollingIntervalMS: ONE_MINUTE_MS,
+  backupPollingIntervalMS: FIVE_SECONDS_MS,
   requestForDataCheckingFrequency: 4000,
 };
 @injectable()
 export class ConfigProvider implements IConfigProvider {
   private config: IExtensionConfig = defaultConfigs;
 
-  constructor() { }
+  constructor() {}
   public setConfigOverrides(configOverrides: IExtensionConfigOverrides): void {
     this.config.onboardingUrl =
       configOverrides.onboardingUrl ?? this.config.onboardingUrl;

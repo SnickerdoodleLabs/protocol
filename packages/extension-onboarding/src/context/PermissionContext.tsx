@@ -44,8 +44,6 @@ export const PermissionManagerContextProvider: FC = ({ children }) => {
   let locationSubscription: Subscription | null = null;
 
   useEffect(() => {
-    console.log("tracking use effect in permission context!!!");
-
     if (appMode === EAppModes.AUTH_USER) {
       updateProfileValues();
       updateSocialProfileValues();

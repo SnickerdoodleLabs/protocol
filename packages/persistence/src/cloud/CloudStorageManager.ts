@@ -69,6 +69,8 @@ export class CloudStorageManager implements ICloudStorageManager {
     protected volatileStorage: IVolatileStorage,
   ) {
     this.storageList = new Set();
+
+    // this is for init, how about for loading
     this.initializeResult = ResultAsync.fromSafePromise(
       new Promise((resolve) => {
         this.resolveProvider = resolve;

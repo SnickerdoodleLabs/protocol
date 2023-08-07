@@ -144,8 +144,4 @@ export class MonitoringService implements IMonitoringService {
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.persistence.postBackups();
   }
-
-  // public getCloudStorage(): ResultAsync<ICloudStorage, never> {
-  //   return this.persistence.getCloudStorage();
-  // }
 }

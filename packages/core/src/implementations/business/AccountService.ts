@@ -246,7 +246,7 @@ export class AccountService implements IAccountService {
                       return this.authenticatedStorageRepo.getCredentials();
                     })
                     .andThen((credentials) => {
-                      console.log("Auth Credentials: " + credentials);
+                      this.logUtils.info(`Auth Credentials: ${credentials}`);
 
                       if (credentials == null) {
                         return okAsync(undefined);
@@ -259,8 +259,6 @@ export class AccountService implements IAccountService {
                 ]);
               })
               .andThen(() => {
-                console.log("Finished Auth: ");
-
                 // This is a bit of a hack.
                 // The problem is, if you have an existing data wallet, but don't have the data
                 // for that wallet, when you call getAccounts() after unlocking you'll get a complete

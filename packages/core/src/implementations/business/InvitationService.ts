@@ -597,18 +597,10 @@ export class InvitationService implements IInvitationService {
     | PersistenceError
     | BlockchainCommonErrors
   > {
-    console.log("getInvitationsByDomain: " + domain);
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
-        console.log("contractAddresses: " + contractAddresses);
-        console.log("contractAddresses: " + JSON.stringify(contractAddresses));
-
         return ResultUtils.combine(
           contractAddresses.map((consentContractAddress) => {
-            console.log(
-              "contractAddresses: " + JSON.stringify(contractAddresses),
-            );
-
             return this.getInvitationsFromConsentContract(
               domain,
               consentContractAddress,

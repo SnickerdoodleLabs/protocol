@@ -37,8 +37,6 @@ import { ICloudStorage } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 export interface IAccountService {
-  // getCloudStorage(): ResultAsync<ECloudStorageType, never>;
-
   getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError>;

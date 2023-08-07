@@ -43,22 +43,18 @@ export class CloudStorageService implements ICloudStorageService {
    * the chosen authenticated storage system for the user. This system will be
    * put on-file and automatically used in the future
    */
-  // LAYER - CORE
   public setAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
     // Figure out if cloud storage is already active (we have settings on file)
-    // LAYER - CORE: authenticatedStorageRepo
     return this.authenticatedStorageRepo
       .getCredentials()
       .andThen((credentials) => {
         // If we don't have settings, store them, and then activate the CloudStorageManager
         if (credentials == null) {
-          // LAYER - CORE: authenticatedStorageRepo
           return this.authenticatedStorageRepo
             .saveCredentials(settings)
             .andThen(() => {
-              // LAYER - CORE: authenticatedStorageRepo
               return this.authenticatedStorageRepo.activateAuthenticatedStorage(
                 settings,
               );
@@ -121,31 +117,4 @@ export class CloudStorageService implements ICloudStorageService {
         });
     });
   }
-
-  // public getAvailableStorageOptions() {
-  //     // we can check the config values
-  //     // if there are credentials for provider we can add this provider as a available option
-  // }
-  // public getCurrentStorageOption() {
-  //     // we need to check localstorage
-  //     // storageUtils
-  //     //return ECloudStorageOption
-  // }
-  // public getGDriveAuthUrl() {
-  //     // return the config value
-  //     // if there is no config value we can retun an error
-  // }
-  // public generateGDriveCredentials(code: string) {
-  //     // code is authentication code
-  //     // this function gonna call the Repository then the result should be stored in localstorage
-  //     // return accessToken
-  // }
-  // public cancelGDriveAuthenticaion() {
-  //     // we can remove the credentials from localstorage
-  // }
-  // public initGDrive(accessToken: string, path: string)() {
-  //     // if the context does not have the account info then we can try to recover
-  //     // accessToken is just for check we need to check the value stored in localstorage
-  //     // DataWalletPersistence  change provider
-  // }
 }

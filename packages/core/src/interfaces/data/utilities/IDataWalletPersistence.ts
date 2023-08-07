@@ -12,7 +12,7 @@ import {
   VolatileStorageMetadata,
   AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
-import { ICloudStorage, IVolatileCursor } from "@snickerdoodlelabs/persistence";
+import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -35,8 +35,6 @@ export interface IDataWalletPersistence {
    */
   unlock(dataWalletKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
-
-  // getCloudStorage(): ResultAsync<ICloudStorage, never>;
 
   // write methods
   updateRecord<T extends VersionedObject>(

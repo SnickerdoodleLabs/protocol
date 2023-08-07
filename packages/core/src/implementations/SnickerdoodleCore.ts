@@ -1214,12 +1214,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.clearCloudStore();
   }
 
-  // public getCloudStorage(): ResultAsync<ECloudStorageType, never> {
-  //   const accountService =
-  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
-  //   return accountService.getCloudStorage();
-  // }
-
   public listFileNames(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<BackupFileName[], PersistenceError> {

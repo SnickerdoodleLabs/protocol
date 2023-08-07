@@ -65,7 +65,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ResultAsync<void, PersistenceError>
   > = new Map();
 
-  public storage: ECloudStorageType = ECloudStorageType.Dropbox;
+  // public storage: ECloudStorageType = ECloudStorageType.Dropbox;
 
   public constructor(
     @inject(ICloudStorageManagerType)

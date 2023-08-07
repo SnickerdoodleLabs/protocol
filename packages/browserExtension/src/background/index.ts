@@ -30,17 +30,16 @@ async function createOffscreen() {
       reasons: ["BLOBS"],
       justification: "keep service worker running",
     })
-    .catch(() => { });
+    .catch(() => {});
 }
 
 Browser.runtime.onStartup.addListener(createOffscreen);
-self.onmessage = (e) => { }; // keepAlive
+self.onmessage = (e) => {}; // keepAlive
 createOffscreen();
 //#endregion
 
 //#region core initialization
 initializeSDKCore(configs).map(() => {
-  console.log("LOOK HERE! INITIALIZE EXTENSION CORE!");
   console.log("core initialized");
 });
 
