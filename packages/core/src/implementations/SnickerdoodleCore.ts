@@ -251,8 +251,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         sourceDomain: DomainName | undefined = undefined,
       ) => {
         // Get all of our indexers and initialize them
-        // TODO
-        console.log("Inside Unlock function for core");
         const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
           IBlockchainProviderType,
         );
@@ -286,72 +284,36 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const indexers =
           this.iocContainer.get<IMasterIndexer>(IMasterIndexerType);
 
-        const cloudManager = this.iocContainer.get<ICloudStorageManager>(
-          ICloudStorageManagerType,
-        );
-
-        const cloudStorageService = this.iocContainer.get<ICloudStorageService>(
-          ICloudStorageServiceType,
-        );
-
-        const configProvider =
-          this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-
-        return configProvider.getConfig().andThen((config) => {
-          // Passing in params via config
-          // console.log("Inside Unlock function for core - Create params start");
-
-          // const cloudStorageParams = new AuthenticatedStorageParams(
-          //   ECloudStorageType.Snickerdoodle,
-          //   config.dropboxAppKey,
-          //   config.dropboxAppSecret,
-          //   "https://localhost:9005/settings/storage",
-          // );
-          // console.log("Inside Unlock function for core - Create params end");
-
-          // BlockchainProvider needs to be ready to go in order to do the unlock
-          return ResultUtils.combine([
-            blockchainProvider.initialize(),
-            indexers.initialize(),
-            // cloudManager.activateAuthenticatedStorage(
-            //   ECloudStorageType.Snickerdoodle,
-            //   "",
-            //   AccessToken(""),
-            // ),
-          ])
-
-            .andThen(() => {
-              console.log("cloudManager activateAuthenticatedStorage");
-
-              return accountService.unlock(
-                accountAddress,
-                signature,
-                languageCode,
-                chain,
-              );
-            })
-            .andThen(() => {
-              console.log("accountService unlock");
-
-              // Service Layer
-              return ResultUtils.combine([
-                queryService.initialize(),
-                metricsService.initialize(),
-              ]);
-            })
-            .andThen(() => {
-              console.log("queryService initialize");
-
-              // API Layer
-              return ResultUtils.combine([
-                accountIndexerPoller.initialize(),
-                blockchainListener.initialize(),
-                socialPoller.initialize(),
-                heartbeatGenerator.initialize(),
-              ]);
-            })
-            .map(() => {});
-        });
+        // BlockchainProvider needs to be ready to go in order to do the unlock
+        return ResultUtils.combine([
+          blockchainProvider.initialize(),
+          indexers.initialize(),
+        ])
+          .andThen(() => {
+            return accountService.unlock(
+              accountAddress,
+              signature,
+              languageCode,
+              chain,
+            );
+          })
+          .andThen(() => {
+            // Service Layer
+            return ResultUtils.combine([
+              queryService.initialize(),
+              metricsService.initialize(),
+            ]);
+          })
+          .andThen(() => {
+            // API Layer
+            return ResultUtils.combine([
+              accountIndexerPoller.initialize(),
+              blockchainListener.initialize(),
+              socialPoller.initialize(),
+              heartbeatGenerator.initialize(),
+            ]);
+          })
+          .map(() => {});
       },
 
       addAccount: (

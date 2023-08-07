@@ -129,6 +129,7 @@ export class MonitoringService implements IMonitoringService {
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
+    console.log("Polling backups!");
     return this.persistence.pollBackups();
   }
 

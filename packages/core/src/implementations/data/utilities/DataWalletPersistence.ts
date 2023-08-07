@@ -280,6 +280,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public restoreBackup(
     backup: DataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
+    console.log("Hitting restoreBackup!");
+
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -308,6 +310,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public pollBackups(): ResultAsync<void, PersistenceError> {
     // We should only be polling for backups once at a time; if we try to poll
     // multiple times in parallel notify the user and return the current poll
+    console.log("Hitting poll backups!");
+
+    this.logUtils.log(`Hitting poll backups`);
     if (this.currentPoll != null) {
       this.logUtils.warning(`Already polling for backups and restoring`);
       return this.currentPoll;
@@ -393,6 +398,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
+    console.log("Hitting unpackBackupChunk!");
+
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -403,9 +410,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public fetchBackup(
     backupHeader: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
-    // if (!this.cloudStorageManager.cloudStorageActivated()) {
-    //   return okAsync([]);
-    // }
+    console.log("Inside fetch backup!");
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {
@@ -414,9 +419,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
-    // if (!this.cloudStorageManager.cloudStorageActivated()) {
-    //   return okAsync([]);
-    // }
     return this.cloudStorageManager
       .getCloudStorage()
       .andThen((cloudStorage) => {

@@ -117,12 +117,14 @@ export class EtherscanIndexer implements IEVMIndexer {
     AccountIndexingError | AjaxError | MethodSupportError
   > {
     // throw new Error("Method not implemented.");
-    return errAsync(
-      new MethodSupportError(
-        "getTokensForAccount not supported for AlchemyIndexer",
-        400,
-      ),
-    );
+    return okAsync([]);
+
+    // return errAsync(
+    //   new MethodSupportError(
+    //     "getTokensForAccount not supported for AlchemyIndexer",
+    //     400,
+    //   ),
+    // );
   }
 
   public getEVMTransactions(

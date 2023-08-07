@@ -104,39 +104,22 @@ export class CloudStorageManager implements ICloudStorageManager {
   }
 
   /* 
-    Initializing our CloudStorageManager
-    Here we look at the CloudStorageParams passed in from the configs and build scripts. 
+    Here we authenticate the storage provider via its AuthenticatedStorageSettings provided. 
+    NOTE: This is different than setAuthenticatedStorage, which activates storage AND makes it the current provider.
   */
   public activateAuthenticatedStorage(
     credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, never> {
-    console.log("Cloud Manager activateAuthenticatedStorage called!");
     return this.contextProvider.getContext().map((context) => {
-      console.log("Look into the contents of cloudStorageParams: ");
-      console.log("type: " + credentials.type);
-      console.log("path: " + credentials.path);
-      console.log("accessToken: " + credentials.accessToken);
-
       if (credentials.type == ECloudStorageType.Dropbox) {
-        console.log("hit dropbox: ");
-        // uncommented
-        this.dropbox.passAuthTokens(credentials.path, credentials.accessToken);
         this.provider = this.dropbox;
       } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
-        console.log("hit snickerdoodle: ");
         this.provider = this.gDrive;
       } else {
         // return errAsync, this means you have invalid params, OR just use NullStorage
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.resolveProvider!(this.provider);
-
-      console.log("Cloud Manager event called after!");
-
-      this.initializeResult.map((cloudstorage) => {
-        console.log("cloudStorage is : " + JSON.stringify(cloudstorage));
-      });
-
       this.activated = true;
       context.publicEvents.onCloudStorageActivated.next(
         // TODO: Change name of this object to AuthenticatedStorageActivatedEvent
@@ -149,17 +132,11 @@ export class CloudStorageManager implements ICloudStorageManager {
     });
   }
 
-  // cloudstoragemanager.getCloudStorage() - should indefinitely hold until storage is activated OR immediately error out
-  // debug log when having no activated cloud storage yet
   public getCloudStorage(): ResultAsync<ICloudStorage, never> {
-    // return this.initializeResult.map((cloudStorage) => {
-    //   return this.provider;
-    // });
     return this.initializeResult;
   }
 
   public getCurrentCloudStorage(): ResultAsync<ECloudStorageType, never> {
-    console.log("getCurrentCloudStorage: ");
     return okAsync(this.provider.name());
   }
 
@@ -167,7 +144,6 @@ export class CloudStorageManager implements ICloudStorageManager {
     Set<ECloudStorageType>,
     never
   > {
-    console.log("getAvailableCloudStorage: ");
     return okAsync(this.storageList);
   }
 }

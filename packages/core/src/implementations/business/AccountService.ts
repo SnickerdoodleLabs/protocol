@@ -165,8 +165,6 @@ export class AccountService implements IAccountService {
     | BlockchainCommonErrors
   > {
     // First, let's do some validation and make sure that the signature is actually for the account
-
-    console.log("Account address begin unlock");
     return this.validateSignatureForAddress(
       accountAddress,
       signature,
@@ -174,8 +172,6 @@ export class AccountService implements IAccountService {
       chain,
     )
       .andThen(() => {
-        console.log("Signature validation");
-
         // Next step is to convert the signature into a derived account
         return ResultUtils.combine([
           this.dataWalletUtils.getDerivedEVMAccountFromSignature(
@@ -186,13 +182,9 @@ export class AccountService implements IAccountService {
         ]);
       })
       .andThen(([derivedEOA, context]) => {
-        console.log("derivedEOA: " + derivedEOA);
-
         return this.crumbsRepo
           .getCrumb(derivedEOA.accountAddress, languageCode)
           .andThen((encryptedDataWalletKey) => {
-            console.log("encryptedDataWalletKey: " + encryptedDataWalletKey);
-
             // If we're already in the process of unlocking
             if (context.unlockInProgress) {
               return errAsync(
@@ -216,10 +208,6 @@ export class AccountService implements IAccountService {
             return this.contextProvider
               .setContext(context)
               .andThen(() => {
-                console.log(
-                  "encryptedDataWalletKey: " + encryptedDataWalletKey,
-                );
-
                 if (encryptedDataWalletKey == null) {
                   // We're trying to unlock for the first time!
                   this.logUtils.info(
@@ -242,11 +230,6 @@ export class AccountService implements IAccountService {
                 );
               })
               .andThen((dataWalletAccount) => {
-                console.log(
-                  "Data wallet address initialized: ",
-                  dataWalletAccount.accountAddress,
-                );
-
                 // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
                 // what it is.
@@ -255,14 +238,11 @@ export class AccountService implements IAccountService {
                 );
                 context.dataWalletKey = dataWalletAccount.privateKey;
                 context.unlockInProgress = false;
-
-                console.log("Unlocking persistence layer: ");
                 // We can update the context and provide the key to the persistence in one step
                 return ResultUtils.combine([
                   this.dataWalletPersistence
                     .unlock(dataWalletAccount.privateKey)
                     .andThen(() => {
-                      console.log("Data persistence unlocked: ");
                       return this.authenticatedStorageRepo.getCredentials();
                     })
                     .andThen((credentials) => {

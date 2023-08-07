@@ -53,14 +53,14 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
 
       // Cloud Activation here - event found in cloud storage manager
       context.publicEvents.onCloudStorageActivated.subscribe(() => {
-        // this.monitoringService.pollTransactions().mapErr((e) => {
-        //   this.logUtils.error(e);
-        // });
+        this.monitoringService.pollTransactions().mapErr((e) => {
+          this.logUtils.error(e);
+        });
 
-        // // Poll immediately for backups
-        // this.monitoringService.pollBackups().mapErr((e) => {
-        //   this.logUtils.error(e);
-        // });
+        // Poll immediately for backups
+        this.monitoringService.pollBackups().mapErr((e) => {
+          this.logUtils.error(e);
+        });
 
         // Set up polling for backups
         setInterval(() => {
