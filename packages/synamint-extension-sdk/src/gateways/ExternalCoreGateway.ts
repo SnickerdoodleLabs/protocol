@@ -47,7 +47,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
-
+import "reflect-metadata";
 import CoreHandler from "@synamint-extension-sdk/gateways/handler/CoreHandler";
 import {
   AcceptInvitationParams,

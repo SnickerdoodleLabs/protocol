@@ -1,5 +1,4 @@
 import { create } from "jss";
-import "reflect-metadata";
 import React from "react";
 import { render } from "react-dom";
 import "@webcomponents/custom-elements";
