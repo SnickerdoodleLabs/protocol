@@ -18,6 +18,7 @@ import {
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  ECloudStorageType,
   EDataWalletPermission,
   EInvitationStatus,
   EWalletDataType,
@@ -34,6 +35,7 @@ import {
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import {
+  AccessToken,
   AccountAddress,
   Age,
   BigNumberString,
@@ -345,6 +347,12 @@ export interface ISdlDataWallet {
   ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+
+  setAuthenticatedStorage(
+    storageType: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
+  ): ResultAsync<void, ProxyError>;
 
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;

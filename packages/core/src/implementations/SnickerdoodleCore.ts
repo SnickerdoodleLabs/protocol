@@ -294,11 +294,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
           ICloudStorageServiceType,
         );
 
-        console.log("Inside Unlock function for core - BEFORE CONFIG");
-
         const configProvider =
           this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-        console.log("Inside Unlock function for core - AFTER CONFIG");
 
         return configProvider.getConfig().andThen((config) => {
           // Passing in params via config
@@ -463,23 +460,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         const configProvider =
           this.iocContainer.get<IConfigProvider>(IConfigProviderType);
         return configProvider.getConfig().andThen((config) => {
-          // Passing in params via config
-          // const cloudStorageParams = new AuthenticatedStorageParams(
-          //   ECloudStorageType.Snickerdoodle,
-          //   config.dropboxAppKey,
-          //   config.dropboxAppSecret,
-          //   "https://localhost:9005/settings/storage",
-          // );
-
           // BlockchainProvider needs to be ready to go in order to do the unlock
           return ResultUtils.combine([
             blockchainProvider.initialize(),
             indexers.initialize(),
-            // cloudManager.activateAuthenticatedStorage(
-            //   ECloudStorageType.Snickerdoodle,
-            //   "",
-            //   AccessToken(""),
-            // ),
           ])
             .andThen(() => {
               return accountService.unlockWithPassword(password);

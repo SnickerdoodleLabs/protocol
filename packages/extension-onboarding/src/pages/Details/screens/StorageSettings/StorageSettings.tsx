@@ -248,14 +248,13 @@ const StorageSettings = () => {
 
   // Okan passes in onFolderSelect
   // we need to pass in the path into DropboxCloudStorage as well
+  // .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
+
   const onFolderSelect = (path: string) => {
     window.sdlDataWallet
       // @ts-ignore
-      .activateAuthenticatedStorage(
-        ECloudStorageType.Dropbox,
-        path,
-        accessToken,
-      )
+      .setAuthenticatedStorage(ECloudStorageType.Dropbox, path, accessToken)
+
       .map(() => {
         // brought back
         setAlert({

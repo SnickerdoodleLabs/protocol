@@ -6,6 +6,8 @@ import {
   ICryptoUtilsType,
   ILogUtilsType,
   ILogUtils,
+  ObjectUtils,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -22,36 +24,25 @@ import {
   BackupFileName,
   StorageKey,
   ECloudStorageType,
-  ERecordKey,
-  VolatileStorageKey,
   AccessToken,
   AccessCode,
   RefreshToken,
+  SerializedObject,
+  EFieldKey,
+  AuthenticatedStorageSettings,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
-import {
-  Dropbox,
-  DropboxAuth,
-  DropboxResponse,
-  DropboxResponseError,
-} from "dropbox";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { Err, ok, okAsync, Result, ResultAsync, errAsync } from "neverthrow";
+import { okAsync, ok, err, Result, ResultAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoinP } from "url-join-ts";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
-import {
-  ICloudStorageManager,
-  ICloudStorageManagerType,
-} from "@persistence/cloud/ICloudStorageManager.js";
 import {
   IDropboxFileBackup,
   IDropboxWalletBackupDirectory,
 } from "@persistence/cloud/IDropboxBackup.js";
-import {
-  IGoogleFileBackup,
-  IGoogleWalletBackupDirectory,
-} from "@persistence/cloud/IGoogleBackup.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -78,8 +69,7 @@ export class DropboxCloudStorage implements ICloudStorage {
     @inject(IAxiosAjaxUtilsType)
     protected ajaxUtils: AxiosAjaxUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-    @inject(ICloudStorageManagerType)
-    protected cloudStorageMangaer: ICloudStorageManager,
+    @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
   ) {
     console.log("Dropbox is Called in init!");
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
@@ -89,9 +79,13 @@ export class DropboxCloudStorage implements ICloudStorage {
     this.initialize();
   }
 
-  public passAuthTokens(path: string, accessToken: AccessToken): void {
+  public passAuthTokens(
+    path: string,
+    accessToken: AccessToken,
+  ): ResultAsync<void, never> {
     this.dropboxFilePath = path;
     this.accessToken = accessToken;
+    return okAsync(undefined);
   }
 
   public name(): ECloudStorageType {
@@ -100,6 +94,36 @@ export class DropboxCloudStorage implements ICloudStorage {
 
   private initialize(): void {
     return undefined;
+  }
+
+  private deserialize<T>(
+    serializedObj: SerializedObject,
+  ): Result<T, PersistenceError> {
+    try {
+      switch (serializedObj.type) {
+        case "object":
+          return ok(ObjectUtils.deserialize<T>(JSONString(serializedObj.data)));
+        case "boolean":
+          return ok((serializedObj.data === "true") as unknown as T);
+        case "number":
+          return ok(Number.parseFloat(serializedObj.data) as unknown as T);
+        case "string":
+          return ok(serializedObj.data as unknown as T);
+        case "bigint":
+          return ok(
+            BigNumber.from(serializedObj.data).toBigInt() as unknown as T,
+          );
+        default:
+          return err(
+            new PersistenceError(
+              "invalid data type for deserialization",
+              serializedObj.type,
+            ),
+          );
+      }
+    } catch (e) {
+      return err(new PersistenceError("error deserializing object", e));
+    }
   }
 
   // use /files/list_folder API
@@ -161,85 +185,90 @@ export class DropboxCloudStorage implements ICloudStorage {
       });
   }
 
+  private getCredentials<T>(): ResultAsync<T | null, PersistenceError> {
+    return this.storageUtils
+      .read<SerializedObject>(EFieldKey.AUTHENTICATED_STORAGE_SETTINGS)
+      .andThen((raw) => {
+        if (raw == null) {
+          return okAsync(null);
+        }
+        return this.deserialize(raw).map((result) => {
+          return result as T;
+        });
+      });
+  }
+
   // use /file_requests/create API
   /* Same set up as GCP: we need a temporary link, then we use access token to upload */
   public putBackup(
     backup: DataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
-    console.log("Inside Dropbox putBackup");
-
-    return this._configProvider
-      .getConfig()
-      .andThen((config) => {
-        console.log("Access token: " + this.accessToken);
-        console.log("file path: " + this.dropboxFilePath);
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+      this.getCredentials<ISettingsData>(),
+    ])
+      .andThen(([privateKey, config, params]) => {
         // Returns a temporary link, just like GCP
-        // SEE https://www.dropbox.com/developers/documentation/http/documentation#files-get_temporary_upload_link
-
-        // dropbox post method
-        //     curl -X POST https://content.dropboxapi.com/2/files/upload \
-        // --header "Authorization: Bearer sl.Bjc6SJ1x0vcJkbXYLEdE3aYQ3DnZxOICZZ7lI-YAgHyBUTOptDlvPeSQ6JXGug9ZHv1HjTBUp_pyaMgFziNaHwNvD8nZUtNqrRq9kpQpxVFvJYepQCJ-lG33rDhOHOQXvrPWH2J6mdeI1Cmb02z2K_I" \
-        // --header "Dropbox-API-Arg: {\"autorename\":false,\"mode\":\"add\",\"mute\":false,\"path\":\"/backups/sample.txt\",\"strict_conflict\":false}" \
-        // --header "Content-Type: application/octet-stream" \
-        // --data-binary “”
-
-        //   const url = "https://content.dropboxapi.com/2/files/upload";
-        //   const data = {
-        //     autorename: true,
-        //     mode: "add",
-        //     mute: false,
-        //     path: this.dropboxFilePath,
-        //     strict_conflict: false,
-        //   };
-        //   console.log("Dropbox url: " + url);
-        //   return this.ajaxUtils
-        //     .post<undefined>(new URL(url), JSON.stringify(data), {
-        //       headers: {
-        //         Authorization: `Bearer ` + this.accessToken,
-        //         "Dropbox-API-Arg": data,
-        //         "Content-Type": `application/octet-stream;`,
-        //       },
-        //     })
-        //     .map(() => DataWalletBackupID(backup.header.hash));
-        // })
-        // .mapErr((e) => new PersistenceError("error putting backup", e));
-
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        const settingsData = params!;
         const url =
           "https://api.dropboxapi.com/2/files/get_temporary_upload_link";
+        const commitData = {
+          autorename: true,
+          mode: "add",
+          mute: false,
+          path:
+            settingsData.path + "/" + addr + "/" + backup.header.name + ".txt",
+          strict_conflict: false,
+        };
         const data = {
-          commit_info: {
-            autorename: true,
-            mode: "add",
-            mute: false,
-            path: "/" + this.dropboxFilePath,
-            strict_conflict: false,
-          },
+          commit_info: commitData,
           duration: 3600,
         };
-        console.log("Dropbox url: " + url);
 
         return this.ajaxUtils
-          .post<undefined>(new URL(url), JSON.stringify(data), {
+          .post<ITempUrl>(new URL(url), data, {
             headers: {
-              Authorization: `Bearer ` + this.accessToken,
-              "Content-Type": `application/json;`,
+              Authorization: `Bearer ${settingsData.accessToken}`,
+              "Content-Type": `application/json`,
             },
-          })
-          .map(() => DataWalletBackupID(backup.header.hash));
+          } as IRequestConfig)
+          .mapErr((e) => {
+            this.logUtils.error("error in getting temp url: " + e);
+            return new PersistenceError("error getting temp url", e);
+          });
+        // .map(() => DataWalletBackupID(backup.header.hash));
       })
       .andThen((tempUploadUrl) => {
         // If Successful, it ALSO returns a content hash!
-
-        console.log("Dropbox tempUploadUrl: " + tempUploadUrl);
         return this.ajaxUtils
-          .post<undefined>(new URL(tempUploadUrl), JSON.stringify(backup), {
-            headers: {
-              "Content-Type": `application/octet-stream;`,
+          .post<undefined>(
+            new URL(tempUploadUrl.link),
+            {
+              header: backup.header,
+              blob: backup.blob,
             },
+            {
+              headers: {
+                "Content-Type": `application/octet-stream`,
+              },
+            },
+          )
+          .map(() => {
+            console.log("Successful upload via temp url");
+            return DataWalletBackupID(backup.header.hash);
           })
-          .map(() => DataWalletBackupID(backup.header.hash));
+          .mapErr((e) => {
+            this.logUtils.error("error in posting the backup: " + e);
+            return new PersistenceError("error putting backup", e);
+          });
       })
-      .mapErr((e) => new PersistenceError("error putting backup", e));
+      .mapErr((e) => {
+        this.logUtils.error("error in posting the backup: " + e);
+        return new PersistenceError("error putting backup", e);
+      });
   }
 
   public unlock(
@@ -564,4 +593,14 @@ interface RefreshTokenResponse {
   access_token: AccessToken;
   token_type: string;
   expires_in: number;
+}
+
+interface ITempUrl {
+  link: string;
+}
+
+interface ISettingsData {
+  type: string;
+  path: string;
+  accessToken: AccessToken;
 }

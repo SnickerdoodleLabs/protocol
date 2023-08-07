@@ -34,6 +34,8 @@ import {
   TwitterID,
   URLString,
   UnixTimestamp,
+  ECloudStorageType,
+  AccessToken,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -922,6 +924,24 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.twitter.getUserProfiles(sourceDomain);
+          });
+        }, data.callId);
+      },
+      "credentials.setAuthenticatedStorage": (
+        data: IIFrameCallData<{
+          storageType: ECloudStorageType;
+          path: string;
+          accessToken: AccessToken;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.setAuthenticatedStorage(
+              data.data.storageType,
+              data.data.path,
+              data.data.accessToken,
+              // sourceDomain,
+            );
           });
         }, data.callId);
       },

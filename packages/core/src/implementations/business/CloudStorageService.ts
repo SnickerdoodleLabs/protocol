@@ -43,18 +43,22 @@ export class CloudStorageService implements ICloudStorageService {
    * the chosen authenticated storage system for the user. This system will be
    * put on-file and automatically used in the future
    */
+  // LAYER - CORE
   public setAuthenticatedStorage(
     settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
     // Figure out if cloud storage is already active (we have settings on file)
+    // LAYER - CORE: authenticatedStorageRepo
     return this.authenticatedStorageRepo
       .getCredentials()
       .andThen((credentials) => {
         // If we don't have settings, store them, and then activate the CloudStorageManager
         if (credentials == null) {
+          // LAYER - CORE: authenticatedStorageRepo
           return this.authenticatedStorageRepo
             .saveCredentials(settings)
             .andThen(() => {
+              // LAYER - CORE: authenticatedStorageRepo
               return this.authenticatedStorageRepo.activateAuthenticatedStorage(
                 settings,
               );
@@ -66,6 +70,13 @@ export class CloudStorageService implements ICloudStorageService {
           new PersistenceError("Cannot reset authenticated storage"),
         );
       });
+  }
+
+  public getCredentials(): ResultAsync<
+    AuthenticatedStorageSettings | null,
+    PersistenceError
+  > {
+    return this.authenticatedStorageRepo.getCredentials();
   }
 
   public getDropboxAuth(): ResultAsync<URLString, never> {

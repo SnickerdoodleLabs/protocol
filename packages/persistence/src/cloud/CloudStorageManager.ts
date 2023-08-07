@@ -119,12 +119,8 @@ export class CloudStorageManager implements ICloudStorageManager {
 
       if (credentials.type == ECloudStorageType.Dropbox) {
         console.log("hit dropbox: ");
-        // this.dropbox.passAuthTokens(path, accessToken);
-
-        // return this.volatileStorage.putObject(
-        //   "ACCESS_TOKEN / REFRESH_TOKEN",
-        //   new VolatileStorageMetadata<T>(accessToken, UnixTimestamp(0)),
-        // );
+        // uncommented
+        this.dropbox.passAuthTokens(credentials.path, credentials.accessToken);
         this.provider = this.dropbox;
       } else if (credentials.type == ECloudStorageType.Snickerdoodle) {
         console.log("hit snickerdoodle: ");

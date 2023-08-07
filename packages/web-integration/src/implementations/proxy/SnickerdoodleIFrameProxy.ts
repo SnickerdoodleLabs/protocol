@@ -67,6 +67,8 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
+  AccessToken,
+  ECloudStorageType,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -76,7 +78,8 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy {
+  implements ISnickerdoodleIFrameProxy
+{
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -693,6 +696,18 @@ export class SnickerdoodleIFrameProxy
       return this._createCall("twitter.getUserProfiles", null);
     },
   };
+
+  setAuthenticatedStorage(
+    storageType: ECloudStorageType,
+    path: string,
+    accessToken: AccessToken,
+  ): ResultAsync<void, ProxyError> {
+    return this._createCall("credentials.setAuthenticatedStorage", {
+      storageType,
+      path,
+      accessToken,
+    });
+  }
 
   public events: PublicEvents;
 
