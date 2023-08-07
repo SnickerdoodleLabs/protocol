@@ -235,7 +235,7 @@ const RewardProgramDetails: FC = () => {
 
   useEffect(() => {
     if (possibleRewards.length > 0) {
-      window.sdlDataWallet
+      sdlDataWallet
         .getQueryStatusByQueryCID(possibleRewards[0].queryCID)
         .map((queryStatus) => {
           setQueryStatus(queryStatus);
