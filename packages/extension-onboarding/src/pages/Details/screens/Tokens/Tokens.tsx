@@ -149,7 +149,6 @@ export default () => {
         balances.map((b) => ({ ...b, balance: formatValue(b) })),
       )
       .andThen((balanceResults) => {
-        console.log(`balance results`, balanceResults);
         return ResultUtils.combine(
           balanceResults.map((balanceItem) =>
             window.sdlDataWallet
@@ -157,7 +156,6 @@ export default () => {
               .orElse((e) => okAsync(null)),
           ),
         ).map((tokenInfo) => {
-          console.log(`Token Info `, tokenInfo);
           return balanceResults.map((balanceItem, index) => ({
             ...balanceItem,
             tokenInfo: tokenInfo[index],
@@ -165,17 +163,12 @@ export default () => {
         });
       })
       .andThen((balancesWithTokenInfo) => {
-        console.log(
-          `Balance wuth token info `,
-          balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
-        );
         return window.sdlDataWallet
           .getTokenMarketData(
             balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
           )
           .orElse((e) => okAsync([]))
           .map((res) => {
-            console.log(`res `, res);
             const combinedBalances = balancesWithTokenInfo.reduce(
               (acc, item) => {
                 if (!item.tokenInfo) {
