@@ -83,14 +83,13 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(
-      mocks.balanceRepo.getAccountBalancesWithoutOwnerAddress(),
-    ).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<Omit<TokenBalance, "accountAddress"> | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
+            accountAddress: "",
             balance: "100",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -98,6 +97,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
+            accountAddress: "",
             balance: "100",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -105,6 +105,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
+            accountAddress: "",
             balance: "5906596049814560",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -112,6 +113,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
+            accountAddress: "",
             balance: "14338174027714340563",
             tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -119,6 +121,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
+            accountAddress: "",
             balance: "100",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -126,6 +129,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
+            accountAddress: "",
             balance: "100",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -171,14 +175,13 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(
-      mocks.balanceRepo.getAccountBalancesWithoutOwnerAddress(),
-    ).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<Omit<TokenBalance, "accountAddress"> | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -186,6 +189,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -193,6 +197,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
+            accountAddress: "",
             balance: "5906596049814560",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -200,6 +205,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
+            accountAddress: "",
             balance: "14338174027714340563",
             tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -207,7 +213,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
-
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -215,6 +221,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -248,14 +255,13 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(
-      mocks.balanceRepo.getAccountBalancesWithoutOwnerAddress(),
-    ).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<Omit<TokenBalance, "accountAddress"> | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -263,6 +269,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -270,6 +277,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -277,6 +285,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -284,6 +293,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -291,6 +301,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -314,14 +325,13 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(
-      mocks.balanceRepo.getAccountBalancesWithoutOwnerAddress(),
-    ).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<Omit<TokenBalance, "accountAddress"> | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -329,6 +339,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -336,6 +347,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
+            accountAddress: "",
             balance: "5906596049814560",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -343,6 +355,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
+            accountAddress: "",
             balance: "14338174027714340563",
             tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -350,6 +363,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -357,6 +371,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -392,14 +407,13 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(
-      mocks.balanceRepo.getAccountBalancesWithoutOwnerAddress(),
-    ).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<Omit<TokenBalance, "accountAddress"> | any>(
+        new Array<TokenBalance | any>(
           {
             ticker: "MATIC",
             chainId: 80001,
+            accountAddress: "",
             balance: "150",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -407,6 +421,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43113,
+            accountAddress: "",
             balance: "1",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
@@ -414,6 +429,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "ETH",
             chainId: 1,
+            accountAddress: "",
             balance: "501",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 7.5055704,
@@ -421,6 +437,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 1,
+            accountAddress: "",
             balance: "499",
             tokenAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
@@ -428,6 +445,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "MATIC",
             chainId: 137,
+            accountAddress: "",
             balance: "0",
             tokenAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
@@ -435,6 +453,7 @@ describe("BalanceQueryEvaluator", () => {
           {
             ticker: "AVAX",
             chainId: 43114,
+            accountAddress: "",
             balance: "20",
             tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,

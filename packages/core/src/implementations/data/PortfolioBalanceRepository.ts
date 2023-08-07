@@ -88,8 +88,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
     });
   }
 
-  // Do not use this on query evaluation, it holds the account address
-  // It is being used by the spa
   public getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
@@ -123,17 +121,6 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
         });
       })
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
-  }
-
-  getAccountBalancesWithoutOwnerAddress(
-    chains?: ChainId[],
-    accounts?: LinkedAccount[],
-  ): ResultAsync<Omit<TokenBalance, "accountAddress">[], PersistenceError> {
-    return this.getAccountBalances(chains, accounts).map((tokenBalance) => {
-      return tokenBalance.map(
-        ({ accountAddress, ...restOfBalance }) => restOfBalance,
-      );
-    });
   }
 
   public getAccountNFTs(

@@ -24,6 +24,7 @@ import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -36,7 +37,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     return this.balanceRepo
-      .getAccountBalancesWithoutOwnerAddress()
+      .getAccountBalances()
       .andThen((balances) => {
         if (query.networkId == null) {
           return okAsync(balances);
@@ -52,15 +53,17 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       .andThen((balanceArray) => {
         return this.combineContractValues(query, balanceArray);
       })
-      .andThen((balanceArray) => {
-        return okAsync(SDQL_Return(balanceArray));
+      .map((balanceArray) => {
+        return SDQL_Return(
+          this.getAccountBalancesWithoutOwnerAddress(balanceArray),
+        );
       });
   }
 
   public evalConditions(
     query: AST_BalanceQuery,
-    balanceArray: Omit<TokenBalance, "accountAddress">[],
-  ): ResultAsync<Omit<TokenBalance, "accountAddress">[], never> {
+    balanceArray: TokenBalance[],
+  ): ResultAsync<TokenBalance[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
 
@@ -112,12 +115,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public combineContractValues(
     query: AST_BalanceQuery,
-    balanceArray: Omit<TokenBalance, "accountAddress">[],
-  ): ResultAsync<Omit<TokenBalance, "accountAddress">[], PersistenceError> {
-    const balanceMap = new Map<
-      `${ChainId}-${TokenAddress}`,
-      Omit<TokenBalance, "accountAddress">
-    >();
+    balanceArray: TokenBalance[],
+  ): ResultAsync<TokenBalance[], PersistenceError> {
+    const balanceMap = new Map<`${ChainId}-${TokenAddress}`, TokenBalance>();
 
     const nonZeroBalanceArray = balanceArray.filter((item) => {
       const ethValue = ethers.BigNumber.from(item.balance);
@@ -129,24 +129,35 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       const getObject = balanceMap.get(networkIdAndAddress);
 
       if (getObject) {
-        const balance: Omit<TokenBalance, "accountAddress"> = {
-          type: getObject.type,
-          ticker: getObject.ticker,
-          chainId: getObject.chainId,
-          tokenAddress: getObject.tokenAddress || "0x0",
-          balance: BigNumberString(
-            BigNumber.from(getObject.balance)
-              .add(BigNumber.from(d.balance))
-              .toString(),
+        balanceMap.set(
+          networkIdAndAddress,
+          new TokenBalance(
+            getObject.type,
+            getObject.ticker,
+            getObject.chainId,
+            getObject.tokenAddress || MasterIndexer.nativeAddress,
+            getObject.accountAddress,
+            BigNumberString(
+              BigNumber.from(getObject.balance)
+                .add(BigNumber.from(d.balance))
+                .toString(),
+            ),
+            getObject.decimals,
           ),
-          decimals: getObject.decimals,
-        };
-        balanceMap.set(networkIdAndAddress, balance);
+        );
       } else {
         balanceMap.set(networkIdAndAddress, d);
       }
     });
 
     return okAsync(Array.from(balanceMap.values()));
+  }
+
+  protected getAccountBalancesWithoutOwnerAddress(
+    tokenBalances: TokenBalance[],
+  ): Omit<TokenBalance, "accountAddress">[] {
+    return tokenBalances.map(
+      ({ accountAddress, ...restOfBalance }) => restOfBalance,
+    );
   }
 }
