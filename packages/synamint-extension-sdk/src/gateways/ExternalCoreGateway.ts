@@ -44,6 +44,7 @@ import {
   DomainName,
   PEMEncodedRSAPublicKey,
   JsonWebToken,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -126,6 +127,7 @@ import {
   GetPermissionsParams,
   GetTokenVerificationPublicKeyParams,
   GetBearerTokenParams,
+  GetQueryStatusByCidParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
@@ -443,6 +445,12 @@ export class ExternalCoreGateway {
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], ProxyError> {
     return this._handler.call(new GetEarnedRewardsParams());
+  }
+
+  public getQueryStatusByQueryCID(
+    params: GetQueryStatusByCidParams,
+  ): ResultAsync<QueryStatus | null, ProxyError> {
+    return this._handler.call(params);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], ProxyError> {

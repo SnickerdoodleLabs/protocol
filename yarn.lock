@@ -8147,6 +8147,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/iframe@workspace:packages/iframe"
   dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/core": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"

@@ -52,13 +52,10 @@ describe("Consent", () => {
     // deploy the Consent factory contract before each test
     // the Consent factory also deploys the UpgradeableBeacon contract
     ConsentFactory = await ethers.getContractFactory("ConsentFactory");
-    consentFactory = await upgrades.deployProxy(
-      ConsentFactory,
-      [
-        trustedForwarder.address,
-              consentImpAddress,
-      ]
-    );
+    consentFactory = await upgrades.deployProxy(ConsentFactory, [
+      trustedForwarder.address,
+      consentImpAddress,
+    ]);
     await consentFactory.deployed();
 
     // create a consent contract
@@ -443,7 +440,7 @@ describe("Consent", () => {
 
       // call opt out with another account that does not own the token
       await expect(consent.connect(accounts[2]).optOut(1)).to.revertedWith(
-        "ERC721: caller is not token owner or approved"
+        "ERC721: caller is not token owner or approved",
       );
     });
   });
@@ -662,22 +659,16 @@ describe("Consent", () => {
   describe("updateTrustedForwarder", function () {
     it("Allows DEFAULT_ADMIN_ROLE to update the trusted forwarder address.", async function () {
       // set trusted forwarder address
-      await consent
-        .connect(user1)
-        .updateTrustedForwarder();
+      await consent.connect(user1).updateTrustedForwarder();
 
-      const tf = await consent.trustedForwarder(); 
+      const tf = await consent.trustedForwarder();
 
-      expect(tf).to.eq(
-        tf,
-      );
+      expect(tf).to.eq(tf);
     });
 
     it("Does not allow address without DEFAUL_ADMIN_ROLE to update the forwarder address.", async function () {
       await expect(
-        consent
-          .connect(accounts[2])
-          .updateTrustedForwarder(),
+        consent.connect(accounts[2]).updateTrustedForwarder(),
       ).to.revertedWith(
         `AccessControl: account ${accounts[2].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
       );

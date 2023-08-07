@@ -26,6 +26,7 @@ import {
   SDQLString,
   CompensationKey,
   InsightKey,
+  QueryDeliveryItems,
 } from "@snickerdoodlelabs/objects";
 import {
   AST,
@@ -110,9 +111,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       .andThen((sdqlParser) => sdqlParser.buildAST());
   }
 
-  // This method only calculates possible rewards from the query itself.
-  // Useful for showing user possible rewards
-  public constructPossibleRewardsFronQuery(
+  /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
+   *  should not be used for anything else !
+   */
+  public constructAllTheRewardsFromQuery(
     query: SDQLQuery,
   ): ResultAsync<
     PossibleReward[],
@@ -128,22 +130,77 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     | EvalNotImplementedError
   > {
     return this.parseQuery(query).andThen((ast) => {
-      const compensationKeys: CompensationKey[] = [
-        ...ast.compensations.keys(),
-      ].map((compKey) => CompensationKey(compKey));
-
-      const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
-        (insightKey) => InsightKey(insightKey),
-      );
-
-      const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
+      const [compensationKeys, insightAndAdKeys] = this.getTotalQueryKeys(ast);
       return this.queryUtils.filterCompensationsForPreviews(
         query.cid,
         query.query,
         compensationKeys,
-        [...insightKeys, ...adKeys],
+        insightAndAdKeys,
       );
     });
+  }
+
+  public getPossibleQueryDeliveryItems(
+    query: SDQLQuery,
+  ): ResultAsync<
+    IQueryDeliveryItems,
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+  > {
+    return this.handleQuery(query, DataPermissions.createWithAllPermissions());
+  }
+
+  /** Used for reward generation on the SPA. Purpose is to show all the rewards to the user
+   *  should not be used for anything else !
+   */
+  protected getTotalQueryKeys(
+    ast: AST,
+  ): [CompensationKey[], (InsightKey | AdKey)[]] {
+    const compensationKeys: CompensationKey[] = [
+      ...ast.compensations.keys(),
+    ].map((compKey) => CompensationKey(compKey));
+
+    const insightKeys: InsightKey[] = [...ast.insights.keys()].map(
+      (insightKey) => InsightKey(insightKey),
+    );
+
+    const adKeys: AdKey[] = [...ast.ads.keys()].map((adKey) => AdKey(adKey));
+    return [compensationKeys, [...insightKeys, ...adKeys]];
+  }
+
+  protected getInsightAndAdKeys({
+    ads,
+    insights,
+  }: IQueryDeliveryItems): (InsightKey | AdKey)[] {
+    const answeredInsightAndAdKeys: (InsightKey | AdKey)[] = [];
+
+    if (ads) {
+      Object.entries(ads).forEach(([adKey, adValue]) => {
+        if (adValue !== null) {
+          answeredInsightAndAdKeys.push(AdKey(adKey));
+        }
+      }, []);
+    }
+
+    if (insights) {
+      Object.entries(insights).forEach(([insightKey, insightValue]) => {
+        if (insightValue !== null) {
+          answeredInsightAndAdKeys.push(InsightKey(insightKey));
+        }
+      });
+    }
+
+    return answeredInsightAndAdKeys;
   }
 
   protected gatherDeliveryItems(

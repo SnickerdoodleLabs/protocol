@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Badge, Box } from "@material-ui/core";
 import {
   EVMContractAddress,
   EWalletDataType,
@@ -6,15 +6,11 @@ import {
   QueryTypePermissionMap,
   QueryTypes,
 } from "@snickerdoodlelabs/objects";
-import { PossibleRewardComponent } from "@snickerdoodlelabs/shared-components";
-import React, {
-  FC,
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import {
+  isSameReward,
+  PossibleRewardComponent,
+} from "@snickerdoodlelabs/shared-components";
+import React, { FC, Fragment, useCallback, useState } from "react";
 
 import rewardsCollectedImg from "@extension-onboarding/assets/images/rewards-collected.png";
 import DisplayModeToggle, {
@@ -23,19 +19,22 @@ import DisplayModeToggle, {
 import Typography from "@extension-onboarding/components/Typography";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EBadgeType } from "@extension-onboarding/objects";
-import { EPossibleRewardDisplayType } from "@extension-onboarding/objects/enums/EPossibleRewardDisplayType";
 import Section, {
   useSectionStyles,
 } from "@extension-onboarding/pages/Details/screens/RewardProgramDetails/components/Sections/Section";
 
 interface IProgramRewardsProps {
-  rewards: PossibleReward[];
+  rewardsThatCanBeAcquired: PossibleReward[];
+  rewardsThatTheUserWasIneligible: PossibleReward[];
+  rewardsThatRequireMorePermission: PossibleReward[];
   consentContractAddress: EVMContractAddress;
   currentPermissions: EWalletDataType[];
   isSubscribed: boolean;
 }
 const ProgramRewards: FC<IProgramRewardsProps> = ({
-  rewards,
+  rewardsThatCanBeAcquired,
+  rewardsThatTheUserWasIneligible,
+  rewardsThatRequireMorePermission,
   consentContractAddress,
   currentPermissions,
   isSubscribed,
@@ -45,15 +44,37 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
     EDISPLAY_MODE.COZY,
   );
   const { apiGateway } = useAppContext();
-
-  const getBadge = useCallback(
-    (queryDependencies: QueryTypes[]) =>
-      queryDependencies
-        .map((dependency) => QueryTypePermissionMap.get(dependency)!)
-        .every((dataType) => currentPermissions.includes(dataType))
-        ? EBadgeType.Available
-        : EBadgeType.MorePermissionRequired,
-    [currentPermissions],
+  const getPossibleRewardComponent = (
+    reward: PossibleReward,
+    badge: EBadgeType,
+    index: number,
+  ) => (
+    <Box
+      {...(displayMode === EDISPLAY_MODE.COZY && {
+        flexBasis: "calc(20% - 8px)",
+      })}
+      {...(displayMode === EDISPLAY_MODE.COMPACT && {
+        flexBasis: "calc(100%/9 - 12px*8/9)",
+      })}
+      {...(displayMode === EDISPLAY_MODE.LIST && {
+        component: Fragment,
+      })}
+      key={`${JSON.stringify(reward)}-${displayMode}-${index}`}
+    >
+      <PossibleRewardComponent
+        ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
+        displayType={
+          displayMode === EDISPLAY_MODE.LIST
+            ? "list"
+            : displayMode === EDISPLAY_MODE.COMPACT
+            ? "compact"
+            : "default"
+        }
+        consentContractAddress={consentContractAddress}
+        badgeType={badge}
+        reward={reward}
+      />
+    </Box>
   );
 
   return (
@@ -80,7 +101,9 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
           />
         </Box>
       </Box>
-      {rewards.length > 0 ? (
+      {rewardsThatCanBeAcquired.length > 0 ||
+      rewardsThatTheUserWasIneligible.length > 0 ||
+      rewardsThatRequireMorePermission.length > 0 ? (
         <Box
           {...(displayMode === EDISPLAY_MODE.COZY && {
             display: "flex",
@@ -115,36 +138,23 @@ const ProgramRewards: FC<IProgramRewardsProps> = ({
               </Box>
             </Box>
           )}
-          {rewards.map((reward, index) => {
-            return (
-              <Box
-                {...(displayMode === EDISPLAY_MODE.COZY && {
-                  flexBasis: "calc(20% - 8px)",
-                })}
-                {...(displayMode === EDISPLAY_MODE.COMPACT && {
-                  flexBasis: "calc(100%/9 - 12px*8/9)",
-                })}
-                {...(displayMode === EDISPLAY_MODE.LIST && {
-                  component: Fragment,
-                })}
-                key={`${JSON.stringify(reward)}-${displayMode}-${index}`}
-              >
-                <PossibleRewardComponent
-                  ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
-                  displayType={
-                    displayMode === EDISPLAY_MODE.LIST
-                      ? "list"
-                      : displayMode === EDISPLAY_MODE.COMPACT
-                      ? "compact"
-                      : "default"
-                  }
-                  consentContractAddress={consentContractAddress}
-                  badgeType={getBadge(reward.estimatedQueryDependencies)}
-                  reward={reward}
-                />
-              </Box>
-            );
-          })}
+          {rewardsThatCanBeAcquired.map((reward, index) =>
+            getPossibleRewardComponent(reward, EBadgeType.Available, index),
+          )}
+          {rewardsThatRequireMorePermission.map((reward, index) =>
+            getPossibleRewardComponent(
+              reward,
+              EBadgeType.MorePermissionRequired,
+              index,
+            ),
+          )}
+          {rewardsThatTheUserWasIneligible.map((reward, index) =>
+            getPossibleRewardComponent(
+              reward,
+              EBadgeType.UserWasInEligible,
+              index,
+            ),
+          )}
         </Box>
       ) : (
         <Box display="flex" alignItems="center" flexDirection="column">

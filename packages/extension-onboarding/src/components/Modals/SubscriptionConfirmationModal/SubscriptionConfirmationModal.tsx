@@ -16,8 +16,8 @@ const SubscriptionConfirmationModal: FC = () => {
     onPrimaryButtonClick,
     customProps: {
       campaignImage,
-      eligibleRewards,
-      missingRewards = [],
+      rewardsThatCanBeAcquired,
+      rewardsThatRequireMorePermission = [],
       dataTypes,
       campaignName,
       consentAddress,
@@ -39,11 +39,11 @@ const SubscriptionConfirmationModal: FC = () => {
     >
       <SubscriptionConfirmation
         campaignImage={campaignImage}
-        eligibleRewards={eligibleRewards}
+        rewardsThatCanBeAcquired={rewardsThatCanBeAcquired}
         dataTypes={dataTypes}
         campaignName={campaignName}
         consentAddress={consentAddress}
-        missingRewards={missingRewards}
+        rewardsThatRequireMorePermission={rewardsThatRequireMorePermission}
         accounts={linkedAccounts.map((account) => account.sourceAccountAddress)}
         onCloseClick={closeModal}
         onConfirmClick={(receivingAccount) => {

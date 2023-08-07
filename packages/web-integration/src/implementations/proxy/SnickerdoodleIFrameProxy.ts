@@ -66,6 +66,7 @@ import {
   PEMEncodedRSAPublicKey,
   JsonWebToken,
   IProxyIntegrationMethods,
+  QueryStatus,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -75,8 +76,7 @@ import { ISnickerdoodleIFrameProxy } from "@web-integration/interfaces/proxy/ind
 
 export class SnickerdoodleIFrameProxy
   extends ParentProxy
-  implements ISnickerdoodleIFrameProxy
-{
+  implements ISnickerdoodleIFrameProxy {
   constructor(
     protected element: HTMLElement | null,
     protected iframeUrl: string,
@@ -89,6 +89,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+
   public onIframeDisplayRequested: Subject<void>;
 
   public activate(): ResultAsync<void, ProxyError> {
@@ -228,14 +229,6 @@ export class SnickerdoodleIFrameProxy
       .map(() => {
         console.log("Snickerdoodle Protocol web integration activated");
       });
-  }
-
-  public suggestAddAccount(
-    accountAddress: AccountAddress,
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("suggestAddAccount", {
-      accountAddress,
-    });
   }
 
   public unlock(
@@ -488,7 +481,7 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public unlinkAcccount(
+  public unlinkAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
@@ -595,6 +588,14 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getPossibleRewards", {
       contractAddresses,
       timeoutMs,
+    });
+  }
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, ProxyError> {
+    return this._createCall("getQueryStatusByQueryCID", {
+      queryCID,
     });
   }
 

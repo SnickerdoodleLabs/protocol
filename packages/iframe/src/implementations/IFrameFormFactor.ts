@@ -1,9 +1,13 @@
 import "reflect-metadata";
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   EChain,
   EVMAccountAddress,
-  ISnickerdoodleCore,
   LanguageCode,
   Signature,
   SiteVisit,
@@ -20,10 +24,6 @@ import {
   ICoreListener,
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
-import {
-  IBlockchainProviderRepository,
-  IBlockchainProviderRepositoryType,
-} from "@core-iframe/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -46,12 +46,12 @@ export class IFrameFormFactor {
       this.iocContainer.get<ICoreProvider>(ICoreProviderType);
     const storageUtils =
       this.iocContainer.get<IStorageUtils>(IStorageUtilsType);
-    const walletProvider = this.iocContainer.get<IBlockchainProviderRepository>(
-      IBlockchainProviderRepositoryType,
-    );
     const timeUtils = this.iocContainer.get<ITimeUtils>(ITimeUtilsType);
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+    const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+
+    logUtils.log("Initializing Iframe Form Factor");
 
     return coreListener
       .activateModel()
@@ -70,19 +70,20 @@ export class IFrameFormFactor {
             signature != null &&
             languageCode != null
           ) {
-            console.log(
+            logUtils.log(
               "Unlocking Snickerdoodle Core using stored unlock values",
             );
             // If we have a stored signature, we can automatically unlock the
-            return core.account.unlock(
-              accountAddress,
-              signature,
-              languageCode,
-              chain,
-            );
+            return core.account
+              .unlock(accountAddress, signature, languageCode, chain)
+              .map(() => {
+                logUtils.log(
+                  "Snickerdoodle Core unlocked using stored unlock values",
+                );
+              });
           }
-          // If there's no stored signature, we have to ask the user for the unlock signature
-          return this.fullUnlock(core, walletProvider, storageUtils);
+          // If there's no stored signature, we have to wait for unlock to be called
+          return okAsync(undefined);
         });
       })
       .andThen(() => {
@@ -101,47 +102,7 @@ export class IFrameFormFactor {
         ]);
       })
       .map(() => {
-        console.log("Snickerdoodle Core CoreListener model activated");
-      });
-  }
-
-  protected fullUnlock(
-    core: ISnickerdoodleCore,
-    walletProvider: IBlockchainProviderRepository,
-    storageUtils: IStorageUtils,
-  ): ResultAsync<void, Error> {
-    return walletProvider
-      .connect()
-      .andThen((accountAddress) => {
-        return core.account
-          .getUnlockMessage(LanguageCode("en"))
-          .andThen((unlockMessage) => {
-            return walletProvider.getSignature(unlockMessage);
-          })
-          .andThen((signature) => {
-            return core.account
-              .unlock(
-                accountAddress,
-                signature,
-                LanguageCode("en"),
-                EChain.EthereumMainnet,
-              )
-              .andThen(() => {
-                // Store the unlock values in local storage
-                console.log("Storing unlock values in local storage");
-                return ResultUtils.combine([
-                  storageUtils.write("storedAccountAddress", accountAddress),
-                  storageUtils.write("storedSignature", signature),
-                  storageUtils.write("storedChain", EChain.EthereumMainnet),
-                  storageUtils.write("storedLanguageCode", LanguageCode("en")),
-                ]);
-              });
-          });
-      })
-      .map(() => {})
-      .orElse((e) => {
-        console.error("Error storing unlock values", e);
-        return okAsync(undefined);
+        logUtils.log("Snickerdoodle Core CoreListener initialized");
       });
   }
 }

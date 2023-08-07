@@ -9,7 +9,7 @@ export interface IIFrameCallData<T> {
 }
 
 class IFrameCallData<T> implements IIFrameCallData<T> {
-  constructor(public callId: number, public data: T) {}
+  constructor(public callId: number, public data: T) { }
 }
 
 @injectable()
@@ -39,7 +39,6 @@ export abstract class ChildProxy {
     func: () => ResultAsync<T, E>,
     callId: number,
   ): void {
-    console.log("returnForModel", callId);
     func().match(
       (result) => {
         if (this.parent != null) {

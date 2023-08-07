@@ -1,5 +1,8 @@
 export enum EPossibleRewardDisplayType {
   Waiting,
-  MorePermissionRequiered,
-  ProgramRewards,
+  Collected,
+  MorePermissionRequired,
+  Available,
+  None,
+  UserWasInEligible,
 }

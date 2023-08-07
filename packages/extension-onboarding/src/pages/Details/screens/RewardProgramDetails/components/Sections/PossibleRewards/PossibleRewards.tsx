@@ -21,6 +21,7 @@ interface IWaitingRewardsProps {
   type: EPossibleRewardDisplayType;
   consentContractAddress: EVMContractAddress;
 }
+//Use Case For this ?
 const WaitingRewards: FC<IWaitingRewardsProps> = ({
   rewards,
   type,
@@ -34,7 +35,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
   >([]);
 
   useEffect(() => {
-    if (type === EPossibleRewardDisplayType.ProgramRewards) {
+    if (type === EPossibleRewardDisplayType.Available) {
       getDefaultPermissions();
     }
   }, [type]);
@@ -57,7 +58,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
 
   const { badge, title, subtitle } = useMemo(() => {
     switch (true) {
-      case type === EPossibleRewardDisplayType.MorePermissionRequiered:
+      case type === EPossibleRewardDisplayType.MorePermissionRequired:
         return {
           badge: EBadgeType.MorePermissionRequired,
           title: "Rent More Data, Get More Rewards",
@@ -100,7 +101,7 @@ const WaitingRewards: FC<IWaitingRewardsProps> = ({
                 ipfsBaseUrl={apiGateway.config.ipfsFetchBaseUrl}
                 consentContractAddress={consentContractAddress}
                 badgeType={
-                  type === EPossibleRewardDisplayType.ProgramRewards
+                  type === EPossibleRewardDisplayType.Available
                     ? getBadge(reward.estimatedQueryDependencies)
                     : badge
                 }

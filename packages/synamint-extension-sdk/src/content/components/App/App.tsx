@@ -155,8 +155,8 @@ const App = () => {
     useState<IInvitationDomainWithUUID>();
   const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
   const [subscriptionPreviewData, setSubscriptionPreviewData] = useState<{
-    eligibleRewards: PossibleReward[];
-    missingRewards: PossibleReward[];
+    rewardsThatCanBeAcquired: PossibleReward[];
+    rewardsThatRequireMorePermission: PossibleReward[];
     dataTypes: EWalletDataType[];
   }>();
   const _path = usePath();
@@ -414,13 +414,13 @@ const App = () => {
             eventEmitter={eventEmitter}
             isUnlocked={walletState === EWalletState.UNLOCKED}
             onNextClick={(
-              eligibleRewards: PossibleReward[],
-              missingRewards: PossibleReward[],
+              rewardsThatCanBeAcquired: PossibleReward[],
+              rewardsThatRequireMorePermission: PossibleReward[],
               dataTypes: EWalletDataType[],
             ) => {
               setSubscriptionPreviewData({
-                eligibleRewards,
-                missingRewards,
+                rewardsThatCanBeAcquired,
+                rewardsThatRequireMorePermission,
                 dataTypes,
               });
               setAppState(EAPP_STATE.SUBSCRIPTION_CONFIRMATION);

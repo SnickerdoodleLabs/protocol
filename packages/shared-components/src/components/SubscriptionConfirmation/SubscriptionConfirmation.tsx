@@ -29,8 +29,8 @@ import { getAccountAddressText } from "@shared-components/utils/AccountAddressUt
 
 interface ISubscriptionConfirmationProps {
   campaignImage: string;
-  eligibleRewards: PossibleReward[];
-  missingRewards: PossibleReward[];
+  rewardsThatCanBeAcquired: PossibleReward[];
+  rewardsThatRequireMorePermission: PossibleReward[];
   dataTypes: EWalletDataType[];
   campaignName: string;
   consentAddress: EVMContractAddress;
@@ -45,8 +45,8 @@ interface ISubscriptionConfirmationProps {
 
 export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
   campaignImage,
-  eligibleRewards,
-  missingRewards,
+  rewardsThatCanBeAcquired,
+  rewardsThatRequireMorePermission,
   dataTypes,
   campaignName,
   consentAddress,
@@ -149,7 +149,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
           </Typography>
         </Box>
         <Carousel visibleItemCount={5} gutter={12}>
-          {eligibleRewards.map((eligibleReward) => (
+          {rewardsThatCanBeAcquired.map((eligibleReward) => (
             <Box
               display="flex"
               flexDirection="column"
@@ -177,7 +177,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
             </Box>
           ))}
         </Carousel>
-        {missingRewards.length > 0 && (
+        {rewardsThatRequireMorePermission.length > 0 && (
           <>
             <Box mt={2} />
             <Divider />
@@ -192,7 +192,7 @@ export const SubscriptionConfirmation: FC<ISubscriptionConfirmationProps> = ({
             </Typography>
             <Box mt={2} />
             <Carousel visibleItemCount={2} gutter={12}>
-              {missingRewards.map((missingRewards) => (
+              {rewardsThatRequireMorePermission.map((missingRewards) => (
                 <Box
                   display="flex"
                   flexDirection="column"

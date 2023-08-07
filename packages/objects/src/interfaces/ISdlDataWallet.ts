@@ -14,6 +14,7 @@ import {
   TokenInfo,
   TokenMarketData,
   WalletNFT,
+  QueryStatus,
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
@@ -286,7 +287,7 @@ export interface ISdlDataWallet {
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
-  unlinkAcccount(
+  unlinkAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
@@ -304,6 +305,10 @@ export interface ISdlDataWallet {
   ): ResultAsync<IpfsCID, ProxyError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], ProxyError>;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
 
