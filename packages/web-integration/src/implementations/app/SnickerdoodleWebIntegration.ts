@@ -87,83 +87,111 @@ export class SnickerdoodleWebIntegration
 
     logUtils.log("Activating Snickerdoodle Core web integration");
 
-    // Check if the proxy is already injected
-    if (window.sdlDataWallet != null) {
-      // If there's already a proxy injected, we don't need to create a new one
-      logUtils.log("Existing Snickerdoodle injected proxy on the page");
-      this._core = window.sdlDataWallet;
-      logUtils.log("Snickerdoodle Core web integration activated");
-      this.initializeResult = okAsync(window.sdlDataWallet);
-      return this.initializeResult;
-    }
-
-    // No proxy injected, create a new one via the iframe
-    // Create a proxy connection to the iframe
-    logUtils.log("Creating Snickerdoodle Protocol Iframe Proxy");
     const proxyFactory = this.iocContainer.get<IIFrameProxyFactory>(
       IIFrameProxyFactoryType,
     );
 
-    this.initializeResult = proxyFactory
-      .createProxy(this.iframeURL, this.config)
-      .andThen((proxy) => {
-        // Listen for the iframe; sometimes it needs to be shown
-        proxy.onIframeDisplayRequested.subscribe(() => {
-          logUtils.warning("IFrame display requested");
-        });
+    this.initializeResult = ResultAsync.fromSafePromise(
+      new Promise<ISdlDataWallet | undefined>((resolve) => {
+        const maxResolveTime = 2000;
+        const checkInterval = 200;
+        const startTime = Date.now();
 
-        const unlockPromise = new Promise((resolve) => {
-          // It can take a little while for the proxy to actually
-          // unlock. We'll wait for it for a bit, and cancel it
-          // if we hear that it's been initialized
-          const timeout = setTimeout(() => {
-            // If this actually fires, we are not interested in waiting for
-            // the onInitialized event
-            subscription.unsubscribe();
+        function checkWindow() {
+          if (typeof window.sdlDataWallet !== "undefined") {
+            console.log("Existing Snickerdoodle injected proxy on the page");
+            resolve(window.sdlDataWallet);
+          } else {
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime >= maxResolveTime) {
+              resolve(undefined);
+            } else {
+              // If the maximum time has not elapsed, continue checking
+              setTimeout(checkWindow, checkInterval);
+            }
+          }
+        }
+        // Start the initial check
+        checkWindow();
+      }),
+    ).andThen((existingProxy) => {
+      if (existingProxy) {
+        this._core = existingProxy;
+        return okAsync(existingProxy);
+      }
+      // No proxy injected, create a new one via the iframe
+      // Create a proxy connection to the iframe
+      console.log("Creating Snickerdoodle Protocol Iframe Proxy");
+      return proxyFactory
+        .createProxy(this.iframeURL, this.config)
 
-            // Just double check that it's not already unlocked
-            this.unlockAndCheck(
-              proxy,
-              logUtils,
-              blockchainProvider,
-              configProvider,
-            )
-              .map(() => {
-                // All done unlocking
-                resolve(undefined);
-              })
-              .mapErr((e) => {
-                logUtils.error(e);
-              });
-          }, 5000); // Wait 5 seconds for the unlock to complete
+        .andThen((proxy) => {
+          // Listen for the iframe; sometimes it needs to be shown
+          proxy.onIframeDisplayRequested.subscribe(() => {
+            logUtils.warning("IFrame display requested");
+          });
 
-          const subscription = proxy.events.onInitialized.subscribe(() => {
-            // This event is fired when the proxy automatically unlocks
-            clearTimeout(timeout);
-            this.unlockAndCheck(
-              proxy,
-              logUtils,
-              blockchainProvider,
-              configProvider,
-            )
-              .map(() => {
-                // All done unlocking
-                resolve(undefined);
-              })
-              .mapErr((e) => {
-                logUtils.error(e);
-              });
+          // @TODO we can register the ui client at this step
+
+          const unlockPromise = new Promise((resolve) => {
+            const config = configProvider.getConfig();
+            // if signer is not provided resolve the unlock promise immediately
+            // this usage will prevent account changes from being detected and forcing account unlocking
+            if (!config.signer) {
+              resolve(undefined);
+            }
+            // It can take a little while for the proxy to actually
+            // unlock. We'll wait for it for a bit, and cancel it
+            // if we hear that it's been initialized
+            const timeout = setTimeout(() => {
+              // If this actually fires, we are not interested in waiting for
+              // the onInitialized event
+              subscription.unsubscribe();
+
+              // Just double check that it's not already unlocked
+              this.unlockAndCheck(
+                proxy,
+                logUtils,
+                blockchainProvider,
+                configProvider,
+              )
+                .map(() => {
+                  // All done unlocking
+                  resolve(undefined);
+                })
+                .mapErr((e) => {
+                  logUtils.error(e);
+                });
+            }, 5000); // Wait 5 seconds for the unlock to complete
+
+            const subscription = proxy.events.onInitialized.subscribe(() => {
+              // This event is fired when the proxy automatically unlocks
+              clearTimeout(timeout);
+              this.unlockAndCheck(
+                proxy,
+                logUtils,
+                blockchainProvider,
+                configProvider,
+              )
+                .map(() => {
+                  // All done unlocking
+                  resolve(undefined);
+                })
+                .mapErr((e) => {
+                  logUtils.error(e);
+                });
+            });
+          });
+
+          return ResultAsync.fromSafePromise(unlockPromise).map(() => {
+            // Assign the iframe proxy to the internal reference and the window object
+            this._core = proxy;
+            window.sdlDataWallet = this.core;
+            logUtils.log("Snickerdoodle Core web integration activated");
+            return proxy;
           });
         });
-
-        return ResultAsync.fromSafePromise(unlockPromise).map(() => {
-          // Assign the iframe proxy to the internal reference and the window object
-          this._core = proxy;
-          window.sdlDataWallet = this.core;
-          logUtils.log("Snickerdoodle Core web integration activated");
-          return proxy;
-        });
-      });
+    });
 
     return this.initializeResult;
   }
