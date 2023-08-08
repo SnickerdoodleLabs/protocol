@@ -445,7 +445,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         this.returnForModel(() => {
           return this.coreProvider.getCore().andThen((core) => {
             return core.invitation
-              .getAgreementFlags(data.data.consentContractAddress)
+              .getAgreementFlags(data.data.consentContractAddress, sourceDomain)
               .map((flags) => {
                 return DataPermissions.getDataTypesFromFlags(flags);
               });
@@ -544,6 +544,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
                 data.data.dataTypes
                   ? DataPermissions.createWithPermissions(data.data.dataTypes)
                   : null,
+                sourceDomain,
               );
             });
           });
