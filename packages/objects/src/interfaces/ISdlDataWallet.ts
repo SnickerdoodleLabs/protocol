@@ -18,6 +18,7 @@ import {
 } from "@objects/businessObjects/index.js";
 import {
   EChain,
+  ECoreProxyType,
   EDataWalletPermission,
   EInvitationStatus,
   EWalletDataType,
@@ -345,6 +346,8 @@ export interface ISdlDataWallet {
   ): ResultAsync<Map<EVMContractAddress, PossibleReward[]>, ProxyError>;
 
   switchToTab(tabId: number): ResultAsync<void, ProxyError>;
+
+  proxyType: ECoreProxyType;
 
   discord: IProxyDiscordMethods;
   integration: IProxyIntegrationMethods;

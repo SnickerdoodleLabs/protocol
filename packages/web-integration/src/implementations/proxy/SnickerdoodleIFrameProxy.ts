@@ -67,6 +67,7 @@ import {
   JsonWebToken,
   IProxyIntegrationMethods,
   QueryStatus,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -89,6 +90,7 @@ export class SnickerdoodleIFrameProxy
     this.events = new PublicEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
+  public proxyType: ECoreProxyType = ECoreProxyType.IFRAME_INJECTED;
 
   public onIframeDisplayRequested: Subject<void>;
 

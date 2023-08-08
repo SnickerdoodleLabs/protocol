@@ -52,6 +52,7 @@ import {
   JsonWebToken,
   QueryStatus,
   SocialProfileLinkedEvent,
+  ECoreProxyType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -152,6 +153,8 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public twitter: IProxyTwitterMethods;
 
   public events: PublicEvents;
+
+  public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
 
   constructor(public extensionId: string, public name: string) {
     super();
