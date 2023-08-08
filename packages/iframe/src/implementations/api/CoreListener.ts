@@ -1,3 +1,14 @@
+import { ICoreListener } from "@core-iframe/interfaces/api/index";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@core-iframe/interfaces/business/index";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  ICoreProvider,
+  ICoreProviderType,
+} from "@core-iframe/interfaces/utilities/index";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -49,19 +60,7 @@ import { injectable, inject } from "inversify";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import Postmate from "postmate";
-
-import { ICoreListener } from "@core-iframe/interfaces/api/index";
-import {
-  IAccountService,
-  IAccountServiceType,
-} from "@core-iframe/interfaces/business/index";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  ICoreProvider,
-  ICoreProviderType,
-} from "@core-iframe/interfaces/utilities/index";
-
+import { parse } from "tldts";
 @injectable()
 export class CoreListener extends ChildProxy implements ICoreListener {
   // Get the source domain
@@ -522,6 +521,41 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       //     );
       //   }, data.callId);
       // },
+
+      getInvitationByDomain: (
+        data: IIFrameCallData<{
+          domain: DomainName;
+          path: string;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this.coreProvider.getCore().andThen((core) => {
+            return core.invitation
+              .getInvitationsByDomain(data.data.domain)
+              .andThen((pageInvitations) => {
+                const pageInvitation = pageInvitations.find((value) => {
+                  const incomingUrl = value.url.replace(/^https?:\/\//, "");
+                  const incomingUrlInfo = parse(incomingUrl);
+                  if (
+                    !incomingUrlInfo.subdomain &&
+                    parse(data.data.path).subdomain
+                  ) {
+                    return (
+                      `${"www"}.${incomingUrl.replace(/\/$/, "")}` ===
+                      data.data.path
+                    );
+                  }
+                  return incomingUrl.replace(/\/$/, "") === data.data.path;
+                });
+                if (pageInvitation) {
+                  return okAsync(pageInvitation);
+                } else {
+                  return okAsync(null);
+                }
+              });
+          });
+        }, data.callId);
+      },
 
       acceptInvitation: (
         data: IIFrameCallData<{

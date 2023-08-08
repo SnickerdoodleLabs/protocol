@@ -68,6 +68,7 @@ import {
   IProxyIntegrationMethods,
   QueryStatus,
   ECoreProxyType,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ResultAsync } from "neverthrow";
@@ -472,6 +473,13 @@ export class SnickerdoodleIFrameProxy
 
   public setDefaultPermissionsToAll(): ResultAsync<void, ProxyError> {
     return this._createCall("setDefaultPermissionsToAll", null);
+  }
+
+  public getInvitationByDomain(
+    domain: DomainName,
+    path: string,
+  ): ResultAsync<PageInvitation | null, ProxyError> {
+    return this._createCall("getInvitationByDomain", { domain, path });
   }
 
   public acceptInvitation(

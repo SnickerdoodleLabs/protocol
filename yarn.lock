@@ -8155,6 +8155,7 @@ __metadata:
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     postmate: ^1.5.2
+    tldts: ^5.7.89
   languageName: unknown
   linkType: soft
 
