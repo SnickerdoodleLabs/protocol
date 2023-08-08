@@ -48,7 +48,8 @@
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "postmate": "^1.5.2",
-    "rxjs": "^7.5.5"
+    "rxjs": "^7.5.5",
+    "tldts": "^5.7.89"
   },
   "peerDependencies": {
     "@material-ui/core": "^4.12.4",

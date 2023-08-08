@@ -8548,6 +8548,7 @@ __metadata:
     neverthrow-result-utils: ^2.0.2
     postmate: ^1.5.2
     rxjs: ^7.5.5
+    tldts: ^5.7.89
   peerDependencies:
     "@material-ui/core": ^4.12.4
     "@material-ui/icons": ^4.11.3

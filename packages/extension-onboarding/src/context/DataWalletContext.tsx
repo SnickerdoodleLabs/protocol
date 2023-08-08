@@ -19,6 +19,7 @@ import React, {
 } from "react";
 import "reflect-metadata";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
+import { proxy } from "webextension-polyfill";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -62,17 +63,34 @@ export const DataWalletContextProvider: FC = ({ children }) => {
       .initialize()
       .map((sdlDataWallet) => {
         if (sdlDataWallet.proxyType === ECoreProxyType.EXTENSION_INJECTED) {
-          if (
-            ((sdlDataWallet as ISdlDataWalletProxy).providers?.length || 0) > 1
-          ) {
-            return setSetupStatus(ESetupStatus.WAITING_PROVIDER_SELECTION);
-          }
+          return waitAndInitializeExtensionInjectedProxy(sdlDataWallet);
         }
-        return setSdlDataWallet(sdlDataWallet);
+        return waitAndInitializeIframeInjectedProxy(sdlDataWallet);
       })
       .mapErr((err) => {
         return setSetupStatus(ESetupStatus.FAILED);
       });
+  };
+
+  const waitAndInitializeExtensionInjectedProxy = (
+    proxy: ISdlDataWalletProxy,
+  ) => {
+    // give extra time for other providers to be injected
+    setTimeout(() => {
+      if ((proxy.providers?.length || 0) > 0) {
+        setSetupStatus(ESetupStatus.WAITING_PROVIDER_SELECTION);
+      } else {
+        setSdlDataWallet(proxy);
+      }
+    }, 500);
+  };
+
+  const waitAndInitializeIframeInjectedProxy = (proxy: ISdlDataWallet) => {
+    // give extra time for iframe unlock the wallet;
+    // once we remove crumbs it will be instant
+    setTimeout(() => {
+      setSdlDataWallet(proxy);
+    }, 2000);
   };
 
   useEffect(() => {
