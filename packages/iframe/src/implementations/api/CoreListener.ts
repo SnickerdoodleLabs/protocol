@@ -1,4 +1,6 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -15,6 +17,7 @@ import {
   EChain,
   EDataWalletPermission,
   EVMContractAddress,
+  EWalletDataType,
   EmailAddressString,
   FamilyName,
   Gender,
@@ -71,6 +74,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {
     super();
   }
@@ -519,18 +523,32 @@ export class CoreListener extends ChildProxy implements ICoreListener {
       //   }, data.callId);
       // },
 
-      // acceptInvitation: (
-      //   data: IIFrameCallData<{
-      //     dataTypes: EWalletDataType[] | null;
-      //     consentContractAddress: EVMContractAddress;
-      //     tokenId?: BigNumberString;
-      //     businessSignature?: Signature;
-      //   }>,
-      // ) => {
-      //   this.returnForModel(() => {
-      //     return core.invitation.acceptInvitation(data.data.dataTypes,);
-      //   }, data.callId);
-      // },
+      acceptInvitation: (
+        data: IIFrameCallData<{
+          dataTypes: EWalletDataType[] | null;
+          consentContractAddress: EVMContractAddress;
+          tokenId?: BigNumberString;
+          businessSignature?: Signature;
+        }>,
+      ) => {
+        this.returnForModel(() => {
+          return this._getTokenId(data.data.tokenId).andThen((tokenId) => {
+            return this.coreProvider.getCore().andThen((core) => {
+              return core.invitation.acceptInvitation(
+                new Invitation(
+                  "" as DomainName,
+                  data.data.consentContractAddress,
+                  tokenId,
+                  data.data.businessSignature ?? null,
+                ),
+                data.data.dataTypes
+                  ? DataPermissions.createWithPermissions(data.data.dataTypes)
+                  : null,
+              );
+            });
+          });
+        }, data.callId);
+      },
 
       leaveCohort: (
         data: IIFrameCallData<{
@@ -1040,5 +1058,12 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         });
       });
     });
+  }
+
+  private _getTokenId(tokenId: BigNumberString | undefined) {
+    if (tokenId) {
+      return okAsync(TokenId(BigInt(tokenId)));
+    }
+    return this.cryptoUtils.getTokenId();
   }
 }
